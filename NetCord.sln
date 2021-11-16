@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31410.414
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord", "NetCord\NetCord.csproj", "{802F5245-48E0-4554-ABA7-F4E8DAD47E52}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test", "NetCord.Test\NetCord.Test.csproj", "{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.WebSockets", "NetCord.WebSockets\NetCord.WebSockets.csproj", "{C93FAD23-6542-4F98-BAF5-CAC803C65248}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8B9CC088-2C2E-4AC4-B6E6-14A02DCBEF3E}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Commands", "NetCord.Commands\NetCord.Commands.csproj", "{399ACEBC-67CC-445D-827C-32D6A697A91C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Interactions", "NetCord.Interactions\NetCord.Interactions.csproj", "{1E206DE2-6A87-4E14-BA63-739382B9289B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{802F5245-48E0-4554-ABA7-F4E8DAD47E52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802F5245-48E0-4554-ABA7-F4E8DAD47E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802F5245-48E0-4554-ABA7-F4E8DAD47E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802F5245-48E0-4554-ABA7-F4E8DAD47E52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Release|Any CPU.Build.0 = Release|Any CPU
+		{399ACEBC-67CC-445D-827C-32D6A697A91C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{399ACEBC-67CC-445D-827C-32D6A697A91C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{399ACEBC-67CC-445D-827C-32D6A697A91C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{399ACEBC-67CC-445D-827C-32D6A697A91C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E206DE2-6A87-4E14-BA63-739382B9289B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E206DE2-6A87-4E14-BA63-739382B9289B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E206DE2-6A87-4E14-BA63-739382B9289B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E206DE2-6A87-4E14-BA63-739382B9289B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}
+	EndGlobalSection
+EndGlobal
