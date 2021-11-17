@@ -30,10 +30,10 @@ public class GuildUser : User
 
     public Guild Guild { get; }
 
-    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, DiscordId guildId, BotClient client) : base(jsonEntity.User, client)
+    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, Guild guild, BotClient client) : base(jsonEntity.User, client)
     {
         _jsonGuildEntity = jsonEntity;
-        Guild = client.GetGuild(guildId);
+        Guild = guild;
     }
 
     public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func)
