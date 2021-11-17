@@ -33,7 +33,7 @@ public abstract class Interaction : ClientEntity
         if (client.TryGetGuild(jsonEntity.GuildId, out Guild guild))
         {
             Guild = guild;
-            User = new GuildUser(jsonEntity.GuildUser, client, Guild);
+            User = new GuildUser(jsonEntity.GuildUser, Guild, client);
         }
         else
             User = new User(jsonEntity.User, client);

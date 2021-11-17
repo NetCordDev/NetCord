@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 public class GuildUser : User
 {
@@ -32,20 +30,14 @@ public class GuildUser : User
 
     public Guild Guild { get; }
 
-    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, BotClient client, Guild guild) : base(jsonEntity.User, client)
+    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, DiscordId guildId, BotClient client) : base(jsonEntity.User, client)
     {
         _jsonGuildEntity = jsonEntity;
-        Guild = guild;
+        Guild = client.GetGuild(guildId);
     }
 
-    public async Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func)
-    {
-        GuildUserProperties properties = new();
-        func.Invoke(properties);
-        var message = JsonSerializer.Serialize(properties);
-        var result = await CDN.SendAsync(HttpMethod.Patch, message, $"/guilds/{Guild.Id}/members/{Id}", _client).ConfigureAwait(false);
-        return new(result.ToObject<JsonModels.JsonGuildUser>(), _client, Guild);
-    }
+    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func)
+        => GuildUserHelper.ModifyUserAsync(_client, Guild, Id, func);
 
     public Task KickAsync() => Guild.KickUserAsync(Id);
     public Task KickAsync(string reason) => Guild.KickUserAsync(Id, reason);
@@ -68,4 +60,12 @@ public class GuildUser : User
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
     public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => GuildUserHelper.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash, format, size);
+
+    public Task AddRoleAsync(DiscordId roleId) => GuildUserHelper.AddUserRoleAsync(_client, Guild, Id, roleId);
+
+    public Task AddRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.AddUserRoleAsync(_client, Guild, Id, roleId, reason);
+
+    public Task RemoveRoleAsync(DiscordId roleId) => GuildUserHelper.RemoveUserRoleAsync(_client, Guild, Id, roleId);
+
+    public Task RemoveRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.RemoveUserRoleAsync(_client, Guild, Id, roleId, reason);
 }

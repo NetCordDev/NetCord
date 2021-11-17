@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Text.Json;
+
+namespace NetCord;
 
 public static class GuildUserHelper
 {
@@ -26,4 +28,25 @@ public static class GuildUserHelper
         else
             throw new InvalidOperationException("This user has no guild avatar");
     }
+
+    public static async Task<GuildUser> ModifyUserAsync(BotClient client, DiscordId guildId, DiscordId userId, Action<GuildUserProperties> func)
+    {
+        GuildUserProperties properties = new();
+        func.Invoke(properties);
+        var message = JsonSerializer.Serialize(properties);
+        var result = await CDN.SendAsync(HttpMethod.Patch, message, $"/guilds/{guildId}/members/{userId}", client).ConfigureAwait(false);
+        return new(result.ToObject<JsonModels.JsonGuildUser>(), guildId, client);
+    }
+
+    public static Task AddUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
+        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client);
+
+    public static Task AddUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
+        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client, reason);
+
+    public static Task RemoveUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
+        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client);
+
+    public static Task RemoveUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
+        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client, reason);
 }

@@ -68,7 +68,7 @@ public class Message : ClientEntity
             if (jsonEntity.Member == null || !client.TryGetGuild(jsonEntity.GuildId, out Guild guild))
                 Author = new(jsonEntity.Author, client);
             else
-                Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, client, guild);
+                Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, guild, client);
         }
         MentionedUsers = jsonEntity.MentionedUsers.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
         MentionedRoles = jsonEntity.MentionedRoles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));

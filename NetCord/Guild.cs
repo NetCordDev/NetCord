@@ -123,7 +123,7 @@ public class Guild : ClientEntity
 
         _voiceStates = _jsonEntity.VoiceStates.ToDictionaryOrEmpty(s => s.UserId, s => new VoiceState(s));
         _users = _jsonEntity.Users.ToDictionaryOrEmpty(u => u.User.Id,
-            u => new GuildUser(u, client, this));
+            u => new GuildUser(u, this, client));
 
         _channels = _jsonEntity.Channels.ToDictionaryOrEmpty(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
         _activeThreads = _jsonEntity.ActiveThreads.ToDictionaryOrEmpty(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));

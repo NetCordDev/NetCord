@@ -94,13 +94,13 @@ namespace NetCord
                     {
                         g.MemberCount++;
                         g.ApproximateMemberCount++;
-                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, c, g));
+                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
                     }
                     break;
                 case "GUILD_MEMBER_UPDATE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, c, g));
+                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
                     break;
                 case "GUILD_MEMBER_REMOVE":
                     property = jsonElement.GetProperty("d");
