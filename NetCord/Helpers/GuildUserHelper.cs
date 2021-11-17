@@ -38,15 +38,15 @@ public static class GuildUserHelper
         return new(result.ToObject<JsonModels.JsonGuildUser>(), client.GetGuild(guildId), client);
     }
 
-    public static Task AddUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
+    public static Task AddRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
         => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client);
 
-    public static Task AddUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
+    public static Task AddRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
         => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client, reason);
 
-    public static Task RemoveUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
-        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client);
+    public static Task RemoveRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)
+        => CDN.SendAsync(HttpMethod.Delete, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client);
 
-    public static Task RemoveUserRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
-        => CDN.SendAsync(HttpMethod.Put, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client, reason);
+    public static Task RemoveRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId, string reason)
+        => CDN.SendAsync(HttpMethod.Delete, $"/guilds/{guildId}/members/{userId}/roles/{roleId}", client, reason);
 }

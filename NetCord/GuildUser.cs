@@ -61,11 +61,11 @@ public class GuildUser : User
     /// <returns></returns>
     public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => GuildUserHelper.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash, format, size);
 
-    public Task AddRoleAsync(DiscordId roleId) => GuildUserHelper.AddUserRoleAsync(_client, Guild, Id, roleId);
+    public Task AddRoleAsync(DiscordId roleId) => GuildUserHelper.AddRoleAsync(_client, Guild, Id, roleId);
 
-    public Task AddRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.AddUserRoleAsync(_client, Guild, Id, roleId, reason);
+    public Task AddRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.AddRoleAsync(_client, Guild, Id, roleId, reason);
 
-    public Task RemoveRoleAsync(DiscordId roleId) => GuildUserHelper.RemoveUserRoleAsync(_client, Guild, Id, roleId);
+    public Task RemoveRoleAsync(DiscordId roleId) => GuildUserHelper.RemoveRoleAsync(_client, Guild, Id, roleId);
 
-    public Task RemoveRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.RemoveUserRoleAsync(_client, Guild, Id, roleId, reason);
+    public Task RemoveRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.RemoveRoleAsync(_client, Guild, Id, roleId, reason);
 }
