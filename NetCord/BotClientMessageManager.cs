@@ -145,10 +145,10 @@ namespace NetCord
                     if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
                     {
                         var channel = await GetChannelAsync(channelId).ConfigureAwait(false);
-                        if (channel is DMChannel dMChannel)
-                            _DMChannels[channelId] = dMChannel;
-                        else if (channel is GroupDMChannel groupDMChannel)
+                        if (channel is GroupDMChannel groupDMChannel)
                             _groupDMChannels[channelId] = groupDMChannel;
+                        else if(channel is DMChannel dMChannel)
+                            _DMChannels[channelId] = dMChannel;
                     }
                     MessageReceived?.Invoke(new UserMessage(jsonMessage, this));
                     break;
@@ -171,10 +171,10 @@ namespace NetCord
                     User = ready.User;
                     foreach (var channel in ready.DMChannels)
                     {
-                        if (channel is DMChannel dm)
-                            _DMChannels.Add(dm.Id, dm);
-                        else if (channel is GroupDMChannel groupDm)
+                        if (channel is GroupDMChannel groupDm)
                             _groupDMChannels.Add(groupDm.Id, groupDm);
+                        else if (channel is DMChannel dm)
+                            _DMChannels.Add(dm.Id, dm);
                     }
                     SessionId = ready.SessionId;
                     ApplicationId = ready.Application?.Id;
@@ -201,7 +201,7 @@ namespace NetCord
                 propertyToUpdate[obj.Id] = obj;
         }
 
-        private void AddUpdateOrDelete(JsonElement jsonElement, Dictionary<DiscordId, VoiceState> propertyToUpdate)
+        private static void AddUpdateOrDelete(JsonElement jsonElement, Dictionary<DiscordId, VoiceState> propertyToUpdate)
         {
             JsonVoiceState obj = jsonElement.ToObject<JsonVoiceState>();
             if (obj.ChannelId == null)
