@@ -2,7 +2,7 @@
 
 namespace NetCord.Test.Commands;
 
-public class ModCommands : CommandModule<CustomCommandContext>
+public class ModCommands : CommandModule
 {
     [Command("kick")]
     public Task Kick(GuildUser user, [Remainder] string reason = null)

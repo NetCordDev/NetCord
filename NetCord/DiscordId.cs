@@ -38,10 +38,6 @@ public class DiscordId : IConvertible
         _value = id;
     }
 
-    private DiscordId()
-    {
-    }
-
     public static bool operator ==(DiscordId left, DiscordId right) => left?._value == right?._value;
 
     public static bool operator !=(DiscordId left, DiscordId right) => !(left == right);

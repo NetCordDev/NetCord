@@ -4,7 +4,7 @@ using NetCord.Commands;
 
 namespace NetCord.Test;
 
-public class StrangeCommands : CommandModule<CustomCommandContext>
+public class StrangeCommands : CommandModule
 {
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
     public async Task SayDM([Remainder] string text)

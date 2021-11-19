@@ -42,9 +42,25 @@ namespace NetCord
             switch (jsonElement.GetProperty("t").GetString())
             {
                 // guild events
-                case "GUILD_CREATE": AddOrUpdate(jsonElement.GetProperty("d"), _guilds, (JsonGuild j, BotClient c) => new Guild(j, c)); break;
-                case "GUILD_UPDATE": break;
-                case "GUILD_DELETE": TryRemove(jsonElement.GetProperty("d"), _guilds); break;
+                case "GUILD_CREATE":
+                    AddOrUpdate(jsonElement.GetProperty("d"), _guilds, (JsonGuild j, BotClient c) => new Guild(j, c));
+                    break;
+                case "GUILD_UPDATE":
+                    AddOrUpdate(jsonElement.GetProperty("d"), _guilds, (JsonGuild j, Guild g, BotClient c) =>
+                    {
+                        return new(j with { CreatedAt = g.CreatedAt, IsLarge = g.IsLarge, MemberCount = g.MemberCount }, c)
+                        {
+                            _voiceStates = g._voiceStates,
+                            _users = g._users,
+                            _channels = g._channels,
+                            _activeThreads = g._activeThreads,
+                            _presences = g._presences,
+                        };
+                    });
+                    break;
+                case "GUILD_DELETE":
+                    TryRemove(jsonElement.GetProperty("d"), _guilds);
+                    break;
                 case "GUILD_ROLE_CREATE":
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
@@ -199,6 +215,16 @@ namespace NetCord
             TType obj = constructor(jsonObj, this);
             lock (propertyToUpdate)
                 propertyToUpdate[obj.Id] = obj;
+        }
+
+        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, Dictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, TType, BotClient, TType> constructor) where TType : IEntity where TJsonType : JsonEntity
+        {
+            var jsonObj = jsonElement.ToObject<TJsonType>();
+            lock (propertyToUpdate)
+            {
+                TType obj = constructor(jsonObj, propertyToUpdate[jsonObj.Id], this);
+                propertyToUpdate[obj.Id] = obj;
+            }
         }
 
         private static void AddUpdateOrDelete(JsonElement jsonElement, Dictionary<DiscordId, VoiceState> propertyToUpdate)

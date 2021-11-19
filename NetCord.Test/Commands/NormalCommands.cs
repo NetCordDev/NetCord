@@ -2,7 +2,7 @@
 
 namespace NetCord.Test;
 
-public class NormalCommands : CommandModule<CustomCommandContext>
+public class NormalCommands : CommandModule
 {
     [Command("say")]
     public Task Say([Remainder] string text)

@@ -4,7 +4,7 @@
     {
         private readonly JsonModels.JsonPresence _jsonEntity;
 
-        public User User { get; }
+        public DiscordId UserId => _jsonEntity.User.Id;
         public DiscordId GuildId => _jsonEntity.GuildId;
         public UserStatus Status => _jsonEntity.Status;
         public IEnumerable<UserActivity> Activities { get; }

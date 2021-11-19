@@ -15,6 +15,7 @@ public class Guild : ClientEntity
     internal Dictionary<DiscordId, Role> _roles;
     internal Dictionary<DiscordId, Emoji> _emojis;
     internal Dictionary<DiscordId, StageInstance> _stageInstances;
+    internal Dictionary<DiscordId, Presence> _presences;
 
     public override DiscordId Id => _jsonEntity.Id;
     public string Name => _jsonEntity.Name;
@@ -22,8 +23,9 @@ public class Guild : ClientEntity
     public string? IconHash => _jsonEntity.IconHash;
     public string? Splash => _jsonEntity.Splash;
     public string? DiscoverySplash => _jsonEntity.DiscoverySplash;
-    public bool? IsOwner => _jsonEntity.IsOwner;
+    //public bool? IsOwner => _jsonEntity.IsOwner;
     public DiscordId OwnerId => _jsonEntity.OwnerId;
+    public GuildUser Owner => GetUser(OwnerId);
     public string? Permissions => _jsonEntity.Permissions;
     public string? Region => _jsonEntity.Region;
     public DiscordId? AfkChannelId => _jsonEntity.AfkChannelId;
@@ -83,7 +85,14 @@ public class Guild : ClientEntity
                 return _activeThreads.Values.AsEnumerable();
         }
     }
-    public IEnumerable<Presence> Presences { get; }
+    public IEnumerable<Presence> Presences
+    {
+        get
+        {
+            lock (_presences)
+                return _presences.Values.AsEnumerable();
+        }
+    }
     public int? MaxPresences => _jsonEntity.MaxPresences;
     public int? MaxMembers => _jsonEntity.MaxMembers;
     public string? VanityUrlCode => _jsonEntity.VanityUrlCode;
@@ -133,7 +142,7 @@ public class Guild : ClientEntity
         Stickers = _jsonEntity.Stickers.SelectOrEmpty(s => new GuildSticker(s, client));
         MemberCount = _jsonEntity.MemberCount;
         ApproximateMemberCount = _jsonEntity.ApproximateMemberCount;
-        Presences = _jsonEntity.Presences.SelectOrEmpty(p => new Presence(p, client));
+        _presences = _jsonEntity.Presences.ToDictionaryOrEmpty(p => p.User.Id, p => new Presence(p, client));
     }
 
     public bool TryGetUser(DiscordId id, [NotNullWhen(true)] out GuildUser? user)

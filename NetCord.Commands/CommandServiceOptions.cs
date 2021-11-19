@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace NetCord.Commands
 {
+    public class CommandServiceOptions : CommandServiceOptions<CommandContext>
+    {
+    }
 
     public class CommandServiceOptions<TContext> where TContext : ICommandContext
     {

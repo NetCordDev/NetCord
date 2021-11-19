@@ -18,4 +18,8 @@
         public Task<Message> SendAsync(string content) => Context.Channel.SendMessageAsync(content);
         public Task<Message> SendAsync(BuiltMessage message) => Context.Channel.SendMessageAsync(message);
     }
+
+    public abstract class CommandModule : CommandModule<CommandContext>
+    {
+    }
 }

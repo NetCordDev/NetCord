@@ -2,6 +2,10 @@
 
 namespace NetCord.Interactions
 {
+    public class InteractionService : InteractionService<ButtonInteractionContext, MenuInteractionContext>
+    {
+    }
+
     public class InteractionService<TButtonInteractionContext, UMenuInteractionContext> where TButtonInteractionContext : IButtonInteractionContext where UMenuInteractionContext : IMenuInteractionContext
     {
         private readonly Dictionary<string, InteractionInfo> _actionButtonInteractions = new();
@@ -26,7 +30,7 @@ namespace NetCord.Interactions
 
         private void AddButtonModules(Type[] types)
         {
-            IEnumerable<MethodInfo[]> methodsEnumerable = types.Where(x => x.IsAssignableTo(typeof(BaseButtonInteractionModule<TButtonInteractionContext>))).Select(x => x.GetMethods());
+            IEnumerable<MethodInfo[]> methodsEnumerable = types.Where(x => x.IsAssignableTo(typeof(ButtonInteractionModule<TButtonInteractionContext>))).Select(x => x.GetMethods());
             foreach (MethodInfo[] methods in methodsEnumerable)
             {
                 foreach (MethodInfo method in methods)
@@ -44,7 +48,7 @@ namespace NetCord.Interactions
 
         private void AddMenuModules(Type[] types)
         {
-            IEnumerable<MethodInfo[]> methodsEnumerable = types.Where(x => x.IsAssignableTo(typeof(BaseMenuInteractionModule<UMenuInteractionContext>))).Select(x => x.GetMethods());
+            IEnumerable<MethodInfo[]> methodsEnumerable = types.Where(x => x.IsAssignableTo(typeof(MenuInteractionModule<UMenuInteractionContext>))).Select(x => x.GetMethods());
             foreach (MethodInfo[] methods in methodsEnumerable)
             {
                 foreach (MethodInfo method in methods)
@@ -64,7 +68,7 @@ namespace NetCord.Interactions
         {
             if (_actionButtonInteractions.TryGetValue(context.Interaction.Data.CustomId, out var interactionInfo))
             {
-                var methodClass = (BaseButtonInteractionModule<TButtonInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
+                var methodClass = (ButtonInteractionModule<TButtonInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
                 methodClass.Context = context;
                 await interactionInfo.InvokeAsync(methodClass).ConfigureAwait(false);
             }
@@ -76,7 +80,7 @@ namespace NetCord.Interactions
         {
             if (_menuInteractions.TryGetValue(context.Interaction.Data.CustomId, out var interactionInfo))
             {
-                var methodClass = (BaseMenuInteractionModule<UMenuInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
+                var methodClass = (MenuInteractionModule<UMenuInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
                 methodClass.Context = context;
                 return interactionInfo.InvokeAsync(methodClass);
             }

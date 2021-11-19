@@ -5,17 +5,17 @@ namespace NetCord.JsonModels;
 internal record JsonPresence
 {
     [JsonPropertyName("user")]
-    public JsonUser User { get; private init; }
+    public JsonEntity User { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; private init; }
+    public DiscordId GuildId { get; init; }
 
     [JsonPropertyName("status")]
-    public UserStatus Status { get; private init; }
+    public UserStatus Status { get; init; }
 
     [JsonPropertyName("activities")]
-    public JsonUserActivity[] Activities { get; private init; }
+    public JsonUserActivity[] Activities { get; init; }
 
     [JsonPropertyName("client_status")]
-    public Dictionary<Platform, UserStatus> Platform { get; private init; }
+    public Dictionary<Platform, UserStatus> Platform { get; init; }
 }
