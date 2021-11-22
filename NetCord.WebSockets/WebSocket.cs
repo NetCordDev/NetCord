@@ -11,12 +11,15 @@ public class WebSocket
     private bool _closed;
     private Task _readAsync;
 
-    public event Func<Task> Connecting;
-    public event Func<Task> Connected;
-    public event Func<Task> Disconnected;
-    public event Func<Task> Closed;
+    public event Action Connecting;
+    public event Action Connected;
+    public event DisconnectedEventHandler Disconnected;
+    public event Action Closed;
 
-    public event Func<MemoryStream, Task> MessageReceived;
+    public event MessageReceivedEventHandler MessageReceived;
+
+    public delegate void DisconnectedEventHandler(WebSocketCloseStatus? closeStatus, string? closeStatusDescription);
+    public delegate void MessageReceivedEventHandler(MemoryStream data);
 
     /// <summary>
     /// Gets or sets the default encoding
@@ -123,10 +126,9 @@ public class WebSocket
                     var r = await _webSocket.ReceiveAsync(_receiveBuffer, default).ConfigureAwait(false);
                     if (r.EndOfMessage)
                     {
-                        await stream.WriteAsync(_receiveBuffer[..r.Count]).ConfigureAwait(false);
-
                         if (r.MessageType != WebSocketMessageType.Close)
                         {
+                            await stream.WriteAsync(_receiveBuffer[..r.Count]).ConfigureAwait(false);
                             try
                             {
                                 MessageReceived?.Invoke(stream);
@@ -147,9 +149,9 @@ public class WebSocket
             try
             {
                 if (_closed)
-                    _ = Closed?.Invoke();
+                    Closed?.Invoke();
                 else
-                    _ = Disconnected?.Invoke();
+                    Disconnected?.Invoke(_webSocket.CloseStatus, _webSocket.CloseStatusDescription);
             }
             catch
             {

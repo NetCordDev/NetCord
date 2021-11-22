@@ -7,10 +7,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
     <PackageTags>discord;discordapp;bot</PackageTags>
-    <PackageIcon>NetCord.png</PackageIcon>
+    <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha</VersionSuffix>
+    <VersionSuffix>alpha2</VersionSuffix>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\Downloads\NetCord.png">
+    <None Include="..\..\..\..\..\Desktop\NetCordLogo\png\Small.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

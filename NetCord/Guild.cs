@@ -51,7 +51,7 @@ public class Guild : ClientEntity
                 return _emojis.Values.AsEnumerable();
         }
     }
-    public SocketGuildFeatures Features { get; }
+    public GuildFeatures Features { get; }
     public MFALevel MFALevel => _jsonEntity.MFALevel;
     public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
     public DiscordId? SystemChannelId => _jsonEntity.SystemChannelId;

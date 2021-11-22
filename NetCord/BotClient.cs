@@ -21,21 +21,26 @@ namespace NetCord
         internal readonly WebSocket _websocket = new(new(Discord.GatewayUrl));
         internal readonly HttpClient _httpClient = new();
         private CancellationTokenSource _tokenSource;
+        private CancellationToken _token;
 
-        //private readonly DiscordSocketClientConfig config;
+        private readonly ClientConfig _config;
 
-        public event Func<Task> Connecting;
-        public event Func<Task> Connected;
-        public event Func<Task> Disconnected;
-        public event Func<Task> Closed;
-        public event Func<Task> Ready;
+        public event Action Connecting;
+        public event Action Connected;
+        public event Action Disconnected;
+        public event Action Closed;
+        public event Action Ready;
 
-        public event Func<string, LogType, Task> Log;
+        public event LogEventHandler Log;
 
-        public event Func<UserMessage, Task> MessageReceived;
-        public event Func<MenuInteraction, Task> MenuInteractionCreated;
-        public event Func<ButtonInteraction, Task> ButtonInteractionCreated;
-        public event Func<ApplicationCommandInteraction, Task> ApplicationCommandInteractionCreated;
+        public event MessageReceivedEventHandler MessageReceived;
+        public event InteractionCreated<MenuInteraction> MenuInteractionCreated;
+        public event InteractionCreated<ButtonInteraction> ButtonInteractionCreated;
+        //public event InteractionCreated<ApplicationCommandInteraction> ApplicationCommandInteractionCreated;
+
+        public delegate void LogEventHandler(string text, LogType type);
+        public delegate void MessageReceivedEventHandler(UserMessage message);
+        public delegate void InteractionCreated<T>(T interaction);
 
         public string SessionId { get; private set; }
         public int SequenceNumber { get; private set; }
@@ -49,98 +54,84 @@ namespace NetCord
             _botToken = token;
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {_botToken}");
             _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
+            _config = new();
+        }
+
+        public BotClient(string token, TokenType tokenType, ClientConfig config) : this(token, tokenType)
+        {
+            _config = config;
         }
 
         private void SetupWebSocket()
         {
             _websocket.Connecting += () =>
             {
+                LogInfo("Connecting", LogType.Gateway);
                 try
                 {
-                    Log?.Invoke("Connecting", LogType.Gateway);
+                    Connecting?.Invoke();
                 }
-                finally
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        Connecting?.Invoke();
-                    }
-                    catch
-                    {
-                    }
+                    LogInfo(ex.Message, LogType.Exception);
                 }
-                return Task.CompletedTask;
             };
             _websocket.Connected += () =>
             {
-                _tokenSource = new();
+                _token = (_tokenSource = new()).Token;
+                LogInfo("Connected", LogType.Gateway);
                 try
                 {
-                    _ = Log?.Invoke("Connected", LogType.Gateway);
+                    Connected?.Invoke();
                 }
-                finally
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        _ = Connected?.Invoke();
-                    }
-                    catch
-                    {
-
-                    }
+                    LogInfo(ex.Message, LogType.Exception);
                 }
-                return Task.CompletedTask;
             };
-            _websocket.Disconnected += () =>
+            _websocket.Disconnected += async (closeStatus, description) =>
             {
                 _tokenSource.Cancel();
-                try
+                if (string.IsNullOrEmpty(description))
                 {
-                    Log?.Invoke("Disconnected", LogType.Gateway);
-                }
-                finally
-                {
+                    LogInfo("Disconnected", LogType.Gateway);
                     try
                     {
                         Disconnected?.Invoke();
                     }
-                    finally
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            _ = ResumeAsync();
-                        }
-                        catch
-                        {
-                        }
+                        LogInfo(ex.Message, LogType.Exception);
+                    }
+                    try
+                    {
+                        await ResumeAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogInfo(ex.Message, LogType.Exception);
                     }
                 }
-                return Task.CompletedTask;
+                else
+                    LogInfo($"Disconnected because of: {description}", LogType.Exception);
             };
             _websocket.Closed += () =>
             {
                 _tokenSource.Cancel();
+                LogInfo("Closed", LogType.Gateway);
                 try
                 {
-                    Log?.Invoke("Closed", LogType.Gateway);
+                    Closed?.Invoke();
                 }
-                finally
+                catch (Exception ex)
                 {
-                    try
-                    {
-                        Closed?.Invoke();
-                    }
-                    catch
-                    {
-                    }
+                    LogInfo(ex.Message, LogType.Exception);
                 }
-                return Task.CompletedTask;
             };
-            _websocket.MessageReceived += (MemoryStream stream) =>
+            _websocket.MessageReceived += (MemoryStream data) =>
             {
-                var json = JsonDocument.Parse(stream.ToArray());
+                var json = JsonDocument.Parse(data.ToArray());
                 ProcessMessage(json);
-                return Task.CompletedTask;
             };
         }
 
@@ -160,7 +151,7 @@ namespace NetCord
   ""op"": 2,
   ""d"": {
     ""token"": """ + _botToken + @""",
-    ""intents"": 32767,
+    ""intents"": " + ((uint)_config.Intents) + @",
     ""properties"": {
       ""$os"": ""linux"",
       ""$browser"": ""NetCord"",
@@ -169,7 +160,7 @@ namespace NetCord
     ""large_threshold"": 250
   }
 }";
-            return _websocket.SendAsync(authorizationMessage);
+            return _websocket.SendAsync(authorizationMessage, _token);
         }
 
         private async Task ResumeAsync()
@@ -184,7 +175,18 @@ namespace NetCord
     ""seq"": " + SequenceNumber + @"
   }
 }";
-            await _websocket.SendAsync(resumeMessage).ConfigureAwait(false);
+            await _websocket.SendAsync(resumeMessage, _token).ConfigureAwait(false);
+        }
+
+        private void LogInfo(string text, LogType type)
+        {
+            try
+            {
+                Log?.Invoke(text, type);
+            }
+            catch
+            {
+            }
         }
 
         /// <summary>
@@ -205,7 +207,7 @@ namespace NetCord
             {
                 try
                 {
-                    await timer.WaitForNextTickAsync(_tokenSource.Token).ConfigureAwait(false);
+                    await timer.WaitForNextTickAsync(_token).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -214,7 +216,7 @@ namespace NetCord
                 await _websocket.SendAsync(@"{
   ""op"": 1,
   ""d"": " + (SequenceNumber.ToString() ?? "null") + @"
-}", _tokenSource.Token).ConfigureAwait(false);
+}", _token).ConfigureAwait(false);
             }
         }
 

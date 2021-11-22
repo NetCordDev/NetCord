@@ -7,7 +7,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly BotClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot);
+    private static readonly BotClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = Intents.All });
     private static readonly CommandService _commandService = new();
     private static readonly InteractionService _interactionService = new();
 
@@ -24,7 +24,7 @@ internal static class Program
         await Task.Delay(-1);
     }
 
-    private static async Task Client_MenuInteractionCreated(MenuInteraction interaction)
+    private static async void Client_MenuInteractionCreated(MenuInteraction interaction)
     {
         try
         {
@@ -36,7 +36,7 @@ internal static class Program
         }
     }
 
-    private static async Task Client_ButtonInteractionCreated(ButtonInteraction interaction)
+    private static async void Client_ButtonInteractionCreated(ButtonInteraction interaction)
     {
         try
         {
@@ -48,7 +48,7 @@ internal static class Program
         }
     }
 
-    private async static Task Client_MessageReceived(UserMessage message)
+    private async static void Client_MessageReceived(UserMessage message)
     {
         if (!message.Author.IsBot)
         {
@@ -66,12 +66,20 @@ internal static class Program
             }
         }
     }
-
-    private static Task Client_Log(string text, LogType type)
+    
+    private static void Client_Log(string text, LogType type)
     {
-        Console.ForegroundColor = ConsoleColor.Cyan;
-        Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
-        Console.ResetColor();
-        return Task.CompletedTask;
+        if (type == LogType.Gateway)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
+            Console.ResetColor();
+        }
+        else if (type == LogType.Exception)
+        {
+            Console.ForegroundColor = ConsoleColor.DarkRed;
+            Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
+            Console.ResetColor();
+        }
     }
 }

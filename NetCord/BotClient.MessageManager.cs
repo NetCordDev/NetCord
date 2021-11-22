@@ -17,17 +17,30 @@ namespace NetCord
             var rootElement = message.RootElement;
             switch (rootElement.GetProperty("op").GetInt32())
             {
-                case 0: UpdateSequenceNumber(rootElement); ProcessEvent(rootElement); break;
+                case 0:
+                    UpdateSequenceNumber(rootElement);
+                    ProcessEvent(rootElement);
+                    break;
                 //case 1: break;
                 //case 2: break;
                 //case 3: break;
                 //case 4: break;
                 //case 5: break;
                 //case 6: break;
-                case 7: try { Log?.Invoke("Reconnect request", LogType.Gateway); } finally { await _websocket.CloseAsync().ConfigureAwait(false); _ = ResumeAsync(); } break;
+                case 7:
+                    LogInfo("Reconnect request", LogType.Gateway);
+                    await _websocket.CloseAsync().ConfigureAwait(false);
+                    _ = ResumeAsync();
+                    break;
                 //case 8: break;
-                case 9: Log?.Invoke("Invalid session", LogType.Gateway); await Task.Delay(1000).ConfigureAwait(false); _ = SendIdentifyAsync(); break;
-                case 10: BeginHeartbeatAsync(rootElement); break;
+                case 9:
+                    LogInfo("Invalid session", LogType.Gateway);
+                    await Task.Delay(1000).ConfigureAwait(false);
+                    _ = SendIdentifyAsync();
+                    break;
+                case 10:
+                    BeginHeartbeatAsync(rootElement);
+                    break;
                 //case 11: break;
             }
         }
@@ -166,7 +179,14 @@ namespace NetCord
                         else if (channel is DMChannel dMChannel)
                             _DMChannels[channelId] = dMChannel;
                     }
-                    MessageReceived?.Invoke(new UserMessage(jsonMessage, this));
+                    try
+                    {
+                        MessageReceived?.Invoke(new UserMessage(jsonMessage, this));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogInfo(ex.Message, LogType.Exception);
+                    }
                     break;
                 case "MESSAGE_UPDATE": break;
                 case "MESSAGE_DELETE": break;
@@ -195,14 +215,21 @@ namespace NetCord
                     SessionId = ready.SessionId;
                     ApplicationId = ready.Application?.Id;
                     ApplicationFlags = ready.Application?.Flags;
-                    Log?.Invoke("Ready", LogType.Gateway);
-                    Ready?.Invoke();
+                    LogInfo("Ready", LogType.Gateway);
+                    try
+                    {
+                        Ready?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        LogInfo(ex.Message, LogType.Exception);
+                    }
                     break;
                 case "INTERACTION_CREATE":
                     InvokeInteractionCreated(jsonElement.GetProperty("d"));
                     break;
                 case "RESUMED":
-                    Log?.Invoke("Resumed previous session", LogType.Gateway);
+                    LogInfo("Resumed previous session", LogType.Gateway);
                     break;
             }
         }
@@ -272,21 +299,35 @@ namespace NetCord
             var type = interaction.Type;
             if (type == InteractionType.ApplicationCommand)
             {
-                if (ApplicationCommandInteractionCreated != null)
-                {
+                //if (ApplicationCommandInteractionCreated != null)
+                //{
 
-                }
+                //}
             }
             else if (type == InteractionType.MessageComponent)
             {
                 var componentType = interaction.Data.ComponentType;
                 if (componentType == MessageComponentType.Button)
                 {
-                    ButtonInteractionCreated?.Invoke(new ButtonInteraction(interaction, this));
+                    try
+                    {
+                        ButtonInteractionCreated?.Invoke(new ButtonInteraction(interaction, this));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogInfo(ex.Message, LogType.Exception);
+                    }
                 }
                 else if (componentType == MessageComponentType.Menu)
                 {
-                    MenuInteractionCreated?.Invoke(new MenuInteraction(interaction, this));
+                    try
+                    {
+                        MenuInteractionCreated?.Invoke(new MenuInteraction(interaction, this));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogInfo(ex.Message, LogType.Exception);
+                    }
                 }
             }
         }
