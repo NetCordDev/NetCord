@@ -185,6 +185,12 @@ public class StrangeCommands : CommandModule
         );
         return SendAsync(message.Build());
     }
+
+    [Command("timestamp")]
+    public Task Timestamp([Remainder] DateTime time)
+    {
+        return ReplyAsync($"\\{new Timestamp(time)}");
+    }
 }
 
 public enum Wzium

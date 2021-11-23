@@ -34,13 +34,13 @@ namespace NetCord
         public event LogEventHandler Log;
 
         public event MessageReceivedEventHandler MessageReceived;
-        public event InteractionCreated<MenuInteraction> MenuInteractionCreated;
-        public event InteractionCreated<ButtonInteraction> ButtonInteractionCreated;
-        //public event InteractionCreated<ApplicationCommandInteraction> ApplicationCommandInteractionCreated;
+        public event InteractionCreatedEventHandler<MenuInteraction> MenuInteractionCreated;
+        public event InteractionCreatedEventHandler<ButtonInteraction> ButtonInteractionCreated;
+        //public event InteractionCreatedEventHandler<ApplicationCommandInteraction> ApplicationCommandInteractionCreated;
 
         public delegate void LogEventHandler(string text, LogType type);
         public delegate void MessageReceivedEventHandler(UserMessage message);
-        public delegate void InteractionCreated<T>(T interaction);
+        public delegate void InteractionCreatedEventHandler<T>(T interaction);
 
         public string SessionId { get; private set; }
         public int SequenceNumber { get; private set; }
