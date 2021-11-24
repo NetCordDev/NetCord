@@ -51,10 +51,7 @@ public static class CDN
             if (!IsErrorResponse(json))
                 return json;
             else
-            {
-                s.Seek(0, SeekOrigin.Begin);
-                throw new Exceptions.HttpException(new StreamReader(s).ReadToEnd());
-            }
+                throw new Exceptions.HttpException(json);
         }
     }
 
@@ -90,10 +87,7 @@ public static class CDN
             if (!IsErrorResponse(json))
                 return json;
             else
-            {
-                s.Seek(0, SeekOrigin.Begin);
-                throw new Exceptions.HttpException(new StreamReader(s).ReadToEnd());
-            }
+                throw new Exceptions.HttpException(json);
         }
     }
 
@@ -136,10 +130,7 @@ public static class CDN
             if (!IsErrorResponse(json))
                 return json;
             else
-            {
-                s.Seek(0, SeekOrigin.Begin);
-                throw new Exceptions.HttpException(new StreamReader(s).ReadToEnd());
-            }
+                throw new Exceptions.HttpException(json);
         }
     }
 
@@ -167,10 +158,7 @@ public static class CDN
             if (!IsErrorResponse(json))
                 return json;
             else
-            {
-                s.Seek(0, SeekOrigin.Begin);
-                throw new Exceptions.HttpException(new StreamReader(s).ReadToEnd());
-            }
+                throw new Exceptions.HttpException(json);
         }
     }
 
@@ -197,10 +185,7 @@ public static class CDN
             if (!IsErrorResponse(json))
                 return json;
             else
-            {
-                s.Seek(0, SeekOrigin.Begin);
-                throw new Exceptions.HttpException(new StreamReader(s).ReadToEnd());
-            }
+                throw new Exceptions.HttpException(json);
         }
     }
 

@@ -13,6 +13,13 @@ public class StrangeCommands : CommandModule
         await channel.SendMessageAsync(text);
     }
 
+    [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
+    public async Task SayDM(UserId userId, [Remainder] string text)
+    {
+        var channel = await UserHelper.GetDMChannelAsync(Context.Client, userId);
+        await channel.SendMessageAsync(text);
+    }
+
     [Command("delete", "remove")]
     public Task Delete() => Context.Message.DeleteAsync();
 
