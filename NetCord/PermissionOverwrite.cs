@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class PermissionOverwrite : ClientEntity
+public class PermissionOverwrite : Entity
 {
     private readonly JsonModels.JsonPermissionOverwrite _jsonEntity;
 
@@ -8,13 +8,15 @@ public class PermissionOverwrite : ClientEntity
 
     public PermissionOverwriteType Type => _jsonEntity.Type;
 
-    public string Allowed => _jsonEntity.Allowed;
+    public PermissionFlags Allowed { get; }
 
-    public string Denied => _jsonEntity.Denied;
+    public PermissionFlags Denied { get; }
 
-    internal PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonEntity, BotClient client) : base(client)
+    internal PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonEntity)
     {
         _jsonEntity = jsonEntity;
+        Allowed = (PermissionFlags)ulong.Parse(jsonEntity.Allowed);
+        Denied = (PermissionFlags)ulong.Parse(jsonEntity.Denied);
     }
 }
 

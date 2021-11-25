@@ -15,8 +15,6 @@
 
         public IEnumerable<PermissionOverwrite> PermissionOverwrites { get; }
 
-        public Guild Guild { get; }
-
         internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
         {
         }

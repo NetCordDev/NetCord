@@ -8,7 +8,7 @@ internal record JsonParty : JsonEntity
     public JsonPartySize? Size { get; init; }
 }
 
-public class JsonPartySize
+internal record JsonPartySize
 {
     [JsonPropertyName("current_size")]
     public int CurrentSize { get; init; }

@@ -14,7 +14,7 @@
 
         public int Position => _jsonEntity.Position;
 
-        public string Permissions => _jsonEntity.Permissions;
+        public PermissionFlags Permissions { get; }
 
         public bool Managed => _jsonEntity.Managed;
 
@@ -25,7 +25,9 @@
         internal Role(JsonModels.JsonRole jsonEntity, BotClient client) : base(client)
         {
             _jsonEntity = jsonEntity;
-
+            if (jsonEntity.Tags != null)
+                Tags = new(jsonEntity.Tags);
+            Permissions = (PermissionFlags)ulong.Parse(jsonEntity.Permissions);
         }
 
         public override string ToString() => $"<@&{Id}>";

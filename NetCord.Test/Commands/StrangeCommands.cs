@@ -126,7 +126,6 @@ public class StrangeCommands : CommandModule
     [Command("wziumy")]
     public Task Wziumy(params Wzium[] wziumy)
     {
-        Wzium();
         return ReplyAsync(string.Join('\n', wziumy));
     }
 
@@ -197,6 +196,22 @@ public class StrangeCommands : CommandModule
     public Task Timestamp([Remainder] DateTime time)
     {
         return ReplyAsync($"\\{new Timestamp(time)}");
+    }
+
+    [Command("bot-avatar")]
+    public Task Avatar()
+    {
+        var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
+        if (newAvatar == null)
+            throw new Exception("Give an url or attachment");
+        return Avatar(new(newAvatar.Url));
+    }
+
+    [Command("bot-avatar")]
+    public async Task Avatar(Uri avatarUrl)
+    {
+        var a = await new HttpClient().GetByteArrayAsync(avatarUrl);
+        await Context.Client.User.ModifyAsync(p => p.Avatar = new(new("image/png"), Convert.ToBase64String(a)));
     }
 }
 

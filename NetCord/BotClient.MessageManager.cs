@@ -29,13 +29,12 @@ namespace NetCord
                 //case 6: break;
                 case 7:
                     LogInfo("Reconnect request", LogType.Gateway);
-                    await _websocket.CloseAsync().ConfigureAwait(false);
+                    await _webSocket.CloseAsync().ConfigureAwait(false);
                     _ = ResumeAsync();
                     break;
                 //case 8: break;
                 case 9:
                     LogInfo("Invalid session", LogType.Gateway);
-                    await Task.Delay(1000).ConfigureAwait(false);
                     _ = SendIdentifyAsync();
                     break;
                 case 10:
@@ -78,12 +77,12 @@ namespace NetCord
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out Guild g))
-                        AddOrUpdate(property, g._roles, (JsonRole r, BotClient c) => new Role(r, c));
+                        AddOrUpdate(property.GetProperty("role"), g._roles, (JsonRole r, BotClient c) => new Role(r, c));
                     break;
                 case "GUILD_ROLE_DELETE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        TryRemove(property, g._roles);
+                        TryRemove(property, g._roles, "role_id");
                     break;
                 case "CHANNEL_CREATE":
                 case "CHANNEL_UPDATE":
@@ -202,6 +201,7 @@ namespace NetCord
                 case "TYPING_START": break;
 
                 case "READY":
+                    _connectDelay = 0;
                     var d = jsonElement.GetProperty("d");
                     Ready ready = new(d.ToObject<JsonReady>(), this);
                     User = ready.User;
@@ -231,10 +231,13 @@ namespace NetCord
                 case "RESUMED":
                     LogInfo("Resumed previous session", LogType.Gateway);
                     break;
+                case "USER_UPDATE":
+                    User = new(jsonElement.GetProperty("d").ToObject<JsonUser>(), this);
+                    break;
             }
         }
 
-        private bool TryGetGuild(JsonElement jsonElement, [NotNullWhen(true)] out Guild? guild) => TryGetGuild(jsonElement.GetProperty("guild_id").ToObject<DiscordId>(), out guild);
+        private bool TryGetGuild(JsonElement jsonElement, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(jsonElement.GetProperty("guild_id").ToObject<DiscordId>(), out guild);
 
         private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, Dictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, BotClient, TType> constructor) where TType : IEntity
         {
@@ -269,9 +272,9 @@ namespace NetCord
             }
         }
 
-        private static void TryRemove<T>(JsonElement jsonElement, Dictionary<DiscordId, T> propertyToUpdate)
+        private static void TryRemove<T>(JsonElement jsonElement, Dictionary<DiscordId, T> propertyToUpdate, string propertyName = "id")
         {
-            DiscordId id = jsonElement.GetProperty("id").ToObject<DiscordId>();
+            DiscordId id = jsonElement.GetProperty(propertyName).ToObject<DiscordId>();
             lock (propertyToUpdate)
                 propertyToUpdate.Remove(id);
         }

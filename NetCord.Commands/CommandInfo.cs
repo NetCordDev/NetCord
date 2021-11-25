@@ -8,6 +8,9 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandParameter<TContext>[] CommandParameters { get; }
     public int Priority { get; }
     public Context RequiredContext { get; }
+    public PermissionFlags RequireBotPermissions { get; }
+    public PermissionFlags RequireChannelPermissions { get; }
+    public PermissionFlags RequireUserPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
 
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, Dictionary<Type, Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>> typeReaders)
@@ -44,5 +47,9 @@ public record CommandInfo<TContext> where TContext : ICommandContext
                 throw ex.InnerException;
             }
         };
+
+        RequireBotPermissions = attribute.RequireBotPermissions;
+        RequireChannelPermissions = attribute.RequireChannelPermissions;
+        RequireUserPermissions = attribute.RequireUserPermissions;
     }
 }

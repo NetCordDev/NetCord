@@ -1,6 +1,7 @@
 ﻿namespace NetCord;
 
-public enum ApplicationFlags
+[Flags]
+public enum ApplicationFlags : uint
 {
     GatewayPresence = 1 << 12,
     GatewayPresenceLimited = 1 << 13,

@@ -17,7 +17,7 @@ namespace NetCord.Test
                     Content = "Select roles",
                     Components = new(),
                 };
-                var menu = NormalCommands.CreateRolesMenu(Context.Guild.Roles, selectedValues);
+                var menu = NormalCommands.CreateRolesMenu(Context.Guild.Roles.Values, selectedValues);
                 message.Components.Add(menu);
                 await Context.Interaction.EndWithModifyAsync(message.Build());
             }

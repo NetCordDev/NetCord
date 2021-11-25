@@ -30,7 +30,7 @@ public abstract class Interaction : ClientEntity
     internal Interaction(JsonInteraction jsonEntity, BotClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
-        if (client.TryGetGuild(jsonEntity.GuildId, out Guild guild))
+        if (client.Guilds.TryGetValue(jsonEntity.GuildId, out Guild guild))
         {
             Guild = guild;
             User = new GuildUser(jsonEntity.GuildUser, Guild, client);

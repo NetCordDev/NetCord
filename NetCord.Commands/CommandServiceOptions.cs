@@ -135,33 +135,56 @@ namespace NetCord.Commands
                 typeof(GuildUser),
                 (input, context, _) =>
                 {
+                    IReadOnlyDictionary<DiscordId, GuildUser> users;
                     // by id
                     if (DiscordId.TryParse(input, out DiscordId id))
-                        return Task.FromResult((object)context.Guild.GetUser(id));
-
-                    var span = input.AsSpan();
-                    // by mention
-                    if (MentionUtils.TryParseUser(span, out id))
-                        return Task.FromResult((object)context.Guild.GetUser(id));
-
-                    // by name and tag
-                    if (span.Length > 5 && span[^5] == '#')
                     {
-                        var username = span[..^5].ToString();
-                        if (ushort.TryParse(span[^4..], out var discriminator))
-                        {
-                            GuildUser user = context.Guild.Users.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                            if (user != null)
-                                return Task.FromResult((object)user);
-                        }
-                    }
-                    // by name
-                    else
-                    {
-                        GuildUser user = context.Guild.Users.FirstOrDefault(u => u.Username == input);
-                        if (user != null)
+                        users = context.Guild.Users;
+                        if (users.TryGetValue(id, out var user))
                             return Task.FromResult((object)user);
                     }
+                    else
+                    {
+                        users = context.Guild.Users;
+                        var span = input.AsSpan();
+                        // by mention
+                        if (MentionUtils.TryParseUser(span, out id))
+                        {
+                            if (users.TryGetValue(id, out var user))
+                                return Task.FromResult((object)user);
+                            goto exception;
+                        }
+
+                        // by name and tag
+                        if (span.Length is >= 7 and <= 37 && span[^5] == '#')
+                        {
+                            var username = span[..^5].ToString();
+                            if (ushort.TryParse(span[^4..], out var discriminator))
+                            {
+                                var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                                if (user != null)
+                                    return Task.FromResult((object)user);
+                            }
+                            goto exception;
+                        }
+                    }
+
+                    // by name or nickname
+                    {
+                        var len = input.Length;
+                        if (len <= 32)
+                        {
+                            var selectedUsers = len >= 2
+                                ? users.Values.Select(u => u.Username == input || u.Nickname == input)
+                                : users.Values.Select(u => u.Nickname == input);
+                            var count = selectedUsers.Count();
+                            if (count == 1)
+                                return Task.FromResult((object)selectedUsers.First());
+                            else if (count > 1)
+                                throw new ArgumentParseException("Too many users found");
+                        }
+                    }
+                    exception:
                     throw new ArgumentParseException("The user was not found");
                 }
             },
@@ -169,10 +192,11 @@ namespace NetCord.Commands
                 typeof(UserId),
                 (input, context, _) =>
                 {
+                    var users = context.Guild.Users;
                     // by id
                     if (DiscordId.TryParse(input, out DiscordId id))
                     {
-                        context.Guild.TryGetUser(id, out var user);
+                        users.TryGetValue(id, out var user);
                         return Task.FromResult((object)new UserId(id, user));
                     }
 
@@ -181,27 +205,36 @@ namespace NetCord.Commands
                     // by mention
                     if (MentionUtils.TryParseUser(span, out id))
                     {
-                        context.Guild.TryGetUser(id, out var user);
+                        users.TryGetValue(id, out var user);
                         return Task.FromResult((object)new UserId(id, user));
                     }
 
                     // by name and tag
-                    if (span.Length > 5 && span[^5] == '#')
+                    if (span.Length is >= 7 and <= 37 && span[^5] == '#')
                     {
                         var username = span[..^5].ToString();
                         if (ushort.TryParse(span[^4..], out var discriminator))
                         {
-                            GuildUser user = context.Guild.Users.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                            GuildUser user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                             if (user != null)
                                 return Task.FromResult((object)new UserId(user.Id, user));
                         }
                     }
-                    // by name
+                    // by name or nickname
                     else
                     {
-                        GuildUser user = context.Guild.Users.FirstOrDefault(u => u.Username == input);
-                        if (user != null)
-                            return Task.FromResult((object)new UserId(user.Id, user));
+                        var len = input.Length;
+                        if (len <= 32)
+                        {
+                            var selectedUsers = len >= 2
+                                ? users.Values.Select(u => u.Username == input || u.Nickname == input)
+                                : users.Values.Select(u => u.Nickname == input);
+                            var count = selectedUsers.Count();
+                            if (count == 1)
+                                return Task.FromResult((object)selectedUsers.First());
+                            else if (count > 1)
+                                throw new ArgumentParseException("Too many users found");
+                        }
                     }
                     throw new ArgumentParseException("The user was not found");
                 }

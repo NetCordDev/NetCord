@@ -30,9 +30,6 @@ internal record JsonGuild : JsonEntity
     [JsonPropertyName("permissions")]
     public string? Permissions { get; init; }
 
-    [JsonPropertyName("region")]
-    public string? Region { get; init; } // now rtc_region
-
     [JsonPropertyName("afk_channel_id")]
     public DiscordId? AfkChannelId { get; init; }
 

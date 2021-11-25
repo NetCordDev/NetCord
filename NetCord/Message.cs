@@ -65,7 +65,7 @@ public class Message : ClientEntity
         _jsonEntity = jsonEntity;
         if (jsonEntity.Author != null)
         {
-            if (jsonEntity.Member == null || !client.TryGetGuild(jsonEntity.GuildId, out Guild guild))
+            if (jsonEntity.Member == null || !client.Guilds.TryGetValue(jsonEntity.GuildId, out Guild guild))
                 Author = new(jsonEntity.Author, client);
             else
                 Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, guild, client);
@@ -96,4 +96,18 @@ public class Message : ClientEntity
     public Task DeleteAsync(string reason) => MessageHelper.DeleteAsync(_client, ChannelId, Id, reason);
 
     public virtual string GetJumpUrl(DiscordId? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
+
+    public Task<Message> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
+    {
+        MessageBuilder messageBuilder = new()
+        {
+            Content = content,
+            MessageReference = new(this, failIfNotExists),
+            AllowedMentions = new()
+            {
+                ReplyMention = replyMention
+            }
+        };
+        return ChannelHelper.SendMessageAsync(_client, messageBuilder.Build(), ChannelId);
+    }
 }

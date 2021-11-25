@@ -35,7 +35,7 @@ internal record JsonSticker : JsonEntity
     public int SortValue { get; init; }
 }
 
-public enum StickerType
+internal enum StickerType
 {
     Standard = 1,
     Guild = 2,

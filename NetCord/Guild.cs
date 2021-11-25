@@ -16,6 +16,7 @@ public class Guild : ClientEntity
     internal Dictionary<DiscordId, Emoji> _emojis;
     internal Dictionary<DiscordId, StageInstance> _stageInstances;
     internal Dictionary<DiscordId, Presence> _presences;
+    internal Dictionary<DiscordId, GuildSticker> _stickers;
 
     public override DiscordId Id => _jsonEntity.Id;
     public string Name => _jsonEntity.Name;
@@ -25,9 +26,8 @@ public class Guild : ClientEntity
     public string? DiscoverySplash => _jsonEntity.DiscoverySplash;
     //public bool? IsOwner => _jsonEntity.IsOwner;
     public DiscordId OwnerId => _jsonEntity.OwnerId;
-    public GuildUser Owner => GetUser(OwnerId);
-    public string? Permissions => _jsonEntity.Permissions;
-    public string? Region => _jsonEntity.Region;
+    public GuildUser Owner => Users[OwnerId];
+    //public string? Permissions => _jsonEntity.Permissions;
     public DiscordId? AfkChannelId => _jsonEntity.AfkChannelId;
     public int AfkTimeout => _jsonEntity.AfkTimeout;
     public bool? WidgetEnabled => _jsonEntity.WidgetEnabled;
@@ -35,20 +35,20 @@ public class Guild : ClientEntity
     public VerificationLevel VerificationLevel => _jsonEntity.VerificationLevel;
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonEntity.DefaultMessageNotificationLevel;
     public ContentFilter ContentFilter => _jsonEntity.ContentFilter;
-    public IEnumerable<Role> Roles
+    public IReadOnlyDictionary<DiscordId, Role> Roles
     {
         get
         {
             lock (_roles)
-                return _roles.Values.AsEnumerable();
+                return new Dictionary<DiscordId, Role>(_roles);
         }
     }
-    public IEnumerable<Emoji> Emojis
+    public IReadOnlyDictionary<DiscordId, Emoji> Emojis
     {
         get
         {
             lock (_emojis)
-                return _emojis.Values.AsEnumerable();
+                return new Dictionary<DiscordId, Emoji>(_emojis);
         }
     }
     public GuildFeatures Features { get; }
@@ -61,36 +61,36 @@ public class Guild : ClientEntity
     public bool? IsLarge => _jsonEntity.IsLarge;
     public bool? IsUnavaible => _jsonEntity.IsUnavaible;
     public int? MemberCount { get; internal set; }
-    public IEnumerable<GuildUser> Users
+    public IReadOnlyDictionary<DiscordId, GuildUser> Users
     {
         get
         {
             lock (_users)
-                return _users.Values.AsEnumerable();
+                return new Dictionary<DiscordId, GuildUser>(_users);
         }
     }
-    public IEnumerable<IGuildChannel> Channels
+    public IReadOnlyDictionary<DiscordId, IGuildChannel> Channels
     {
         get
         {
             lock (_channels)
-                return _channels.Values.AsEnumerable();
+                return new Dictionary<DiscordId, IGuildChannel>(_channels);
         }
     }
-    public IEnumerable<Thread> ActiveThreads
+    public IReadOnlyDictionary<DiscordId, Thread> ActiveThreads
     {
         get
         {
             lock (_activeThreads)
-                return _activeThreads.Values.AsEnumerable();
+                return new Dictionary<DiscordId, Thread>(_activeThreads);
         }
     }
-    public IEnumerable<Presence> Presences
+    public IReadOnlyDictionary<DiscordId, Presence> Presences
     {
         get
         {
             lock (_presences)
-                return _presences.Values.AsEnumerable();
+                return new Dictionary<DiscordId, Presence>(_presences);
         }
     }
     public int? MaxPresences => _jsonEntity.MaxPresences;
@@ -107,22 +107,30 @@ public class Guild : ClientEntity
     public int? ApproximatePresenceCount => _jsonEntity.ApproximatePresenceCount;
     public WelcomeScreen? WelcomeScreen { get; }
     public NSFWLevel NSFWLevel => _jsonEntity.NSFWLevel;
-    public IEnumerable<StageInstance> StageInstances
+    public IReadOnlyDictionary<DiscordId, StageInstance> StageInstances
     {
         get
         {
             lock (_stageInstances)
-                return _stageInstances.Values.AsEnumerable();
+                return new Dictionary<DiscordId, StageInstance>(_stageInstances);
         }
     }
-    public IEnumerable<GuildSticker> Stickers { get; }
+    
+    public IReadOnlyDictionary<DiscordId, GuildSticker> Stickers
+    {
+        get
+        {
+            lock (_stickers)
+                return new Dictionary<DiscordId, GuildSticker>(_stickers);
+        }
+    }
 
-    public IEnumerable<VoiceState> VoiceStates
+    public IReadOnlyDictionary<DiscordId, VoiceState> VoiceStates
     {
         get
         {
             lock (_voiceStates)
-                return _voiceStates.Values.AsEnumerable();
+                return new Dictionary<DiscordId, VoiceState>(_voiceStates);
         }
     }
 
@@ -139,40 +147,11 @@ public class Guild : ClientEntity
         _roles = _jsonEntity.Roles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
         _emojis = _jsonEntity.Emojis.ToDictionaryOrEmpty(e => e.Id, e => new Emoji(e, client));
         _stageInstances = _jsonEntity.StageInstances.ToDictionaryOrEmpty(i => i.Id, i => new StageInstance(i, client));
-        Stickers = _jsonEntity.Stickers.SelectOrEmpty(s => new GuildSticker(s, client));
+        _stickers = _jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
         MemberCount = _jsonEntity.MemberCount;
         ApproximateMemberCount = _jsonEntity.ApproximateMemberCount;
         _presences = _jsonEntity.Presences.ToDictionaryOrEmpty(p => p.User.Id, p => new Presence(p, client));
-    }
-
-    public bool TryGetUser(DiscordId id, [NotNullWhen(true)] out GuildUser? user)
-    {
-        lock (_users)
-        {
-            return _users.TryGetValue(id, out user);
-        }
-    }
-
-    public GuildUser GetUser(DiscordId id)
-    {
-        if (TryGetUser(id, out var user))
-            return user;
-        else
-            throw new EntityNotFoundException("The user was not found");
-    }
-
-    public bool TryGetChannel(DiscordId id, out IGuildChannel channel)
-    {
-        lock (_channels)
-            return _channels.TryGetValue(id, out channel);
-    }
-
-    public IGuildChannel GetChannel(DiscordId id)
-    {
-        if (TryGetChannel(id, out var channel))
-            return channel;
-        else
-            throw new EntityNotFoundException("The channel was not found");
+        Features = new(_jsonEntity.Features);
     }
 
     public Task KickUserAsync(DiscordId userId) => GuildHelper.KickUserAsync(_client, userId, Id);

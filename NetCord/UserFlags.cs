@@ -1,6 +1,7 @@
 ﻿namespace NetCord;
 
-public enum UserFlags
+[Flags]
+public enum UserFlags : uint
 {
     None = 0,
     DiscordEmployee = 1 << 0,

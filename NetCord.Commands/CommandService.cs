@@ -77,12 +77,12 @@ public class CommandService<TContext> where TContext : ICommandContext
 
     public async Task ExecuteAsync(int prefixLength, TContext context)
     {
-        var commandContent = context.Message.Content[prefixLength..];
+        var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
         bool ignoreCase = _options.IgnoreCase;
         var separator = _options.ParamSeparator;
         IEnumerable<KeyValuePair<string, List<CommandInfo<TContext>>>> commands;
         lock (_commands)
-            commands = _commands.Where(x => commandContent.StartsWith(x.Key, ignoreCase, CultureInfo.InvariantCulture));
+            commands = _commands.Where(x => messageContentWithoutPrefix.StartsWith(x.Key, ignoreCase, CultureInfo.InvariantCulture));
 
         if (!commands.Any())
             throw new CommandNotFoundException();
@@ -91,12 +91,12 @@ public class CommandService<TContext> where TContext : ICommandContext
         int commandLength = c.Key.Length;
         var commandInfos = c.Value;
         string baseArguments;
-        if (commandContent.Length > commandLength)
+        if (messageContentWithoutPrefix.Length > commandLength)
         {
             // example: command: "wzium" message: "!wziumy"
-            if (commandContent[commandLength] != separator)
+            if (messageContentWithoutPrefix[commandLength] != separator)
                 throw new CommandNotFoundException();
-            baseArguments = commandContent[(commandLength + 1)..].TrimStart(separator);
+            baseArguments = messageContentWithoutPrefix[(commandLength + 1)..].TrimStart(separator);
         }
         else
             baseArguments = string.Empty;
@@ -108,6 +108,47 @@ public class CommandService<TContext> where TContext : ICommandContext
         for (int i = 0; i <= maxIndex; i++)
         {
             commandInfo = commandInfos[i];
+
+            if (context.Guild != null)
+            {
+                var guildRoles = context.Guild.Roles.Values;
+                var guildUser = context.Guild.Users[context.Client.Id];
+                PermissionFlags permissions = default;
+                foreach (var permission in guildRoles.Where(r => guildUser.RolesIds.Contains(r)))
+                    permissions |= permission.Permissions;
+                if (!permissions.HasFlag(PermissionFlags.Administrator))
+                {
+                    if (!permissions.HasFlag(commandInfo.RequireBotPermissions))
+                    {
+                        var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
+                        if (IsLastCommand())
+                            throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
+                    }
+
+                    foreach (var permission in ((TextGuildChannel)context.Message.Channel).PermissionOverwrites)
+                    {
+                        permissions |= permission.Allowed;
+                        permissions &= permission.Denied;
+                    }
+                    if (!permissions.HasFlag(commandInfo.RequireChannelPermissions))
+                    {
+                        var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
+                        if (IsLastCommand())
+                            throw new PermissionException("Required channel permissions: " + missingPermissions, missingPermissions);
+                    }
+                }
+                guildUser = (GuildUser)context.Message.Author;
+                permissions = default;
+                foreach (var permission in guildRoles.Where(r => guildUser.RolesIds.Contains(r)))
+                    permissions |= permission.Permissions;
+                if (!permissions.HasFlag(PermissionFlags.Administrator) && !permissions.HasFlag(commandInfo.RequireUserPermissions))
+                {
+                    var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
+                    if (IsLastCommand())
+                        throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
+                }
+            }
+
 
             string arguments = baseArguments;
 

@@ -1,6 +1,7 @@
 ﻿namespace NetCord;
 
-public enum MessageFlags
+[Flags]
+public enum MessageFlags : uint
 {
     /// <summary>
     /// this message has been published to subscribed channels (via Channel Following)

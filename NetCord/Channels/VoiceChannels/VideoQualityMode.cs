@@ -2,6 +2,7 @@
 {
     public enum VideoQualityMode
     {
+        None = 0,
         /// <summary>
         /// Discord chooses the quality for optimal performance
         /// </summary>

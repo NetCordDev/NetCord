@@ -35,7 +35,7 @@ public static class GuildUserHelper
         func.Invoke(properties);
         var message = JsonSerializer.Serialize(properties);
         var result = await CDN.SendAsync(HttpMethod.Patch, message, $"/guilds/{guildId}/members/{userId}", client).ConfigureAwait(false);
-        return new(result.ToObject<JsonModels.JsonGuildUser>(), client.GetGuild(guildId), client);
+        return new(result.ToObject<JsonModels.JsonGuildUser>(), client.Guilds[guildId], client);
     }
 
     public static Task AddRoleAsync(BotClient client, DiscordId guildId, DiscordId userId, DiscordId roleId)

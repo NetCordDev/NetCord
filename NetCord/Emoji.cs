@@ -23,7 +23,8 @@
         internal Emoji(JsonModels.JsonEmoji jsonEntity, BotClient client) : base(client)
         {
             _jsonEntity = jsonEntity;
-            Creator = new(jsonEntity.Creator, client);
+            if (jsonEntity.Creator != null)
+                Creator = new(jsonEntity.Creator, client);
             AllowedRoles = jsonEntity.AllowedRoles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
         }
     }

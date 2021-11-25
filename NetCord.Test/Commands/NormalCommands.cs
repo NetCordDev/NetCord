@@ -40,7 +40,7 @@ public class NormalCommands : CommandModule
                 Content = "Select roles",
                 Components = new()
             };
-            var menu = CreateRolesMenu(Context.Guild.Roles, user.RolesIds);
+            var menu = CreateRolesMenu(Context.Guild.Roles.Values, user.RolesIds);
             message.Components.Add(menu);
             await SendAsync(message.Build());
         }

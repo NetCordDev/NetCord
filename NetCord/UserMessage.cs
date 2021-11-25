@@ -6,14 +6,19 @@ public class UserMessage : Message
 {
     internal UserMessage(JsonMessage jsonEntity, BotClient client) : base(jsonEntity, client)
     {
-        if (client.TryGetGuild(jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId, out var guild))
+        DiscordId? guildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
+        if (guildId != null && client.Guilds.TryGetValue(guildId, out var guild))
         {
             Guild = guild;
-            Channel = (TextChannel)Guild.GetChannel(jsonEntity.ChannelId);
+            if (Guild.Channels.TryGetValue(jsonEntity.ChannelId, out var channel))
+                Channel = (TextChannel)channel;
         }
         else
         {
-            Channel = client.GetDMChannel(jsonEntity.ChannelId);
+            if (client.DMChannels.TryGetValue(jsonEntity.ChannelId, out var dMChannel))
+                Channel = dMChannel;
+            else if (client.GroupDMChannels.TryGetValue(jsonEntity.ChannelId, out var groupDMChannel))
+                Channel = groupDMChannel;
         }
     }
 
