@@ -130,7 +130,7 @@ public static class ChannelHelper
     {
         public static async Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync(BotClient client, DiscordId threadId)
         {
-            var jsonUsers = (await CDN.SendAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", client).ConfigureAwait(false)).ToObject<JsonModels.JsonThreadUser[]>();
+            var jsonUsers = (await CDN.SendAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", client).ConfigureAwait(false)).ToObject<JsonThreadUser[]>();
             return jsonUsers.ToDictionary(u => u.UserId, u => new ThreadUser(u));
         }
     }

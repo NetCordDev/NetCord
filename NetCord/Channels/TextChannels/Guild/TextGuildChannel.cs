@@ -11,11 +11,11 @@
 
         public int Position => (int)_jsonEntity.Position;
 
-        public IEnumerable<PermissionOverwrite> PermissionOverwrites { get; }
+        public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 
         internal TextGuildChannel(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
         {
-            PermissionOverwrites = jsonEntity.PermissionOverwrites.SelectOrEmpty(p => new PermissionOverwrite(p));
+            PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         }
     }
 }

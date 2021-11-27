@@ -8,9 +8,10 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandParameter<TContext>[] CommandParameters { get; }
     public int Priority { get; }
     public Context RequiredContext { get; }
-    public PermissionFlags RequireBotPermissions { get; }
-    public PermissionFlags RequireChannelPermissions { get; }
-    public PermissionFlags RequireUserPermissions { get; }
+    public PermissionFlags RequiredBotPermissions { get; }
+    public PermissionFlags RequiredBotChannelPermissions { get; }
+    public PermissionFlags RequiredUserPermissions { get; }
+    public PermissionFlags RequiredUserChannelPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
 
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, Dictionary<Type, Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>> typeReaders)
@@ -48,8 +49,9 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             }
         };
 
-        RequireBotPermissions = attribute.RequireBotPermissions;
-        RequireChannelPermissions = attribute.RequireChannelPermissions;
-        RequireUserPermissions = attribute.RequireUserPermissions;
+        RequiredBotPermissions = attribute.RequiredBotPermissions;
+        RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
+        RequiredUserPermissions = attribute.RequiredUserPermissions;
+        RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
     }
 }

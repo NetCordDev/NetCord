@@ -105,50 +105,125 @@ public class CommandService<TContext> where TContext : ICommandContext
         CommandInfo<TContext> commandInfo = null;
         int maxIndex = commandInfos.Count - 1;
 
+        var everyonePermissions = context.Guild.EveryoneRole.Permissions;
+        var guildRoles = context.Guild.Roles.Values;
+        var guildUser = context.Guild.Users[context.Client];
+        PermissionFlags botPermissions = everyonePermissions;
+        PermissionFlags botChannelPermissions;
+        foreach (var permission in guildRoles)
+        {
+            if (guildUser.RolesIds.Contains(permission))
+                botPermissions |= permission.Permissions;
+        }
+
+        var permissionOverwrites = ((TextGuildChannel)context.Message.Channel).PermissionOverwrites;
+
+        bool botAdministrator = botPermissions.HasFlag(PermissionFlags.Administrator);
+        if (!botAdministrator)
+        {
+            PermissionFlags denied = default;
+            PermissionFlags allowed = default;
+            foreach (var r in guildUser.RolesIds)
+            {
+                if (permissionOverwrites.TryGetValue(r, out var permission))
+                {
+                    denied |= permission.Denied;
+                    allowed |= permission.Allowed;
+                }
+            }
+            if (permissionOverwrites.TryGetValue(guildUser.Id, out var p))
+            {
+                denied |= p.Denied;
+                allowed |= p.Allowed;
+            }
+            botChannelPermissions = (botPermissions & ~denied) | allowed;
+        }
+        else
+            botChannelPermissions = default;
+
+        guildUser = (GuildUser)context.Message.Author;
+        PermissionFlags userPermissions = everyonePermissions;
+        PermissionFlags userChannelPermissions;
+        foreach (var permission in guildRoles)
+        {
+            if (guildUser.RolesIds.Contains(permission))
+                userPermissions |= permission.Permissions;
+        }
+
+        var userAdministrator = userPermissions.HasFlag(PermissionFlags.Administrator);
+        if (!userAdministrator)
+        {
+            PermissionFlags denied = default;
+            PermissionFlags allowed = default;
+            foreach (var r in guildUser.RolesIds)
+            {
+                if (permissionOverwrites.TryGetValue(r, out var permission))
+                {
+                    denied |= permission.Denied;
+                    allowed |= permission.Allowed;
+                }
+            }
+            if (permissionOverwrites.TryGetValue(guildUser.Id, out var p))
+            {
+                denied |= p.Denied;
+                allowed |= p.Allowed;
+            }
+            userChannelPermissions = (userPermissions & ~denied) | allowed;
+        }
+        else
+            userChannelPermissions = default;
+
         for (int i = 0; i <= maxIndex; i++)
         {
             commandInfo = commandInfos[i];
+            bool lastCommand = i == maxIndex;
 
-            if (context.Guild != null)
+            if (!botAdministrator)
             {
-                var guildRoles = context.Guild.Roles.Values;
-                var guildUser = context.Guild.Users[context.Client.Id];
-                PermissionFlags permissions = default;
-                foreach (var permission in guildRoles.Where(r => guildUser.RolesIds.Contains(r)))
-                    permissions |= permission.Permissions;
-                if (!permissions.HasFlag(PermissionFlags.Administrator))
+                if (!botPermissions.HasFlag(commandInfo.RequiredBotPermissions))
                 {
-                    if (!permissions.HasFlag(commandInfo.RequireBotPermissions))
+                    if (lastCommand)
                     {
-                        var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
-                        if (IsLastCommand())
-                            throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
+                        var missingPermissions = commandInfo.RequiredBotPermissions & ~botPermissions;
+                        throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
                     }
-
-                    foreach (var permission in ((TextGuildChannel)context.Message.Channel).PermissionOverwrites)
-                    {
-                        permissions |= permission.Allowed;
-                        permissions &= permission.Denied;
-                    }
-                    if (!permissions.HasFlag(commandInfo.RequireChannelPermissions))
-                    {
-                        var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
-                        if (IsLastCommand())
-                            throw new PermissionException("Required channel permissions: " + missingPermissions, missingPermissions);
-                    }
+                    else
+                        continue;
                 }
-                guildUser = (GuildUser)context.Message.Author;
-                permissions = default;
-                foreach (var permission in guildRoles.Where(r => guildUser.RolesIds.Contains(r)))
-                    permissions |= permission.Permissions;
-                if (!permissions.HasFlag(PermissionFlags.Administrator) && !permissions.HasFlag(commandInfo.RequireUserPermissions))
+                if (!botChannelPermissions.HasFlag(commandInfo.RequiredBotChannelPermissions))
                 {
-                    var missingPermissions = (PermissionFlags)(commandInfo.RequireUserPermissions - permissions);
-                    if (IsLastCommand())
-                        throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
+                    if (lastCommand)
+                    {
+                        var missingPermissions = commandInfo.RequiredBotChannelPermissions & ~botChannelPermissions;
+                        throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
+                    }
+                    else
+                        continue;
                 }
             }
-
+            if (!userAdministrator)
+            {
+                if (!userPermissions.HasFlag(commandInfo.RequiredUserPermissions))
+                {
+                    if (lastCommand)
+                    {
+                        var missingPermissions = commandInfo.RequiredUserPermissions & ~userPermissions;
+                        throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
+                    }
+                    else
+                        continue;
+                }
+                if (!userChannelPermissions.HasFlag(commandInfo.RequiredUserChannelPermissions))
+                {
+                    if (lastCommand)
+                    {
+                        var missingPermissions = commandInfo.RequiredUserChannelPermissions & ~userChannelPermissions;
+                        throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
+                    }
+                    else
+                        continue;
+                }
+            }
 
             string arguments = baseArguments;
 
@@ -193,7 +268,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                                     parametersToPass[commandParamIndex] = parameter.DefaultValue;
                                     isLastArgGood = true;
                                 }
-                                else if (IsLastCommand())
+                                else if (lastCommand)
                                     throw;
                                 else
                                     goto Continue;
@@ -214,7 +289,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                                     parametersToPass[commandParamIndex] = parameter.DefaultValue;
                                     isLastArgGood = true;
                                 }
-                                else if (IsLastCommand())
+                                else if (lastCommand)
                                     throw;
                                 else
                                     goto Continue;
@@ -228,7 +303,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                             parametersToPass[commandParamIndex] = parameter.DefaultValue;
                             isLastArgGood = true;
                         }
-                        else if (IsLastCommand())
+                        else if (lastCommand)
                             throw new ParameterCountException("Too few parameters");
                         else
                             goto Continue;
@@ -260,7 +335,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                         }
                         catch
                         {
-                            if (IsLastCommand())
+                            if (lastCommand)
                                 throw;
                             else
                                 goto Continue;
@@ -270,26 +345,24 @@ public class CommandService<TContext> where TContext : ICommandContext
                     {
                         if (parameter.HasDefaultValue)
                             parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                        else if (IsLastCommand())
+                        else if (lastCommand)
                             throw new ParameterCountException("Too few parameters");
                         else
                             goto Continue;
                     }
                 }
                 commandParamIndex++;
+                bool IsLastParameter() => commandParamIndex == maxCommandParamIndex;
             }
             if (arguments.Length != 0)
             {
-                if (IsLastCommand())
+                if (lastCommand)
                     throw new ParameterCountException("Too many parameters");
                 else
                     continue;
             }
             break;
-            Continue:
-
-            bool IsLastCommand() => i == maxIndex;
-            bool IsLastParameter() => commandParamIndex == maxCommandParamIndex;
+            Continue:;
         }
         var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo.DeclaringType);
         methodClass.Context = context;

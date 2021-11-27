@@ -6,9 +6,10 @@
         public string[] Aliases { get; }
         public int Priority { get; init; }
         public Context RequiredContext { get; init; }
-        public PermissionFlags RequireBotPermissions { get; init; }
-        public PermissionFlags RequireChannelPermissions { get; init; }
-        public PermissionFlags RequireUserPermissions { get; init; }
+        public PermissionFlags RequiredBotPermissions { get; init; }
+        public PermissionFlags RequiredBotChannelPermissions { get; init; }
+        public PermissionFlags RequiredUserPermissions { get; init; }
+        public PermissionFlags RequiredUserChannelPermissions { get; init; }
 
         public CommandAttribute(params string[] aliases)
         {

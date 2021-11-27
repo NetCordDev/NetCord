@@ -43,6 +43,14 @@ public class Guild : ClientEntity
                 return new Dictionary<DiscordId, Role>(_roles);
         }
     }
+    public Role EveryoneRole
+    {
+        get
+        {
+            lock (_roles)
+                return _roles[Id];
+        }
+    }
     public IReadOnlyDictionary<DiscordId, Emoji> Emojis
     {
         get

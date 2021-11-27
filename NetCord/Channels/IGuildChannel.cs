@@ -4,5 +4,5 @@ public interface IGuildChannel : IEntity
 {
     public string Name { get; }
     public int Position { get; }
-    public IEnumerable<PermissionOverwrite> PermissionOverwrites { get; }
+    public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 }

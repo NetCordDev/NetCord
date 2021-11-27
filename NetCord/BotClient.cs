@@ -179,7 +179,6 @@ namespace NetCord
 
         private Task SendIdentifyAsync()
         {
-            Console.WriteLine("SendIdentify");
             var authorizationMessage = @"{
   ""op"": 2,
   ""d"": {
@@ -198,7 +197,6 @@ namespace NetCord
 
         private async Task ResumeAsync()
         {
-            Console.WriteLine("Resume");
             await _webSocket.ConnectAsync().ConfigureAwait(false);
 
             var resumeMessage = @"{

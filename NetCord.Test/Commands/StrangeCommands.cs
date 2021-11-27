@@ -23,6 +23,12 @@ public class StrangeCommands : CommandModule
     [Command("delete", "remove")]
     public Task Delete() => Context.Message.DeleteAsync();
 
+    [Command("delete", "remove", RequiredUserChannelPermissions = PermissionFlags.ManageMessages)]
+    public Task Delete(DiscordId id)
+    {
+        return MessageHelper.DeleteAsync(Context.Client, Context.Channel, id);
+    }
+
     [Command("react")]
     public Task React(string emoji)
     {
@@ -212,6 +218,25 @@ public class StrangeCommands : CommandModule
     {
         var a = await new HttpClient().GetByteArrayAsync(avatarUrl);
         await Context.Client.User.ModifyAsync(p => p.Avatar = new(new("image/png"), Convert.ToBase64String(a)));
+    }
+
+    [Command("spam")]
+    public async Task Spam(int count)
+    {
+        SemaphoreSlim slim = new(5);
+        var tasks = new Task[count];
+        var names = Enum.GetValues<Wzium>().Select(w => w.ToString()).ToArray();
+        for (int i = 0; i < count; i++)
+        {
+            tasks[i] = Task.Run(async () =>
+            {
+                await slim.WaitAsync();
+                await SendAsync(names[new Random().Next(2)]);
+                slim.Release();
+            });
+        }
+        await Task.WhenAll(tasks);
+        await ReplyAsync("Spammed!");
     }
 }
 
