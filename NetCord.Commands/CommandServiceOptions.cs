@@ -10,84 +10,86 @@ namespace NetCord.Commands
 
     public class CommandServiceOptions<TContext> where TContext : ICommandContext
     {
-        public Dictionary<Type, Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>> TypeReaders { get; } = new()
+        public delegate Task<object> TypeReader(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options);
+
+        public Dictionary<Type, TypeReader> TypeReaders { get; } = new()
         #region TypeReaders
         {
             // text types
             {
                 typeof(string),
-                (input, _, _) => Task.FromResult((object)input)
+                (input, _, _, _) => Task.FromResult((object)input)
             },
             {
                 typeof(char),
-                (input, _, _) => Task.FromResult(input.Length == 1 ? (object)input[0] : throw new ArgumentParseException("String must be exactly one character long."))
+                (input, _, _, _) => Task.FromResult(input.Length == 1 ? (object)input[0] : throw new ArgumentParseException("String must be exactly one character long."))
             },
             // integral numeric types
             {
                 typeof(sbyte),
-                (input, _, _) => Task.FromResult((object)sbyte.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)sbyte.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(byte),
-                (input, _, _) => Task.FromResult((object)byte.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)byte.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(short),
-                (input, _, _) => Task.FromResult((object)short.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)short.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(ushort),
-                (input, _, _) => Task.FromResult((object)ushort.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)ushort.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(int),
-                (input, _, _) => Task.FromResult((object)int.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)int.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(uint),
-                (input, _, _) => Task.FromResult((object)uint.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)uint.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(long),
-                (input, _, _) => Task.FromResult((object)long.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)long.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(nint),
-                (input, _, _) => Task.FromResult((object)nint.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)nint.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(nuint),
-                (input, _, _) => Task.FromResult((object)nuint.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)nuint.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(System.Numerics.BigInteger),
-                (input, _, _) => Task.FromResult((object)System.Numerics.BigInteger.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)System.Numerics.BigInteger.Parse(input, CultureInfo.InvariantCulture))
             },
             // floating-point numeric types
             {
                 typeof(Half),
-                (input, _, _) => Task.FromResult((object)Half.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)Half.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(float),
-                (input, _, _) => Task.FromResult((object)float.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)float.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(double),
-                (input, _, _) => Task.FromResult((object)double.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)double.Parse(input, CultureInfo.InvariantCulture))
             },
             {
                 typeof(decimal),
-                (input, _, _) => Task.FromResult((object)decimal.Parse(input, CultureInfo.InvariantCulture))
+                (input, _, _, _) => Task.FromResult((object)decimal.Parse(input, CultureInfo.InvariantCulture))
             },
             // other types
             {
                 typeof(bool),
-                (input, _, _) => Task.FromResult((object)bool.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)bool.Parse(input))
             },
             {
                 typeof(TimeSpan),
-                (input, _, options) =>
+                (input, _, _, options) =>
                 {
                     RegexOptions regexOptions = options.IgnoreCase ? RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.IgnoreCase
                                                                    : RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft;
@@ -109,31 +111,31 @@ namespace NetCord.Commands
             },
             {
                 typeof(TimeOnly),
-                (input, _, _) => Task.FromResult((object)TimeOnly.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)TimeOnly.Parse(input))
             },
             {
                 typeof(DateOnly),
-                (input, _, _) => Task.FromResult((object)DateOnly.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)DateOnly.Parse(input))
             },
             {
                 typeof(DateTime),
-                (input, _, _) => Task.FromResult((object)DateTime.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)DateTime.Parse(input))
             },
             {
                 typeof(DateTimeOffset),
-                (input, _, _) => Task.FromResult((object)DateTimeOffset.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)DateTimeOffset.Parse(input))
             },
             {
                 typeof(Uri),
-                (input, _, _) => Task.FromResult((object)new Uri(input))
+                (input, _, _, _) => Task.FromResult((object)new Uri(input))
             },
             {
                 typeof(DiscordId),
-                (input, _, _) => Task.FromResult((object)DiscordId.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)DiscordId.Parse(input))
             },
             {
                 typeof(GuildUser),
-                (input, context, _) =>
+                (input, context, _, _) =>
                 {
                     IReadOnlyDictionary<DiscordId, GuildUser> users;
                     // by id
@@ -190,7 +192,7 @@ namespace NetCord.Commands
             },
             {
                 typeof(UserId),
-                (input, context, _) =>
+                (input, context, _, _) =>
                 {
                     var users = context.Guild.Users;
                     // by id
@@ -241,14 +243,15 @@ namespace NetCord.Commands
             },
             {
                 typeof(Timestamp),
-                (input, _, _) => Task.FromResult((object)Timestamp.Parse(input))
+                (input, _, _, _) => Task.FromResult((object)Timestamp.Parse(input))
             }
         };
         #endregion
 
-        public Func<string, Type, TContext, CommandServiceOptions<TContext>, Task<object>> EnumTypeReader { get; init; } = (input, type, _, options) =>
+        public TypeReader EnumTypeReader { get; init; } = (input, context, parameter, options) =>
         {
-            if (type.GetCustomAttribute<AllowByValueAttribute>() != null) // by value or by name
+            var type = parameter.Type;
+            if (parameter.Attributes.TryGetValue(typeof(AllowByValueAttribute), out _) || type.IsDefined(typeof(AllowByValueAttribute))) // by value or by name
             {
                 if (Enum.TryParse(type, input, options.IgnoreCase, out var value) && Enum.IsDefined(type, value))
                     return Task.FromResult(value);
@@ -271,10 +274,5 @@ namespace NetCord.Commands
         /// Default = <see cref="true"/>
         /// </summary>
         public bool IgnoreCase { get; init; } = true;
-
-        public ulong DefaultRateLimitPerUser { get; init; }
-        public ulong DefaultRateLimitPerChannel { get; init; }
-        public ulong DefaultRateLimitPerGuild { get; init; }
-        public Func<DateTimeOffset> DefaultRateLimitedMessage { get; init; }
     }
 }

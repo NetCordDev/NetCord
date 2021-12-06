@@ -23,7 +23,7 @@ public class StrangeCommands : CommandModule
     [Command("delete", "remove")]
     public Task Delete() => Context.Message.DeleteAsync();
 
-    [Command("delete", "remove", RequiredUserChannelPermissions = PermissionFlags.ManageMessages)]
+    [Command("delete", "remove", RequiredUserChannelPermissions = Permission.ManageMessages)]
     public Task Delete(DiscordId id)
     {
         return MessageHelper.DeleteAsync(Context.Client, Context.Channel, id);
@@ -124,22 +124,22 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("wzium")]
-    public Task Wzium(Wzium? wzium = Test.Wzium.Wzium)
+    public Task Wzium([Remainder] Wzium? wzium = Test.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
 
     [Command("wziumy")]
-    public Task Wziumy(params Wzium[] wziumy)
+    public Task Wziumy([AllowByValue] params Wzium[] wziumy)
     {
         return ReplyAsync(string.Join('\n', wziumy));
     }
 
-    [Command("wziumy")]
-    public Task Wziumy()
-    {
-        return ReplyAsync("nie ma wziuma");
-    }
+    //[Command("wziumy")]
+    //public Task Wziumy()
+    //{
+    //    return ReplyAsync("nie ma wziuma");
+    //}
 
     [Command("messages")]
     public async Task Messages()
@@ -237,6 +237,12 @@ public class StrangeCommands : CommandModule
         }
         await Task.WhenAll(tasks);
         await ReplyAsync("Spammed!");
+    }
+    
+    [Command("escape")]
+    public Task Escape([Remainder] string text)
+    {
+        return ReplyAsync(Format.Escape(text).ToString());
     }
 }
 

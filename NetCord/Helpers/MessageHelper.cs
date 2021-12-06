@@ -45,6 +45,29 @@ public static class MessageHelper
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
+    public static async Task DeleteAsync(BotClient client, DiscordId channelId, IAsyncEnumerable<DiscordId> messagesIds)
+    {
+        var ids = new DiscordId[100];
+        int c = 0;
+        List<Task> tasks = new();
+        await foreach (var id in messagesIds)
+        {
+            ids[c] = id;
+            if (c == 99)
+            {
+                tasks.Add(BulkDeleteAsync(client, channelId, ids));
+                c = 0;
+            }
+            else
+                c++;
+        }
+        if (c > 1)
+            tasks.Add(BulkDeleteAsync(client, channelId, ids[..c]));
+        else if (c == 1)
+            tasks.Add(DeleteAsync(client, channelId, ids[0]));
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
     private static Task BulkDeleteAsync(BotClient client, DiscordId channelId, DiscordId[] messagesIds)
         => CDN.SendAsync(HttpMethod.Post, $"{{\"messages\":{JsonSerializer.Serialize(messagesIds)}}}", $"/channels/{channelId}/messages/bulk-delete", client);
 }

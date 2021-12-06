@@ -2,9 +2,9 @@
 {
     public class PermissionException : Exception
     {
-        public PermissionFlags MissingPermissions { get; }
+        public Permission MissingPermissions { get; }
 
-        internal PermissionException(string message, PermissionFlags missingPermissions) : base(message)
+        internal PermissionException(string message, Permission missingPermissions) : base(message)
         {
             MissingPermissions = missingPermissions;
         }

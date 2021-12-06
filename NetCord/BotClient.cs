@@ -162,7 +162,7 @@ namespace NetCord
             _webSocket.MessageReceived += (MemoryStream data) =>
             {
                 var json = JsonDocument.Parse(data.ToArray());
-                Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
+                //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
                 ProcessMessage(json);
             };
         }

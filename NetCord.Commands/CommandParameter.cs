@@ -4,23 +4,23 @@ namespace NetCord.Commands;
 
 public record CommandParameter<TContext> where TContext : ICommandContext
 {
-    public Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>? ReadAsync { get; }
+    public CommandServiceOptions<TContext>.TypeReader? ReadAsync { get; }
     public Type Type { get; }
     public bool HasDefaultValue { get; }
     public object? DefaultValue { get; }
     public bool Remainder { get; }
-    public bool EnumTypeReader { get; }
     public bool Params { get; }
+    public IReadOnlyDictionary<Type, Attribute> Attributes { get; }
 
-
-    internal CommandParameter(ParameterInfo parameter, Dictionary<Type, Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>> typeReaders)
+    internal CommandParameter(ParameterInfo parameter, CommandServiceOptions<TContext> options)
     {
         HasDefaultValue = parameter.HasDefaultValue;
 
-        Remainder = parameter.GetCustomAttribute<RemainderAttribute>() != null;
+        Attributes = parameter.GetCustomAttributes().ToDictionary(a => a.GetType());
+        Remainder = Attributes.TryGetValue(typeof(RemainderAttribute), out _);
 
         Type type;
-        if (parameter.GetCustomAttribute<ParamArrayAttribute>() != null)
+        if (Attributes.TryGetValue(typeof(ParamArrayAttribute), out _))
         {
             Params = true;
             type = parameter.ParameterType.GetElementType();
@@ -29,6 +29,8 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             type = parameter.ParameterType;
 
         var underlyingType = Nullable.GetUnderlyingType(type);
+
+        var typeReaders = options.TypeReaders;
         if (underlyingType != null)
         {
             if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
@@ -53,7 +55,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                     else
                         DefaultValue = d;
                 }
-                EnumTypeReader = true;
+                ReadAsync = options.EnumTypeReader;
             }
             else
                 throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + Type.FullName);
@@ -67,7 +69,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             if (typeReaders.TryGetValue(type, out var typeReader))
                 ReadAsync = typeReader;
             else if (type.IsEnum)
-                EnumTypeReader = true;
+                ReadAsync = options.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException("Type name: " + Type.FullName);
             Type = type;

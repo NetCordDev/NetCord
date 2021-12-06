@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Linq.Expressions;
 
 namespace NetCord.Commands;
 
@@ -8,13 +9,13 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandParameter<TContext>[] CommandParameters { get; }
     public int Priority { get; }
     public Context RequiredContext { get; }
-    public PermissionFlags RequiredBotPermissions { get; }
-    public PermissionFlags RequiredBotChannelPermissions { get; }
-    public PermissionFlags RequiredUserPermissions { get; }
-    public PermissionFlags RequiredUserChannelPermissions { get; }
+    public Permission RequiredBotPermissions { get; }
+    public Permission RequiredBotChannelPermissions { get; }
+    public Permission RequiredUserPermissions { get; }
+    public Permission RequiredUserChannelPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
 
-    public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, Dictionary<Type, Func<string, TContext, CommandServiceOptions<TContext>, Task<object>>> typeReaders)
+    public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
         if (methodInfo.ReturnType != typeof(Task))
             throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName} | {methodInfo.DeclaringType.FullName}.{methodInfo.Name}");
@@ -34,20 +35,10 @@ public record CommandInfo<TContext> where TContext : ICommandContext
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters | {methodInfo.DeclaringType.FullName}.{methodInfo.Name}");
-            CommandParameters[i] = new(parameter, typeReaders);
+            CommandParameters[i] = new(parameter, options);
         }
-
-        InvokeAsync = (obj, parameters) =>
-        {
-            try
-            {
-                return (Task)methodInfo.Invoke(obj, parameters);
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException;
-            }
-        };
+        
+        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null);
 
         RequiredBotPermissions = attribute.RequiredBotPermissions;
         RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;

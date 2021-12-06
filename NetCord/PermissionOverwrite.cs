@@ -8,15 +8,15 @@ public class PermissionOverwrite : Entity
 
     public PermissionOverwriteType Type => _jsonEntity.Type;
 
-    public PermissionFlags Allowed { get; }
+    public Permission Allowed { get; }
 
-    public PermissionFlags Denied { get; }
+    public Permission Denied { get; }
 
     internal PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonEntity)
     {
         _jsonEntity = jsonEntity;
-        Allowed = (PermissionFlags)ulong.Parse(jsonEntity.Allowed);
-        Denied = (PermissionFlags)ulong.Parse(jsonEntity.Denied);
+        Allowed = (Permission)ulong.Parse(jsonEntity.Allowed);
+        Denied = (Permission)ulong.Parse(jsonEntity.Denied);
     }
 }
 

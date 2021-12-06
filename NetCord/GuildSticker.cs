@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public class GuildSticker : StickerBase
+    public class GuildSticker : Sticker
     {
         private readonly BotClient _client;
 

@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public abstract class StickerBase : Entity
+    public abstract class Sticker : Entity
     {
         private protected readonly JsonModels.JsonSticker _jsonEntity;
 
@@ -14,7 +14,7 @@
 
         public StickerFormat Format => _jsonEntity.Format;
 
-        private protected StickerBase(JsonModels.JsonSticker jsonEntity)
+        private protected Sticker(JsonModels.JsonSticker jsonEntity)
         {
             _jsonEntity = jsonEntity;
         }

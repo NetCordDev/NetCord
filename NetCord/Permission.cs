@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
 [Flags]
-public enum PermissionFlags : ulong
+public enum Permission : ulong
 {
     CreateInstantInvite = (ulong)1 << 0,
     KickMembers = (ulong)1 << 1,

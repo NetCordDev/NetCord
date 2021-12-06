@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public class StandardSticker : StickerBase
+    public class StandardSticker : Sticker
     {
         public DiscordId PackId => _jsonEntity.PackId;
         public int? SortValue => _jsonEntity.SortValue;

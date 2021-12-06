@@ -7,11 +7,11 @@ public readonly struct Color : IEquatable<Color>
 {
     internal readonly int _value;
 
-    public byte R => (byte)(_value >> 16);
+    public byte Red => (byte)(_value >> 16);
 
-    public byte G => (byte)(_value >> 8);
+    public byte Green => (byte)(_value >> 8);
 
-    public byte B => (byte)_value;
+    public byte Blue => (byte)_value;
 
     public Color()
     {
@@ -25,7 +25,10 @@ public readonly struct Color : IEquatable<Color>
 
     public Color(int rgb)
     {
-        _value = rgb;
+        if (rgb is >= 0 and <= 16777215)
+            _value = rgb;
+        else
+            throw new ArgumentOutOfRangeException(nameof(rgb), $"{rgb} is not >= 0 or not <= 16777215");
     }
 
     public bool Equals(Color other) => _value == other._value;
@@ -36,5 +39,5 @@ public readonly struct Color : IEquatable<Color>
 
     public static bool operator !=(Color left, Color right) => !(left == right);
 
-    public override int GetHashCode() => HashCode.Combine(_value, R, G, B);
+    public override int GetHashCode() => _value.GetHashCode();
 }

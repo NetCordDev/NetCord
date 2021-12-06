@@ -2,5 +2,5 @@
 
 public class ClientConfig
 {
-    public Intents Intents { get; init; } = Intents.AllNonPrivileged;
+    public GatewayIntent Intents { get; init; } = GatewayIntent.AllNonPrivileged;
 }

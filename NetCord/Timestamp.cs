@@ -25,25 +25,22 @@
 
         public static bool TryParse(ReadOnlySpan<char> value, out Timestamp timeStamp)
         {
-            if (value.StartsWith("<t:"))
+            if (value.StartsWith("<t:") && value.EndsWith(">"))
             {
-                if (value.EndsWith(">"))
+                if (value[^3] == ':')
                 {
-                    if (value[^3] == ':')
+                    if (long.TryParse(value[3..^3], out var result))
                     {
-                        if (long.TryParse(value[3..^3], out var result))
-                        {
-                            timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result), (TimestampStyle)value[^2]);
-                            return true;
-                        }
+                        timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result), (TimestampStyle)value[^2]);
+                        return true;
                     }
-                    else
+                }
+                else
+                {
+                    if (long.TryParse(value[3..^3], out var result))
                     {
-                        if (long.TryParse(value[3..^3], out var result))
-                        {
-                            timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result));
-                            return true;
-                        }
+                        timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result));
+                        return true;
                     }
                 }
             }

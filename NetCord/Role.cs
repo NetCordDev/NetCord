@@ -14,7 +14,7 @@
 
         public int Position => _jsonEntity.Position;
 
-        public PermissionFlags Permissions { get; }
+        public Permission Permissions { get; }
 
         public bool Managed => _jsonEntity.Managed;
 
@@ -27,7 +27,7 @@
             _jsonEntity = jsonEntity;
             if (jsonEntity.Tags != null)
                 Tags = new(jsonEntity.Tags);
-            Permissions = (PermissionFlags)ulong.Parse(jsonEntity.Permissions);
+            Permissions = (Permission)ulong.Parse(jsonEntity.Permissions);
         }
 
         public override string ToString() => $"<@&{Id}>";

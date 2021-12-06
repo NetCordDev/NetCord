@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
 [Flags]
-public enum Intents : uint
+public enum GatewayIntent : uint
 {
     Guilds = 1 << 0,
     /// <summary>
