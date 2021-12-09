@@ -140,7 +140,7 @@ public class WebSocket
                         break;
                     }
                     else
-                        await stream.WriteAsync(_receiveBuffer).ConfigureAwait(false);
+                        stream.Write(_receiveBuffer.Span);
                 }
             }
         }
