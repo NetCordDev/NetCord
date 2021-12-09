@@ -23,8 +23,7 @@ public class NormalCommands : CommandModule
         {
             await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RolesIds.Concat(roles).Distinct());
             await ReplyAsync("Added the roles!!!");
-        }
-        else
+        } else
         {
             await ReplyAsync("You are not in a guild");
         }
@@ -43,8 +42,7 @@ public class NormalCommands : CommandModule
             var menu = CreateRolesMenu(Context.Guild.Roles.Values, user.RolesIds);
             message.Components.Add(menu);
             await SendAsync(message.Build());
-        }
-        else
+        } else
             await ReplyAsync("Required context: Guild");
     }
 

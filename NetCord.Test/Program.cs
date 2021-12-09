@@ -11,7 +11,7 @@ internal static class Program
     private static readonly CommandService _commandService = new();
     private static readonly InteractionService _interactionService = new();
 
-    private async static Task Main()
+    private static async Task Main()
     {
         _client.Log += Client_Log;
         _client.MessageReceived += Client_MessageReceived;
@@ -76,7 +76,7 @@ internal static class Program
             }
         }
     }
-    
+
     private static void Client_Log(string text, LogType type)
     {
         if (type == LogType.Gateway)
@@ -84,8 +84,7 @@ internal static class Program
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
             Console.ResetColor();
-        }
-        else if (type == LogType.Exception)
+        } else if (type == LogType.Exception)
         {
             Console.ForegroundColor = ConsoleColor.DarkRed;
             Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");

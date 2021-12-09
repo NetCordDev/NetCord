@@ -1,11 +1,12 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord;
 
-[JsonConverter(typeof(JsonConverters.ColorConverter))]
+[JsonConverter(typeof(ColorConverter))]
 public readonly struct Color : IEquatable<Color>
 {
-    internal readonly int _value;
+    private readonly int _value;
 
     public byte Red => (byte)(_value >> 16);
 
@@ -40,4 +41,15 @@ public readonly struct Color : IEquatable<Color>
     public static bool operator !=(Color left, Color right) => !(left == right);
 
     public override int GetHashCode() => _value.GetHashCode();
+
+    private class ColorConverter : JsonConverter<Color>
+    {
+        public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => new(reader.GetInt32());
+
+        public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
+        {
+            writer.WriteNumberValue(value._value);
+        }
+    }
 }

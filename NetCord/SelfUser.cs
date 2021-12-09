@@ -25,7 +25,7 @@ namespace NetCord
             public Avatar Avatar { get; set; }
         }
 
-        [JsonConverter(typeof(JsonConverters.AvatarConverter))]
+        [JsonConverter(typeof(AvatarConverter))]
         public class Avatar
         {
             public ContentType ContentType { get; }
@@ -35,6 +35,19 @@ namespace NetCord
             {
                 ContentType = contentType;
                 AvatarBase64 = avatarBase64;
+            }
+
+            private class AvatarConverter : JsonConverter<Avatar>
+            {
+                public override Avatar Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public override void Write(Utf8JsonWriter writer, Avatar value, JsonSerializerOptions options)
+                {
+                    writer.WriteStringValue("data:" + value.ContentType.MediaType + ";base64," + value.AvatarBase64);
+                }
             }
         }
 

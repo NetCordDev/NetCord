@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
+﻿
 using NetCord.JsonModels;
 
 namespace NetCord;
@@ -123,7 +122,7 @@ public class Guild : ClientEntity
                 return new Dictionary<DiscordId, StageInstance>(_stageInstances);
         }
     }
-    
+
     public IReadOnlyDictionary<DiscordId, GuildSticker> Stickers
     {
         get

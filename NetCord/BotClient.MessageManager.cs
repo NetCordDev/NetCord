@@ -40,7 +40,7 @@ namespace NetCord
                 case 10:
                     BeginHeartbeatAsync(rootElement);
                     break;
-                //case 11: break;
+                    //case 11: break;
             }
         }
 

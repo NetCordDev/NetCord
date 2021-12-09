@@ -11,6 +11,11 @@ public class DiscordId : IConvertible
 
     public override string ToString() => _value;
 
+    public static DiscordId Parse(ulong id)
+    {
+        return new(id.ToString());
+    }
+
     public static DiscordId Parse(string id)
     {
         if (TryParse(id, out var result))
@@ -65,7 +70,7 @@ public class DiscordId : IConvertible
     sbyte IConvertible.ToSByte(IFormatProvider provider) => Convert.ToSByte(_value, provider);
     float IConvertible.ToSingle(IFormatProvider provider) => Convert.ToSingle(_value, provider);
     string IConvertible.ToString(IFormatProvider provider) => _value;
-    object IConvertible.ToType(Type conversionType, IFormatProvider provider) => ((IConvertible)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider provider) => Convert.ChangeType(_value, conversionType, provider);
     ushort IConvertible.ToUInt16(IFormatProvider provider) => Convert.ToUInt16(_value, provider);
     uint IConvertible.ToUInt32(IFormatProvider provider) => Convert.ToUInt32(_value, provider);
     ulong IConvertible.ToUInt64(IFormatProvider provider) => Convert.ToUInt64(_value, provider);

@@ -7,9 +7,7 @@ namespace NetCord.JsonConverters
     internal class ContentTypeConverter : JsonConverter<ContentType>
     {
         public override ContentType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            return new(reader.GetString());
-        }
+            => new(reader.GetString());
 
         public override void Write(Utf8JsonWriter writer, ContentType value, JsonSerializerOptions options)
         {

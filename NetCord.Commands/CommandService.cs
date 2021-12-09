@@ -126,7 +126,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                 out Permission userChannelPermissions,
                 out var userAdministrator);
 
-            (var commandInfo, var parametersToPass) = await GetMethodAndParametersWithPermissionCheckAsync(context, separator, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions,  userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
+            (var commandInfo, var parametersToPass) = await GetMethodAndParametersWithPermissionCheckAsync(context, separator, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
             var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo.DeclaringType);
             methodClass.Context = context;
 
@@ -150,55 +150,55 @@ public class CommandService<TContext> where TContext : ICommandContext
         {
             commandInfo = commandInfos[i];
             bool lastCommand = i == maxIndex;
-            
+
             #region Checking Permissions
-                if (!botAdministrator)
+            if (!botAdministrator)
+            {
+                if (!botPermissions.HasFlag(commandInfo.RequiredBotPermissions))
                 {
-                    if (!botPermissions.HasFlag(commandInfo.RequiredBotPermissions))
+                    if (lastCommand)
                     {
-                        if (lastCommand)
-                        {
-                            var missingPermissions = commandInfo.RequiredBotPermissions & ~botPermissions;
-                            throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
-                        }
-                        else
-                            continue;
+                        var missingPermissions = commandInfo.RequiredBotPermissions & ~botPermissions;
+                        throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
                     }
-                    if (!botChannelPermissions.HasFlag(commandInfo.RequiredBotChannelPermissions))
-                    {
-                        if (lastCommand)
-                        {
-                            var missingPermissions = commandInfo.RequiredBotChannelPermissions & ~botChannelPermissions;
-                            throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
-                        }
-                        else
-                            continue;
-                    }
+                    else
+                        continue;
                 }
-                if (!userAdministrator)
+                if (!botChannelPermissions.HasFlag(commandInfo.RequiredBotChannelPermissions))
                 {
-                    if (!userPermissions.HasFlag(commandInfo.RequiredUserPermissions))
+                    if (lastCommand)
                     {
-                        if (lastCommand)
-                        {
-                            var missingPermissions = commandInfo.RequiredUserPermissions & ~userPermissions;
-                            throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
-                        }
-                        else
-                            continue;
+                        var missingPermissions = commandInfo.RequiredBotChannelPermissions & ~botChannelPermissions;
+                        throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
                     }
-                    if (!userChannelPermissions.HasFlag(commandInfo.RequiredUserChannelPermissions))
-                    {
-                        if (lastCommand)
-                        {
-                            var missingPermissions = commandInfo.RequiredUserChannelPermissions & ~userChannelPermissions;
-                            throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
-                        }
-                        else
-                            continue;
-                    }
+                    else
+                        continue;
                 }
-                #endregion
+            }
+            if (!userAdministrator)
+            {
+                if (!userPermissions.HasFlag(commandInfo.RequiredUserPermissions))
+                {
+                    if (lastCommand)
+                    {
+                        var missingPermissions = commandInfo.RequiredUserPermissions & ~userPermissions;
+                        throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
+                    }
+                    else
+                        continue;
+                }
+                if (!userChannelPermissions.HasFlag(commandInfo.RequiredUserChannelPermissions))
+                {
+                    if (lastCommand)
+                    {
+                        var missingPermissions = commandInfo.RequiredUserChannelPermissions & ~userChannelPermissions;
+                        throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
+                    }
+                    else
+                        continue;
+                }
+            }
+            #endregion
 
             CommandParameter<TContext>[] commandParameters = commandInfo.CommandParameters;
             var commandParametersLength = commandParameters.Length;

@@ -36,8 +36,7 @@ public class StrangeCommands : CommandModule
         if (System.Text.RegularExpressions.Regex.IsMatch(emoji, "(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])"))
         {
             reaction = new(emoji);
-        }
-        else
+        } else
         {
             var span = emoji.AsSpan();
             var last = span.LastIndexOf(':');
@@ -238,7 +237,7 @@ public class StrangeCommands : CommandModule
         await Task.WhenAll(tasks);
         await ReplyAsync("Spammed!");
     }
-    
+
     [Command("escape")]
     public Task Escape([Remainder] string text)
     {

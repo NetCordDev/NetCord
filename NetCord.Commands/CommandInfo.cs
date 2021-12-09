@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Linq.Expressions;
 
 namespace NetCord.Commands;
 
@@ -37,7 +36,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
                 throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters | {methodInfo.DeclaringType.FullName}.{methodInfo.Name}");
             CommandParameters[i] = new(parameter, options);
         }
-        
+
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null);
 
         RequiredBotPermissions = attribute.RequiredBotPermissions;

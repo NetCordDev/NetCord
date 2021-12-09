@@ -4,7 +4,7 @@ namespace NetCord.Test.Commands;
 
 public class ModCommands : CommandModule
 {
-    [Command("kick", RequiredUserPermissions = Permission.KickMembers , RequiredBotPermissions = Permission.KickMembers)]
+    [Command("kick", RequiredUserPermissions = Permission.KickMembers, RequiredBotPermissions = Permission.KickMembers)]
     public static Task Kick(GuildUser user, [Remainder] string reason = null)
     {
         return user.KickAsync(reason);

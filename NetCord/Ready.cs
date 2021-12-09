@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
 internal class Ready
 {
-    private JsonReady _jsonEntity;
+    private readonly JsonReady _jsonEntity;
 
     public SelfUser User { get; }
 

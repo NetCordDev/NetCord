@@ -28,6 +28,6 @@ public static class UserHelper
 
     public static string GetDefaultAvatarUrl(ushort discriminator) => $"{Discord.ImageBaseUrl}/embed/avatars/{discriminator % 5}.png";
 
-    public async static Task<DMChannel> GetDMChannelAsync(BotClient client, DiscordId userId)
+    public static async Task<DMChannel> GetDMChannelAsync(BotClient client, DiscordId userId)
         => new DMChannel((await CDN.SendAsync(HttpMethod.Post, $"{{\"recipient_id\":\"{userId}\"}}", "/users/@me/channels", client).ConfigureAwait(false)).ToObject<JsonModels.JsonChannel>(), client);
 }

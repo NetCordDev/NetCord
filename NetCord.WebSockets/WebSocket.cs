@@ -75,9 +75,9 @@ public class WebSocket
     /// </summary>
     /// <param name="buffer"></param>
     /// <returns></returns>
-    public async Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
+    public Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
     {
-        await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, token).ConfigureAwait(false);
+        return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, token).AsTask();
     }
 
     /// <summary>
@@ -86,9 +86,9 @@ public class WebSocket
     /// <param name="buffer"></param>
     /// <param name="flags"></param>
     /// <returns></returns>
-    public async Task SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageFlags flags, CancellationToken token = default)
+    public Task SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageFlags flags, CancellationToken token = default)
     {
-        await _webSocket.SendAsync(buffer, WebSocketMessageType.Text, flags, token).ConfigureAwait(false);
+        return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, flags, token).AsTask();
     }
 
     /// <summary>
@@ -128,7 +128,7 @@ public class WebSocket
                     {
                         if (r.MessageType != WebSocketMessageType.Close)
                         {
-                            await stream.WriteAsync(_receiveBuffer[..r.Count]).ConfigureAwait(false);
+                            stream.Write(_receiveBuffer[..r.Count].Span);
                             try
                             {
                                 MessageReceived?.Invoke(stream);

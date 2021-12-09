@@ -1,12 +1,11 @@
-﻿namespace NetCord
-{
-    public abstract class ClientEntity : Entity
-    {
-        protected BotClient _client;
+﻿namespace NetCord;
 
-        protected ClientEntity(BotClient client)
-        {
-            _client = client;
-        }
+public abstract class ClientEntity : Entity
+{
+    protected BotClient _client;
+
+    protected ClientEntity(BotClient client)
+    {
+        _client = client;
     }
 }

@@ -10,7 +10,7 @@
 
         public MessageComponentEmoji? Emoji { get; }
 
-        public bool Disabled => (bool)_jsonEntity.Disabled;
+        public bool Disabled => _jsonEntity.Disabled;
 
         private protected MessageButton(JsonModels.JsonMessageComponent jsonEntity)
         {
