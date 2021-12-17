@@ -43,11 +43,11 @@ public class DiscordId : IConvertible
         _value = id;
     }
 
-    public static bool operator ==(DiscordId left, DiscordId right) => left?._value == right?._value;
+    public static bool operator ==(DiscordId? left, DiscordId? right) => left?._value == right?._value;
 
-    public static bool operator !=(DiscordId left, DiscordId right) => !(left == right);
+    public static bool operator !=(DiscordId? left, DiscordId? right) => !(left == right);
 
-    public override bool Equals(object obj) => obj is DiscordId id && _value == id._value;
+    public override bool Equals(object? obj) => obj is DiscordId id && _value == id._value;
 
     public override int GetHashCode() => _value.GetHashCode();
 
@@ -58,27 +58,27 @@ public class DiscordId : IConvertible
 
 
     TypeCode IConvertible.GetTypeCode() => _value.GetTypeCode();
-    bool IConvertible.ToBoolean(IFormatProvider provider) => Convert.ToBoolean(_value, provider);
-    byte IConvertible.ToByte(IFormatProvider provider) => Convert.ToByte(_value, provider);
-    char IConvertible.ToChar(IFormatProvider provider) => Convert.ToChar(_value, provider);
-    DateTime IConvertible.ToDateTime(IFormatProvider provider) => CreatedAt.UtcDateTime;
-    decimal IConvertible.ToDecimal(IFormatProvider provider) => Convert.ToDecimal(_value, provider);
-    double IConvertible.ToDouble(IFormatProvider provider) => Convert.ToDouble(_value, provider);
-    short IConvertible.ToInt16(IFormatProvider provider) => Convert.ToInt16(_value, provider);
-    int IConvertible.ToInt32(IFormatProvider provider) => Convert.ToInt32(_value, provider);
-    long IConvertible.ToInt64(IFormatProvider provider) => Convert.ToInt64(_value, provider);
-    sbyte IConvertible.ToSByte(IFormatProvider provider) => Convert.ToSByte(_value, provider);
-    float IConvertible.ToSingle(IFormatProvider provider) => Convert.ToSingle(_value, provider);
-    string IConvertible.ToString(IFormatProvider provider) => _value;
-    object IConvertible.ToType(Type conversionType, IFormatProvider provider) => Convert.ChangeType(_value, conversionType, provider);
-    ushort IConvertible.ToUInt16(IFormatProvider provider) => Convert.ToUInt16(_value, provider);
-    uint IConvertible.ToUInt32(IFormatProvider provider) => Convert.ToUInt32(_value, provider);
-    ulong IConvertible.ToUInt64(IFormatProvider provider) => Convert.ToUInt64(_value, provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => Convert.ToBoolean(_value, provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => Convert.ToByte(_value, provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => Convert.ToChar(_value, provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => CreatedAt.UtcDateTime;
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => Convert.ToDecimal(_value, provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => Convert.ToDouble(_value, provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => Convert.ToInt16(_value, provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => Convert.ToInt32(_value, provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => Convert.ToInt64(_value, provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => Convert.ToSByte(_value, provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => Convert.ToSingle(_value, provider);
+    string IConvertible.ToString(IFormatProvider? provider) => _value;
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => Convert.ChangeType(_value, conversionType, provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => Convert.ToUInt16(_value, provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => Convert.ToUInt32(_value, provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => Convert.ToUInt64(_value, provider);
 
     private class DiscordIdConverter : JsonConverter<DiscordId>
     {
         public override DiscordId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => new(reader.GetString());
+            => new(reader.GetString()!);
 
         public override void Write(Utf8JsonWriter writer, DiscordId value, JsonSerializerOptions options)
         {

@@ -222,3 +222,6 @@ dotnet_diagnostic.CS8632.severity = suggestion
 [*.{cs,vb}]
 end_of_line=crlf
 dotnet_diagnostic.CA2007.severity=warning
+
+[Json*.cs]
+dotnet_diagnostic.CS8618.severity=none

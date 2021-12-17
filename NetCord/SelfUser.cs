@@ -11,7 +11,7 @@ namespace NetCord
             Properties properties = new();
             func.Invoke(properties);
             var message = JsonSerializer.Serialize(properties);
-            var result = await CDN.SendAsync(HttpMethod.Patch, message, $"/users/@me", _client).ConfigureAwait(false);
+            var result = (await CDN.SendAsync(HttpMethod.Patch, message, $"/users/@me", _client).ConfigureAwait(false))!;
             return new(result.ToObject<JsonModels.JsonUser>(), _client);
         }
 
@@ -19,10 +19,10 @@ namespace NetCord
         {
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             [JsonPropertyName("username")]
-            public string Username { get; set; }
+            public string? Username { get; set; }
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
             [JsonPropertyName("avatar")]
-            public Avatar Avatar { get; set; }
+            public Avatar? Avatar { get; set; }
         }
 
         [JsonConverter(typeof(AvatarConverter))]

@@ -23,21 +23,25 @@ public abstract class Interaction : ClientEntity
 
     public string Token => _jsonEntity.Token;
 
-    public UserMessage Message { get; }
+    public Message Message { get; }
 
     public abstract ButtonInteractionData Data { get; }
 
     internal Interaction(JsonInteraction jsonEntity, BotClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
-        if (client.Guilds.TryGetValue(jsonEntity.GuildId, out Guild guild))
+        var guildId = jsonEntity.GuildId;
+        if (guildId != null && client.Guilds.TryGetValue(guildId, out Guild? guild))
         {
             Guild = guild;
-            User = new GuildUser(jsonEntity.GuildUser, Guild, client);
+            User = new GuildUser(jsonEntity.GuildUser!, Guild, client);
+            Message = new(jsonEntity.Message with { GuildId = jsonEntity.GuildId }, client);
         }
         else
-            User = new User(jsonEntity.User, client);
-        Message = new(jsonEntity.Message with { GuildId = jsonEntity.GuildId }, client);
+        {
+            User = new User(jsonEntity.User!, client);
+            Message = new(jsonEntity.Message, client);
+        }
     }
 
     public Task EndAsync() => InteractionHelper.EndInteractionAsync(_client, Id, Token);

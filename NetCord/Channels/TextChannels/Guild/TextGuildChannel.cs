@@ -5,11 +5,11 @@
         public DiscordId? CategoryId => _jsonEntity.ParentId;
         public string? Topic => _jsonEntity.Topic;
         public bool IsNsfw => _jsonEntity.IsNsfw;
-        public int Slowmode => (int)_jsonEntity.Slowmode;
+        public int Slowmode => (int)_jsonEntity.Slowmode!;
 
-        public string Name => _jsonEntity.Name;
+        public string Name => _jsonEntity.Name!;
 
-        public int Position => (int)_jsonEntity.Position;
+        public int Position => (int)_jsonEntity.Position!;
 
         public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 

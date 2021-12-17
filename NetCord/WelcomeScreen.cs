@@ -1,14 +1,15 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace NetCord;
 
-namespace NetCord
+public class WelcomeScreen
 {
-    public class WelcomeScreen
+    private JsonModels.JsonWelcomeScreen _jsonEntity;
+
+    public string? Description => _jsonEntity.Description;
+    public IReadOnlyDictionary<DiscordId, Channel> WelcomeChannels { get; }
+
+    internal WelcomeScreen(JsonModels.JsonWelcomeScreen jsonEntity, BotClient client)
     {
-        [JsonInclude]
-        [JsonPropertyName("description")]
-        public string Description { get; private init; }
-        [JsonInclude]
-        [JsonPropertyName("welcome_channels")]
-        public IEnumerable<Channel> WelcomeChannels { get; private init; }
+        _jsonEntity = jsonEntity;
+        WelcomeChannels = jsonEntity.WelcomeChannels.ToDictionary(w => w.Id, w => Channel.CreateFromJson(w, client));
     }
 }

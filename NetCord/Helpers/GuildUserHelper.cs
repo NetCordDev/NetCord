@@ -4,7 +4,7 @@ namespace NetCord;
 
 public static class GuildUserHelper
 {
-    public static string GetGuildAvatarUrl(DiscordId guildId, DiscordId userId, string guildAvatarHash, ImageFormat? format)
+    public static string GetGuildAvatarUrl(DiscordId guildId, DiscordId userId, string? guildAvatarHash, ImageFormat? format)
     {
         if (guildAvatarHash != null)
             return $"{Discord.ImageBaseUrl}/guilds/{guildId}/users/{userId}/avatars/{guildAvatarHash}.{(format.HasValue ? InternalHelper.GetImageExtension(format.GetValueOrDefault()) : guildAvatarHash.StartsWith("a_") ? "gif" : "png")}";
@@ -21,7 +21,7 @@ public static class GuildUserHelper
     /// <param name="format"></param>
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
-    public static string GetGuildAvatarUrl(DiscordId guildId, DiscordId userId, string guildAvatarHash, ImageFormat? format, int size)
+    public static string GetGuildAvatarUrl(DiscordId guildId, DiscordId userId, string? guildAvatarHash, ImageFormat? format, int size)
     {
         if (guildAvatarHash != null)
             return $"{Discord.ImageBaseUrl}/guilds/{guildId}/users/{userId}/avatars/{guildAvatarHash}.{(format.HasValue ? InternalHelper.GetImageExtension(format.GetValueOrDefault()) : guildAvatarHash.StartsWith("a_") ? "gif" : "png")}?size={size}";
@@ -34,7 +34,7 @@ public static class GuildUserHelper
         GuildUserProperties properties = new();
         func.Invoke(properties);
         var message = JsonSerializer.Serialize(properties);
-        var result = await CDN.SendAsync(HttpMethod.Patch, message, $"/guilds/{guildId}/members/{userId}", client).ConfigureAwait(false);
+        var result = (await CDN.SendAsync(HttpMethod.Patch, message, $"/guilds/{guildId}/members/{userId}", client).ConfigureAwait(false))!;
         return new(result.ToObject<JsonModels.JsonGuildUser>(), client.Guilds[guildId], client);
     }
 

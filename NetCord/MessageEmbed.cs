@@ -21,13 +21,13 @@
         internal MessageEmbed(JsonModels.JsonEmbed jsonEntity)
         {
             _jsonEntity = jsonEntity;
-            Footer = new(jsonEntity.Footer);
-            Image = new(jsonEntity.Image);
-            Thumbnail = new(jsonEntity.Thumbnail);
-            Video = new(jsonEntity.Video);
-            Provider = new(jsonEntity.Provider);
-            Author = new(jsonEntity.Author);
-            Fields = jsonEntity.Fields.SelectOrEmpty(f => new MessageEmbedField(f));
+            if (jsonEntity.Footer != null) Footer = new(jsonEntity.Footer);
+            if (jsonEntity.Image != null) Image = new(jsonEntity.Image);
+            if (jsonEntity.Thumbnail != null) Thumbnail = new(jsonEntity.Thumbnail);
+            if (jsonEntity.Video != null) Video = new(jsonEntity.Video);
+            if (jsonEntity.Provider != null) Provider = new(jsonEntity.Provider);
+            if (jsonEntity.Author != null) Author = new(jsonEntity.Author);
+            Fields = jsonEntity.Fields.Select(f => new MessageEmbedField(f));
         }
     }
 }

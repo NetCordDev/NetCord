@@ -13,7 +13,7 @@
         internal GuildSticker(JsonModels.JsonSticker jsonEntity, BotClient client) : base(jsonEntity)
         {
             _client = client;
-            Creator = new(jsonEntity.Creator, client);
+            Creator = new(jsonEntity.Creator!, client);
         }
     }
 }

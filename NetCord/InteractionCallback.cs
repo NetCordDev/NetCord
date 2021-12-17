@@ -8,7 +8,7 @@ namespace NetCord
         public InteractionCallbackType Type { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("data")]
-        public InteractionMessage Message { get; }
+        public InteractionMessage? Message { get; }
 
         public InteractionCallback(InteractionCallbackType type)
         {

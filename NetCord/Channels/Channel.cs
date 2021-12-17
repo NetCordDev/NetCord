@@ -30,7 +30,7 @@ namespace NetCord
                 ChannelType.PublicGuildThread => new PublicThread(jsonChannel, client),
                 ChannelType.PrivateGuildThread => new PrivateThread(jsonChannel, client),
                 ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
-                _ => null,
+                _ => throw new ArgumentException($"Invalid {nameof(jsonChannel.Type)}"),
             };
         }
     }

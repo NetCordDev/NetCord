@@ -71,7 +71,7 @@ internal record JsonMessage : JsonEntity
     public DiscordId? ApplicationId { get; init; }
 
     [JsonPropertyName("message_reference")]
-    public JsonMessageReference MessageReference { get; init; }
+    public JsonMessageReference? MessageReference { get; init; }
 
     [JsonPropertyName("flags")]
     public MessageFlags? Flags { get; init; }

@@ -3,9 +3,9 @@
 public class UserId : Entity
 {
     public override DiscordId Id { get; }
-    public GuildUser? User { get; }
+    public User? User { get; }
 
-    public UserId(DiscordId id, GuildUser? user) : this(id)
+    public UserId(DiscordId id, User? user) : this(id)
     {
         User = user;
     }

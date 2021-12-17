@@ -27,11 +27,11 @@
         {
             _jsonEntity = jsonEntity;
             Timestamps = new(jsonEntity.Timestamps);
-            Emoji = new(jsonEntity.Emoji, client);
-            Party = new(jsonEntity.Party);
-            Assets = new(jsonEntity.Assets);
-            Secrets = new(jsonEntity.Secrets);
-            Buttons = jsonEntity.Buttons.SelectOrEmpty(b => new UserActivityButton(b));
+            if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji, client);
+            if (jsonEntity.Party != null) Party = new(jsonEntity.Party);
+            if (jsonEntity.Assets != null) Assets = new(jsonEntity.Assets);
+            if (jsonEntity.Secrets != null) Secrets = new(jsonEntity.Secrets);
+            Buttons = jsonEntity.Buttons.Select(b => new UserActivityButton(b));
         }
     }
 }

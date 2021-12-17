@@ -243,6 +243,19 @@ public class StrangeCommands : CommandModule
     {
         return ReplyAsync(Format.Escape(text).ToString());
     }
+
+    [Command("quote", Priority = 1)]
+    public async Task Quote(DiscordId messageId)
+        => await ReplyAsync(Format.Quote((await ChannelHelper.GetMessageAsync(Context.Client, Context.Channel, messageId)).Content).ToString());
+
+    [Command("quote", Priority = 0)]
+    public Task Quote(string text) => ReplyAsync(Format.Quote(text).ToString());
+
+    [Command("codeblock")]
+    public Task CodeBlock([Remainder] CodeBlock codeBlock)
+    {
+        return ReplyAsync(codeBlock.ToString());
+    }
 }
 
 public enum Wzium

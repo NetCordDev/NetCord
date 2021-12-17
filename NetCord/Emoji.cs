@@ -4,7 +4,9 @@
     {
         private readonly JsonModels.JsonEmoji _jsonEntity;
 
+#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
         public override DiscordId? Id => _jsonEntity.Id;
+#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
 
         public string? Name => _jsonEntity.Name;
 

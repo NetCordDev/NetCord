@@ -2,16 +2,16 @@
 {
     public class VoiceGuildChannel : Channel, IGuildChannel, IVoiceChannel
     {
-        public int Bitrate => (int)_jsonEntity.Bitrate;
+        public int Bitrate => (int)_jsonEntity.Bitrate!;
         public DiscordId? CategoryId => _jsonEntity.ParentId;
-        public int UserLimit => (int)_jsonEntity.UserLimit; //
+        public int UserLimit => (int)_jsonEntity.UserLimit!; //
         public string RtcRegion => _jsonEntity.RtcRegion;
         public VideoQualityMode VideoQualityMode
-            => _jsonEntity.VideoQualityMode == null ? (VideoQualityMode)_jsonEntity.VideoQualityMode : VideoQualityMode.Auto;
+            => _jsonEntity.VideoQualityMode != null ? (VideoQualityMode)_jsonEntity.VideoQualityMode : VideoQualityMode.Auto;
 
-        public string Name => _jsonEntity.Name;
+        public string Name => _jsonEntity.Name!;
 
-        public int Position => (int)_jsonEntity.Position;
+        public int Position => (int)_jsonEntity.Position!;
 
         public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 

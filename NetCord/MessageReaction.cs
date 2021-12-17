@@ -8,7 +8,9 @@ public class MessageReaction : ClientEntity
 
     public bool Me => _jsonEntity.Me;
 
+#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
     public override DiscordId? Id => _jsonEntity.Emoji.Id;
+#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
 
     public string? Name => _jsonEntity.Emoji.Name;
 

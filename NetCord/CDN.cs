@@ -1,8 +1,6 @@
 ﻿
 using System.Text.Json;
 
-//[assembly: InternalsVisibleTo("NetCord.Interactions")]
-//[assembly: InternalsVisibleTo("NetCord.Commands")]
 namespace NetCord;
 
 public static class CDN
@@ -11,7 +9,7 @@ public static class CDN
 
     public static Task<JsonDocument> SendAsync(HttpMethod method, BuiltMessage message, string partialUrl, BotClient client)
     {
-        return SendAsync(method, message._content, partialUrl, client);
+        return SendAsync(method, message._content, partialUrl, client)!;
     }
 
     /// <summary>
@@ -22,7 +20,7 @@ public static class CDN
     /// <param name="partialUrl"></param>
     /// <param name="client"></param>
     /// <returns></returns>
-    public static async Task<JsonDocument> SendAsync(HttpMethod method, MultipartFormDataContent content, string partialUrl, BotClient client)
+    public static async Task<JsonDocument?> SendAsync(HttpMethod method, MultipartFormDataContent content, string partialUrl, BotClient client)
     {
         string url = BaseUrl + partialUrl;
         HttpRequestMessage requestMessage = new(method, url)
@@ -33,7 +31,7 @@ public static class CDN
         var retryAfter = response.Headers.RetryAfter;
         while (retryAfter != null)
         {
-            await Task.Delay(retryAfter.Delta.Value).ConfigureAwait(false);
+            await Task.Delay(retryAfter.Delta!.Value).ConfigureAwait(false);
             requestMessage = new(method, url)
             {
                 Content = content
@@ -55,11 +53,11 @@ public static class CDN
         }
     }
 
-    public static async Task<JsonDocument> SendAsync(HttpMethod method, string message, string partialUrl, BotClient client, string reason)
+    public static async Task<JsonDocument?> SendAsync(HttpMethod method, string message, string partialUrl, BotClient client, string reason)
     {
         string url = BaseUrl + partialUrl;
         StringContent stringContent = new(message);
-        stringContent.Headers.ContentType.MediaType = "application/json";
+        stringContent.Headers.ContentType!.MediaType = "application/json";
         HttpRequestMessage requestMessage = new(method, url)
         {
             Content = stringContent
@@ -69,7 +67,7 @@ public static class CDN
         var retryAfter = response.Headers.RetryAfter;
         while (retryAfter != null)
         {
-            await Task.Delay(retryAfter.Delta.Value).ConfigureAwait(false);
+            await Task.Delay(retryAfter.Delta!.Value).ConfigureAwait(false);
             requestMessage = new(method, url)
             {
                 Content = stringContent
@@ -99,11 +97,11 @@ public static class CDN
     /// <param name="partialUrl"></param>
     /// <param name="client"></param>
     /// <returns></returns>
-    public static async Task<JsonDocument> SendAsync(HttpMethod method, string message, string partialUrl, BotClient client)
+    public static async Task<JsonDocument?> SendAsync(HttpMethod method, string message, string partialUrl, BotClient client)
     {
         string url = BaseUrl + partialUrl;
         StringContent stringContent = new(message);
-        stringContent.Headers.ContentType.MediaType = "application/json";
+        stringContent.Headers.ContentType!.MediaType = "application/json";
         HttpRequestMessage requestMessage = new(method, url)
         {
             Content = stringContent
@@ -112,7 +110,7 @@ public static class CDN
         var retryAfter = response.Headers.RetryAfter;
         while (retryAfter != null)
         {
-            await Task.Delay(retryAfter.Delta.Value).ConfigureAwait(false);
+            await Task.Delay(retryAfter.Delta!.Value).ConfigureAwait(false);
             requestMessage = new(method, url)
             {
                 Content = stringContent
@@ -134,7 +132,7 @@ public static class CDN
         }
     }
 
-    public static async Task<JsonDocument> SendAsync(HttpMethod method, string partialUrl, BotClient client, string reason)
+    public static async Task<JsonDocument?> SendAsync(HttpMethod method, string partialUrl, BotClient client, string reason)
     {
         string url = BaseUrl + partialUrl;
         HttpRequestMessage requestMessage = new(method, url);
@@ -143,7 +141,7 @@ public static class CDN
         var retryAfter = response.Headers.RetryAfter;
         while (retryAfter != null)
         {
-            await Task.Delay(retryAfter.Delta.Value).ConfigureAwait(false);
+            await Task.Delay(retryAfter.Delta!.Value).ConfigureAwait(false);
             requestMessage = new(method, url);
             response = await client._httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             retryAfter = response.Headers.RetryAfter;
@@ -162,7 +160,7 @@ public static class CDN
         }
     }
 
-    public static async Task<JsonDocument> SendAsync(HttpMethod method, string partialUrl, BotClient client)
+    public static async Task<JsonDocument?> SendAsync(HttpMethod method, string partialUrl, BotClient client)
     {
         string url = BaseUrl + partialUrl;
         HttpRequestMessage requestMessage = new(method, url);
@@ -170,7 +168,7 @@ public static class CDN
         var retryAfter = response.Headers.RetryAfter;
         while (retryAfter != null)
         {
-            await Task.Delay(retryAfter.Delta.Value).ConfigureAwait(false);
+            await Task.Delay(retryAfter.Delta!.Value).ConfigureAwait(false);
             requestMessage = new(method, url);
             response = await client._httpClient.SendAsync(requestMessage).ConfigureAwait(false);
             retryAfter = response.Headers.RetryAfter;

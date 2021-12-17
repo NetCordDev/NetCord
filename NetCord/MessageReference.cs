@@ -4,8 +4,8 @@
     {
         private readonly JsonModels.JsonMessageReference _jsonEntity;
 
-        public DiscordId MessageId => _jsonEntity.MessageId;
-        public DiscordId ChannelId => _jsonEntity.ChannelId;
+        public DiscordId MessageId => _jsonEntity.MessageId!;
+        public DiscordId ChannelId => _jsonEntity.ChannelId!;
         public DiscordId? GuildId => _jsonEntity.GuildId;
         public bool? FailIfNotExists => _jsonEntity.FailIfNotExists;
 

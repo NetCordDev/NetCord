@@ -8,6 +8,9 @@ internal record JsonAttachment : JsonEntity
     [JsonPropertyName("filename")]
     public string Filename { get; init; }
 
+    [JsonPropertyName("description")]
+    public string? Description { get; init; }
+
     [JsonConverter(typeof(JsonConverters.ContentTypeConverter))]
     [JsonPropertyName("content_type")]
     public ContentType? ContentType { get; init; }
@@ -26,4 +29,7 @@ internal record JsonAttachment : JsonEntity
 
     [JsonPropertyName("width")]
     public int? Width { get; init; }
+
+    [JsonPropertyName("ephemeral")]
+    public bool Ephemeral { get; init; }
 }

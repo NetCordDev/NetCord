@@ -34,7 +34,7 @@ public readonly struct Color : IEquatable<Color>
 
     public bool Equals(Color other) => _value == other._value;
 
-    public override bool Equals(object obj) => obj is Color color && Equals(color);
+    public override bool Equals(object? obj) => obj is Color color && Equals(color);
 
     public static bool operator ==(Color left, Color right) => left.Equals(right);
 

@@ -2,7 +2,7 @@
 
 public interface ICommandContext
 {
-    public UserMessage Message { get; }
+    public Message Message { get; }
     public Guild? Guild { get; }
     public BotClient Client { get; }
 }

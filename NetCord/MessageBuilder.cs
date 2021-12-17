@@ -13,10 +13,10 @@ namespace NetCord
         public bool? Tts { get; set; }
 
         [JsonIgnore]
-        public List<MessageFile> Files { get; set; }
+        public List<MessageFile>? Files { get; set; }
 
         [JsonPropertyName("embeds")]
-        public List<Embed> Embeds { get; set; }
+        public List<Embed>? Embeds { get; set; }
 
         [JsonPropertyName("allowed_mentions")]
         public AllowedMentions? AllowedMentions { get; set; }
@@ -25,10 +25,10 @@ namespace NetCord
         public Reference? MessageReference { get; set; }
 
         [JsonPropertyName("components")]
-        public List<Component> Components { get; set; }
+        public List<Component>? Components { get; set; }
 
         [JsonPropertyName("sticker_ids")]
-        public List<DiscordId> StickerIds { get; set; }
+        public List<DiscordId>? StickerIds { get; set; }
 
         public BuiltMessage Build()
         {

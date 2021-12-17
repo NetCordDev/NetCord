@@ -6,7 +6,7 @@
 
         internal MenuInteractionData(JsonModels.JsonInteractionData jsonEntity) : base(jsonEntity)
         {
-            SelectedValues = jsonEntity.SelectedValues;
+            SelectedValues = jsonEntity.SelectedValues!;
         }
     }
 }

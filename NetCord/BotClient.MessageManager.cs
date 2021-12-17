@@ -76,7 +76,7 @@ namespace NetCord
                 case "GUILD_ROLE_CREATE":
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
-                    if (TryGetGuild(property, out Guild g))
+                    if (TryGetGuild(property, out Guild? g))
                         AddOrUpdate(property.GetProperty("role"), g._roles, (JsonRole r, BotClient c) => new Role(r, c));
                     break;
                 case "GUILD_ROLE_DELETE":
@@ -172,7 +172,7 @@ namespace NetCord
                     var channelId = jsonMessage.ChannelId;
                     if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
                     {
-                        var channel = await GetChannelAsync(channelId).ConfigureAwait(false);
+                        var channel = await ChannelHelper.GetChannelAsync(this, channelId).ConfigureAwait(false);
                         if (channel is GroupDMChannel groupDMChannel)
                             _groupDMChannels[channelId] = groupDMChannel;
                         else if (channel is DMChannel dMChannel)
@@ -180,7 +180,7 @@ namespace NetCord
                     }
                     try
                     {
-                        MessageReceived?.Invoke(new UserMessage(jsonMessage, this));
+                        MessageReceived?.Invoke(new Message(jsonMessage, this));
                     }
                     catch (Exception ex)
                     {
@@ -201,7 +201,7 @@ namespace NetCord
                 case "TYPING_START": break;
 
                 case "READY":
-                    _connectDelay = 0;
+                    _reconnectTimer.Reset();
                     var d = jsonElement.GetProperty("d");
                     Ready ready = new(d.ToObject<JsonReady>(), this);
                     User = ready.User;
@@ -229,6 +229,7 @@ namespace NetCord
                     InvokeInteractionCreated(jsonElement.GetProperty("d"));
                     break;
                 case "RESUMED":
+                    _reconnectTimer.Reset();
                     LogInfo("Resumed previous session", LogType.Gateway);
                     break;
                 case "USER_UPDATE":

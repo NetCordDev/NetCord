@@ -19,7 +19,7 @@ namespace NetCord
 
         [JsonPropertyName("emoji")]
         [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-        public DiscordId EmojiId { get; init; }
+        public DiscordId? EmojiId { get; init; }
 
         [JsonPropertyName("disabled")]
         public bool Disabled { get; init; }

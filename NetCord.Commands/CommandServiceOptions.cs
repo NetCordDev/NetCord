@@ -137,17 +137,18 @@ namespace NetCord.Commands
                 typeof(GuildUser),
                 (input, context, _, _) =>
                 {
-                    IReadOnlyDictionary<DiscordId, GuildUser> users;
+                    var guild = context.Guild;
+                    if (guild == null)
+                        goto exception;
+                    IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;
                     // by id
                     if (DiscordId.TryParse(input, out DiscordId id))
                     {
-                        users = context.Guild.Users;
                         if (users.TryGetValue(id, out var user))
                             return Task.FromResult((object)user);
                     }
                     else
                     {
-                        users = context.Guild.Users;
                         var span = input.AsSpan();
                         // by mention
                         if (MentionUtils.TryParseUser(span, out id))
@@ -194,56 +195,111 @@ namespace NetCord.Commands
                 typeof(UserId),
                 (input, context, _, _) =>
                 {
-                    var users = context.Guild.Users;
-                    // by id
-                    if (DiscordId.TryParse(input, out DiscordId id))
+                    var channel = context.Message.Channel;
+                    if (context.Guild != null)
                     {
-                        users.TryGetValue(id, out var user);
-                        return Task.FromResult((object)new UserId(id, user));
-                    }
-
-                    var span = input.AsSpan();
-
-                    // by mention
-                    if (MentionUtils.TryParseUser(span, out id))
-                    {
-                        users.TryGetValue(id, out var user);
-                        return Task.FromResult((object)new UserId(id, user));
-                    }
-
-                    // by name and tag
-                    if (span.Length is >= 7 and <= 37 && span[^5] == '#')
-                    {
-                        var username = span[..^5].ToString();
-                        if (ushort.TryParse(span[^4..], out var discriminator))
+                        IReadOnlyDictionary<DiscordId, GuildUser> users = context.Guild.Users;
+                        // by id
+                        if (DiscordId.TryParse(input, out DiscordId id))
                         {
-                            GuildUser user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                            if (user != null)
-                                return Task.FromResult((object)new UserId(user.Id, user));
+                            users.TryGetValue(id, out var user);
+                            return Task.FromResult((object)new UserId(id, user));
+                        }
+
+                        var span = input.AsSpan();
+
+                        // by mention
+                        if (MentionUtils.TryParseUser(span, out id))
+                        {
+                            users.TryGetValue(id, out var user);
+                            return Task.FromResult((object)new UserId(id, user));
+                        }
+
+                        // by name and tag
+                        if (span.Length is >= 7 and <= 37 && span[^5] == '#')
+                        {
+                            var username = span[..^5].ToString();
+                            if (ushort.TryParse(span[^4..], out var discriminator))
+                            {
+                                GuildUser user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                                if (user != null)
+                                    return Task.FromResult((object)new UserId(user.Id, user));
+                            }
+                        }
+                        // by name or nickname
+                        else
+                        {
+                            var len = input.Length;
+                            if (len <= 32)
+                            {
+                                var selectedUsers = len >= 2
+                                    ? users.Values.Select(u => u.Username == input || u.Nickname == input)
+                                    : users.Values.Select(u => u.Nickname == input);
+                                var count = selectedUsers.Count();
+                                if (count == 1)
+                                    return Task.FromResult((object)selectedUsers.First());
+                                else if (count > 1)
+                                    throw new ArgumentParseException("Too many users found");
+                            }
                         }
                     }
-                    // by name or nickname
-                    else
+                    else if (context.Message.Channel is DMChannel dm)
                     {
-                        var len = input.Length;
-                        if (len <= 32)
+                        IReadOnlyDictionary<DiscordId, User> users = dm.Users;
+                        // by id
+                        if (DiscordId.TryParse(input, out DiscordId id))
                         {
-                            var selectedUsers = len >= 2
-                                ? users.Values.Select(u => u.Username == input || u.Nickname == input)
-                                : users.Values.Select(u => u.Nickname == input);
-                            var count = selectedUsers.Count();
-                            if (count == 1)
-                                return Task.FromResult((object)selectedUsers.First());
-                            else if (count > 1)
-                                throw new ArgumentParseException("Too many users found");
+                            users.TryGetValue(id, out var user);
+                            return Task.FromResult((object)new UserId(id, user));
+                        }
+
+                        var span = input.AsSpan();
+
+                        // by mention
+                        if (MentionUtils.TryParseUser(span, out id))
+                        {
+                            users.TryGetValue(id, out var user);
+                            return Task.FromResult((object)new UserId(id, user));
+                        }
+
+                        // by name and tag
+                        if (span.Length is >= 7 and <= 37 && span[^5] == '#')
+                        {
+                            var username = span[..^5].ToString();
+                            if (ushort.TryParse(span[^4..], out var discriminator))
+                            {
+                                User user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                                if (user != null)
+                                    return Task.FromResult((object)new UserId(user.Id, user));
+                            }
+                        }
+                        // by name
+                        else
+                        {
+                            if (input.Length is <= 32 and >= 2)
+                            {
+                                var selectedUsers = users.Values.Select(u => u.Username == input);
+                                var count = selectedUsers.Count();
+                                if (count == 1)
+                                    return Task.FromResult((object)selectedUsers.First());
+                                else if (count > 1)
+                                    throw new ArgumentParseException("Too many users found");
+                            }
                         }
                     }
+
+
+
                     throw new ArgumentParseException("The user was not found");
                 }
             },
             {
                 typeof(Timestamp),
                 (input, _, _, _) => Task.FromResult((object)Timestamp.Parse(input))
+            },
+            {
+                typeof(CodeBlock),
+                (input, _, _, _) => Task.FromResult((object)CodeBlock.Parse(input))
             }
         };
         #endregion

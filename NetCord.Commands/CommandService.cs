@@ -111,7 +111,7 @@ public class CommandService<TContext> where TContext : ICommandContext
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
             var roles = context.Guild.Roles.Values;
-            CalculatePermissions(guild.Users[context.Client],
+            CalculatePermissions(guild.Users[context.Client.User],
                 everyonePermissions,
                 channelPermissionOverwrites,
                 roles,

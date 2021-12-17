@@ -4,16 +4,16 @@ namespace NetCord;
 
 public class EmbedBuilder
 {
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public string Url { get; set; }
+    public string? Title { get; set; }
+    public string? Description { get; set; }
+    public string? Url { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
     public Color? Color { get; set; }
-    public EmbedFooter Footer { get; set; }
-    public string ImageUrl { get; set; }
-    public string ThumbnailUrl { get; set; }
-    public EmbedAuthor Author { get; set; }
-    public List<EmbedField> Fields { get; set; }
+    public EmbedFooter? Footer { get; set; }
+    public string? ImageUrl { get; set; }
+    public string? ThumbnailUrl { get; set; }
+    public EmbedAuthor? Author { get; set; }
+    public List<EmbedField>? Fields { get; set; }
 
     public Embed Build()
         => new(Title, Description, Url, Timestamp, Color, Footer, new(ImageUrl), new(ThumbnailUrl), Author, Fields);
@@ -22,16 +22,16 @@ public class EmbedBuilder
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class Embed
 {
-    internal Embed(string title,
-                 string description,
-                 string url,
+    internal Embed(string? title,
+                 string? description,
+                 string? url,
                  DateTimeOffset? timestamp,
                  Color? color,
-                 EmbedFooter footer,
-                 EmbedImage image,
-                 EmbedThumbnail thumbnail,
-                 EmbedAuthor author,
-                 List<EmbedField> fields)
+                 EmbedFooter? footer,
+                 EmbedImage? image,
+                 EmbedThumbnail? thumbnail,
+                 EmbedAuthor? author,
+                 List<EmbedField>? fields)
     {
         Title = title;
         Description = description;
@@ -64,14 +64,14 @@ public class Embed
     [JsonPropertyName("author")]
     public EmbedAuthor? Author { get; }
     [JsonPropertyName("fields")]
-    public List<EmbedField> Fields { get; }
+    public List<EmbedField>? Fields { get; }
 }
 
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class EmbedFooter
 {
     [JsonPropertyName("text")]
-    public string Text { get; init; }
+    public string? Text { get; init; }
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; init; }
 }
@@ -81,7 +81,7 @@ public abstract class EmbedPartBase
     [JsonPropertyName("url")]
     public string? Url { get; }
 
-    internal EmbedPartBase(string url)
+    internal EmbedPartBase(string? url)
     {
         Url = url;
     }
@@ -89,14 +89,14 @@ public abstract class EmbedPartBase
 
 public class EmbedImage : EmbedPartBase
 {
-    internal EmbedImage(string url) : base(url)
+    internal EmbedImage(string? url) : base(url)
     {
     }
 }
 
 public class EmbedThumbnail : EmbedPartBase
 {
-    internal EmbedThumbnail(string url) : base(url)
+    internal EmbedThumbnail(string? url) : base(url)
     {
     }
 }

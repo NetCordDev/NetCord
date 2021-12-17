@@ -3,23 +3,24 @@ using System.Text;
 
 namespace NetCord.WebSockets;
 
-public class WebSocket
+public class WebSocket : IDisposable
 {
     private readonly Uri _uri;
-    private ClientWebSocket _webSocket;
-    private readonly Memory<byte> _receiveBuffer = new(new byte[128]);
+    private ClientWebSocket? _webSocket;
     private bool _closed;
-    private Task _readAsync;
+    private Task? _readAsync;
+    private bool _disposed;
 
-    public event Action Connecting;
-    public event Action Connected;
-    public event DisconnectedEventHandler Disconnected;
-    public event Action Closed;
-
-    public event MessageReceivedEventHandler MessageReceived;
+    public event Action? Connecting;
+    public event Action? Connected;
+    public event DisconnectedEventHandler? Disconnected;
+    public event Action? Closed;
+    public event MessageReceivedEventHandler? MessageReceived;
 
     public delegate void DisconnectedEventHandler(WebSocketCloseStatus? closeStatus, string? closeStatusDescription);
-    public delegate void MessageReceivedEventHandler(MemoryStream data);
+    public delegate void MessageReceivedEventHandler(ReadOnlyMemory<byte> data);
+
+    public bool IsConnected { get; private set; }
 
     /// <summary>
     /// Gets or sets the default encoding
@@ -41,13 +42,17 @@ public class WebSocket
     /// <returns></returns>
     public async Task ConnectAsync()
     {
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(WebSocket));
         try
         {
             Connecting?.Invoke();
         }
         finally
         {
+            _webSocket?.Dispose();
             await (_webSocket = new()).ConnectAsync(_uri, default).ConfigureAwait(false);
+            IsConnected = true;
             try
             {
                 Connected?.Invoke();
@@ -65,9 +70,11 @@ public class WebSocket
     /// </summary>
     public async Task CloseAsync()
     {
+        ThrowIfInvalid();
         _closed = true;
-        await _webSocket.CloseAsync(WebSocketCloseStatus.Empty, null, default).ConfigureAwait(false);
-        await _readAsync.ConfigureAwait(false);
+        IsConnected = false;
+        await _webSocket!.CloseAsync(WebSocketCloseStatus.Empty, null, default).ConfigureAwait(false);
+        await _readAsync!.ConfigureAwait(false);
     }
 
     /// <summary>
@@ -77,7 +84,8 @@ public class WebSocket
     /// <returns></returns>
     public Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
     {
-        return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, true, token).AsTask();
+        ThrowIfInvalid();
+        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, true, token).AsTask();
     }
 
     /// <summary>
@@ -88,7 +96,8 @@ public class WebSocket
     /// <returns></returns>
     public Task SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageFlags flags, CancellationToken token = default)
     {
-        return _webSocket.SendAsync(buffer, WebSocketMessageType.Text, flags, token).AsTask();
+        ThrowIfInvalid();
+        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, flags, token).AsTask();
     }
 
     /// <summary>
@@ -97,10 +106,7 @@ public class WebSocket
     /// <param name="message"></param>
     /// <returns></returns>
     public Task SendAsync(string message, CancellationToken token = default)
-    {
-        ReadOnlyMemory<byte> messageBytes = new(Encoding.GetBytes(message));
-        return SendAsync(messageBytes, token);
-    }
+        => SendAsync(Encoding.GetBytes(message), token);
 
     /// <summary>
     /// Send a message
@@ -109,29 +115,28 @@ public class WebSocket
     /// <param name="flags"></param>
     /// <returns></returns>
     public Task SendAsync(string message, WebSocketMessageFlags flags, CancellationToken token = default)
-    {
-        ReadOnlyMemory<byte> messageBytes = new(Encoding.GetBytes(message));
-        return SendAsync(messageBytes, flags, token);
-    }
+        => SendAsync(Encoding.GetBytes(message), flags, token);
 
     private async Task ReadAsync()
     {
+        var webSocket = _webSocket;
         try
         {
+            Memory<byte> receiveBuffer = new(new byte[128]);
+            using MemoryStream stream = new();
             while (true)
             {
-                using MemoryStream stream = new();
                 while (true)
                 {
-                    var r = await _webSocket.ReceiveAsync(_receiveBuffer, default).ConfigureAwait(false);
+                    var r = await webSocket!.ReceiveAsync(receiveBuffer, default).ConfigureAwait(false);
                     if (r.EndOfMessage)
                     {
                         if (r.MessageType != WebSocketMessageType.Close)
                         {
-                            stream.Write(_receiveBuffer[..r.Count].Span);
+                            stream.Write(receiveBuffer[..r.Count].Span);
                             try
                             {
-                                MessageReceived?.Invoke(stream);
+                                MessageReceived?.Invoke(stream.ToArray());
                             }
                             catch
                             {
@@ -140,22 +145,44 @@ public class WebSocket
                         break;
                     }
                     else
-                        stream.Write(_receiveBuffer.Span);
+                        stream.Write(receiveBuffer.Span);
                 }
+                stream.SetLength(0);
             }
         }
         catch
         {
+            IsConnected = false;
             try
             {
                 if (_closed)
                     Closed?.Invoke();
                 else
-                    Disconnected?.Invoke(_webSocket.CloseStatus, _webSocket.CloseStatusDescription);
+                    Disconnected?.Invoke(webSocket!.CloseStatus, webSocket!.CloseStatusDescription);
             }
             catch
             {
             }
         }
+    }
+
+    public void Dispose()
+    {
+        Connecting = null;
+        Connected = null;
+        Disconnected = null;
+        Closed = null;
+        MessageReceived = null;
+        _webSocket?.Dispose();
+        IsConnected = false;
+        _disposed = true;
+    }
+
+    private void ThrowIfInvalid()
+    {
+        if (!IsConnected)
+            throw new WebSocketException("WebSocket wasn't connected");
+        else if (_disposed)
+            throw new ObjectDisposedException(nameof(WebSocket));
     }
 }

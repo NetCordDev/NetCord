@@ -8,10 +8,10 @@ namespace NetCord
         public string CustomId { get; }
 
         [JsonPropertyName("options")]
-        public List<SelectOption> Options { get; init; }
+        public List<SelectOption>? Options { get; init; }
 
         [JsonPropertyName("placeholder")]
-        public string Placeholder { get; init; }
+        public string? Placeholder { get; init; }
 
         [JsonPropertyName("min_values")]
         public int? MinValues { get; init; }
@@ -36,11 +36,11 @@ namespace NetCord
             public string Value { get; }
 
             [JsonPropertyName("description")]
-            public string Description { get; init; }
+            public string? Description { get; init; }
 
             [JsonPropertyName("emoji")]
             [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-            public DiscordId EmojiId { get; init; }
+            public DiscordId? EmojiId { get; init; }
 
             [JsonPropertyName("default")]
             public bool? IsDefault { get; init; }

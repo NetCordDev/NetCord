@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord.JsonModels
+namespace NetCord.JsonModels;
+
+internal record JsonEntity
 {
-    internal record JsonEntity
-    {
-        [JsonPropertyName("id")]
-        public virtual DiscordId Id { get; init; }
-    }
+    [JsonPropertyName("id")]
+    public virtual DiscordId Id { get; init; }
 }

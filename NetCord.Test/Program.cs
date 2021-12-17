@@ -58,7 +58,7 @@ internal static class Program
         }
     }
 
-    private static async void Client_MessageReceived(UserMessage message)
+    private static async void Client_MessageReceived(Message message)
     {
         if (!message.Author.IsBot)
         {
@@ -79,16 +79,8 @@ internal static class Program
 
     private static void Client_Log(string text, LogType type)
     {
-        if (type == LogType.Gateway)
-        {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
-            Console.ResetColor();
-        } else if (type == LogType.Exception)
-        {
-            Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
-            Console.ResetColor();
-        }
+        Console.ForegroundColor = type == LogType.Gateway ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
+        Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
+        Console.ResetColor();
     }
 }

@@ -7,9 +7,9 @@
             PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         }
 
-        public string Name => _jsonEntity.Name;
+        public string Name => _jsonEntity.Name!;
 
-        public int Position => (int)_jsonEntity.Position;
+        public int Position => (int)_jsonEntity.Position!;
 
         public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
     }

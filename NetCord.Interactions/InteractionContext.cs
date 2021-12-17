@@ -2,7 +2,7 @@
 
 public class ButtonInteractionContext : IButtonInteractionContext
 {
-    public Message Message => Interaction.Message;
+    public RestMessage Message => Interaction.Message;
 
     public Guild Guild => Interaction.Guild;
 
@@ -21,7 +21,7 @@ public class ButtonInteractionContext : IButtonInteractionContext
 
 public class MenuInteractionContext : IMenuInteractionContext
 {
-    public Message Message => Interaction.Message;
+    public RestMessage Message => Interaction.Message;
 
     public Guild Guild => Interaction.Guild;
 

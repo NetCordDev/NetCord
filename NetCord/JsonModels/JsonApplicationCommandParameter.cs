@@ -15,4 +15,7 @@ internal record JsonApplicationCommandParameter
 
     [JsonPropertyName("options")]
     public JsonApplicationCommandParameter[]? Parameters { get; init; }
+
+    [JsonPropertyName("focused")]
+    public bool? Focused { get; init; }
 }

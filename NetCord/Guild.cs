@@ -152,7 +152,8 @@ public class Guild : ClientEntity
         _channels = _jsonEntity.Channels.ToDictionaryOrEmpty(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
         _activeThreads = _jsonEntity.ActiveThreads.ToDictionaryOrEmpty(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
         _roles = _jsonEntity.Roles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
-        _emojis = _jsonEntity.Emojis.ToDictionaryOrEmpty(e => e.Id, e => new Emoji(e, client));
+        // guild emojis always have Id
+        _emojis = _jsonEntity.Emojis.ToDictionaryOrEmpty(e => e.Id!, e => new Emoji(e, client));
         _stageInstances = _jsonEntity.StageInstances.ToDictionaryOrEmpty(i => i.Id, i => new StageInstance(i, client));
         _stickers = _jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
         MemberCount = _jsonEntity.MemberCount;

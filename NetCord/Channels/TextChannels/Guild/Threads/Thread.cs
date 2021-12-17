@@ -5,8 +5,8 @@
     {
         public ThreadMetadata Metadata { get; }
         public ThreadSelfUser? CurrentUser { get; }
-        public int DefaultAutoArchiveDuration => (int)_jsonEntity.DefaultAutoArchiveDuration;
-        public DiscordId OwnerId => _jsonEntity.OwnerId;
+        public int DefaultAutoArchiveDuration => (int)_jsonEntity.DefaultAutoArchiveDuration!;
+        public DiscordId OwnerId => _jsonEntity.OwnerId!;
 
         public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => ChannelHelper.Thread.GetUsersAsync(_client, Id);
 

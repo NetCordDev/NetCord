@@ -7,7 +7,7 @@ namespace NetCord
     {
         private readonly JsonMessageComponent _jsonEntity;
         public MessageComponentType ComponentType => MessageComponentType.Menu;
-        public string CustomId => _jsonEntity.CustomId;
+        public string CustomId => _jsonEntity.CustomId!;
         public IEnumerable<SelectOption> Options { get; }
         public string? Placeholder => _jsonEntity.Placeholder;
         public int? MinValues => _jsonEntity.MinValues;
@@ -33,7 +33,7 @@ namespace NetCord
             internal SelectOption(JsonMessageComponent.SelectOption jsonEntity)
             {
                 _jsonEntity = jsonEntity;
-                Emoji = new(jsonEntity.Emoji);
+                if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
             }
         }
     }

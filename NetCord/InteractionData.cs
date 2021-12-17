@@ -4,7 +4,7 @@
     {
         private protected readonly JsonModels.JsonInteractionData _jsonEntity;
 
-        public string CustomId => _jsonEntity.CustomId;
+        public string CustomId => _jsonEntity.CustomId!;
 
         internal ButtonInteractionData(JsonModels.JsonInteractionData jsonEntity)
         {

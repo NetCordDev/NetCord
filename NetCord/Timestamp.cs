@@ -17,7 +17,7 @@
             Style = null;
         }
 
-        public Timestamp(DateTimeOffset dateTime, TimestampStyle style)
+        public Timestamp(DateTimeOffset dateTime, TimestampStyle? style)
         {
             DateTime = dateTime;
             Style = style;

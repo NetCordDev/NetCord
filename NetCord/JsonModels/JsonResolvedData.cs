@@ -6,18 +6,18 @@ namespace NetCord.JsonModels
     {
 
         [JsonPropertyName("users")]
-        public IReadOnlyDictionary<DiscordId, JsonUser> Users { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonUser>? Users { get; init; }
 
         [JsonPropertyName("members")]
-        public IReadOnlyDictionary<DiscordId, JsonGuildUser> GuildUsers { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonGuildUser>? GuildUsers { get; init; }
 
         [JsonPropertyName("roles")]
-        public IReadOnlyDictionary<DiscordId, JsonRole> Roles { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonRole>? Roles { get; init; }
 
         [JsonPropertyName("channels")]
-        public IReadOnlyDictionary<DiscordId, JsonChannel> Channels { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonChannel>? Channels { get; init; }
 
         [JsonPropertyName("channels")]
-        public IReadOnlyDictionary<DiscordId, JsonMessage> Messages { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonMessage>? Messages { get; init; }
     }
 }

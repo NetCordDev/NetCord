@@ -6,7 +6,7 @@
 
         public MessageComponentType ComponentType => MessageComponentType.Button;
 
-        public string Label => _jsonEntity.Label;
+        public string? Label => _jsonEntity.Label;
 
         public MessageComponentEmoji? Emoji { get; }
 
@@ -15,12 +15,12 @@
         private protected MessageButton(JsonModels.JsonMessageComponent jsonEntity)
         {
             _jsonEntity = jsonEntity;
-            Emoji = new(jsonEntity.Emoji);
+            if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
         }
 
         internal static MessageButton CreateFromJson(JsonModels.JsonMessageComponent jsonEntity)
         {
-            return (int)jsonEntity.Style switch
+            return (int)jsonEntity.Style! switch
             {
                 5 => new MessageLinkButton(jsonEntity),
                 _ => new MessageActionButton(jsonEntity),
