@@ -80,7 +80,6 @@ public partial class BotClient : IDisposable
         HttpClient httpClient = new();
         httpClient.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {_botToken}");
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
-        bool b = httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
         Rest = new(this, httpClient);
     }
 
@@ -163,7 +162,7 @@ public partial class BotClient : IDisposable
         _webSocket.MessageReceived += data =>
         {
             var json = JsonDocument.Parse(data);
-            Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
+            //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
             ProcessMessage(json);
         };
     }

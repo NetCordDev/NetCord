@@ -50,9 +50,6 @@ namespace NetCord
                     content.Add(new SeekableStreamContent(file._stream), $"files[{i}]", file.FileName);
                 }
             }
-            Console.BackgroundColor = ConsoleColor.DarkMagenta;
-            Console.WriteLine(content.ReadAsStringAsync().Result);
-            Console.ResetColor();
             return new(content);
         }
 
