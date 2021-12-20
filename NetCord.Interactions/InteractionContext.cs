@@ -4,7 +4,7 @@ public class ButtonInteractionContext : IButtonInteractionContext
 {
     public RestMessage Message => Interaction.Message;
 
-    public Guild Guild => Interaction.Guild;
+    public Guild? Guild => Interaction.Guild;
 
     public BotClient Client { get; }
 
@@ -23,7 +23,7 @@ public class MenuInteractionContext : IMenuInteractionContext
 {
     public RestMessage Message => Interaction.Message;
 
-    public Guild Guild => Interaction.Guild;
+    public Guild? Guild => Interaction.Guild;
 
     public BotClient Client { get; }
 

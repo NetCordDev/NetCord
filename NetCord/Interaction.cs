@@ -19,7 +19,7 @@ public abstract class Interaction : ClientEntity
 
     public DiscordId? ChannelId => _jsonEntity.ChannelId;
 
-    public User? User { get; }
+    public User User { get; }
 
     public string Token => _jsonEntity.Token;
 
@@ -44,15 +44,15 @@ public abstract class Interaction : ClientEntity
         }
     }
 
-    public Task EndAsync() => InteractionHelper.EndInteractionAsync(_client, Id, Token);
+    public Task EndAsync(RequestOptions? options = null) => _client.Rest.Interaction.EndAsync(Id, Token, options);
 
-    public Task EndWithModifyAsync(InteractionMessage message) => InteractionHelper.EndInteractionWithModifyAsync(_client, Id, Token, message);
+    public Task EndWithModifyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Rest.Interaction.EndWithModifyAsync(Id, Token, message, options);
 
-    public Task EndWithReplyAsync(InteractionMessage message) => InteractionHelper.EndInteractionWithReplyAsync(_client, Id, Token, message);
+    public Task EndWithReplyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Rest.Interaction.EndWithReplyAsync(Id, Token, message, options);
 
-    public Task EndWithThinkingStateAsync() => InteractionHelper.EndInteractionWithThinkingStateAsync(_client, Id, Token);
+    public Task EndWithThinkingStateAsync(RequestOptions? options = null) => _client.Rest.Interaction.EndWithThinkingStateAsync(Id, Token, options);
 
-    public Task ModifyThinkingStateAsync(BuiltMessage message) => InteractionHelper.ModifyThinkingStateAsync(_client, ApplicationId, Token, message);
+    public Task ModifyThinkingStateAsync(BuiltMessage message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyThinkingStateAsync(ApplicationId, Token, message, options);
 
-    public Task ModifyMessageAsync(BuiltMessage message) => InteractionHelper.ModifyInteractionMessageAsync(_client, ApplicationId, Token, Message.Id, message);
+    public Task ModifyMessageAsync(BuiltMessage message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
 }

@@ -11,10 +11,10 @@ public abstract class TextChannel : Channel
     public DiscordId? LastMessageId => _jsonEntity.LastMessageId;
     public DateTimeOffset? LastPin => _jsonEntity.LastPin;
 
-    public IAsyncEnumerable<RestMessage> GetMessagesAsync() => ChannelHelper.GetMessagesAsync(_client, Id);
-    public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(DiscordId messageId) => ChannelHelper.GetMessagesBeforeAsync(_client, Id, messageId);
-    public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(DiscordId messageId) => ChannelHelper.GetMessagesAfterAsync(_client, Id, messageId);
-    public Task<RestMessage> GetMessageAsync(DiscordId messageId) => ChannelHelper.GetMessageAsync(_client, Id, messageId);
-    public Task<RestMessage> SendMessageAsync(BuiltMessage message) => ChannelHelper.SendMessageAsync(_client, message, Id);
-    public Task<RestMessage> SendMessageAsync(string content) => ChannelHelper.SendMessageAsync(_client, content, Id);
+    public IAsyncEnumerable<RestMessage> GetMessagesAsync(RequestOptions? options = null) => _client.Rest.Message.GetAsync(Id, options);
+    public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(DiscordId messageId, RequestOptions? options = null) => _client.Rest.Message.GetBeforeAsync(Id, messageId, options);
+    public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(DiscordId messageId, RequestOptions? options = null) => _client.Rest.Message.GetAfterAsync(Id, messageId, options);
+    public Task<RestMessage> GetMessageAsync(DiscordId messageId, RequestOptions? options = null) => _client.Rest.Message.GetAsync(Id, messageId, options);
+    public Task<RestMessage> SendMessageAsync(BuiltMessage message, RequestOptions? options = null) => _client.Rest.Message.SendAsync(message, Id, options);
+    public Task<RestMessage> SendMessageAsync(string content, RequestOptions? options = null) => _client.Rest.Message.SendAsync(content, Id, options);
 }

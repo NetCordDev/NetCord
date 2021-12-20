@@ -23,7 +23,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
         if (Attributes.TryGetValue(typeof(ParamArrayAttribute), out _))
         {
             Params = true;
-            type = parameter.ParameterType.GetElementType();
+            type = parameter.ParameterType.GetElementType()!;
         }
         else
             type = parameter.ParameterType;
@@ -58,7 +58,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                 ReadAsync = options.EnumTypeReader;
             }
             else
-                throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + Type.FullName);
+                throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + type.FullName);
             Type = underlyingType;
         }
         else
@@ -71,7 +71,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             else if (type.IsEnum)
                 ReadAsync = options.EnumTypeReader;
             else
-                throw new TypeReaderNotFoundException("Type name: " + Type.FullName);
+                throw new TypeReaderNotFoundException("Type name: " + type.FullName);
             Type = type;
         }
     }

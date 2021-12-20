@@ -10,6 +10,7 @@ namespace NetCord.Test
             var user = Context.User;
             if (user is GuildUser guildUser)
             {
+                await Context.Interaction.EndWithThinkingStateAsync();
                 var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => DiscordId.Parse(s));
                 await guildUser.ModifyAsync(x => x.NewRolesIds = selectedValues);
                 InteractionMessageBuilder message = new()
@@ -19,7 +20,8 @@ namespace NetCord.Test
                 };
                 var menu = NormalCommands.CreateRolesMenu(Context.Guild.Roles.Values, selectedValues);
                 message.Components.Add(menu);
-                await Context.Interaction.EndWithModifyAsync(message.Build());
+                await Context.Interaction.ModifyThinkingStateAsync(new MessageBuilder { Content = "Roles updated" }.Build());
+                //await Context.Interaction.EndWithModifyAsync(message.Build());
             }
         }
 

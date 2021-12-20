@@ -2,7 +2,7 @@
 
 public class WelcomeScreen
 {
-    private JsonModels.JsonWelcomeScreen _jsonEntity;
+    private readonly JsonModels.JsonWelcomeScreen _jsonEntity;
 
     public string? Description => _jsonEntity.Description;
     public IReadOnlyDictionary<DiscordId, Channel> WelcomeChannels { get; }

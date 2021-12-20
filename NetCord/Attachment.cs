@@ -22,7 +22,7 @@ public class Attachment : Entity
 
     internal static Attachment CreateFromJson(JsonModels.JsonAttachment jsonEntity)
     {
-        if (jsonEntity.Width != null)
+        if (jsonEntity.Width.HasValue)
             return new ImageAttachment(jsonEntity);
         else
             return new Attachment(jsonEntity);

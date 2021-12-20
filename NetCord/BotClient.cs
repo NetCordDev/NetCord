@@ -15,7 +15,6 @@ public partial class BotClient : IDisposable
     private CancellationToken _token;
     private bool _disposed;
 
-    internal readonly HttpClient _httpClient = new();
     internal Dictionary<DiscordId, Guild> _guilds = new();
     internal Dictionary<DiscordId, DMChannel> _DMChannels = new();
     internal Dictionary<DiscordId, GroupDMChannel> _groupDMChannels = new();
@@ -35,11 +34,15 @@ public partial class BotClient : IDisposable
     public delegate void MessageReceivedEventHandler(Message message);
     public delegate void InteractionCreatedEventHandler<T>(T interaction);
 
+    /// <summary>
+    /// Is <see langword="null"/> before <see cref="Ready"/> event
+    /// </summary>
     public SelfUser? User { get; private set; }
     public string? SessionId { get; private set; }
     public int SequenceNumber { get; private set; }
     public DiscordId? ApplicationId { get; private set; }
     public ApplicationFlags? ApplicationFlags { get; private set; }
+    public RestClient Rest { get; }
 
     public IReadOnlyDictionary<DiscordId, Guild> Guilds
     {
@@ -73,9 +76,12 @@ public partial class BotClient : IDisposable
         ArgumentNullException.ThrowIfNull(token, nameof(token));
         SetupWebSocket();
         _botToken = token;
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {_botToken}");
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
         _config = new();
+        HttpClient httpClient = new();
+        httpClient.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {_botToken}");
+        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
+        bool b = httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
+        Rest = new(this, httpClient);
     }
 
     public BotClient(string token, TokenType tokenType, ClientConfig? config) : this(token, tokenType)
@@ -157,7 +163,7 @@ public partial class BotClient : IDisposable
         _webSocket.MessageReceived += data =>
         {
             var json = JsonDocument.Parse(data);
-            //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
+            Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
             ProcessMessage(json);
         };
     }
@@ -175,19 +181,7 @@ public partial class BotClient : IDisposable
 
     private Task SendIdentifyAsync()
     {
-        var authorizationMessage = @"{
-  ""op"": 2,
-  ""d"": {
-    ""token"": """ + _botToken + @""",
-    ""intents"": " + ((uint)_config.Intents) + @",
-    ""properties"": {
-      ""$os"": ""linux"",
-      ""$browser"": ""NetCord"",
-      ""$device"": ""NetCord""
-    },
-    ""large_threshold"": 250
-  }
-}";
+        var authorizationMessage = @"{""op"":2,""d"":{""token"":""" + _botToken + @""",""intents"":" + ((uint)_config.Intents) + @",""properties"":{""$os"":""linux"",""$browser"":""NetCord"",""$device"":""NetCord""},""large_threshold"":250}}";
         return _webSocket.SendAsync(authorizationMessage, _token);
     }
 
@@ -195,14 +189,7 @@ public partial class BotClient : IDisposable
     {
         await _webSocket.ConnectAsync().ConfigureAwait(false);
 
-        var resumeMessage = @"{
-  ""op"": 6,
-  ""d"": {
-    ""token"": """ + _botToken + @""",
-    ""session_id"": """ + SessionId + @""",
-    ""seq"": " + SequenceNumber + @"
-  }
-}";
+        var resumeMessage = @"{""op"":6,""d"":{""token"":""" + _botToken + @""",""session_id"":""" + SessionId + @""",""seq"":" + SequenceNumber + @"}}";
         await _webSocket.SendAsync(resumeMessage, _token).ConfigureAwait(false);
     }
 
@@ -258,7 +245,6 @@ public partial class BotClient : IDisposable
     public void Dispose()
     {
         _webSocket.Dispose();
-        _httpClient.Dispose();
         _tokenSource!.Dispose();
         _guilds = null!;
         _DMChannels = null!;

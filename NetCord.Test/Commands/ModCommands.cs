@@ -7,22 +7,22 @@ public class ModCommands : CommandModule
     [Command("kick", RequiredUserPermissions = Permission.KickMembers, RequiredBotPermissions = Permission.KickMembers)]
     public static Task Kick(GuildUser user, [Remainder] string reason = null)
     {
-        return user.KickAsync(reason);
+        return user.KickAsync(new() { AuditLogReason = reason });
     }
 
     [Command("ban", RequiredUserPermissions = Permission.BanMembers, RequiredBotPermissions = Permission.BanMembers)]
     public Task Ban(UserId userId, int? days = null, [Remainder] string reason = null)
     {
         if (days == null)
-            return Context.Guild.AddBanAsync(userId, reason);
+            return Context.Guild.BanUserAsync(userId, new() { AuditLogReason = reason });
         else
-            return Context.Guild.AddBanAsync(userId, (int)days, reason);
+            return Context.Guild.BanUserAsync(userId, (int)days, new() { AuditLogReason = reason });
     }
 
     [Command("unban", RequiredUserPermissions = Permission.BanMembers, RequiredBotPermissions = Permission.BanMembers)]
     public Task Unban(UserId userId, [Remainder] string reason = null)
     {
-        return Context.Guild.RemoveBanAsync(userId, reason);
+        return Context.Guild.UnbanUserAsync(userId, new() { AuditLogReason = reason });
     }
 
     [Command("clear", "purge", RequiredBotChannelPermissions = Permission.ManageMessages, RequiredUserChannelPermissions = Permission.ManageMessages)]
@@ -33,7 +33,7 @@ public class ModCommands : CommandModule
             await ReplyAsync("To few messages!");
             return;
         }
-        await MessageHelper.DeleteAsync(Context.Client, Context.Channel, GetMessagesToRemove());
+        await Context.Client.Rest.Message.DeleteAsync(Context.Channel, GetMessagesToRemove());
         if (count == 1)
             await SendAsync("**Deleted 1 message!**");
         else

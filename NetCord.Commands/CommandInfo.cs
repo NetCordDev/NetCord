@@ -17,11 +17,11 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
         if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName} | {methodInfo.DeclaringType.FullName}.{methodInfo.Name}");
+            throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName} | {methodInfo.DeclaringType!.FullName}.{methodInfo.Name}");
 
         Priority = attribute.Priority;
         RequiredContext = attribute.RequiredContext;
-        DeclaringType = methodInfo.DeclaringType;
+        DeclaringType = methodInfo.DeclaringType!;
 
         var parameters = methodInfo.GetParameters();
         int parametersLength = parameters.Length;
@@ -33,11 +33,11 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters | {methodInfo.DeclaringType.FullName}.{methodInfo.Name}");
+                throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters | {methodInfo.DeclaringType!.FullName}.{methodInfo.Name}");
             CommandParameters[i] = new(parameter, options);
         }
 
-        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null);
+        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
         RequiredBotPermissions = attribute.RequiredBotPermissions;
         RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;

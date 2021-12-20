@@ -6,7 +6,7 @@ namespace NetCord.Commands;
 
 public class CommandService : CommandService<CommandContext>
 {
-    public CommandService(CommandServiceOptions<CommandContext> options = null) : base(options)
+    public CommandService(CommandServiceOptions<CommandContext>? options = null) : base(options)
     {
     }
 }
@@ -25,7 +25,7 @@ public class CommandService<TContext> where TContext : ICommandContext
         }
     }
 
-    public CommandService(CommandServiceOptions<TContext> options = null)
+    public CommandService(CommandServiceOptions<TContext>? options = null)
     {
         _options = options ?? new();
     }
@@ -40,7 +40,7 @@ public class CommandService<TContext> where TContext : ICommandContext
             {
                 foreach (MethodInfo method in methods)
                 {
-                    CommandAttribute commandAttribute = method.GetCustomAttribute<CommandAttribute>();
+                    CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
                     if (commandAttribute == null)
                         continue;
                     CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
@@ -106,11 +106,17 @@ public class CommandService<TContext> where TContext : ICommandContext
         int maxIndex = commandInfos.Count - 1;
 
         var guild = context.Guild;
+
+        ValueTuple<CommandInfo<TContext>, object[]> v;
         if (guild != null)
         {
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
-            var roles = context.Guild.Roles.Values;
+            var roles = context.Guild!.Roles.Values;
+
+            if (context.Client.User == null)
+                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
+
             CalculatePermissions(guild.Users[context.Client.User],
                 everyonePermissions,
                 channelPermissionOverwrites,
@@ -126,26 +132,24 @@ public class CommandService<TContext> where TContext : ICommandContext
                 out Permission userChannelPermissions,
                 out var userAdministrator);
 
-            (var commandInfo, var parametersToPass) = await GetMethodAndParametersWithPermissionCheckAsync(context, separator, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
-            var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo.DeclaringType);
-            methodClass.Context = context;
+            v = await GetMethodAndParametersWithPermissionCheckAsync(context, separator, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
 
-            await commandInfo.InvokeAsync(methodClass, parametersToPass).ConfigureAwait(false);
         }
         else
         {
-            (CommandInfo<TContext> commandInfo, object[] parametersToPass) = await GetMethodAndParametersAsync(context, separator, commandInfos, baseArguments, maxIndex).ConfigureAwait(false);
-            var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo.DeclaringType);
-            methodClass.Context = context;
-
-            await commandInfo.InvokeAsync(methodClass, parametersToPass).ConfigureAwait(false);
+            v = await GetMethodAndParametersAsync(context, separator, commandInfos, baseArguments, maxIndex).ConfigureAwait(false);
         }
+
+        var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(v.Item1.DeclaringType)!;
+        methodClass.Context = context;
+
+        await v.Item1.InvokeAsync(methodClass, v.Item2).ConfigureAwait(false);
     }
 
     private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char separator, List<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
     {
-        CommandInfo<TContext> commandInfo = null;
-        object[] parametersToPass = null;
+        CommandInfo<TContext>? commandInfo = null;
+        object?[]? parametersToPass = null;
         for (int i = 0; i <= maxIndex; i++)
         {
             commandInfo = commandInfos[i];
@@ -205,7 +209,7 @@ public class CommandService<TContext> where TContext : ICommandContext
             string arguments = baseArguments;
             parametersToPass = new object[commandParametersLength];
             bool isLastArgGood = false;
-            string currentArg = null;
+            string? currentArg = null;
 
             int commandParamIndex = 0;
             int maxCommandParamIndex = commandParametersLength - 1;
@@ -223,12 +227,12 @@ public class CommandService<TContext> where TContext : ICommandContext
                         currentArg = index == -1 ? arguments : arguments[..index];
                     }
 
-                    int currentArgLength = currentArg.Length;
+                    int currentArgLength = currentArg!.Length;
                     if (currentArgLength != 0)
                     {
                         try
                         {
-                            parametersToPass[commandParamIndex] = await parameter.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            parametersToPass[commandParamIndex] = await parameter.ReadAsync!(currentArg, context, parameter, _options).ConfigureAwait(false);
                             arguments = arguments[currentArgLength..].TrimStart(separator);
                             isLastArgGood = false;
                         }
@@ -270,7 +274,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                             var o = Array.CreateInstance(parameter.Type, len);
 
                             for (var a = 0; a < len; a++)
-                                o.SetValue(await parameter.ReadAsync(args[a], context, parameter, _options).ConfigureAwait(false), a);
+                                o.SetValue(await parameter.ReadAsync!(args[a], context, parameter, _options).ConfigureAwait(false), a);
 
                             parametersToPass[commandParamIndex] = o;
                             goto Break;
@@ -306,13 +310,13 @@ public class CommandService<TContext> where TContext : ICommandContext
             break;
             Continue:;
         }
-        return (commandInfo, parametersToPass);
+        return (commandInfo, parametersToPass)!;
     }
 
     private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char separator, List<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
     {
-        CommandInfo<TContext> commandInfo = null;
-        object[] parametersToPass = null;
+        CommandInfo<TContext>? commandInfo = null;
+        object?[]? parametersToPass = null;
         for (int i = 0; i <= maxIndex; i++)
         {
             commandInfo = commandInfos[i];
@@ -323,7 +327,7 @@ public class CommandService<TContext> where TContext : ICommandContext
             string arguments = baseArguments;
             parametersToPass = new object[commandParametersLength];
             bool isLastArgGood = false;
-            string currentArg = null;
+            string? currentArg = null;
 
             int commandParamIndex = 0;
             int maxCommandParamIndex = commandParametersLength - 1;
@@ -341,12 +345,12 @@ public class CommandService<TContext> where TContext : ICommandContext
                         currentArg = index == -1 ? arguments : arguments[..index];
                     }
 
-                    int currentArgLength = currentArg.Length;
+                    int currentArgLength = currentArg!.Length;
                     if (currentArgLength != 0)
                     {
                         try
                         {
-                            parametersToPass[commandParamIndex] = await parameter.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            parametersToPass[commandParamIndex] = await parameter.ReadAsync!(currentArg, context, parameter, _options).ConfigureAwait(false);
                             arguments = arguments[currentArgLength..].TrimStart(separator);
                             isLastArgGood = false;
                         }
@@ -388,7 +392,7 @@ public class CommandService<TContext> where TContext : ICommandContext
                             var o = Array.CreateInstance(parameter.Type, len);
 
                             for (var a = 0; a < len; a++)
-                                o.SetValue(await parameter.ReadAsync(args[a], context, parameter, _options).ConfigureAwait(false), a);
+                                o.SetValue(await parameter.ReadAsync!(args[a], context, parameter, _options).ConfigureAwait(false), a);
 
                             parametersToPass[commandParamIndex] = o;
                             goto Break;
@@ -424,7 +428,7 @@ public class CommandService<TContext> where TContext : ICommandContext
             break;
             Continue:;
         }
-        return (commandInfo, parametersToPass);
+        return (commandInfo, parametersToPass)!;
     }
 
     private static void CalculatePermissions(GuildUser user, Permission everyonePermissions, IReadOnlyDictionary<DiscordId, PermissionOverwrite> permissionOverwrites, IEnumerable<Role> guildRoles, out Permission permissions, out Permission channelPermissions, out bool administrator)

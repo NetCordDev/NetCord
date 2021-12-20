@@ -7,13 +7,13 @@ public class NormalCommands : CommandModule
     [Command("say")]
     public Task Say([Remainder] string text)
     {
-        return SendAsync(text);
+        return SendAsync(new MessageBuilder() { Content = text, AllowedMentions = AllowedMentions.None }.Build());
     }
 
     [Command("reply")]
     public Task Reply([Remainder] string text)
     {
-        return ReplyAsync(text);
+        return SendAsync(new MessageBuilder() { Content = text, AllowedMentions = AllowedMentions.None, MessageReference = new(Context.Message) }.Build());
     }
 
     [Command("roles")]

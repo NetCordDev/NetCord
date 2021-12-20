@@ -16,7 +16,7 @@ public class StrangeCommands : CommandModule
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
     public async Task SayDM(UserId userId, [Remainder] string text)
     {
-        var channel = await UserHelper.GetDMChannelAsync(Context.Client, userId);
+        var channel = await Context.Client.Rest.Channel.GetDMByUserIdAsync(userId);
         await channel.SendMessageAsync(text);
     }
 
@@ -26,7 +26,7 @@ public class StrangeCommands : CommandModule
     [Command("delete", "remove", RequiredUserChannelPermissions = Permission.ManageMessages)]
     public Task Delete(DiscordId id)
     {
-        return MessageHelper.DeleteAsync(Context.Client, Context.Channel, id);
+        return Context.Client.Rest.Message.DeleteAsync(Context.Channel, id);
     }
 
     [Command("react")]
@@ -100,8 +100,8 @@ public class StrangeCommands : CommandModule
             return ReplyAsync("s: null");
     }
 
-    [Command("dżejuś")]
-    public async Task Dzejus()
+    [Command("dżejuś", "dzejus", "jjay31")]
+    public Task Dzejus()
     {
         MessageBuilder message = new()
         {
@@ -109,11 +109,12 @@ public class StrangeCommands : CommandModule
             MessageReference = new(Context.Message),
             AllowedMentions = new()
             {
-                ReplyMention = false
+                ReplyMention = true
             }
         };
-        message.Files.Add(new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif"));
-        await SendAsync(message.Build());
+        MessageFile file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        message.Files.Add(file);
+        return SendAsync(message.Build());
     }
 
     [Command("exception", "e")]
@@ -123,7 +124,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("wzium")]
-    public Task Wzium([Remainder] Wzium? wzium = Test.Wzium.Wzium)
+    public Task Wzium([Remainder] Wzium wzium = Test.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
@@ -133,12 +134,6 @@ public class StrangeCommands : CommandModule
     {
         return ReplyAsync(string.Join('\n', wziumy));
     }
-
-    //[Command("wziumy")]
-    //public Task Wziumy()
-    //{
-    //    return ReplyAsync("nie ma wziuma");
-    //}
 
     [Command("messages")]
     public async Task Messages()
@@ -152,7 +147,7 @@ public class StrangeCommands : CommandModule
     [Command("message")]
     public async Task Message(DiscordId id)
     {
-        var m = await ChannelHelper.GetMessageAsync(Context.Client, Context.Channel, id);
+        var m = await Context.Client.Rest.Message.GetAsync(Context.Channel, id);
         await ReplyAsync($"{m.Author}: {m.Content}");
     }
 
@@ -246,7 +241,7 @@ public class StrangeCommands : CommandModule
 
     [Command("quote", Priority = 1)]
     public async Task Quote(DiscordId messageId)
-        => await ReplyAsync(Format.Quote((await ChannelHelper.GetMessageAsync(Context.Client, Context.Channel, messageId)).Content).ToString());
+        => await ReplyAsync(Format.Quote((await Context.Client.Rest.Message.GetAsync(Context.Channel, messageId)).Content).ToString());
 
     [Command("quote", Priority = 0)]
     public Task Quote(string text) => ReplyAsync(Format.Quote(text).ToString());

@@ -6,12 +6,11 @@ namespace NetCord
 {
     public class SelfUser : User
     {
-        public async Task<SelfUser> ModifyAsync(Action<Properties> func)
+        public async Task<SelfUser> ModifyAsync(Action<Properties> func, RequestOptions? options = null)
         {
             Properties properties = new();
             func.Invoke(properties);
-            var message = JsonSerializer.Serialize(properties);
-            var result = (await CDN.SendAsync(HttpMethod.Patch, message, $"/users/@me", _client).ConfigureAwait(false))!;
+            var result = (await _client.Rest.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/users/@me", options).ConfigureAwait(false))!;
             return new(result.ToObject<JsonModels.JsonUser>(), _client);
         }
 

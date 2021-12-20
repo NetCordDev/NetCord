@@ -9,7 +9,7 @@ public class GuildUser : User
     public override ushort Discriminator => _jsonGuildEntity.User.Discriminator;
     public override string? AvatarHash => _jsonGuildEntity.User.AvatarHash;
     public override bool IsBot => _jsonGuildEntity.User.IsBot;
-    public override bool? IsOfficialDiscordUser => _jsonGuildEntity.User.IsOfficialDiscordUser;
+    public override bool? IsSystemUser => _jsonGuildEntity.User.IsSystemUser;
     public override bool? MFAEnabled => _jsonGuildEntity.User.MFAEnabled;
     public override string? Locale => _jsonGuildEntity.User.Locale;
     public override bool? Verified => _jsonGuildEntity.User.Verified;
@@ -36,22 +36,19 @@ public class GuildUser : User
         Guild = guild;
     }
 
-    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func)
-        => GuildUserHelper.ModifyUserAsync(_client, Guild, Id, func);
+    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
+        => _client.Rest.Guild.User.ModifyAsync(Guild, Id, func, options);
 
-    public Task KickAsync() => Guild.KickUserAsync(Id);
-    public Task KickAsync(string reason) => Guild.KickUserAsync(Id, reason);
+    public Task KickAsync(RequestOptions? options = null) => Guild.KickUserAsync(Id, options);
 
-    public Task BanAsync() => Guild.AddBanAsync(Id);
-    public Task BanAsync(string reason) => Guild.AddBanAsync(Id, reason);
-    public Task BanAsync(int deleteMessageDays, string reason) => Guild.AddBanAsync(Id, deleteMessageDays, reason);
+    public Task BanAsync(RequestOptions? options = null) => Guild.BanUserAsync(Id, options);
+    public Task BanAsync(int deleteMessageDays, RequestOptions? options = null) => Guild.BanUserAsync(Id, deleteMessageDays, options);
 
-    public Task UnBanAsync() => Guild.RemoveBanAsync(Id);
-    public Task UnBanAsync(string reason) => Guild.RemoveBanAsync(Id, reason);
+    public Task UnbanAsync(RequestOptions? options = null) => Guild.UnbanUserAsync(Id, options);
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
-    public string GetGuildAvatarUrl(ImageFormat? format = null) => GuildUserHelper.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash, format);
+    public string GetGuildAvatarUrl(ImageFormat? format = null) => _client.Rest.Guild.User.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash!, format);
 
     /// <summary>
     /// 
@@ -59,13 +56,9 @@ public class GuildUser : User
     /// <param name="format"></param>
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
-    public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => GuildUserHelper.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash, format, size);
+    public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => _client.Rest.Guild.User.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash!, format, size);
 
-    public Task AddRoleAsync(DiscordId roleId) => GuildUserHelper.AddRoleAsync(_client, Guild, Id, roleId);
+    public Task AddRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Rest.Guild.User.AddRoleAsync(Guild, Id, roleId, options);
 
-    public Task AddRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.AddRoleAsync(_client, Guild, Id, roleId, reason);
-
-    public Task RemoveRoleAsync(DiscordId roleId) => GuildUserHelper.RemoveRoleAsync(_client, Guild, Id, roleId);
-
-    public Task RemoveRoleAsync(DiscordId roleId, string reason) => GuildUserHelper.RemoveRoleAsync(_client, Guild, Id, roleId, reason);
+    public Task RemoveRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Rest.Guild.User.AddRoleAsync(Guild, Id, roleId, options);
 }

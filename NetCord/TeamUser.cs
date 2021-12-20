@@ -13,7 +13,7 @@
         public override ushort Discriminator => _jsonTeamEntity.User.Discriminator;
         public override string? AvatarHash => _jsonTeamEntity.User.AvatarHash;
         public override bool IsBot => _jsonTeamEntity.User.IsBot;
-        public override bool? IsOfficialDiscordUser => _jsonTeamEntity.User.IsOfficialDiscordUser;
+        public override bool? IsSystemUser => _jsonTeamEntity.User.IsSystemUser;
         public override bool? MFAEnabled => _jsonTeamEntity.User.MFAEnabled;
         public override string? Locale => _jsonTeamEntity.User.Locale;
         public override bool? Verified => _jsonTeamEntity.User.Verified;

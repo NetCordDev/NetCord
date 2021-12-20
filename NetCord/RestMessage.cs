@@ -22,7 +22,7 @@ public class RestMessage : ClientEntity
 
     public IReadOnlyDictionary<DiscordId, User> MentionedUsers { get; }
 
-    public IReadOnlyDictionary<DiscordId, Role> MentionedRoles { get; }
+    public IEnumerable<DiscordId> MentionedRolesIds { get; }
 
     public IReadOnlyDictionary<DiscordId, GuildChannelMention> MentionedChannels { get; }
 
@@ -70,32 +70,31 @@ public class RestMessage : ClientEntity
             Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, guild, client);
 
         MentionedUsers = jsonEntity.MentionedUsers.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
-        MentionedRoles = jsonEntity.MentionedRoles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
+        MentionedRolesIds = jsonEntity.MentionedRoles;
         MentionedChannels = jsonEntity.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonEntity.Attachments.ToDictionaryOrEmpty(a => a.Id, a => Attachment.CreateFromJson(a));
         Embeds = jsonEntity.Embeds.SelectOrEmpty(e => new MessageEmbed(e));
         Reactions = jsonEntity.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
 
-        if (jsonEntity.Activity != null)            Activity = new(jsonEntity.Activity);
-        if (jsonEntity.Application != null)         Application = new(jsonEntity.Application, client);
-        if (jsonEntity.MessageReference != null)    MessageReference = new(jsonEntity.MessageReference);
-        if (jsonEntity.ReferencedMessage != null)   ReferencedMessage = new(jsonEntity.ReferencedMessage, client);
-        if (jsonEntity.Interaction != null)         Interaction = new(jsonEntity.Interaction, client);
-        if (jsonEntity.StartedThread != null)       StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
-        if (jsonEntity.MessageReference != null)    MessageReference = new(jsonEntity.MessageReference);
+        if (jsonEntity.Activity != null) Activity = new(jsonEntity.Activity);
+        if (jsonEntity.Application != null) Application = new(jsonEntity.Application, client);
+        if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
+        if (jsonEntity.ReferencedMessage != null) ReferencedMessage = new(jsonEntity.ReferencedMessage, client);
+        if (jsonEntity.Interaction != null) Interaction = new(jsonEntity.Interaction, client);
+        if (jsonEntity.StartedThread != null) StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
+        if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
 
         Components = jsonEntity.Components.SelectOrEmpty(c => IMessageComponent.CreateFromJson(c));
         Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 
-    public Task AddReactionAsync(ReactionEmoji emoji) => MessageHelper.AddReactionAsync(_client, emoji, ChannelId, Id);
+    public Task AddReactionAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Rest.Message.AddReactionAsync(emoji, ChannelId, Id, options);
 
-    public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId) => MessageHelper.DeleteReactionAsync(_client, emoji, userId, ChannelId, Id);
-    public Task DeleteAllReactionsAsync(ReactionEmoji emoji) => MessageHelper.DeleteAllReactionsAsync(_client, emoji, ChannelId, Id);
-    public Task DeleteAllReactionsAsync() => MessageHelper.DeleteAllReactionsAsync(_client, ChannelId, Id);
+    public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId, RequestOptions? options = null) => _client.Rest.Message.DeleteReactionAsync(emoji, userId, ChannelId, Id, options);
+    public Task DeleteAllReactionsAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Rest.Message.DeleteAllReactionsAsync(emoji, ChannelId, Id, options);
+    public Task DeleteAllReactionsAsync(RequestOptions? options = null) => _client.Rest.Message.DeleteAllReactionsAsync(ChannelId, Id, options);
 
-    public Task DeleteAsync() => MessageHelper.DeleteAsync(_client, ChannelId, Id);
-    public Task DeleteAsync(string reason) => MessageHelper.DeleteAsync(_client, ChannelId, Id, reason);
+    public Task DeleteAsync(RequestOptions? options = null) => _client.Rest.Message.DeleteAsync(ChannelId, Id, options);
 
     public virtual string GetJumpUrl(DiscordId? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
 
@@ -110,6 +109,6 @@ public class RestMessage : ClientEntity
                 ReplyMention = replyMention
             }
         };
-        return ChannelHelper.SendMessageAsync(_client, messageBuilder.Build(), ChannelId);
+        return _client.Rest.Message.SendAsync(messageBuilder.Build(), ChannelId);
     }
 }

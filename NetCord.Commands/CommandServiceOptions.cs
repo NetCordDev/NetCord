@@ -142,7 +142,7 @@ namespace NetCord.Commands
                         goto exception;
                     IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;
                     // by id
-                    if (DiscordId.TryParse(input, out DiscordId id))
+                    if (DiscordId.TryParse(input, out DiscordId? id))
                     {
                         if (users.TryGetValue(id, out var user))
                             return Task.FromResult((object)user);
@@ -200,7 +200,7 @@ namespace NetCord.Commands
                     {
                         IReadOnlyDictionary<DiscordId, GuildUser> users = context.Guild.Users;
                         // by id
-                        if (DiscordId.TryParse(input, out DiscordId id))
+                        if (DiscordId.TryParse(input, out DiscordId? id))
                         {
                             users.TryGetValue(id, out var user);
                             return Task.FromResult((object)new UserId(id, user));
@@ -221,7 +221,7 @@ namespace NetCord.Commands
                             var username = span[..^5].ToString();
                             if (ushort.TryParse(span[^4..], out var discriminator))
                             {
-                                GuildUser user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                                GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                                 if (user != null)
                                     return Task.FromResult((object)new UserId(user.Id, user));
                             }
@@ -247,7 +247,7 @@ namespace NetCord.Commands
                     {
                         IReadOnlyDictionary<DiscordId, User> users = dm.Users;
                         // by id
-                        if (DiscordId.TryParse(input, out DiscordId id))
+                        if (DiscordId.TryParse(input, out DiscordId? id))
                         {
                             users.TryGetValue(id, out var user);
                             return Task.FromResult((object)new UserId(id, user));
@@ -268,7 +268,7 @@ namespace NetCord.Commands
                             var username = span[..^5].ToString();
                             if (ushort.TryParse(span[^4..], out var discriminator))
                             {
-                                User user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
+                                User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                                 if (user != null)
                                     return Task.FromResult((object)new UserId(user.Id, user));
                             }
@@ -309,13 +309,13 @@ namespace NetCord.Commands
             var type = parameter.Type;
             if (parameter.Attributes.TryGetValue(typeof(AllowByValueAttribute), out _) || type.IsDefined(typeof(AllowByValueAttribute))) // by value or by name
             {
-                if (Enum.TryParse(type, input, options.IgnoreCase, out var value) && Enum.IsDefined(type, value))
-                    return Task.FromResult(value);
+                if (Enum.TryParse(type, input, options.IgnoreCase, out var value) && Enum.IsDefined(type, value!))
+                    return Task.FromResult(value!);
             }
             else // by name
             {
                 if (((uint)input[0] - '0') > 9 && Enum.TryParse(type, input, options.IgnoreCase, out var value))
-                    return Task.FromResult(value);
+                    return Task.FromResult(value!);
             }
 
             throw new ArgumentParseException($"Invalid {type.Name}");

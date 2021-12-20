@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace NetCord.Exceptions;
+namespace NetCord;
 
 internal class HttpException : Exception
 {

@@ -35,7 +35,7 @@ namespace NetCord.Interactions
             {
                 foreach (MethodInfo method in methods)
                 {
-                    InteractionAttribute interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
+                    InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
                     if (interactionAttribute == null)
                         continue;
                     if (method.GetParameters().Length != 0)
@@ -53,7 +53,7 @@ namespace NetCord.Interactions
             {
                 foreach (MethodInfo method in methods)
                 {
-                    InteractionAttribute interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
+                    InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
                     if (interactionAttribute == null)
                         continue;
                     if (method.GetParameters().Length != 0)
@@ -68,7 +68,7 @@ namespace NetCord.Interactions
         {
             if (_actionButtonInteractions.TryGetValue(context.Interaction.Data.CustomId, out var interactionInfo))
             {
-                var methodClass = (ButtonInteractionModule<TButtonInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
+                var methodClass = (ButtonInteractionModule<TButtonInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
                 methodClass.Context = context;
                 await interactionInfo.InvokeAsync(methodClass).ConfigureAwait(false);
             }
@@ -80,7 +80,7 @@ namespace NetCord.Interactions
         {
             if (_menuInteractions.TryGetValue(context.Interaction.Data.CustomId, out var interactionInfo))
             {
-                var methodClass = (MenuInteractionModule<UMenuInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType);
+                var methodClass = (MenuInteractionModule<UMenuInteractionContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
                 methodClass.Context = context;
                 return interactionInfo.InvokeAsync(methodClass);
             }

@@ -172,7 +172,7 @@ namespace NetCord
                     var channelId = jsonMessage.ChannelId;
                     if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
                     {
-                        var channel = await ChannelHelper.GetChannelAsync(this, channelId).ConfigureAwait(false);
+                        var channel = await Rest.Channel.GetAsync(channelId).ConfigureAwait(false);
                         if (channel is GroupDMChannel groupDMChannel)
                             _groupDMChannels[channelId] = groupDMChannel;
                         else if (channel is DMChannel dMChannel)

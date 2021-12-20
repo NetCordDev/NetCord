@@ -162,13 +162,10 @@ public class Guild : ClientEntity
         Features = new(_jsonEntity.Features);
     }
 
-    public Task KickUserAsync(DiscordId userId) => GuildHelper.KickUserAsync(_client, userId, Id);
-    public Task KickUserAsync(DiscordId userId, string reason) => GuildHelper.KickUserAsync(_client, userId, Id, reason);
+    public Task KickUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.KickAsync(userId, Id, options);
 
-    public Task AddBanAsync(DiscordId userId) => GuildHelper.AddBanAsync(_client, userId, Id);
-    public Task AddBanAsync(DiscordId userId, string reason) => GuildHelper.AddBanAsync(_client, userId, Id, reason);
-    public Task AddBanAsync(DiscordId userId, int deleteMessageDays, string reason) => GuildHelper.AddBanAsync(_client, userId, Id, deleteMessageDays, reason);
+    public Task BanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, options);
+    public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, deleteMessageDays, options);
 
-    public Task RemoveBanAsync(DiscordId userId) => GuildHelper.RemoveBanAsync(_client, userId, Id);
-    public Task RemoveBanAsync(DiscordId userId, string reason) => GuildHelper.RemoveBanAsync(_client, userId, Id, reason);
+    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, options);
 }

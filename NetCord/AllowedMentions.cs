@@ -18,15 +18,18 @@ public class AllowedMentions
     /// <see langword="null"/> for all
     /// </summary>
     public List<DiscordId>? TheOnlyAllowedUsers { get; set; }
-    public bool ReplyMention { get; set; } = true;
+    public bool ReplyMention { get; set; }
 
-    public static AllowedMentions All => new();
+    public static AllowedMentions All => new()
+    {
+        ReplyMention = true
+    };
+
     public static AllowedMentions None => new()
     {
         TheOnlyAllowedRoles = new(0),
         TheOnlyAllowedUsers = new(0),
         Everyone = false,
-        ReplyMention = false,
     };
 
     private class AllowedMentionConverter : JsonConverter<AllowedMentions>
@@ -54,8 +57,12 @@ public class AllowedMentions
                 list.Add("everyone");
             writer.WritePropertyName("parse");
             JsonSerializer.Serialize(writer, list);
-            writer.WritePropertyName("replied_user");
-            JsonSerializer.Serialize(writer, value.ReplyMention);
+
+            if (value.ReplyMention == true)
+            {
+                writer.WritePropertyName("replied_user");
+                JsonSerializer.Serialize(writer, value.ReplyMention);
+            }
             writer.WriteEndObject();
         }
     }

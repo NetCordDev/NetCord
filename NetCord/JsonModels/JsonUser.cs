@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
+
 internal record JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
@@ -17,10 +18,16 @@ internal record JsonUser : JsonEntity
     public virtual bool IsBot { get; init; }
 
     [JsonPropertyName("system")]
-    public virtual bool? IsOfficialDiscordUser { get; init; }
+    public virtual bool? IsSystemUser { get; init; }
 
     [JsonPropertyName("mfa_enabled")]
     public virtual bool? MFAEnabled { get; init; }
+
+    [JsonPropertyName("banner")]
+    public string? BannerHash { get; init; }
+
+    [JsonPropertyName("accent_color")]
+    public Color? AccentColor { get; init; }
 
     [JsonPropertyName("locale")]
     public virtual string? Locale { get; init; }
