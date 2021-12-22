@@ -4,8 +4,8 @@
 public enum Permission : ulong
 {
     CreateInstantInvite = (ulong)1 << 0,
-    KickMembers = (ulong)1 << 1,
-    BanMembers = (ulong)1 << 2,
+    KickUsers = (ulong)1 << 1,
+    BanUsers = (ulong)1 << 2,
     Administrator = (ulong)1 << 3,
     ManageChannels = (ulong)1 << 4,
     ManageGuild = (ulong)1 << 5,
@@ -25,9 +25,9 @@ public enum Permission : ulong
     ViewGuildInsights = (ulong)1 << 19,
     Connect = (ulong)1 << 20,
     Speak = (ulong)1 << 21,
-    MuteMembers = (ulong)1 << 22,
-    DeafenMembers = (ulong)1 << 23,
-    MoveMembers = (ulong)1 << 24,
+    MuteUsers = (ulong)1 << 22,
+    DeafenUsers = (ulong)1 << 23,
+    MoveUsers = (ulong)1 << 24,
     UseVoiceActivityDetection = (ulong)1 << 25,
     ChangeNickname = (ulong)1 << 26,
     ManageNicknames = (ulong)1 << 27,
@@ -43,4 +43,5 @@ public enum Permission : ulong
     UseExternalStickers = (ulong)1 << 37,
     SendMessagesInThreads = (ulong)1 << 38,
     StartEmbeddedActivities = (ulong)1 << 39,
+    ModerateUsers = (ulong)1 << 40,
 }

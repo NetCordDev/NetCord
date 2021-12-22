@@ -1,57 +1,49 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord
 {
-    public class InteractionMessageBuilder
-    {
-        public bool? Tts { get; set; }
-
-        public string? Content { get; set; }
-
-        public List<MessageEmbed>? Embeds { get; set; }
-
-        public AllowedMentions? AllowedMentions { get; set; }
-
-        public bool Ephemeral { get; set; }
-
-        public List<Component>? Components { get; set; }
-
-        public InteractionMessage Build()
-        {
-            return new(this);
-        }
-    }
-
-    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
     public class InteractionMessage
     {
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("tts")]
-        public bool? Tts { get; }
+        public bool Tts { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("content")]
-        public string? Content { get; }
+        public string? Content { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("embeds")]
-        public List<MessageEmbed>? Embeds { get; }
+        public List<MessageEmbed>? Embeds { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("allowed_mentions")]
-        public AllowedMentions? AllowedMentions { get; }
+        public AllowedMentions? AllowedMentions { get; set; }
 
+        [JsonConverter(typeof(EphemeralConverter))]
         [JsonPropertyName("flags")]
-        public MessageFlags? Flags { get; }
+        public bool Ephemeral { get; set; }
 
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("components")]
-        public List<Component>? Components { get; }
+        public List<Component>? Components { get; set; }
 
-        internal InteractionMessage(InteractionMessageBuilder builder)
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
+        [JsonPropertyName("attachments")]
+        public List<MessageAttachment>? Attachments { get; set; }
+
+        private class EphemeralConverter : JsonConverter<bool>
         {
-            Tts = builder.Tts;
-            Content = builder.Content;
-            Embeds = builder.Embeds;
-            AllowedMentions = builder.AllowedMentions;
-            if (builder.Ephemeral)
-                Flags = MessageFlags.Ephemeral;
-            Components = builder.Components;
+            public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+            public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+            {
+                if (value)
+                    writer.WriteNumberValue((uint)MessageFlags.Ephemeral);
+                else
+                    writer.WriteNumberValue(0);
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ public class GuildUser : User
     public bool Muted => _jsonGuildEntity.Muted;
     public bool? IsPending => _jsonGuildEntity.IsPending;
     public string? Permissions => _jsonGuildEntity.Permissions;
+    public DateTimeOffset? TimeOutUntil => _jsonGuildEntity.TimeOutUntil;
 
     public Guild Guild { get; }
 

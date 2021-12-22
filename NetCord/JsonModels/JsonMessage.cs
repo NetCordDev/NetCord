@@ -86,7 +86,7 @@ internal record JsonMessage : JsonEntity
     public JsonChannel? StartedThread { get; init; }
 
     [JsonPropertyName("components")]
-    public JsonMessageComponent[] Components { get; init; } //
+    public JsonMessageComponent[] Components { get; init; }
 
     [JsonPropertyName("sticker_items")]
     public JsonMessageSticker[] Stickers { get; init; }

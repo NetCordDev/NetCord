@@ -32,12 +32,12 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            InteractionMessageBuilder message = new()
+            InteractionMessage message = new()
             {
                 Content = ex.Message,
                 Ephemeral = true
             };
-            await interaction.EndWithReplyAsync(message.Build());
+            await interaction.EndWithReplyAsync(message);
         }
     }
 
@@ -49,16 +49,16 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            InteractionMessageBuilder message = new()
+            InteractionMessage message = new()
             {
                 Content = ex.Message,
                 Ephemeral = true
             };
-            await interaction.EndWithReplyAsync(message.Build());
+            await interaction.EndWithReplyAsync(message);
         }
     }
 
-    private static async void Client_MessageReceived(Message message)
+    private static async void Client_MessageReceived(UserMessage message)
     {
         if (!message.Author.IsBot)
         {

@@ -51,7 +51,7 @@ public class StrangeCommands : CommandModule
     [Command("button")]
     public Task Button()
     {
-        MessageBuilder messageBuilder = new()
+        Message messageBuilder = new()
         {
             Content = "This is button:",
             Components = new(),
@@ -68,13 +68,13 @@ public class StrangeCommands : CommandModule
         ActionRow actionRow = new();
         actionRow.Buttons.Add(button);
         messageBuilder.Components.Add(actionRow);
-        return SendAsync(messageBuilder.Build());
+        return SendAsync(messageBuilder);
     }
 
     [Command("link")]
     public Task Link([Remainder] Uri url)
     {
-        MessageBuilder message = new()
+        Message message = new()
         {
             Components = new(),
             Content = "This is the message with the link",
@@ -88,7 +88,7 @@ public class StrangeCommands : CommandModule
         ActionRow actionRow = new();
         actionRow.Buttons.Add(new LinkButton("Link", url));
         message.Components.Add(actionRow);
-        return SendAsync(message.Build());
+        return SendAsync(message);
     }
 
     [Command("s")]
@@ -103,18 +103,15 @@ public class StrangeCommands : CommandModule
     [Command("dżejuś", "dzejus", "jjay31")]
     public Task Dzejus()
     {
-        MessageBuilder message = new()
+        Message message = new()
         {
-            Files = new(),
+            Attachments = new(),
             MessageReference = new(Context.Message),
-            AllowedMentions = new()
-            {
-                ReplyMention = true
-            }
+            AllowedMentions = AllowedMentions.None
         };
-        MessageFile file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
-        message.Files.Add(file);
-        return SendAsync(message.Build());
+        MessageAttachment file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        message.Attachments.Add(file);
+        return SendAsync(message);
     }
 
     [Command("exception", "e")]
@@ -164,19 +161,19 @@ public class StrangeCommands : CommandModule
         embed.Fields.Add(new() { Title = "Created at", Description = new Timestamp(id.CreatedAt).ToString() });
         embed.Fields.Add(new() { Title = "Internal worker id", Description = id.InternalWorkerId.ToString() });
         embed.Fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
-        MessageBuilder message = new()
+        Message message = new()
         {
             Embeds = new()
         };
         message.Embeds.Add(embed.Build());
-        return SendAsync(message.Build());
+        return SendAsync(message);
     }
 
     [Command("menu")]
     public Task Menu(params string[] values)
     {
         values = values.Distinct().ToArray();
-        MessageBuilder message = new()
+        Message message = new()
         {
             Content = "Here is your menu:",
             Components = new(),
@@ -189,7 +186,7 @@ public class StrangeCommands : CommandModule
                 MaxValues = values.Length
             }
         );
-        return SendAsync(message.Build());
+        return SendAsync(message);
     }
 
     [Command("timestamp")]
@@ -250,6 +247,28 @@ public class StrangeCommands : CommandModule
     public Task CodeBlock([Remainder] CodeBlock codeBlock)
     {
         return ReplyAsync(codeBlock.ToString());
+    }
+
+    [Command("embed")]
+    public Task Embed()
+    {
+        EmbedBuilder embedBuilder = new()
+        {
+            Fields = new()
+            {
+                new()
+                {
+                    Title = "xd",
+                    Description = "wzium"
+                },
+                new()
+                {
+                    Title = "xd2",
+                    Description = "wzium2"
+                }
+            }
+        };
+        return SendAsync(new Message() { Embeds = new() { embedBuilder.Build() } });
     }
 }
 

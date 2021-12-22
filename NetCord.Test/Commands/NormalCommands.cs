@@ -7,13 +7,13 @@ public class NormalCommands : CommandModule
     [Command("say")]
     public Task Say([Remainder] string text)
     {
-        return SendAsync(new MessageBuilder() { Content = text, AllowedMentions = AllowedMentions.None }.Build());
+        return SendAsync(new Message() { Content = text, AllowedMentions = AllowedMentions.None });
     }
 
     [Command("reply")]
     public Task Reply([Remainder] string text)
     {
-        return SendAsync(new MessageBuilder() { Content = text, AllowedMentions = AllowedMentions.None, MessageReference = new(Context.Message) }.Build());
+        return SendAsync(new Message() { Content = text, AllowedMentions = AllowedMentions.None, MessageReference = new(Context.Message) });
     }
 
     [Command("roles")]
@@ -34,14 +34,14 @@ public class NormalCommands : CommandModule
     {
         if (Context.User is GuildUser user)
         {
-            MessageBuilder message = new()
+            Message message = new()
             {
                 Content = "Select roles",
                 Components = new()
             };
             var menu = CreateRolesMenu(Context.Guild.Roles.Values, user.RolesIds);
             message.Components.Add(menu);
-            await SendAsync(message.Build());
+            await SendAsync(message);
         } else
             await ReplyAsync("Required context: Guild");
     }
@@ -88,7 +88,7 @@ public class NormalCommands : CommandModule
     public Task Avatar([Remainder] GuildUser user = null)
     {
         user ??= (GuildUser)Context.User;
-        MessageBuilder message = new()
+        Message message = new()
         {
             Embeds = new(),
             MessageReference = new(Context.Message, false),
@@ -104,6 +104,13 @@ public class NormalCommands : CommandModule
             Color = new(0, 255, 0)
         };
         message.Embeds.Add(embed.Build());
-        return SendAsync(message.Build());
+        return SendAsync(message);
+    }
+
+    [Command("nick", "nickname")]
+    public async Task Nickname(GuildUser user, [Remainder] string nickname)
+    {
+        await user.ModifyAsync(x => x.Nickname = nickname);
+        await ReplyAsync(Format.Bold($"{user} updated!").ToString());
     }
 }

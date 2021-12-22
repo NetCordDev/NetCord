@@ -8,7 +8,7 @@ public class EmbedBuilder
     public string? Description { get; set; }
     public string? Url { get; set; }
     public DateTimeOffset? Timestamp { get; set; }
-    public Color? Color { get; set; }
+    public Color Color { get; set; }
     public EmbedFooter? Footer { get; set; }
     public string? ImageUrl { get; set; }
     public string? ThumbnailUrl { get; set; }
@@ -16,17 +16,16 @@ public class EmbedBuilder
     public List<EmbedField>? Fields { get; set; }
 
     public Embed Build()
-        => new(Title, Description, Url, Timestamp, Color, Footer, new(ImageUrl), new(ThumbnailUrl), Author, Fields);
+        => new(Title, Description, Url, Timestamp, Color, Footer, ImageUrl == null ? null : new(ImageUrl), ThumbnailUrl == null ? null : new(ThumbnailUrl), Author, Fields);
 }
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class Embed
 {
     internal Embed(string? title,
                  string? description,
                  string? url,
                  DateTimeOffset? timestamp,
-                 Color? color,
+                 Color color,
                  EmbedFooter? footer,
                  EmbedImage? image,
                  EmbedThumbnail? thumbnail,
@@ -45,43 +44,65 @@ public class Embed
         Fields = fields;
     }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("title")]
     public string? Title { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("description")]
     public string? Description { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("timestamp")]
     public DateTimeOffset? Timestamp { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("color")]
-    public Color? Color { get; }
+    public Color Color { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("footer")]
     public EmbedFooter? Footer { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("image")]
     public EmbedImage? Image { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("thumbnail")]
     public EmbedThumbnail? Thumbnail { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("author")]
     public EmbedAuthor? Author { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("fields")]
-    public List<EmbedField>? Fields { get; }
+    public IReadOnlyList<EmbedField>? Fields { get; }
 }
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class EmbedFooter
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("text")]
     public string? Text { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; init; }
 }
 
 public abstract class EmbedPartBase
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; }
 
-    internal EmbedPartBase(string? url)
+    private protected EmbedPartBase(string? url)
     {
         Url = url;
     }
@@ -101,29 +122,32 @@ public class EmbedThumbnail : EmbedPartBase
     }
 }
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class EmbedProvider
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("name")]
     public string? Name { get; init; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; init; }
 }
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class EmbedAuthor
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("name")]
     public string? Name { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; init; }
 }
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public class EmbedField
 {
     [JsonPropertyName("name")]
@@ -156,6 +180,7 @@ public class EmbedField
 
     private string _description = "­";
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]
-    public bool? Inline { get; init; }
+    public bool Inline { get; init; }
 }

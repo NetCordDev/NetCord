@@ -23,7 +23,7 @@ public abstract class Interaction : ClientEntity
 
     public string Token => _jsonEntity.Token;
 
-    public Message Message { get; }
+    public UserMessage Message { get; }
 
     public abstract ButtonInteractionData Data { get; }
 
@@ -52,7 +52,7 @@ public abstract class Interaction : ClientEntity
 
     public Task EndWithThinkingStateAsync(RequestOptions? options = null) => _client.Rest.Interaction.EndWithThinkingStateAsync(Id, Token, options);
 
-    public Task ModifyThinkingStateAsync(BuiltMessage message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyThinkingStateAsync(ApplicationId, Token, message, options);
+    public Task ModifyThinkingStateAsync(Message message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyThinkingStateAsync(ApplicationId, Token, message, options);
 
-    public Task ModifyMessageAsync(BuiltMessage message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
+    public Task ModifyMessageAsync(Message message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
 }

@@ -100,7 +100,7 @@ public class RestMessage : ClientEntity
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
     {
-        MessageBuilder messageBuilder = new()
+        Message message = new()
         {
             Content = content,
             MessageReference = new(this, failIfNotExists),
@@ -109,6 +109,6 @@ public class RestMessage : ClientEntity
                 ReplyMention = replyMention
             }
         };
-        return _client.Rest.Message.SendAsync(messageBuilder.Build(), ChannelId);
+        return _client.Rest.Message.SendAsync(message, ChannelId);
     }
 }

@@ -36,4 +36,7 @@ internal record JsonGuildUser
 
     [JsonPropertyName("permissions")]
     public string? Permissions { get; init; }
+
+    [JsonPropertyName("communication_disabled_until")]
+    public DateTimeOffset? TimeOutUntil { get; init; }
 }

@@ -180,7 +180,7 @@ namespace NetCord
                     }
                     try
                     {
-                        MessageReceived?.Invoke(new Message(jsonMessage, this));
+                        MessageReceived?.Invoke(new UserMessage(jsonMessage, this));
                     }
                     catch (Exception ex)
                     {

@@ -78,11 +78,11 @@ public class GithubCommand : CommandModule
             if (i == 25)
                 break;
         }
-        MessageBuilder message = new()
+        Message message = new()
         {
             Embeds = new() { embed.Build() }
         };
-        var sefde = await SendAsync(message.Build());
+        await SendAsync(message);
     }
 
     public class GithubUser

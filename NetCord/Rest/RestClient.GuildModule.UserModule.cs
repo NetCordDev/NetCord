@@ -19,7 +19,7 @@ public partial class RestClient
             {
                 GuildUserProperties properties = new();
                 func.Invoke(properties);
-                var result = (await _client.Rest.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/{userId}").ConfigureAwait(false))!;
+                var result = (await _client.Rest.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/{userId}", options).ConfigureAwait(false))!;
                 return new(result.ToObject<JsonModels.JsonGuildUser>(), _client.Guilds[guildId], _client);
             }
 

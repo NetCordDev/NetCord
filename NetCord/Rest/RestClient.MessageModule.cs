@@ -21,9 +21,9 @@ public partial class RestClient
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task<RestMessage> SendAsync(BuiltMessage message, DiscordId channelId, RequestOptions? options = null)
+        public async Task<RestMessage> SendAsync(Message message, DiscordId channelId, RequestOptions? options = null)
         {
-            JsonDocument json = (await _client.Rest.SendRequestAsync(HttpMethod.Post, message._content, $"/channels/{channelId}/messages", options).ConfigureAwait(false))!;
+            JsonDocument json = (await _client.Rest.SendRequestAsync(HttpMethod.Post, message.Build(), $"/channels/{channelId}/messages", options).ConfigureAwait(false))!;
             return new(json.ToObject<JsonMessage>(), _client);
         }
 
@@ -35,11 +35,11 @@ public partial class RestClient
         /// <returns></returns>
         public Task<RestMessage> SendAsync(string content, DiscordId channelId, RequestOptions? options = null)
         {
-            MessageBuilder messageBuilder = new()
+            Message message = new()
             {
                 Content = content
             };
-            return SendAsync(messageBuilder.Build(), channelId, options);
+            return SendAsync(message, channelId, options);
         }
 
         public Task DeleteAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)

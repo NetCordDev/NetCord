@@ -31,7 +31,7 @@ public partial class BotClient : IDisposable
     //public event InteractionCreatedEventHandler<ApplicationCommandInteraction>? ApplicationCommandInteractionCreated;
 
     public delegate void LogEventHandler(string text, LogType type);
-    public delegate void MessageReceivedEventHandler(Message message);
+    public delegate void MessageReceivedEventHandler(UserMessage message);
     public delegate void InteractionCreatedEventHandler<T>(T interaction);
 
     /// <summary>
@@ -180,7 +180,7 @@ public partial class BotClient : IDisposable
 
     private Task SendIdentifyAsync()
     {
-        var authorizationMessage = @"{""op"":2,""d"":{""token"":""" + _botToken + @""",""intents"":" + ((uint)_config.Intents) + @",""properties"":{""$os"":""linux"",""$browser"":""NetCord"",""$device"":""NetCord""},""large_threshold"":250}}";
+        var authorizationMessage = $@"{{""op"":2,""d"":{{""token"":""{_botToken}"",""intents"":{(uint)_config.Intents},""properties"":{{""$os"":""linux"",""$browser"":""NetCord"",""$device"":""NetCord""}},""large_threshold"":250}}}}";
         return _webSocket.SendAsync(authorizationMessage, _token);
     }
 
@@ -188,7 +188,7 @@ public partial class BotClient : IDisposable
     {
         await _webSocket.ConnectAsync().ConfigureAwait(false);
 
-        var resumeMessage = @"{""op"":6,""d"":{""token"":""" + _botToken + @""",""session_id"":""" + SessionId + @""",""seq"":" + SequenceNumber + @"}}";
+        var resumeMessage = $@"{{""op"":6,""d"":{{""token"":""{_botToken}"",""session_id"":""{SessionId}"",""seq"":{SequenceNumber}}}}}";
         await _webSocket.SendAsync(resumeMessage, _token).ConfigureAwait(false);
     }
 
@@ -223,7 +223,7 @@ public partial class BotClient : IDisposable
             try
             {
                 await timer.WaitForNextTickAsync(_token).ConfigureAwait(false);
-                await _webSocket.SendAsync($"{{\"op\":1,\"d\":{SequenceNumber}}}", _token).ConfigureAwait(false);
+                await _webSocket.SendAsync($@"{{""op"":1,""d"":{SequenceNumber}}}", _token).ConfigureAwait(false);
             }
             catch
             {

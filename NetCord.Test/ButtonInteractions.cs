@@ -5,13 +5,13 @@ namespace NetCord.Test;
 public class ButtonInteractions : ButtonInteractionModule
 {
     [Interaction("click it")]
-    public async Task ClickIt()
+    public Task ClickIt()
     {
-        InteractionMessageBuilder interactionMessage = new()
+        InteractionMessage interactionMessage = new()
         {
             Content = "You clicked the button!",
-            Ephemeral = true,
+            Ephemeral = true
         };
-        await Context.Interaction.EndWithReplyAsync(interactionMessage.Build());
+        return Context.Interaction.EndWithReplyAsync(interactionMessage);
     }
 }

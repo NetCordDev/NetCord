@@ -16,39 +16,35 @@ public partial class RestClient
         public Task EndAsync(DiscordId interactionId, string interactionToken, RequestOptions? options = null)
         {
             InteractionCallback callback = new(InteractionCallbackType.DeferredUpdateMessage);
-            string serializedCallback = JsonSerializer.Serialize(callback);
-            return _client.Rest.SendRequestAsync(HttpMethod.Post, new JsonContent(serializedCallback), $"/interactions/{interactionId}/{interactionToken}/callback", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Post, callback.Build(), $"/interactions/{interactionId}/{interactionToken}/callback", options);
         }
 
         public Task EndWithModifyAsync(DiscordId interactionId, string interactionToken, InteractionMessage message, RequestOptions? options = null)
         {
             InteractionCallback callback = new(InteractionCallbackType.UpdateMessage, message);
-            string serializedCallback = JsonSerializer.Serialize(callback);
-            return _client.Rest.SendRequestAsync(HttpMethod.Post, new JsonContent(serializedCallback), $"/interactions/{interactionId}/{interactionToken}/callback", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Post, callback.Build(), $"/interactions/{interactionId}/{interactionToken}/callback", options);
         }
 
         public Task EndWithReplyAsync(DiscordId interactionId, string interactionToken, InteractionMessage message, RequestOptions? options = null)
         {
             InteractionCallback callback = new(InteractionCallbackType.ChannelMessageWithSource, message);
-            string serializedCallback = JsonSerializer.Serialize(callback);
-            return _client.Rest.SendRequestAsync(HttpMethod.Post, new JsonContent(serializedCallback), $"/interactions/{interactionId}/{interactionToken}/callback", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Post, callback.Build(), $"/interactions/{interactionId}/{interactionToken}/callback", options);
         }
 
         public Task EndWithThinkingStateAsync(DiscordId interactionId, string interactionToken, RequestOptions? options = null)
         {
             InteractionCallback callback = new(InteractionCallbackType.DeferredChannelMessageWithSource);
-            string serializedCallback = JsonSerializer.Serialize(callback);
-            return _client.Rest.SendRequestAsync(HttpMethod.Post, new JsonContent(serializedCallback), $"/interactions/{interactionId}/{interactionToken}/callback", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Post, callback.Build(), $"/interactions/{interactionId}/{interactionToken}/callback", options);
         }
 
-        public Task ModifyThinkingStateAsync(DiscordId interactionApplicationId, string interactionToken, BuiltMessage message, RequestOptions? options = null)
+        public Task ModifyThinkingStateAsync(DiscordId interactionApplicationId, string interactionToken, Message message, RequestOptions? options = null)
         {
-            return _client.Rest.SendRequestAsync(HttpMethod.Patch, message._content, $"/webhooks/{interactionApplicationId}/{interactionToken}/messages/@original", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Patch, message.Build(), $"/webhooks/{interactionApplicationId}/{interactionToken}/messages/@original", options);
         }
 
-        public Task ModifyMessageAsync(DiscordId interactionApplicationId, string interactionToken, DiscordId messageId, BuiltMessage message, RequestOptions? options = null)
+        public Task ModifyMessageAsync(DiscordId interactionApplicationId, string interactionToken, DiscordId messageId, Message message, RequestOptions? options = null)
         {
-            return _client.Rest.SendRequestAsync(HttpMethod.Patch, message._content, $"/webhooks/{interactionApplicationId}/{interactionToken}/messages/{messageId}", options);
+            return _client.Rest.SendRequestAsync(HttpMethod.Patch, message.Build(), $"/webhooks/{interactionApplicationId}/{interactionToken}/messages/{messageId}", options);
         }
     }
 }
