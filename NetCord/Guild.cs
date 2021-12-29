@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Immutable;
+
 using NetCord.JsonModels;
 
 namespace NetCord;
@@ -7,15 +8,25 @@ public class Guild : ClientEntity
 {
     internal readonly JsonGuild _jsonEntity;
 
-    internal Dictionary<DiscordId, VoiceState> _voiceStates;
-    internal Dictionary<DiscordId, GuildUser> _users;
-    internal Dictionary<DiscordId, IGuildChannel> _channels;
-    internal Dictionary<DiscordId, Thread> _activeThreads;
-    internal Dictionary<DiscordId, Role> _roles;
-    internal Dictionary<DiscordId, Emoji> _emojis;
-    internal Dictionary<DiscordId, StageInstance> _stageInstances;
-    internal Dictionary<DiscordId, Presence> _presences;
-    internal Dictionary<DiscordId, GuildSticker> _stickers;
+    public ImmutableDictionary<DiscordId, VoiceState> VoiceStates => _voiceStates;
+    public ImmutableDictionary<DiscordId, GuildUser> Users => _users;
+    public ImmutableDictionary<DiscordId, IGuildChannel> Channels => _channels;
+    public ImmutableDictionary<DiscordId, Thread> ActiveThreads => _activeThreads;
+    public ImmutableDictionary<DiscordId, Role> Roles => _roles;
+    public ImmutableDictionary<DiscordId, Emoji> Emojis => _emojis;
+    public ImmutableDictionary<DiscordId, StageInstance> StageInstances => _stageInstances;
+    public ImmutableDictionary<DiscordId, Presence> Presences => _presences;
+    public ImmutableDictionary<DiscordId, GuildSticker> Stickers => _stickers;
+
+    internal ImmutableDictionary<DiscordId, VoiceState> _voiceStates;
+    internal ImmutableDictionary<DiscordId, GuildUser> _users;
+    internal ImmutableDictionary<DiscordId, IGuildChannel> _channels;
+    internal ImmutableDictionary<DiscordId, Thread> _activeThreads;
+    internal ImmutableDictionary<DiscordId, Role> _roles;
+    internal ImmutableDictionary<DiscordId, Emoji> _emojis;
+    internal ImmutableDictionary<DiscordId, StageInstance> _stageInstances;
+    internal ImmutableDictionary<DiscordId, Presence> _presences;
+    internal ImmutableDictionary<DiscordId, GuildSticker> _stickers;
 
     public override DiscordId Id => _jsonEntity.Id;
     public string Name => _jsonEntity.Name;
@@ -25,7 +36,7 @@ public class Guild : ClientEntity
     public string? DiscoverySplash => _jsonEntity.DiscoverySplash;
     //public bool? IsOwner => _jsonEntity.IsOwner;
     public DiscordId OwnerId => _jsonEntity.OwnerId;
-    public GuildUser Owner => Users[OwnerId];
+    public GuildUser Owner => _users[OwnerId];
     //public string? Permissions => _jsonEntity.Permissions;
     public DiscordId? AfkChannelId => _jsonEntity.AfkChannelId;
     public int AfkTimeout => _jsonEntity.AfkTimeout;
@@ -34,30 +45,26 @@ public class Guild : ClientEntity
     public VerificationLevel VerificationLevel => _jsonEntity.VerificationLevel;
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonEntity.DefaultMessageNotificationLevel;
     public ContentFilter ContentFilter => _jsonEntity.ContentFilter;
-    public IReadOnlyDictionary<DiscordId, Role> Roles
-    {
-        get
-        {
-            lock (_roles)
-                return new Dictionary<DiscordId, Role>(_roles);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, Role> Roles
+    //{
+    //    get
+    //    {
+    //        lock (Roles)
+    //            return new Dictionary<DiscordId, Role>(Roles);
+    //    }
+    //}
     public Role EveryoneRole
     {
-        get
-        {
-            lock (_roles)
-                return _roles[Id];
-        }
+        get => Roles[Id];
     }
-    public IReadOnlyDictionary<DiscordId, Emoji> Emojis
-    {
-        get
-        {
-            lock (_emojis)
-                return new Dictionary<DiscordId, Emoji>(_emojis);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, Emoji> Emojis
+    //{
+    //    get
+    //    {
+    //        lock (Emojis)
+    //            return new Dictionary<DiscordId, Emoji>(Emojis);
+    //    }
+    //}
     public GuildFeatures Features { get; }
     public MFALevel MFALevel => _jsonEntity.MFALevel;
     public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
@@ -68,38 +75,38 @@ public class Guild : ClientEntity
     public bool? IsLarge => _jsonEntity.IsLarge;
     public bool? IsUnavaible => _jsonEntity.IsUnavaible;
     public int? MemberCount { get; internal set; }
-    public IReadOnlyDictionary<DiscordId, GuildUser> Users
-    {
-        get
-        {
-            lock (_users)
-                return new Dictionary<DiscordId, GuildUser>(_users);
-        }
-    }
-    public IReadOnlyDictionary<DiscordId, IGuildChannel> Channels
-    {
-        get
-        {
-            lock (_channels)
-                return new Dictionary<DiscordId, IGuildChannel>(_channels);
-        }
-    }
-    public IReadOnlyDictionary<DiscordId, Thread> ActiveThreads
-    {
-        get
-        {
-            lock (_activeThreads)
-                return new Dictionary<DiscordId, Thread>(_activeThreads);
-        }
-    }
-    public IReadOnlyDictionary<DiscordId, Presence> Presences
-    {
-        get
-        {
-            lock (_presences)
-                return new Dictionary<DiscordId, Presence>(_presences);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, GuildUser> Users
+    //{
+    //    get
+    //    {
+    //        lock (Users)
+    //            return new Dictionary<DiscordId, GuildUser>(Users);
+    //    }
+    //}
+    //public IReadOnlyDictionary<DiscordId, IGuildChannel> Channels
+    //{
+    //    get
+    //    {
+    //        lock (Channels)
+    //            return new Dictionary<DiscordId, IGuildChannel>(Channels);
+    //    }
+    //}
+    //public IReadOnlyDictionary<DiscordId, Thread> ActiveThreads
+    //{
+    //    get
+    //    {
+    //        lock (ActiveThreads)
+    //            return new Dictionary<DiscordId, Thread>(ActiveThreads);
+    //    }
+    //}
+    //public IReadOnlyDictionary<DiscordId, Presence> Presences
+    //{
+    //    get
+    //    {
+    //        lock (Presences)
+    //            return new Dictionary<DiscordId, Presence>(Presences);
+    //    }
+    //}
     public int? MaxPresences => _jsonEntity.MaxPresences;
     public int? MaxMembers => _jsonEntity.MaxMembers;
     public string? VanityUrlCode => _jsonEntity.VanityUrlCode;
@@ -114,51 +121,51 @@ public class Guild : ClientEntity
     public int? ApproximatePresenceCount => _jsonEntity.ApproximatePresenceCount;
     public WelcomeScreen? WelcomeScreen { get; }
     public NSFWLevel NSFWLevel => _jsonEntity.NSFWLevel;
-    public IReadOnlyDictionary<DiscordId, StageInstance> StageInstances
-    {
-        get
-        {
-            lock (_stageInstances)
-                return new Dictionary<DiscordId, StageInstance>(_stageInstances);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, StageInstance> StageInstances
+    //{
+    //    get
+    //    {
+    //        lock (StageInstances)
+    //            return new Dictionary<DiscordId, StageInstance>(StageInstances);
+    //    }
+    //}
 
-    public IReadOnlyDictionary<DiscordId, GuildSticker> Stickers
-    {
-        get
-        {
-            lock (_stickers)
-                return new Dictionary<DiscordId, GuildSticker>(_stickers);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, GuildSticker> Stickers
+    //{
+    //    get
+    //    {
+    //        lock (Stickers)
+    //            return new Dictionary<DiscordId, GuildSticker>(Stickers);
+    //    }
+    //}
 
-    public IReadOnlyDictionary<DiscordId, VoiceState> VoiceStates
-    {
-        get
-        {
-            lock (_voiceStates)
-                return new Dictionary<DiscordId, VoiceState>(_voiceStates);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, VoiceState> VoiceStates
+    //{
+    //    get
+    //    {
+    //        lock (VoiceStates)
+    //            return new Dictionary<DiscordId, VoiceState>(VoiceStates);
+    //    }
+    //}
 
     internal Guild(JsonGuild jsonEntity, BotClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
 
-        _voiceStates = _jsonEntity.VoiceStates.ToDictionaryOrEmpty(s => s.UserId, s => new VoiceState(s));
-        _users = _jsonEntity.Users.ToDictionaryOrEmpty(u => u.User.Id,
+        _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionary(s => s.UserId, s => new VoiceState(s));
+        _users = _jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.User.Id,
             u => new GuildUser(u, this, client));
 
-        _channels = _jsonEntity.Channels.ToDictionaryOrEmpty(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
-        _activeThreads = _jsonEntity.ActiveThreads.ToDictionaryOrEmpty(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
-        _roles = _jsonEntity.Roles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
+        _channels = _jsonEntity.Channels.ToImmutableDictionaryOrEmpty(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
+        _activeThreads = _jsonEntity.ActiveThreads.ToImmutableDictionaryOrEmpty(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
+        _roles = _jsonEntity.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
         // guild emojis always have Id
-        _emojis = _jsonEntity.Emojis.ToDictionaryOrEmpty(e => e.Id!, e => new Emoji(e, client));
-        _stageInstances = _jsonEntity.StageInstances.ToDictionaryOrEmpty(i => i.Id, i => new StageInstance(i, client));
-        _stickers = _jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
+        _emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id!, e => new Emoji(e, client));
+        _stageInstances = _jsonEntity.StageInstances.ToImmutableDictionaryOrEmpty(i => i.Id, i => new StageInstance(i, client));
+        _stickers = _jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
         MemberCount = _jsonEntity.MemberCount;
         ApproximateMemberCount = _jsonEntity.ApproximateMemberCount;
-        _presences = _jsonEntity.Presences.ToDictionaryOrEmpty(p => p.User.Id, p => new Presence(p, client));
+        _presences = _jsonEntity.Presences.ToImmutableDictionaryOrEmpty(p => p.User.Id, p => new Presence(p, client));
         Features = new(_jsonEntity.Features);
     }
 
@@ -167,5 +174,5 @@ public class Guild : ClientEntity
     public Task BanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, options);
     public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, deleteMessageDays, options);
 
-    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, options);
+    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.UnbanAsync(userId, Id, options);
 }

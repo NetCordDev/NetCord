@@ -5,7 +5,6 @@
     {
         public string[] Aliases { get; }
         public int Priority { get; init; }
-        public Context RequiredContext { get; init; }
         public Permission RequiredBotPermissions { get; init; }
         public Permission RequiredBotChannelPermissions { get; init; }
         public Permission RequiredUserPermissions { get; init; }

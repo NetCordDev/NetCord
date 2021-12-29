@@ -8,13 +8,13 @@ namespace NetCord
         {
             if (mention.StartsWith("<@") && mention.EndsWith(">"))
             {
-                var newSpan = mention[2..^1];
-                if (newSpan.StartsWith("!"))
+                mention = mention[2..^1];
+                if (mention.StartsWith("!"))
                 {
-                    if (DiscordId.TryParse(newSpan[1..].ToString(), out id))
+                    if (DiscordId.TryParse(mention[1..].ToString(), out id))
                         return true;
                 }
-                else if (DiscordId.TryParse(newSpan.ToString(), out id))
+                else if (DiscordId.TryParse(mention.ToString(), out id))
                     return true;
             }
             id = null;

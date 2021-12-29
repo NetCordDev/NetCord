@@ -36,7 +36,8 @@ public class StrangeCommands : CommandModule
         if (System.Text.RegularExpressions.Regex.IsMatch(emoji, "(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])"))
         {
             reaction = new(emoji);
-        } else
+        }
+        else
         {
             var span = emoji.AsSpan();
             var last = span.LastIndexOf(':');
@@ -121,7 +122,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("wzium")]
-    public Task Wzium([Remainder] Wzium wzium = Test.Wzium.Wzium)
+    public Task Wzium([Remainder] Wzium wzium = NetCord.Test.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
@@ -269,6 +270,12 @@ public class StrangeCommands : CommandModule
             }
         };
         return SendAsync(new Message() { Embeds = new() { embedBuilder.Build() } });
+    }
+
+    [Command("reverse")]
+    public Task Reverse([Remainder][TypeReaderAttribute<ReverseStringTypeReader>] string s)
+    {
+        return ReplyAsync(s);
     }
 }
 

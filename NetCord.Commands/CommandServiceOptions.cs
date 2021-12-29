@@ -10,7 +10,7 @@ namespace NetCord.Commands
 
     public class CommandServiceOptions<TContext> where TContext : ICommandContext
     {
-        public delegate Task<object> TypeReader(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options);
+        public delegate Task<dynamic> TypeReader(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options);
 
         public Dictionary<Type, TypeReader> TypeReaders { get; } = new()
         #region TypeReaders
@@ -178,8 +178,8 @@ namespace NetCord.Commands
                         if (len <= 32)
                         {
                             var selectedUsers = len >= 2
-                                ? users.Values.Select(u => u.Username == input || u.Nickname == input)
-                                : users.Values.Select(u => u.Nickname == input);
+                                ? users.Values.Where(u => u.Username == input || u.Nickname == input)
+                                : users.Values.Where(u => u.Nickname == input);
                             var count = selectedUsers.Count();
                             if (count == 1)
                                 return Task.FromResult((object)selectedUsers.First());
@@ -233,8 +233,8 @@ namespace NetCord.Commands
                             if (len <= 32)
                             {
                                 var selectedUsers = len >= 2
-                                    ? users.Values.Select(u => u.Username == input || u.Nickname == input)
-                                    : users.Values.Select(u => u.Nickname == input);
+                                    ? users.Values.Where(u => u.Username == input || u.Nickname == input)
+                                    : users.Values.Where(u => u.Nickname == input);
                                 var count = selectedUsers.Count();
                                 if (count == 1)
                                     return Task.FromResult((object)selectedUsers.First());
@@ -307,7 +307,7 @@ namespace NetCord.Commands
         public TypeReader EnumTypeReader { get; init; } = (input, context, parameter, options) =>
         {
             var type = parameter.Type;
-            if (parameter.Attributes.TryGetValue(typeof(AllowByValueAttribute), out _) || type.IsDefined(typeof(AllowByValueAttribute))) // by value or by name
+            if (parameter.Attributes.TryGetValue(typeof(AllowByValueAttribute).GUID, out _) || type.IsDefined(typeof(AllowByValueAttribute))) // by value or by name
             {
                 if (Enum.TryParse(type, input, options.IgnoreCase, out var value) && Enum.IsDefined(type, value!))
                     return Task.FromResult(value!);

@@ -1,22 +1,24 @@
-﻿namespace NetCord
+﻿using System.Collections.Immutable;
+
+namespace NetCord
 {
     internal static class CollectionsUtils
     {
-        internal static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this TSource[] source, Func<TSource, TKey> keySelector) where TKey : notnull
-        {
-            if (source == null)
-                return new();
-            else
-                return source.ToDictionary(keySelector);
-        }
+        //internal static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this TSource[] source, Func<TSource, TKey> keySelector) where TKey : notnull
+        //{
+        //    if (source == null)
+        //        return new();
+        //    else
+        //        return source.ToDictionary(keySelector);
+        //}
 
-        internal static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this TSource[] source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
-        {
-            if (source == null)
-                return new();
-            else
-                return source.ToDictionary(keySelector, elementSelector);
-        }
+        //internal static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this TSource[] source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+        //{
+        //    if (source == null)
+        //        return new();
+        //    else
+        //        return source.ToDictionary(keySelector, elementSelector);
+        //}
 
         public static IEnumerable<TResult> SelectOrEmpty<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
         {
@@ -24,6 +26,22 @@
                 return Enumerable.Empty<TResult>();
             else
                 return source.Select(selector);
+        }
+
+        internal static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this TSource[] source, Func<TSource, TKey> keySelector) where TKey : notnull
+        {
+            if (source == null)
+                return ImmutableDictionary<TKey, TSource>.Empty;
+            else
+                return source.ToImmutableDictionary(keySelector);
+        }
+
+        internal static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this TSource[] source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+        {
+            if (source == null)
+                return ImmutableDictionary<TKey, TElement>.Empty;
+            else
+                return source.ToImmutableDictionary(keySelector, elementSelector);
         }
     }
 }

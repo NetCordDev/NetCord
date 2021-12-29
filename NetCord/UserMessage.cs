@@ -12,7 +12,7 @@ public class UserMessage : RestMessage
         if (guildId != null && client.Guilds.TryGetValue(guildId, out var guild))
         {
             Guild = guild;
-            if (Guild.Channels.TryGetValue(jsonEntity.ChannelId, out var channel))
+            if (Guild._channels.TryGetValue(jsonEntity.ChannelId, out var channel))
                 Channel = (TextChannel)channel;
         }
         else

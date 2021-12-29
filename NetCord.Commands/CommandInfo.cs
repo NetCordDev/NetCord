@@ -7,7 +7,6 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public Type DeclaringType { get; }
     public CommandParameter<TContext>[] CommandParameters { get; }
     public int Priority { get; }
-    public Context RequiredContext { get; }
     public Permission RequiredBotPermissions { get; }
     public Permission RequiredBotChannelPermissions { get; }
     public Permission RequiredUserPermissions { get; }
@@ -20,7 +19,6 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName} | {methodInfo.DeclaringType!.FullName}.{methodInfo.Name}");
 
         Priority = attribute.Priority;
-        RequiredContext = attribute.RequiredContext;
         DeclaringType = methodInfo.DeclaringType!;
 
         var parameters = methodInfo.GetParameters();
@@ -39,9 +37,20 @@ public record CommandInfo<TContext> where TContext : ICommandContext
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        RequiredBotPermissions = attribute.RequiredBotPermissions;
-        RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
-        RequiredUserPermissions = attribute.RequiredUserPermissions;
-        RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
+        CommandModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<CommandModuleAttribute>();
+        if (moduleAttribute != null)
+        {
+            RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
+            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
+            RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
+            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
+        }
+        else
+        {
+            RequiredBotPermissions = attribute.RequiredBotPermissions;
+            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
+            RequiredUserPermissions = attribute.RequiredUserPermissions;
+            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
+        }
     }
 }

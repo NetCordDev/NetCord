@@ -27,7 +27,7 @@
             _jsonEntity = jsonEntity;
             if (jsonEntity.Creator != null)
                 Creator = new(jsonEntity.Creator, client);
-            AllowedRoles = jsonEntity.AllowedRoles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
+            AllowedRoles = jsonEntity.AllowedRoles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
         }
     }
 }

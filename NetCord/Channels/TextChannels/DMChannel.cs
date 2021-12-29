@@ -1,8 +1,10 @@
-﻿namespace NetCord;
+﻿using System.Collections.Immutable;
+
+namespace NetCord;
 
 public class DMChannel : TextChannel
 {
-    private readonly Dictionary<DiscordId, User> _users;
+    private readonly ImmutableDictionary<DiscordId, User> _users;
     public IReadOnlyDictionary<DiscordId, User> Users
     {
         get
@@ -14,6 +16,6 @@ public class DMChannel : TextChannel
 
     internal DMChannel(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
     {
-        _users = jsonEntity.Users.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
+        _users = jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
     }
 }

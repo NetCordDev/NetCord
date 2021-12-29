@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using NetCord.JsonModels;
@@ -55,10 +56,10 @@ namespace NetCord
             {
                 // guild events
                 case "GUILD_CREATE":
-                    AddOrUpdate(jsonElement.GetProperty("d"), _guilds, (JsonGuild j, BotClient c) => new Guild(j, c));
+                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, BotClient c) => new Guild(j, c));
                     break;
                 case "GUILD_UPDATE":
-                    AddOrUpdate(jsonElement.GetProperty("d"), _guilds, (JsonGuild j, Guild g, BotClient c) =>
+                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, Guild g, BotClient c) =>
                     {
                         return new(j with { CreatedAt = g.CreatedAt, IsLarge = g.IsLarge, MemberCount = g.MemberCount }, c)
                         {
@@ -71,49 +72,49 @@ namespace NetCord
                     });
                     break;
                 case "GUILD_DELETE":
-                    TryRemove(jsonElement.GetProperty("d"), _guilds);
+                    TryRemove(jsonElement.GetProperty("d"), ref _guilds);
                     break;
                 case "GUILD_ROLE_CREATE":
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out Guild? g))
-                        AddOrUpdate(property.GetProperty("role"), g._roles, (JsonRole r, BotClient c) => new Role(r, c));
+                        AddOrUpdate(property.GetProperty("role"), ref g._roles, (JsonRole r, BotClient c) => new Role(r, c));
                     break;
                 case "GUILD_ROLE_DELETE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        TryRemove(property, g._roles, "role_id");
+                        TryRemove(property, ref g._roles, "role_id");
                     break;
                 case "CHANNEL_CREATE":
                 case "CHANNEL_UPDATE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        AddOrUpdate<JsonChannel, IGuildChannel>(property, g._channels, (ch, c) => (IGuildChannel)Channel.CreateFromJson(ch, c));
+                        AddOrUpdate<JsonChannel, IGuildChannel>(property, ref g._channels, (ch, c) => (IGuildChannel)Channel.CreateFromJson(ch, c));
                     break;
                 case "CHANNEL_DELETE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        TryRemove(property, g._channels);
+                        TryRemove(property, ref g._channels);
                     break;
                 // also DM
                 case "CHANNEL_PINS_UPDATE": break;
                 case "THREAD_CREATE":
                 case "THREAD_UPDATE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, g._activeThreads, (JsonChannel ch, BotClient c) => (Thread)Channel.CreateFromJson(ch, c)); break;
+                        AddOrUpdate(property, ref g._activeThreads, (JsonChannel ch, BotClient c) => (Thread)Channel.CreateFromJson(ch, c)); break;
                 case "THREAD_DELETE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        TryRemove(property, g._activeThreads); break;
+                        TryRemove(property, ref g._activeThreads); break;
                 case "THREAD_LIST_SYNC": break;
                 case "THREAD_MEMBER_UPDATE": break;
                 case "THREAD_MEMBERS_UPDATE ": break;
                 case "STAGE_INSTANCE_CREATE":
                 case "STAGE_INSTANCE_UPDATE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, g._stageInstances, (JsonStageInstance i, BotClient c) => new StageInstance(i, c)); break;
+                        AddOrUpdate(property, ref g._stageInstances, (JsonStageInstance i, BotClient c) => new StageInstance(i, c)); break;
                 case "STAGE_INSTANCE_DELETE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        TryRemove(property, g._stageInstances); break;
+                        TryRemove(property, ref g._stageInstances); break;
 
                 // guild members
                 case "GUILD_MEMBER_ADD":
@@ -122,18 +123,18 @@ namespace NetCord
                     {
                         g.MemberCount++;
                         g.ApproximateMemberCount++;
-                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
+                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
                     }
                     break;
                 case "GUILD_MEMBER_UPDATE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
+                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
                     break;
                 case "GUILD_MEMBER_REMOVE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        TryRemove(property, g._users); break;
+                        TryRemove(property, ref g._users); break;
                 case "THREAD_MEMBERS_UPDATE": break;
 
                 // guild bans
@@ -160,7 +161,7 @@ namespace NetCord
                 case "VOICE_STATE_UPDATE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        AddUpdateOrDelete(property, g._voiceStates); break;
+                        AddUpdateOrDelete(property, ref g._voiceStates); break;
 
                 // guild presences
                 case "PRESENCE_UPDATE": break;
@@ -174,9 +175,9 @@ namespace NetCord
                     {
                         var channel = await Rest.Channel.GetAsync(channelId).ConfigureAwait(false);
                         if (channel is GroupDMChannel groupDMChannel)
-                            _groupDMChannels[channelId] = groupDMChannel;
+                            _groupDMChannels = _groupDMChannels.SetItem(channelId, groupDMChannel);
                         else if (channel is DMChannel dMChannel)
-                            _DMChannels[channelId] = dMChannel;
+                            _DMChannels = _DMChannels.SetItem(channelId, dMChannel);
                     }
                     try
                     {
@@ -208,9 +209,9 @@ namespace NetCord
                     foreach (var channel in ready.DMChannels)
                     {
                         if (channel is GroupDMChannel groupDm)
-                            _groupDMChannels.Add(groupDm.Id, groupDm);
+                            _groupDMChannels = _groupDMChannels.Add(groupDm.Id, groupDm);
                         else if (channel is DMChannel dm)
-                            _DMChannels.Add(dm.Id, dm);
+                            _DMChannels = _DMChannels.Add(dm.Id, dm);
                     }
                     SessionId = ready.SessionId;
                     ApplicationId = ready.Application?.Id;
@@ -240,44 +241,54 @@ namespace NetCord
 
         private bool TryGetGuild(JsonElement jsonElement, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(jsonElement.GetProperty("guild_id").ToObject<DiscordId>(), out guild);
 
-        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, Dictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, BotClient, TType> constructor) where TType : IEntity
+        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, BotClient, TType> constructor) where TType : IEntity
         {
             var jsonObj = jsonElement.ToObject<TJsonType>();
             TType obj = constructor(jsonObj, this);
             lock (propertyToUpdate)
-                propertyToUpdate[obj.Id] = obj;
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
         }
 
-        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, Dictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, TType, BotClient, TType> constructor) where TType : IEntity where TJsonType : JsonEntity
+        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, TType, BotClient, TType> constructor) where TType : IEntity where TJsonType : JsonEntity
         {
             var jsonObj = jsonElement.ToObject<TJsonType>();
             lock (propertyToUpdate)
             {
                 TType obj = constructor(jsonObj, propertyToUpdate[jsonObj.Id], this);
-                propertyToUpdate[obj.Id] = obj;
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
             }
         }
 
-        private static void AddUpdateOrDelete(JsonElement jsonElement, Dictionary<DiscordId, VoiceState> propertyToUpdate)
+        private static void AddUpdateOrDelete(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, VoiceState> propertyToUpdate)
         {
             JsonVoiceState obj = jsonElement.ToObject<JsonVoiceState>();
             if (obj.ChannelId == null)
             {
                 lock (propertyToUpdate)
-                    propertyToUpdate.Remove(obj.UserId);
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                    propertyToUpdate = propertyToUpdate.Remove(obj.UserId);
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
             }
             else
             {
                 lock (propertyToUpdate)
-                    propertyToUpdate[obj.UserId] = new(obj);
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                    propertyToUpdate = propertyToUpdate.SetItem(obj.UserId, new(obj));
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
             }
         }
 
-        private static void TryRemove<T>(JsonElement jsonElement, Dictionary<DiscordId, T> propertyToUpdate, string propertyName = "id")
+        private static void TryRemove<T>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, T> propertyToUpdate, string propertyName = "id")
         {
             DiscordId id = jsonElement.GetProperty(propertyName).ToObject<DiscordId>();
             lock (propertyToUpdate)
-                propertyToUpdate.Remove(id);
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                propertyToUpdate = propertyToUpdate.Remove(id);
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
         }
 
         //private void AddOrUpdate(JsonElement jsonElement, Dictionary<DiscordId, GuildUser> propertyToUpdate)
@@ -290,11 +301,13 @@ namespace NetCord
         //        propertyToUpdate[id] = obj;
         //}
 
-        private static void TryRemove(JsonElement jsonElement, Dictionary<DiscordId, GuildUser> propertyToUpdate)
+        private static void TryRemove(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, GuildUser> propertyToUpdate)
         {
             DiscordId id = jsonElement.GetProperty("user").GetProperty("id").ToObject<DiscordId>();
             lock (propertyToUpdate)
-                propertyToUpdate.Remove(id);
+#pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
+                propertyToUpdate = propertyToUpdate.Remove(id);
+#pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
         }
 
         private void InvokeInteractionCreated(JsonElement jsonPart)

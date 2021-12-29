@@ -69,10 +69,10 @@ public class RestMessage : ClientEntity
         else
             Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, guild, client);
 
-        MentionedUsers = jsonEntity.MentionedUsers.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
+        MentionedUsers = jsonEntity.MentionedUsers.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
         MentionedRolesIds = jsonEntity.MentionedRoles;
-        MentionedChannels = jsonEntity.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
-        Attachments = jsonEntity.Attachments.ToDictionaryOrEmpty(a => a.Id, a => Attachment.CreateFromJson(a));
+        MentionedChannels = jsonEntity.MentionedChannels.ToImmutableDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
+        Attachments = jsonEntity.Attachments.ToImmutableDictionaryOrEmpty(a => a.Id, a => Attachment.CreateFromJson(a));
         Embeds = jsonEntity.Embeds.SelectOrEmpty(e => new MessageEmbed(e));
         Reactions = jsonEntity.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
 
@@ -85,7 +85,7 @@ public class RestMessage : ClientEntity
         if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
 
         Components = jsonEntity.Components.SelectOrEmpty(c => IMessageComponent.CreateFromJson(c));
-        Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
+        Stickers = jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 
     public Task AddReactionAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Rest.Message.AddReactionAsync(emoji, ChannelId, Id, options);

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Immutable;
+using System.Text.Json;
 
 using NetCord.WebSockets;
 
@@ -15,9 +16,17 @@ public partial class BotClient : IDisposable
     private CancellationToken _token;
     private bool _disposed;
 
-    internal Dictionary<DiscordId, Guild> _guilds = new();
-    internal Dictionary<DiscordId, DMChannel> _DMChannels = new();
-    internal Dictionary<DiscordId, GroupDMChannel> _groupDMChannels = new();
+    //internal Dictionary<DiscordId, Guild> _guilds = new();
+    //internal Dictionary<DiscordId, DMChannel> _DMChannels = new();
+    //internal Dictionary<DiscordId, GroupDMChannel> _groupDMChannels = new();
+
+    public ImmutableDictionary<DiscordId, Guild> Guilds => _guilds;
+    public ImmutableDictionary<DiscordId, DMChannel> DMChannels => _DMChannels;
+    public ImmutableDictionary<DiscordId, GroupDMChannel> GroupDMChannels => _groupDMChannels;
+
+    private ImmutableDictionary<DiscordId, Guild> _guilds = ImmutableDictionary.Create<DiscordId, Guild>();
+    private ImmutableDictionary<DiscordId, DMChannel> _DMChannels = ImmutableDictionary.Create<DiscordId, DMChannel>();
+    private ImmutableDictionary<DiscordId, GroupDMChannel> _groupDMChannels = ImmutableDictionary.Create<DiscordId, GroupDMChannel>();
 
     public event Action? Connecting;
     public event Action? Connected;
@@ -44,32 +53,32 @@ public partial class BotClient : IDisposable
     public ApplicationFlags? ApplicationFlags { get; private set; }
     public RestClient Rest { get; }
 
-    public IReadOnlyDictionary<DiscordId, Guild> Guilds
-    {
-        get
-        {
-            lock (_guilds)
-                return new Dictionary<DiscordId, Guild>(_guilds);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, Guild> Guilds
+    //{
+    //    get
+    //    {
+    //        lock (Guilds)
+    //            return new Dictionary<DiscordId, Guild>(Guilds);
+    //    }
+    //}
 
-    public IReadOnlyDictionary<DiscordId, DMChannel> DMChannels
-    {
-        get
-        {
-            lock (_DMChannels)
-                return new Dictionary<DiscordId, DMChannel>(_DMChannels);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, DMChannel> DMChannels
+    //{
+    //    get
+    //    {
+    //        lock (DMChannels)
+    //            return new Dictionary<DiscordId, DMChannel>(DMChannels);
+    //    }
+    //}
 
-    public IReadOnlyDictionary<DiscordId, GroupDMChannel> GroupDMChannels
-    {
-        get
-        {
-            lock (_groupDMChannels)
-                return new Dictionary<DiscordId, GroupDMChannel>(_groupDMChannels);
-        }
-    }
+    //public IReadOnlyDictionary<DiscordId, GroupDMChannel> GroupDMChannels
+    //{
+    //    get
+    //    {
+    //        lock (GroupDMChannels)
+    //            return new Dictionary<DiscordId, GroupDMChannel>(GroupDMChannels);
+    //    }
+    //}
 
     public BotClient(string token, TokenType tokenType)
     {

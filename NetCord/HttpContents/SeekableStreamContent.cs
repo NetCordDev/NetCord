@@ -24,7 +24,7 @@ namespace NetCord
 
             return _stream.CopyToAsync(stream);
         }
-        
+
         protected override bool TryComputeLength(out long length)
         {
             if (_stream.CanSeek)

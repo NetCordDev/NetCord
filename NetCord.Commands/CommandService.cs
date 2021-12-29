@@ -11,7 +11,7 @@ public class CommandService : CommandService<CommandContext>
     }
 }
 
-public class CommandService<TContext> where TContext : ICommandContext
+public partial class CommandService<TContext> where TContext : ICommandContext
 {
     private readonly CommandServiceOptions<TContext> _options;
     private readonly Dictionary<string, List<CommandInfo<TContext>>> _commands = new();
@@ -71,6 +71,46 @@ public class CommandService<TContext> where TContext : ICommandContext
                         });
                     }
                 }
+            }
+        }
+    }
+
+    public void AddModule(Type type)
+    {
+        if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
+            throw new InvalidOperationException($"Modules must inherit from {nameof(BaseCommandModule<TContext>)}");
+
+        foreach (var method in type.GetMethods())
+        {
+            CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
+            if (commandAttribute == null)
+                continue;
+            CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
+            foreach (var alias in commandAttribute.Aliases)
+            {
+                if (!_commands.TryGetValue(alias, out var list))
+                {
+                    list = new();
+                    _commands.Add(alias, list);
+                }
+                list.Add(commandInfo);
+                list.Sort((ci1, ci2) =>
+                {
+                    int ci1Priority = ci1.Priority;
+                    int ci2Priority = ci2.Priority;
+                    if (ci1Priority > ci2Priority)
+                        return -1;
+                    if (ci1Priority < ci2Priority)
+                        return 1;
+
+                    int ci1CommandParametersLength = ci1.CommandParameters.Length;
+                    int ci2CommandParametersLength = ci2.CommandParameters.Length;
+                    if (ci1CommandParametersLength > ci2CommandParametersLength)
+                        return -1;
+                    if (ci1CommandParametersLength < ci2CommandParametersLength)
+                        return 1;
+                    return 0;
+                });
             }
         }
     }
