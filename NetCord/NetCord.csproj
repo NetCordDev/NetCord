@@ -11,7 +11,8 @@
     <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha8</VersionSuffix>
+    <VersionSuffix>alpha9</VersionSuffix>
+    <Description>A lightweight and asynchronous Discord API wrapper. It supports buttons and menus!</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

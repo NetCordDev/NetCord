@@ -12,6 +12,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
     <VersionSuffix>alpha4</VersionSuffix>
+    <Description>A lightweight and asynchronous Discord API wrapper. It supports buttons and menus!</Description>
   </PropertyGroup>
 
   <ItemGroup>
