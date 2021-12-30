@@ -16,8 +16,7 @@ public class BanCommands : CommandModule
                 await Context.Guild.BanUserAsync(userId, (int)days, new() { AuditLogReason = reason });
 
             await ReplyAsync(Format.Bold($"{userId} got banned").ToString());
-        }
-        else
+        } else
             throw new RequiredContextException(RequiredContext.Guild);
     }
 
@@ -28,8 +27,7 @@ public class BanCommands : CommandModule
         {
             await Context.Guild.UnbanUserAsync(userId, new() { AuditLogReason = reason });
             await ReplyAsync(Format.Bold($"{userId} got unbanned").ToString());
-        }
-        else
+        } else
             throw new RequiredContextException(RequiredContext.Guild);
     }
 }

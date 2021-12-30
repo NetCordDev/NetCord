@@ -11,7 +11,7 @@
     <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha7</VersionSuffix>
+    <VersionSuffix>alpha8</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

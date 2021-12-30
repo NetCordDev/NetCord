@@ -16,7 +16,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
         if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName} | {methodInfo.DeclaringType!.FullName}.{methodInfo.Name}");
+            throw new InvalidCommandDefinitionException($"Commands must return {typeof(Task).FullName}", methodInfo);
 
         Priority = attribute.Priority;
         DeclaringType = methodInfo.DeclaringType!;
@@ -31,7 +31,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters | {methodInfo.DeclaringType!.FullName}.{methodInfo.Name}");
+                throw new InvalidCommandDefinitionException($"Optional parameters must appear after all required parameters", methodInfo);
             CommandParameters[i] = new(parameter, options);
         }
 

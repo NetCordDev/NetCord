@@ -170,14 +170,17 @@ namespace NetCord
                 case "MESSAGE_CREATE":
                     property = jsonElement.GetProperty("d");
                     var jsonMessage = property.ToObject<JsonMessage>();
-                    var channelId = jsonMessage.ChannelId;
-                    if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
+                    if (jsonMessage.GuildId == null)
                     {
-                        var channel = await Rest.Channel.GetAsync(channelId).ConfigureAwait(false);
-                        if (channel is GroupDMChannel groupDMChannel)
-                            _groupDMChannels = _groupDMChannels.SetItem(channelId, groupDMChannel);
-                        else if (channel is DMChannel dMChannel)
-                            _DMChannels = _DMChannels.SetItem(channelId, dMChannel);
+                        var channelId = jsonMessage.ChannelId;
+                        if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
+                        {
+                            var channel = await Rest.Channel.GetAsync(channelId).ConfigureAwait(false);
+                            if (channel is GroupDMChannel groupDMChannel)
+                                _groupDMChannels = _groupDMChannels.SetItem(channelId, groupDMChannel);
+                            else if (channel is DMChannel dMChannel)
+                                _DMChannels = _DMChannels.SetItem(channelId, dMChannel);
+                        }
                     }
                     try
                     {

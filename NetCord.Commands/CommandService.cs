@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Reflection;
 
 namespace NetCord.Commands;
@@ -14,7 +13,7 @@ public class CommandService : CommandService<CommandContext>
 public partial class CommandService<TContext> where TContext : ICommandContext
 {
     private readonly CommandServiceOptions<TContext> _options;
-    private readonly Dictionary<string, List<CommandInfo<TContext>>> _commands = new();
+    private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
     public IReadOnlyDictionary<string, ReadOnlyCollection<CommandInfo<TContext>>> Commands
     {
@@ -27,7 +26,16 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 
     public CommandService(CommandServiceOptions<TContext>? options = null)
     {
-        _options = options ?? new();
+        if (options == null)
+        {
+            _options = new();
+            _commands = new(StringComparer.InvariantCultureIgnoreCase);
+        }
+        else
+        {
+            _options = options;
+            _commands = new(_options.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
+        }
     }
 
     public void AddModules(Assembly assembly)
@@ -39,38 +47,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
             foreach (MethodInfo[] methods in methodsIEnumerable)
             {
                 foreach (MethodInfo method in methods)
-                {
-                    CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
-                    if (commandAttribute == null)
-                        continue;
-                    CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
-                    foreach (var alias in commandAttribute.Aliases)
-                    {
-                        if (!_commands.TryGetValue(alias, out var list))
-                        {
-                            list = new();
-                            _commands.Add(alias, list);
-                        }
-                        list.Add(commandInfo);
-                        list.Sort((ci1, ci2) =>
-                        {
-                            int ci1Priority = ci1.Priority;
-                            int ci2Priority = ci2.Priority;
-                            if (ci1Priority > ci2Priority)
-                                return -1;
-                            if (ci1Priority < ci2Priority)
-                                return 1;
-
-                            int ci1CommandParametersLength = ci1.CommandParameters.Length;
-                            int ci2CommandParametersLength = ci2.CommandParameters.Length;
-                            if (ci1CommandParametersLength > ci2CommandParametersLength)
-                                return -1;
-                            if (ci1CommandParametersLength < ci2CommandParametersLength)
-                                return 1;
-                            return 0;
-                        });
-                    }
-                }
+                    AddCommandIfValid(method);
             }
         }
     }
@@ -80,21 +57,26 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from {nameof(BaseCommandModule<TContext>)}");
 
-        foreach (var method in type.GetMethods())
+        lock (_commands)
         {
-            CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
-            if (commandAttribute == null)
-                continue;
-            CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
-            foreach (var alias in commandAttribute.Aliases)
+            foreach (var method in type.GetMethods())
+                AddCommandIfValid(method);
+        }
+    }
+
+    private void AddCommandIfValid(MethodInfo method)
+    {
+        CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
+        if (commandAttribute == null)
+            return;
+        CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
+        foreach (var alias in commandAttribute.Aliases)
+        {
+            if (alias.Contains(_options.ParamSeparator))
+                throw new InvalidCommandDefinitionException($"Any alias cannot contain {nameof(_options.ParamSeparator)}", method);
+            if (!_commands.TryGetValue(alias, out var list))
             {
-                if (!_commands.TryGetValue(alias, out var list))
-                {
-                    list = new();
-                    _commands.Add(alias, list);
-                }
-                list.Add(commandInfo);
-                list.Sort((ci1, ci2) =>
+                list = new((ci1, ci2) =>
                 {
                     int ci1Priority = ci1.Priority;
                     int ci2Priority = ci2.Priority;
@@ -111,7 +93,9 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         return 1;
                     return 0;
                 });
+                _commands.Add(alias, list);
             }
+            list.Add(commandInfo);
         }
     }
 
@@ -120,29 +104,25 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
         bool ignoreCase = _options.IgnoreCase;
         var separator = _options.ParamSeparator;
-        IEnumerable<KeyValuePair<string, List<CommandInfo<TContext>>>> commands;
-        lock (_commands)
-            commands = _commands.Where(x => messageContentWithoutPrefix.StartsWith(x.Key, ignoreCase, CultureInfo.InvariantCulture));
 
-        if (!commands.Any())
-            throw new CommandNotFoundException();
-
-        var c = commands.MaxBy(x => x.Key.Length);
-        int commandLength = c.Key.Length;
-        var commandInfos = c.Value;
+        SortedList<CommandInfo<TContext>> commandInfos;
         string baseArguments;
-        if (messageContentWithoutPrefix.Length > commandLength)
+        int index = messageContentWithoutPrefix.IndexOf(separator);
+        if (index == -1)
         {
-            // example: command: "wzium" message: "!wziumy"
-            if (messageContentWithoutPrefix[commandLength] != separator)
-                throw new CommandNotFoundException();
-            baseArguments = messageContentWithoutPrefix[(commandLength + 1)..].TrimStart(separator);
+            lock (_commands)
+                if (!_commands.TryGetValue(messageContentWithoutPrefix, out commandInfos!))
+                    throw new CommandNotFoundException();
+            baseArguments = string.Empty;
         }
         else
-            baseArguments = string.Empty;
+        {
+            lock (_commands)
+                if (!_commands.TryGetValue(messageContentWithoutPrefix[..index], out commandInfos!))
+                    throw new CommandNotFoundException();
+            baseArguments = messageContentWithoutPrefix[(index + 1)..].TrimStart(separator);
+        }
 
-        //object[] parametersToPass = null;
-        //CommandInfo<TContext> commandInfo = null;
         int maxIndex = commandInfos.Count - 1;
 
         var guild = context.Guild;
@@ -186,7 +166,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         await v.Item1.InvokeAsync(methodClass, v.Item2).ConfigureAwait(false);
     }
 
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char separator, List<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
+    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char separator, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
     {
         CommandInfo<TContext>? commandInfo = null;
         object?[]? parametersToPass = null;
@@ -353,7 +333,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         return (commandInfo, parametersToPass)!;
     }
 
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char separator, List<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
+    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char separator, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
     {
         CommandInfo<TContext>? commandInfo = null;
         object?[]? parametersToPass = null;

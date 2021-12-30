@@ -12,7 +12,7 @@
     <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha6</VersionSuffix>
+    <VersionSuffix>alpha7</VersionSuffix>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

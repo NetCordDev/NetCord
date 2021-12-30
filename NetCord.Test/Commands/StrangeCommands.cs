@@ -36,8 +36,7 @@ public class StrangeCommands : CommandModule
         if (System.Text.RegularExpressions.Regex.IsMatch(emoji, "(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])"))
         {
             reaction = new(emoji);
-        }
-        else
+        } else
         {
             var span = emoji.AsSpan();
             var last = span.LastIndexOf(':');
@@ -122,7 +121,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("wzium")]
-    public Task Wzium([Remainder] Wzium wzium = NetCord.Test.Wzium.Wzium)
+    public Task Wzium([Remainder] Wzium wzium = Test.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
@@ -134,9 +133,10 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("messages")]
-    public async Task Messages()
+    public async Task Messages(DiscordId channelId = null)
     {
-        await foreach (var m in Context.Channel.GetMessagesAsync())
+        channelId ??= Context.Channel;
+        await foreach (var m in Context.Client.Rest.Message.GetAsync(channelId))
         {
             Console.WriteLine($"{m.Author.Username}: \t{m.Content} | {m.CreatedAt:g}");
         }
