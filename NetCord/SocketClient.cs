@@ -5,12 +5,13 @@ using NetCord.WebSockets;
 
 namespace NetCord;
 
-public partial class BotClient : IDisposable
+public partial class SocketClient : IDisposable
 {
     private readonly string _botToken;
     private readonly WebSocket _webSocket = new(new(Discord.GatewayUrl));
     private readonly ClientConfig _config;
     private readonly ReconnectTimer _reconnectTimer = new();
+    private readonly LatencyTimer _latencyTimer = new();
 
     private CancellationTokenSource? _tokenSource;
     private CancellationToken _token;
@@ -49,9 +50,11 @@ public partial class BotClient : IDisposable
     public SelfUser? User { get; private set; }
     public string? SessionId { get; private set; }
     public int SequenceNumber { get; private set; }
-    public DiscordId? ApplicationId { get; private set; }
+    public Application? Application { get; private set; }
     public ApplicationFlags? ApplicationFlags { get; private set; }
     public RestClient Rest { get; }
+    public int? Latency { get; private set; }
+    public int? HeartbeatInterval { get; private set; }
 
     //public IReadOnlyDictionary<DiscordId, Guild> Guilds
     //{
@@ -80,19 +83,16 @@ public partial class BotClient : IDisposable
     //    }
     //}
 
-    public BotClient(string token, TokenType tokenType)
+    public SocketClient(string token, TokenType tokenType)
     {
         ArgumentNullException.ThrowIfNull(token, nameof(token));
         SetupWebSocket();
         _botToken = token;
         _config = new();
-        HttpClient httpClient = new();
-        httpClient.DefaultRequestHeaders.Add("Authorization", $"{tokenType} {_botToken}");
-        httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
-        Rest = new(this, httpClient);
+        Rest = new(token, tokenType);
     }
 
-    public BotClient(string token, TokenType tokenType, ClientConfig? config) : this(token, tokenType)
+    public SocketClient(string token, TokenType tokenType, ClientConfig? config) : this(token, tokenType)
     {
         if (config != null)
             _config = config;
@@ -177,7 +177,7 @@ public partial class BotClient : IDisposable
     }
 
     /// <summary>
-    /// Connect the <see cref="BotClient"/> to gateway
+    /// Connect the <see cref="SocketClient"/> to gateway
     /// </summary>
     /// <returns></returns>
     public async Task StartAsync()
@@ -189,6 +189,7 @@ public partial class BotClient : IDisposable
 
     private Task SendIdentifyAsync()
     {
+        _latencyTimer.Start();
         var authorizationMessage = $@"{{""op"":2,""d"":{{""token"":""{_botToken}"",""intents"":{(uint)_config.Intents},""properties"":{{""$os"":""linux"",""$browser"":""NetCord"",""$device"":""NetCord""}},""large_threshold"":250}}}}";
         return _webSocket.SendAsync(authorizationMessage, _token);
     }
@@ -197,6 +198,7 @@ public partial class BotClient : IDisposable
     {
         await _webSocket.ConnectAsync().ConfigureAwait(false);
 
+        _latencyTimer.Start();
         var resumeMessage = $@"{{""op"":6,""d"":{{""token"":""{_botToken}"",""session_id"":""{SessionId}"",""seq"":{SequenceNumber}}}}}";
         await _webSocket.SendAsync(resumeMessage, _token).ConfigureAwait(false);
     }
@@ -213,7 +215,7 @@ public partial class BotClient : IDisposable
     }
 
     /// <summary>
-    /// Disconnect the <see cref="BotClient"/> from gateway
+    /// Disconnect the <see cref="SocketClient"/> from gateway
     /// </summary>
     /// <returns></returns>
     public async Task CloseAsync()
@@ -225,13 +227,16 @@ public partial class BotClient : IDisposable
 
     private async void BeginHeartbeatAsync(JsonElement message)
     {
-        var time = message.GetProperty("d").GetProperty("heartbeat_interval").GetInt32();
-        using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(time));
+        int interval = message.GetProperty("d").GetProperty("heartbeat_interval").GetInt32();
+        HeartbeatInterval = interval;
+
+        using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(interval));
         while (true)
         {
             try
             {
                 await timer.WaitForNextTickAsync(_token).ConfigureAwait(false);
+                _latencyTimer.Start();
                 await _webSocket.SendAsync($@"{{""op"":1,""d"":{SequenceNumber}}}", _token).ConfigureAwait(false);
             }
             catch
@@ -263,6 +268,6 @@ public partial class BotClient : IDisposable
     private void ThrowIfDisposed()
     {
         if (_disposed)
-            throw new ObjectDisposedException(nameof(BotClient));
+            throw new ObjectDisposedException(nameof(SocketClient));
     }
 }

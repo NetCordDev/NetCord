@@ -1,14 +1,15 @@
-﻿using System.Text.Json.Serialization;
+﻿using NetCord.JsonModels;
 
 namespace NetCord
 {
-    public class ActionRow : Component
+    public class ActionRow : IComponent
     {
-        [JsonPropertyName("components")]
-        public List<Button> Buttons { get; } = new();
+        public ComponentType ComponentType => ComponentType.ActionRow;
+        public IEnumerable<Button> Buttons { get; }
 
-        public ActionRow() : base(MessageComponentType.ActionRow)
+        internal ActionRow(JsonComponent jsonEntity)
         {
+            Buttons = jsonEntity.Components.SelectOrEmpty(b => Button.CreateFromJson(b));
         }
     }
 }

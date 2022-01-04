@@ -2,7 +2,7 @@
 {
     public class PrivateThread : Thread
     {
-        internal PrivateThread(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
+        internal PrivateThread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
         {
 
         }

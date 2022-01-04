@@ -14,7 +14,7 @@
 
         public DiscordId OwnerId => _jsonEntity.OwnerId;
 
-        internal Team(JsonModels.JsonTeam jsonEntity, BotClient client)
+        internal Team(JsonModels.JsonTeam jsonEntity, RestClient client)
         {
             _jsonEntity = jsonEntity;
             Users = jsonEntity.Users.SelectOrEmpty(m => new TeamUser(m, client));

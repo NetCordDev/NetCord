@@ -4,5 +4,5 @@ public interface ICommandContext
 {
     public UserMessage Message { get; }
     public Guild? Guild { get; }
-    public BotClient Client { get; }
+    public SocketClient Client { get; }
 }

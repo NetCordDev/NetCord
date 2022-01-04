@@ -1,13 +1,16 @@
-﻿namespace NetCord
+﻿using System.Text.Json.Serialization;
+
+namespace NetCord
 {
+    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
     public class MessageActionButton : MessageButton
     {
-        public MessageButtonStyle Style => (MessageButtonStyle)_jsonEntity.Style!;
-        public string CustomId => _jsonEntity.CustomId!;
+        [JsonPropertyName("custom_id")]
+        public string CustomId { get; }
 
-        internal MessageActionButton(JsonModels.JsonMessageComponent jsonEntity) : base(jsonEntity)
+        public MessageActionButton(string label, string customId, ButtonStyle style) : base(label, style)
         {
-
+            CustomId = customId;
         }
     }
 }

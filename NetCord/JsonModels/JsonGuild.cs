@@ -16,10 +16,10 @@ internal record JsonGuild : JsonEntity
     public string? IconHash { get; init; }
 
     [JsonPropertyName("splash")]
-    public string? Splash { get; init; }
+    public string? SplashHash { get; init; }
 
     [JsonPropertyName("discovery_splash")]
-    public string? DiscoverySplash { get; init; }
+    public string? DiscoverySplashHash { get; init; }
 
     [JsonPropertyName("owner")]
     public bool? IsOwner { get; init; }
@@ -70,7 +70,7 @@ internal record JsonGuild : JsonEntity
     public DiscordId? SystemChannelId { get; init; }
 
     [JsonPropertyName("system_channel_flags")]
-    public int SystemChannelFlags { get; init; }
+    public SystemChannelFlags SystemChannelFlags { get; init; }
 
     [JsonPropertyName("rules_channel_id")]
     public DiscordId? RulesChannelId { get; init; }

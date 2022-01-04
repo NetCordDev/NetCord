@@ -3,12 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace NetCord;
 
-public class GuildUserProperties
+public class GuildUserProperties : CurrentGuildUserProperties
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("nick")]
-    public string? Nickname { get; set; }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
     public IEnumerable<DiscordId>? NewRolesIds { get; set; }

@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public enum MessageButtonStyle
+    public enum ButtonStyle
     {
         Primary = 1,
         Secondary = 2,

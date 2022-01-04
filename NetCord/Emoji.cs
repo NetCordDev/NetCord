@@ -4,9 +4,17 @@
     {
         private readonly JsonModels.JsonEmoji _jsonEntity;
 
-#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
-        public override DiscordId? Id => _jsonEntity.Id;
-#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
+        public override DiscordId Id
+        {
+            get
+            {
+                if (!_jsonEntity.Id.HasValue)
+                    throw new InvalidOperationException("This emoji has no id");
+                return _jsonEntity.Id.GetValueOrDefault();
+            }
+        }
+
+        public bool IsStandard => !_jsonEntity.Id.HasValue;
 
         public string? Name => _jsonEntity.Name;
 
@@ -22,7 +30,7 @@
 
         public bool? Available => _jsonEntity.Available;
 
-        internal Emoji(JsonModels.JsonEmoji jsonEntity, BotClient client) : base(client)
+        internal Emoji(JsonModels.JsonEmoji jsonEntity, RestClient client) : base(client)
         {
             _jsonEntity = jsonEntity;
             if (jsonEntity.Creator != null)

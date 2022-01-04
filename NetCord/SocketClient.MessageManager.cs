@@ -6,7 +6,7 @@ using NetCord.JsonModels;
 
 namespace NetCord
 {
-    public partial class BotClient
+    public partial class SocketClient
     {
         /// <summary>
         /// Runs an action based on a <paramref name="message"/>
@@ -16,32 +16,28 @@ namespace NetCord
         private async void ProcessMessage(JsonDocument message)
         {
             var rootElement = message.RootElement;
-            switch (rootElement.GetProperty("op").GetInt32())
+            switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
             {
-                case 0:
+                case GatewayOpcode.Dispatch:
                     UpdateSequenceNumber(rootElement);
                     ProcessEvent(rootElement);
                     break;
-                //case 1: break;
-                //case 2: break;
-                //case 3: break;
-                //case 4: break;
-                //case 5: break;
-                //case 6: break;
-                case 7:
+                case GatewayOpcode.Heartbeat: break;
+                case GatewayOpcode.Reconnect:
                     LogInfo("Reconnect request", LogType.Gateway);
                     await _webSocket.CloseAsync().ConfigureAwait(false);
                     _ = ResumeAsync();
                     break;
-                //case 8: break;
-                case 9:
+                case GatewayOpcode.InvalidSession:
                     LogInfo("Invalid session", LogType.Gateway);
                     _ = SendIdentifyAsync();
                     break;
-                case 10:
+                case GatewayOpcode.Hello:
                     BeginHeartbeatAsync(rootElement);
                     break;
-                    //case 11: break;
+                case GatewayOpcode.HeartbeatACK:
+                    Latency = _latencyTimer.Elapsed;
+                    break;
             }
         }
 
@@ -56,10 +52,10 @@ namespace NetCord
             {
                 // guild events
                 case "GUILD_CREATE":
-                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, BotClient c) => new Guild(j, c));
+                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, RestClient c) => new Guild(j, c));
                     break;
                 case "GUILD_UPDATE":
-                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, Guild g, BotClient c) =>
+                    AddOrUpdate(jsonElement.GetProperty("d"), ref _guilds, (JsonGuild j, Guild g, RestClient c) =>
                     {
                         return new(j with { CreatedAt = g.CreatedAt, IsLarge = g.IsLarge, MemberCount = g.MemberCount }, c)
                         {
@@ -78,7 +74,7 @@ namespace NetCord
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out Guild? g))
-                        AddOrUpdate(property.GetProperty("role"), ref g._roles, (JsonRole r, BotClient c) => new Role(r, c));
+                        AddOrUpdate(property.GetProperty("role"), ref g._roles, (JsonRole r, RestClient c) => new Role(r, c));
                     break;
                 case "GUILD_ROLE_DELETE":
                     property = jsonElement.GetProperty("d");
@@ -101,7 +97,7 @@ namespace NetCord
                 case "THREAD_CREATE":
                 case "THREAD_UPDATE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, ref g._activeThreads, (JsonChannel ch, BotClient c) => (Thread)Channel.CreateFromJson(ch, c)); break;
+                        AddOrUpdate(property, ref g._activeThreads, (JsonChannel ch, RestClient c) => (Thread)Channel.CreateFromJson(ch, c)); break;
                 case "THREAD_DELETE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
                         TryRemove(property, ref g._activeThreads); break;
@@ -111,7 +107,7 @@ namespace NetCord
                 case "STAGE_INSTANCE_CREATE":
                 case "STAGE_INSTANCE_UPDATE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, ref g._stageInstances, (JsonStageInstance i, BotClient c) => new StageInstance(i, c)); break;
+                        AddOrUpdate(property, ref g._stageInstances, (JsonStageInstance i, RestClient c) => new StageInstance(i, c)); break;
                 case "STAGE_INSTANCE_DELETE":
                     property = jsonElement.GetProperty("d"); if (TryGetGuild(property, out g))
                         TryRemove(property, ref g._stageInstances); break;
@@ -123,13 +119,13 @@ namespace NetCord
                     {
                         g.MemberCount++;
                         g.ApproximateMemberCount++;
-                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
+                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, RestClient c) => new GuildUser(u, g, c));
                     }
                     break;
                 case "GUILD_MEMBER_UPDATE":
                     property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out g))
-                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, BotClient c) => new GuildUser(u, g, c));
+                        AddOrUpdate(property, ref g._users, (JsonGuildUser u, RestClient c) => new GuildUser(u, g, c));
                     break;
                 case "GUILD_MEMBER_REMOVE":
                     property = jsonElement.GetProperty("d");
@@ -205,6 +201,7 @@ namespace NetCord
                 case "TYPING_START": break;
 
                 case "READY":
+                    Latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
                     var d = jsonElement.GetProperty("d");
                     Ready ready = new(d.ToObject<JsonReady>(), this);
@@ -217,7 +214,7 @@ namespace NetCord
                             _DMChannels = _DMChannels.Add(dm.Id, dm);
                     }
                     SessionId = ready.SessionId;
-                    ApplicationId = ready.Application?.Id;
+                    Application = ready.Application;
                     ApplicationFlags = ready.Application?.Flags;
                     LogInfo("Ready", LogType.Gateway);
                     try
@@ -233,33 +230,34 @@ namespace NetCord
                     InvokeInteractionCreated(jsonElement.GetProperty("d"));
                     break;
                 case "RESUMED":
+                    Latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
                     LogInfo("Resumed previous session", LogType.Gateway);
                     break;
                 case "USER_UPDATE":
-                    User = new(jsonElement.GetProperty("d").ToObject<JsonUser>(), this);
+                    User = new(jsonElement.GetProperty("d").ToObject<JsonUser>(), Rest);
                     break;
             }
         }
 
         private bool TryGetGuild(JsonElement jsonElement, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(jsonElement.GetProperty("guild_id").ToObject<DiscordId>(), out guild);
 
-        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, BotClient, TType> constructor) where TType : IEntity
+        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, RestClient, TType> constructor) where TType : IEntity
         {
             var jsonObj = jsonElement.ToObject<TJsonType>();
-            TType obj = constructor(jsonObj, this);
+            TType obj = constructor(jsonObj, Rest);
             lock (propertyToUpdate)
 #pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
                 propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
 #pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
         }
 
-        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, TType, BotClient, TType> constructor) where TType : IEntity where TJsonType : JsonEntity
+        private void AddOrUpdate<TJsonType, TType>(JsonElement jsonElement, ref ImmutableDictionary<DiscordId, TType> propertyToUpdate, Func<TJsonType, TType, RestClient, TType> constructor) where TType : IEntity where TJsonType : JsonEntity
         {
             var jsonObj = jsonElement.ToObject<TJsonType>();
             lock (propertyToUpdate)
             {
-                TType obj = constructor(jsonObj, propertyToUpdate[jsonObj.Id], this);
+                TType obj = constructor(jsonObj, propertyToUpdate[jsonObj.Id], Rest);
 #pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
                 propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
 #pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
@@ -327,7 +325,7 @@ namespace NetCord
             else if (type == InteractionType.MessageComponent)
             {
                 var componentType = interaction.Data.ComponentType;
-                if (componentType == MessageComponentType.Button)
+                if (componentType == ComponentType.Button)
                 {
                     try
                     {
@@ -338,7 +336,7 @@ namespace NetCord
                         LogInfo(ex.Message, LogType.Exception);
                     }
                 }
-                else if (componentType == MessageComponentType.Menu)
+                else if (componentType == ComponentType.Menu)
                 {
                     try
                     {

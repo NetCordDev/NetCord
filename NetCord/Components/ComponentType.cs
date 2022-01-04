@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public enum MessageComponentType
+    public enum ComponentType
     {
         ActionRow = 1,
         Button = 2,

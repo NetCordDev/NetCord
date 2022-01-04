@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NetCord.Commands\NetCord.Commands.csproj" />
     <ProjectReference Include="..\NetCord.Interactions\NetCord.Interactions.csproj" />
     <ProjectReference Include="..\NetCord\NetCord.csproj" />

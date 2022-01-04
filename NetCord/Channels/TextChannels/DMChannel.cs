@@ -14,7 +14,7 @@ public class DMChannel : TextChannel
         }
     }
 
-    internal DMChannel(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
+    internal DMChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {
         _users = jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
     }

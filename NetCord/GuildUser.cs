@@ -28,28 +28,27 @@ public class GuildUser : User
     public bool? IsPending => _jsonGuildEntity.IsPending;
     public string? Permissions => _jsonGuildEntity.Permissions;
     public DateTimeOffset? TimeOutUntil => _jsonGuildEntity.TimeOutUntil;
+    public DiscordId GuildId { get; }
 
-    public Guild Guild { get; }
-
-    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, Guild guild, BotClient client) : base(jsonEntity.User, client)
+    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, DiscordId guildId, RestClient client) : base(jsonEntity.User, client)
     {
         _jsonGuildEntity = jsonEntity;
-        Guild = guild;
+        GuildId = guildId;
     }
 
     public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
-        => _client.Rest.Guild.User.ModifyAsync(Guild, Id, func, options);
+        => _client.Guild.User.ModifyAsync(GuildId, Id, func, options);
 
-    public Task KickAsync(RequestOptions? options = null) => Guild.KickUserAsync(Id, options);
+    public Task KickAsync(RequestOptions? options = null) => _client.Guild.User.KickAsync(GuildId, Id, options);
 
-    public Task BanAsync(RequestOptions? options = null) => Guild.BanUserAsync(Id, options);
-    public Task BanAsync(int deleteMessageDays, RequestOptions? options = null) => Guild.BanUserAsync(Id, deleteMessageDays, options);
+    public Task BanAsync(RequestOptions? options = null) => _client.Guild.User.BanAsync(GuildId, Id, options);
+    public Task BanAsync(int deleteMessageDays, RequestOptions? options = null) => _client.Guild.User.BanAsync(GuildId, Id, deleteMessageDays, options);
 
-    public Task UnbanAsync(RequestOptions? options = null) => Guild.UnbanUserAsync(Id, options);
+    public Task UnbanAsync(RequestOptions? options = null) => _client.Guild.User.UnbanAsync(GuildId, Id, options);
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
-    public string GetGuildAvatarUrl(ImageFormat? format = null) => _client.Rest.Guild.User.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash!, format);
+    public string GetGuildAvatarUrl(ImageFormat? format = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format);
 
     /// <summary>
     /// 
@@ -57,9 +56,9 @@ public class GuildUser : User
     /// <param name="format"></param>
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
-    public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => _client.Rest.Guild.User.GetGuildAvatarUrl(Guild.Id, Id, GuildAvatarHash!, format, size);
+    public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
 
-    public Task AddRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Rest.Guild.User.AddRoleAsync(Guild, Id, roleId, options);
+    public Task AddRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Guild.User.AddRoleAsync(GuildId, Id, roleId, options);
 
-    public Task RemoveRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Rest.Guild.User.AddRoleAsync(Guild, Id, roleId, options);
+    public Task RemoveRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Guild.User.AddRoleAsync(GuildId, Id, roleId, options);
 }

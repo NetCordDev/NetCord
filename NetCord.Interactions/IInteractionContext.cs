@@ -3,7 +3,7 @@
 public interface IButtonInteractionContext
 {
     public RestMessage Message { get; }
-    public BotClient Client { get; }
+    public SocketClient Client { get; }
     public Guild? Guild { get; }
     public ButtonInteraction Interaction { get; }
 }
@@ -11,7 +11,7 @@ public interface IButtonInteractionContext
 public interface IMenuInteractionContext
 {
     public RestMessage Message { get; }
-    public BotClient Client { get; }
+    public SocketClient Client { get; }
     public Guild? Guild { get; }
     public MenuInteraction Interaction { get; }
 }

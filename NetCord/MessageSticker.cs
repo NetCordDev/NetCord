@@ -10,7 +10,7 @@
 
         public StickerFormat Format => _jsonEntity.Format;
 
-        internal MessageSticker(JsonModels.JsonMessageSticker jsonEntity, BotClient client) : base(client)
+        internal MessageSticker(JsonModels.JsonMessageSticker jsonEntity, RestClient client) : base(client)
         {
             _jsonEntity = jsonEntity;
         }

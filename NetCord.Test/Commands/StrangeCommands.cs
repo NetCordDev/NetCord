@@ -43,7 +43,7 @@ public class StrangeCommands : CommandModule
             var first = span.IndexOf(':');
             var name = span[(last == first ? 1 : first + 1)..last];
             var id = span[(last + 1)..^1];
-            reaction = new(name.ToString(), DiscordId.Parse(id.ToString()));
+            reaction = new(name.ToString(), new(id.ToString()));
         }
         return Context.Message.AddReactionAsync(reaction);
     }
@@ -61,11 +61,11 @@ public class StrangeCommands : CommandModule
                 ReplyMention = false
             }
         };
-        ActionButton button = new("Click it!", "click it", MessageButtonStyle.Success)
+        MessageActionButton button = new("Click it!", "click it", ButtonStyle.Success)
         {
-            EmojiId = DiscordId.Parse("888159212109197382")
+            EmojiId = 888159212109197382
         };
-        ActionRow actionRow = new();
+        MessageActionRow actionRow = new();
         actionRow.Buttons.Add(button);
         messageBuilder.Components.Add(actionRow);
         return SendAsync(messageBuilder);
@@ -85,8 +85,8 @@ public class StrangeCommands : CommandModule
             },
             Embeds = new()
         };
-        ActionRow actionRow = new();
-        actionRow.Buttons.Add(new LinkButton("Link", url));
+        MessageActionRow actionRow = new();
+        actionRow.Buttons.Add(new MessageLinkButton("Link", url));
         message.Components.Add(actionRow);
         return SendAsync(message);
     }
@@ -133,10 +133,10 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("messages")]
-    public async Task Messages(DiscordId channelId = null)
+    public async Task Messages(DiscordId? channelId = null)
     {
         channelId ??= Context.Channel;
-        await foreach (var m in Context.Client.Rest.Message.GetAsync(channelId))
+        await foreach (var m in Context.Client.Rest.Message.GetAsync(channelId.GetValueOrDefault()))
         {
             Console.WriteLine($"{m.Author.Username}: \t{m.Content} | {m.CreatedAt:g}");
         }
@@ -181,9 +181,9 @@ public class StrangeCommands : CommandModule
             MessageReference = new(Context.Message)
         };
         message.Components.Add(
-            new Menu("menu")
+            new MessageMenu("menu")
             {
-                Options = values.Select(v => new Menu.SelectOption(v, v)).ToList(),
+                Options = values.Select(v => new MessageMenu.SelectOption(v, v)).ToList(),
                 MaxValues = values.Length
             }
         );
@@ -197,19 +197,19 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("bot-avatar")]
-    public Task Avatar()
+    public Task BotAvatar()
     {
         var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
         if (newAvatar == null)
             throw new Exception("Give an url or attachment");
-        return Avatar(new(newAvatar.Url));
+        return BotAvatar(new(newAvatar.Url));
     }
 
     [Command("bot-avatar")]
-    public async Task Avatar(Uri avatarUrl)
+    public async Task BotAvatar(Uri avatarUrl)
     {
         var a = await new HttpClient().GetByteArrayAsync(avatarUrl);
-        await Context.Client.User.ModifyAsync(p => p.Avatar = new(new("image/png"), Convert.ToBase64String(a)));
+        await Context.Client.User.ModifyAsync(p => p.Avatar = new Image(a, ImageFormat.Png));
     }
 
     [Command("spam")]

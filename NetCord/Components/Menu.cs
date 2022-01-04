@@ -1,54 +1,39 @@
-﻿using System.Text.Json.Serialization;
+﻿
+using NetCord.JsonModels;
 
 namespace NetCord
 {
-    public class Menu : Component
+    public class Menu : IComponent
     {
-        [JsonPropertyName("custom_id")]
-        public string CustomId { get; }
+        private readonly JsonComponent _jsonEntity;
+        public ComponentType ComponentType => ComponentType.Menu;
+        public string CustomId => _jsonEntity.CustomId!;
+        public IEnumerable<SelectOption> Options { get; }
+        public string? Placeholder => _jsonEntity.Placeholder;
+        public int? MinValues => _jsonEntity.MinValues;
+        public int? MaxValues => _jsonEntity.MaxValues;
+        public bool Disabled => _jsonEntity.Disabled;
 
-        [JsonPropertyName("options")]
-        public List<SelectOption>? Options { get; init; }
-
-        [JsonPropertyName("placeholder")]
-        public string? Placeholder { get; init; }
-
-        [JsonPropertyName("min_values")]
-        public int? MinValues { get; init; }
-
-        [JsonPropertyName("max_values")]
-        public int? MaxValues { get; init; }
-
-        [JsonPropertyName("disabled")]
-        public bool Disabled { get; init; }
-
-        public Menu(string customId) : base(MessageComponentType.Menu)
+        internal Menu(JsonComponent jsonEntity)
         {
-            CustomId = customId;
+            _jsonEntity = jsonEntity.Components[0];
+            Options = _jsonEntity.Options.SelectOrEmpty(o => new SelectOption(o));
         }
 
         public class SelectOption
         {
-            [JsonPropertyName("label")]
-            public string Label { get; }
+            private readonly JsonComponent.SelectOption _jsonEntity;
 
-            [JsonPropertyName("value")]
-            public string Value { get; }
+            public string Label => _jsonEntity.Label;
+            public string Value => _jsonEntity.Value;
+            public string? Description => _jsonEntity.Description;
+            public ComponentEmoji? Emoji { get; }
+            public bool? IsDefault => _jsonEntity.IsDefault;
 
-            [JsonPropertyName("description")]
-            public string? Description { get; init; }
-
-            [JsonPropertyName("emoji")]
-            [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-            public DiscordId? EmojiId { get; init; }
-
-            [JsonPropertyName("default")]
-            public bool? IsDefault { get; init; }
-
-            public SelectOption(string label, string value)
+            internal SelectOption(JsonComponent.SelectOption jsonEntity)
             {
-                Label = label;
-                Value = value;
+                _jsonEntity = jsonEntity;
+                if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
             }
         }
     }

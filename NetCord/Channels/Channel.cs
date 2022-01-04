@@ -8,14 +8,14 @@ public abstract class Channel : ClientEntity
 
     public override DiscordId Id => _jsonEntity.Id;
 
-    private protected Channel(JsonChannel jsonEntity, BotClient client) : base(client)
+    private protected Channel(JsonChannel jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
     }
 
     public override string ToString() => $"<#{Id}>";
 
-    internal static Channel CreateFromJson(JsonChannel jsonChannel, BotClient client)
+    internal static Channel CreateFromJson(JsonChannel jsonChannel, RestClient client)
     {
         return jsonChannel.Type switch
         {

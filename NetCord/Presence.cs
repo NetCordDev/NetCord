@@ -10,7 +10,7 @@
         public IEnumerable<UserActivity> Activities { get; }
         public IReadOnlyDictionary<Platform, UserStatus> Platform => _jsonEntity.Platform;
 
-        internal Presence(JsonModels.JsonPresence jsonEntity, BotClient client)
+        internal Presence(JsonModels.JsonPresence jsonEntity, RestClient client)
         {
             _jsonEntity = jsonEntity;
             Activities = jsonEntity.Activities.SelectOrEmpty(a => new UserActivity(a, client));

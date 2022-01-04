@@ -19,14 +19,14 @@ public class User : ClientEntity
     public virtual PremiumType? PremiumType => _jsonEntity.PremiumType;
     public virtual UserFlags? PublicFlags => _jsonEntity.PublicFlags;
 
-    internal User(JsonModels.JsonUser jsonEntity, BotClient client) : base(client)
+    internal User(JsonModels.JsonUser jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
     }
 
     public bool HasAvatar => AvatarHash != null;
 
-    public string GetAvatarUrl(ImageFormat? format = null) => _client.Rest.User.GetAvatarUrl(Id, AvatarHash!, format);
+    public string GetAvatarUrl(ImageFormat? format = null) => CDN.GetAvatarUrl(Id, AvatarHash!, format);
 
     /// <summary>
     /// 
@@ -34,11 +34,11 @@ public class User : ClientEntity
     /// <param name="format"></param>
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
-    public string GetAvatarUrl(int size, ImageFormat? format = null) => _client.Rest.User.GetAvatarUrl(Id, AvatarHash!, size, format);
+    public string GetAvatarUrl(int size, ImageFormat? format = null) => CDN.GetAvatarUrl(Id, AvatarHash!, size, format);
 
-    public string DefaultAvatarUrl => _client.Rest.User.GetDefaultAvatarUrl(Discriminator);
+    public string DefaultAvatarUrl => CDN.GetDefaultAvatarUrl(Discriminator);
 
-    public Task<DMChannel> GetDMChannelAsync() => _client.Rest.Channel.GetDMByUserIdAsync(Id);
+    public Task<DMChannel> GetDMChannelAsync() => _client.Channel.GetDMByUserIdAsync(Id);
 
     public override string ToString() => $"<@{Id}>";
 }

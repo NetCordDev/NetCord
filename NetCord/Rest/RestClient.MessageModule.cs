@@ -8,9 +8,9 @@ public partial class RestClient
 {
     public partial class MessageModule
     {
-        private readonly BotClient _client;
+        private readonly RestClient _client;
 
-        internal MessageModule(BotClient client)
+        internal MessageModule(RestClient client)
         {
             _client = client;
         }
@@ -23,7 +23,7 @@ public partial class RestClient
         /// <returns></returns>
         public async Task<RestMessage> SendAsync(Message message, DiscordId channelId, RequestOptions? options = null)
         {
-            JsonDocument json = (await _client.Rest.SendRequestAsync(HttpMethod.Post, message.Build(), $"/channels/{channelId}/messages", options).ConfigureAwait(false))!;
+            JsonDocument json = (await _client.SendRequestAsync(HttpMethod.Post, message.Build(), $"/channels/{channelId}/messages", options).ConfigureAwait(false))!;
             return new(json.ToObject<JsonMessage>(), _client);
         }
 
@@ -43,7 +43,7 @@ public partial class RestClient
         }
 
         public Task DeleteAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
-            => _client.Rest.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}", options);
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}", options);
 
         public Task DeleteAsync(DiscordId channelId, IEnumerable<DiscordId> messagesIds, RequestOptions? options = null)
         {
@@ -92,6 +92,6 @@ public partial class RestClient
         }
 
         private Task BulkDeleteMessagesAsync(DiscordId channelId, DiscordId[] messagesIds, RequestOptions? options = null)
-            => _client.Rest.SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"messages\":{JsonSerializer.Serialize(messagesIds)}}}"), $"/channels/{channelId}/messages/bulk-delete", options);
+            => _client.SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"messages\":{JsonSerializer.Serialize(messagesIds)}}}"), $"/channels/{channelId}/messages/bulk-delete", options);
     }
 }

@@ -23,7 +23,7 @@
         public int? Flags => _jsonEntity.Flags;
         public IEnumerable<UserActivityButton> Buttons { get; }
 
-        internal UserActivity(JsonModels.JsonUserActivity jsonEntity, BotClient client)
+        internal UserActivity(JsonModels.JsonUserActivity jsonEntity, RestClient client)
         {
             _jsonEntity = jsonEntity;
             Timestamps = new(jsonEntity.Timestamps);

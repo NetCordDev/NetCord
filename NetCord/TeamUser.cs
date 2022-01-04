@@ -22,7 +22,7 @@
         public override PremiumType? PremiumType => _jsonTeamEntity.User.PremiumType;
         public override UserFlags? PublicFlags => _jsonTeamEntity.User.PublicFlags;
 
-        internal TeamUser(JsonModels.JsonTeamUser jsonEntity, BotClient client) : base(jsonEntity.User, client)
+        internal TeamUser(JsonModels.JsonTeamUser jsonEntity, RestClient client) : base(jsonEntity.User, client)
         {
             _jsonTeamEntity = jsonEntity;
         }

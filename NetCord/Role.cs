@@ -22,7 +22,7 @@ public class Role : ClientEntity
 
     public Tags? Tags { get; }
 
-    internal Role(JsonModels.JsonRole jsonEntity, BotClient client) : base(client)
+    internal Role(JsonModels.JsonRole jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.Tags != null)

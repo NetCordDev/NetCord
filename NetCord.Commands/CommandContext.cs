@@ -6,9 +6,9 @@ public class CommandContext : ICommandContext
     public TextChannel Channel => Message.Channel;
     public User User => Message.Author;
     public Guild? Guild => Message.Guild;
-    public BotClient Client { get; }
+    public SocketClient Client { get; }
 
-    public CommandContext(UserMessage message, BotClient client)
+    public CommandContext(UserMessage message, SocketClient client)
     {
         Message = message;
         Client = client;

@@ -11,7 +11,7 @@ public class StageInstance : ClientEntity
     public StageInstancePrivacyLevel PrivacyLevel => _jsonEntity.PrivacyLevel;
     public bool DiscoverableDisabled => _jsonEntity.DiscoverableDisabled;
 
-    internal StageInstance(JsonModels.JsonStageInstance jsonEntity, BotClient client) : base(client)
+    internal StageInstance(JsonModels.JsonStageInstance jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
     }

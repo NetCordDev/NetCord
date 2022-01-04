@@ -4,22 +4,22 @@ using System.Text.Json.Serialization;
 namespace NetCord
 {
     [JsonConverter(typeof(ComponentConverter))]
-    public abstract class Component
+    public abstract class MessageComponent
     {
         [JsonPropertyName("type")]
-        public MessageComponentType ComponentType { get; }
+        public ComponentType ComponentType { get; }
 
-        protected Component(MessageComponentType type)
+        protected MessageComponent(ComponentType type)
         {
             ComponentType = type;
         }
 
-        private class ComponentConverter : JsonConverter<Component>
+        private class ComponentConverter : JsonConverter<MessageComponent>
         {
-            public override Component Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-            public override void Write(Utf8JsonWriter writer, Component component, JsonSerializerOptions options)
+            public override MessageComponent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+            public override void Write(Utf8JsonWriter writer, MessageComponent component, JsonSerializerOptions options)
             {
-                if (component is Menu menu)
+                if (component is MessageMenu menu)
                 {
                     writer.WriteStartObject();
                     writer.WriteNumber("type", 1);
@@ -30,7 +30,7 @@ namespace NetCord
                 }
                 else
                 {
-                    var actionRow = (ActionRow)component;
+                    var actionRow = (MessageActionRow)component;
                     JsonSerializer.Serialize(writer, actionRow);
                 }
             }

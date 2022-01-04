@@ -27,32 +27,32 @@ public abstract class Interaction : ClientEntity
 
     public abstract ButtonInteractionData Data { get; }
 
-    internal Interaction(JsonInteraction jsonEntity, BotClient client) : base(client)
+    internal Interaction(JsonInteraction jsonEntity, SocketClient client) : base(client.Rest)
     {
         _jsonEntity = jsonEntity;
         var guildId = jsonEntity.GuildId;
-        if (guildId != null && client.Guilds.TryGetValue(guildId, out Guild? guild))
+        if (guildId.HasValue && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out Guild? guild))
         {
             Guild = guild;
-            User = new GuildUser(jsonEntity.GuildUser!, Guild, client);
+            User = new GuildUser(jsonEntity.GuildUser!, Guild, client.Rest);
             Message = new(jsonEntity.Message with { GuildId = jsonEntity.GuildId }, client);
         }
         else
         {
-            User = new User(jsonEntity.User!, client);
+            User = new User(jsonEntity.User!, client.Rest);
             Message = new(jsonEntity.Message, client);
         }
     }
 
-    public Task EndAsync(RequestOptions? options = null) => _client.Rest.Interaction.EndAsync(Id, Token, options);
+    public Task EndAsync(RequestOptions? options = null) => _client.Interaction.EndAsync(Id, Token, options);
 
-    public Task EndWithModifyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Rest.Interaction.EndWithModifyAsync(Id, Token, message, options);
+    public Task EndWithModifyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Interaction.EndWithModifyAsync(Id, Token, message, options);
 
-    public Task EndWithReplyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Rest.Interaction.EndWithReplyAsync(Id, Token, message, options);
+    public Task EndWithReplyAsync(InteractionMessage message, RequestOptions? options = null) => _client.Interaction.EndWithReplyAsync(Id, Token, message, options);
 
-    public Task EndWithThinkingStateAsync(RequestOptions? options = null) => _client.Rest.Interaction.EndWithThinkingStateAsync(Id, Token, options);
+    public Task EndWithThinkingStateAsync(RequestOptions? options = null) => _client.Interaction.EndWithThinkingStateAsync(Id, Token, options);
 
-    public Task ModifyThinkingStateAsync(Message message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyThinkingStateAsync(ApplicationId, Token, message, options);
+    public Task ModifyThinkingStateAsync(Message message, RequestOptions? options = null) => _client.Interaction.ModifyThinkingStateAsync(ApplicationId, Token, message, options);
 
-    public Task ModifyMessageAsync(Message message, RequestOptions? options = null) => _client.Rest.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
+    public Task ModifyMessageAsync(Message message, RequestOptions? options = null) => _client.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
 }

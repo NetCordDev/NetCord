@@ -7,7 +7,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly BotClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = GatewayIntent.All });
+    private static readonly SocketClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = GatewayIntent.All });
     internal static readonly CommandService _commandService = new();
     private static readonly InteractionService _interactionService = new();
 

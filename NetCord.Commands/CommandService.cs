@@ -72,8 +72,8 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
         foreach (var alias in commandAttribute.Aliases)
         {
-            if (alias.Contains(_options.ParamSeparator))
-                throw new InvalidCommandDefinitionException($"Any alias cannot contain {nameof(_options.ParamSeparator)}", method);
+            if (alias.ContainsAny(_options._paramSeparators))
+                throw new InvalidCommandDefinitionException($"Any alias cannot contain {nameof(_options.ParamSeparators)}", method);
             if (!_commands.TryGetValue(alias, out var list))
             {
                 list = new((ci1, ci2) =>
@@ -103,11 +103,11 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     {
         var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
         bool ignoreCase = _options.IgnoreCase;
-        var separator = _options.ParamSeparator;
+        var separators = _options._paramSeparators;
 
         SortedList<CommandInfo<TContext>> commandInfos;
         string baseArguments;
-        int index = messageContentWithoutPrefix.IndexOf(separator);
+        int index = messageContentWithoutPrefix.IndexOfAny(separators);
         if (index == -1)
         {
             lock (_commands)
@@ -120,7 +120,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
             lock (_commands)
                 if (!_commands.TryGetValue(messageContentWithoutPrefix[..index], out commandInfos!))
                     throw new CommandNotFoundException();
-            baseArguments = messageContentWithoutPrefix[(index + 1)..].TrimStart(separator);
+            baseArguments = messageContentWithoutPrefix[(index + 1)..].TrimStart(separators);
         }
 
         int maxIndex = commandInfos.Count - 1;
@@ -152,12 +152,12 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                 out Permission userChannelPermissions,
                 out var userAdministrator);
 
-            v = await GetMethodAndParametersWithPermissionCheckAsync(context, separator, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
+            v = await GetMethodAndParametersWithPermissionCheckAsync(context, separators, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
 
         }
         else
         {
-            v = await GetMethodAndParametersAsync(context, separator, commandInfos, baseArguments, maxIndex).ConfigureAwait(false);
+            v = await GetMethodAndParametersAsync(context, separators, commandInfos, baseArguments, maxIndex).ConfigureAwait(false);
         }
 
         var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(v.Item1.DeclaringType)!;
@@ -166,7 +166,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         await v.Item1.InvokeAsync(methodClass, v.Item2).ConfigureAwait(false);
     }
 
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char separator, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
+    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char[] separators, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
     {
         CommandInfo<TContext>? commandInfo = null;
         object?[]? parametersToPass = null;
@@ -243,7 +243,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         currentArg = arguments;
                     else if (isLastArgGood == false)
                     {
-                        int index = arguments.IndexOf(separator);
+                        int index = arguments.IndexOfAny(separators);
                         currentArg = index == -1 ? arguments : arguments[..index];
                     }
 
@@ -253,7 +253,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         try
                         {
                             parametersToPass[commandParamIndex] = await parameter.ReadAsync!(currentArg, context, parameter, _options).ConfigureAwait(false);
-                            arguments = arguments[currentArgLength..].TrimStart(separator);
+                            arguments = arguments[currentArgLength..].TrimStart(separators);
                             isLastArgGood = false;
                         }
                         catch
@@ -289,7 +289,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                     {
                         try
                         {
-                            var args = arguments.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                            var args = arguments.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                             var len = args.Length;
                             var o = Array.CreateInstance(parameter.Type, len);
 
@@ -333,7 +333,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         return (commandInfo, parametersToPass)!;
     }
 
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char separator, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
+    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char[] separators, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
     {
         CommandInfo<TContext>? commandInfo = null;
         object?[]? parametersToPass = null;
@@ -361,7 +361,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         currentArg = arguments;
                     else if (isLastArgGood == false)
                     {
-                        int index = arguments.IndexOf(separator);
+                        int index = arguments.IndexOfAny(separators);
                         currentArg = index == -1 ? arguments : arguments[..index];
                     }
 
@@ -371,7 +371,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         try
                         {
                             parametersToPass[commandParamIndex] = await parameter.ReadAsync!(currentArg, context, parameter, _options).ConfigureAwait(false);
-                            arguments = arguments[currentArgLength..].TrimStart(separator);
+                            arguments = arguments[currentArgLength..].TrimStart(separators);
                             isLastArgGood = false;
                         }
                         catch
@@ -407,7 +407,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                     {
                         try
                         {
-                            var args = arguments.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                            var args = arguments.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                             var len = args.Length;
                             var o = Array.CreateInstance(parameter.Type, len);
 

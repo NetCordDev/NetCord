@@ -2,9 +2,9 @@
 
 public abstract class ClientEntity : Entity
 {
-    protected BotClient _client;
+    protected RestClient _client;
 
-    protected ClientEntity(BotClient client)
+    protected ClientEntity(RestClient client)
     {
         _client = client;
     }

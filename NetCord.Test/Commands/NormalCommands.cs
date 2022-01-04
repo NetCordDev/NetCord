@@ -46,10 +46,10 @@ public class NormalCommands : CommandModule
             await ReplyAsync("Required context: Guild");
     }
 
-    public static Menu CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<DiscordId> defaultValues)
+    public static MessageMenu CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<DiscordId> defaultValues)
     {
-        var roles = guildRoles.OrderByDescending(r => r.Position).SkipLast(1);
-        Menu menu = new("roles")
+        var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
+        MessageMenu menu = new("roles")
         {
             Placeholder = "Select roles",
             MaxValues = roles.Count(),
@@ -65,7 +65,7 @@ public class NormalCommands : CommandModule
     }
 
     [Command("ping")]
-    public Task Ping() => ReplyAsync("Pong!");
+    public Task Ping() => ReplyAsync($"Pong! {Context.Client.Latency} ms");
 
     [Command("pong")]
     public Task Pong() => ReplyAsync("Ping!");

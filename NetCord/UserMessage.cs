@@ -5,15 +5,17 @@ namespace NetCord;
 public class UserMessage : RestMessage
 {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    internal UserMessage(JsonMessage jsonEntity, BotClient client) : base(jsonEntity, client)
+    internal UserMessage(JsonMessage jsonEntity, SocketClient client) : base(jsonEntity, client.Rest)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         DiscordId? guildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
-        if (guildId != null && client.Guilds.TryGetValue(guildId, out var guild))
+        if (guildId != null && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out var guild))
         {
             Guild = guild;
-            if (Guild._channels.TryGetValue(jsonEntity.ChannelId, out var channel))
+            if (guild._channels.TryGetValue(jsonEntity.ChannelId, out var channel))
                 Channel = (TextChannel)channel;
+            else if (guild._activeThreads.TryGetValue(jsonEntity.ChannelId, out var thread))
+                Channel = thread;
         }
         else
         {

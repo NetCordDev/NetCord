@@ -2,12 +2,10 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonInteractionData : JsonEntity
+internal record JsonInteractionData
 {
     [JsonPropertyName("id")]
-#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
-    public override DiscordId? Id { get; init; }
-#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
+    public DiscordId? Id { get; init; }
 
     [JsonPropertyName("name")]
     public string? ApplicationCommandName { get; init; }
@@ -25,7 +23,7 @@ internal record JsonInteractionData : JsonEntity
     public string? CustomId { get; init; }
 
     [JsonPropertyName("component_type")]
-    public MessageComponentType? ComponentType { get; init; }
+    public ComponentType? ComponentType { get; init; }
 
     [JsonPropertyName("values")]
     public string[]? SelectedValues { get; init; }

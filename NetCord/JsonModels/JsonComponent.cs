@@ -2,10 +2,10 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonMessageComponent
+internal record JsonComponent
 {
     [JsonPropertyName("type")]
-    public MessageComponentType Type { get; init; }
+    public ComponentType Type { get; init; }
 
     [JsonPropertyName("custom_id")]
     public string? CustomId { get; init; }
@@ -14,7 +14,7 @@ internal record JsonMessageComponent
     public bool Disabled { get; init; }
 
     [JsonPropertyName("style")]
-    public MessageButtonStyle? Style { get; init; }
+    public ButtonStyle? Style { get; init; }
 
     [JsonPropertyName("label")]
     public string? Label { get; init; }
@@ -38,7 +38,7 @@ internal record JsonMessageComponent
     public int? MaxValues { get; init; }
 
     [JsonPropertyName("components")]
-    public JsonMessageComponent[] Components { get; init; }
+    public JsonComponent[] Components { get; init; }
 
     internal record SelectOption
     {

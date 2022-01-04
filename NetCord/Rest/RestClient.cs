@@ -12,18 +12,20 @@ public partial class RestClient
     public MessageModule Message { get; }
     public UserModule User { get; }
 
-    internal RestClient(BotClient client, HttpClient httpClient)
+    public RestClient(string token, TokenType tokenType)
     {
-        _httpClient = httpClient;
+        _httpClient = new();
+        _httpClient.DefaultRequestHeaders.Add("Authorization", tokenType == TokenType.Bearer ? token : $"{tokenType} {token}");
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
 
-        Channel = new(client);
-        Guild = new(client);
-        Interaction = new(client);
-        Message = new(client);
-        User = new(client);
+        Channel = new(this);
+        Guild = new(this);
+        Interaction = new(this);
+        Message = new(this);
+        User = new(this);
     }
 
-    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, string partialUrl, RequestOptions? options = null)
+    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, string partialUrl, RequestOptions? options)
     {
         string url = Discord.RestUrl + partialUrl;
         HttpResponseMessage? response;
@@ -67,7 +69,7 @@ public partial class RestClient
         }
     }
 
-    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestOptions? options = null)
+    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestOptions? options)
     {
         string url = Discord.RestUrl + partialUrl;
         HttpResponseMessage? response;
@@ -136,7 +138,6 @@ public partial class RestClient
                     break;
             }
         }
-
         var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
         if (s.Length == 0)
             return null;

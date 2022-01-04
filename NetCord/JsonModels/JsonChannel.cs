@@ -74,8 +74,8 @@ internal record JsonChannel : JsonEntity
     [JsonPropertyName("member")]
     public JsonThreadSelfUser CurrentUser { get; init; }
 
-    [JsonPropertyName("default_auto_archive_duration")]
-    public int? DefaultAutoArchiveDuration { get; init; }
+    //[JsonPropertyName("default_auto_archive_duration")]
+    //public int? DefaultAutoArchiveDuration { get; init; }
 
     [JsonPropertyName("permissions")]
     public string Permissions { get; init; }

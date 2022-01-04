@@ -1,22 +1,13 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NetCord
+﻿namespace NetCord
 {
-    [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
     public class LinkButton : Button
     {
-        private const MessageButtonStyle style = (MessageButtonStyle)5;
+        public ButtonStyle Style => (ButtonStyle)5;
+        public string Url => _jsonEntity.Url!;
 
-        [JsonPropertyName("url")]
-        public Uri Uri { get; }
-
-        public LinkButton(string label, Uri uri) : base(label, style)
+        internal LinkButton(JsonModels.JsonComponent jsonEntity) : base(jsonEntity)
         {
-            if (!uri.IsAbsoluteUri)
-                throw new UriFormatException($"Invalid {nameof(uri)}");
-            if (uri.Scheme is not "https" and not "http" and not "discord")
-                throw new UriFormatException($"Invalid {nameof(uri)} scheme");
-            Uri = uri;
+
         }
     }
 }

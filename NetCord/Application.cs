@@ -26,7 +26,7 @@ public class Application : Entity
     public string? CoverImageHash => _jsonEntity.CoverImageHash;
     public ApplicationFlags? Flags => _jsonEntity.Flags;
 
-    internal Application(JsonModels.JsonApplication jsonEntity, BotClient client)
+    internal Application(JsonModels.JsonApplication jsonEntity, RestClient client)
     {
         _jsonEntity = jsonEntity;
         Owner = new(jsonEntity.Owner, client);

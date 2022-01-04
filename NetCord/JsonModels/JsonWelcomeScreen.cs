@@ -8,5 +8,5 @@ internal record JsonWelcomeScreen
     public string? Description { get; init; }
 
     [JsonPropertyName("welcome_channels")]
-    public JsonChannel[] WelcomeChannels { get; init; }
+    public JsonWelcomeScreenChannel[] WelcomeChannels { get; init; }
 }

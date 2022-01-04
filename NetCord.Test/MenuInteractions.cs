@@ -10,19 +10,12 @@ namespace NetCord.Test
             var user = Context.User;
             if (user is GuildUser guildUser)
             {
-                await Context.Interaction.EndWithThinkingStateAsync();
-                var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => DiscordId.Parse(s));
+                var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => new DiscordId(s));
                 await guildUser.ModifyAsync(x => x.NewRolesIds = selectedValues);
-                InteractionMessage message = new()
-                {
-                    Content = "Select roles",
-                    Components = new(),
-                };
-                var menu = NormalCommands.CreateRolesMenu(Context.Guild.Roles.Values, selectedValues);
-                message.Components.Add(menu);
-                await Context.Interaction.ModifyThinkingStateAsync(new Message { Content = "Roles updated" });
-                //await Context.Interaction.EndWithModifyAsync(message.Build());
+                await Context.Interaction.EndWithReplyAsync(new InteractionMessage { Content = "Roles updated" });
             }
+            else
+                await Context.Interaction.EndWithReplyAsync(new() { Content = "You are not in guild" });
         }
 
         [Interaction("menu")]

@@ -32,8 +32,8 @@ public class Guild : ClientEntity
     public string Name => _jsonEntity.Name;
     public string? Icon => _jsonEntity.Icon;
     public string? IconHash => _jsonEntity.IconHash;
-    public string? Splash => _jsonEntity.Splash;
-    public string? DiscoverySplash => _jsonEntity.DiscoverySplash;
+    public string? Splash => _jsonEntity.SplashHash;
+    public string? DiscoverySplashHash => _jsonEntity.DiscoverySplashHash;
     //public bool? IsOwner => _jsonEntity.IsOwner;
     public DiscordId OwnerId => _jsonEntity.OwnerId;
     public GuildUser Owner => _users[OwnerId];
@@ -69,7 +69,7 @@ public class Guild : ClientEntity
     public MFALevel MFALevel => _jsonEntity.MFALevel;
     public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
     public DiscordId? SystemChannelId => _jsonEntity.SystemChannelId;
-    public int SystemChannelFlags => _jsonEntity.SystemChannelFlags;
+    public SystemChannelFlags SystemChannelFlags => _jsonEntity.SystemChannelFlags;
     public DiscordId? RulesChannelId => _jsonEntity.RulesChannelId;
     public DateTimeOffset? CreatedAt => _jsonEntity.CreatedAt;
     public bool? IsLarge => _jsonEntity.IsLarge;
@@ -148,11 +148,11 @@ public class Guild : ClientEntity
     //    }
     //}
 
-    internal Guild(JsonGuild jsonEntity, BotClient client) : base(client)
+    internal Guild(JsonGuild jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
 
-        _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionary(s => s.UserId, s => new VoiceState(s));
+        _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionaryOrEmpty(s => s.UserId, s => new VoiceState(s));
         _users = _jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.User.Id,
             u => new GuildUser(u, this, client));
 
@@ -160,7 +160,7 @@ public class Guild : ClientEntity
         _activeThreads = _jsonEntity.ActiveThreads.ToImmutableDictionaryOrEmpty(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
         _roles = _jsonEntity.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
         // guild emojis always have Id
-        _emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id!, e => new Emoji(e, client));
+        _emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new Emoji(e, client));
         _stageInstances = _jsonEntity.StageInstances.ToImmutableDictionaryOrEmpty(i => i.Id, i => new StageInstance(i, client));
         _stickers = _jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
         MemberCount = _jsonEntity.MemberCount;
@@ -169,10 +169,12 @@ public class Guild : ClientEntity
         Features = new(_jsonEntity.Features);
     }
 
-    public Task KickUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.KickAsync(userId, Id, options);
+    public Task KickUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.KickAsync(Id, userId, options);
 
-    public Task BanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, options);
-    public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestOptions? options = null) => _client.Rest.Guild.User.BanAsync(userId, Id, deleteMessageDays, options);
+    public Task BanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.BanAsync(Id, userId, options);
+    public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestOptions? options = null) => _client.Guild.User.BanAsync(Id, userId, deleteMessageDays, options);
 
-    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Rest.Guild.User.UnbanAsync(userId, Id, options);
+    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.UnbanAsync(Id, userId, options);
+
+    public Task<Guild> ModifyAsync(Action<GuildProperties> action, RequestOptions? options = null) => _client.Guild.ModifyAsync(Id, action, options);
 }

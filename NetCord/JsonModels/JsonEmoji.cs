@@ -2,11 +2,10 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonEmoji : JsonEntity
+internal record JsonEmoji
 {
-#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
-    public override DiscordId? Id { get; init; }
-#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
+    [JsonPropertyName("id")]
+    public DiscordId? Id { get; init; }
 
     [JsonPropertyName("name")]
     public string? Name { get; init; }

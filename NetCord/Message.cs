@@ -31,7 +31,7 @@ public class Message
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
-    public List<Component>? Components { get; set; }
+    public List<MessageComponent>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("sticker_ids")]

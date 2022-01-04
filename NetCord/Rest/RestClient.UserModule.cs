@@ -1,40 +1,38 @@
-﻿namespace NetCord;
+﻿using System.Text.Json.Serialization;
+
+namespace NetCord;
 
 public partial class RestClient
 {
     public class UserModule
     {
-        private readonly BotClient _client;
+        private readonly RestClient _client;
 
-        internal UserModule(BotClient client)
+        internal UserModule(RestClient client)
         {
             _client = client;
         }
 
-        public string GetAvatarUrl(DiscordId userId, string avatarHash, ImageFormat? format)
-        {
-            if (avatarHash != null)
-                return $"{Discord.ImageBaseUrl}/avatars/{userId}/{avatarHash}.{(format.HasValue ? InternalHelper.GetImageExtension(format.GetValueOrDefault()) : avatarHash.StartsWith("a_") ? "gif" : "png")}";
-            else
-                throw new InvalidOperationException("This user has no avatar");
-        }
+        public async Task<User> GetAsync(DiscordId userId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/users/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonUser>(), _client);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="avatarHash"></param>
-        /// <param name="format"></param>
-        /// <param name="size">any power of two between 16 and 4096</param>
-        /// <returns></returns>
-        public string GetAvatarUrl(DiscordId userId, string avatarHash, int size, ImageFormat? format)
+        public async Task<SelfUser> ModifyAsync(Action<SelfUserProperties> action, RequestOptions? options = null)
         {
-            if (avatarHash != null)
-                return $"{Discord.ImageBaseUrl}/avatars/{userId}/{avatarHash}.{(format.HasValue ? InternalHelper.GetImageExtension(format.GetValueOrDefault()) : avatarHash.StartsWith("a_") ? "gif" : "png")}?size={size}";
-            else
-                throw new InvalidOperationException("This user has no avatar");
+            SelfUserProperties properties = new();
+            action.Invoke(properties);
+            var result = (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/users/@me", options).ConfigureAwait(false))!;
+            return new(result.ToObject<JsonModels.JsonUser>(), _client);
         }
-
-        public string GetDefaultAvatarUrl(ushort discriminator) => $"{Discord.ImageBaseUrl}/embed/avatars/{discriminator % 5}.png";
     }
+}
+
+public class SelfUserProperties
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("avatar")]
+    public Image? Avatar { get; set; }
 }

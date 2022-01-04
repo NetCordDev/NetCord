@@ -8,17 +8,23 @@ public class MessageReaction : ClientEntity
 
     public bool Me => _jsonEntity.Me;
 
-#pragma warning disable CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
-    public override DiscordId? Id => _jsonEntity.Emoji.Id;
-#pragma warning restore CS8764 // Nullability of return type doesn't match overridden member (possibly because of nullability attributes).
+    public override DiscordId Id
+    {
+        get
+        {
+            if (!_jsonEntity.Emoji.Id.HasValue)
+                throw new InvalidOperationException("This reaction emoji has no id");
+            return _jsonEntity.Emoji.Id.GetValueOrDefault();
+        }
+    }
 
     public string? Name => _jsonEntity.Emoji.Name;
 
     public bool Animated => _jsonEntity.Emoji.Animated;
 
-    public bool IsStandard => Id == null;
+    public bool IsStandard => !_jsonEntity.Emoji.Id.HasValue;
 
-    internal MessageReaction(JsonModels.JsonMessageReaction jsonEntity, BotClient client) : base(client)
+    internal MessageReaction(JsonModels.JsonMessageReaction jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
     }

@@ -1,45 +1,30 @@
-﻿using System.ComponentModel;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-
-namespace NetCord
+﻿namespace NetCord
 {
-    [JsonConverter(typeof(ButtonConverter))]
     public abstract class Button
     {
-        [JsonPropertyName("style")]
-        public MessageButtonStyle Style { get; }
+        private protected readonly JsonModels.JsonComponent _jsonEntity;
 
-        [Browsable(false)]
-        [JsonPropertyName("type")]
-        public MessageComponentType ComponentType => MessageComponentType.Button;
+        public ComponentType ComponentType => ComponentType.Button;
 
-        [JsonPropertyName("label")]
-        public string Label { get; }
+        public string? Label => _jsonEntity.Label;
 
-        [JsonPropertyName("emoji")]
-        [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-        public DiscordId? EmojiId { get; init; }
+        public ComponentEmoji? Emoji { get; }
 
-        [JsonPropertyName("disabled")]
-        public bool Disabled { get; init; }
+        public bool Disabled => _jsonEntity.Disabled;
 
-        protected Button(string label, MessageButtonStyle style)
+        private protected Button(JsonModels.JsonComponent jsonEntity)
         {
-            Label = label;
-            Style = style;
+            _jsonEntity = jsonEntity;
+            if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
         }
 
-        private class ButtonConverter : JsonConverter<Button>
+        internal static Button CreateFromJson(JsonModels.JsonComponent jsonEntity)
         {
-            public override Button Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-            public override void Write(Utf8JsonWriter writer, Button button, JsonSerializerOptions options)
+            return (int)jsonEntity.Style! switch
             {
-                if (button is ActionButton actionButton)
-                    JsonSerializer.Serialize(writer, actionButton);
-                else if (button is LinkButton linkButton)
-                    JsonSerializer.Serialize(writer, linkButton);
-            }
+                5 => new LinkButton(jsonEntity),
+                _ => new ActionButton(jsonEntity),
+            };
         }
     }
 }

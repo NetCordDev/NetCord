@@ -9,7 +9,7 @@
         public string Name => _jsonEntity.Name;
         public User User { get; }
 
-        internal MessageInteraction(JsonModels.JsonMessageInteraction jsonEntity, BotClient client)
+        internal MessageInteraction(JsonModels.JsonMessageInteraction jsonEntity, RestClient client)
         {
             _jsonEntity = jsonEntity;
             User = new(jsonEntity.User, client);

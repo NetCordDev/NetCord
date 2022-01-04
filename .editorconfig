@@ -80,14 +80,14 @@ csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = when_on_single_line:suggestion
-csharp_style_expression_bodied_constructors = when_on_single_line:suggestion
-csharp_style_expression_bodied_indexers = when_on_single_line:suggestion
-csharp_style_expression_bodied_lambdas = when_on_single_line:suggestion
-csharp_style_expression_bodied_local_functions = when_on_single_line:suggestion
-csharp_style_expression_bodied_methods = when_on_single_line:suggestion
-csharp_style_expression_bodied_operators = when_on_single_line:suggestion
-csharp_style_expression_bodied_properties = when_on_single_line:suggestion
+csharp_style_expression_bodied_accessors =when_on_single_line:silent
+csharp_style_expression_bodied_constructors =when_on_single_line:silent
+csharp_style_expression_bodied_indexers =when_on_single_line:silent
+csharp_style_expression_bodied_lambdas =when_on_single_line:silent
+csharp_style_expression_bodied_local_functions =when_on_single_line:silent
+csharp_style_expression_bodied_methods =when_on_single_line:silent
+csharp_style_expression_bodied_operators =when_on_single_line:silent
+csharp_style_expression_bodied_properties =when_on_single_line:silent
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true
@@ -222,6 +222,8 @@ dotnet_diagnostic.CS8632.severity = suggestion
 [*.{cs,vb}]
 end_of_line=crlf
 dotnet_diagnostic.CA2007.severity=warning
+dotnet_style_prefer_conditional_expression_over_assignment=true:silent
+dotnet_style_prefer_conditional_expression_over_return=true:silent
 
 [Json*.cs]
 dotnet_diagnostic.CS8618.severity=none

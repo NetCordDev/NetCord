@@ -15,7 +15,7 @@
 
         public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 
-        internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, BotClient client) : base(jsonEntity, client)
+        internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
         {
             PermissionOverwrites = jsonEntity.PermissionOverwrites.ToImmutableDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         }

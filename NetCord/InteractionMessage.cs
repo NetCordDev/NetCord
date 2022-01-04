@@ -27,7 +27,7 @@ namespace NetCord
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonPropertyName("components")]
-        public List<Component>? Components { get; set; }
+        public List<MessageComponent>? Components { get; set; }
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
