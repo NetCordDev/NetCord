@@ -52,4 +52,36 @@ public static class CDN
     }
 
     public static string GetDefaultAvatarUrl(ushort discriminator) => $"{Discord.ImageBaseUrl}/embed/avatars/{discriminator % 5}.png";
+
+    public static string GetGuildWidgetImageUrl(DiscordId guildId, GuildWidgetImageStyle? style = null)
+    {
+        if (style.HasValue)
+            return $"https://discord.com/api/guilds/{guildId}/widget.png";
+        else
+            return $"https://discord.com/api/guilds/{guildId}/widget.png?style={(style.GetValueOrDefault() == GuildWidgetImageStyle.Shield ? "shield" : $"banner{style.GetValueOrDefault()}")}";
+    }
+}
+
+public enum GuildWidgetImageStyle
+{
+    /// <summary>
+    /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=shield"/>
+    /// </summary>
+    Shield = 0,
+    /// <summary>
+    /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=banner1"/>
+    /// </summary>
+    Banner1 = 1,
+    /// <summary>
+    /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=banner2"/>
+    /// </summary>
+    Banner2 = 2,
+    /// <summary>
+    /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=banner3"/>
+    /// </summary>
+    Banner3 = 3,
+    /// <summary>
+    /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=banner4"/>
+    /// </summary>
+    Banner4 = 4,
 }

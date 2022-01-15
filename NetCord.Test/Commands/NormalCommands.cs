@@ -46,7 +46,7 @@ public class NormalCommands : CommandModule
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MessageMenu CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<DiscordId> defaultValues)
+    public static MessageMenu CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<DiscordId> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         MessageMenu menu = new("roles")

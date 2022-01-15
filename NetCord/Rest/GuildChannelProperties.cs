@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GuildChannelBuilder
+public class GuildChannelProperties
 {
     [JsonPropertyName("name")]
     public string Name { get; }
@@ -43,7 +43,7 @@ public class GuildChannelBuilder
     [JsonPropertyName("nsfw")]
     public bool? Nsfw { get; set; }
 
-    public GuildChannelBuilder(string name)
+    public GuildChannelProperties(string name)
     {
         Name = name;
     }

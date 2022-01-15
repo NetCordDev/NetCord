@@ -15,7 +15,7 @@ public class GithubCommand : CommandModule
         };
         if (Context.User is GuildUser guildUser)
         {
-            Role role = Context.Guild.Roles.Values.OrderBy(x => x.Position).FirstOrDefault(x => guildUser.RolesIds.Contains(x.Id) && x.Color != default);
+            GuildRole role = Context.Guild.Roles.Values.OrderBy(x => x.Position).FirstOrDefault(x => guildUser.RolesIds.Contains(x.Id) && x.Color != default);
             if (role == null)
                 embed.Color = new(0, 255, 0);
             else

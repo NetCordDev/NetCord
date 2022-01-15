@@ -1,8 +1,8 @@
 ﻿namespace NetCord;
 
-public class Role : ClientEntity
+public class GuildRole : ClientEntity
 {
-    private readonly JsonModels.JsonRole _jsonEntity;
+    private readonly JsonModels.JsonGuildRole _jsonEntity;
 
     public override DiscordId Id => _jsonEntity.Id;
 
@@ -20,9 +20,9 @@ public class Role : ClientEntity
 
     public bool Mentionable => _jsonEntity.Mentionable;
 
-    public Tags? Tags { get; }
+    public GuildRoleTags? Tags { get; }
 
-    internal Role(JsonModels.JsonRole jsonEntity, RestClient client) : base(client)
+    internal GuildRole(JsonModels.JsonGuildRole jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.Tags != null)
@@ -33,7 +33,7 @@ public class Role : ClientEntity
     public override string ToString() => $"<@&{Id}>";
 }
 
-public class Tags
+public class GuildRoleTags
 {
     private readonly JsonModels.JsonTags _jsonEntity;
 
@@ -43,7 +43,7 @@ public class Tags
 
     public bool IsPremiumSubscriber => _jsonEntity.IsPremiumSubscriber;
 
-    internal Tags(JsonModels.JsonTags jsonEntity)
+    internal GuildRoleTags(JsonModels.JsonTags jsonEntity)
     {
         _jsonEntity = jsonEntity;
     }

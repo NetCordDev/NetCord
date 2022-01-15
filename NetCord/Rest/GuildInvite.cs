@@ -28,6 +28,8 @@ public class GuildInvite
 
     public GuildScheduledEvent? GuildScheduledEvent { get; }
 
+    public GuildInviteMetadata? Metadata { get; }
+
     internal GuildInvite(JsonModels.JsonGuildInvite jsonEntity, RestClient client)
     {
         _jsonEntity = jsonEntity;
@@ -45,6 +47,8 @@ public class GuildInvite
             StageInstance = new(_jsonEntity.StageInstance, client);
         if (_jsonEntity.GuildScheduledEvent != null)
             GuildScheduledEvent = new(_jsonEntity.GuildScheduledEvent, client);
+        if (_jsonEntity.Metadata != null)
+            Metadata = new(_jsonEntity.Metadata);
     }
 }
 

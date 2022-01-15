@@ -21,6 +21,16 @@ public partial class RestClient
             return NetCord.Channel.CreateFromJson(json.ToObject<JsonChannel>(), _client);
         }
 
+        public async Task<Channel> ModifyAsync(DiscordId channelId, Action<GroupDMChannelOptions> action, RequestOptions? options = null)
+        {
+            GroupDMChannelOptions groupDMChannelOptions = new();
+            action(groupDMChannelOptions);
+            return NetCord.Channel.CreateFromJson((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(groupDMChannelOptions), $"/channels/{channelId}", options).ConfigureAwait(false))!.ToObject<JsonChannel>(), _client);
+        }
+
+        public async Task<Channel> DeleteAsync(DiscordId channelId, RequestOptions? options = null)
+            => NetCord.Channel.CreateFromJson((await _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", options).ConfigureAwait(false))!.ToObject<JsonChannel>(), _client);
+
         public async Task<DMChannel> GetDMByUserIdAsync(DiscordId userId, RequestOptions? options = null)
             => new DMChannel(((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"recipient_id\":\"{userId}\"}}"), "/users/@me/channels", options).ConfigureAwait(false))!).ToObject<JsonChannel>(), _client);
 

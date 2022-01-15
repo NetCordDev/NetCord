@@ -74,7 +74,7 @@ namespace NetCord
                 case "GUILD_ROLE_UPDATE":
                     var property = jsonElement.GetProperty("d");
                     if (TryGetGuild(property, out Guild? g))
-                        AddOrUpdate(property.GetProperty("role"), ref g._roles, (JsonRole r, RestClient c) => new Role(r, c));
+                        AddOrUpdate(property.GetProperty("role"), ref g._roles, (JsonGuildRole r, RestClient c) => new GuildRole(r, c));
                     break;
                 case "GUILD_ROLE_DELETE":
                     property = jsonElement.GetProperty("d");

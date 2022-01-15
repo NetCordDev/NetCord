@@ -11,7 +11,7 @@ internal record JsonEmoji
     public string? Name { get; init; }
 
     [JsonPropertyName("roles")]
-    public JsonRole[] AllowedRoles { get; init; }
+    public JsonGuildRole[] AllowedRoles { get; init; }
 
     [JsonPropertyName("user")]
     public JsonUser? Creator { get; init; }

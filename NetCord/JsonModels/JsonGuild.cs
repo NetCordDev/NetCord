@@ -52,7 +52,7 @@ internal record JsonGuild : JsonEntity
     public ContentFilter ContentFilter { get; init; }
 
     [JsonPropertyName("roles")]
-    public JsonRole[] Roles { get; init; }
+    public JsonGuildRole[] Roles { get; init; }
 
     [JsonPropertyName("emojis")]
     public JsonEmoji[] Emojis { get; init; }

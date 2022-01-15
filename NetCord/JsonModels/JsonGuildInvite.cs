@@ -39,4 +39,7 @@ internal record JsonGuildInvite
 
     [JsonPropertyName("guild_scheduled_event")]
     public JsonGuildScheduledEvent? GuildScheduledEvent { get; init; }
+
+    [JsonPropertyName("metadata")]
+    public JsonGuildInviteMetadata? Metadata { get; init; }
 }

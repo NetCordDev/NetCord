@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class WelcomeScreenChannel : Entity
+public class GuildWelcomeScreenChannel : Entity
 {
     private readonly JsonModels.JsonWelcomeScreenChannel _jsonEntity;
 
@@ -12,7 +12,7 @@ public class WelcomeScreenChannel : Entity
 
     public string? EmojiName => _jsonEntity.EmojiName;
 
-    internal WelcomeScreenChannel(JsonModels.JsonWelcomeScreenChannel jsonEntity)
+    internal GuildWelcomeScreenChannel(JsonModels.JsonWelcomeScreenChannel jsonEntity)
     {
         _jsonEntity = jsonEntity;
     }

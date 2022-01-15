@@ -18,7 +18,7 @@
 
         public string? Name => _jsonEntity.Name;
 
-        public IReadOnlyDictionary<DiscordId, Role> AllowedRoles { get; }
+        public IReadOnlyDictionary<DiscordId, GuildRole> AllowedRoles { get; }
 
         public User? Creator { get; }
 
@@ -35,7 +35,7 @@
             _jsonEntity = jsonEntity;
             if (jsonEntity.Creator != null)
                 Creator = new(jsonEntity.Creator, client);
-            AllowedRoles = jsonEntity.AllowedRoles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new Role(r, client));
+            AllowedRoles = jsonEntity.AllowedRoles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
         }
     }
 }

@@ -13,8 +13,22 @@ public partial class RestClient
                 _client = client;
             }
 
-            public async Task<Channel> CreateAsync(DiscordId guildId, GuildChannelBuilder channelBuilder, RequestOptions? options = null)
+            public async Task<Channel> CreateAsync(DiscordId guildId, GuildChannelProperties channelBuilder, RequestOptions? options = null)
                 => NetCord.Channel.CreateFromJson((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(channelBuilder), $"/guilds/{guildId}/channels", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), _client);
+
+            public async Task<Channel> ModifyAsync(DiscordId channelId, Action<GuildChannelOptions> action, RequestOptions? options = null)
+            {
+                GuildChannelOptions guildChannelOptions = new();
+                action(guildChannelOptions);
+                return NetCord.Channel.CreateFromJson((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildChannelOptions), $"/channels/{channelId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), _client);
+            }
+
+            public async Task<Channel> ModifyAsync(DiscordId channelId, Action<ThreadOptions> action, RequestOptions? options = null)
+            {
+                ThreadOptions threadOptions = new();
+                action(threadOptions);
+                return NetCord.Channel.CreateFromJson((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(threadOptions), $"/channels/{channelId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), _client);
+            }
 
             public Task ModifyPositionsAsync(DiscordId guildId, ChannelPosition[] positions, RequestOptions? options = null)
                 => _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(positions), $"/guilds/{guildId}/channels", options);

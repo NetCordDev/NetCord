@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public partial class RestClient
+public partial class RestClient : IDisposable
 {
     private readonly HttpClient _httpClient;
 
@@ -155,5 +155,10 @@ public partial class RestClient
     {
         var element = response.RootElement;
         return element.ValueKind == JsonValueKind.Object && element.TryGetProperty("code", out _);
+    }
+
+    public void Dispose()
+    {
+        _httpClient.Dispose();
     }
 }

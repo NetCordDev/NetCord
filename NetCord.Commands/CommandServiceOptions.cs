@@ -177,14 +177,17 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                     var len = input.Length;
                     if (len <= 32)
                     {
-                        var selectedUsers = len >= 2
-                            ? users.Values.Where(u => u.Username == input || u.Nickname == input)
-                            : users.Values.Where(u => u.Nickname == input);
-                        var count = selectedUsers.Count();
-                        if (count == 1)
-                            return Task.FromResult((object)selectedUsers.First());
-                        else if (count > 1)
+                        GuildUser? user;
+                        try
+                        {
+                            user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == input || u.Nickname == input : u => u.Nickname == input);
+                        }
+                        catch
+                        {
                             throw new ArgumentParseException("Too many users found");
+                        }
+                        if (user != null)
+                            return Task.FromResult((object)user);
                     }
                 }
                 exception:
@@ -206,20 +209,20 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                         return Task.FromResult((object)new UserId(id, user));
                     }
 
-                    var memory = input.AsMemory();
+                    var span = input.AsSpan();
 
                     // by mention
-                    if (MentionUtils.TryParseUser(memory.Span, out id))
+                    if (MentionUtils.TryParseUser(span, out id))
                     {
                         users.TryGetValue(id, out var user);
                         return Task.FromResult((object)new UserId(id, user));
                     }
 
                     // by name and tag
-                    if (memory.Length is >= 7 and <= 37 && memory.Span[^5] == '#')
+                    if (span.Length is >= 7 and <= 37 && span[^5] == '#')
                     {
-                        var username = memory[..^5].ToString();
-                        if (ushort.TryParse(memory.Span[^4..], out var discriminator))
+                        var username = span[..^5].ToString();
+                        if (ushort.TryParse(span[^4..], out var discriminator))
                         {
                             GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                             if (user != null)
@@ -232,14 +235,17 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                         var len = input.Length;
                         if (len <= 32)
                         {
-                            var selectedUsers = len >= 2
-                                ? users.Values.Where(u => u.Username == input || u.Nickname == input)
-                                : users.Values.Where(u => u.Nickname == input);
-                            var count = selectedUsers.Count();
-                            if (count == 1)
-                                return Task.FromResult((object)selectedUsers.First());
-                            else if (count > 1)
+                            GuildUser? user;
+                            try
+                            {
+                                user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == input || u.Nickname == input : u => u.Nickname == input);
+                            }
+                            catch
+                            {
                                 throw new ArgumentParseException("Too many users found");
+                            }
+                            if (user != null)
+                                return Task.FromResult((object)new UserId(user.Id, user));
                         }
                     }
                 }
@@ -278,12 +284,17 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                     {
                         if (input.Length is <= 32 and >= 2)
                         {
-                            var selectedUsers = users.Values.Select(u => u.Username == input);
-                            var count = selectedUsers.Count();
-                            if (count == 1)
-                                return Task.FromResult((object)selectedUsers.First());
-                            else if (count > 1)
+                            User? user;
+                            try
+                            {
+                                user = users.Values.SingleOrDefault(u => u.Username == input);
+                            }
+                            catch
+                            {
                                 throw new ArgumentParseException("Too many users found");
+                            }
+                            if (user != null)
+                                return Task.FromResult((object)new UserId(user.Id, user));
                         }
                     }
                 }

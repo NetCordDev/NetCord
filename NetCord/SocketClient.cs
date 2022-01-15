@@ -9,7 +9,7 @@ public partial class SocketClient : IDisposable
 {
     private readonly string _botToken;
     private readonly WebSocket _webSocket = new(new(Discord.GatewayUrl));
-    private readonly ClientConfig _config;
+    private readonly SocketClientConfig _config;
     private readonly ReconnectTimer _reconnectTimer = new();
     private readonly LatencyTimer _latencyTimer = new();
 
@@ -92,7 +92,7 @@ public partial class SocketClient : IDisposable
         Rest = new(token, tokenType);
     }
 
-    public SocketClient(string token, TokenType tokenType, ClientConfig? config) : this(token, tokenType)
+    public SocketClient(string token, TokenType tokenType, SocketClientConfig? config) : this(token, tokenType)
     {
         if (config != null)
             _config = config;

@@ -324,7 +324,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                 if (lastCommand)
                     throw new ParameterCountException("Too many parameters");
                 else
-                    goto Continue;
+                    continue;
             }
             Break:
             break;
@@ -432,7 +432,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                         else if (lastCommand)
                             throw new ParameterCountException("Too few parameters");
                         else
-                            goto Continue;
+                            continue;
                     }
                 }
                 commandParamIndex++;
@@ -451,7 +451,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         return (commandInfo, parametersToPass)!;
     }
 
-    private static void CalculatePermissions(GuildUser user, Permission everyonePermissions, IReadOnlyDictionary<DiscordId, PermissionOverwrite> permissionOverwrites, IEnumerable<Role> guildRoles, out Permission permissions, out Permission channelPermissions, out bool administrator)
+    private static void CalculatePermissions(GuildUser user, Permission everyonePermissions, IReadOnlyDictionary<DiscordId, PermissionOverwrite> permissionOverwrites, IEnumerable<GuildRole> guildRoles, out Permission permissions, out Permission channelPermissions, out bool administrator)
     {
         permissions = everyonePermissions;
         foreach (var role in guildRoles)

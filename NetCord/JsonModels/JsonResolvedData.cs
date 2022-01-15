@@ -12,7 +12,7 @@ namespace NetCord.JsonModels
         public IReadOnlyDictionary<DiscordId, JsonGuildUser>? GuildUsers { get; init; }
 
         [JsonPropertyName("roles")]
-        public IReadOnlyDictionary<DiscordId, JsonRole>? Roles { get; init; }
+        public IReadOnlyDictionary<DiscordId, JsonGuildRole>? Roles { get; init; }
 
         [JsonPropertyName("channels")]
         public IReadOnlyDictionary<DiscordId, JsonChannel>? Channels { get; init; }

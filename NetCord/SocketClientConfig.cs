@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ClientConfig
+public class SocketClientConfig
 {
     public GatewayIntent Intents { get; init; } = GatewayIntent.AllNonPrivileged;
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GuildWidgetOptions
+public class GuildWidgetSettingsOptions
 {
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }

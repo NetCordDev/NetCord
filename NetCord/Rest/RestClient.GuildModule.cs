@@ -16,15 +16,18 @@ public partial class RestClient
             Channel = new(client);
         }
 
+        public async Task<Guild> CreateAsync(GuildProperties guildProperties, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildProperties), "/guilds", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
+
         public async Task<Guild> GetAsync(DiscordId guildId, bool withCounts = false, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}?with_counts={withCounts}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
 
         public async Task<GuildPreview> GetPreviewAsync(DiscordId guildId, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
 
-        public async Task<Guild> ModifyAsync(DiscordId guildId, Action<GuildProperties> action, RequestOptions? options = null)
+        public async Task<Guild> ModifyAsync(DiscordId guildId, Action<GuildOptions> action, RequestOptions? options = null)
         {
-            GuildProperties guildProperties = new();
+            GuildOptions guildProperties = new();
             action(guildProperties);
             return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildProperties), $"/guilds/{guildId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
         }
@@ -37,6 +40,12 @@ public partial class RestClient
 
         public async Task<GuildBan> GetBanAsync(DiscordId guildId, DiscordId userId, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan>(), _client);
+
+        public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> GetRolesAsync(DiscordId guildId, RequestOptions? options = null)
+            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, _client));
+
+        public async Task<GuildRole> CreateRoleAsync(DiscordId guildId, GuildRoleProperties guildRoleProperties, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildRoleProperties), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), _client);
 
         public async Task<int> GetPruneCountAsync(DiscordId guildId, int days, DiscordId[]? roles = null, RequestOptions? options = null)
         {
@@ -61,14 +70,30 @@ public partial class RestClient
         public Task DeleteIntegrationAsync(DiscordId guildId, DiscordId integrationId, RequestOptions? options = null)
             => _client.SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/integrations/{integrationId}", options);
 
-        public async Task<GuildWidget> GetWidgetAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidget>());
+        public async Task<GuildWidgetSettings> GetWidgetSettingsAsync(DiscordId guildId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
 
-        public async Task<GuildWidget> ModifyWidgetAsync(DiscordId guildId, Action<GuildWidgetOptions> action, RequestOptions? options = null)
+        public async Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(DiscordId guildId, Action<GuildWidgetSettingsOptions> action, RequestOptions? options = null)
         {
-            GuildWidgetOptions guildWidgetOptions = new();
-            action(guildWidgetOptions);
-            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWidgetOptions), $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidget>());
+            GuildWidgetSettingsOptions guildWidgetSettingsOptions = new();
+            action(guildWidgetSettingsOptions);
+            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWidgetSettingsOptions), $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
+        }
+
+        public async Task<GuildWidget> GetWidgetAsync(DiscordId guildId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget.json", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidget>(), _client);
+
+        public async Task<GuildVanityInvite> GetVanityInviteAsync(DiscordId guildId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/vanity-url", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildVanityInvite>());
+
+        public async Task<GuildWelcomeScreen> GetWelcomeScreenAsync(DiscordId guildId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
+
+        public async Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(DiscordId guildId, Action<GuildWelcomeScreenOptions> action, RequestOptions? options = null)
+        {
+            GuildWelcomeScreenOptions guildWelcomeScreenOptions = new();
+            action(guildWelcomeScreenOptions);
+            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWelcomeScreenOptions), $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
         }
     }
 }
