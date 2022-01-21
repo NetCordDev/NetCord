@@ -130,14 +130,15 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         ValueTuple<CommandInfo<TContext>, object[]> v;
         if (guild != null)
         {
+            if (context.Client.User == null)
+                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
+
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
             var roles = context.Guild!.Roles.Values;
 
-            if (context.Client.User == null)
-                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
-
             CalculatePermissions(guild.Users[context.Client.User],
+                guild,
                 everyonePermissions,
                 channelPermissionOverwrites,
                 roles,
@@ -145,6 +146,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                 out Permission botChannelPermissions,
                 out var botAdministrator);
             CalculatePermissions((GuildUser)context.Message.Author,
+                guild,
                 everyonePermissions,
                 channelPermissionOverwrites,
                 roles,
@@ -451,8 +453,15 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         return (commandInfo, parametersToPass)!;
     }
 
-    private static void CalculatePermissions(GuildUser user, Permission everyonePermissions, IReadOnlyDictionary<DiscordId, PermissionOverwrite> permissionOverwrites, IEnumerable<GuildRole> guildRoles, out Permission permissions, out Permission channelPermissions, out bool administrator)
+    private static void CalculatePermissions(GuildUser user, Guild guild, Permission everyonePermissions, IReadOnlyDictionary<DiscordId, PermissionOverwrite> permissionOverwrites, IEnumerable<GuildRole> guildRoles, out Permission permissions, out Permission channelPermissions, out bool administrator)
     {
+        if (user == guild.OwnerId)
+        {
+            permissions = default;
+            channelPermissions = default;
+            administrator = true;
+            return;
+        }
         permissions = everyonePermissions;
         foreach (var role in guildRoles)
         {
