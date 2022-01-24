@@ -1,7 +1,7 @@
 ﻿namespace NetCord.Test.Commands
 {
     [Serializable]
-    internal class RequiredContextException : Exception
+    public class RequiredContextException : Exception
     {
         public RequiredContextException(RequiredContext context) : base("Required context: " + context.ToString())
         {

@@ -1,13 +1,12 @@
-﻿namespace NetCord
-{
-    internal class EntityNotFoundException : Exception
-    {
-        public EntityNotFoundException() : base()
-        {
-        }
+﻿namespace NetCord;
 
-        public EntityNotFoundException(string message) : base(message)
-        {
-        }
+public class EntityNotFoundException : Exception
+{
+    public EntityNotFoundException() : base()
+    {
+    }
+
+    public EntityNotFoundException(string? message) : base(message)
+    {
     }
 }

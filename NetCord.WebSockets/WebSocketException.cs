@@ -1,9 +1,8 @@
-﻿namespace NetCord.WebSockets
+﻿namespace NetCord.WebSockets;
+
+public class WebSocketException : Exception
 {
-    internal class WebSocketException : Exception
+    internal WebSocketException(string? message) : base(message)
     {
-        public WebSocketException(string? message) : base(message)
-        {
-        }
     }
 }

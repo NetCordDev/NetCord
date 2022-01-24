@@ -1,9 +1,8 @@
-﻿namespace NetCord.Commands
+﻿namespace NetCord.Commands;
+
+public class CommandNotFoundException : Exception
 {
-    internal class CommandNotFoundException : Exception
+    internal CommandNotFoundException() : base("Command not found")
     {
-        public CommandNotFoundException() : base("Command not found")
-        {
-        }
     }
 }

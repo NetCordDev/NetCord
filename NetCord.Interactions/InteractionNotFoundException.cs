@@ -1,9 +1,8 @@
-﻿namespace NetCord.Interactions
+﻿namespace NetCord.Interactions;
+
+public class InteractionNotFoundException : Exception
 {
-    internal class InteractionNotFoundException : Exception
+    internal InteractionNotFoundException() : base("Interaction not found")
     {
-        public InteractionNotFoundException() : base("Interaction not found")
-        {
-        }
     }
 }

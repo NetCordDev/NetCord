@@ -22,7 +22,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
         },
         {
             typeof(char),
-            (input, _, _, _) => Task.FromResult(input.Length == 1 ? (object)input[0] : throw new ArgumentParseException("String must be exactly one character long."))
+            (input, _, _, _) => Task.FromResult(input.Length == 1 ? (object)input[0] : throw new FormatException("String must be exactly one character long."))
         },
         // integral numeric types
         {
@@ -106,7 +106,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                     return Task.FromResult((object)new TimeSpan(days, h.Success ? int.Parse(h.Value) : 0, m.Success ? int.Parse(m.Value) : 0, s.Success ? int.Parse(s.Value) : 0));
                 }
                 else
-                    throw new ArgumentParseException("Invalid TimeSpan");
+                    throw new FormatException("Invalid TimeSpan");
             }
         },
         {
@@ -184,14 +184,14 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                         }
                         catch
                         {
-                            throw new ArgumentParseException("Too many users found");
+                            throw new AmbiguousMatchException("Too many users found");
                         }
                         if (user != null)
                             return Task.FromResult((object)user);
                     }
                 }
                 exception:
-                throw new ArgumentParseException("The user was not found");
+                throw new EntityNotFoundException("The user was not found");
             }
         },
         {
@@ -242,7 +242,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                             }
                             catch
                             {
-                                throw new ArgumentParseException("Too many users found");
+                                throw new AmbiguousMatchException("Too many users found");
                             }
                             if (user != null)
                                 return Task.FromResult((object)new UserId(user.Id, user));
@@ -291,7 +291,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                             }
                             catch
                             {
-                                throw new ArgumentParseException("Too many users found");
+                                throw new AmbiguousMatchException("Too many users found");
                             }
                             if (user != null)
                                 return Task.FromResult((object)new UserId(user.Id, user));
@@ -299,7 +299,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                     }
                 }
 
-                throw new ArgumentParseException("The user was not found");
+                throw new EntityNotFoundException("The user was not found");
             }
         },
         {
@@ -327,7 +327,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
                 return Task.FromResult(value!);
         }
 
-        throw new ArgumentParseException($"Invalid {type.Name}");
+        throw new FormatException($"Invalid {type.Name}");
     };
 
     /// <summary>

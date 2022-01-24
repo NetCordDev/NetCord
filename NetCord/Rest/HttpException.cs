@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-internal class HttpException : Exception
+public class HttpException : Exception
 {
     public JsonDocument RawValue { get; }
     public int Code => RawValue.RootElement.GetProperty("code").GetInt32();
