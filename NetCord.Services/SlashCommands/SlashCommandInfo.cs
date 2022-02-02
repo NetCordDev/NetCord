@@ -17,6 +17,10 @@ public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
     public Func<object, object[], Task> InvokeAsync { get; }
     public ReadOnlyCollection<SlashCommandParameter<TContext>> Parameters { get; }
     public Dictionary<string, Autocomplete> Autocompletes { get; } = new();
+    public Permission RequiredBotPermissions { get; }
+    public Permission RequiredBotChannelPermissions { get; }
+    public Permission RequiredUserPermissions { get; }
+    public Permission RequiredUserChannelPermissions { get; }
 
     internal SlashCommandInfo(MethodInfo methodInfo, SlashCommandAttribute attribute, SlashCommandServiceOptions<TContext> options)
     {
@@ -51,6 +55,22 @@ public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
                 Autocompletes.Add(newP.Name, autocomplete);
         }
         Parameters = Array.AsReadOnly(p);
+
+        SlashCommandModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<SlashCommandModuleAttribute>();
+        if (moduleAttribute != null)
+        {
+            RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
+            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
+            RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
+            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
+        }
+        else
+        {
+            RequiredBotPermissions = attribute.RequiredBotPermissions;
+            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
+            RequiredUserPermissions = attribute.RequiredUserPermissions;
+            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
+        }
     }
 
     public ApplicationCommandProperties GetRawValue() => new(Name, Description)

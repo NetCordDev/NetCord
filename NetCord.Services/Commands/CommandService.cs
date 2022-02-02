@@ -134,7 +134,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
-            var roles = context.Guild!.Roles.Values;
+            var roles = guild.Roles.Values;
 
             UserHelper.CalculatePermissions(guild.Users[context.Client.User],
                 guild,

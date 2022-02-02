@@ -23,7 +23,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
     }
 
-    [SlashCommand("ban", "Bans a user")]
+    [SlashCommand("ban", "Bans a user", RequiredUserPermissions = Permission.BanUsers, RequiredBotPermissions = Permission.BanUsers)]
     public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [TypeReader(typeof(DeleteMessagesDaysTypeReader))][SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
         if (Context.Guild == null)
@@ -33,7 +33,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
-    [SlashCommand("mute", "Mutes a user")]
+    [SlashCommand("mute", "Mutes a user", RequiredUserPermissions = Permission.ModerateUsers, RequiredBotPermissions = Permission.ModerateUsers)]
     public async Task MuteAsync([SlashCommandParameter("user", "User to mute")] User user, double days, string reason = "no reason")
     {
         if (Context.Guild == null)

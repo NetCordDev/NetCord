@@ -11,6 +11,10 @@ public class SlashCommandAttribute : Attribute
     public ulong[]? DisallowedRolesIds { get; init; }
     public ulong[]? AllowedUsersIds { get; init; }
     public ulong[]? DisallowedUsersIds { get; init; }
+    public Permission RequiredBotPermissions { get; init; }
+    public Permission RequiredBotChannelPermissions { get; init; }
+    public Permission RequiredUserPermissions { get; init; }
+    public Permission RequiredUserChannelPermissions { get; init; }
 
     public SlashCommandAttribute(string name, string description)
     {
