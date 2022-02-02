@@ -80,51 +80,24 @@ public class InteractionService<TContext> : IService where TContext : Interactio
 
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)((ButtonInteraction)context.Interaction).Message.Channel).PermissionOverwrites;
-            var roles = context.Guild!.Roles.Values;
+
+            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
+                guild,
+                everyonePermissions,
+                channelPermissionOverwrites,
+                out Permission userPermissions,
+                out Permission userChannelPermissions,
+                out var userAdministrator);
+            UserHelper.EnsureUserHasPermissions(interactionInfo.RequiredUserPermissions, interactionInfo.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
 
             UserHelper.CalculatePermissions(guild.Users[context.Client.User],
                 guild,
                 everyonePermissions,
                 channelPermissionOverwrites,
-                roles,
                 out Permission botPermissions,
                 out Permission botChannelPermissions,
                 out var botAdministrator);
-            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                roles,
-                out Permission userPermissions,
-                out Permission userChannelPermissions,
-                out var userAdministrator);
-
-            if (!botAdministrator)
-            {
-                if (!botPermissions.HasFlag(interactionInfo.RequiredBotPermissions))
-                {
-                    var missingPermissions = interactionInfo.RequiredBotPermissions & ~botPermissions;
-                    throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
-                }
-                if (!botChannelPermissions.HasFlag(interactionInfo.RequiredBotChannelPermissions))
-                {
-                    var missingPermissions = interactionInfo.RequiredBotChannelPermissions & ~botChannelPermissions;
-                    throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
-                }
-            }
-            if (!userAdministrator)
-            {
-                if (!userPermissions.HasFlag(interactionInfo.RequiredUserPermissions))
-                {
-                    var missingPermissions = interactionInfo.RequiredUserPermissions & ~userPermissions;
-                    throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
-                }
-                if (!userChannelPermissions.HasFlag(interactionInfo.RequiredUserChannelPermissions))
-                {
-                    var missingPermissions = interactionInfo.RequiredUserChannelPermissions & ~userChannelPermissions;
-                    throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
-                }
-            }
+            UserHelper.EnsureBotHasPermissions(interactionInfo.RequiredBotPermissions, interactionInfo.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
         }
 
         ReadOnlyCollection<InteractionParameter<TContext>> interactionParameters = interactionInfo.Parameters;

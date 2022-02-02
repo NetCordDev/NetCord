@@ -38,6 +38,12 @@ public class GuildUser : User
             Permissions = (Permission)ulong.Parse(jsonEntity.Permissions);
     }
 
+    public IEnumerable<GuildRole> GetRoles(Guild guild)
+    {
+        var roles = guild.Roles;
+        return RolesIds.Select(r => roles[r]);
+    }
+
     public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
         => _client.Guild.User.ModifyAsync(GuildId, Id, func, options);
 

@@ -107,53 +107,24 @@ public class SlashCommandService<TContext> : IService where TContext : BaseSlash
 
             var everyonePermissions = guild.EveryoneRole.Permissions;
             var channelPermissionOverwrites = guild.Channels[context.Interaction.ChannelId.GetValueOrDefault()].PermissionOverwrites;
-            var roles = guild.Roles.Values;
+
+            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
+                guild,
+                everyonePermissions,
+                channelPermissionOverwrites,
+                out Permission userPermissions,
+                out Permission userChannelPermissions,
+                out var userAdministrator);
+            UserHelper.EnsureUserHasPermissions(command.RequiredUserPermissions, command.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
 
             UserHelper.CalculatePermissions(guild.Users[context.Client.User],
                 guild,
                 everyonePermissions,
                 channelPermissionOverwrites,
-                roles,
                 out Permission botPermissions,
                 out Permission botChannelPermissions,
                 out var botAdministrator);
-            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                roles,
-                out Permission userPermissions,
-                out Permission userChannelPermissions,
-                out var userAdministrator);
-
-            #region Checking Permissions
-            if (!botAdministrator)
-            {
-                if (!botPermissions.HasFlag(command.RequiredBotPermissions))
-                {
-                    var missingPermissions = command.RequiredBotPermissions & ~botPermissions;
-                    throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
-                }
-                if (!botChannelPermissions.HasFlag(command.RequiredBotChannelPermissions))
-                {
-                    var missingPermissions = command.RequiredBotChannelPermissions & ~botChannelPermissions;
-                    throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
-                }
-            }
-            if (!userAdministrator)
-            {
-                if (!userPermissions.HasFlag(command.RequiredUserPermissions))
-                {
-                    var missingPermissions = command.RequiredUserPermissions & ~userPermissions;
-                    throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
-                }
-                if (!userChannelPermissions.HasFlag(command.RequiredUserChannelPermissions))
-                {
-                    var missingPermissions = command.RequiredUserChannelPermissions & ~userChannelPermissions;
-                    throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
-                }
-            }
-            #endregion
+            UserHelper.EnsureBotHasPermissions(command.RequiredBotPermissions, command.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
         }
 
         var parameters = command.Parameters;

@@ -126,273 +126,142 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
         var guild = context.Guild;
 
-        ValueTuple<CommandInfo<TContext>, object[]> v;
-        if (guild != null)
+        bool checkPermissions = guild != null;
+        Permission userPermissions, userChannelPermissions, botPermissions, botChannelPermissions;
+        bool userAdministrator, botAdministrator;
+        if (checkPermissions)
         {
             if (context.Client.User == null)
                 throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
 
-            var everyonePermissions = guild.EveryoneRole.Permissions;
+            var everyonePermissions = guild!.EveryoneRole.Permissions;
             var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
-            var roles = guild.Roles.Values;
 
-            UserHelper.CalculatePermissions(guild.Users[context.Client.User],
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                roles,
-                out Permission botPermissions,
-                out Permission botChannelPermissions,
-                out var botAdministrator);
             UserHelper.CalculatePermissions((GuildUser)context.Message.Author,
                 guild,
                 everyonePermissions,
                 channelPermissionOverwrites,
-                roles,
-                out Permission userPermissions,
-                out Permission userChannelPermissions,
-                out var userAdministrator);
-
-            v = await GetMethodAndParametersWithPermissionCheckAsync(context, separators, commandInfos, baseArguments, maxIndex, botPermissions, botChannelPermissions, userPermissions, userChannelPermissions, botAdministrator, userAdministrator).ConfigureAwait(false);
+                out userPermissions,
+                out userChannelPermissions,
+                out userAdministrator);
+            UserHelper.CalculatePermissions(guild.Users[context.Client.User],
+                guild,
+                everyonePermissions,
+                channelPermissionOverwrites,
+                out botPermissions,
+                out botChannelPermissions,
+                out botAdministrator);
         }
         else
-            v = await GetMethodAndParametersAsync(context, separators, commandInfos, baseArguments, maxIndex).ConfigureAwait(false);
+        {
+            userPermissions = default;
+            userChannelPermissions = default;
+            botPermissions = default;
+            botChannelPermissions = default;
+            userAdministrator = default;
+            botAdministrator = default;
+        }
 
-        var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(v.Item1.DeclaringType)!;
+        CommandInfo<TContext>? commandInfo = null;
+        object?[]? parametersToPass = null;
+        for (var i = 0; i <= maxIndex; i++)
+        {
+            commandInfo = commandInfos[i];
+            var lastCommand = i == maxIndex;
+
+            if (checkPermissions)
+            {
+                UserHelper.EnsureUserHasPermissions(commandInfo.RequiredUserPermissions, commandInfo.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
+                UserHelper.EnsureBotHasPermissions(commandInfo.RequiredBotPermissions, commandInfo.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
+            }
+
+            ReadOnlyCollection<CommandParameter<TContext>> commandParameters = commandInfo.Parameters;
+            var commandParametersLength = commandParameters.Count;
+            var arguments = baseArguments;
+            parametersToPass = new object[commandParametersLength];
+            var isLastArgGood = false;
+            string? currentArg = null;
+
+            var commandParamIndex = 0;
+            var maxCommandParamIndex = commandParametersLength - 1;
+            while (commandParamIndex <= maxCommandParamIndex)
+            {
+                CommandParameter<TContext> parameter = commandParameters[commandParamIndex];
+
+                if (!parameter.Params)
+                {
+                    UpdateCurrentArg(separators, arguments, isLastArgGood, parameter.Remainder, ref currentArg);
+
+                    var currentArgLength = currentArg!.Length;
+                    if (currentArgLength != 0)
+                    {
+                        try
+                        {
+                            parametersToPass[commandParamIndex] = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            arguments = arguments[currentArgLength..].TrimStart(separators);
+                            isLastArgGood = false;
+                        }
+                        catch
+                        {
+                            // is not last parameter
+                            if (commandParamIndex != maxCommandParamIndex && parameter.HasDefaultValue)
+                            {
+                                parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                                isLastArgGood = true;
+                            }
+                            else if (lastCommand)
+                                throw;
+                            else
+                                goto Continue;
+                        }
+                    }
+                    else if (parameter.HasDefaultValue)
+                    {
+                        parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                        isLastArgGood = true;
+                    }
+                    else if (lastCommand)
+                        throw new ParameterCountException("Too few parameters");
+                    else
+                        goto Continue;
+                }
+                else if (arguments.Length != 0)
+                {
+                    try
+                    {
+                        await ReadParamsAsync(context, separators, parametersToPass, arguments, commandParamIndex, parameter).ConfigureAwait(false);
+                        goto Break;
+                    }
+                    catch
+                    {
+                        if (lastCommand)
+                            throw;
+                        else
+                            goto Continue;
+                    }
+                }
+                else if (parameter.HasDefaultValue)
+                    parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                else if (lastCommand)
+                    throw new ParameterCountException("Too few parameters");
+                else
+                    goto Continue;
+                commandParamIndex++;
+            }
+            if (arguments.Length != 0)
+                if (lastCommand)
+                    throw new ParameterCountException("Too many parameters");
+                else
+                    continue;
+            Break:
+            break;
+            Continue:;
+        }
+
+        var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo!.DeclaringType)!;
         methodClass.Context = context;
 
-        await v.Item1.InvokeAsync(methodClass, v.Item2).ConfigureAwait(false);
-    }
-
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersWithPermissionCheckAsync(TContext context, char[] separators, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex, Permission botPermissions, Permission botChannelPermissions, Permission userPermissions, Permission userChannelPermissions, bool botAdministrator, bool userAdministrator)
-    {
-        CommandInfo<TContext>? commandInfo = null;
-        object?[]? parametersToPass = null;
-        for (var i = 0; i <= maxIndex; i++)
-        {
-            commandInfo = commandInfos[i];
-            var lastCommand = i == maxIndex;
-
-            #region Checking Permissions
-            if (!botAdministrator)
-            {
-                if (!botPermissions.HasFlag(commandInfo.RequiredBotPermissions))
-                    if (lastCommand)
-                    {
-                        var missingPermissions = commandInfo.RequiredBotPermissions & ~botPermissions;
-                        throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions);
-                    }
-                    else
-                        continue;
-                if (!botChannelPermissions.HasFlag(commandInfo.RequiredBotChannelPermissions))
-                    if (lastCommand)
-                    {
-                        var missingPermissions = commandInfo.RequiredBotChannelPermissions & ~botChannelPermissions;
-                        throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions);
-                    }
-                    else
-                        continue;
-            }
-            if (!userAdministrator)
-            {
-                if (!userPermissions.HasFlag(commandInfo.RequiredUserPermissions))
-                    if (lastCommand)
-                    {
-                        var missingPermissions = commandInfo.RequiredUserPermissions & ~userPermissions;
-                        throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions);
-                    }
-                    else
-                        continue;
-                if (!userChannelPermissions.HasFlag(commandInfo.RequiredUserChannelPermissions))
-                    if (lastCommand)
-                    {
-                        var missingPermissions = commandInfo.RequiredUserChannelPermissions & ~userChannelPermissions;
-                        throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions);
-                    }
-                    else
-                        continue;
-            }
-            #endregion
-
-            ReadOnlyCollection<CommandParameter<TContext>> commandParameters = commandInfo.Parameters;
-            var commandParametersLength = commandParameters.Count;
-            var arguments = baseArguments;
-            parametersToPass = new object[commandParametersLength];
-            var isLastArgGood = false;
-            string? currentArg = null;
-
-            var commandParamIndex = 0;
-            var maxCommandParamIndex = commandParametersLength - 1;
-            while (commandParamIndex <= maxCommandParamIndex)
-            {
-                CommandParameter<TContext> parameter = commandParameters[commandParamIndex];
-
-                if (!parameter.Params)
-                {
-                    UpdateCurrentArg(separators, arguments, isLastArgGood, parameter.Remainder, ref currentArg);
-
-                    var currentArgLength = currentArg!.Length;
-                    if (currentArgLength != 0)
-                    {
-                        try
-                        {
-                            parametersToPass[commandParamIndex] = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
-                            arguments = arguments[currentArgLength..].TrimStart(separators);
-                            isLastArgGood = false;
-                        }
-                        catch
-                        {
-                            // is not last parameter
-                            if (commandParamIndex != maxCommandParamIndex && parameter.HasDefaultValue)
-                            {
-                                parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                                isLastArgGood = true;
-                            }
-                            else if (lastCommand)
-                                throw;
-                            else
-                                goto Continue;
-                        }
-                    }
-                    else if (parameter.HasDefaultValue)
-                    {
-                        parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                        isLastArgGood = true;
-                    }
-                    else if (lastCommand)
-                        throw new ParameterCountException("Too few parameters");
-                    else
-                        goto Continue;
-                }
-                else if (arguments.Length != 0)
-                {
-                    try
-                    {
-                        await ReadParamsAsync(context, separators, parametersToPass, arguments, commandParamIndex, parameter).ConfigureAwait(false);
-                        goto Break;
-                    }
-                    catch
-                    {
-                        if (lastCommand)
-                            throw;
-                        else
-                            goto Continue;
-                    }
-                }
-                else if (parameter.HasDefaultValue)
-                    parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                else if (lastCommand)
-                    throw new ParameterCountException("Too few parameters");
-                else
-                    goto Continue;
-                commandParamIndex++;
-            }
-            if (arguments.Length != 0)
-                if (lastCommand)
-                    throw new ParameterCountException("Too many parameters");
-                else
-                    continue;
-            Break:
-            break;
-            Continue:;
-        }
-        return (commandInfo, parametersToPass)!;
-    }
-
-
-
-    private async Task<(CommandInfo<TContext> commandInfo, object[] parametersToPass)> GetMethodAndParametersAsync(TContext context, char[] separators, SortedList<CommandInfo<TContext>> commandInfos, string baseArguments, int maxIndex)
-    {
-        CommandInfo<TContext>? commandInfo = null;
-        object?[]? parametersToPass = null;
-        for (var i = 0; i <= maxIndex; i++)
-        {
-            commandInfo = commandInfos[i];
-            var lastCommand = i == maxIndex;
-
-            ReadOnlyCollection<CommandParameter<TContext>> commandParameters = commandInfo.Parameters;
-            var commandParametersLength = commandParameters.Count;
-            var arguments = baseArguments;
-            parametersToPass = new object[commandParametersLength];
-            var isLastArgGood = false;
-            string? currentArg = null;
-
-            var commandParamIndex = 0;
-            var maxCommandParamIndex = commandParametersLength - 1;
-            while (commandParamIndex <= maxCommandParamIndex)
-            {
-                CommandParameter<TContext> parameter = commandParameters[commandParamIndex];
-
-                if (!parameter.Params)
-                {
-                    UpdateCurrentArg(separators, arguments, isLastArgGood, parameter.Remainder, ref currentArg);
-
-                    var currentArgLength = currentArg!.Length;
-                    if (currentArgLength != 0)
-                    {
-                        try
-                        {
-                            parametersToPass[commandParamIndex] = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
-                            arguments = arguments[currentArgLength..].TrimStart(separators);
-                            isLastArgGood = false;
-                        }
-                        catch
-                        {
-                            // is not last parameter
-                            if (commandParamIndex != maxCommandParamIndex && parameter.HasDefaultValue)
-                            {
-                                parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                                isLastArgGood = true;
-                            }
-                            else if (lastCommand)
-                                throw;
-                            else
-                                goto Continue;
-                        }
-                    }
-                    else if (parameter.HasDefaultValue)
-                    {
-                        parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                        isLastArgGood = true;
-                    }
-                    else if (lastCommand)
-                        throw new ParameterCountException("Too few parameters");
-                    else
-                        goto Continue;
-                }
-                else if (arguments.Length != 0)
-                {
-                    try
-                    {
-                        await ReadParamsAsync(context, separators, parametersToPass, arguments, commandParamIndex, parameter).ConfigureAwait(false);
-                        goto Break;
-                    }
-                    catch
-                    {
-                        if (lastCommand)
-                            throw;
-                        else
-                            goto Continue;
-                    }
-                }
-                else if (parameter.HasDefaultValue)
-                    parametersToPass[commandParamIndex] = parameter.DefaultValue;
-                else if (lastCommand)
-                    throw new ParameterCountException("Too few parameters");
-                else
-                    continue;
-                commandParamIndex++;
-            }
-            if (arguments.Length != 0)
-                if (lastCommand)
-                    throw new ParameterCountException("Too many parameters");
-                else
-                    goto Continue;
-            Break:
-            break;
-            Continue:;
-        }
-        return (commandInfo, parametersToPass)!;
+        await commandInfo.InvokeAsync(methodClass, parametersToPass!).ConfigureAwait(false);
     }
 
     private static void UpdateCurrentArg(char[] separators, string arguments, bool isLastArgGood, bool remainder, ref string? currentArg)
