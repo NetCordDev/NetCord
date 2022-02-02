@@ -15,6 +15,5 @@ public abstract class TextChannel : Channel
     public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(DiscordId messageId, RequestOptions? options = null) => _client.Message.GetBeforeAsync(Id, messageId, options);
     public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(DiscordId messageId, RequestOptions? options = null) => _client.Message.GetAfterAsync(Id, messageId, options);
     public Task<RestMessage> GetMessageAsync(DiscordId messageId, RequestOptions? options = null) => _client.Message.GetAsync(Id, messageId, options);
-    public Task<RestMessage> SendMessageAsync(Message message, RequestOptions? options = null) => _client.Message.SendAsync(message, Id, options);
-    public Task<RestMessage> SendMessageAsync(string content, RequestOptions? options = null) => _client.Message.SendAsync(content, Id, options);
+    public Task<RestMessage> SendMessageAsync(MessageProperties message, RequestOptions? options = null) => _client.Message.SendAsync(Id, message, options);
 }

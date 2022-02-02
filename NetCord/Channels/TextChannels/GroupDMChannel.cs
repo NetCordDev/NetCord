@@ -10,5 +10,7 @@
         internal GroupDMChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
         {
         }
+
+        public async Task<GroupDMChannel> ModifyAsync(Action<GroupDMChannelOptions> action, RequestOptions? options = null) => (GroupDMChannel)await _client.Channel.ModifyAsync(Id, action, options).ConfigureAwait(false);
     }
 }

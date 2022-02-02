@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCord.Commands\NetCord.Commands.csproj" />
-    <ProjectReference Include="..\NetCord.Interactions\NetCord.Interactions.csproj" />
+    <ProjectReference Include="..\NetCord.Services\NetCord.Services.csproj" />
     <ProjectReference Include="..\NetCord\NetCord.csproj" />
   </ItemGroup>
 

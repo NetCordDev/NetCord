@@ -1,4 +1,5 @@
-﻿using NetCord.Commands;
+﻿using NetCord.Services;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
@@ -15,7 +16,19 @@ public class BanCommands : CommandModule
             else
                 await Context.Guild.BanUserAsync(userId, (int)days, new() { AuditLogReason = reason });
 
-            await ReplyAsync(Format.Bold($"{userId} got banned").ToString());
+            ActionRowProperties actionRow = new();
+            actionRow.Buttons.Add(new ActionButtonProperties("Unban", $"unban:{userId.Id}", ButtonStyle.Danger));
+            MessageProperties message = new()
+            {
+                Content = Format.Bold($"{userId} got banned").ToString(),
+                Components = new()
+                {
+                    actionRow
+                },
+                MessageReference = new(Context.Message),
+                AllowedMentions = AllowedMentionsProperties.None,
+            };
+            await SendAsync(message);
         } else
             throw new RequiredContextException(RequiredContext.Guild);
     }

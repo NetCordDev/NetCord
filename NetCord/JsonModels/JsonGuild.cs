@@ -150,4 +150,10 @@ internal record JsonGuild : JsonEntity
 
     [JsonPropertyName("stickers")]
     public JsonSticker[] Stickers { get; init; }
+
+    [JsonPropertyName("guild_scheduled_events")]
+    public JsonGuildScheduledEvent[] ScheduledEvents { get; init; }
+
+    [JsonPropertyName("premium_progress_bar_enabled")]
+    public bool PremiumPropressBarEnabled { get; init; }
 }

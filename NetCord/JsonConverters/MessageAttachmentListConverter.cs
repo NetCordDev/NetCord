@@ -4,10 +4,10 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class MessageAttachmentListConverter : JsonConverter<List<MessageAttachment>>
+internal class MessageAttachmentListConverter : JsonConverter<List<AttachmentProperties>>
 {
-    public override List<MessageAttachment>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-    public override void Write(Utf8JsonWriter writer, List<MessageAttachment> value, JsonSerializerOptions options)
+    public override List<AttachmentProperties>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+    public override void Write(Utf8JsonWriter writer, List<AttachmentProperties> value, JsonSerializerOptions options)
     {
         writer.WriteStartArray();
         var span = CollectionsMarshal.AsSpan(value);

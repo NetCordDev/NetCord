@@ -17,5 +17,5 @@ internal record JsonPresence
     public JsonUserActivity[] Activities { get; init; }
 
     [JsonPropertyName("client_status")]
-    public Dictionary<Platform, UserStatus> Platform { get; init; }
+    public IReadOnlyDictionary<Platform, UserStatus> Platform { get; init; }
 }

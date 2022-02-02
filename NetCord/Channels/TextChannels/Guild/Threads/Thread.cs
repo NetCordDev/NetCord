@@ -9,12 +9,15 @@
         public DiscordId OwnerId => _jsonEntity.OwnerId.GetValueOrDefault();
         public override int Position => throw new NotImplementedException($"Threads don't have {nameof(Position)}");
 
-        public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => _client.Channel.GetThreadUsersAsync(Id);
+        public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => _client.Guild.Channel.GetThreadUsersAsync(Id);
 
         internal Thread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
         {
             Metadata = new(jsonEntity.Metadata);
-            CurrentUser = new(jsonEntity.CurrentUser);
+            if (jsonEntity.CurrentUser != null)
+                CurrentUser = new(jsonEntity.CurrentUser);
         }
+
+        public async Task<Thread> ModifyAsync(Action<ThreadOptions> action, RequestOptions? options = null) => (Thread)await _client.Guild.Channel.ModifyAsync(Id, action, options).ConfigureAwait(false);
     }
 }

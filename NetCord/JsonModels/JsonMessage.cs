@@ -38,7 +38,7 @@ internal record JsonMessage : JsonEntity
     public DiscordId[] MentionedRoles { get; init; }
 
     [JsonPropertyName("mention_channels")]
-    public JsonGuildChannelMention[] MentionedChannels { get; init; }
+    public JsonGuildChannelMention[]? MentionedChannels { get; init; }
 
     [JsonPropertyName("attachments")]
     public JsonAttachment[] Attachments { get; init; }
@@ -47,7 +47,7 @@ internal record JsonMessage : JsonEntity
     public JsonEmbed[] Embeds { get; init; }
 
     [JsonPropertyName("reactions")]
-    public JsonMessageReaction[] Reactions { get; init; }
+    public JsonMessageReaction[]? Reactions { get; init; }
 
     [JsonPropertyName("nonce")]
     public string? Nonce { get; init; }
@@ -89,5 +89,5 @@ internal record JsonMessage : JsonEntity
     public JsonComponent[] Components { get; init; }
 
     [JsonPropertyName("sticker_items")]
-    public JsonMessageSticker[] Stickers { get; init; }
+    public JsonMessageSticker[]? Stickers { get; init; }
 }

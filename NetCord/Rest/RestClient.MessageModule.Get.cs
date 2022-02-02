@@ -6,8 +6,6 @@ public partial class RestClient
 {
     public partial class MessageModule
     {
-        private const byte maxMessagesToGet = 100;
-
         public async Task<RestMessage> GetAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
             => new(((await _client.SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", options).ConfigureAwait(false))!).ToObject<JsonMessage>(), _client);
 
@@ -21,7 +19,7 @@ public partial class RestClient
                 yield return lastMessage = message;
                 messagesCount++;
             }
-            if (messagesCount == maxMessagesToGet)
+            if (messagesCount == 100)
             {
                 await foreach (var message in GetBeforeAsync(channelId, lastMessage!, options))
                     yield return message;
@@ -41,7 +39,7 @@ public partial class RestClient
                     messagesCount++;
                 }
             }
-            while (messagesCount == maxMessagesToGet);
+            while (messagesCount == 100);
         }
 
         public async IAsyncEnumerable<RestMessage> GetAfterAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
@@ -57,7 +55,7 @@ public partial class RestClient
                     messagesCount++;
                 }
             }
-            while (messagesCount == maxMessagesToGet);
+            while (messagesCount == 100);
         }
 
         private async Task<IEnumerable<RestMessage>> GetMaxMessagesAsyncTask(DiscordId channelId, RequestOptions? options = null)

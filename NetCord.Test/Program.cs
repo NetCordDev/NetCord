@@ -1,64 +1,80 @@
 ﻿using System.Reflection;
 
-using NetCord.Commands;
-using NetCord.Interactions;
+using NetCord.Services.Commands;
+using NetCord.Services.Interactions;
+using NetCord.Services.SlashCommands;
 
 namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly SocketClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = GatewayIntent.All });
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = GatewayIntent.All });
     internal static readonly CommandService _commandService = new();
-    private static readonly InteractionService _interactionService = new();
+    private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
+    private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
+    private static readonly SlashCommandService<SlashCommandContext> _slashCommandService = new();
 
     private static async Task Main()
     {
         _client.Log += Client_Log;
         _client.MessageReceived += Client_MessageReceived;
-        _client.ButtonInteractionCreated += Client_ButtonInteractionCreated;
-        _client.MenuInteractionCreated += Client_MenuInteractionCreated;
+        _client.InteractionCreated += Client_InteractionCreated;
         var assembly = Assembly.GetEntryAssembly();
         _commandService.AddModules(assembly);
-        _interactionService.AddModules(assembly);
+        _buttonInteractionService.AddModules(assembly);
+        _menuInteractionService.AddModules(assembly);
+        _slashCommandService.AddModules(assembly);
         await _client.StartAsync();
+        await _client.ReadyAsync;
+        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.Application.Id, true);
         await Task.Delay(-1);
     }
 
-    private static async void Client_MenuInteractionCreated(MenuInteraction interaction)
+    private static async void Client_InteractionCreated(Interaction interaction)
     {
         try
         {
-            await _interactionService.ExecuteAsync(new MenuInteractionContext(interaction, _client));
+            switch (interaction)
+            {
+                case ApplicationCommandInteraction applicationCommandInteraction:
+                    await _slashCommandService.ExecuteAsync(new(applicationCommandInteraction, _client));
+                    break;
+                case MenuInteraction menuInteraction:
+                    await _menuInteractionService.ExecuteAsync(new(menuInteraction, _client));
+                    break;
+                case ButtonInteraction buttonInteraction:
+                    await _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client));
+                    break;
+                case ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction:
+                    await _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction);
+                    break;
+            }
         }
         catch (Exception ex)
         {
             InteractionMessage message = new()
             {
                 Content = ex.Message,
-                Ephemeral = true
+                Flags = MessageFlags.Ephemeral
             };
-            await interaction.EndWithReplyAsync(message);
-        }
-    }
-
-    private static async void Client_ButtonInteractionCreated(ButtonInteraction interaction)
-    {
-        try
-        {
-            await _interactionService.ExecuteAsync(new ButtonInteractionContext(interaction, _client));
-        }
-        catch (Exception ex)
-        {
-            InteractionMessage message = new()
+            try
             {
-                Content = ex.Message,
-                Ephemeral = true
-            };
-            await interaction.EndWithReplyAsync(message);
+                await interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(message));
+            }
+            catch
+            {
+                try
+                {
+                    await interaction.SendFollowupMessageAsync(message);
+                }
+                catch
+                {
+                }
+            }
         }
     }
 
-    private static async void Client_MessageReceived(UserMessage message)
+    private static async void Client_MessageReceived(Message message)
     {
         if (!message.Author.IsBot)
         {

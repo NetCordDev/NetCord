@@ -16,30 +16,25 @@ public partial class RestClient
         }
 
         /// <summary>
-        /// Send a <paramref name="message"/> to a specified channel by <paramref name="channelId"/>
+        /// Sends a <paramref name="message"/> to a specified channel by <paramref name="channelId"/>
         /// </summary>
         /// <param name="message"></param>
         /// <param name="channelId"></param>
         /// <returns></returns>
-        public async Task<RestMessage> SendAsync(Message message, DiscordId channelId, RequestOptions? options = null)
+        public async Task<RestMessage> SendAsync(DiscordId channelId, MessageProperties message, RequestOptions? options = null)
         {
             JsonDocument json = (await _client.SendRequestAsync(HttpMethod.Post, message.Build(), $"/channels/{channelId}/messages", options).ConfigureAwait(false))!;
             return new(json.ToObject<JsonMessage>(), _client);
         }
 
-        /// <summary>
-        /// Send a message to a specified channel by <paramref name="channelId"/>
-        /// </summary>
-        /// <param name="content">a message content</param>
-        /// <param name="channelId"></param>
-        /// <returns></returns>
-        public Task<RestMessage> SendAsync(string content, DiscordId channelId, RequestOptions? options = null)
+        public async Task<RestMessage> CrosspostAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
+            => new((await _client.SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/crosspost", options).ConfigureAwait(false))!.ToObject<JsonMessage>(), _client);
+
+        public async Task<RestMessage> ModifyAsync(DiscordId channelId, DiscordId messageId, Action<MessageOptions> action, RequestOptions? options = null)
         {
-            Message message = new()
-            {
-                Content = content
-            };
-            return SendAsync(message, channelId, options);
+            MessageOptions obj = new();
+            action(obj);
+            return new((await _client.SendRequestAsync(HttpMethod.Patch, obj.Build(), $"/channels/{channelId}/messages/{messageId}", options).ConfigureAwait(false))!.ToObject<JsonMessage>(), _client);
         }
 
         public Task DeleteAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)

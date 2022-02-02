@@ -26,7 +26,7 @@ public class GuildUser : User
     public bool Deafened => _jsonGuildEntity.Deafened;
     public bool Muted => _jsonGuildEntity.Muted;
     public bool? IsPending => _jsonGuildEntity.IsPending;
-    public string? Permissions => _jsonGuildEntity.Permissions;
+    public Permission? Permissions { get; }
     public DateTimeOffset? TimeOutUntil => _jsonGuildEntity.TimeOutUntil;
     public DiscordId GuildId { get; }
 
@@ -34,6 +34,8 @@ public class GuildUser : User
     {
         _jsonGuildEntity = jsonEntity;
         GuildId = guildId;
+        if (jsonEntity.Permissions != null)
+            Permissions = (Permission)ulong.Parse(jsonEntity.Permissions);
     }
 
     public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)

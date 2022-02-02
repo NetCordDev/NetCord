@@ -16,16 +16,16 @@ public partial class RestClient
             Channel = new(client);
         }
 
-        public async Task<Guild> CreateAsync(GuildProperties guildProperties, RequestOptions? options = null)
+        public async Task<RestGuild> CreateAsync(GuildProperties guildProperties, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildProperties), "/guilds", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
 
-        public async Task<Guild> GetAsync(DiscordId guildId, bool withCounts = false, RequestOptions? options = null)
+        public async Task<RestGuild> GetAsync(DiscordId guildId, bool withCounts = false, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}?with_counts={withCounts}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
 
         public async Task<GuildPreview> GetPreviewAsync(DiscordId guildId, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
 
-        public async Task<Guild> ModifyAsync(DiscordId guildId, Action<GuildOptions> action, RequestOptions? options = null)
+        public async Task<RestGuild> ModifyAsync(DiscordId guildId, Action<GuildOptions> action, RequestOptions? options = null)
         {
             GuildOptions guildProperties = new();
             action(guildProperties);
@@ -46,6 +46,19 @@ public partial class RestClient
 
         public async Task<GuildRole> CreateRoleAsync(DiscordId guildId, GuildRoleProperties guildRoleProperties, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildRoleProperties), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), _client);
+
+        public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> ModifyRolePositionsAsync(DiscordId guildId, GuildRolePosition[] positions, RequestOptions? options = null)
+            => (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(positions), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, _client));
+
+        public async Task<GuildRole> ModifyRoleAsync(DiscordId guildId, DiscordId roleId, Action<GuildRoleOptions> action, RequestOptions? options = null)
+        {
+            GuildRoleOptions obj = new();
+            action(obj);
+            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/roles/{roleId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), _client);
+        }
+
+        public Task DeleteRoleAsync(DiscordId guildId, DiscordId roleId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", options);
 
         public async Task<int> GetPruneCountAsync(DiscordId guildId, int days, DiscordId[]? roles = null, RequestOptions? options = null)
         {
@@ -94,6 +107,20 @@ public partial class RestClient
             GuildWelcomeScreenOptions guildWelcomeScreenOptions = new();
             action(guildWelcomeScreenOptions);
             return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWelcomeScreenOptions), $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
+        }
+
+        public Task ModifyCurrentUserVoiceStateAsync(DiscordId guildId, DiscordId channelId, Action<CurrentUserVoiceStateOptions> action, RequestOptions? options = null)
+        {
+            CurrentUserVoiceStateOptions obj = new(channelId);
+            action(obj);
+            return _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/voice-states/@me", options);
+        }
+
+        public Task ModifyUserVoiceStateAsync(DiscordId guildId, DiscordId channelId, Action<VoiceStateOptions> action, RequestOptions? options = null)
+        {
+            VoiceStateOptions obj = new(channelId);
+            action(obj);
+            return _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/voice-states/@me", options);
         }
     }
 }

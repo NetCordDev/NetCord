@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-using NetCord.Commands;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test;
 
@@ -9,7 +9,7 @@ public class GithubCommand : CommandModule
     [Command("github", "gh")]
     public async Task Github([Remainder] string userName)
     {
-        EmbedBuilder embed = new()
+        EmbedProperties embed = new()
         {
             Fields = new()
         };
@@ -45,7 +45,7 @@ public class GithubCommand : CommandModule
             Name = jsonUser.GetProperty("name").GetString() ?? jsonUser.GetProperty("login").GetString()
         };
         embed.Description = jsonUser.GetProperty("bio").GetString();
-        embed.ThumbnailUrl = avatarUrl;
+        embed.Thumbnail = avatarUrl;
 
         int i = 3;
 
@@ -78,9 +78,9 @@ public class GithubCommand : CommandModule
             if (i == 25)
                 break;
         }
-        Message message = new()
+        MessageProperties message = new()
         {
-            Embeds = new() { embed.Build() }
+            Embeds = new() { embed }
         };
         await SendAsync(message);
     }

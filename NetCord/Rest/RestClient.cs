@@ -57,16 +57,13 @@ public partial class RestClient : IDisposable
             }
         }
         var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+            throw new HttpException(JsonDocument.Parse(s));
+
         if (s.Length == 0)
             return null;
         else
-        {
-            var json = JsonDocument.Parse(s);
-            if (!IsErrorResponse(json))
-                return json;
-            else
-                throw new HttpException(json);
-        }
+            return JsonDocument.Parse(s);
     }
 
     public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestOptions? options)
@@ -139,22 +136,13 @@ public partial class RestClient : IDisposable
             }
         }
         var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        if (!response.IsSuccessStatusCode)
+            throw new HttpException(JsonDocument.Parse(s));
+
         if (s.Length == 0)
             return null;
         else
-        {
-            var json = JsonDocument.Parse(s);
-            if (!IsErrorResponse(json))
-                return json;
-            else
-                throw new HttpException(json);
-        }
-    }
-
-    private static bool IsErrorResponse(JsonDocument response)
-    {
-        var element = response.RootElement;
-        return element.ValueKind == JsonValueKind.Object && element.TryGetProperty("code", out _);
+            return JsonDocument.Parse(s);
     }
 
     public void Dispose()

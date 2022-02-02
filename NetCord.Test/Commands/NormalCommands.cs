@@ -1,4 +1,4 @@
-﻿using NetCord.Commands;
+﻿using NetCord.Services.Commands;
 
 namespace NetCord.Test;
 
@@ -7,13 +7,13 @@ public class NormalCommands : CommandModule
     [Command("say")]
     public Task Say([Remainder] string text)
     {
-        return SendAsync(new Message() { Content = text, AllowedMentions = AllowedMentions.None });
+        return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None });
     }
 
     [Command("reply")]
     public Task Reply([Remainder] string text)
     {
-        return SendAsync(new Message() { Content = text, AllowedMentions = AllowedMentions.None, MessageReference = new(Context.Message) });
+        return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None, MessageReference = new(Context.Message) });
     }
 
     [Command("roles")]
@@ -34,7 +34,7 @@ public class NormalCommands : CommandModule
     {
         if (Context.User is GuildUser user)
         {
-            Message message = new()
+            MessageProperties message = new()
             {
                 Content = "Select roles",
                 Components = new()
@@ -46,10 +46,10 @@ public class NormalCommands : CommandModule
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MessageMenu CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<DiscordId> defaultValues)
+    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<DiscordId> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
-        MessageMenu menu = new("roles")
+        MenuProperties menu = new("roles")
         {
             Placeholder = "Select roles",
             MaxValues = roles.Count(),
@@ -88,7 +88,7 @@ public class NormalCommands : CommandModule
     public Task Avatar([Remainder] GuildUser user = null)
     {
         user ??= (GuildUser)Context.User;
-        Message message = new()
+        MessageProperties message = new()
         {
             Embeds = new(),
             MessageReference = new(Context.Message, false),
@@ -97,13 +97,13 @@ public class NormalCommands : CommandModule
                 ReplyMention = false
             }
         };
-        EmbedBuilder embed = new()
+        EmbedProperties embed = new()
         {
             Title = $"Avatar of {user.Username}#{user.Discriminator}",
-            ImageUrl = user.HasAvatar ? user.GetAvatarUrl(4096) : user.DefaultAvatarUrl,
+            Image = new(user.HasAvatar ? user.GetAvatarUrl(4096) : user.DefaultAvatarUrl),
             Color = new(0, 255, 0)
         };
-        message.Embeds.Add(embed.Build());
+        message.Embeds.Add(embed);
         return SendAsync(message);
     }
 

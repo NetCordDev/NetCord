@@ -1,0 +1,10 @@
+﻿namespace NetCord.Services.Commands;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class CommandModuleAttribute : Attribute
+{
+    public Permission RequiredBotPermissions { get; init; }
+    public Permission RequiredBotChannelPermissions { get; init; }
+    public Permission RequiredUserPermissions { get; init; }
+    public Permission RequiredUserChannelPermissions { get; init; }
+}

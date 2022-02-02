@@ -6,7 +6,7 @@ public class GuildInvite
 
     public string Code => _jsonEntity.Code;
 
-    public Guild? Guild { get; }
+    public RestGuild? Guild { get; }
 
     public Channel? Channel { get; }
 

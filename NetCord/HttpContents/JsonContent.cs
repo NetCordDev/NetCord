@@ -31,7 +31,7 @@ internal class JsonContent : HttpContent
             _start = _stream.Position;
     }
 
-    public JsonContent(object objToSerialize) : this()
+    public JsonContent(object? objToSerialize) : this()
     {
         _stream = new MemoryStream();
         JsonSerializer.Serialize(_stream, objToSerialize);

@@ -11,7 +11,7 @@
     <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.11</VersionSuffix>
+    <VersionSuffix>alpha.12</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper. It supports buttons and menus!</Description>
   </PropertyGroup>
 

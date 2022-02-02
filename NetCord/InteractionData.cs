@@ -1,12 +1,10 @@
 ﻿namespace NetCord
 {
-    public class ButtonInteractionData
+    public class InteractionData
     {
         private protected readonly JsonModels.JsonInteractionData _jsonEntity;
 
-        public string CustomId => _jsonEntity.CustomId!;
-
-        internal ButtonInteractionData(JsonModels.JsonInteractionData jsonEntity)
+        private protected InteractionData(JsonModels.JsonInteractionData jsonEntity)
         {
             _jsonEntity = jsonEntity;
         }

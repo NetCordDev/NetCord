@@ -15,7 +15,7 @@ internal record JsonChannel : JsonEntity
     public int? Position { get; init; }
 
     [JsonPropertyName("permission_overwrites")]
-    public JsonPermissionOverwrite[] PermissionOverwrites { get; init; }
+    public JsonPermissionOverwrite[]? PermissionOverwrites { get; init; }
 
     [JsonPropertyName("name")]
     public string? Name { get; init; }
@@ -72,7 +72,7 @@ internal record JsonChannel : JsonEntity
     public JsonThreadMetadata Metadata { get; init; }
 
     [JsonPropertyName("member")]
-    public JsonThreadSelfUser CurrentUser { get; init; }
+    public JsonThreadSelfUser? CurrentUser { get; init; }
 
     //[JsonPropertyName("default_auto_archive_duration")]
     //public int? DefaultAutoArchiveDuration { get; init; }

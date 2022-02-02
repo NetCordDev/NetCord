@@ -33,4 +33,6 @@ public abstract class Channel : ClientEntity
             _ => throw new ArgumentException($"Invalid {nameof(jsonChannel.Type)}"),
         };
     }
+
+    public async Task<Channel> DeleteAsync(RequestOptions? options = null) => await _client.Channel.DeleteAsync(Id, options).ConfigureAwait(false);
 }

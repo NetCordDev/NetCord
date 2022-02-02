@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Collections.Immutable;
+
+namespace NetCord;
 
 public class GuildWelcomeScreen
 {
@@ -6,11 +8,11 @@ public class GuildWelcomeScreen
 
     public string? Description => _jsonEntity.Description;
 
-    public IReadOnlyDictionary<DiscordId, GuildWelcomeScreenChannel> WelcomeChannels { get; }
+    public ImmutableDictionary<DiscordId, GuildWelcomeScreenChannel> WelcomeChannels { get; }
 
     internal GuildWelcomeScreen(JsonModels.JsonWelcomeScreen jsonEntity)
     {
         _jsonEntity = jsonEntity;
-        WelcomeChannels = jsonEntity.WelcomeChannels.ToDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
+        WelcomeChannels = jsonEntity.WelcomeChannels.ToImmutableDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
     }
 }

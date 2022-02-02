@@ -4,16 +4,41 @@ public partial class RestClient
 {
     public partial class MessageModule
     {
-        public Task AddReactionAsync(ReactionEmoji emoji, DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{(emoji.EmojiType == ReactionEmoji.Type.Standard ? emoji.Name : emoji.Name + ":" + emoji.Id)}/@me", options);
+        public Task AddReactionAsync(DiscordId channelId, DiscordId messageId, ReactionEmoji emoji, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", options);
 
-        public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId, DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{(emoji.EmojiType == ReactionEmoji.Type.Standard ? emoji.Name : emoji.Name + ":" + emoji.Id)}/{userId}", options);
+        public Task DeleteReactionAsync(DiscordId channelId, DiscordId messageId, ReactionEmoji emoji, DiscordId userId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/{userId}", options);
 
-        public Task DeleteAllReactionsAsync(ReactionEmoji emoji, DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{(emoji.EmojiType == ReactionEmoji.Type.Standard ? emoji.Name : emoji.Name + ":" + emoji.Id)}", options);
+        public async IAsyncEnumerable<User> GetReactionAsync(DiscordId channelId, DiscordId messageId, ReactionEmoji emoji, RequestOptions? options = null)
+        {
+            var partialUrl = $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}?limit=100";
+            short count = 0;
+            User? lastUser = null;
+
+            foreach (var user in (await _client.SendRequestAsync(HttpMethod.Get, partialUrl, options).ConfigureAwait(false))!.RootElement.EnumerateArray().Select(u => new User(u.ToObject<JsonModels.JsonUser>(), _client)))
+            {
+                yield return lastUser = user;
+                count++;
+            }
+            partialUrl += $"&after={lastUser}";
+            while (count == 1000)
+            {
+                count = 0;
+                foreach (var user in (await _client.SendRequestAsync(HttpMethod.Get, partialUrl, options).ConfigureAwait(false))!.RootElement.EnumerateArray().Select(u => new User(u.ToObject<JsonModels.JsonUser>(), _client)))
+                {
+                    yield return lastUser = user;
+                    count++;
+                }
+            }
+        }
+
+        public Task DeleteAllReactionsAsync(DiscordId channelId, DiscordId messageId, ReactionEmoji emoji, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", options);
 
         public Task DeleteAllReactionsAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
             => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions", options);
+
+        private static string ReactionEmojiToString(ReactionEmoji emoji) => emoji.EmojiType == ReactionEmoji.Type.Standard ? emoji.Name : emoji.Name + ":" + emoji.Id;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public class VoiceGuildChannel : Channel, IGuildChannel, IVoiceChannel
+    public class VoiceGuildChannel : Channel, IVoiceGuildChannel
     {
         public int Bitrate => (int)_jsonEntity.Bitrate!;
         public DiscordId? CategoryId => _jsonEntity.ParentId;
@@ -17,7 +17,9 @@
 
         internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
         {
-            PermissionOverwrites = jsonEntity.PermissionOverwrites.ToImmutableDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+            PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         }
+
+        public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestOptions? options = null) => (IGuildChannel)await _client.Guild.Channel.ModifyAsync(Id, action, options).ConfigureAwait(false);
     }
 }

@@ -59,18 +59,18 @@ public partial class RestClient
                     return new(v.ToObject<JsonModels.JsonGuildUser>(), guildId, _client);
             }
 
-            public async Task<GuildUser> ModifyAsync(DiscordId guildId, DiscordId userId, Action<GuildUserProperties> func, RequestOptions? options = null)
+            public async Task<GuildUser> ModifyAsync(DiscordId guildId, DiscordId userId, Action<GuildUserProperties> action, RequestOptions? options = null)
             {
                 GuildUserProperties properties = new();
-                func.Invoke(properties);
+                action(properties);
                 var result = (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/{userId}", options).ConfigureAwait(false))!;
                 return new(result.ToObject<JsonModels.JsonGuildUser>(), guildId, _client);
             }
 
-            public async Task<GuildUser> ModifyCurrentAsync(DiscordId guildId, Action<CurrentGuildUserProperties> func, RequestOptions? options = null)
+            public async Task<GuildUser> ModifyCurrentAsync(DiscordId guildId, Action<CurrentGuildUserProperties> action, RequestOptions? options = null)
             {
                 CurrentGuildUserProperties properties = new();
-                func.Invoke(properties);
+                action(properties);
                 var result = (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/@me", options).ConfigureAwait(false))!;
                 return new(result.ToObject<JsonModels.JsonGuildUser>(), guildId, _client);
             }

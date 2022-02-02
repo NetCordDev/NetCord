@@ -1,8 +1,8 @@
-﻿using NetCord.Interactions;
+﻿using NetCord.Services.Interactions;
 
 namespace NetCord.Test;
 
-public class ButtonInteractions : ButtonInteractionModule
+public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
 {
     [Interaction("click it")]
     public Task ClickIt()
@@ -10,8 +10,8 @@ public class ButtonInteractions : ButtonInteractionModule
         InteractionMessage interactionMessage = new()
         {
             Content = "You clicked the button!",
-            Ephemeral = true
+            Flags = MessageFlags.Ephemeral
         };
-        return Context.Interaction.EndWithReplyAsync(interactionMessage);
+        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
     }
 }

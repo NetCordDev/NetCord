@@ -1,4 +1,4 @@
-﻿using NetCord.Commands;
+﻿using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
@@ -9,7 +9,20 @@ public class MuteCommands : CommandModule
     public async Task Mute(GuildUser user, TimeSpan time, [Remainder] string reason = null)
     {
         await user.ModifyAsync(x => x.TimeOutUntil = DateTimeOffset.Now + time, new() { AuditLogReason = reason });
-        await ReplyAsync($"{user} got muted");
+
+        ActionRowProperties actionRow = new();
+        actionRow.Buttons.Add(new ActionButtonProperties("Unmute", $"unmute:{user.Id}", ButtonStyle.Danger));
+        MessageProperties message = new()
+        {
+            Content = Format.Bold($"{user} got muted").ToString(),
+            Components = new()
+            {
+                actionRow
+            },
+            MessageReference = new(Context.Message),
+            AllowedMentions = AllowedMentionsProperties.None,
+        };
+        await SendAsync(message);
     }
 
     [Command("unmute")]

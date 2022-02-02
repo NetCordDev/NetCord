@@ -7,7 +7,7 @@ internal record JsonEmbed
     [JsonPropertyName("title")]
     public string? Title { get; init; }
     [JsonPropertyName("type")]
-    public MessageEmbedType? Type { get; init; }
+    public EmbedType? Type { get; init; }
     [JsonPropertyName("description")]
     public string? Description { get; init; }
     [JsonPropertyName("url")]

@@ -14,7 +14,7 @@ internal class Ready
 
     public IEnumerable<DMChannel> DMChannels { get; }
 
-    internal Ready(JsonReady jsonEntity, SocketClient client)
+    internal Ready(JsonReady jsonEntity, GatewayClient client)
     {
         _jsonEntity = jsonEntity;
         User = new(jsonEntity.User, client.Rest);

@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
-using NetCord.Commands;
+using NetCord.Services;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test;
 
@@ -51,7 +52,7 @@ public class StrangeCommands : CommandModule
     [Command("button")]
     public Task Button()
     {
-        Message messageBuilder = new()
+        MessageProperties messageBuilder = new()
         {
             Content = "This is button:",
             Components = new(),
@@ -61,11 +62,11 @@ public class StrangeCommands : CommandModule
                 ReplyMention = false
             }
         };
-        MessageActionButton button = new("Click it!", "click it", ButtonStyle.Success)
+        ActionButtonProperties button = new("Click it!", "click it", ButtonStyle.Success)
         {
             EmojiId = 888159212109197382
         };
-        MessageActionRow actionRow = new();
+        ActionRowProperties actionRow = new();
         actionRow.Buttons.Add(button);
         messageBuilder.Components.Add(actionRow);
         return SendAsync(messageBuilder);
@@ -74,7 +75,7 @@ public class StrangeCommands : CommandModule
     [Command("link")]
     public Task Link([Remainder] Uri url)
     {
-        Message message = new()
+        MessageProperties message = new()
         {
             Components = new(),
             Content = "This is the message with the link",
@@ -85,8 +86,8 @@ public class StrangeCommands : CommandModule
             },
             Embeds = new()
         };
-        MessageActionRow actionRow = new();
-        actionRow.Buttons.Add(new MessageLinkButton("Link", url));
+        ActionRowProperties actionRow = new();
+        actionRow.Buttons.Add(new LinkButtonProperties("Link", url));
         message.Components.Add(actionRow);
         return SendAsync(message);
     }
@@ -103,13 +104,13 @@ public class StrangeCommands : CommandModule
     [Command("dżejuś", "dzejus", "jjay31")]
     public Task Dzejus()
     {
-        Message message = new()
+        MessageProperties message = new()
         {
             Attachments = new(),
             MessageReference = new(Context.Message),
-            AllowedMentions = AllowedMentions.None
+            AllowedMentions = AllowedMentionsProperties.None
         };
-        MessageAttachment file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        AttachmentProperties file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
         message.Attachments.Add(file);
         return SendAsync(message);
     }
@@ -153,7 +154,7 @@ public class StrangeCommands : CommandModule
     public Task Id([Remainder] UserId userId = null)
     {
         DiscordId id = userId != null ? userId.Id : Context.User;
-        EmbedBuilder embed = new()
+        EmbedProperties embed = new()
         {
             Title = $"Info about {id}",
             Fields = new()
@@ -162,11 +163,11 @@ public class StrangeCommands : CommandModule
         embed.Fields.Add(new() { Title = "Created at", Description = new Timestamp(id.CreatedAt).ToString() });
         embed.Fields.Add(new() { Title = "Internal worker id", Description = id.InternalWorkerId.ToString() });
         embed.Fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
-        Message message = new()
+        MessageProperties message = new()
         {
             Embeds = new()
         };
-        message.Embeds.Add(embed.Build());
+        message.Embeds.Add(embed);
         return SendAsync(message);
     }
 
@@ -174,16 +175,16 @@ public class StrangeCommands : CommandModule
     public Task Menu(params string[] values)
     {
         values = values.Distinct().ToArray();
-        Message message = new()
+        MessageProperties message = new()
         {
             Content = "Here is your menu:",
             Components = new(),
             MessageReference = new(Context.Message)
         };
         message.Components.Add(
-            new MessageMenu("menu")
+            new MenuProperties("menu")
             {
-                Options = values.Select(v => new MessageMenu.SelectOption(v, v)).ToList(),
+                Options = values.Select(v => new MenuProperties.SelectOption(v, v)).ToList(),
                 MaxValues = values.Length
             }
         );
@@ -253,7 +254,7 @@ public class StrangeCommands : CommandModule
     [Command("embed")]
     public Task Embed()
     {
-        EmbedBuilder embedBuilder = new()
+        EmbedProperties embedBuilder = new()
         {
             Fields = new()
             {
@@ -269,11 +270,11 @@ public class StrangeCommands : CommandModule
                 }
             }
         };
-        return SendAsync(new Message() { Embeds = new() { embedBuilder.Build() } });
+        return SendAsync(new MessageProperties() { Embeds = new() { embedBuilder } });
     }
 
     [Command("reverse")]
-    public Task Reverse([Remainder][TypeReaderAttribute<ReverseStringTypeReader>] string s)
+    public Task Reverse([Remainder][TypeReader(typeof(ReverseStringTypeReader))] string s)
     {
         return ReplyAsync(s);
     }

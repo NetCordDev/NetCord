@@ -1,18 +1,16 @@
-﻿namespace NetCord.Test.Commands
-{
-    [Serializable]
-    public class RequiredContextException : Exception
-    {
-        public RequiredContextException(RequiredContext context) : base("Required context: " + context.ToString())
-        {
-        }
-    }
+﻿namespace NetCord.Test.Commands;
 
-    public enum RequiredContext
+public class RequiredContextException : Exception
+{
+    public RequiredContextException(RequiredContext context) : base("Required context: " + context.ToString())
     {
-        Guild,
-        DM,
-        GroupDM,
-        Nsfw,
     }
+}
+
+public enum RequiredContext
+{
+    Guild,
+    DM,
+    GroupDM,
+    Nsfw,
 }

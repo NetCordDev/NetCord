@@ -28,7 +28,7 @@ public class RestMessage : ClientEntity
 
     public IReadOnlyDictionary<DiscordId, Attachment> Attachments { get; }
 
-    public IEnumerable<MessageEmbed> Embeds { get; }
+    public IEnumerable<Embed> Embeds { get; }
 
     public IEnumerable<MessageReaction> Reactions { get; }
 
@@ -46,7 +46,7 @@ public class RestMessage : ClientEntity
 
     public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
 
-    public MessageReference? MessageReference { get; }
+    public Reference? MessageReference { get; }
 
     public MessageFlags? Flags => _jsonEntity.Flags;
 
@@ -69,11 +69,11 @@ public class RestMessage : ClientEntity
         else
             Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, jsonEntity.GuildId.GetValueOrDefault(), client);
 
-        MentionedUsers = jsonEntity.MentionedUsers.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
+        MentionedUsers = jsonEntity.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
         MentionedRolesIds = jsonEntity.MentionedRoles;
-        MentionedChannels = jsonEntity.MentionedChannels.ToImmutableDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
-        Attachments = jsonEntity.Attachments.ToImmutableDictionaryOrEmpty(a => a.Id, a => Attachment.CreateFromJson(a));
-        Embeds = jsonEntity.Embeds.SelectOrEmpty(e => new MessageEmbed(e));
+        MentionedChannels = jsonEntity.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
+        Attachments = jsonEntity.Attachments.ToDictionary(a => a.Id, a => Attachment.CreateFromJson(a));
+        Embeds = jsonEntity.Embeds.Select(e => new Embed(e));
         Reactions = jsonEntity.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
 
         if (jsonEntity.Activity != null) Activity = new(jsonEntity.Activity);
@@ -84,15 +84,15 @@ public class RestMessage : ClientEntity
         if (jsonEntity.StartedThread != null) StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
         if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
 
-        Components = jsonEntity.Components.SelectOrEmpty(c => IComponent.CreateFromJson(c));
-        Stickers = jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
+        Components = jsonEntity.Components.Select(c => IComponent.CreateFromJson(c));
+        Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
 
     }
 
-    public Task AddReactionAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(emoji, ChannelId, Id, options);
+    public Task AddReactionAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(ChannelId, Id, emoji, options);
 
-    public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId, RequestOptions? options = null) => _client.Message.DeleteReactionAsync(emoji, userId, ChannelId, Id, options);
-    public Task DeleteAllReactionsAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(emoji, ChannelId, Id, options);
+    public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId, RequestOptions? options = null) => _client.Message.DeleteReactionAsync(ChannelId, Id, emoji, userId, options);
+    public Task DeleteAllReactionsAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, emoji, options);
     public Task DeleteAllReactionsAsync(RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, options);
 
     public Task DeleteAsync(RequestOptions? options = null) => _client.Message.DeleteAsync(ChannelId, Id, options);
@@ -101,7 +101,7 @@ public class RestMessage : ClientEntity
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
     {
-        Message message = new()
+        MessageProperties message = new()
         {
             Content = content,
             MessageReference = new(this, failIfNotExists),
@@ -110,6 +110,6 @@ public class RestMessage : ClientEntity
                 ReplyMention = replyMention
             }
         };
-        return _client.Message.SendAsync(message, ChannelId);
+        return _client.Message.SendAsync(ChannelId, message);
     }
 }

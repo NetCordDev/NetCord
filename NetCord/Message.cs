@@ -1,55 +1,34 @@
-﻿using System.Text.Json.Serialization;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class Message
+public class Message : RestMessage
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("content")]
-    public string? Content { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("tts")]
-    public bool Tts { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
-    [JsonPropertyName("attachments")]
-    public List<MessageAttachment>? Attachments { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("embeds")]
-    public List<Embed>? Embeds { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("allowed_mentions")]
-    public AllowedMentions? AllowedMentions { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("message_reference")]
-    public Reference? MessageReference { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("components")]
-    public List<MessageComponent>? Components { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("sticker_ids")]
-    public List<DiscordId>? StickerIds { get; set; }
-
-    internal MultipartFormDataContent Build()
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    internal Message(JsonMessage jsonEntity, GatewayClient client) : base(jsonEntity, client.Rest)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
-        MultipartFormDataContent content = new();
-        content.Add(new JsonContent(this), "payload_json");
-        if (Attachments != null)
+        DiscordId? guildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
+        if (guildId != null && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out var guild))
         {
-            var count = Attachments.Count;
-            for (var i = 0; i < count; i++)
-            {
-                MessageAttachment attachment = Attachments[i];
-                content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
-            }
+            Guild = guild;
+            if (guild._channels.TryGetValue(jsonEntity.ChannelId, out var channel))
+                Channel = (TextChannel)channel;
+            else if (guild._activeThreads.TryGetValue(jsonEntity.ChannelId, out var thread))
+                Channel = thread;
         }
-        return content;
+        else
+        {
+            if (client.DMChannels.TryGetValue(jsonEntity.ChannelId, out var dMChannel))
+                Channel = dMChannel;
+            else if (client.GroupDMChannels.TryGetValue(jsonEntity.ChannelId, out var groupDMChannel))
+                Channel = groupDMChannel;
+        }
     }
+
+    public Guild? Guild { get; }
+    public TextChannel Channel { get; }
+
+    public string GetJumpUrl() => $"https://discord.com/channels/{(Guild != null ? Guild.Id : "@me")}/{ChannelId}/{Id}";
+    public override string GetJumpUrl(DiscordId? guildId) => GetJumpUrl();
 }

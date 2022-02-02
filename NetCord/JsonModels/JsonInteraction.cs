@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Globalization;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -30,4 +31,12 @@ internal record JsonInteraction : JsonEntity
 
     [JsonPropertyName("message")]
     public JsonMessage Message { get; init; }
+
+    [JsonConverter(typeof(JsonConverters.CultureInfoConverter))]
+    [JsonPropertyName("locale")]
+    public CultureInfo UserLocale { get; init; }
+
+    [JsonConverter(typeof(JsonConverters.CultureInfoConverter))]
+    [JsonPropertyName("guild_locale")]
+    public CultureInfo GuildLocale { get; init; }
 }

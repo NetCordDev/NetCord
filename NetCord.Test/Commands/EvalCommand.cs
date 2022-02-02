@@ -1,8 +1,10 @@
-﻿using NetCord.Commands;
+﻿
+using System.Reflection;
 
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
-using System.Reflection;
+
+using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
@@ -20,10 +22,10 @@ public class EvalCommand : CommandModule
         var value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()), this, typeof(CommandModule));
         if (value != null)
         {
-            EmbedBuilder embed = new()
+            EmbedProperties embed = new()
             {
                 Title = GetMaxLength($"Result: {value}", 256),
-                Fields = new List<EmbedField>()
+                Fields = new List<EmbedFieldProperties>()
             };
             foreach (var property in value.GetType().GetProperties().Take(24))
             {
@@ -39,11 +41,11 @@ public class EvalCommand : CommandModule
                 }
                 embed.Fields.Add(new() { Title = GetMaxLength(property.Name, 256), Description = GetMaxLength(description, 1024), Inline = true });
             }
-            Message message = new()
+            MessageProperties message = new()
             {
                 Embeds = new()
                 {
-                    embed.Build()
+                    embed
                 }
             };
             await SendAsync(message);

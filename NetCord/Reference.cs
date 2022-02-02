@@ -1,18 +1,37 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NetCord;
-
-public class Reference : Entity
+﻿namespace NetCord
 {
-    [JsonPropertyName("message_id")]
-    public override DiscordId Id { get; }
-
-    [JsonPropertyName("fail_if_not_exists")]
-    public bool FailIfNotExists { get; }
-
-    public Reference(DiscordId messageId, bool failIfNotExists = true)
+    public class Reference
     {
-        Id = messageId;
-        FailIfNotExists = failIfNotExists;
+        private readonly JsonModels.JsonMessageReference _jsonEntity;
+
+        public DiscordId MessageId => _jsonEntity.MessageId.GetValueOrDefault();
+        public DiscordId ChannelId => _jsonEntity.ChannelId.GetValueOrDefault();
+        public DiscordId? GuildId => _jsonEntity.GuildId;
+        public bool? FailIfNotExists => _jsonEntity.FailIfNotExists;
+
+        internal Reference(JsonModels.JsonMessageReference jsonEntity)
+        {
+            _jsonEntity = jsonEntity;
+        }
+
+        //public MessageReference(DiscordId messageId)
+        //{
+        //    MessageId = messageId;
+        //}
+
+        //public MessageReference(Message message)
+        //{
+        //    MessageId = message.Id;
+        //}
+
+        //public static implicit operator MessageReference(Message message)
+        //{
+        //    return new(message);
+        //}
+
+        //public static implicit operator MessageReference(DiscordId messageId)
+        //{
+        //    return new(messageId);
+        //}
     }
 }

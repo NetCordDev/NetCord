@@ -1,4 +1,4 @@
-﻿using NetCord.Commands;
+﻿using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 

@@ -1,10 +1,10 @@
-﻿using NetCord.Commands;
+﻿using NetCord.Services.Commands;
 
 namespace NetCord.Test;
 
-public class ReverseStringTypeReader : ITypeReader<CommandContext>
+public class ReverseStringTypeReader : CommandTypeReader<CommandContext>
 {
-    public Task<object> ReadAsync(string input, CommandContext context, CommandParameter<CommandContext> parameter, CommandServiceOptions<CommandContext> options)
+    public override Task<object> ReadAsync(string input, CommandContext context, CommandParameter<CommandContext> parameter, CommandServiceOptions<CommandContext> options)
     {
         var a = input.ToCharArray();
         Array.Reverse(a);

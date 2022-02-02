@@ -1,6 +1,6 @@
 ﻿namespace NetCord
 {
-    public class ThreadUser : Entity
+    public class ThreadUser : ClientEntity
     {
         private readonly JsonModels.JsonThreadUser _jsonEntity;
 
@@ -9,7 +9,7 @@
         public DateTimeOffset JoinTimestamp => _jsonEntity.JoinTimestamp;
         public int Flags => _jsonEntity.Flags;
 
-        internal ThreadUser(JsonModels.JsonThreadUser jsonEntity)
+        internal ThreadUser(JsonModels.JsonThreadUser jsonEntity, RestClient client) : base(client)
         {
             _jsonEntity = jsonEntity;
         }

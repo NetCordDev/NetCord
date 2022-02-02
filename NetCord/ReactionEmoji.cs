@@ -33,4 +33,6 @@ public class ReactionEmoji
         Guild,
         Standard,
     }
+
+    public static implicit operator ReactionEmoji(string unicode) => new(unicode);
 }

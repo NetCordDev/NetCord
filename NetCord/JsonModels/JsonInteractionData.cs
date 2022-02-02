@@ -8,16 +8,16 @@ internal record JsonInteractionData
     public DiscordId? Id { get; init; }
 
     [JsonPropertyName("name")]
-    public string? ApplicationCommandName { get; init; }
+    public string? Name { get; init; }
 
     [JsonPropertyName("type")]
-    public ApplicationCommandType? ApplicationCommandType { get; init; }
+    public ApplicationCommandType? Type { get; init; }
 
     [JsonPropertyName("resolved")]
-    public JsonResolvedData? ResolvedData { get; init; }
+    public JsonApplicationCommandResolvedData? ResolvedData { get; init; }
 
     [JsonPropertyName("options")]
-    public JsonApplicationCommandParameter[]? Parameters { get; init; }
+    public JsonApplicationCommandInteractionDataOption[]? Options { get; init; }
 
     [JsonPropertyName("custom_id")]
     public string? CustomId { get; init; }

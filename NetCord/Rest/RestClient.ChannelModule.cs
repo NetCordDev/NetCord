@@ -34,10 +34,29 @@ public partial class RestClient
         public async Task<DMChannel> GetDMByUserIdAsync(DiscordId userId, RequestOptions? options = null)
             => new DMChannel(((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"recipient_id\":\"{userId}\"}}"), "/users/@me/channels", options).ConfigureAwait(false))!).ToObject<JsonChannel>(), _client);
 
-        public async Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetThreadUsersAsync(DiscordId threadId, RequestOptions? options = null)
+        public Task TriggerTypingStateAsync(DiscordId channelId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", options);
+
+        public async Task<IDisposable> EnterTypingStateAsync(DiscordId channelId, RequestOptions? options = null)
         {
-            var jsonUsers = (await _client.SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", options).ConfigureAwait(false))!.ToObject<JsonThreadUser[]>();
-            return jsonUsers.ToDictionary(u => u.UserId, u => new ThreadUser(u));
+            TypingReminder typingReminder = new(channelId, _client, options);
+            await typingReminder.StartAsync().ConfigureAwait(false);
+            return typingReminder;
         }
+
+        public async Task<IReadOnlyDictionary<DiscordId, RestMessage>> GetPinnedMessagesAsync(DiscordId channelId, RequestOptions? options = null)
+            => (await _client.SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", options).ConfigureAwait(false))!.ToObject<JsonMessage[]>().ToDictionary(m => m.Id, m => new RestMessage(m, _client));
+
+        public Task PinAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", options);
+
+        public Task UnpinAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", options);
+
+        public Task GroupDMAddUser(DiscordId channelId, DiscordId userId, GroupDMUserAddProperties properties, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Put, new JsonContent(properties), $"/channels/{channelId}/recipients/{userId}", options);
+
+        public Task GroupDMDeleteUser(DiscordId channelId, DiscordId userId, RequestOptions? options = null)
+            => _client.SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", options);
     }
 }

@@ -1,49 +1,56 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace NetCord
+namespace NetCord;
+
+public class InteractionMessage
 {
-    public class InteractionMessage
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("tts")]
+    public bool Tts { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("embeds")]
+    public List<Embed>? Embeds { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("allowed_mentions")]
+    public AllowedMentionsProperties? AllowedMentions { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("flags")]
+    public MessageFlags? Flags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("components")]
+    public List<ComponentProperties>? Components { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
+    [JsonPropertyName("attachments")]
+    public List<AttachmentProperties>? Attachments { get; set; }
+
+    internal MultipartFormDataContent Build()
     {
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonPropertyName("tts")]
-        public bool Tts { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonPropertyName("content")]
-        public string? Content { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonPropertyName("embeds")]
-        public List<MessageEmbed>? Embeds { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonPropertyName("allowed_mentions")]
-        public AllowedMentions? AllowedMentions { get; set; }
-
-        [JsonConverter(typeof(EphemeralConverter))]
-        [JsonPropertyName("flags")]
-        public bool Ephemeral { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonPropertyName("components")]
-        public List<MessageComponent>? Components { get; set; }
-
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
-        [JsonPropertyName("attachments")]
-        public List<MessageAttachment>? Attachments { get; set; }
-
-        private class EphemeralConverter : JsonConverter<bool>
+        MultipartFormDataContent content = new();
+        content.Add(new JsonContent(this), "payload_json");
+        if (Attachments != null)
         {
-            public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-            public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)
+            var count = Attachments.Count;
+            for (var i = 0; i < count; i++)
             {
-                if (value)
-                    writer.WriteNumberValue((uint)MessageFlags.Ephemeral);
-                else
-                    writer.WriteNumberValue(0);
+                AttachmentProperties attachment = Attachments[i];
+                content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
             }
         }
+        return content;
     }
+
+    public static implicit operator InteractionMessage(string content) => new()
+    {
+        Content = content
+    };
 }
