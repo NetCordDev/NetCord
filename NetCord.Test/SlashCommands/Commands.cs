@@ -25,7 +25,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
 
     [RequireUserPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
-    public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [TypeReader(typeof(DeleteMessagesDaysTypeReader))][SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
+    public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is avaible only in guild");
@@ -155,12 +155,20 @@ public class Commands : SlashCommandModule<SlashCommandContext>
 
 public enum DeleteMessagesDays
 {
+    [SlashCommandChoice("Don't remove")]
     DontRemove = 0,
+    [SlashCommandChoice("Last 24 hours")]
     Last24Hours = 1,
+    [SlashCommandChoice("Last 2 days")]
     Last2Days = 2,
+    [SlashCommandChoice("Last 3 days")]
     Last3Days = 3,
+    [SlashCommandChoice("Last 4 days")]
     Last4Days = 4,
+    [SlashCommandChoice("Last 5 days")]
     Last5Days = 5,
+    [SlashCommandChoice("Last 6 days")]
     Last6Days = 6,
+    [SlashCommandChoice("Last week")]
     LastWeek = 7,
 }

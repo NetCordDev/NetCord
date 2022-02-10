@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.SlashCommands.TypeReaders;
+﻿using System.Reflection;
+
+namespace NetCord.Services.SlashCommands.TypeReaders;
 
 public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : ISlashCommandContext
 {
@@ -20,7 +22,9 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
             throw new InvalidOperationException($"{parameter.Type.FullName} has too many values, max choices count is 25");
         foreach (Enum e in array)
         {
-            yield return new(e.ToString(), Convert.ToDouble(e));
+            var eString = e.ToString();
+            var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
+            yield return new(attribute != null ? attribute.Name : eString, Convert.ToDouble(e));
         }
     }
 }
