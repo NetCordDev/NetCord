@@ -13,25 +13,5 @@
         {
             _jsonEntity = jsonEntity;
         }
-
-        //public MessageReference(DiscordId messageId)
-        //{
-        //    MessageId = messageId;
-        //}
-
-        //public MessageReference(Message message)
-        //{
-        //    MessageId = message.Id;
-        //}
-
-        //public static implicit operator MessageReference(Message message)
-        //{
-        //    return new(message);
-        //}
-
-        //public static implicit operator MessageReference(DiscordId messageId)
-        //{
-        //    return new(messageId);
-        //}
     }
 }

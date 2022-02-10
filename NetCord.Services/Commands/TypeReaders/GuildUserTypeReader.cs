@@ -6,7 +6,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
 {
     public override Task<object> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
     {
-        var guild = context.Guild;
+        var guild = context.Message.Guild;
         if (guild == null)
             goto exception;
         IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;

@@ -2,7 +2,7 @@
 
 namespace NetCord.Test;
 
-public class MenuInteractions : InteractionModule<MenuInteractionContext>
+public class MenuInteractions : BaseInteractionModule<MenuInteractionContext>
 {
     [Interaction("roles")]
     public async Task Roles()

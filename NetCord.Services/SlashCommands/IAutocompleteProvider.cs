@@ -4,5 +4,3 @@ public interface IAutocompleteProvider
 {
     public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>> GetChoicesAsync(ApplicationCommandInteractionDataOption option, ApplicationCommandAutocompleteInteraction interaction);
 }
-
-public delegate Task<IEnumerable<ApplicationCommandOptionChoiceProperties>> Autocomplete(ApplicationCommandInteractionDataOption option, ApplicationCommandAutocompleteInteraction interaction);

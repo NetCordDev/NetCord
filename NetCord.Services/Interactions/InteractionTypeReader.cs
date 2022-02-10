@@ -8,5 +8,3 @@ public abstract class InteractionTypeReader<TContext> : IInteractionTypeReader w
 internal interface IInteractionTypeReader
 {
 }
-
-public delegate Task<object> TypeReader<TContext>(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options) where TContext : InteractionContext;

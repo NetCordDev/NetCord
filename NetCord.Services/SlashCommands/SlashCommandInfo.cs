@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace NetCord.Services.SlashCommands;
 
-public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
+public class SlashCommandInfo<TContext> where TContext : ISlashCommandContext
 {
     public Type DeclaringType { get; }
     public string Name { get; }
@@ -16,11 +16,13 @@ public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
     public IEnumerable<DiscordId>? DisallowedUsersIds { get; init; }
     public Func<object, object[], Task> InvokeAsync { get; }
     public ReadOnlyCollection<SlashCommandParameter<TContext>> Parameters { get; }
-    public Dictionary<string, Autocomplete> Autocompletes { get; } = new();
+    public Dictionary<string, IAutocompleteProvider> Autocompletes { get; } = new();
     public Permission RequiredBotPermissions { get; }
     public Permission RequiredBotChannelPermissions { get; }
     public Permission RequiredUserPermissions { get; }
     public Permission RequiredUserChannelPermissions { get; }
+    public RequiredContext RequiredContext { get; }
+    public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal SlashCommandInfo(MethodInfo methodInfo, SlashCommandAttribute attribute, SlashCommandServiceOptions<TContext> options)
     {
@@ -49,28 +51,31 @@ public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters", methodInfo);
-            SlashCommandParameter<TContext> newP = new(parameter, options, out var autocomplete);
+            SlashCommandParameter<TContext> newP = new(parameter, options);
             p[i] = newP;
-            if (autocomplete != null)
-                Autocompletes.Add(newP.Name, autocomplete);
+            var autocompleteProvider = newP.AutocompleteProvider;
+            if (autocompleteProvider != null)
+                Autocompletes.Add(newP.Name, autocompleteProvider);
         }
-        Parameters = Array.AsReadOnly(p);
+        Parameters = new(p);
 
-        SlashCommandModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<SlashCommandModuleAttribute>();
-        if (moduleAttribute != null)
-        {
-            RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
-            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
-            RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
-            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
-        }
-        else
-        {
-            RequiredBotPermissions = attribute.RequiredBotPermissions;
-            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
-            RequiredUserPermissions = attribute.RequiredUserPermissions;
-            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
-        }
+        //ModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<ModuleAttribute>();
+        //if (moduleAttribute != null)
+        //{
+        //    RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
+        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
+        //    RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
+        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
+        //}
+        //else
+        //{
+        //    RequiredBotPermissions = attribute.RequiredBotPermissions;
+        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
+        //    RequiredUserPermissions = attribute.RequiredUserPermissions;
+        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
+        //}
+
+        Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
     }
 
     public ApplicationCommandProperties GetRawValue() => new(Name, Description)
@@ -101,5 +106,11 @@ public class SlashCommandInfo<TContext> where TContext : BaseSlashCommandContext
             foreach (var u in DisallowedUsersIds)
                 yield return new(u, ApplicationCommandPermissionType.User, false);
         }
+    }
+
+    internal async Task EnsureCanExecuteAsync(TContext context)
+    {
+        foreach (var preconditionAttribute in Preconditions)
+            await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
     }
 }

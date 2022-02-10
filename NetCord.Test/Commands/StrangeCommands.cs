@@ -3,7 +3,7 @@
 using NetCord.Services;
 using NetCord.Services.Commands;
 
-namespace NetCord.Test;
+namespace NetCord.Test.Commands;
 
 public class StrangeCommands : CommandModule
 {
@@ -24,7 +24,8 @@ public class StrangeCommands : CommandModule
     [Command("delete", "remove")]
     public Task Delete() => Context.Message.DeleteAsync();
 
-    [Command("delete", "remove", RequiredUserChannelPermissions = Permission.ManageMessages)]
+    [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
+    [Command("delete", "remove")]
     public Task Delete(DiscordId id)
     {
         return Context.Client.Rest.Message.DeleteAsync(Context.Channel, id);
@@ -35,9 +36,8 @@ public class StrangeCommands : CommandModule
     {
         ReactionEmoji reaction;
         if (System.Text.RegularExpressions.Regex.IsMatch(emoji, "(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])"))
-        {
             reaction = new(emoji);
-        } else
+        else
         {
             var span = emoji.AsSpan();
             var last = span.LastIndexOf(':');
@@ -122,7 +122,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("wzium")]
-    public Task Wzium([Remainder] Wzium wzium = Test.Wzium.Wzium)
+    public Task Wzium([Remainder] Wzium wzium = Commands.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
@@ -138,9 +138,7 @@ public class StrangeCommands : CommandModule
     {
         channelId ??= Context.Channel;
         await foreach (var m in Context.Client.Rest.Message.GetAsync(channelId.GetValueOrDefault()))
-        {
             Console.WriteLine($"{m.Author.Username}: \t{m.Content} | {m.CreatedAt:g}");
-        }
     }
 
     [Command("message")]
@@ -153,16 +151,17 @@ public class StrangeCommands : CommandModule
     [Command("id")]
     public Task Id([Remainder] UserId userId = null)
     {
-        DiscordId id = userId != null ? userId.Id : Context.User;
+        var id = userId != null ? userId.Id : Context.User;
+        List<EmbedFieldProperties> fields = new();
         EmbedProperties embed = new()
         {
             Title = $"Info about {id}",
-            Fields = new()
+            Fields = fields
         };
-        embed.Fields.Add(new() { Title = "Id", Description = id.ToString() });
-        embed.Fields.Add(new() { Title = "Created at", Description = new Timestamp(id.CreatedAt).ToString() });
-        embed.Fields.Add(new() { Title = "Internal worker id", Description = id.InternalWorkerId.ToString() });
-        embed.Fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
+        fields.Add(new() { Title = "Id", Description = id.ToString() });
+        fields.Add(new() { Title = "Created at", Description = new Timestamp(id.CreatedAt).ToString() });
+        fields.Add(new() { Title = "Internal worker id", Description = id.InternalWorkerId.ToString() });
+        fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
         MessageProperties message = new()
         {
             Embeds = new()
@@ -219,15 +218,13 @@ public class StrangeCommands : CommandModule
         SemaphoreSlim slim = new(5);
         var tasks = new Task[count];
         var names = Enum.GetValues<Wzium>().Select(w => w.ToString()).ToArray();
-        for (int i = 0; i < count; i++)
-        {
+        for (var i = 0; i < count; i++)
             tasks[i] = Task.Run(async () =>
             {
                 await slim.WaitAsync();
                 await SendAsync(names[new Random().Next(2)]);
                 slim.Release();
             });
-        }
         await Task.WhenAll(tasks);
         await ReplyAsync("Spammed!");
     }
@@ -256,7 +253,7 @@ public class StrangeCommands : CommandModule
     {
         EmbedProperties embedBuilder = new()
         {
-            Fields = new()
+            Fields = new List<EmbedFieldProperties>()
             {
                 new()
                 {

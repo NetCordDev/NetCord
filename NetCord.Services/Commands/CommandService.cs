@@ -124,44 +124,6 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
         var maxIndex = commandInfos.Count - 1;
 
-        var guild = context.Guild;
-
-        bool checkPermissions = guild != null;
-        Permission userPermissions, userChannelPermissions, botPermissions, botChannelPermissions;
-        bool userAdministrator, botAdministrator;
-        if (checkPermissions)
-        {
-            if (context.Client.User == null)
-                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
-
-            var everyonePermissions = guild!.EveryoneRole.Permissions;
-            var channelPermissionOverwrites = ((IGuildChannel)context.Message.Channel).PermissionOverwrites;
-
-            UserHelper.CalculatePermissions((GuildUser)context.Message.Author,
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out userPermissions,
-                out userChannelPermissions,
-                out userAdministrator);
-            UserHelper.CalculatePermissions(guild.Users[context.Client.User],
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out botPermissions,
-                out botChannelPermissions,
-                out botAdministrator);
-        }
-        else
-        {
-            userPermissions = default;
-            userChannelPermissions = default;
-            botPermissions = default;
-            botChannelPermissions = default;
-            userAdministrator = default;
-            botAdministrator = default;
-        }
-
         CommandInfo<TContext>? commandInfo = null;
         object?[]? parametersToPass = null;
         for (var i = 0; i <= maxIndex; i++)
@@ -169,10 +131,16 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             commandInfo = commandInfos[i];
             var lastCommand = i == maxIndex;
 
-            if (checkPermissions)
+            try
             {
-                UserHelper.EnsureUserHasPermissions(commandInfo.RequiredUserPermissions, commandInfo.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
-                UserHelper.EnsureBotHasPermissions(commandInfo.RequiredBotPermissions, commandInfo.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
+                await commandInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+            }
+            catch
+            {
+                if (lastCommand)
+                    throw;
+                else
+                    continue;
             }
 
             ReadOnlyCollection<CommandParameter<TContext>> commandParameters = commandInfo.Parameters;

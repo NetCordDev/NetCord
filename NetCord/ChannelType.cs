@@ -4,7 +4,7 @@ public enum ChannelType
 {
     TextGuildChannel = 0,
     DMChannel = 1,
-    GuildVoiceChannel = 2,
+    VoiceGuildChannel = 2,
     GroupDMChannel = 3,
     CategoryChannel = 4,
     NewsGuildChannel = 5,

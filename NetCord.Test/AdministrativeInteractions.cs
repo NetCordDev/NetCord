@@ -1,17 +1,19 @@
-﻿using NetCord.Services.Interactions;
+﻿using NetCord.Services;
+using NetCord.Services.Interactions;
 
 namespace NetCord.Test;
 
-public class AdministrativeInteractions : InteractionModule<ButtonInteractionContext>
+public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractionContext>
 {
-    [Interaction("unban", RequiredUserPermissions = Permission.BanUsers, RequiredBotPermissions = Permission.BanUsers)]
+    [RequireUserPermission<ButtonInteractionContext>(Permission.BanUsers), RequireBotPermission<ButtonInteractionContext>(Permission.BanUsers)]
+    [Interaction("unban")]
     public async Task UnbanAsync(DiscordId userId)
     {
         await Context.Guild.UnbanUserAsync(userId);
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**Ban cancelled by {Context.User}**", AllowedMentions = AllowedMentionsProperties.None, Components = new() }));
     }
 
-    [Interaction("unmute", RequiredUserPermissions = Permission.ModerateUsers, RequiredBotPermissions = Permission.ModerateUsers)]
+    [RequireUserPermission<ButtonInteractionContext>(Permission.ModerateUsers), RequireBotPermission<ButtonInteractionContext>(Permission.ModerateUsers)]
     public async Task UnmuteAsync(DiscordId userId)
     {
         await Context.Client.Rest.Guild.User.ModifyAsync(Context.Guild, userId, u => u.TimeOutUntil = default(DateTimeOffset));

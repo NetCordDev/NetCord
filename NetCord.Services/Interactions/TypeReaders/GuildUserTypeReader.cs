@@ -6,7 +6,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
 {
     public override Task<object> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
     {
-        var guild = context.Guild;
+        var guild = context.Interaction.Guild;
         if (guild == null)
             goto exception;
         IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;

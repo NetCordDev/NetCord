@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.SlashCommands;
 
-public class SlashCommandServiceOptions<TContext> where TContext : BaseSlashCommandContext
+public class SlashCommandServiceOptions<TContext> where TContext : ISlashCommandContext
 {
     public Dictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; } = new()
     #region TypeReaders
@@ -83,7 +83,55 @@ public class SlashCommandServiceOptions<TContext> where TContext : BaseSlashComm
         },
         {
             typeof(Channel),
-            new TypeReaders.ChannelTypeReader<TContext>()
+            new TypeReaders.ChannelTypeReaders.ChannelTypeReader<TContext>()
+        },
+        {
+            typeof(TextGuildChannel),
+            new TypeReaders.ChannelTypeReaders.TextGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(DMChannel),
+            new TypeReaders.ChannelTypeReaders.DMChannelTypeReader<TContext>()
+        },
+        {
+            typeof(VoiceGuildChannel),
+            new TypeReaders.ChannelTypeReaders.VoiceGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(GroupDMChannel),
+            new TypeReaders.ChannelTypeReaders.GroupDMChannelTypeReader<TContext>()
+        },
+        {
+            typeof(CategoryChannel),
+            new TypeReaders.ChannelTypeReaders.CategoryChannelTypeReader<TContext>()
+        },
+        {
+            typeof(NewsGuildChannel),
+            new TypeReaders.ChannelTypeReaders.NewsGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(StoreGuildChannel),
+            new TypeReaders.ChannelTypeReaders.StoreGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(NewsGuildThread),
+            new TypeReaders.ChannelTypeReaders.NewsGuildThreadTypeReader<TContext>()
+        },
+        {
+            typeof(PublicGuildThread),
+            new TypeReaders.ChannelTypeReaders.PublicGuildThreadTypeReader<TContext>()
+        },
+        {
+            typeof(PrivateGuildThread),
+            new TypeReaders.ChannelTypeReaders.PrivateGuildThreadTypeReader<TContext>()
+        },
+        {
+            typeof(StageGuildChannel),
+            new TypeReaders.ChannelTypeReaders.StageGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(TextChannel),
+            new TypeReaders.ChannelTypeReaders.TextChannelTypeReader<TContext>()
         },
         {
             typeof(Mentionable),

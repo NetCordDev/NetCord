@@ -13,6 +13,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public Permission RequiredUserPermissions { get; }
     public Permission RequiredUserChannelPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
+    public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
 
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
@@ -39,20 +40,28 @@ public record CommandInfo<TContext> where TContext : ICommandContext
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        CommandModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<CommandModuleAttribute>();
-        if (moduleAttribute != null)
-        {
-            RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
-            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
-            RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
-            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
-        }
-        else
-        {
-            RequiredBotPermissions = attribute.RequiredBotPermissions;
-            RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
-            RequiredUserPermissions = attribute.RequiredUserPermissions;
-            RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
-        }
+        //ModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<ModuleAttribute>();
+        //if (moduleAttribute != null)
+        //{
+        //    RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
+        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
+        //    RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
+        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
+        //}
+        //else
+        //{
+        //    RequiredBotPermissions = attribute.RequiredBotPermissions;
+        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
+        //    RequiredUserPermissions = attribute.RequiredUserPermissions;
+        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
+        //}
+
+        Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
+    }
+
+    internal async Task EnsureCanExecuteAsync(TContext context)
+    {
+        foreach (var preconditionAttribute in Preconditions)
+            await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
     }
 }

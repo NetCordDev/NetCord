@@ -7,9 +7,10 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
     public override Task<object> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
     {
         var channel = ((ButtonInteraction)context.Interaction).Message.Channel;
-        if (context.Guild != null)
+        var guild = context.Interaction.Guild;
+        if (guild != null)
         {
-            IReadOnlyDictionary<DiscordId, GuildUser> users = context.Guild.Users;
+            IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;
             // by id
             if (DiscordId.TryCreate(input, out DiscordId id))
             {

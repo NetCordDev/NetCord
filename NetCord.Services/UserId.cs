@@ -12,7 +12,6 @@ public class UserId : Entity
 
     public UserId(DiscordId id)
     {
-        ArgumentNullException.ThrowIfNull(id, nameof(id));
         Id = id;
     }
 

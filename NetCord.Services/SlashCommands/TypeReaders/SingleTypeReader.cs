@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.SlashCommands.TypeReaders;
 
-public class SingleTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : BaseSlashCommandContext
+public class SingleTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : ISlashCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Double;
 

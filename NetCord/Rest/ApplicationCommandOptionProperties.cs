@@ -19,15 +19,15 @@ public class ApplicationCommandOptionProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("choices")]
-    public List<ApplicationCommandOptionChoiceProperties>? Choices { get; set; }
+    public IEnumerable<ApplicationCommandOptionChoiceProperties>? Choices { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
-    public List<ApplicationCommandOptionProperties>? Options { get; set; }
+    public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_types")]
-    public List<ChannelType>? ChannelTypes { get; set; }
+    public IEnumerable<ChannelType>? ChannelTypes { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_value")]

@@ -3,7 +3,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
-[CommandModule(RequiredUserPermissions = Permission.BanUsers, RequiredBotPermissions = Permission.BanUsers)]
+[RequireUserPermission<CommandContext>(Permission.BanUsers), RequireBotPermission<CommandContext>(Permission.BanUsers)]
 public class BanCommands : CommandModule
 {
     [Command("ban")]

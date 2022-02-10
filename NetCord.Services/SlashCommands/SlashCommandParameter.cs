@@ -4,7 +4,7 @@ using NetCord.Services.Utils;
 
 namespace NetCord.Services.SlashCommands;
 
-public class SlashCommandParameter<TContext> where TContext : BaseSlashCommandContext
+public class SlashCommandParameter<TContext> where TContext : ISlashCommandContext
 {
     public SlashCommandTypeReader<TContext> TypeReader { get; }
     public Type Type { get; }
@@ -13,9 +13,10 @@ public class SlashCommandParameter<TContext> where TContext : BaseSlashCommandCo
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Name { get; }
     public string Description { get; }
-    public bool Autocomplete { get; }
+    public IAutocompleteProvider? AutocompleteProvider { get; }
+    public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, SlashCommandServiceOptions<TContext> options, out Autocomplete? autocomplete)
+    internal SlashCommandParameter(ParameterInfo parameter, SlashCommandServiceOptions<TContext> options)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         Attributes = parameter.GetCustomAttributes().ToRankedDictionary(a => a.GetType());
@@ -30,14 +31,6 @@ public class SlashCommandParameter<TContext> where TContext : BaseSlashCommandCo
             Name = parameter.Name!;
             Description = $"Parameter of name {Name}";
         }
-        if (Attributes.TryGetValue(typeof(AutocompleteAttribute), out attributes))
-        {
-            var autocompleteAttribute = (AutocompleteAttribute)attributes[0];
-            autocomplete = ((IAutocompleteProvider)Activator.CreateInstance(autocompleteAttribute.AutocompleteProviderType)!).GetChoicesAsync;
-            Autocomplete = true;
-        }
-        else
-            autocomplete = null;
 
         var type = parameter.ParameterType;
         var underlyingType = Nullable.GetUnderlyingType(type);
@@ -110,6 +103,29 @@ public class SlashCommandParameter<TContext> where TContext : BaseSlashCommandCo
                 throw new TypeReaderNotFoundException("Type name: " + type.FullName);
             Type = type;
         }
+
+        if (Attributes.TryGetValue(typeof(AutocompleteAttribute), out attributes))
+        {
+            var autocompleteAttribute = (AutocompleteAttribute)attributes[0];
+            AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(autocompleteAttribute.AutocompleteProviderType)!;
+        }
+        else
+        {
+            AutocompleteProvider = TypeReader.GetAutocompleteProvider(this);
+        }
+
+        var allowedChannelTypes = TypeReader.GetAllowedChannelTypes(this);
+        if (allowedChannelTypes != null)
+        {
+            AllowedChannelTypes = allowedChannelTypes;
+        }
+        else
+        {
+            if (Attributes.TryGetValue(typeof(AllowedChannelTypesAttribute), out attributes))
+            {
+                AllowedChannelTypes = ((AllowedChannelTypesAttribute)attributes[0]).ChannelTypes;
+            }
+        }
     }
 
     public ApplicationCommandOptionProperties GetRawValue()
@@ -117,21 +133,31 @@ public class SlashCommandParameter<TContext> where TContext : BaseSlashCommandCo
         const double discordMaxValue = 9007199254740991;
         const double discordMinValue = -discordMaxValue;
 
-        var maxValue = TypeReader.GetMaxValue(this);
+        double? maxValue;
+        if (Attributes.TryGetValue(typeof(MaxValueAttribute), out var attributes))
+            maxValue = ((MaxValueAttribute)attributes[0]).MaxValue;
+        else
+            maxValue = TypeReader.GetMaxValue(this);
         if (maxValue.HasValue)
             maxValue = Math.Min(maxValue.GetValueOrDefault(), discordMaxValue);
 
-        var minValue = TypeReader.GetMinValue(this);
+        double? minValue;
+        if (Attributes.TryGetValue(typeof(MinValueAttribute), out attributes))
+            minValue = ((MinValueAttribute)attributes[0]).MinValue;
+        else
+            minValue = TypeReader.GetMinValue(this);
         if (minValue.HasValue)
             minValue = Math.Max(minValue.GetValueOrDefault(), discordMinValue);
 
+        var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
         {
             MaxValue = maxValue,
             MinValue = minValue,
             Required = !HasDefaultValue,
-            Autocomplete = Autocomplete,
-            Choices = Autocomplete ? null : TypeReader.GetChoices(this)?.ToList(),
+            Autocomplete = autocomplete,
+            Choices = autocomplete ? null : TypeReader.GetChoices(this),
+            ChannelTypes = AllowedChannelTypes,
         };
     }
 }

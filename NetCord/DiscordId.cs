@@ -26,6 +26,20 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
         }
     }
 
+    public static DiscordId Create(DateTimeOffset createdAt)
+    {
+        return new((ulong)((createdAt.ToUnixTimeMilliseconds() - Discord.Epoch) << 22));
+    }
+
+    public static DiscordId Create(DateTimeOffset createdAt, byte internalWorkerId, byte internalProcessId, ushort increment)
+    {
+        var c = (ulong)((createdAt.ToUnixTimeMilliseconds() - Discord.Epoch) << 22);
+        var w = (ulong)((internalWorkerId << 17) & 0x3E0000);
+        var p = (ulong)((internalProcessId << 12) & 0x1F000);
+        var i = (ulong)(increment & 0xFFF);
+        return new(c | w | p | i);
+    }
+
     private DiscordId(string id, object? obj)
     {
         _value = id;

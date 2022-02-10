@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.Commands;
 
-public class CommandContext : ICommandContext
+public class CommandContext : ICommandContext, IUserContext, IGuildContext, IChannelContext, IMessageContext
 {
     public Message Message { get; }
     public TextChannel Channel => Message.Channel;

@@ -6,7 +6,7 @@ namespace NetCord.Test.SlashCommands;
 public class Commands : SlashCommandModule<SlashCommandContext>
 {
     [SlashCommand("test", "to test")]
-    public Task TestAsync(int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
+    public Task TestAsync([MinValue(10), MaxValue(100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
@@ -23,7 +23,8 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
     }
 
-    [SlashCommand("ban", "Bans a user", RequiredUserPermissions = Permission.BanUsers, RequiredBotPermissions = Permission.BanUsers)]
+    [RequireUserPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
+    [SlashCommand("ban", "Bans a user")]
     public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [TypeReader(typeof(DeleteMessagesDaysTypeReader))][SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
         if (Context.Guild == null)
@@ -33,7 +34,8 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
-    [SlashCommand("mute", "Mutes a user", RequiredUserPermissions = Permission.ModerateUsers, RequiredBotPermissions = Permission.ModerateUsers)]
+    [RequireUserPermission<SlashCommandContext>(Permission.ModerateUsers), RequireBotPermission<SlashCommandContext>(Permission.ModerateUsers)]
+    [SlashCommand("mute", "Mutes a user")]
     public async Task MuteAsync([SlashCommandParameter("user", "User to mute")] User user, double days, string reason = "no reason")
     {
         if (Context.Guild == null)
@@ -51,9 +53,9 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("channel-name", "Shows channel name")]
-    public Task ChannelNameAsync(Channel channel)
+    public Task ChannelNameAsync(Channel channel = null)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(channel.ToString()));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource((channel ?? Context.Channel).ToString()));
     }
 
     [SlashCommand("user", "Shows user info")]
@@ -93,6 +95,61 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     public Task DzejusAsync()
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource("https://cdn.discordapp.com/attachments/927877869173084171/937493837335646238/dzejus.gif"));
+    }
+
+    [SlashCommand("permission", "Shows permission value")]
+    public Task PermissionAsync(Permission permission)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(((ulong)permission).ToString()));
+    }
+
+    [RequireContext<SlashCommandContext>(RequiredContext.Guild)]
+    [RequireUserPermission<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
+    [SlashCommand("clear", "Clears channel")]
+    public async Task ClearAsync([MinValue(1)] int count, TextChannel channel = null)
+    {
+        channel ??= Context.Channel;
+        int i = 0;
+        try
+        {
+            if (count > 100)
+            {
+                var first = await channel.GetMessagesAsync().Take(100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
+                await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource);
+                var firstCount = first.Count;
+                i = firstCount;
+                if (firstCount > 0)
+                {
+                    var lastId = first[^1];
+                    Task t = Context.Client.Rest.Message.DeleteAsync(channel, first);
+                    if (firstCount == 100)
+                    {
+                        var next = channel.GetMessagesBeforeAsync(lastId).Take(count - 100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => { i++; return m.Id; });
+                        await Context.Client.Rest.Message.DeleteAsync(channel, next);
+                    }
+                    await t;
+                }
+            } else
+            {
+                var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
+                await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource);
+                await Context.Client.Rest.Message.DeleteAsync(channel, messages);
+                i = messages.Count;
+            }
+        }
+        catch (Exception ex)
+        {
+            await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**{ex.Message}**");
+            return;
+        }
+        await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
+    }
+
+    [RequireNsfw<SlashCommandContext>]
+    [SlashCommand("nsfw", "You can use this command in nsfw channel")]
+    public Task NsfwAsync()
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource("You used nsfw command!"));
     }
 }
 

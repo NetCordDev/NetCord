@@ -22,11 +22,7 @@ public class EvalCommand : CommandModule
         var value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()), this, typeof(CommandModule));
         if (value != null)
         {
-            EmbedProperties embed = new()
-            {
-                Title = GetMaxLength($"Result: {value}", 256),
-                Fields = new List<EmbedFieldProperties>()
-            };
+            List<EmbedFieldProperties> fields = new();
             foreach (var property in value.GetType().GetProperties().Take(24))
             {
                 string description;
@@ -39,8 +35,14 @@ public class EvalCommand : CommandModule
                 {
                     description = $"Exception was thrown: {ex.InnerException}";
                 }
-                embed.Fields.Add(new() { Title = GetMaxLength(property.Name, 256), Description = GetMaxLength(description, 1024), Inline = true });
+                fields.Add(new() { Title = GetMaxLength(property.Name, 256), Description = GetMaxLength(description, 1024), Inline = true });
             }
+            EmbedProperties embed = new()
+            {
+                Title = GetMaxLength($"Result: {value}", 256),
+                Fields = fields,
+            };
+
             MessageProperties message = new()
             {
                 Embeds = new()

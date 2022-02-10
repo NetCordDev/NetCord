@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.SlashCommands.TypeReaders;
 
-public class SByteTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : BaseSlashCommandContext
+public class SByteTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : ISlashCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 

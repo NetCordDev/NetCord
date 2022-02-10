@@ -21,14 +21,14 @@ public abstract class Channel : ClientEntity
         {
             ChannelType.TextGuildChannel => new TextGuildChannel(jsonChannel, client),
             ChannelType.DMChannel => new DMChannel(jsonChannel, client),
-            ChannelType.GuildVoiceChannel => new VoiceGuildChannel(jsonChannel, client),
+            ChannelType.VoiceGuildChannel => new VoiceGuildChannel(jsonChannel, client),
             ChannelType.GroupDMChannel => new GroupDMChannel(jsonChannel, client),
             ChannelType.CategoryChannel => new CategoryChannel(jsonChannel, client),
             ChannelType.NewsGuildChannel => new NewsGuildChannel(jsonChannel, client),
             ChannelType.StoreGuildChannel => new StoreGuildChannel(jsonChannel, client),
-            ChannelType.NewsGuildThread => new NewsThread(jsonChannel, client),
-            ChannelType.PublicGuildThread => new PublicThread(jsonChannel, client),
-            ChannelType.PrivateGuildThread => new PrivateThread(jsonChannel, client),
+            ChannelType.NewsGuildThread => new NewsGuildThread(jsonChannel, client),
+            ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),
+            ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
             _ => throw new ArgumentException($"Invalid {nameof(jsonChannel.Type)}"),
         };

@@ -7,9 +7,10 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
     public override Task<object> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
     {
         var channel = context.Message.Channel;
-        if (context.Guild != null)
+        var guild = context.Message.Guild;
+        if (guild != null)
         {
-            IReadOnlyDictionary<DiscordId, GuildUser> users = context.Guild.Users;
+            IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;
             // by id
             if (DiscordId.TryCreate(input, out DiscordId id))
             {

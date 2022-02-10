@@ -4,8 +4,6 @@ public abstract class InteractionContext : IContext
 {
     public abstract Interaction Interaction { get; }
 
-    public Guild? Guild => Interaction.Guild;
-
     public GatewayClient Client { get; }
 
     public InteractionContext(GatewayClient client)
@@ -34,22 +32,30 @@ public class BaseMenuInteractionContext : InteractionContext
     }
 }
 
-public class ButtonInteractionContext : BaseButtonInteractionContext
+public class ButtonInteractionContext : BaseButtonInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
 {
     public RestMessage Message => Interaction.Message;
 
     public User User => Interaction.User;
+
+    public Guild? Guild => Interaction.Guild;
+
+    public TextChannel Channel => Interaction.Channel!;
 
     public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction, client)
     {
     }
 }
 
-public class MenuInteractionContext : BaseMenuInteractionContext
+public class MenuInteractionContext : BaseMenuInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
 {
     public RestMessage Message => Interaction.Message;
 
     public User User => Interaction.User;
+
+    public Guild? Guild => Interaction.Guild;
+
+    public TextChannel Channel => Interaction.Channel!;
 
     public MenuInteractionContext(MenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {

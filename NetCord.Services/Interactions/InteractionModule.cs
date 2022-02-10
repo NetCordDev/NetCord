@@ -1,8 +1,6 @@
 ﻿namespace NetCord.Services.Interactions;
 
-#nullable disable
-
-public class InteractionModule<TContext> where TContext : InteractionContext
+public class InteractionModule<TContext> : BaseInteractionModule<TContext> where TContext : InteractionContext
 {
-    public TContext Context { get; internal set; }
+    public Task RespondAsync(InteractionCallback callback, RequestOptions? options = null) => Context.Interaction.SendResponseAsync(callback, options);
 }

@@ -12,7 +12,14 @@ internal static class Program
     internal static readonly CommandService _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
-    private static readonly SlashCommandService<SlashCommandContext> _slashCommandService = new();
+    private static readonly SlashCommandService<SlashCommandContext> _slashCommandService;
+
+    static Program()
+    {
+        SlashCommandServiceOptions<SlashCommandContext> options = new();
+        options.TypeReaders.Add(typeof(Permission), new SlashCommands.PermissionTypeReader());
+        _slashCommandService = new(options);
+    }
 
     private static async Task Main()
     {

@@ -15,7 +15,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
 
     public void AddModules(Assembly assembly)
     {
-        Type baseType = typeof(InteractionModule<TContext>);
+        Type baseType = typeof(BaseInteractionModule<TContext>);
         lock (_interactions)
         {
             foreach (var type in assembly.GetTypes())
@@ -28,8 +28,8 @@ public class InteractionService<TContext> : IService where TContext : Interactio
 
     public void AddModule(Type type)
     {
-        if (!type.IsAssignableTo(typeof(InteractionModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from {nameof(InteractionModule<TContext>)}");
+        if (!type.IsAssignableTo(typeof(BaseInteractionModule<TContext>)))
+            throw new InvalidOperationException($"Modules must inherit from {nameof(BaseInteractionModule<TContext>)}");
 
         lock (_interactions)
             AddModuleCore(type);
@@ -71,37 +71,10 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                 throw new InteractionNotFoundException();
         }
 
-        var guild = context.Guild;
+        await interactionInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
-        if (guild != null)
-        {
-            if (context.Client.User == null)
-                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
-
-            var everyonePermissions = guild.EveryoneRole.Permissions;
-            var channelPermissionOverwrites = ((IGuildChannel)((ButtonInteraction)context.Interaction).Message.Channel).PermissionOverwrites;
-
-            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out Permission userPermissions,
-                out Permission userChannelPermissions,
-                out var userAdministrator);
-            UserHelper.EnsureUserHasPermissions(interactionInfo.RequiredUserPermissions, interactionInfo.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
-
-            UserHelper.CalculatePermissions(guild.Users[context.Client.User],
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out Permission botPermissions,
-                out Permission botChannelPermissions,
-                out var botAdministrator);
-            UserHelper.EnsureBotHasPermissions(interactionInfo.RequiredBotPermissions, interactionInfo.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
-        }
-
-        ReadOnlyCollection<InteractionParameter<TContext>> interactionParameters = interactionInfo.Parameters;
-        var commandParametersLength = interactionParameters.Count;
+        var interactionParameters = interactionInfo.Parameters;
+        int commandParametersLength = interactionParameters.Count;
         object?[] parametersToPass = new object?[commandParametersLength];
 
         var maxCommandParamIndex = commandParametersLength - 1;
@@ -134,7 +107,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             }
         }
 
-        var methodClass = (InteractionModule<TContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
+        var methodClass = (BaseInteractionModule<TContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
         methodClass.Context = context;
         await interactionInfo.InvokeAsync(methodClass, parametersToPass!).ConfigureAwait(false);
     }

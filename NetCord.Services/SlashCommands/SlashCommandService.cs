@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.SlashCommands;
 
-public class SlashCommandService<TContext> : IService where TContext : BaseSlashCommandContext
+public class SlashCommandService<TContext> : IService where TContext : ISlashCommandContext
 {
     private readonly SlashCommandServiceOptions<TContext> _options;
     private readonly Dictionary<string, SlashCommandInfo<TContext>> _commands = new();
@@ -99,33 +99,7 @@ public class SlashCommandService<TContext> : IService where TContext : BaseSlash
                 throw new SlashCommandNotFoundException();
         }
 
-        var guild = context.Interaction.Guild;
-        if (guild != null)
-        {
-            if (context.Client.User == null)
-                throw new NullReferenceException($"{nameof(context)}.{nameof(context.Client)}.{nameof(context.Client.User)} cannot be null");
-
-            var everyonePermissions = guild.EveryoneRole.Permissions;
-            var channelPermissionOverwrites = guild.Channels[context.Interaction.ChannelId.GetValueOrDefault()].PermissionOverwrites;
-
-            UserHelper.CalculatePermissions((GuildUser)context.Interaction.User,
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out Permission userPermissions,
-                out Permission userChannelPermissions,
-                out var userAdministrator);
-            UserHelper.EnsureUserHasPermissions(command.RequiredUserPermissions, command.RequiredUserChannelPermissions, userPermissions, userChannelPermissions, userAdministrator);
-
-            UserHelper.CalculatePermissions(guild.Users[context.Client.User],
-                guild,
-                everyonePermissions,
-                channelPermissionOverwrites,
-                out Permission botPermissions,
-                out Permission botChannelPermissions,
-                out var botAdministrator);
-            UserHelper.EnsureBotHasPermissions(command.RequiredBotPermissions, command.RequiredBotChannelPermissions, botPermissions, botChannelPermissions, botAdministrator);
-        }
+        await command.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
         var parameters = command.Parameters;
         var values = new object[parameters.Count];
@@ -166,13 +140,13 @@ public class SlashCommandService<TContext> : IService where TContext : BaseSlash
                 throw new SlashCommandNotFoundException();
         }
         var autocompletes = command.Autocompletes;
-        Autocomplete autocomplete;
+        IAutocompleteProvider autocompleteProvider;
         lock (autocompletes)
         {
-            if (!autocompletes.TryGetValue(parameter.Name, out autocomplete!))
+            if (!autocompletes.TryGetValue(parameter.Name, out autocompleteProvider!))
                 throw new AutocompleteNotFoundException();
         }
-        var choices = await autocomplete(parameter, autocompleteInteraction).ConfigureAwait(false);
+        var choices = await autocompleteProvider.GetChoicesAsync(parameter, autocompleteInteraction).ConfigureAwait(false);
         await autocompleteInteraction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
     }
 }

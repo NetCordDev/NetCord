@@ -1,16 +1,17 @@
-﻿using NetCord.Services.Commands;
+﻿using NetCord.Services;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
 public class OtherCommands : CommandModule
 {
-    [Command("kick", RequiredUserPermissions = Permission.KickUsers, RequiredBotPermissions = Permission.KickUsers)]
+    [RequireUserPermission<CommandContext>(Permission.KickUsers), RequireBotPermission<CommandContext>(Permission.KickUsers)]
     public static Task Kick(GuildUser user, [Remainder] string reason = null)
     {
         return user.KickAsync(new() { AuditLogReason = reason });
     }
 
-    [Command("clear", "purge", RequiredBotChannelPermissions = Permission.ManageMessages, RequiredUserChannelPermissions = Permission.ManageMessages)]
+    [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
     public async Task Clear(int count)
     {
         if (count < 1)

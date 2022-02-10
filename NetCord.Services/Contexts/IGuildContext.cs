@@ -1,7 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public interface IContext
+public interface IGuildContext : IContext
 {
     public Guild? Guild { get; }
-    public GatewayClient Client { get; }
 }

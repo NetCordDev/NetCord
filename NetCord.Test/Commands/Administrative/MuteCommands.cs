@@ -1,8 +1,9 @@
-﻿using NetCord.Services.Commands;
+﻿using NetCord.Services;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
-[CommandModule(RequiredUserPermissions = Permission.ModerateUsers, RequiredBotPermissions = Permission.ModerateUsers)]
+[RequireUserPermission<CommandContext>(Permission.ModerateUsers), RequireBotPermission<CommandContext>(Permission.ModerateUsers)]
 public class MuteCommands : CommandModule
 {
     [Command("mute")]

@@ -17,7 +17,7 @@ public abstract class Interaction : ClientEntity
     //public DiscordId? GuildId => _jsonEntity.GuildId;
     public Guild? Guild { get; }
 
-    //public DiscordId? Channel => Message.Channel;
+    public TextChannel? Channel { get; }
 
     public DiscordId? ChannelId => _jsonEntity.ChannelId;
 
@@ -39,10 +39,24 @@ public abstract class Interaction : ClientEntity
         {
             Guild = guild;
             User = new GuildUser(jsonEntity.GuildUser!, Guild, client.Rest);
+            if (ChannelId.HasValue)
+            {
+                if (guild._channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
+                    Channel = (TextChannel)channel;
+                else if (guild._activeThreads.TryGetValue(ChannelId.GetValueOrDefault(), out var thread))
+                    Channel = thread;
+            }
         }
         else
         {
             User = new User(jsonEntity.User!, client.Rest);
+            if (ChannelId.HasValue)
+            {
+                if (client.DMChannels.TryGetValue(ChannelId.GetValueOrDefault(), out var dMChannel))
+                    Channel = dMChannel;
+                else if (client.GroupDMChannels.TryGetValue(ChannelId.GetValueOrDefault(), out var groupDMChannel))
+                    Channel = groupDMChannel;
+            }
         }
     }
 

@@ -3,9 +3,9 @@
 [AttributeUsage(AttributeTargets.Parameter)]
 public class MinValueAttribute : Attribute
 {
-    public decimal MinValue { get; }
+    public double MinValue { get; }
 
-    public MinValueAttribute(decimal minValue)
+    public MinValueAttribute(double minValue)
     {
         MinValue = minValue;
     }

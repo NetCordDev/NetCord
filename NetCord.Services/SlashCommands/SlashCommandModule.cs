@@ -1,8 +1,6 @@
 ﻿namespace NetCord.Services.SlashCommands;
 
-#nullable disable
-
-public class SlashCommandModule<TContext> where TContext : BaseSlashCommandContext
+public class SlashCommandModule<TContext> : BaseSlashCommandModule<TContext> where TContext : ISlashCommandContext
 {
-    public TContext Context { get; internal set; }
+    public Task RespondAsync(InteractionCallback callback, RequestOptions? options = null) => Context.Interaction.SendResponseAsync(callback, options);
 }

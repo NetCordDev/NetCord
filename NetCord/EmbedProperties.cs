@@ -42,7 +42,7 @@ public class EmbedProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("fields")]
-    public List<EmbedFieldProperties>? Fields { get; set; }
+    public IEnumerable<EmbedFieldProperties>? Fields { get; set; }
 }
 
 public class EmbedFooterProperties

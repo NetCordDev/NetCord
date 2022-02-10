@@ -2,7 +2,7 @@
 
 namespace NetCord.Test;
 
-public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
+public class ButtonInteractions : BaseInteractionModule<ButtonInteractionContext>
 {
     [Interaction("click it")]
     public Task ClickIt()

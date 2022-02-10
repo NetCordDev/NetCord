@@ -1,6 +1,6 @@
 ﻿using NetCord.Services.Commands;
 
-namespace NetCord.Test;
+namespace NetCord.Test.Commands;
 
 public class NormalCommands : CommandModule
 {
@@ -24,9 +24,7 @@ public class NormalCommands : CommandModule
             await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RolesIds.Concat(roles).Distinct());
             await ReplyAsync("Added the roles!!!");
         } else
-        {
             await ReplyAsync("You are not in a guild");
-        }
     }
 
     [Command("roles")]
@@ -57,9 +55,7 @@ public class NormalCommands : CommandModule
             Options = new()
         };
         foreach (var role in roles)
-        {
             menu.Options.Add(new(role.Name, role.Id.ToString()) { IsDefault = defaultValues.Contains(role.Id) });
-        }
 
         return menu;
     }

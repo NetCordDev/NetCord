@@ -2,20 +2,21 @@
 
 using NetCord.Services.Commands;
 
-namespace NetCord.Test;
+namespace NetCord.Test.Commands;
 
 public class GithubCommand : CommandModule
 {
     [Command("github", "gh")]
     public async Task Github([Remainder] string userName)
     {
+        List<EmbedFieldProperties> fields = new();
         EmbedProperties embed = new()
         {
-            Fields = new()
+            Fields = fields
         };
         if (Context.User is GuildUser guildUser)
         {
-            GuildRole role = Context.Guild.Roles.Values.OrderBy(x => x.Position).FirstOrDefault(x => guildUser.RolesIds.Contains(x.Id) && x.Color != default);
+            var role = Context.Guild.Roles.Values.OrderBy(x => x.Position).FirstOrDefault(x => guildUser.RolesIds.Contains(x.Id) && x.Color != default);
             if (role == null)
                 embed.Color = new(0, 255, 0);
             else
@@ -47,21 +48,21 @@ public class GithubCommand : CommandModule
         embed.Description = jsonUser.GetProperty("bio").GetString();
         embed.Thumbnail = avatarUrl;
 
-        int i = 3;
+        var i = 3;
 
-        embed.Fields.Add(new() { Title = "Followers 👀", Description = jsonUser.GetProperty("followers").GetInt32().ToString() });
+        fields.Add(new() { Title = "Followers 👀", Description = jsonUser.GetProperty("followers").GetInt32().ToString() });
 
-        embed.Fields.Add(new() { Title = "Following 👀", Description = jsonUser.GetProperty("following").GetInt32().ToString() });
+        fields.Add(new() { Title = "Following 👀", Description = jsonUser.GetProperty("following").GetInt32().ToString() });
         var email = jsonUser.GetProperty("email").GetString();
         if (email != null)
         {
-            embed.Fields.Add(new() { Title = "Email 📧", Description = $"[{email}](mailto:{email})" });
+            fields.Add(new() { Title = "Email 📧", Description = $"[{email}](mailto:{email})" });
             i++;
         }
         var location = jsonUser.GetProperty("location").GetString();
         if (location != null)
         {
-            embed.Fields.Add(new() { Title = "Location <:location:888438681420050484>", Description = location });
+            fields.Add(new() { Title = "Location <:location:888438681420050484>", Description = location });
             i++;
         }
 
@@ -69,12 +70,12 @@ public class GithubCommand : CommandModule
         var first = reposList.First();
         var name = first.GetProperty("name").GetString();
         var fullname = first.GetProperty("full_name").GetString();
-        embed.Fields.Add(new() { Title = "Repos:", Description = $"[**{name}**]({"https://github.com/" + fullname})", Inline = true });
-        foreach (JsonElement repo in reposList.Skip(1))
+        fields.Add(new() { Title = "Repos:", Description = $"[**{name}**]({"https://github.com/" + fullname})", Inline = true });
+        foreach (var repo in reposList.Skip(1))
         {
             name = repo.GetProperty("name").GetString();
             fullname = repo.GetProperty("full_name").GetString();
-            embed.Fields.Add(new() { Description = $"[**{name}**]({"https://github.com/" + fullname})", Inline = true });
+            fields.Add(new() { Description = $"[**{name}**]({"https://github.com/" + fullname})", Inline = true });
             if (i == 25)
                 break;
         }
