@@ -6,9 +6,9 @@ internal class PermissionTypeReader : SlashCommandTypeReader<SlashCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, SlashCommandServiceOptions<SlashCommandContext> options)
+    public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, SlashCommandServiceOptions<SlashCommandContext> options)
     {
-        return Task.FromResult((object)(Permission)ulong.Parse(value));
+        return Task.FromResult((object?)(Permission)ulong.Parse(value));
     }
 
     public override IAutocompleteProvider GetAutocompleteProvider(SlashCommandParameter<SlashCommandContext> parameter)

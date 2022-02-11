@@ -4,7 +4,7 @@ public class Int16TypeReader<TContext> : SlashCommandTypeReader<TContext> where 
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options) => Task.FromResult((object)short.Parse(value, System.Globalization.CultureInfo.InvariantCulture));
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options) => Task.FromResult((object?)short.Parse(value, System.Globalization.CultureInfo.InvariantCulture));
 
     public override double? GetMaxValue(SlashCommandParameter<TContext> parameter) => short.MaxValue;
 

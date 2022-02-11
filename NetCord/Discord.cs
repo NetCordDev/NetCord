@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-internal static class Discord
+public static class Discord
 {
     public const long Epoch = 1420070400000;
 
@@ -9,4 +9,7 @@ internal static class Discord
     public const string GatewayUrl = "wss://gateway.discord.gg?v=9&encoding=json";
 
     public const string RestUrl = "https://discord.com/api/v9";
+
+    public const double ApplicationCommandOptionMaxValue = 9007199254740991;
+    public const double ApplicationCommandOptionMinValue = -ApplicationCommandOptionMaxValue;
 }

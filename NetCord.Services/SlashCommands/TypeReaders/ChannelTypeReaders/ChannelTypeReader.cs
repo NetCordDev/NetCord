@@ -4,8 +4,8 @@ public class ChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> wher
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 
-    public override Task<object> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options)
     {
-        return Task.FromResult((object)context.Interaction.Data.ResolvedData!.Channels![new(value)]);
+        return Task.FromResult((object?)context.Interaction.Data.ResolvedData!.Channels![new(value)]);
     }
 }

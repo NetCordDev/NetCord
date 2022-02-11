@@ -130,16 +130,13 @@ public class SlashCommandParameter<TContext> where TContext : ISlashCommandConte
 
     public ApplicationCommandOptionProperties GetRawValue()
     {
-        const double discordMaxValue = 9007199254740991;
-        const double discordMinValue = -discordMaxValue;
-
         double? maxValue;
         if (Attributes.TryGetValue(typeof(MaxValueAttribute), out var attributes))
             maxValue = ((MaxValueAttribute)attributes[0]).MaxValue;
         else
             maxValue = TypeReader.GetMaxValue(this);
         if (maxValue.HasValue)
-            maxValue = Math.Min(maxValue.GetValueOrDefault(), discordMaxValue);
+            maxValue = maxValue.GetValueOrDefault();
 
         double? minValue;
         if (Attributes.TryGetValue(typeof(MinValueAttribute), out attributes))
@@ -147,7 +144,7 @@ public class SlashCommandParameter<TContext> where TContext : ISlashCommandConte
         else
             minValue = TypeReader.GetMinValue(this);
         if (minValue.HasValue)
-            minValue = Math.Max(minValue.GetValueOrDefault(), discordMinValue);
+            minValue = minValue.GetValueOrDefault();
 
         var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)

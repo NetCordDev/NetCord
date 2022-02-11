@@ -5,7 +5,7 @@ namespace NetCord.Test.SlashCommands;
 
 public class Commands : SlashCommandModule<SlashCommandContext>
 {
-    [SlashCommand("test", "to test")]
+    [SlashCommand("test", "it's test")]
     public Task TestAsync([MinValue(10), MaxValue(100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
@@ -150,6 +150,12 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     public Task NsfwAsync()
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource("You used nsfw command!"));
+    }
+
+    [SlashCommand("test2", "This is test")]
+    public Task Test(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, nint i8, sbyte i9, float i10, ushort i11, uint i12, ulong i13, nuint i14)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource("Wzium"));
     }
 }
 

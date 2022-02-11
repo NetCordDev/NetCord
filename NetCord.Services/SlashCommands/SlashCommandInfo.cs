@@ -14,7 +14,7 @@ public class SlashCommandInfo<TContext> where TContext : ISlashCommandContext
     public IEnumerable<DiscordId>? DisallowedRolesIds { get; init; }
     public IEnumerable<DiscordId>? AllowedUsersIds { get; init; }
     public IEnumerable<DiscordId>? DisallowedUsersIds { get; init; }
-    public Func<object, object[], Task> InvokeAsync { get; }
+    public Func<object, object?[], Task> InvokeAsync { get; }
     public ReadOnlyCollection<SlashCommandParameter<TContext>> Parameters { get; }
     public Dictionary<string, IAutocompleteProvider> Autocompletes { get; } = new();
     public Permission RequiredBotPermissions { get; }
@@ -81,7 +81,7 @@ public class SlashCommandInfo<TContext> where TContext : ISlashCommandContext
     public ApplicationCommandProperties GetRawValue() => new(Name, Description)
     {
         DefaultPermission = DefaultPermission,
-        Options = Parameters.Select(p => p.GetRawValue()).ToList(),
+        Options = Parameters.Select(p => p.GetRawValue()),
     };
 
     public IEnumerable<ApplicationCommandPermissionProperties> GetRawPermissions()

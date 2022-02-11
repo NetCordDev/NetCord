@@ -102,7 +102,7 @@ public class SlashCommandService<TContext> : IService where TContext : ISlashCom
         await command.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
         var parameters = command.Parameters;
-        var values = new object[parameters.Count];
+        object?[] values = new object?[parameters.Count];
         var options = interaction.Data.Options;
         int optionsCount = options.Count;
         int parameterIndex = 0;

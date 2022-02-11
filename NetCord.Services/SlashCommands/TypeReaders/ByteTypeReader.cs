@@ -4,7 +4,7 @@ public class ByteTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options) => Task.FromResult((object)byte.Parse(value, System.Globalization.CultureInfo.InvariantCulture));
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options) => Task.FromResult((object?)byte.Parse(value, System.Globalization.CultureInfo.InvariantCulture));
 
     public override double? GetMaxValue(SlashCommandParameter<TContext> parameter) => byte.MaxValue;
 

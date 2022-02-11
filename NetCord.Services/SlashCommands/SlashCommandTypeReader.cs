@@ -2,7 +2,7 @@
 
 public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader where TContext : ISlashCommandContext
 {
-    public abstract Task<object> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options);
+    public abstract Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, SlashCommandServiceOptions<TContext> options);
 
     public abstract ApplicationCommandOptionType Type { get; }
 

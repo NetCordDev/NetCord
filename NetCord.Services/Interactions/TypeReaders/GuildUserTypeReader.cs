@@ -4,7 +4,7 @@ namespace NetCord.Services.Interactions.TypeReaders;
 
 public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : InteractionContext
 {
-    public override Task<object> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
     {
         var guild = context.Interaction.Guild;
         if (guild == null)
@@ -14,7 +14,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
         if (DiscordId.TryCreate(input, out DiscordId id))
         {
             if (users.TryGetValue(id, out var user))
-                return Task.FromResult((object)user);
+                return Task.FromResult((object?)user);
         }
         else
         {
@@ -23,7 +23,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
             if (MentionUtils.TryParseUser(span, out id))
             {
                 if (users.TryGetValue(id, out var user))
-                    return Task.FromResult((object)user);
+                    return Task.FromResult((object?)user);
                 goto exception;
             }
 
@@ -35,7 +35,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object)user);
+                        return Task.FromResult((object?)user);
                 }
                 goto exception;
             }
@@ -56,7 +56,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                     throw new AmbiguousMatchException("Too many users found");
                 }
                 if (user != null)
-                    return Task.FromResult((object)user);
+                    return Task.FromResult((object?)user);
             }
         }
         exception:

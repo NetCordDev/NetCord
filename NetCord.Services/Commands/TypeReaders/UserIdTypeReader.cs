@@ -4,7 +4,7 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
     {
         var channel = context.Message.Channel;
         var guild = context.Message.Guild;
@@ -15,7 +15,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (DiscordId.TryCreate(input, out DiscordId id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object)new UserId(id, user));
+                return Task.FromResult((object?)new UserId(id, user));
             }
 
             var span = input.AsSpan();
@@ -24,7 +24,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object)new UserId(id, user));
+                return Task.FromResult((object?)new UserId(id, user));
             }
 
             // by name and tag
@@ -35,7 +35,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object)new UserId(user.Id, user));
+                        return Task.FromResult((object?)new UserId(user.Id, user));
                 }
             }
             // by name or nickname
@@ -54,7 +54,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                         throw new AmbiguousMatchException("Too many users found");
                     }
                     if (user != null)
-                        return Task.FromResult((object)new UserId(user.Id, user));
+                        return Task.FromResult((object?)new UserId(user.Id, user));
                 }
             }
         }
@@ -65,7 +65,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (DiscordId.TryCreate(input, out DiscordId id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object)new UserId(id, user));
+                return Task.FromResult((object?)new UserId(id, user));
             }
 
             var span = input.AsSpan();
@@ -74,7 +74,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object)new UserId(id, user));
+                return Task.FromResult((object?)new UserId(id, user));
             }
 
             // by name and tag
@@ -85,7 +85,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object)new UserId(user.Id, user));
+                        return Task.FromResult((object?)new UserId(user.Id, user));
                 }
             }
             // by name
@@ -103,7 +103,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                         throw new AmbiguousMatchException("Too many users found");
                     }
                     if (user != null)
-                        return Task.FromResult((object)new UserId(user.Id, user));
+                        return Task.FromResult((object?)new UserId(user.Id, user));
                 }
             }
         }
