@@ -16,7 +16,7 @@ public class MuteCommands : CommandModule
         MessageProperties message = new()
         {
             Content = Format.Bold($"{user} got muted").ToString(),
-            Components = new()
+            Components = new List<ComponentProperties>()
             {
                 actionRow
             },

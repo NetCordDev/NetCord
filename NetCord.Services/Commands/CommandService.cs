@@ -223,7 +223,8 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     continue;
             Break:
             break;
-            Continue:;
+            Continue:
+            ;
         }
 
         var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo!.DeclaringType)!;

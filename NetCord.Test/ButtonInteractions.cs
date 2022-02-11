@@ -7,7 +7,7 @@ public class ButtonInteractions : BaseInteractionModule<ButtonInteractionContext
     [Interaction("click it")]
     public Task ClickIt()
     {
-        InteractionMessage interactionMessage = new()
+        InteractionMessageProperties interactionMessage = new()
         {
             Content = "You clicked the button!",
             Flags = MessageFlags.Ephemeral

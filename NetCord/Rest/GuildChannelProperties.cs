@@ -33,7 +33,7 @@ public class GuildChannelProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("permission_overwrites")]
-    public List<ChannelPermissionOverwrite>? PermissionOverwrites { get; set; }
+    public IEnumerable<ChannelPermissionOverwrite>? PermissionOverwrites { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("parent_id")]

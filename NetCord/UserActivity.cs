@@ -27,10 +27,14 @@
         {
             _jsonEntity = jsonEntity;
             Timestamps = new(jsonEntity.Timestamps);
-            if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji, client);
-            if (jsonEntity.Party != null) Party = new(jsonEntity.Party);
-            if (jsonEntity.Assets != null) Assets = new(jsonEntity.Assets);
-            if (jsonEntity.Secrets != null) Secrets = new(jsonEntity.Secrets);
+            if (jsonEntity.Emoji != null)
+                Emoji = new(jsonEntity.Emoji, client);
+            if (jsonEntity.Party != null)
+                Party = new(jsonEntity.Party);
+            if (jsonEntity.Assets != null)
+                Assets = new(jsonEntity.Assets);
+            if (jsonEntity.Secrets != null)
+                Secrets = new(jsonEntity.Secrets);
             Buttons = jsonEntity.Buttons.Select(b => new UserActivityButton(b));
         }
     }

@@ -1,12 +1,11 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public enum UserActivityType
 {
-    public enum UserActivityType
-    {
-        Game = 0,
-        Streaming = 1,
-        Listening = 2,
-        Watching = 3,
-        Custom = 4,
-        Competing = 5,
-    }
+    Game = 0,
+    Streaming = 1,
+    Listening = 2,
+    Watching = 3,
+    Custom = 4,
+    Competing = 5,
 }

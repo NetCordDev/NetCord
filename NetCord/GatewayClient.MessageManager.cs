@@ -23,7 +23,8 @@ public partial class GatewayClient
                 UpdateSequenceNumber(rootElement);
                 ProcessEvent(rootElement);
                 break;
-            case GatewayOpcode.Heartbeat: break;
+            case GatewayOpcode.Heartbeat:
+                break;
             case GatewayOpcode.Reconnect:
                 LogInfo("Reconnect request", LogType.Gateway);
                 await _webSocket.CloseAsync().ConfigureAwait(false);
@@ -94,19 +95,25 @@ public partial class GatewayClient
                 if (TryGetGuild(property, out g))
                     TryRemove(property, ref g._channels);
                 break;
-            case "CHANNEL_PINS_UPDATE": break;
+            case "CHANNEL_PINS_UPDATE":
+                break;
             case "THREAD_CREATE":
             case "THREAD_UPDATE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    AddOrUpdate(property, ref g._activeThreads, (JsonChannel ch, RestClient c) => (Thread)Channel.CreateFromJson(ch, c)); break;
+                    AddOrUpdate(property, ref g._activeThreads, (JsonChannel ch, RestClient c) => (Thread)Channel.CreateFromJson(ch, c));
+                break;
             case "THREAD_DELETE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    TryRemove(property, ref g._activeThreads); break;
-            case "THREAD_LIST_SYNC": break;
-            case "THREAD_MEMBER_UPDATE": break;
-            case "THREAD_MEMBERS_UPDATE ": break;
+                    TryRemove(property, ref g._activeThreads);
+                break;
+            case "THREAD_LIST_SYNC":
+                break;
+            case "THREAD_MEMBER_UPDATE":
+                break;
+            case "THREAD_MEMBERS_UPDATE ":
+                break;
             case "GUILD_CREATE":
                 AddOrUpdate(GetD(), ref _guilds, (JsonGuild j, RestClient c) => new Guild(j, c));
                 break;
@@ -128,11 +135,16 @@ public partial class GatewayClient
             case "GUILD_DELETE":
                 TryRemove(GetD(), ref _guilds);
                 break;
-            case "GUILD_BAN_ADD": break;
-            case "GUILD_BAN_REMOVE": break;
-            case "GUILD_EMOJIS_UPDATE": break;
-            case "GUILD_STICKERS_UPDATE": break;
-            case "GUILD_INTEGRATIONS_UPDATE": break;
+            case "GUILD_BAN_ADD":
+                break;
+            case "GUILD_BAN_REMOVE":
+                break;
+            case "GUILD_EMOJIS_UPDATE":
+                break;
+            case "GUILD_STICKERS_UPDATE":
+                break;
+            case "GUILD_INTEGRATIONS_UPDATE":
+                break;
             case "GUILD_MEMBER_ADD":
                 property = GetD();
                 if (TryGetGuild(property, out g))
@@ -146,8 +158,10 @@ public partial class GatewayClient
             case "GUILD_MEMBER_REMOVE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    TryRemove(property, ref g._users); break;
-            case "GUILD_MEMBERS_CHUNK": break;
+                    TryRemove(property, ref g._users);
+                break;
+            case "GUILD_MEMBERS_CHUNK":
+                break;
             case "GUILD_ROLE_CREATE":
             case "GUILD_ROLE_UPDATE":
                 property = GetD();
@@ -159,14 +173,22 @@ public partial class GatewayClient
                 if (TryGetGuild(property, out g))
                     TryRemove(property, ref g._roles, "role_id");
                 break;
-            case "GUILD_SCHEDULED_EVENT_CREATE": break;
-            case "GUILD_SCHEDULED_EVENT_UPDATE": break;
-            case "GUILD_SCHEDULED_EVENT_DELETE": break;
-            case "GUILD_SCHEDULED_EVENT_USER_ADD": break;
-            case "GUILD_SCHEDULED_EVENT_USER_REMOVE": break;
-            case "INTEGRATION_CREATE": break;
-            case "INTEGRATION_UPDATE": break;
-            case "INTEGRATION_DELETE": break;
+            case "GUILD_SCHEDULED_EVENT_CREATE":
+                break;
+            case "GUILD_SCHEDULED_EVENT_UPDATE":
+                break;
+            case "GUILD_SCHEDULED_EVENT_DELETE":
+                break;
+            case "GUILD_SCHEDULED_EVENT_USER_ADD":
+                break;
+            case "GUILD_SCHEDULED_EVENT_USER_REMOVE":
+                break;
+            case "INTEGRATION_CREATE":
+                break;
+            case "INTEGRATION_UPDATE":
+                break;
+            case "INTEGRATION_DELETE":
+                break;
             case "INTERACTION_CREATE":
                 JsonInteraction interaction = GetD().ToObject<JsonInteraction>();
                 if (interaction.GuildId == null && interaction.ChannelId.HasValue)
@@ -181,8 +203,10 @@ public partial class GatewayClient
                     LogInfo(ex.Message, LogType.Exception);
                 }
                 break;
-            case "INVITE_CREATE": break;
-            case "INVITE_DELETE": break;
+            case "INVITE_CREATE":
+                break;
+            case "INVITE_DELETE":
+                break;
             case "MESSAGE_CREATE":
                 property = GetD();
                 var jsonMessage = property.ToObject<JsonMessage>();
@@ -198,33 +222,47 @@ public partial class GatewayClient
                     LogInfo(ex.Message, LogType.Exception);
                 }
                 break;
-            case "MESSAGE_UPDATE": break;
-            case "MESSAGE_DELETE": break;
-            case "MESSAGE_DELETE_BULK": break;
-            case "MESSAGE_REACTION_ADD": break;
-            case "MESSAGE_REACTION_REMOVE": break;
-            case "MESSAGE_REACTION_REMOVE_ALL": break;
-            case "MESSAGE_REACTION_REMOVE_EMOJI": break;
-            case "PRESENCE_UPDATE": break;
+            case "MESSAGE_UPDATE":
+                break;
+            case "MESSAGE_DELETE":
+                break;
+            case "MESSAGE_DELETE_BULK":
+                break;
+            case "MESSAGE_REACTION_ADD":
+                break;
+            case "MESSAGE_REACTION_REMOVE":
+                break;
+            case "MESSAGE_REACTION_REMOVE_ALL":
+                break;
+            case "MESSAGE_REACTION_REMOVE_EMOJI":
+                break;
+            case "PRESENCE_UPDATE":
+                break;
             case "STAGE_INSTANCE_CREATE":
             case "STAGE_INSTANCE_UPDATE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    AddOrUpdate(property, ref g._stageInstances, (JsonStageInstance i, RestClient c) => new StageInstance(i, c)); break;
+                    AddOrUpdate(property, ref g._stageInstances, (JsonStageInstance i, RestClient c) => new StageInstance(i, c));
+                break;
             case "STAGE_INSTANCE_DELETE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    TryRemove(property, ref g._stageInstances); break;
-            case "TYPING_START": break;
+                    TryRemove(property, ref g._stageInstances);
+                break;
+            case "TYPING_START":
+                break;
             case "USER_UPDATE":
                 User = new(GetD().ToObject<JsonUser>(), Rest);
                 break;
             case "VOICE_STATE_UPDATE":
                 property = GetD();
                 if (TryGetGuild(property, out g))
-                    AddUpdateOrDelete(property, ref g._voiceStates); break;
-            case "VOICE_SERVER_UPDATE": break;
-            case "WEBHOOKS_UPDATE": break;
+                    AddUpdateOrDelete(property, ref g._voiceStates);
+                break;
+            case "VOICE_SERVER_UPDATE":
+                break;
+            case "WEBHOOKS_UPDATE":
+                break;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

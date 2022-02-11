@@ -15,7 +15,8 @@
         private protected Button(JsonModels.JsonComponent jsonEntity)
         {
             _jsonEntity = jsonEntity;
-            if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
+            if (jsonEntity.Emoji != null)
+                Emoji = new(jsonEntity.Emoji);
         }
 
         internal static Button CreateFromJson(JsonModels.JsonComponent jsonEntity)

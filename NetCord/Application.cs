@@ -30,6 +30,7 @@ public class Application : Entity
     {
         _jsonEntity = jsonEntity;
         Owner = new(jsonEntity.Owner, client);
-        if (jsonEntity.Team != null) Team = new(jsonEntity.Team, client);
+        if (jsonEntity.Team != null)
+            Team = new(jsonEntity.Team, client);
     }
 }

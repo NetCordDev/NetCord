@@ -25,11 +25,11 @@ public class GuildProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public List<GuildRoleProperties>? Roles { get; set; }
+    public IEnumerable<GuildRoleProperties>? Roles { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channels")]
-    public List<GuildChannelProperties>? Channels { get; set; }
+    public IEnumerable<GuildChannelProperties>? Channels { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("afk_channel_id")]

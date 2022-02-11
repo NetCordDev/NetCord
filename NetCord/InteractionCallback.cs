@@ -27,7 +27,7 @@ public class InteractionCallback
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback ChannelMessageWithSource(InteractionMessage message)
+    public static InteractionCallback ChannelMessageWithSource(InteractionMessageProperties message)
         => new(InteractionCallbackType.ChannelMessageWithSource, message);
 
     /// <summary>
@@ -47,7 +47,7 @@ public class InteractionCallback
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback UpdateMessage(InteractionMessage message)
+    public static InteractionCallback UpdateMessage(InteractionMessageProperties message)
         => new(InteractionCallbackType.UpdateMessage, message);
 
     /// <summary>
@@ -60,18 +60,18 @@ public class InteractionCallback
 
     internal HttpContent Build()
     {
-        if (Data is InteractionMessage message)
+        if (Data is InteractionMessageProperties message)
         {
             MultipartFormDataContent content = new();
             content.Add(new JsonContent(this), "payload_json");
             var attachments = message.Attachments;
             if (attachments != null)
             {
-                var count = attachments.Count;
-                for (var i = 0; i < count; i++)
+                int i = 0;
+                foreach (var attachment in attachments)
                 {
-                    AttachmentProperties attachment = attachments[i];
                     content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
+                    i++;
                 }
             }
             return content;

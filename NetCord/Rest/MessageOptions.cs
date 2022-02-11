@@ -10,7 +10,7 @@ public class MessageOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("embeds")]
-    public List<EmbedProperties>? Embeds { get; set; }
+    public IEnumerable<EmbedProperties>? Embeds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]
@@ -22,12 +22,12 @@ public class MessageOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("components")]
-    public List<ComponentProperties>? Components { get; set; }
+    public IEnumerable<ComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
+    [JsonConverter(typeof(JsonConverters.MessageAttachmentIEnumerableConverter))]
     [JsonPropertyName("attachments")]
-    public List<AttachmentProperties>? Attachments { get; set; }
+    public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
     internal MessageOptions()
     {
@@ -39,11 +39,11 @@ public class MessageOptions
         content.Add(new JsonContent(this), "payload_json");
         if (Attachments != null)
         {
-            var count = Attachments.Count;
-            for (var i = 0; i < count; i++)
+            int i = 0;
+            foreach (var attachment in Attachments)
             {
-                AttachmentProperties attachment = Attachments[i];
                 content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
+                i++;
             }
         }
         return content;

@@ -13,7 +13,7 @@ public class UserProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public List<DiscordId>? RolesIds { get; set; }
+    public IEnumerable<DiscordId>? RolesIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]

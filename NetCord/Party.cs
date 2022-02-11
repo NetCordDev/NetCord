@@ -10,7 +10,8 @@
         internal Party(JsonModels.JsonParty jsonEntity)
         {
             _jsonEntity = jsonEntity;
-            if (jsonEntity.Size != null) Size = new(jsonEntity.Size);
+            if (jsonEntity.Size != null)
+                Size = new(jsonEntity.Size);
         }
     }
 

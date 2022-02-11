@@ -45,7 +45,7 @@ public class EvalCommand : CommandModule
 
             MessageProperties message = new()
             {
-                Embeds = new()
+                Embeds = new List<EmbedProperties>()
                 {
                     embed
                 }

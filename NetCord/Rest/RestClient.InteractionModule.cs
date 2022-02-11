@@ -30,7 +30,7 @@ public partial class RestClient
         public Task DeleteResponseAsync(DiscordId applicationId, string interactionToken, RequestOptions? options = null)
             => _client.SendRequestAsync(HttpMethod.Delete, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", options);
 
-        public async Task<RestMessage> SendFollowupMessageAsync(DiscordId applicationId, string interactionToken, InteractionMessage message, RequestOptions? options = null)
+        public async Task<RestMessage> SendFollowupMessageAsync(DiscordId applicationId, string interactionToken, InteractionMessageProperties message, RequestOptions? options = null)
             => new((await _client.SendRequestAsync(HttpMethod.Post, message.Build(), $"/webhooks/{applicationId}/{interactionToken}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage>(), _client);
 
         public async Task<RestMessage> GetFollowupMessageAsync(DiscordId applicationId, string interactionToken, DiscordId messageId, RequestOptions? options = null)

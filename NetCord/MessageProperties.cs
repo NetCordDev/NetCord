@@ -13,13 +13,13 @@ public class MessageProperties
     public bool Tts { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonConverter(typeof(JsonConverters.MessageAttachmentListConverter))]
+    [JsonConverter(typeof(JsonConverters.MessageAttachmentIEnumerableConverter))]
     [JsonPropertyName("attachments")]
-    public List<AttachmentProperties>? Attachments { get; set; }
+    public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("embeds")]
-    public List<EmbedProperties>? Embeds { get; set; }
+    public IEnumerable<EmbedProperties>? Embeds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("allowed_mentions")]
@@ -31,11 +31,11 @@ public class MessageProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
-    public List<ComponentProperties>? Components { get; set; }
+    public IEnumerable<ComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("sticker_ids")]
-    public List<DiscordId>? StickerIds { get; set; }
+    public IEnumerable<DiscordId>? StickerIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("flags")]
@@ -47,11 +47,11 @@ public class MessageProperties
         content.Add(new JsonContent(this), "payload_json");
         if (Attachments != null)
         {
-            var count = Attachments.Count;
-            for (var i = 0; i < count; i++)
+            int i = 0;
+            foreach (var attachment in Attachments)
             {
-                AttachmentProperties attachment = Attachments[i];
                 content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
+                i++;
             }
         }
         return content;

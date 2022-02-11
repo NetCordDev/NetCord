@@ -76,13 +76,20 @@ public class RestMessage : ClientEntity
         Embeds = jsonEntity.Embeds.Select(e => new Embed(e));
         Reactions = jsonEntity.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
 
-        if (jsonEntity.Activity != null) Activity = new(jsonEntity.Activity);
-        if (jsonEntity.Application != null) Application = new(jsonEntity.Application, client);
-        if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
-        if (jsonEntity.ReferencedMessage != null) ReferencedMessage = new(jsonEntity.ReferencedMessage, client);
-        if (jsonEntity.Interaction != null) Interaction = new(jsonEntity.Interaction, client);
-        if (jsonEntity.StartedThread != null) StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
-        if (jsonEntity.MessageReference != null) MessageReference = new(jsonEntity.MessageReference);
+        if (jsonEntity.Activity != null)
+            Activity = new(jsonEntity.Activity);
+        if (jsonEntity.Application != null)
+            Application = new(jsonEntity.Application, client);
+        if (jsonEntity.MessageReference != null)
+            MessageReference = new(jsonEntity.MessageReference);
+        if (jsonEntity.ReferencedMessage != null)
+            ReferencedMessage = new(jsonEntity.ReferencedMessage, client);
+        if (jsonEntity.Interaction != null)
+            Interaction = new(jsonEntity.Interaction, client);
+        if (jsonEntity.StartedThread != null)
+            StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
+        if (jsonEntity.MessageReference != null)
+            MessageReference = new(jsonEntity.MessageReference);
 
         Components = jsonEntity.Components.Select(c => IComponent.CreateFromJson(c));
         Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));

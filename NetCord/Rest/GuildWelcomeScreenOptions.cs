@@ -8,7 +8,7 @@ public class GuildWelcomeScreenOptions
     public bool? Enabled { get; set; }
 
     [JsonPropertyName("welcome_channels")]
-    public List<GuildWelcomeScreenChannelProperties>? WelcomeChannels { get; set; }
+    public IEnumerable<GuildWelcomeScreenChannelProperties>? WelcomeChannels { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }

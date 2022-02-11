@@ -85,7 +85,7 @@ public class GithubCommand : CommandModule
         }
         MessageProperties message = new()
         {
-            Embeds = new() { embed }
+            Embeds = new List<EmbedProperties>() { embed }
         };
         await SendAsync(message);
     }

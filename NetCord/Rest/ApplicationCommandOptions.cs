@@ -12,7 +12,7 @@ public class ApplicationCommandOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
-    public List<ApplicationCommandOptionProperties>? Options { get; set; }
+    public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]

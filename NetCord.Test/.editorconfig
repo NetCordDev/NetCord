@@ -12,7 +12,7 @@ indent_style = space
 #Formatting - new line options
 
 #place else statements on the same line
-csharp_new_line_before_else = false
+csharp_new_line_before_else = true
 #require members of object intializers to be on separate lines
 csharp_new_line_before_members_in_object_initializers = true
 

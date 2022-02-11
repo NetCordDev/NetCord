@@ -33,7 +33,8 @@ namespace NetCord
             internal SelectOption(JsonComponent.SelectOption jsonEntity)
             {
                 _jsonEntity = jsonEntity;
-                if (jsonEntity.Emoji != null) Emoji = new(jsonEntity.Emoji);
+                if (jsonEntity.Emoji != null)
+                    Emoji = new(jsonEntity.Emoji);
             }
         }
     }

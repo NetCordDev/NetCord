@@ -59,7 +59,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            InteractionMessage message = new()
+            InteractionMessageProperties message = new()
             {
                 Content = ex.Message,
                 Flags = MessageFlags.Ephemeral

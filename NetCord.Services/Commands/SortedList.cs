@@ -44,7 +44,8 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyCollection<T>
     public bool IsReadOnly => false;
     public void Add(T item)
     {
-        if (_size == _items.Length) Grow(_size + 1);
+        if (_size == _items.Length)
+            Grow(_size + 1);
         if (_size == 0)
         {
             _items[0] = item;
@@ -68,9 +69,11 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyCollection<T>
     {
         var newcapacity = _items.Length == 0 ? DefaultCapacity : 2 * _items.Length;
 
-        if ((uint)newcapacity > Array.MaxLength) newcapacity = Array.MaxLength;
+        if ((uint)newcapacity > Array.MaxLength)
+            newcapacity = Array.MaxLength;
 
-        if (newcapacity < capacity) newcapacity = capacity;
+        if (newcapacity < capacity)
+            newcapacity = capacity;
 
         Capacity = newcapacity;
     }

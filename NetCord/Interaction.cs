@@ -86,7 +86,7 @@ public abstract class Interaction : ClientEntity
 
     public Task DeleteResponseAsync(RequestOptions? options = null) => _client.Interaction.DeleteResponseAsync(ApplicationId, Token, options);
 
-    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessage message, RequestOptions? options = null) => _client.Interaction.SendFollowupMessageAsync(ApplicationId, Token, message, options);
+    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestOptions? options = null) => _client.Interaction.SendFollowupMessageAsync(ApplicationId, Token, message, options);
 
     public Task<RestMessage> GetFollowupMessageAsync(DiscordId messageId, RequestOptions? options = null) => _client.Interaction.GetFollowupMessageAsync(ApplicationId, Token, messageId, options);
 

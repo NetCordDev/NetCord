@@ -78,7 +78,8 @@ public class Commands : SlashCommandModule<SlashCommandContext>
                 x.Content = $"Role {roleToAdd} was given to users with {mentionable.Role} role";
                 x.AllowedMentions = AllowedMentionsProperties.None;
             });
-        } else
+        }
+        else
         {
             await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
@@ -129,7 +130,8 @@ public class Commands : SlashCommandModule<SlashCommandContext>
                     }
                     await t;
                 }
-            } else
+            }
+            else
             {
                 var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
                 await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource);

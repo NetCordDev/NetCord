@@ -23,7 +23,8 @@ public class NormalCommands : CommandModule
         {
             await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RolesIds.Concat(roles).Distinct());
             await ReplyAsync("Added the roles!!!");
-        } else
+        }
+        else
             await ReplyAsync("You are not in a guild");
     }
 
@@ -32,30 +33,35 @@ public class NormalCommands : CommandModule
     {
         if (Context.User is GuildUser user)
         {
+            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RolesIds);
             MessageProperties message = new()
             {
                 Content = "Select roles",
-                Components = new()
+                Components = new List<ComponentProperties>()
+                {
+                    menu
+                }
             };
-            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RolesIds);
-            message.Components.Add(menu);
             await SendAsync(message);
-        } else
+        }
+        else
             await ReplyAsync("Required context: Guild");
     }
 
     public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<DiscordId> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
+        List<MenuSelectOptionProperties> options = new();
+        foreach (var role in roles)
+            options.Add(new(role.Name, role.Id.ToString()) { IsDefault = defaultValues.Contains(role.Id) });
+
         MenuProperties menu = new("roles")
         {
             Placeholder = "Select roles",
             MaxValues = roles.Count(),
             MinValues = 0,
-            Options = new()
+            Options = options
         };
-        foreach (var role in roles)
-            menu.Options.Add(new(role.Name, role.Id.ToString()) { IsDefault = defaultValues.Contains(role.Id) });
 
         return menu;
     }
@@ -84,22 +90,24 @@ public class NormalCommands : CommandModule
     public Task Avatar([Remainder] GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
-        MessageProperties message = new()
-        {
-            Embeds = new(),
-            MessageReference = new(Context.Message, false),
-            AllowedMentions = new()
-            {
-                ReplyMention = false
-            }
-        };
         EmbedProperties embed = new()
         {
             Title = $"Avatar of {user.Username}#{user.Discriminator}",
             Image = new(user.HasAvatar ? user.GetAvatarUrl(4096) : user.DefaultAvatarUrl),
             Color = new(0, 255, 0)
         };
-        message.Embeds.Add(embed);
+        MessageProperties message = new()
+        {
+            Embeds = new List<EmbedProperties>()
+            {
+                embed
+            },
+            MessageReference = new(Context.Message, false),
+            AllowedMentions = new()
+            {
+                ReplyMention = false
+            }
+        };
         return SendAsync(message);
     }
 
