@@ -55,7 +55,7 @@ public class InteractionCallback
     /// </summary>
     /// <param name="choices"></param>
     /// <returns></returns>
-    public static InteractionCallback ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties> choices)
+    public static InteractionCallback ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
         => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new ChoicesData(choices));
 
     internal HttpContent Build()
@@ -85,9 +85,9 @@ public class InteractionCallback
     private class ChoicesData
     {
         [JsonPropertyName("choices")]
-        public IEnumerable<ApplicationCommandOptionChoiceProperties> Choices { get; }
+        public IEnumerable<ApplicationCommandOptionChoiceProperties>? Choices { get; }
 
-        public ChoicesData(IEnumerable<ApplicationCommandOptionChoiceProperties> choices)
+        public ChoicesData(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
         {
             Choices = choices;
         }

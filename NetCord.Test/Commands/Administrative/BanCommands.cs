@@ -7,7 +7,7 @@ namespace NetCord.Test.Commands.Administrative;
 public class BanCommands : CommandModule
 {
     [Command("ban")]
-    public async Task Ban(UserId userId, int? days = null, [Remainder] string reason = null)
+    public async Task Ban(UserId userId, int? days = null, [Remainder] string? reason = null)
     {
         if (Context.Guild != null)
         {
@@ -34,7 +34,7 @@ public class BanCommands : CommandModule
     }
 
     [Command("unban")]
-    public async Task Unban(UserId userId, [Remainder] string reason = null)
+    public async Task Unban(UserId userId, [Remainder] string? reason = null)
     {
         if (Context.Guild != null)
         {

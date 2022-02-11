@@ -29,7 +29,7 @@ public class EvalCommand : CommandModule
                 try
                 {
                     var v = property.GetValue(value);
-                    description = v != null ? v.ToString() : "null";
+                    description = v != null ? v.ToString()! : "null";
                 }
                 catch (Exception ex)
                 {

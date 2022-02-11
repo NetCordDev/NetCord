@@ -16,12 +16,16 @@ public class GithubCommand : CommandModule
         };
         if (Context.User is GuildUser guildUser)
         {
-            var role = Context.Guild.Roles.Values.OrderBy(x => x.Position).FirstOrDefault(x => guildUser.RolesIds.Contains(x.Id) && x.Color != default);
-            if (role == null)
-                embed.Color = new(0, 255, 0);
-            else
+            var roles = guildUser.GetRoles(Context.Guild!).Where(r => r.Color != default);
+            if (roles.Any())
+            {
+                var role = roles.MaxBy(r => r.Position)!;
                 embed.Color = role.Color;
-        } else
+            }
+            else
+                embed.Color = new(0, 255, 0);
+        }
+        else
             embed.Color = new(0, 255, 0);
         HttpClient client = new();
         client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");

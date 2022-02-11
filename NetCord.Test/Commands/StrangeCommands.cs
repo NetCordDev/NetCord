@@ -93,7 +93,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("s")]
-    public Task S([DefaultParameterValue(null)] params string[] s)
+    public Task S([DefaultParameterValue(null)] params string[]? s)
     {
         if (s != null)
             return ReplyAsync("s: " + string.Join('\n', s));
@@ -149,7 +149,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("id")]
-    public Task Id([Remainder] UserId userId = null)
+    public Task Id([Remainder] UserId? userId = null)
     {
         var id = userId != null ? userId.Id : Context.User;
         List<EmbedFieldProperties> fields = new();
@@ -209,7 +209,7 @@ public class StrangeCommands : CommandModule
     public async Task BotAvatar(Uri avatarUrl)
     {
         var a = await new HttpClient().GetByteArrayAsync(avatarUrl);
-        await Context.Client.User.ModifyAsync(p => p.Avatar = new Image(a, ImageFormat.Png));
+        await Context.Client.User!.ModifyAsync(p => p.Avatar = new Image(a, ImageFormat.Png));
     }
 
     [Command("spam")]

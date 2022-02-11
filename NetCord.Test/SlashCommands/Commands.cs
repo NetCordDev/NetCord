@@ -53,7 +53,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("channel-name", "Shows channel name")]
-    public Task ChannelNameAsync(Channel channel = null)
+    public Task ChannelNameAsync(Channel? channel = null)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource((channel ?? Context.Channel).ToString()));
     }
@@ -70,8 +70,8 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         if (mentionable.Type == MentionableType.Role)
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource);
-            var roleId = mentionable.Role.Id;
-            foreach (var user in Context.Guild.Users.Values.Where(u => u.RolesIds.Contains(roleId) && !u.RolesIds.Contains(roleToAdd)))
+            var roleId = mentionable.Role!.Id;
+            foreach (var user in Context.Guild!.Users.Values.Where(u => u.RolesIds.Contains(roleId) && !u.RolesIds.Contains(roleToAdd)))
                 await user.AddRoleAsync(roleToAdd);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
@@ -80,7 +80,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             });
         } else
         {
-            await ((GuildUser)mentionable.User).AddRoleAsync(roleToAdd);
+            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
@@ -106,7 +106,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     [RequireContext<SlashCommandContext>(RequiredContext.Guild)]
     [RequireUserPermission<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
     [SlashCommand("clear", "Clears channel")]
-    public async Task ClearAsync([MinValue(1)] int count, TextChannel channel = null)
+    public async Task ClearAsync([MinValue(1)] int count, TextChannel? channel = null)
     {
         channel ??= Context.Channel;
         int i = 0;

@@ -8,7 +8,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token"), TokenType.Bot, new() { Intents = GatewayIntent.All });
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All });
     internal static readonly CommandService _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
@@ -26,14 +26,14 @@ internal static class Program
         _client.Log += Client_Log;
         _client.MessageReceived += Client_MessageReceived;
         _client.InteractionCreated += Client_InteractionCreated;
-        var assembly = Assembly.GetEntryAssembly();
+        var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
         _menuInteractionService.AddModules(assembly);
         _slashCommandService.AddModules(assembly);
         await _client.StartAsync();
         await _client.ReadyAsync;
-        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.Application.Id, true);
+        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.Application!.Id, true);
         await Task.Delay(-1);
     }
 

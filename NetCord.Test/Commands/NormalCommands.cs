@@ -37,7 +37,7 @@ public class NormalCommands : CommandModule
                 Content = "Select roles",
                 Components = new()
             };
-            var menu = CreateRolesMenu(Context.Guild.Roles.Values, user.RolesIds);
+            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RolesIds);
             message.Components.Add(menu);
             await SendAsync(message);
         } else
@@ -74,14 +74,14 @@ public class NormalCommands : CommandModule
     }
 
     [Command("user")]
-    public async Task User([Remainder] GuildUser user = null)
+    public async Task User([Remainder] GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
         await ReplyAsync(user.Username);
     }
 
     [Command("avatar")]
-    public Task Avatar([Remainder] GuildUser user = null)
+    public Task Avatar([Remainder] GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
         MessageProperties message = new()

@@ -6,7 +6,7 @@ namespace NetCord.Test.Commands.Administrative;
 public class OtherCommands : CommandModule
 {
     [RequireUserPermission<CommandContext>(Permission.KickUsers), RequireBotPermission<CommandContext>(Permission.KickUsers)]
-    public static Task Kick(GuildUser user, [Remainder] string reason = null)
+    public static Task Kick(GuildUser user, [Remainder] string? reason = null)
     {
         return user.KickAsync(new() { AuditLogReason = reason });
     }
