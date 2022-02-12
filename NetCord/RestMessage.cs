@@ -96,10 +96,10 @@ public class RestMessage : ClientEntity
 
     }
 
-    public Task AddReactionAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(ChannelId, Id, emoji, options);
+    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(ChannelId, Id, emoji, options);
 
-    public Task DeleteReactionAsync(ReactionEmoji emoji, DiscordId userId, RequestOptions? options = null) => _client.Message.DeleteReactionAsync(ChannelId, Id, emoji, userId, options);
-    public Task DeleteAllReactionsAsync(ReactionEmoji emoji, RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, emoji, options);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, DiscordId userId, RequestOptions? options = null) => _client.Message.DeleteReactionAsync(ChannelId, Id, emoji, userId, options);
+    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, emoji, options);
     public Task DeleteAllReactionsAsync(RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, options);
 
     public Task DeleteAsync(RequestOptions? options = null) => _client.Message.DeleteAsync(ChannelId, Id, options);

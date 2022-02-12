@@ -1,17 +1,17 @@
 ﻿namespace NetCord;
 
-public class ReactionEmoji
+public class ReactionEmojiProperties
 {
     public string Name { get; }
     public DiscordId? Id { get; }
     public Type EmojiType { get; }
 
     /// <summary>
-    /// Creates <see cref="ReactionEmoji"/> from guild emoji
+    /// Creates <see cref="ReactionEmojiProperties"/> from guild emoji
     /// </summary>
     /// <param name="name"></param>
     /// <param name="id"></param>
-    public ReactionEmoji(string name, DiscordId? id)
+    public ReactionEmojiProperties(string name, DiscordId? id)
     {
         Name = name;
         Id = id;
@@ -19,10 +19,10 @@ public class ReactionEmoji
     }
 
     /// <summary>
-    /// Creates <see cref="ReactionEmoji"/> from standard Discord emoji
+    /// Creates <see cref="ReactionEmojiProperties"/> from standard Discord emoji
     /// </summary>
     /// <param name="unicode"></param>
-    public ReactionEmoji(string unicode)
+    public ReactionEmojiProperties(string unicode)
     {
         Name = unicode;
         EmojiType = Type.Standard;
@@ -34,5 +34,5 @@ public class ReactionEmoji
         Standard,
     }
 
-    public static implicit operator ReactionEmoji(string unicode) => new(unicode);
+    public static implicit operator ReactionEmojiProperties(string unicode) => new(unicode);
 }

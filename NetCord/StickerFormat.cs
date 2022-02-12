@@ -1,9 +1,8 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public enum StickerFormat
 {
-    public enum StickerFormat
-    {
-        Png = 1,
-        APng = 2,
-        Lottie = 3,
-    }
+    Png = 1,
+    APng = 2,
+    Lottie = 3,
 }

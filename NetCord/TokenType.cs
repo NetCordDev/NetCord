@@ -1,8 +1,7 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public enum TokenType
 {
-    public enum TokenType
-    {
-        Bot,
-        Bearer,
-    }
+    Bot,
+    Bearer,
 }
