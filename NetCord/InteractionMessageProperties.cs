@@ -14,7 +14,7 @@ public class InteractionMessageProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("embeds")]
-    public IEnumerable<Embed>? Embeds { get; set; }
+    public IEnumerable<EmbedProperties>? Embeds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("allowed_mentions")]
