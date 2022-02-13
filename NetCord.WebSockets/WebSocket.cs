@@ -80,8 +80,6 @@ public class WebSocket : IDisposable
     /// <summary>
     /// Send a message
     /// </summary>
-    /// <param name="buffer"></param>
-    /// <returns></returns>
     public Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
     {
         ThrowIfInvalid();
@@ -91,9 +89,6 @@ public class WebSocket : IDisposable
     /// <summary>
     /// Send a message
     /// </summary>
-    /// <param name="buffer"></param>
-    /// <param name="flags"></param>
-    /// <returns></returns>
     public Task SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageFlags flags, CancellationToken token = default)
     {
         ThrowIfInvalid();
@@ -103,17 +98,12 @@ public class WebSocket : IDisposable
     /// <summary>
     /// Send a message
     /// </summary>
-    /// <param name="message"></param>
-    /// <returns></returns>
     public Task SendAsync(string message, CancellationToken token = default)
         => SendAsync(Encoding.GetBytes(message), token);
 
     /// <summary>
     /// Send a message
     /// </summary>
-    /// <param name="message"></param>
-    /// <param name="flags"></param>
-    /// <returns></returns>
     public Task SendAsync(string message, WebSocketMessageFlags flags, CancellationToken token = default)
         => SendAsync(Encoding.GetBytes(message), flags, token);
 

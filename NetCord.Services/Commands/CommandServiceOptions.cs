@@ -151,7 +151,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
     internal char[] _paramSeparators = new[] { ' ', '\n' };
 
     /// <summary>
-    /// Default = <see cref="true"/>
+    /// Default = <see langword="true"/>
     /// </summary>
     public bool IgnoreCase { get; init; } = true;
 
