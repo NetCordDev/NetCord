@@ -155,9 +155,22 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("test2", "This is test")]
-    public Task Test(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, nint i8, sbyte i9, float i10, ushort i11, uint i12, ulong i13, nuint i14)
+    public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, nint i8, sbyte i9, float i10, ushort i11, uint i12, ulong i13, nuint i14)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource("Wzium"));
+    }
+
+    [SlashCommand("attachment", "You can pass attachment as a parameter!")]
+    public async Task AttachmentAsync(Attachment attachment)
+    {
+        await RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        {
+            Content = "You sent it:",
+            Attachments = new List<AttachmentProperties>
+            {
+                new(attachment.Filename, await new HttpClient().GetStreamAsync(attachment.Url))
+            }
+        }));
     }
 }
 

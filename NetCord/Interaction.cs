@@ -74,6 +74,8 @@ public abstract class Interaction : ClientEntity
                     return new MenuInteraction(jsonEntity, client);
             case InteractionType.ApplicationCommandAutocomplete:
                 return new ApplicationCommandAutocompleteInteraction(jsonEntity, client);
+            case InteractionType.ModalSubmit:
+                return new ModalSubmitInteraction(jsonEntity, client);
         }
         throw new InvalidOperationException();
     }

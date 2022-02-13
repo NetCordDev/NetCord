@@ -32,6 +32,16 @@ public class BaseMenuInteractionContext : InteractionContext
     }
 }
 
+public class BaseModalSubmitInteractionContext : InteractionContext
+{
+    public override ModalSubmitInteraction Interaction { get; }
+
+    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(client)
+    {
+        Interaction = interaction;
+    }
+}
+
 public class ButtonInteractionContext : BaseButtonInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
 {
     public RestMessage Message => Interaction.Message;
@@ -58,6 +68,19 @@ public class MenuInteractionContext : BaseMenuInteractionContext, IUserContext, 
     public TextChannel Channel => Interaction.Channel!;
 
     public MenuInteractionContext(MenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    {
+    }
+}
+
+public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IUserContext, IGuildContext, IChannelContext
+{
+    public User User => Interaction.User;
+
+    public Guild? Guild => Interaction.Guild;
+
+    public TextChannel Channel => Interaction.Channel!;
+
+    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction, client)
     {
     }
 }

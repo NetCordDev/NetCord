@@ -40,6 +40,18 @@ internal record JsonComponent
     [JsonPropertyName("components")]
     public JsonComponent[] Components { get; init; }
 
+    [JsonPropertyName("min_length")]
+    public int MinLength { get; init; }
+
+    [JsonPropertyName("max_length")]
+    public int MaxLength { get; init; }
+
+    [JsonPropertyName("required")]
+    public bool Required { get; init; }
+
+    [JsonPropertyName("value")]
+    public string Value { get; init; }
+
     internal record SelectOption
     {
         [JsonPropertyName("label")]

@@ -16,8 +16,10 @@ public class BanCommands : CommandModule
             else
                 await Context.Guild.BanUserAsync(userId, (int)days, new() { AuditLogReason = reason });
 
-            ActionRowProperties actionRow = new();
-            actionRow.Buttons.Add(new ActionButtonProperties("Unban", $"unban:{userId.Id}", ButtonStyle.Danger));
+            ActionRowProperties actionRow = new(new List<ButtonProperties>
+            {
+                new ActionButtonProperties("Unban", $"unban:{userId.Id}", ButtonStyle.Danger)
+            });
             MessageProperties message = new()
             {
                 Content = Format.Bold($"{userId} got banned").ToString(),

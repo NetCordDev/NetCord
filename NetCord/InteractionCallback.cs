@@ -58,6 +58,9 @@ public class InteractionCallback
     public static InteractionCallback ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
         => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new ChoicesData(choices));
 
+    public static InteractionCallback Modal(ModalProperties modal)
+        => new(InteractionCallbackType.Modal, modal);
+
     internal HttpContent Build()
     {
         if (Data is InteractionMessageProperties message)

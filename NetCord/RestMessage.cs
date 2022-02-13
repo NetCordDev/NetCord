@@ -93,7 +93,6 @@ public class RestMessage : ClientEntity
 
         Components = jsonEntity.Components.Select(c => IComponent.CreateFromJson(c));
         Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
-
     }
 
     public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(ChannelId, Id, emoji, options);

@@ -136,6 +136,10 @@ public class SlashCommandServiceOptions<TContext> where TContext : ISlashCommand
         {
             typeof(Mentionable),
             new TypeReaders.MentionableTypeReader<TContext>()
+        },
+        {
+            typeof(Attachment),
+            new TypeReaders.AttachmentTypeReader<TContext>()
         }
     };
     #endregion

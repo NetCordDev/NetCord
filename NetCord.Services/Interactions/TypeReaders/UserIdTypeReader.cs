@@ -6,7 +6,6 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
 {
     public override Task<object?> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
     {
-        var channel = ((ButtonInteraction)context.Interaction).Message.Channel;
         var guild = context.Interaction.Guild;
         if (guild != null)
         {
@@ -58,7 +57,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 }
             }
         }
-        else if (channel is DMChannel dm)
+        else if (context.Interaction.Channel is DMChannel dm)
         {
             IReadOnlyDictionary<DiscordId, User> users = dm.Users;
             // by id

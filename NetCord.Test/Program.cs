@@ -12,6 +12,7 @@ internal static class Program
     internal static readonly CommandService _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
+    private static readonly InteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
     private static readonly SlashCommandService<SlashCommandContext> _slashCommandService;
 
     static Program()
@@ -30,6 +31,7 @@ internal static class Program
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
         _menuInteractionService.AddModules(assembly);
+        _modalSubmitInteractionService.AddModules(assembly);
         _slashCommandService.AddModules(assembly);
         await _client.StartAsync();
         await _client.ReadyAsync;
@@ -54,6 +56,9 @@ internal static class Program
                     break;
                 case ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction:
                     await _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction);
+                    break;
+                case ModalSubmitInteraction modalSubmitInteraction:
+                    await _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client));
                     break;
             }
         }

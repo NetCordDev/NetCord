@@ -18,4 +18,7 @@ internal record class JsonApplicationCommandResolvedData
 
     [JsonPropertyName("messages")]
     public IReadOnlyDictionary<ulong, JsonMessage>? Messages { get; init; }
+
+    [JsonPropertyName("attachments")]
+    public IReadOnlyDictionary<ulong, JsonAttachment> Attachments { get; init; }
 }

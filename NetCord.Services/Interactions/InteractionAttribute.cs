@@ -3,10 +3,10 @@
 [AttributeUsage(AttributeTargets.Method)]
 public class InteractionAttribute : Attribute
 {
-    public string Alias { get; }
+    public string CustomId { get; }
 
-    public InteractionAttribute(string alias)
+    public InteractionAttribute(string customId)
     {
-        Alias = alias;
+        CustomId = customId;
     }
 }

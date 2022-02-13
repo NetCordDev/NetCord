@@ -5,9 +5,10 @@ namespace NetCord;
 public class ActionRowProperties : ComponentProperties
 {
     [JsonPropertyName("components")]
-    public List<ButtonProperties> Buttons { get; } = new();
+    public IEnumerable<ButtonProperties> Buttons { get; }
 
-    public ActionRowProperties() : base(ComponentType.ActionRow)
+    public ActionRowProperties(IEnumerable<ButtonProperties> buttons) : base(ComponentType.ActionRow)
     {
+        Buttons = buttons;
     }
 }

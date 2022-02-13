@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ButtonInteractionData : InteractionData
+public class ButtonInteractionData : InteractionData, ICustomIdInteractionData
 {
     public string CustomId => _jsonEntity.CustomId!;
 

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord;
@@ -10,7 +9,6 @@ public abstract class ButtonProperties
     [JsonPropertyName("style")]
     public ButtonStyle Style { get; }
 
-    [Browsable(false)]
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.Button;
 

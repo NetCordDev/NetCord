@@ -2,13 +2,15 @@
 
 public class ApplicationCommandInteractionResolvedData
 {
-    public IReadOnlyDictionary<DiscordId, User>? Users { get; init; }
+    public IReadOnlyDictionary<DiscordId, User>? Users { get; }
 
-    public IReadOnlyDictionary<DiscordId, GuildRole>? Roles { get; init; }
+    public IReadOnlyDictionary<DiscordId, GuildRole>? Roles { get; }
 
-    public IReadOnlyDictionary<DiscordId, Channel>? Channels { get; init; }
+    public IReadOnlyDictionary<DiscordId, Channel>? Channels { get; }
 
-    public IReadOnlyDictionary<DiscordId, RestMessage>? Messages { get; init; }
+    public IReadOnlyDictionary<DiscordId, RestMessage>? Messages { get; }
+
+    public IReadOnlyDictionary<DiscordId, Attachment>? Attachments { get; }
 
     internal ApplicationCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonEntity, DiscordId? guildId, RestClient client)
     {
@@ -23,5 +25,7 @@ public class ApplicationCommandInteractionResolvedData
             Channels = jsonEntity.Channels.ToDictionary(c => new DiscordId(c.Key), c => Channel.CreateFromJson(c.Value, client));
         if (jsonEntity.Messages != null)
             Messages = jsonEntity.Messages.ToDictionary(c => new DiscordId(c.Key), c => new RestMessage(c.Value, client));
+        if (jsonEntity.Attachments != null)
+            Attachments = jsonEntity.Attachments.ToDictionary(c => new DiscordId(c.Key), c => Attachment.CreateFromJson(c.Value));
     }
 }

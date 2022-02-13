@@ -42,14 +42,14 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             if (interactionAttribute == null)
                 continue;
             InteractionInfo<TContext> interactionInfo = new(method, interactionAttribute, _options);
-            _interactions.Add(interactionAttribute.Alias, interactionInfo);
+            _interactions.Add(interactionAttribute.CustomId, interactionInfo);
         }
     }
 
     public async Task ExecuteAsync(TContext context)
     {
         var separator = _options.ParamSeparator;
-        var content = ((ButtonInteractionData)context.Interaction.Data).CustomId;
+        var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId;
         var index = content.IndexOf(separator);
         string? customId;
         string arguments;

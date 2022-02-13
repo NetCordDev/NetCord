@@ -1,19 +1,18 @@
-﻿namespace NetCord
-{
-    public interface IComponent
-    {
-        public ComponentType ComponentType { get; }
+﻿namespace NetCord;
 
-        internal static IComponent CreateFromJson(JsonModels.JsonComponent jsonEntity)
+public interface IComponent
+{
+    public ComponentType ComponentType { get; }
+
+    internal static IComponent CreateFromJson(JsonModels.JsonComponent jsonEntity)
+    {
+        if (jsonEntity.Components[0].Type == ComponentType.Menu)
         {
-            if (jsonEntity.Components[0].Type == ComponentType.Menu)
-            {
-                return new Menu(jsonEntity);
-            }
-            else
-            {
-                return new ActionRow(jsonEntity);
-            }
+            return new Menu(jsonEntity);
+        }
+        else
+        {
+            return new ActionRow(jsonEntity);
         }
     }
 }

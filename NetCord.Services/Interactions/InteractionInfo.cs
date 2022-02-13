@@ -7,11 +7,6 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
 {
     public Type DeclaringType { get; }
     public ReadOnlyCollection<InteractionParameter<TContext>> Parameters { get; }
-    public int Priority { get; }
-    public Permission RequiredBotPermissions { get; }
-    public Permission RequiredBotChannelPermissions { get; }
-    public Permission RequiredUserPermissions { get; }
-    public Permission RequiredUserChannelPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
     public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -30,22 +25,6 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         Parameters = new(p);
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
-
-        //ModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<ModuleAttribute>();
-        //if (moduleAttribute != null)
-        //{
-        //    RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
-        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
-        //    RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
-        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
-        //}
-        //else
-        //{
-        //    RequiredBotPermissions = attribute.RequiredBotPermissions;
-        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
-        //    RequiredUserPermissions = attribute.RequiredUserPermissions;
-        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
-        //}
 
         Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
     }

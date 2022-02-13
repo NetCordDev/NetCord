@@ -8,4 +8,5 @@ public enum InteractionCallbackType
     DeferredUpdateMessage = 6,
     UpdateMessage = 7,
     ApplicationCommandAutocompleteResult = 8,
+    Modal = 9,
 }

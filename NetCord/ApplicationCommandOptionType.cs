@@ -12,4 +12,5 @@ public enum ApplicationCommandOptionType
     Role = 8,
     Mentionable = 9,
     Double = 10,
+    Attachment = 11,
 }

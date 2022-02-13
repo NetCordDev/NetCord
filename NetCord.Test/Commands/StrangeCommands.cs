@@ -56,8 +56,10 @@ public class StrangeCommands : CommandModule
         {
             EmojiId = 888159212109197382
         };
-        ActionRowProperties actionRow = new();
-        actionRow.Buttons.Add(button);
+        ActionRowProperties actionRow = new(new List<ButtonProperties>
+        {
+            button
+        });
         MessageProperties messageBuilder = new()
         {
             Content = "This is button:",
@@ -77,8 +79,10 @@ public class StrangeCommands : CommandModule
     [Command("link")]
     public Task Link([Remainder] Uri url)
     {
-        ActionRowProperties actionRow = new();
-        actionRow.Buttons.Add(new LinkButtonProperties("Link", url));
+        ActionRowProperties actionRow = new(new List<ButtonProperties>
+        {
+            new LinkButtonProperties("Link", url)
+        });
         MessageProperties message = new()
         {
             Components = new List<ComponentProperties>()
