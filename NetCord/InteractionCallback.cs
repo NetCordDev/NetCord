@@ -33,8 +33,8 @@ public class InteractionCallback
     /// <summary>
     /// ACK an interaction and edit a response later, the user sees a loading state
     /// </summary>
-    public static InteractionCallback DeferredChannelMessageWithSource
-        => new(InteractionCallbackType.DeferredChannelMessageWithSource);
+    public static InteractionCallback DeferredChannelMessageWithSource(MessageFlags? messageFlags = null)
+        => new(InteractionCallbackType.DeferredChannelMessageWithSource, new InteractionMessageProperties() { Flags = messageFlags });
 
     /// <summary>
     /// For components, ACK an interaction and edit the original message later; the user does not see a loading state

@@ -69,7 +69,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     {
         if (mentionable.Type == MentionableType.Role)
         {
-            await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource);
+            await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
             var roleId = mentionable.Role!.Id;
             foreach (var user in Context.Guild!.Users.Values.Where(u => u.RolesIds.Contains(roleId) && !u.RolesIds.Contains(roleToAdd)))
                 await user.AddRoleAsync(roleToAdd);
@@ -116,7 +116,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             if (count > 100)
             {
                 var first = await channel.GetMessagesAsync().Take(100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
-                await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource);
+                await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource());
                 var firstCount = first.Count;
                 i = firstCount;
                 if (firstCount > 0)
@@ -134,7 +134,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             else
             {
                 var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
-                await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource);
+                await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
                 await Context.Client.Rest.Message.DeleteAsync(channel, messages);
                 i = messages.Count;
             }

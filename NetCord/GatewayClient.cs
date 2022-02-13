@@ -169,7 +169,7 @@ public partial class GatewayClient : IDisposable
         _webSocket.MessageReceived += data =>
         {
             var json = JsonDocument.Parse(data);
-            Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
+            //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
             ProcessMessage(json);
         };
     }
