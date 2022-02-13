@@ -13,6 +13,7 @@
     <Version>$(VersionPrefix)</Version>
     <VersionSuffix>alpha.6</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper. It supports application commands, buttons and menus!</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -18,8 +18,6 @@ public partial class RestClient
         /// <summary>
         /// Sends a <paramref name="message"/> to a specified channel by <paramref name="channelId"/>
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="channelId"></param>
         /// <returns></returns>
         public async Task<RestMessage> SendAsync(DiscordId channelId, MessageProperties message, RequestOptions? options = null)
         {

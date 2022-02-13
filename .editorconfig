@@ -220,6 +220,9 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 dotnet_diagnostic.CS8632.severity = suggestion
 csharp_style_namespace_declarations = file_scoped:warning
 
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
 [*.{cs,vb}]
 end_of_line= crlf
 dotnet_diagnostic.CA2007.severity=warning

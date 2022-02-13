@@ -42,9 +42,6 @@ internal record JsonUserActivity
     public JsonUserActivitySecrets? Secrets { get; init; }
 
     [JsonPropertyName("instance")]
-    /// <summary>
-    /// whether or not the activity is an instanced game session
-    /// </summary>
     public bool? Instance { get; init; }
 
     [JsonPropertyName("flags")]

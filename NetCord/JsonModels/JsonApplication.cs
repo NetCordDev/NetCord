@@ -41,9 +41,7 @@ internal record JsonApplication : JsonEntity
     public JsonTeam? Team { get; init; }
 
     [JsonPropertyName("guild_id")]
-    /// <summary>
-    /// If this application is a game sold on Discord, this field will be the guild to which it has been linked
-    /// </summary>
+
     public DiscordId? GuildId { get; init; }
 
     [JsonPropertyName("primary_sku_id")]

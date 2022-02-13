@@ -14,6 +14,7 @@
     <Version>$(VersionPrefix)</Version>
     <VersionSuffix>alpha.8</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper. It supports application commands, buttons and menus!</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
