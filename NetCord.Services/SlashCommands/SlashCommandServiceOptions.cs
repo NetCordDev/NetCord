@@ -78,6 +78,10 @@ public class SlashCommandServiceOptions<TContext> where TContext : ISlashCommand
             new TypeReaders.UserTypeReader<TContext>()
         },
         {
+            typeof(GuildUser),
+            new TypeReaders.GuildUserTypeReader<TContext>()
+        },
+        {
             typeof(GuildRole),
             new TypeReaders.GuildRoleTypeReader<TContext>()
         },

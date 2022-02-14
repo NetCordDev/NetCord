@@ -172,6 +172,12 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             }
         }));
     }
+
+    [SlashCommand("guilduser", "Guild User")]
+    public Task GuildUserAsync(GuildUser user)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
+    }
 }
 
 public enum DeleteMessagesDays
