@@ -8,7 +8,7 @@ internal record JsonPresence
     public JsonEntity User { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public DiscordId? GuildId { get; init; }
 
     [JsonPropertyName("status")]
     public UserStatus Status { get; init; }

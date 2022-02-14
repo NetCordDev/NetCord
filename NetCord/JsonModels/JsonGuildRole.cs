@@ -36,6 +36,8 @@ internal record JsonTags
 
     [JsonPropertyName("integration_id")]
     public DiscordId? IntegrationId { get; init; }
+
+    [JsonConverter(typeof(JsonConverters.NullConverter))]
     [JsonPropertyName("premium_subscriber")]
     public bool IsPremiumSubscriber { get; init; }
 }

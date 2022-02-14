@@ -2,17 +2,10 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonParty : JsonEntity
+internal record JsonParty
 {
+    public string? Id { get; init; }
+
     [JsonPropertyName("size")]
-    public JsonPartySize? Size { get; init; }
-}
-
-internal record JsonPartySize
-{
-    [JsonPropertyName("current_size")]
-    public int CurrentSize { get; init; }
-
-    [JsonPropertyName("max_size")]
-    public int MaxSize { get; init; }
+    public int[]? Size { get; init; }
 }

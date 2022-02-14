@@ -1,30 +1,22 @@
 ﻿namespace NetCord;
 
-public class Party : Entity
+public class Party
 {
     private readonly JsonModels.JsonParty _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
-    public PartySize? Size;
+    public string? Id => _jsonEntity.Id;
+
+    public int? CurrentSize { get; }
+
+    public int? MaxSize { get; }
 
     internal Party(JsonModels.JsonParty jsonEntity)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.Size != null)
-            Size = new(jsonEntity.Size);
-    }
-}
-
-public class PartySize
-{
-    private readonly JsonModels.JsonPartySize _jsonEntity;
-
-    public int CurrentSize => _jsonEntity.CurrentSize;
-
-    public int MaxSize => _jsonEntity.MaxSize;
-
-    internal PartySize(JsonModels.JsonPartySize jsonEntity)
-    {
-        _jsonEntity = jsonEntity;
+        {
+            CurrentSize = jsonEntity.Size[0];
+            MaxSize = jsonEntity.Size[1];
+        }
     }
 }

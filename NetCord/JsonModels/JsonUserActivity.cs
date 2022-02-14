@@ -48,5 +48,5 @@ internal record JsonUserActivity
     public int? Flags { get; init; }
 
     [JsonPropertyName("buttons")]
-    public JsonUserActivityButton[] Buttons { get; init; }
+    public string[] ButtonsLabels { get; init; }
 }
