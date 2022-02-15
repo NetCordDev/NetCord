@@ -42,7 +42,7 @@ public class Guild : RestGuild
         if (_jsonEntity.VoiceStates != null)
         {
             _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionary(s => s.UserId, s => new VoiceState(s));
-            _users = _jsonEntity.Users.ToImmutableDictionary(u => u.User.Id, u => new GuildUser(u, this, client));
+            _users = _jsonEntity.Users.DistinctBy(u => u.User.Id).ToImmutableDictionary(u => u.User.Id, u => new GuildUser(u, Id, client));
             _channels = _jsonEntity.Channels.ToImmutableDictionary(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
             _activeThreads = _jsonEntity.ActiveThreads.ToImmutableDictionary(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
             _stageInstances = _jsonEntity.StageInstances.ToImmutableDictionary(i => i.Id, i => new StageInstance(i, client));
