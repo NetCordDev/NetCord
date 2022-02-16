@@ -6,33 +6,33 @@ namespace NetCord;
 [JsonConverter(typeof(ColorConverter))]
 public readonly struct Color : IEquatable<Color>
 {
-    private readonly int _value;
+    public int RawValue { get; }
 
-    public byte Red => (byte)(_value >> 16);
+    public byte Red => (byte)(RawValue >> 16);
 
-    public byte Green => (byte)(_value >> 8);
+    public byte Green => (byte)(RawValue >> 8);
 
-    public byte Blue => (byte)_value;
+    public byte Blue => (byte)RawValue;
 
     public Color()
     {
-        _value = 0;
+        RawValue = 0;
     }
 
     public Color(byte r, byte g, byte b)
     {
-        _value = (r << 16) | (g << 8) | b;
+        RawValue = (r << 16) | (g << 8) | b;
     }
 
     public Color(int rgb)
     {
         if (rgb is >= 0 and <= 16777215)
-            _value = rgb;
+            RawValue = rgb;
         else
             throw new ArgumentOutOfRangeException(nameof(rgb), $"{rgb} is not >= 0 or not <= 16777215");
     }
 
-    public bool Equals(Color other) => _value == other._value;
+    public bool Equals(Color other) => RawValue == other.RawValue;
 
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
 
@@ -40,7 +40,7 @@ public readonly struct Color : IEquatable<Color>
 
     public static bool operator !=(Color left, Color right) => !(left == right);
 
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => RawValue.GetHashCode();
 
     private class ColorConverter : JsonConverter<Color>
     {
@@ -49,7 +49,7 @@ public readonly struct Color : IEquatable<Color>
 
         public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
         {
-            writer.WriteNumberValue(value._value);
+            writer.WriteNumberValue(value.RawValue);
         }
     }
 }
