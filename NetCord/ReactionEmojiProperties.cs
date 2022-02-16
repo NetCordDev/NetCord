@@ -11,7 +11,7 @@ public class ReactionEmojiProperties
     /// </summary>
     /// <param name="name"></param>
     /// <param name="id"></param>
-    public ReactionEmojiProperties(string name, DiscordId? id)
+    public ReactionEmojiProperties(string name, DiscordId id)
     {
         Name = name;
         Id = id;

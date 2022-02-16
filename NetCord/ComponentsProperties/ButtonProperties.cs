@@ -13,18 +13,17 @@ public abstract class ButtonProperties
     public ComponentType ComponentType => ComponentType.Button;
 
     [JsonPropertyName("label")]
-    public string Label { get; }
+    public string? Label { get; set; }
 
     [JsonPropertyName("emoji")]
-    [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-    public DiscordId? EmojiId { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ComponentEmojiProperties? Emoji { get; set; }
 
     [JsonPropertyName("disabled")]
-    public bool Disabled { get; init; }
+    public bool Disabled { get; set; }
 
-    protected ButtonProperties(string label, ButtonStyle style)
+    protected ButtonProperties(ButtonStyle style)
     {
-        Label = label;
         Style = style;
     }
 

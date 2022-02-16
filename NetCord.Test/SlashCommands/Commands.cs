@@ -178,6 +178,29 @@ public class Commands : SlashCommandModule<SlashCommandContext>
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
     }
+
+    [SlashCommand("button", "Send button")]
+    public Task ButtonAsync()
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        {
+            Content = "Button:",
+            Components = new List<ComponentProperties>
+            {
+                new ActionRowProperties(new List<ButtonProperties>
+                {
+                    new ActionButtonProperties("id", ButtonStyle.Success)
+                    {
+                        Emoji = new(942818016222138399)
+                    },
+                    new LinkButtonProperties(new("https://google.com"))
+                    {
+                        Emoji = new(942818016222138399)
+                    }
+                })
+            }
+        }));
+    }
 }
 
 public enum DeleteMessagesDays

@@ -52,9 +52,10 @@ public class StrangeCommands : CommandModule
     [Command("button")]
     public Task Button()
     {
-        ActionButtonProperties button = new("Click it!", "click it", ButtonStyle.Success)
+        ActionButtonProperties button = new("click it", ButtonStyle.Success)
         {
-            EmojiId = 888159212109197382
+            Emoji = new(888159212109197382),
+            Label = "Click it!",
         };
         ActionRowProperties actionRow = new(new List<ButtonProperties>
         {
@@ -81,7 +82,10 @@ public class StrangeCommands : CommandModule
     {
         ActionRowProperties actionRow = new(new List<ButtonProperties>
         {
-            new LinkButtonProperties("Link", url)
+            new LinkButtonProperties(url)
+            {
+                Label = "Link",
+            }
         });
         MessageProperties message = new()
         {

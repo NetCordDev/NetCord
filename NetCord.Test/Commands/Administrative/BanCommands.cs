@@ -18,7 +18,10 @@ public class BanCommands : CommandModule
 
             ActionRowProperties actionRow = new(new List<ButtonProperties>
             {
-                new ActionButtonProperties("Unban", $"unban:{userId.Id}", ButtonStyle.Danger)
+                new ActionButtonProperties($"unban:{userId.Id}", ButtonStyle.Danger)
+                {
+                    Label = "Unban"
+                }
             });
             MessageProperties message = new()
             {

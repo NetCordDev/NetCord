@@ -40,8 +40,8 @@ public class MenuSelectOptionProperties
     public string? Description { get; set; }
 
     [JsonPropertyName("emoji")]
-    [JsonConverter(typeof(JsonConverters.ComponentEmojiConverter))]
-    public DiscordId? EmojiId { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ComponentEmojiProperties? Emoji { get; set; }
 
     [JsonPropertyName("default")]
     public bool? IsDefault { get; set; }
