@@ -4,7 +4,7 @@ namespace NetCord;
 
 public class RestGuild : ClientEntity
 {
-    private readonly JsonModels.JsonGuild _jsonEntity;
+    private protected readonly JsonModels.JsonGuild _jsonEntity;
 
     public ImmutableDictionary<DiscordId, GuildRole> Roles => _roles;
     public ImmutableDictionary<DiscordId, Emoji> Emojis => _emojis;

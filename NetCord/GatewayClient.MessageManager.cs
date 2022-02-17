@@ -118,19 +118,7 @@ public partial class GatewayClient
                 AddOrUpdate(GetD(), ref _guilds, (JsonGuild j, RestClient c) => new Guild(j, c));
                 break;
             case "GUILD_UPDATE":
-                AddOrUpdate(GetD(), ref _guilds, (JsonGuild j, Guild g, RestClient c) =>
-                {
-                    return new(j with { CreatedAt = g.CreatedAt, IsLarge = g.IsLarge, MemberCount = g.MemberCount }, c)
-                    {
-                        _voiceStates = g._voiceStates,
-                        _users = g._users,
-                        _channels = g._channels,
-                        _activeThreads = g._activeThreads,
-                        _stageInstances = g._stageInstances,
-                        _presences = g._presences,
-                        _scheduledEvents = g._scheduledEvents,
-                    };
-                });
+                AddOrUpdate(GetD(), ref _guilds, (JsonGuild j, Guild g, RestClient _) => new Guild(j, g));
                 break;
             case "GUILD_DELETE":
                 TryRemove(GetD(), ref _guilds);

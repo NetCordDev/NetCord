@@ -1,7 +1,9 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public interface IEntity
 {
-    public interface IEntity
-    {
-        public abstract DiscordId Id { get; }
-    }
+    /// <summary>
+    /// Returns the unique identifier for this object.
+    /// </summary>
+    public DiscordId Id { get; }
 }

@@ -1,10 +1,7 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 public abstract class Entity : IEntity
 {
-    [JsonIgnore]
     public abstract DiscordId Id { get; }
 
     public static bool operator ==(Entity? left, Entity? right) => left?.Id == right?.Id;

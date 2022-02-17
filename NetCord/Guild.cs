@@ -6,8 +6,6 @@ namespace NetCord;
 
 public class Guild : RestGuild
 {
-    internal readonly JsonGuild _jsonEntity;
-
     public ImmutableDictionary<DiscordId, VoiceState> VoiceStates => _voiceStates;
     public ImmutableDictionary<DiscordId, GuildUser> Users => _users;
     public ImmutableDictionary<DiscordId, IGuildChannel> Channels => _channels;
@@ -24,31 +22,32 @@ public class Guild : RestGuild
     internal ImmutableDictionary<DiscordId, Presence> _presences;
     internal ImmutableDictionary<DiscordId, GuildScheduledEvent> _scheduledEvents;
 
-    public override DiscordId Id => _jsonEntity.Id;
     public string? IconHash => _jsonEntity.IconHash;
     public GuildUser Owner => _users[OwnerId];
-    public DateTimeOffset? CreatedAt => _jsonEntity.CreatedAt;
-    public bool? IsLarge => _jsonEntity.IsLarge;
-    public bool? IsUnavaible => _jsonEntity.IsUnavaible;
-    public int? MemberCount { get; internal set; }
+    public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
+    public bool IsLarge => _jsonEntity.IsLarge;
+    public bool IsUnavaible => _jsonEntity.IsUnavaible;
+    public int MemberCount => _jsonEntity.MemberCount;
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal Guild(JsonGuild jsonEntity, RestClient client) : base(jsonEntity, client)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
-        _jsonEntity = jsonEntity;
+        _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionary(s => s.UserId, s => new VoiceState(s));
+        _users = _jsonEntity.Users.DistinctBy(u => u.User.Id).ToImmutableDictionary(u => u.User.Id, u => new GuildUser(u, Id, client));
+        _channels = _jsonEntity.Channels.ToImmutableDictionary(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
+        _activeThreads = _jsonEntity.ActiveThreads.ToImmutableDictionary(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
+        _stageInstances = _jsonEntity.StageInstances.ToImmutableDictionary(i => i.Id, i => new StageInstance(i, client));
+        _presences = _jsonEntity.Presences.ToImmutableDictionary(p => p.User.Id, p => new Presence(p, client));
+        _scheduledEvents = _jsonEntity.ScheduledEvents.ToImmutableDictionary(e => e.Id, e => new GuildScheduledEvent(e, client));
+    }
 
-        // properties can be null in GUIILD_UPDATE event
-        if (_jsonEntity.VoiceStates != null)
-        {
-            _voiceStates = _jsonEntity.VoiceStates.ToImmutableDictionary(s => s.UserId, s => new VoiceState(s));
-            _users = _jsonEntity.Users.DistinctBy(u => u.User.Id).ToImmutableDictionary(u => u.User.Id, u => new GuildUser(u, Id, client));
-            _channels = _jsonEntity.Channels.ToImmutableDictionary(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
-            _activeThreads = _jsonEntity.ActiveThreads.ToImmutableDictionary(t => t.Id, t => (Thread)Channel.CreateFromJson(t, client));
-            _stageInstances = _jsonEntity.StageInstances.ToImmutableDictionary(i => i.Id, i => new StageInstance(i, client));
-            _presences = _jsonEntity.Presences.ToImmutableDictionary(p => p.User.Id, p => new Presence(p, client));
-            _scheduledEvents = _jsonEntity.ScheduledEvents.ToImmutableDictionary(e => e.Id, e => new GuildScheduledEvent(e, client));
-        }
-        MemberCount = _jsonEntity.MemberCount;
+    internal Guild(JsonGuild jsonEntity, Guild oldGuild) : base(jsonEntity with { CreatedAt = oldGuild.CreatedAt, IsLarge = oldGuild.IsLarge, MemberCount = oldGuild.MemberCount }, oldGuild._client)
+    {
+        _voiceStates = oldGuild.VoiceStates;
+        _users = oldGuild._users;
+        _channels = oldGuild._channels;
+        _activeThreads = oldGuild._activeThreads;
+        _stageInstances = oldGuild._stageInstances;
+        _presences = oldGuild._presences;
+        _scheduledEvents = oldGuild._scheduledEvents;
     }
 }

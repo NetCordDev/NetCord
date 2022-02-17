@@ -76,16 +76,16 @@ internal record JsonGuild : JsonEntity
     public DiscordId? RulesChannelId { get; init; }
 
     [JsonPropertyName("joined_at")]
-    public DateTimeOffset? CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 
     [JsonPropertyName("large")]
-    public bool? IsLarge { get; init; }
+    public bool IsLarge { get; init; }
 
     [JsonPropertyName("unavailable")]
-    public bool? IsUnavaible { get; init; }
+    public bool IsUnavaible { get; init; }
 
     [JsonPropertyName("member_count")]
-    public int? MemberCount { get; set; }
+    public int MemberCount { get; set; }
 
     [JsonPropertyName("voice_states")]
     public JsonVoiceState[] VoiceStates { get; init; }
