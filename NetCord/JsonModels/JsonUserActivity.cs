@@ -45,7 +45,7 @@ internal record JsonUserActivity
     public bool? Instance { get; init; }
 
     [JsonPropertyName("flags")]
-    public int? Flags { get; init; }
+    public UserActivityFlags? Flags { get; init; }
 
     [JsonPropertyName("buttons")]
     public string[] ButtonsLabels { get; init; }

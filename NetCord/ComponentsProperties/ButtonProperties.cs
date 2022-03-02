@@ -17,7 +17,7 @@ public abstract class ButtonProperties
 
     [JsonPropertyName("emoji")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ComponentEmojiProperties? Emoji { get; set; }
+    public EmojiProperties? Emoji { get; set; }
 
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }

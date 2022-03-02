@@ -41,7 +41,7 @@ public class MenuSelectOptionProperties
 
     [JsonPropertyName("emoji")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public ComponentEmojiProperties? Emoji { get; set; }
+    public EmojiProperties? Emoji { get; set; }
 
     [JsonPropertyName("default")]
     public bool? IsDefault { get; set; }

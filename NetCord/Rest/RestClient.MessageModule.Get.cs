@@ -7,7 +7,7 @@ public partial class RestClient
     public partial class MessageModule
     {
         public async Task<RestMessage> GetAsync(DiscordId channelId, DiscordId messageId, RequestOptions? options = null)
-            => new(((await _client.SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", options).ConfigureAwait(false))!).ToObject<JsonMessage>(), _client);
+            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", options).ConfigureAwait(false))!.ToObject<JsonMessage>(), _client);
 
         public async IAsyncEnumerable<RestMessage> GetAsync(DiscordId channelId, RequestOptions? options = null)
         {

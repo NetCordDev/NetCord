@@ -20,7 +20,7 @@ public class UserActivity
     /// whether or not the activity is an instanced game session
     /// </summary>
     public bool? Instance => _jsonEntity.Instance;
-    public int? Flags => _jsonEntity.Flags;
+    public UserActivityFlags? Flags => _jsonEntity.Flags;
     public IEnumerable<UserActivityButton> Buttons { get; }
 
     internal UserActivity(JsonModels.JsonUserActivity jsonEntity, RestClient client)

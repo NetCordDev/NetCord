@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class ComponentEmojiProperties
+public class EmojiProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
@@ -12,12 +12,12 @@ public class ComponentEmojiProperties
     [JsonPropertyName("name")]
     public string? Unicode { get; }
 
-    public ComponentEmojiProperties(DiscordId customEmojiId)
+    public EmojiProperties(DiscordId customEmojiId)
     {
         Id = customEmojiId;
     }
 
-    public ComponentEmojiProperties(string unicode)
+    public EmojiProperties(string unicode)
     {
         Unicode = unicode;
     }

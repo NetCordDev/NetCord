@@ -6,9 +6,9 @@ public class Presence
 
     public DiscordId UserId => _jsonEntity.User.Id;
     public DiscordId? GuildId => _jsonEntity.GuildId;
-    public UserStatus Status => _jsonEntity.Status;
+    public UserStatusType Status => _jsonEntity.Status;
     public IEnumerable<UserActivity> Activities { get; }
-    public IReadOnlyDictionary<Platform, UserStatus> Platform => _jsonEntity.Platform;
+    public IReadOnlyDictionary<Platform, UserStatusType> Platform => _jsonEntity.Platform;
 
     internal Presence(JsonModels.JsonPresence jsonEntity, RestClient client)
     {

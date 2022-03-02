@@ -9,7 +9,7 @@ public partial class GatewayClient : IDisposable
 {
     private readonly string _botToken;
     private readonly WebSocket _webSocket = new(new(Discord.GatewayUrl));
-    private readonly SocketClientConfig _config;
+    private readonly GatewayClientConfig _config;
     private readonly ReconnectTimer _reconnectTimer = new();
     private readonly LatencyTimer _latencyTimer = new();
 
@@ -54,33 +54,6 @@ public partial class GatewayClient : IDisposable
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    //public IReadOnlyDictionary<DiscordId, Guild> Guilds
-    //{
-    //    get
-    //    {
-    //        lock (Guilds)
-    //            return new Dictionary<DiscordId, Guild>(Guilds);
-    //    }
-    //}
-
-    //public IReadOnlyDictionary<DiscordId, DMChannel> DMChannels
-    //{
-    //    get
-    //    {
-    //        lock (DMChannels)
-    //            return new Dictionary<DiscordId, DMChannel>(DMChannels);
-    //    }
-    //}
-
-    //public IReadOnlyDictionary<DiscordId, GroupDMChannel> GroupDMChannels
-    //{
-    //    get
-    //    {
-    //        lock (GroupDMChannels)
-    //            return new Dictionary<DiscordId, GroupDMChannel>(GroupDMChannels);
-    //    }
-    //}
-
     public GatewayClient(string token, TokenType tokenType)
     {
         ArgumentNullException.ThrowIfNull(token, nameof(token));
@@ -90,7 +63,7 @@ public partial class GatewayClient : IDisposable
         Rest = new(token, tokenType);
     }
 
-    public GatewayClient(string token, TokenType tokenType, SocketClientConfig? config) : this(token, tokenType)
+    public GatewayClient(string token, TokenType tokenType, GatewayClientConfig? config) : this(token, tokenType)
     {
         if (config != null)
             _config = config;
@@ -175,7 +148,7 @@ public partial class GatewayClient : IDisposable
     }
 
     /// <summary>
-    /// Connect the <see cref="GatewayClient"/> to gateway
+    /// Connects the <see cref="GatewayClient"/> to gateway
     /// </summary>
     /// <returns></returns>
     public async Task StartAsync()
@@ -188,8 +161,14 @@ public partial class GatewayClient : IDisposable
     private Task SendIdentifyAsync()
     {
         _latencyTimer.Start();
-        var authorizationMessage = $@"{{""op"":2,""d"":{{""token"":""{_botToken}"",""intents"":{(uint)_config.Intents},""properties"":{{""$os"":""linux"",""$browser"":""NetCord"",""$device"":""NetCord""}},""large_threshold"":250}}}}";
-        return _webSocket.SendAsync(authorizationMessage, _token);
+        PayloadProperties<IdentifyProperties> payload = new(GatewayOpcode.Identify, new(_botToken)
+        {
+            LargeThreshold = _config.LargeThreshold,
+            Shard = _config.Shard,
+            Presence = _config.Presence,
+            Intents = _config.Intents,
+        });
+        return _webSocket.SendAsync(payload.Serialize(), _token);
     }
 
     private async Task ResumeAsync()
@@ -197,8 +176,8 @@ public partial class GatewayClient : IDisposable
         await _webSocket.ConnectAsync().ConfigureAwait(false);
 
         _latencyTimer.Start();
-        var resumeMessage = $@"{{""op"":6,""d"":{{""token"":""{_botToken}"",""session_id"":""{SessionId}"",""seq"":{SequenceNumber}}}}}";
-        await _webSocket.SendAsync(resumeMessage, _token).ConfigureAwait(false);
+        PayloadProperties<ResumeProperties> payload = new(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber));
+        await _webSocket.SendAsync(payload.Serialize(), _token).ConfigureAwait(false);
     }
 
     private void LogInfo(string text, LogType type)
@@ -213,7 +192,7 @@ public partial class GatewayClient : IDisposable
     }
 
     /// <summary>
-    /// Disconnect the <see cref="GatewayClient"/> from gateway
+    /// Disconnects the <see cref="GatewayClient"/> from gateway
     /// </summary>
     /// <returns></returns>
     public async Task CloseAsync()
@@ -267,5 +246,23 @@ public partial class GatewayClient : IDisposable
     {
         if (_disposed)
             throw new ObjectDisposedException(nameof(GatewayClient));
+    }
+
+    public Task UpdateVoiceStateAsync(VoiceStateProperties voiceState)
+    {
+        PayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
+        return _webSocket.SendAsync(payload.Serialize());
+    }
+
+    public Task UpdatePresenceAsync(PresenceProperties presence)
+    {
+        PayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
+        return _webSocket.SendAsync(payload.Serialize());
+    }
+
+    public Task RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
+    {
+        PayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
+        return _webSocket.SendAsync(payload.Serialize());
     }
 }

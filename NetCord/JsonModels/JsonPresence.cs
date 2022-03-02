@@ -11,11 +11,11 @@ internal record JsonPresence
     public DiscordId? GuildId { get; init; }
 
     [JsonPropertyName("status")]
-    public UserStatus Status { get; init; }
+    public UserStatusType Status { get; init; }
 
     [JsonPropertyName("activities")]
     public JsonUserActivity[] Activities { get; init; }
 
     [JsonPropertyName("client_status")]
-    public IReadOnlyDictionary<Platform, UserStatus> Platform { get; init; }
+    public IReadOnlyDictionary<Platform, UserStatusType> Platform { get; init; }
 }

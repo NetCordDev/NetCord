@@ -16,7 +16,7 @@ public class Emoji : ClientEntity
 
     public bool IsStandard => !_jsonEntity.Id.HasValue;
 
-    public string? Name => _jsonEntity.Name;
+    public string Name => _jsonEntity.Name!;
 
     public IReadOnlyDictionary<DiscordId, GuildRole>? AllowedRoles { get; }
 
@@ -26,7 +26,7 @@ public class Emoji : ClientEntity
 
     public bool? Managed => _jsonEntity.Managed;
 
-    public bool? Animated => _jsonEntity.Animated;
+    public bool Animated => _jsonEntity.Animated;
 
     public bool? Available => _jsonEntity.Available;
 
@@ -37,4 +37,6 @@ public class Emoji : ClientEntity
             Creator = new(jsonEntity.Creator, client);
         AllowedRoles = jsonEntity.AllowedRoles?.ToDictionary(r => r.Id, r => new GuildRole(r, client));
     }
+
+    public override string ToString() => IsStandard ? Name : (Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>");
 }

@@ -8,7 +8,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All });
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All, Presence = new(UserStatusType.Invisible, true) });
     private static readonly CommandService _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();

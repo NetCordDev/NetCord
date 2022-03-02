@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -149,6 +150,9 @@ public partial class GatewayClient
                     TryRemove(property, ref g._users);
                 break;
             case "GUILD_MEMBERS_CHUNK":
+                property = GetD();
+                if (TryGetGuild(property, out g))
+                    g._users = g._users.SetItems(property.GetProperty("members").EnumerateArray().Select(u => new GuildUser(u.ToObject<JsonGuildUser>(), g.Id, Rest)).Select(u => KeyValuePair.Create(u.Id, u)));
                 break;
             case "GUILD_ROLE_CREATE":
             case "GUILD_ROLE_UPDATE":
@@ -275,7 +279,6 @@ public partial class GatewayClient
     {
         var jsonObj = jsonElement.ToObject<TJsonType>();
         TType obj = constructor(jsonObj, Rest);
-        var v = propertyToUpdate.SetItem(obj.Id, obj);
         lock (propertyToUpdate)
 #pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
             propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
@@ -289,7 +292,6 @@ public partial class GatewayClient
         lock (propertyToUpdate)
         {
             TType obj = constructor(jsonObj, propertyToUpdate[jsonObj.Id], Rest);
-            var oldP = propertyToUpdate;
 #pragma warning disable CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
             propertyToUpdate = propertyToUpdate.SetItem(obj.Id, obj);
 #pragma warning restore CS0728 // Possibly incorrect assignment to local which is the argument to a using or lock statement
