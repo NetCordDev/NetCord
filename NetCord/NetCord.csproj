@@ -23,10 +23,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCord.WebSockets\NetCord.WebSockets.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\..\..\..\Desktop\NetCordLogo\png\Small.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

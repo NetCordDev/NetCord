@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord", "NetCord\NetCord.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test", "NetCord.Test\NetCord.Test.csproj", "{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.WebSockets", "NetCord.WebSockets\NetCord.WebSockets.csproj", "{C93FAD23-6542-4F98-BAF5-CAC803C65248}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8B9CC088-2C2E-4AC4-B6E6-14A02DCBEF3E}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -30,10 +28,6 @@ Global
 		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C93FAD23-6542-4F98-BAF5-CAC803C65248}.Release|Any CPU.Build.0 = Release|Any CPU
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Release|Any CPU.ActiveCfg = Release|Any CPU

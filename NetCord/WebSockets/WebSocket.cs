@@ -3,7 +3,7 @@ using System.Text;
 
 namespace NetCord.WebSockets;
 
-public class WebSocket : IDisposable
+internal class WebSocket : IDisposable
 {
     private readonly Uri _uri;
     private ClientWebSocket? _webSocket;
@@ -21,11 +21,6 @@ public class WebSocket : IDisposable
     public delegate void MessageReceivedEventHandler(ReadOnlyMemory<byte> data);
 
     public bool IsConnected { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the default encoding
-    /// </summary>
-    public Encoding Encoding { get; init; } = Encoding.UTF8;
 
     /// <summary>
     /// Creates a new instance of <see cref="WebSocket"/>
@@ -99,13 +94,13 @@ public class WebSocket : IDisposable
     /// Send a message
     /// </summary>
     public Task SendAsync(string message, CancellationToken token = default)
-        => SendAsync(Encoding.GetBytes(message), token);
+        => SendAsync(Encoding.UTF8.GetBytes(message), token);
 
     /// <summary>
     /// Send a message
     /// </summary>
     public Task SendAsync(string message, WebSocketMessageFlags flags, CancellationToken token = default)
-        => SendAsync(Encoding.GetBytes(message), flags, token);
+        => SendAsync(Encoding.UTF8.GetBytes(message), flags, token);
 
     private async Task ReadAsync()
     {
@@ -170,9 +165,9 @@ public class WebSocket : IDisposable
 
     private void ThrowIfInvalid()
     {
-        if (!IsConnected)
-            throw new WebSocketException("WebSocket wasn't connected");
-        else if (_disposed)
+        if (_disposed)
             throw new ObjectDisposedException(nameof(WebSocket));
+        else if (!IsConnected)
+            throw new WebSocketException("WebSocket wasn't connected");
     }
 }
