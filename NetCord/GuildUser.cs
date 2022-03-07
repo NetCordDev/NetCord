@@ -56,15 +56,13 @@ public class GuildUser : User
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
-    public string GetGuildAvatarUrl(ImageFormat? format = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format);
-
     /// <summary>
     /// 
     /// </summary>
     /// <param name="format"></param>
     /// <param name="size">any power of two between 16 and 4096</param>
     /// <returns></returns>
-    public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
+    public string GetGuildAvatarUrl(ImageFormat? format = null, int? size = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
 
     public Task AddRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
 
