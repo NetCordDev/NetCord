@@ -10,5 +10,5 @@ public class GroupDMChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
-    public Image? Icon { get; set; }
+    public ImageProperties? Icon { get; set; }
 }

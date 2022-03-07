@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonPresence
 {
     [JsonPropertyName("user")]
-    public JsonEntity User { get; init; }
+    public JsonUser User { get; init; }
 
     [JsonPropertyName("guild_id")]
     public DiscordId? GuildId { get; init; }

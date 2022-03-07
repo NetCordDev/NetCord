@@ -62,41 +62,39 @@ public class RestGuild : ClientEntity
             WelcomeScreen = new(jsonEntity.WelcomeScreen);
     }
 
-    public Task<GuildPreview> GetPreviewAsync(RequestOptions? options = null) => _client.Guild.GetPreviewAsync(Id, options);
-    public Task<RestGuild> ModifyAsync(Action<GuildOptions> action, RequestOptions? options = null) => _client.Guild.ModifyAsync(Id, action, options);
-    public Task DeleteAsync(RequestOptions? options = null) => _client.Guild.DeleteAsync(Id, options);
-    public Task<IReadOnlyDictionary<DiscordId, IGuildChannel>> GetChannelsAsync(RequestOptions? options = null) => _client.Guild.Channel.GetAsync(Id, options);
-    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestOptions? options = null) => _client.Guild.Channel.CreateAsync(Id, channelBuilder, options);
-    public Task ModifyPositionsAsync(ChannelPosition[] positions, RequestOptions? options = null) => _client.Guild.Channel.ModifyPositionsAsync(Id, positions, options);
-    public Task<(IReadOnlyDictionary<DiscordId, Thread> Threads, IReadOnlyDictionary<DiscordId, ThreadUser> CurrentUsers)> GetActiveThreadsAsync(RequestOptions? options = null) => _client.Guild.Channel.GetActiveThreadsAsync(Id, options);
-    public Task<IReadOnlyDictionary<DiscordId, GuildBan>> GetBansAsync(RequestOptions? options = null) => _client.Guild.GetBansAsync(Id, options);
-    public Task<GuildBan> GetBanAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.GetBanAsync(Id, userId, options);
-    public Task<IReadOnlyDictionary<DiscordId, GuildRole>> GetRolesAsync(RequestOptions? options = null) => _client.Guild.GetRolesAsync(Id, options);
-    public Task<GuildRole> CreateRoleAsync(GuildRoleProperties guildRoleProperties, RequestOptions? options = null) => _client.Guild.CreateRoleAsync(Id, guildRoleProperties, options);
-    public Task<IReadOnlyDictionary<DiscordId, GuildRole>> ModifyRolePositionsAsync(GuildRolePosition[] positions, RequestOptions? options = null) => _client.Guild.ModifyRolePositionsAsync(Id, positions, options);
-    public Task<GuildRole> ModifyRoleAsync(DiscordId roleId, Action<GuildRoleOptions> action, RequestOptions? options = null) => _client.Guild.ModifyRoleAsync(Id, roleId, action, options);
-    public Task DeleteRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Guild.DeleteRoleAsync(Id, roleId, options);
-    public Task<int> GetPruneCountAsync(int days, DiscordId[]? roles = null, RequestOptions? options = null) => _client.Guild.GetPruneCountAsync(Id, days, roles, options);
-    public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestOptions? options = null) => _client.Guild.PruneAsync(Id, pruneProperties, options);
-    public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestOptions? options = null) => _client.Guild.GetVoiceRegionsAsync(Id, options);
-    public Task<IEnumerable<GuildInvite>> GetInvitesAsync(RequestOptions? options = null) => _client.Guild.GetInvitesAsync(Id, options);
-    public Task<IReadOnlyDictionary<DiscordId, Integration>> GetIntegrationsAsync(RequestOptions? options = null) => _client.Guild.GetIntegrationsAsync(Id, options);
-    public Task DeleteIntegrationAsync(DiscordId integrationId, RequestOptions? options = null) => _client.Guild.DeleteIntegrationAsync(Id, integrationId, options);
-    public Task<GuildWidgetSettings> GetWidgetSettingsAsync(RequestOptions? options = null) => _client.Guild.GetWidgetSettingsAsync(Id, options);
-    public Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(Action<GuildWidgetSettingsOptions> action, RequestOptions? options = null) => _client.Guild.ModifyWidgetSettingsAsync(Id, action, options);
-    public Task<GuildWidget> GetWidgetAsync(RequestOptions? options = null) => _client.Guild.GetWidgetAsync(Id, options);
-    public Task<GuildVanityInvite> GetVanityInviteAsync(RequestOptions? options = null) => _client.Guild.GetVanityInviteAsync(Id, options);
-    public Task<GuildWelcomeScreen> GetWelcomeScreenAsync(RequestOptions? options = null) => _client.Guild.GetWelcomeScreenAsync(Id, options);
-    public Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<GuildWelcomeScreenOptions> action, RequestOptions? options = null) => _client.Guild.ModifyWelcomeScreenAsync(Id, action, options);
-    public Task ModifyCurrentUserVoiceStateAsync(DiscordId channelId, Action<CurrentUserVoiceStateOptions> action, RequestOptions? options = null) => _client.Guild.ModifyCurrentUserVoiceStateAsync(Id, channelId, action, options);
-    public Task ModifyUserVoiceStateAsync(DiscordId channelId, Action<VoiceStateOptions> action, RequestOptions? options = null) => _client.Guild.ModifyUserVoiceStateAsync(Id, channelId, action, options);
+    public Task<GuildPreview> GetPreviewAsync(RequestProperties? options = null) => _client.GetGuildPreviewAsync(Id, options);
+    public Task<RestGuild> ModifyAsync(Action<GuildOptions> action, RequestProperties? options = null) => _client.ModifyGuildAsync(Id, action, options);
+    public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteGuildAsync(Id, options);
+    public Task<IReadOnlyDictionary<DiscordId, IGuildChannel>> GetChannelsAsync(RequestProperties? options = null) => _client.GetGuildChannelsAsync(Id, options);
+    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestProperties? options = null) => _client.CreateGuildChannelAsync(Id, channelBuilder, options);
+    public Task ModifyPositionsAsync(ChannelPosition[] positions, RequestProperties? options = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, options);
+    public Task<(IReadOnlyDictionary<DiscordId, GuildThread> Threads, IReadOnlyDictionary<DiscordId, ThreadUser> CurrentUsers)> GetActiveThreadsAsync(RequestProperties? options = null) => _client.GetActiveGuildThreadsAsync(Id, options);
+    public Task<IReadOnlyDictionary<DiscordId, GuildBan>> GetBansAsync(RequestProperties? options = null) => _client.GetGuildBansAsync(Id, options);
+    public Task<GuildBan> GetBanAsync(DiscordId userId, RequestProperties? options = null) => _client.GetGuildBanAsync(Id, userId, options);
+    public Task<IReadOnlyDictionary<DiscordId, GuildRole>> GetRolesAsync(RequestProperties? options = null) => _client.GetGuildRolesAsync(Id, options);
+    public Task<GuildRole> CreateRoleAsync(GuildRoleProperties guildRoleProperties, RequestProperties? options = null) => _client.CreateGuildRoleAsync(Id, guildRoleProperties, options);
+    public Task<IReadOnlyDictionary<DiscordId, GuildRole>> ModifyRolePositionsAsync(GuildRolePosition[] positions, RequestProperties? options = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, options);
+    public Task<GuildRole> ModifyRoleAsync(DiscordId roleId, Action<GuildRoleOptions> action, RequestProperties? options = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, options);
+    public Task DeleteRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.DeleteGuildRoleAsync(Id, roleId, options);
+    public Task<int> GetPruneCountAsync(int days, DiscordId[]? roles = null, RequestProperties? options = null) => _client.GetGuildPruneCountAsync(Id, days, roles, options);
+    public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? options = null) => _client.GuildPruneAsync(Id, pruneProperties, options);
+    public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestProperties? options = null) => _client.GetGuildVoiceRegionsAsync(Id, options);
+    public Task<IEnumerable<RestGuildInvite>> GetInvitesAsync(RequestProperties? options = null) => _client.GetGuildInvitesAsync(Id, options);
+    public Task<IReadOnlyDictionary<DiscordId, Integration>> GetIntegrationsAsync(RequestProperties? options = null) => _client.GetGuildIntegrationsAsync(Id, options);
+    public Task DeleteIntegrationAsync(DiscordId integrationId, RequestProperties? options = null) => _client.DeleteGuildIntegrationAsync(Id, integrationId, options);
+    public Task<GuildWidgetSettings> GetWidgetSettingsAsync(RequestProperties? options = null) => _client.GetGuildWidgetSettingsAsync(Id, options);
+    public Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(Action<GuildWidgetSettingsOptions> action, RequestProperties? options = null) => _client.ModifyGuildWidgetSettingsAsync(Id, action, options);
+    public Task<GuildWidget> GetWidgetAsync(RequestProperties? options = null) => _client.GetGuildWidgetAsync(Id, options);
+    public Task<GuildVanityInvite> GetVanityInviteAsync(RequestProperties? options = null) => _client.GetGuildVanityInviteAsync(Id, options);
+    public Task<GuildWelcomeScreen> GetWelcomeScreenAsync(RequestProperties? options = null) => _client.GetGuildWelcomeScreenAsync(Id, options);
+    public Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<GuildWelcomeScreenOptions> action, RequestProperties? options = null) => _client.ModifyGuildWelcomeScreenAsync(Id, action, options);
+    public Task ModifyCurrentUserVoiceStateAsync(DiscordId channelId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? options = null) => _client.ModifyCurrentGuildUserVoiceStateAsync(Id, channelId, action, options);
+    public Task ModifyUserVoiceStateAsync(DiscordId channelId, DiscordId userId, Action<VoiceStateOptions> action, RequestProperties? options = null) => _client.ModifyGuildUserVoiceStateAsync(Id, channelId, userId, action, options);
 
-    public Task KickUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.KickAsync(Id, userId, options);
+    public Task KickUserAsync(DiscordId userId, RequestProperties? options = null) => _client.KickGuildUserAsync(Id, userId, options);
 
-    public Task BanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.BanAsync(Id, userId, options);
-    public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestOptions? options = null) => _client.Guild.User.BanAsync(Id, userId, deleteMessageDays, options);
+    public Task BanUserAsync(DiscordId userId, RequestProperties? options = null) => _client.BanGuildUserAsync(Id, userId, options);
+    public Task BanUserAsync(DiscordId userId, int deleteMessageDays, RequestProperties? options = null) => _client.BanGuildUserAsync(Id, userId, deleteMessageDays, options);
 
-    public Task UnbanUserAsync(DiscordId userId, RequestOptions? options = null) => _client.Guild.User.UnbanAsync(Id, userId, options);
-
-
+    public Task UnbanUserAsync(DiscordId userId, RequestProperties? options = null) => _client.UnbanGuildUserAsync(Id, userId, options);
 }

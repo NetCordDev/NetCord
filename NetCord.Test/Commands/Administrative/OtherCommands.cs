@@ -19,7 +19,7 @@ public class OtherCommands : CommandModule
             await ReplyAsync("To few messages!");
             return;
         }
-        await Context.Client.Rest.Message.DeleteAsync(Context.Channel.Id, GetMessagesToRemove());
+        await Context.Client.Rest.DeleteMessagesAsync(Context.Channel.Id, GetMessagesToRemove());
         if (count == 1)
             await SendAsync("**Deleted 1 message!**");
         else
@@ -28,7 +28,7 @@ public class OtherCommands : CommandModule
         async IAsyncEnumerable<DiscordId> GetMessagesToRemove()
         {
             int i = 0;
-            await foreach (var message in Context.Client.Rest.Message.GetAsync(Context.Channel.Id))
+            await foreach (var message in Context.Client.Rest.GetMessagesAsync(Context.Channel.Id))
             {
                 if (i == count || (DateTimeOffset.UtcNow - message.CreatedAt).TotalDays > 14)
                     break;

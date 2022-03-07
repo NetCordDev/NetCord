@@ -15,5 +15,5 @@ public class UserId : Entity
         Id = id;
     }
 
-    public override string ToString() => User != null ? User.ToString() : Id.ToString();
+    public override string? ToString() => User != null ? User.ToString() : Id.ToString();
 }

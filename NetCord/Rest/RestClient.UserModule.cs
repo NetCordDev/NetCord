@@ -4,25 +4,15 @@ namespace NetCord;
 
 public partial class RestClient
 {
-    public class UserModule
+    public async Task<User> GetUserAsync(DiscordId userId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonUser>(), this);
+
+    public async Task<SelfUser> ModifyCurrentUserAsync(Action<SelfUserProperties> action, RequestProperties? options = null)
     {
-        private readonly RestClient _client;
-
-        internal UserModule(RestClient client)
-        {
-            _client = client;
-        }
-
-        public async Task<User> GetAsync(DiscordId userId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/users/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonUser>(), _client);
-
-        public async Task<SelfUser> ModifyAsync(Action<SelfUserProperties> action, RequestOptions? options = null)
-        {
-            SelfUserProperties properties = new();
-            action.Invoke(properties);
-            var result = (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/users/@me", options).ConfigureAwait(false))!;
-            return new(result.ToObject<JsonModels.JsonUser>(), _client);
-        }
+        SelfUserProperties properties = new();
+        action.Invoke(properties);
+        var result = (await SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/users/@me", options).ConfigureAwait(false))!;
+        return new(result.ToObject<JsonModels.JsonUser>(), this);
     }
 }
 
@@ -34,5 +24,5 @@ public class SelfUserProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("avatar")]
-    public Image? Avatar { get; set; }
+    public ImageProperties? Avatar { get; set; }
 }

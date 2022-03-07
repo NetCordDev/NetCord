@@ -80,19 +80,19 @@ public abstract class Interaction : ClientEntity
         throw new InvalidOperationException();
     }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestOptions? options = null) => _client.Interaction.SendResponseAsync(Id, Token, interactionCallback, options);
+    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? options = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, options);
 
-    public Task<RestMessage> GetResponseAsync(RequestOptions? options = null) => _client.Interaction.GetResponseAsync(ApplicationId, Token, options);
+    public Task<RestMessage> GetResponseAsync(RequestProperties? options = null) => _client.GetInteractionResponseAsync(ApplicationId, Token, options);
 
-    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RequestOptions? options = null) => _client.Interaction.ModifyResponseAsync(ApplicationId, Token, action, options);
+    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RequestProperties? options = null) => _client.ModifyInteractionResponseAsync(ApplicationId, Token, action, options);
 
-    public Task DeleteResponseAsync(RequestOptions? options = null) => _client.Interaction.DeleteResponseAsync(ApplicationId, Token, options);
+    public Task DeleteResponseAsync(RequestProperties? options = null) => _client.DeleteInteractionResponseAsync(ApplicationId, Token, options);
 
-    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestOptions? options = null) => _client.Interaction.SendFollowupMessageAsync(ApplicationId, Token, message, options);
+    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestProperties? options = null) => _client.SendInteractionFollowupMessageAsync(ApplicationId, Token, message, options);
 
-    public Task<RestMessage> GetFollowupMessageAsync(DiscordId messageId, RequestOptions? options = null) => _client.Interaction.GetFollowupMessageAsync(ApplicationId, Token, messageId, options);
+    public Task<RestMessage> GetFollowupMessageAsync(DiscordId messageId, RequestProperties? options = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, options);
 
-    public Task<RestMessage> ModifyFollowupMessageAsync(DiscordId messageId, Action<MessageOptions> action, RequestOptions? options = null) => _client.Interaction.ModifyFollowupMessageAsync(ApplicationId, Token, messageId, action, options);
+    public Task<RestMessage> ModifyFollowupMessageAsync(DiscordId messageId, Action<MessageOptions> action, RequestProperties? options = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, options);
 
-    public Task DeleteFollowupMessageAsync(DiscordId messageId, RequestOptions? options = null) => _client.Interaction.DeleteFollowupMessageAsync(ApplicationId, Token, messageId, options);
+    public Task DeleteFollowupMessageAsync(DiscordId messageId, RequestProperties? options = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, options);
 }

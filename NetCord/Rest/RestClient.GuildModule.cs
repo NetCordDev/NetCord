@@ -1,126 +1,99 @@
-﻿namespace NetCord;
+﻿using System.Text.Json;
+
+namespace NetCord;
 
 public partial class RestClient
 {
-    public partial class GuildModule
+    public async Task<RestGuild> CreateGuildAsync(GuildProperties guildProperties, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Post, new JsonContent(guildProperties), "/guilds", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), this);
+
+    public async Task<RestGuild> GetGuildAsync(DiscordId guildId, bool withCounts = false, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}?with_counts={withCounts}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), this);
+
+    public async Task<GuildPreview> GetGuildPreviewAsync(DiscordId guildId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), this);
+
+    public async Task<RestGuild> ModifyGuildAsync(DiscordId guildId, Action<GuildOptions> action, RequestProperties? options = null)
     {
-        private readonly RestClient _client;
+        GuildOptions guildProperties = new();
+        action(guildProperties);
+        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(guildProperties), $"/guilds/{guildId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), this);
+    }
 
-        public UserModule User { get; }
-        public ChannelModule Channel { get; }
+    public Task DeleteGuildAsync(DiscordId guildId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}", options);
 
-        internal GuildModule(RestClient client)
-        {
-            _client = client;
-            User = new(client);
-            Channel = new(client);
-        }
+    public async Task<IReadOnlyDictionary<DiscordId, GuildBan>> GetGuildBansAsync(DiscordId guildId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().ToDictionary(b => b.User.Id, b => new GuildBan(b, this));
 
-        public async Task<RestGuild> CreateAsync(GuildProperties guildProperties, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildProperties), "/guilds", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
+    public async Task<GuildBan> GetGuildBanAsync(DiscordId guildId, DiscordId userId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan>(), this);
 
-        public async Task<RestGuild> GetAsync(DiscordId guildId, bool withCounts = false, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}?with_counts={withCounts}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
+    public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> GetGuildRolesAsync(DiscordId guildId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, this));
 
-        public async Task<GuildPreview> GetPreviewAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/preview", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
+    public async Task<GuildRole> CreateGuildRoleAsync(DiscordId guildId, GuildRoleProperties guildRoleProperties, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Post, new JsonContent(guildRoleProperties), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), this);
 
-        public async Task<RestGuild> ModifyAsync(DiscordId guildId, Action<GuildOptions> action, RequestOptions? options = null)
-        {
-            GuildOptions guildProperties = new();
-            action(guildProperties);
-            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildProperties), $"/guilds/{guildId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuild>(), _client);
-        }
+    public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> ModifyGuildRolePositionsAsync(DiscordId guildId, GuildRolePosition[] positions, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Patch, new JsonContent(positions), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, this));
 
-        public Task DeleteAsync(DiscordId guildId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}", options);
+    public async Task<GuildRole> ModifyGuildRoleAsync(DiscordId guildId, DiscordId roleId, Action<GuildRoleOptions> action, RequestProperties? options = null)
+    {
+        GuildRoleOptions obj = new();
+        action(obj);
+        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/roles/{roleId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), this);
+    }
 
-        public async Task<IReadOnlyDictionary<DiscordId, GuildBan>> GetBansAsync(DiscordId guildId, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().ToDictionary(b => b.User.Id, b => new GuildBan(b, _client));
+    public Task DeleteGuildRoleAsync(DiscordId guildId, DiscordId roleId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", options);
 
-        public async Task<GuildBan> GetBanAsync(DiscordId guildId, DiscordId userId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan>(), _client);
+    public async Task<int> GetGuildPruneCountAsync(DiscordId guildId, int days, DiscordId[]? roles = null, RequestProperties? options = null)
+    {
+        if (roles == null)
+            return JsonDocument.Parse(await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/prune?days={days}", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").GetInt32();
+        else
+            return JsonDocument.Parse(await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/prune?days={days}&include_roles={string.Join(',', roles)}", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").GetInt32();
+    }
 
-        public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> GetRolesAsync(DiscordId guildId, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, _client));
+    public async Task<int?> GuildPruneAsync(DiscordId guildId, GuildPruneProperties pruneProperties, RequestProperties? options = null)
+        => JsonDocument.Parse(await SendRequestAsync(HttpMethod.Post, new JsonContent(pruneProperties), $"/guilds/{guildId}/prune", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").ToObject<int?>();
 
-        public async Task<GuildRole> CreateRoleAsync(DiscordId guildId, GuildRoleProperties guildRoleProperties, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(guildRoleProperties), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), _client);
+    public async Task<IEnumerable<VoiceRegion>> GetGuildVoiceRegionsAsync(DiscordId guildId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/regions", options).ConfigureAwait(false)).ToObject<IEnumerable<JsonModels.JsonVoiceRegion>>().Select(r => new VoiceRegion(r));
 
-        public async Task<IReadOnlyDictionary<DiscordId, GuildRole>> ModifyRolePositionsAsync(DiscordId guildId, GuildRolePosition[] positions, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(positions), $"/guilds/{guildId}/roles", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, _client));
+    public async Task<IEnumerable<RestGuildInvite>> GetGuildInvitesAsync(DiscordId guildId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/invites", options).ConfigureAwait(false)).ToObject<IEnumerable<JsonModels.JsonRestGuildInvite>>().Select(i => new RestGuildInvite(i, this));
 
-        public async Task<GuildRole> ModifyRoleAsync(DiscordId guildId, DiscordId roleId, Action<GuildRoleOptions> action, RequestOptions? options = null)
-        {
-            GuildRoleOptions obj = new();
-            action(obj);
-            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/roles/{roleId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), _client);
-        }
+    public async Task<IReadOnlyDictionary<DiscordId, Integration>> GetGuildIntegrationsAsync(DiscordId guildId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/integrations", options).ConfigureAwait(false))!.ToObject<IEnumerable<JsonModels.JsonIntegration>>().ToDictionary(i => i.Id, i => new Integration(i, this));
 
-        public Task DeleteRoleAsync(DiscordId guildId, DiscordId roleId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", options);
+    public Task DeleteGuildIntegrationAsync(DiscordId guildId, DiscordId integrationId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/integrations/{integrationId}", options);
 
-        public async Task<int> GetPruneCountAsync(DiscordId guildId, int days, DiscordId[]? roles = null, RequestOptions? options = null)
-        {
-            if (roles == null)
-                return (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/prune?days={days}", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").GetInt32();
-            else
-                return (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/prune?days={days}&include_roles={string.Join(',', roles)}", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").GetInt32();
-        }
+    public async Task<GuildWidgetSettings> GetGuildWidgetSettingsAsync(DiscordId guildId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
 
-        public async Task<int?> PruneAsync(DiscordId guildId, GuildPruneProperties pruneProperties, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Post, new JsonContent(pruneProperties), $"/guilds/{guildId}/prune", options).ConfigureAwait(false))!.RootElement.GetProperty("pruned").ToObject<int?>();
+    public async Task<GuildWidgetSettings> ModifyGuildWidgetSettingsAsync(DiscordId guildId, Action<GuildWidgetSettingsOptions> action, RequestProperties? options = null)
+    {
+        GuildWidgetSettingsOptions guildWidgetSettingsOptions = new();
+        action(guildWidgetSettingsOptions);
+        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWidgetSettingsOptions), $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
+    }
 
-        public async Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(DiscordId guildId, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/regions", options).ConfigureAwait(false))!.RootElement.EnumerateArray().Select(r => new VoiceRegion(r.ToObject<JsonModels.JsonVoiceRegion>()));
+    public async Task<GuildWidget> GetGuildWidgetAsync(DiscordId guildId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget.json", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidget>(), this);
 
-        public async Task<IEnumerable<GuildInvite>> GetInvitesAsync(DiscordId guildId, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/invites", options).ConfigureAwait(false))!.RootElement.EnumerateArray().Select(r => new GuildInvite(r.ToObject<JsonModels.JsonGuildInvite>(), _client));
+    public async Task<GuildVanityInvite> GetGuildVanityInviteAsync(DiscordId guildId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/vanity-url", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildVanityInvite>());
 
-        public async Task<IReadOnlyDictionary<DiscordId, Integration>> GetIntegrationsAsync(DiscordId guildId, RequestOptions? options = null)
-            => (await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/integrations", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonIntegration[]>().ToDictionary(i => i.Id, i => new Integration(i, _client));
+    public async Task<GuildWelcomeScreen> GetGuildWelcomeScreenAsync(DiscordId guildId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
 
-        public Task DeleteIntegrationAsync(DiscordId guildId, DiscordId integrationId, RequestOptions? options = null)
-            => _client.SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/integrations/{integrationId}", options);
-
-        public async Task<GuildWidgetSettings> GetWidgetSettingsAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
-
-        public async Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(DiscordId guildId, Action<GuildWidgetSettingsOptions> action, RequestOptions? options = null)
-        {
-            GuildWidgetSettingsOptions guildWidgetSettingsOptions = new();
-            action(guildWidgetSettingsOptions);
-            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWidgetSettingsOptions), $"/guilds/{guildId}/widget", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidgetSettings>());
-        }
-
-        public async Task<GuildWidget> GetWidgetAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/widget.json", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildWidget>(), _client);
-
-        public async Task<GuildVanityInvite> GetVanityInviteAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/vanity-url", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildVanityInvite>());
-
-        public async Task<GuildWelcomeScreen> GetWelcomeScreenAsync(DiscordId guildId, RequestOptions? options = null)
-            => new((await _client.SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
-
-        public async Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(DiscordId guildId, Action<GuildWelcomeScreenOptions> action, RequestOptions? options = null)
-        {
-            GuildWelcomeScreenOptions guildWelcomeScreenOptions = new();
-            action(guildWelcomeScreenOptions);
-            return new((await _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWelcomeScreenOptions), $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
-        }
-
-        public Task ModifyCurrentUserVoiceStateAsync(DiscordId guildId, DiscordId channelId, Action<CurrentUserVoiceStateOptions> action, RequestOptions? options = null)
-        {
-            CurrentUserVoiceStateOptions obj = new(channelId);
-            action(obj);
-            return _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/voice-states/@me", options);
-        }
-
-        public Task ModifyUserVoiceStateAsync(DiscordId guildId, DiscordId channelId, Action<VoiceStateOptions> action, RequestOptions? options = null)
-        {
-            VoiceStateOptions obj = new(channelId);
-            action(obj);
-            return _client.SendRequestAsync(HttpMethod.Patch, new JsonContent(obj), $"/guilds/{guildId}/voice-states/@me", options);
-        }
+    public async Task<GuildWelcomeScreen> ModifyGuildWelcomeScreenAsync(DiscordId guildId, Action<GuildWelcomeScreenOptions> action, RequestProperties? options = null)
+    {
+        GuildWelcomeScreenOptions guildWelcomeScreenOptions = new();
+        action(guildWelcomeScreenOptions);
+        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(guildWelcomeScreenOptions), $"/guilds/{guildId}/welcome-screen", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonWelcomeScreen>());
     }
 }

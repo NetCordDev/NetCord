@@ -22,7 +22,7 @@ public class GuildRoleProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
-    public Image? Icon { get; set; }
+    public ImageProperties? Icon { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("unicode_emoji")]

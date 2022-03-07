@@ -14,9 +14,10 @@ public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractio
     }
 
     [RequireUserPermission<ButtonInteractionContext>(Permission.ModerateUsers), RequireBotPermission<ButtonInteractionContext>(Permission.ModerateUsers)]
+    [Interaction("unmute")]
     public async Task UnmuteAsync(DiscordId userId)
     {
-        await Context.Client.Rest.Guild.User.ModifyAsync(Context.Guild!, userId, u => u.TimeOutUntil = default(DateTimeOffset));
+        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild!, userId, u => u.TimeOutUntil = default(DateTimeOffset));
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**Mute cancelled by {Context.User}**", AllowedMentions = AllowedMentionsProperties.None, Components = Enumerable.Empty<ComponentProperties>() }));
     }
 }

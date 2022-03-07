@@ -1,14 +1,23 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord.JsonModels;
+namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonReady
+internal record JsonReadyEventArgs
 {
+    [JsonPropertyName("v")]
+    public GatewayVersion Version { get; init; }
+
     [JsonPropertyName("user")]
     public JsonUser User { get; init; }
 
+    [JsonPropertyName("guilds")]
+    public IEnumerable<JsonGuild> Guilds { get; init; }
+
     [JsonPropertyName("session_id")]
     public string SessionId { get; init; }
+
+    [JsonPropertyName("shard")]
+    public Shard? Shard { get; init; }
 
     [JsonPropertyName("application")]
     public JsonApplication Application { get; init; }

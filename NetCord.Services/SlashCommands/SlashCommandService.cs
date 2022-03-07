@@ -75,17 +75,17 @@ public class SlashCommandService<TContext> : IService where TContext : ISlashCom
                 }
             }
 
-            await client.Interaction.ApplicationCommand.BulkOverwriteGlobalAsync(applicationId, globalCommands).ConfigureAwait(false);
+            await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalCommands).ConfigureAwait(false);
 
             foreach (var c in guildsCommands)
             {
-                var newCommands = await client.Interaction.ApplicationCommand.BulkOverwriteGuildAsync(applicationId, c.Key, c.Value.Select(v => v.Command)).ConfigureAwait(false);
-                await client.Interaction.ApplicationCommand.BulkOverwriteApplicationCommandPermissions(applicationId, c.Key, newCommands.Zip(c.Value.Select(v => v.Permissions)).Select(z => new GuildApplicationCommandPermissionsProperties(z.First.Key, z.Second))).ConfigureAwait(false);
+                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key, c.Value.Select(v => v.Command)).ConfigureAwait(false);
+                await client.BulkOverwriteGuildApplicationCommandPermissions(applicationId, c.Key, newCommands.Zip(c.Value.Select(v => v.Permissions)).Select(z => new GuildApplicationCommandPermissionsProperties(z.First.Key, z.Second))).ConfigureAwait(false);
             }
         }
         else
         {
-            await client.Interaction.ApplicationCommand.BulkOverwriteGlobalAsync(applicationId, commands.Where(c => !c.GuildId.HasValue).Select(c => c.GetRawValue())).ConfigureAwait(false);
+            await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, commands.Where(c => !c.GuildId.HasValue).Select(c => c.GetRawValue())).ConfigureAwait(false);
         }
     }
 

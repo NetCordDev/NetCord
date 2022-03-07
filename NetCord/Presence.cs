@@ -4,7 +4,7 @@ public class Presence
 {
     private readonly JsonModels.JsonPresence _jsonEntity;
 
-    public DiscordId UserId => _jsonEntity.User.Id;
+    public User User { get; }
     public DiscordId? GuildId => _jsonEntity.GuildId;
     public UserStatusType Status => _jsonEntity.Status;
     public IEnumerable<UserActivity> Activities { get; }
@@ -13,6 +13,7 @@ public class Presence
     internal Presence(JsonModels.JsonPresence jsonEntity, RestClient client)
     {
         _jsonEntity = jsonEntity;
+        User = new(jsonEntity.User, client);
         Activities = jsonEntity.Activities.SelectOrEmpty(a => new UserActivity(a, client));
     }
 }

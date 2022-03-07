@@ -6,26 +6,14 @@ public partial class RestClient : IDisposable
 {
     private readonly HttpClient _httpClient;
 
-    public ChannelModule Channel { get; }
-    public GuildModule Guild { get; }
-    public InteractionModule Interaction { get; }
-    public MessageModule Message { get; }
-    public UserModule User { get; }
-
     public RestClient(string token, TokenType tokenType)
     {
         _httpClient = new();
         _httpClient.DefaultRequestHeaders.Add("Authorization", tokenType == TokenType.Bearer ? token : $"{tokenType} {token}");
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
-
-        Channel = new(this);
-        Guild = new(this);
-        Interaction = new(this);
-        Message = new(this);
-        User = new(this);
     }
 
-    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, string partialUrl, RequestOptions? options)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RequestProperties? options)
     {
         string url = Discord.RestUrl + partialUrl;
         HttpResponseMessage? response;
@@ -60,13 +48,10 @@ public partial class RestClient : IDisposable
         if (!response.IsSuccessStatusCode)
             throw new HttpException(JsonDocument.Parse(s));
 
-        if (s.Length == 0)
-            return null;
-        else
-            return JsonDocument.Parse(s);
+        return s;
     }
 
-    public async Task<JsonDocument?> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestOptions? options)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestProperties? options)
     {
         string url = Discord.RestUrl + partialUrl;
         HttpResponseMessage? response;
@@ -139,10 +124,8 @@ public partial class RestClient : IDisposable
         if (!response.IsSuccessStatusCode)
             throw new HttpException(JsonDocument.Parse(s));
 
-        if (s.Length == 0)
-            return null;
-        else
-            return JsonDocument.Parse(s);
+
+        return s;
     }
 
     public void Dispose()

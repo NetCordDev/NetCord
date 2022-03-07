@@ -53,7 +53,7 @@ public class NormalCommands : CommandModule
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         List<MenuSelectOptionProperties> options = new();
         foreach (var role in roles)
-            options.Add(new(role.Name, role.Id.ToString()) { IsDefault = defaultValues.Contains(role.Id) });
+            options.Add(new(role.Name, role.Id.ToString()!) { IsDefault = defaultValues.Contains(role.Id) });
 
         MenuProperties menu = new("roles")
         {
@@ -93,7 +93,7 @@ public class NormalCommands : CommandModule
         EmbedProperties embed = new()
         {
             Title = $"Avatar of {user.Username}#{user.Discriminator}",
-            Image = new(user.HasAvatar ? user.GetAvatarUrl(4096) : user.DefaultAvatarUrl),
+            Image = new(user.HasAvatar ? user.GetAvatarUrl(size: 4096) : user.DefaultAvatarUrl),
             Color = new(0, 255, 0)
         };
         MessageProperties message = new()

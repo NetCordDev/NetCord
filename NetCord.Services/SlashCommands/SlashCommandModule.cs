@@ -2,5 +2,5 @@
 
 public class SlashCommandModule<TContext> : BaseSlashCommandModule<TContext> where TContext : ISlashCommandContext
 {
-    public Task RespondAsync(InteractionCallback callback, RequestOptions? options = null) => Context.Interaction.SendResponseAsync(callback, options);
+    public Task RespondAsync(InteractionCallback callback, RequestProperties? options = null) => Context.Interaction.SendResponseAsync(callback, options);
 }

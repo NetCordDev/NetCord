@@ -58,7 +58,7 @@ public class RestMessage : ClientEntity
 
     public IReadOnlyDictionary<DiscordId, MessageSticker> Stickers { get; }
 
-    public Thread? StartedThread { get; }
+    public GuildThread? StartedThread { get; }
 
     internal RestMessage(JsonModels.JsonMessage jsonEntity, RestClient client) : base(client)
     {
@@ -87,7 +87,7 @@ public class RestMessage : ClientEntity
         if (jsonEntity.Interaction != null)
             Interaction = new(jsonEntity.Interaction, client);
         if (jsonEntity.StartedThread != null)
-            StartedThread = (Thread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
+            StartedThread = (GuildThread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
         if (jsonEntity.MessageReference != null)
             MessageReference = new(jsonEntity.MessageReference);
 
@@ -95,13 +95,13 @@ public class RestMessage : ClientEntity
         Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 
-    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestOptions? options = null) => _client.Message.AddReactionAsync(ChannelId, Id, emoji, options);
+    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, options);
 
-    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, DiscordId userId, RequestOptions? options = null) => _client.Message.DeleteReactionAsync(ChannelId, Id, emoji, userId, options);
-    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, emoji, options);
-    public Task DeleteAllReactionsAsync(RequestOptions? options = null) => _client.Message.DeleteAllReactionsAsync(ChannelId, Id, options);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, DiscordId userId, RequestProperties? options = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, options);
+    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, options);
+    public Task DeleteAllReactionsAsync(RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, options);
 
-    public Task DeleteAsync(RequestOptions? options = null) => _client.Message.DeleteAsync(ChannelId, Id, options);
+    public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteMessageAsync(ChannelId, Id, options);
 
     public virtual string GetJumpUrl(DiscordId? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
 
@@ -116,6 +116,6 @@ public class RestMessage : ClientEntity
                 ReplyMention = replyMention
             }
         };
-        return _client.Message.SendAsync(ChannelId, message);
+        return _client.SendMessageAsync(ChannelId, message);
     }
 }

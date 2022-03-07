@@ -4,17 +4,26 @@ namespace NetCord.JsonModels;
 
 internal record JsonGuildInvite
 {
+    [JsonPropertyName("channel_id")]
+    public DiscordId ChannelId { get; init; }
+
     [JsonPropertyName("code")]
     public string Code { get; init; }
 
-    [JsonPropertyName("guild")]
-    public JsonGuild? Guild { get; init; }
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset CreatedAt { get; init; }
 
-    [JsonPropertyName("channel")]
-    public JsonChannel? Channel { get; init; }
+    [JsonPropertyName("guild_id")]
+    public DiscordId? GuildId { get; init; }
 
     [JsonPropertyName("inviter")]
     public JsonUser? Inviter { get; init; }
+
+    [JsonPropertyName("max_age")]
+    public int MaxAge { get; init; }
+
+    [JsonPropertyName("max_uses")]
+    public int MaxUses { get; init; }
 
     [JsonPropertyName("target_type")]
     public GuildInviteTargetType? TargetType { get; init; }
@@ -25,21 +34,9 @@ internal record JsonGuildInvite
     [JsonPropertyName("target_application")]
     public JsonApplication? TargetApplication { get; init; }
 
-    [JsonPropertyName("approximate_presence_count")]
-    public int? ApproximatePresenceCount { get; init; }
+    [JsonPropertyName("temporary")]
+    public bool Temporary { get; init; }
 
-    [JsonPropertyName("approximate_member_count")]
-    public int? ApproximateMemberCount { get; init; }
-
-    [JsonPropertyName("expires_at")]
-    public DateTimeOffset? ExpiresAt { get; init; }
-
-    [JsonPropertyName("stage_instance")]
-    public JsonStageInstance? StageInstance { get; init; }
-
-    [JsonPropertyName("guild_scheduled_event")]
-    public JsonGuildScheduledEvent? GuildScheduledEvent { get; init; }
-
-    [JsonPropertyName("metadata")]
-    public JsonGuildInviteMetadata? Metadata { get; init; }
+    [JsonPropertyName("uses")]
+    public int Uses { get; init; }
 }

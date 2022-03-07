@@ -34,5 +34,5 @@ public abstract class Channel : ClientEntity
         };
     }
 
-    public async Task<Channel> DeleteAsync(RequestOptions? options = null) => await _client.Channel.DeleteAsync(Id, options).ConfigureAwait(false);
+    public async Task<Channel> DeleteAsync(RequestProperties? options = null) => await _client.DeleteChannelAsync(Id, options).ConfigureAwait(false);
 }

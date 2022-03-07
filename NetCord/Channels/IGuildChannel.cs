@@ -6,5 +6,5 @@ public interface IGuildChannel : IEntity
     public int Position { get; }
     public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
 
-    public Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestOptions? options = null);
+    public Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null);
 }

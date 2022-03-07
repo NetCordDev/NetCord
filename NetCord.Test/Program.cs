@@ -8,7 +8,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All, Presence = new(UserStatusType.Invisible, true) });
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All, Presence = new(UserStatusType.Invisible, true), Shard = new(0, 1) });
     private static readonly CommandService _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
@@ -25,8 +25,8 @@ internal static class Program
     private static async Task Main()
     {
         _client.Log += Client_Log;
-        _client.MessageReceived += Client_MessageReceived;
-        _client.InteractionCreated += Client_InteractionCreated;
+        _client.MessageCreate += Client_MessageReceived;
+        _client.InteractionCreate += Client_InteractionCreated;
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
@@ -35,11 +35,11 @@ internal static class Program
         _slashCommandService.AddModules(assembly);
         await _client.StartAsync();
         await _client.ReadyAsync;
-        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.Application!.Id, true);
+        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }
 
-    private static async void Client_InteractionCreated(Interaction interaction)
+    private static async Task Client_InteractionCreated(Interaction interaction)
     {
         try
         {
@@ -86,7 +86,7 @@ internal static class Program
         }
     }
 
-    private static async void Client_MessageReceived(Message message)
+    private static async Task Client_MessageReceived(Message message)
     {
         if (!message.Author.IsBot)
         {
@@ -105,10 +105,11 @@ internal static class Program
         }
     }
 
-    private static void Client_Log(string text, LogType type)
+    private static Task Client_Log(LogMessage message)
     {
-        Console.ForegroundColor = type == LogType.Gateway ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
-        Console.WriteLine($"{DateTime.Now:T} {type}\t{text}");
+        Console.ForegroundColor = message.Severity == LogSeverity.Info ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
+        Console.WriteLine(message);
         Console.ResetColor();
+        return Task.CompletedTask;
     }
 }

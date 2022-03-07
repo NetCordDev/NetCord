@@ -7,9 +7,9 @@ internal class TypingReminder : IDisposable
     public DiscordId ChannelId { get; }
 
     private readonly CancellationTokenSource _tokenSource;
-    private readonly RequestOptions? _options;
+    private readonly RequestProperties? _options;
 
-    public TypingReminder(DiscordId channelId, RestClient client, RequestOptions? options)
+    public TypingReminder(DiscordId channelId, RestClient client, RequestProperties? options)
     {
         ChannelId = channelId;
         _client = client;
@@ -19,7 +19,7 @@ internal class TypingReminder : IDisposable
 
     public async Task StartAsync()
     {
-        await _client.Channel.TriggerTypingStateAsync(ChannelId).ConfigureAwait(false);
+        await _client.TriggerTypingStateAsync(ChannelId).ConfigureAwait(false);
         _ = RunAsync();
     }
 
@@ -30,7 +30,7 @@ internal class TypingReminder : IDisposable
         while (true)
         {
             await timer.WaitForNextTickAsync(token).ConfigureAwait(false);
-            await _client.Channel.TriggerTypingStateAsync(ChannelId, _options).ConfigureAwait(false);
+            await _client.TriggerTypingStateAsync(ChannelId, _options).ConfigureAwait(false);
         }
     }
 

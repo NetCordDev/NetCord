@@ -8,7 +8,7 @@ public class Emoji : ClientEntity
     {
         get
         {
-            if (!_jsonEntity.Id.HasValue)
+            if (IsStandard)
                 throw new InvalidOperationException("This emoji has no id");
             return _jsonEntity.Id.GetValueOrDefault();
         }

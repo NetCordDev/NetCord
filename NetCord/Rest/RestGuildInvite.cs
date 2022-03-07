@@ -1,8 +1,8 @@
 ﻿namespace NetCord;
 
-public class GuildInvite
+public class RestGuildInvite
 {
-    private readonly JsonModels.JsonGuildInvite _jsonEntity;
+    private readonly JsonModels.JsonRestGuildInvite _jsonEntity;
 
     public string Code => _jsonEntity.Code;
 
@@ -30,7 +30,7 @@ public class GuildInvite
 
     public GuildInviteMetadata? Metadata { get; }
 
-    internal GuildInvite(JsonModels.JsonGuildInvite jsonEntity, RestClient client)
+    internal RestGuildInvite(JsonModels.JsonRestGuildInvite jsonEntity, RestClient client)
     {
         _jsonEntity = jsonEntity;
         if (_jsonEntity.Guild != null)

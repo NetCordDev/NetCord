@@ -19,6 +19,9 @@ public class GuildUsersRequestProperties
     [JsonPropertyName("user_ids")]
     public IEnumerable<DiscordId>? UserIds { get; set; }
 
+    [JsonPropertyName("nonce")]
+    public string? Nonce { get; set; }
+
     public GuildUsersRequestProperties(DiscordId guildId)
     {
         GuildId = guildId;

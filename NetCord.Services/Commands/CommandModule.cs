@@ -13,10 +13,10 @@ public abstract class CommandModule<TContext> : BaseCommandModule<TContext> wher
                 ReplyMention = replyMention
             }
         };
-        return Context.Client.Rest.Message.SendAsync(Context.Channel.Id, message);
+        return Context.Client.Rest.SendMessageAsync(Context.Channel.Id, message);
     }
 
-    public Task<RestMessage> SendAsync(MessageProperties message) => Context.Client.Rest.Message.SendAsync(Context.Channel, message);
+    public Task<RestMessage> SendAsync(MessageProperties message) => Context.Client.Rest.SendMessageAsync(Context.Channel, message);
 }
 
 public abstract class CommandModule : CommandModule<CommandContext>

@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public abstract class Thread : TextGuildChannel
+public abstract class GuildThread : TextGuildChannel
 {
     public ThreadMetadata Metadata { get; }
     public ThreadSelfUser? CurrentUser { get; }
@@ -8,14 +8,14 @@ public abstract class Thread : TextGuildChannel
     public DiscordId OwnerId => _jsonEntity.OwnerId.GetValueOrDefault();
     public override int Position => throw new NotImplementedException($"Threads don't have {nameof(Position)}");
 
-    public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => _client.Guild.Channel.GetThreadUsersAsync(Id);
+    public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => _client.GetGuildThreadUsersAsync(Id);
 
-    internal Thread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    internal GuildThread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {
         Metadata = new(jsonEntity.Metadata);
         if (jsonEntity.CurrentUser != null)
             CurrentUser = new(jsonEntity.CurrentUser);
     }
 
-    public async Task<Thread> ModifyAsync(Action<ThreadOptions> action, RequestOptions? options = null) => (Thread)await _client.Guild.Channel.ModifyAsync(Id, action, options).ConfigureAwait(false);
+    public async Task<GuildThread> ModifyAsync(Action<ThreadOptions> action, RequestProperties? options = null) => (GuildThread)await _client.ModifyGuildThreadAsync(Id, action, options).ConfigureAwait(false);
 }

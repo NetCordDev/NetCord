@@ -44,15 +44,15 @@ public class GuildUser : User
         return RolesIds.Select(r => roles[r]);
     }
 
-    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestOptions? options = null)
-        => _client.Guild.User.ModifyAsync(GuildId, Id, func, options);
+    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestProperties? options = null)
+        => _client.ModifyGuildUserAsync(GuildId, Id, func, options);
 
-    public Task KickAsync(RequestOptions? options = null) => _client.Guild.User.KickAsync(GuildId, Id, options);
+    public Task KickAsync(RequestProperties? options = null) => _client.KickGuildUserAsync(GuildId, Id, options);
 
-    public Task BanAsync(RequestOptions? options = null) => _client.Guild.User.BanAsync(GuildId, Id, options);
-    public Task BanAsync(int deleteMessageDays, RequestOptions? options = null) => _client.Guild.User.BanAsync(GuildId, Id, deleteMessageDays, options);
+    public Task BanAsync(RequestProperties? options = null) => _client.BanGuildUserAsync(GuildId, Id, options);
+    public Task BanAsync(int deleteMessageDays, RequestProperties? options = null) => _client.BanGuildUserAsync(GuildId, Id, deleteMessageDays, options);
 
-    public Task UnbanAsync(RequestOptions? options = null) => _client.Guild.User.UnbanAsync(GuildId, Id, options);
+    public Task UnbanAsync(RequestProperties? options = null) => _client.UnbanGuildUserAsync(GuildId, Id, options);
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
@@ -66,7 +66,7 @@ public class GuildUser : User
     /// <returns></returns>
     public string GetGuildAvatarUrl(int size, ImageFormat? format = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
 
-    public Task AddRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Guild.User.AddRoleAsync(GuildId, Id, roleId, options);
+    public Task AddRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
 
-    public Task RemoveRoleAsync(DiscordId roleId, RequestOptions? options = null) => _client.Guild.User.AddRoleAsync(GuildId, Id, roleId, options);
+    public Task RemoveRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, options);
 }

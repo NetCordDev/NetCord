@@ -42,7 +42,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             throw new InvalidOperationException("This command is avaible only in guild");
 
         var until = DateTimeOffset.UtcNow.AddDays(days);
-        await Context.Client.Rest.Guild.User.ModifyAsync(Context.Guild, user, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });
+        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild, user, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got muted until {new Timestamp(until, TimestampStyle.LongDateTime)}**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
@@ -122,11 +122,11 @@ public class Commands : SlashCommandModule<SlashCommandContext>
                 if (firstCount > 0)
                 {
                     var lastId = first[^1];
-                    Task t = Context.Client.Rest.Message.DeleteAsync(channel, first);
+                    Task t = Context.Client.Rest.DeleteMessagesAsync(channel, first);
                     if (firstCount == 100)
                     {
                         var next = channel.GetMessagesBeforeAsync(lastId).Take(count - 100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => { i++; return m.Id; });
-                        await Context.Client.Rest.Message.DeleteAsync(channel, next);
+                        await Context.Client.Rest.DeleteMessagesAsync(channel, next);
                     }
                     await t;
                 }
@@ -135,7 +135,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
             {
                 var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
                 await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
-                await Context.Client.Rest.Message.DeleteAsync(channel, messages);
+                await Context.Client.Rest.DeleteMessagesAsync(channel, messages);
                 i = messages.Count;
             }
         }

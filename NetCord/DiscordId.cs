@@ -8,9 +8,7 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
 {
     private readonly string? _value;
 
-    private string Value => _value ?? "0";
-
-    public override string ToString() => Value;
+    public override string? ToString() => _value;
 
     public static bool TryCreate(string id, out DiscordId result)
     {
@@ -67,28 +65,36 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
 
     public override int GetHashCode() => HashCode.Combine(_value);
 
-    public DateTimeOffset CreatedAt => DateTimeOffset.FromUnixTimeMilliseconds((long)((ulong.Parse(Value) >> 22) + Discord.Epoch));
-    public byte InternalWorkerId => (byte)((ulong.Parse(Value) & 0x3E0000) >> 17);
-    public byte InternalProcessId => (byte)((ulong.Parse(Value) & 0x1F000) >> 12);
-    public ushort Increment => (ushort)(ulong.Parse(Value) & 0xFFF);
+#pragma warning disable CS8604 // Possible null reference argument.
+    public DateTimeOffset CreatedAt => DateTimeOffset.FromUnixTimeMilliseconds((long)((ulong.Parse(_value) >> 22) + Discord.Epoch));
+    public byte InternalWorkerId => (byte)((ulong.Parse(_value) & 0x3E0000) >> 17);
+    public byte InternalProcessId => (byte)((ulong.Parse(_value) & 0x1F000) >> 12);
+    public ushort Increment => (ushort)(ulong.Parse(_value) & 0xFFF);
+#pragma warning restore CS8604 // Possible null reference argument.
 
     TypeCode IConvertible.GetTypeCode() => TypeCode.String;
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => Convert.ToBoolean(Value, provider);
-    byte IConvertible.ToByte(IFormatProvider? provider) => Convert.ToByte(Value, provider);
-    char IConvertible.ToChar(IFormatProvider? provider) => Convert.ToChar(Value, provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => Convert.ToBoolean(_value, provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => Convert.ToByte(_value, provider);
+#pragma warning disable CS8604 // Possible null reference argument.
+    char IConvertible.ToChar(IFormatProvider? provider) => Convert.ToChar(_value, provider);
+#pragma warning restore CS8604 // Possible null reference argument.
     DateTime IConvertible.ToDateTime(IFormatProvider? provider) => CreatedAt.UtcDateTime;
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => Convert.ToDecimal(Value, provider);
-    double IConvertible.ToDouble(IFormatProvider? provider) => Convert.ToDouble(Value, provider);
-    short IConvertible.ToInt16(IFormatProvider? provider) => Convert.ToInt16(Value, provider);
-    int IConvertible.ToInt32(IFormatProvider? provider) => Convert.ToInt32(Value, provider);
-    long IConvertible.ToInt64(IFormatProvider? provider) => Convert.ToInt64(Value, provider);
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => Convert.ToSByte(Value, provider);
-    float IConvertible.ToSingle(IFormatProvider? provider) => Convert.ToSingle(Value, provider);
-    string IConvertible.ToString(IFormatProvider? provider) => Value;
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => Convert.ChangeType(Value, conversionType, provider);
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => Convert.ToUInt16(Value, provider);
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => Convert.ToUInt32(Value, provider);
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => Convert.ToUInt64(Value, provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => Convert.ToDecimal(_value, provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => Convert.ToDouble(_value, provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => Convert.ToInt16(_value, provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => Convert.ToInt32(_value, provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => Convert.ToInt64(_value, provider);
+#pragma warning disable CS8604 // Possible null reference argument.
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => Convert.ToSByte(_value, provider);
+#pragma warning restore CS8604 // Possible null reference argument.
+    float IConvertible.ToSingle(IFormatProvider? provider) => Convert.ToSingle(_value, provider);
+#pragma warning disable CS8768 // Nullability of reference types in return type doesn't match implemented member (possibly because of nullability attributes).
+    string? IConvertible.ToString(IFormatProvider? provider) => _value;
+    object? IConvertible.ToType(Type conversionType, IFormatProvider? provider) => Convert.ChangeType(_value, conversionType, provider);
+#pragma warning restore CS8768 // Nullability of reference types in return type doesn't match implemented member (possibly because of nullability attributes).
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => Convert.ToUInt16(_value, provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => Convert.ToUInt32(_value, provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => Convert.ToUInt64(_value, provider);
 
     public static implicit operator DiscordId(ulong u) => new(u);
     public static explicit operator DiscordId(string s) => new(s);

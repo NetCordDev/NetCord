@@ -18,5 +18,5 @@ public class TextGuildChannel : TextChannel, IGuildChannel
         PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
-    public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestOptions? options = null) => (IGuildChannel)await _client.Guild.Channel.ModifyAsync(Id, action, options).ConfigureAwait(false);
+    public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, options).ConfigureAwait(false);
 }

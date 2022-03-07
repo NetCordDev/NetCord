@@ -31,7 +31,7 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
-    public Image? Icon { get; set; }
+    public ImageProperties? Icon { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("owner_id")]
@@ -39,15 +39,15 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("splash")]
-    public Image? Splash { get; set; }
+    public ImageProperties? Splash { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("discovery_splash")]
-    public Image? DiscoverySplash { get; set; }
+    public ImageProperties? DiscoverySplash { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("banner")]
-    public Image? Banner { get; set; }
+    public ImageProperties? Banner { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_id")]
