@@ -9,7 +9,5 @@
     </a>
     <a href="https://www.nuget.org/packages/NetCord.Services">
         <img src="https://img.shields.io/nuget/v/NetCord.Services?color=5865F2&logo=nuget&label=NetCord.Services&style=flat-square" alt="NuGet">
-    <a href="https://www.nuget.org/packages/NetCord.WebSockets">
-        <img src="https://img.shields.io/nuget/v/NetCord.WebSockets?color=5865F2&logo=nuget&label=NetCord.WebSockets&style=flat-square" alt="NuGet">
     </a>
 </p>
