@@ -60,7 +60,7 @@ public class GuildUser : User
     /// 
     /// </summary>
     /// <param name="format"></param>
-    /// <param name="size">any power of two between 16 and 4096</param>
+    /// <param name="size">Any power of 2 between 16 and 4096.</param>
     /// <returns></returns>
     public string GetGuildAvatarUrl(ImageFormat? format = null, int? size = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
 
