@@ -202,9 +202,17 @@ public partial class GatewayClient : IDisposable
         };
         _webSocket.MessageReceived += async data =>
         {
-            var json = JsonDocument.Parse(data);
-            //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
-            await ProcessMessage(json).ConfigureAwait(false);
+            JsonDocument json;
+            try
+            {
+                json = JsonDocument.Parse(data);
+                //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
+                await ProcessMessage(json).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
         };
     }
 
@@ -221,24 +229,24 @@ public partial class GatewayClient : IDisposable
 
     private Task SendIdentifyAsync()
     {
-        _latencyTimer.Start();
-        PayloadProperties<IdentifyProperties> payload = new(GatewayOpcode.Identify, new(_botToken)
+        var serializedPayload = new PayloadProperties<IdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
         {
             LargeThreshold = _config.LargeThreshold,
             Shard = _config.Shard,
             Presence = _config.Presence,
             Intents = _config.Intents,
-        });
-        return _webSocket.SendAsync(payload.Serialize(), _token);
+        }).Serialize();
+        _latencyTimer.Start();
+        return _webSocket.SendAsync(serializedPayload, _token);
     }
 
     private async Task ResumeAsync()
     {
         await _webSocket.ConnectAsync().ConfigureAwait(false);
 
+        var serializedPayload = new PayloadProperties<ResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize();
         _latencyTimer.Start();
-        PayloadProperties<ResumeProperties> payload = new(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber));
-        await _webSocket.SendAsync(payload.Serialize(), _token).ConfigureAwait(false);
+        await _webSocket.SendAsync(serializedPayload, _token).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -252,7 +260,7 @@ public partial class GatewayClient : IDisposable
         await _webSocket.CloseAsync().ConfigureAwait(false);
     }
 
-    private async void BeginHeartbeatAsync(JsonElement message)
+    private async void BeginHeartbeat(JsonElement message)
     {
         int interval = message.GetProperty("d").GetProperty("heartbeat_interval").GetInt32();
         HeartbeatInterval = interval;
@@ -263,9 +271,9 @@ public partial class GatewayClient : IDisposable
             try
             {
                 await timer.WaitForNextTickAsync(_token).ConfigureAwait(false);
+                var serializedPayload = new PayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize();
                 _latencyTimer.Start();
-                PayloadProperties<int> payload = new(GatewayOpcode.Heartbeat, SequenceNumber);
-                await _webSocket.SendAsync(payload.Serialize(), _token).ConfigureAwait(false);
+                await _webSocket.SendAsync(serializedPayload, _token).ConfigureAwait(false);
             }
             catch
             {
@@ -322,33 +330,66 @@ public partial class GatewayClient : IDisposable
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private async Task ProcessMessage(JsonDocument message)
     {
-        var rootElement = message.RootElement;
-        switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
-        {
-            case GatewayOpcode.Dispatch:
-                UpdateSequenceNumber(rootElement);
-                await ProcessEvent(rootElement).ConfigureAwait(false);
-                break;
-            case GatewayOpcode.Heartbeat:
-                break;
-            case GatewayOpcode.Reconnect:
-                InvokeLog(LogMessage.Info("Reconnect request"));
-                await _webSocket.CloseAsync().ConfigureAwait(false);
-                _ = ResumeAsync();
-                break;
-            case GatewayOpcode.InvalidSession:
-                InvokeLog(LogMessage.Info("Invalid session"));
-                _ = SendIdentifyAsync();
-                break;
-            case GatewayOpcode.Hello:
-                BeginHeartbeatAsync(rootElement);
-                break;
-            case GatewayOpcode.HeartbeatACK:
-                Latency = _latencyTimer.Elapsed;
-                break;
-        }
+            var rootElement = message.RootElement;
+            switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
+            {
+                case GatewayOpcode.Dispatch:
+                    UpdateSequenceNumber(rootElement);
+                    try
+                    {
+                        await ProcessEvent(rootElement).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        InvokeLog(LogMessage.Error(ex));
+                    }
+                    break;
+                case GatewayOpcode.Heartbeat:
+                    break;
+                case GatewayOpcode.Reconnect:
+                    InvokeLog(LogMessage.Info("Reconnect request"));
+                    try
+                    {
+                        await _webSocket.CloseAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        InvokeLog(LogMessage.Error(ex));
+                    }
+                    while (true)
+                    {
+                        await _reconnectTimer.NextAsync().ConfigureAwait(false);
+                        try
+                        {
+                            await ResumeAsync().ConfigureAwait(false);
+                            return;
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
+                case GatewayOpcode.InvalidSession:
+                    InvokeLog(LogMessage.Info("Invalid session"));
+                    try
+                    {
+                        await SendIdentifyAsync().ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        InvokeLog(LogMessage.Error(ex));
+                    }
+                    break;
+                case GatewayOpcode.Hello:
+                    BeginHeartbeat(rootElement);
+                    break;
+                case GatewayOpcode.HeartbeatACK:
+                    Latency = _latencyTimer.Elapsed;
+                    break;
+            }
     }
 
     /// <summary>

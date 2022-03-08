@@ -39,25 +39,13 @@ internal class WebSocket : IDisposable
     {
         if (_disposed)
             throw new ObjectDisposedException(nameof(WebSocket));
-        try
-        {
-            Connecting?.Invoke();
-        }
-        finally
-        {
-            _webSocket?.Dispose();
-            await (_webSocket = new()).ConnectAsync(_uri, default).ConfigureAwait(false);
-            IsConnected = true;
-            try
-            {
-                Connected?.Invoke();
-            }
-            finally
-            {
-                _closed = false;
-                _readAsync = ReadAsync();
-            }
-        }
+        Connecting?.Invoke();
+        _webSocket?.Dispose();
+        await (_webSocket = new()).ConnectAsync(_uri, default).ConfigureAwait(false);
+        IsConnected = true;
+        Connected?.Invoke();
+        _closed = false;
+        _readAsync = ReadAsync();
     }
 
     /// <summary>
@@ -119,13 +107,7 @@ internal class WebSocket : IDisposable
                         if (r.MessageType != WebSocketMessageType.Close)
                         {
                             stream.Write(receiveBuffer[..r.Count].Span);
-                            try
-                            {
-                                MessageReceived?.Invoke(stream.ToArray());
-                            }
-                            catch
-                            {
-                            }
+                            MessageReceived?.Invoke(stream.ToArray());
                         }
                         break;
                     }
@@ -138,16 +120,10 @@ internal class WebSocket : IDisposable
         catch
         {
             IsConnected = false;
-            try
-            {
-                if (_closed)
-                    Closed?.Invoke();
-                else
-                    Disconnected?.Invoke(webSocket!.CloseStatus, webSocket!.CloseStatusDescription);
-            }
-            catch
-            {
-            }
+            if (_closed)
+                Closed?.Invoke();
+            else
+                Disconnected?.Invoke(webSocket!.CloseStatus, webSocket!.CloseStatusDescription);
         }
     }
 

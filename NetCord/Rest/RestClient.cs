@@ -44,11 +44,9 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
-        var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-            throw new HttpException(JsonDocument.Parse(s));
+        response.EnsureSuccessStatusCode();
 
-        return s;
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestProperties? options)
@@ -120,12 +118,9 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
-        var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode)
-            throw new HttpException(JsonDocument.Parse(s));
+        response.EnsureSuccessStatusCode();
 
-
-        return s;
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
     public void Dispose()
