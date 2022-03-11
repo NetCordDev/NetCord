@@ -22,14 +22,15 @@ public class UserActivity
     public bool? Instance => _jsonEntity.Instance;
     public UserActivityFlags? Flags => _jsonEntity.Flags;
     public IEnumerable<UserActivityButton> Buttons { get; }
+    public DiscordId GuildId { get; }
 
-    internal UserActivity(JsonModels.JsonUserActivity jsonEntity, RestClient client)
+    internal UserActivity(JsonModels.JsonUserActivity jsonEntity, DiscordId guildId, RestClient client)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.Timestamps != null)
             Timestamps = new(jsonEntity.Timestamps);
         if (jsonEntity.Emoji != null)
-            Emoji = new(jsonEntity.Emoji, client);
+            Emoji = Emoji.CreateFromJson(jsonEntity.Emoji, guildId, client);
         if (jsonEntity.Party != null)
             Party = new(jsonEntity.Party);
         if (jsonEntity.Assets != null)
@@ -37,5 +38,6 @@ public class UserActivity
         if (jsonEntity.Secrets != null)
             Secrets = new(jsonEntity.Secrets);
         Buttons = jsonEntity.ButtonsLabels.SelectOrEmpty(b => new UserActivityButton(b));
+        GuildId = guildId;
     }
 }

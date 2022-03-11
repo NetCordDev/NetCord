@@ -6,7 +6,7 @@ namespace NetCord;
 
 public abstract class Interaction : ClientEntity
 {
-    internal JsonInteraction _jsonEntity;
+    private readonly JsonInteraction _jsonEntity;
 
     public override DiscordId Id => _jsonEntity.Id;
 
@@ -14,12 +14,13 @@ public abstract class Interaction : ClientEntity
 
     public InteractionType Type => _jsonEntity.Type;
 
-    //public DiscordId? GuildId => _jsonEntity.GuildId;
+    public DiscordId? GuildId => _jsonEntity.GuildId;
+
     public Guild? Guild { get; }
 
-    public TextChannel? Channel { get; }
-
     public DiscordId? ChannelId => _jsonEntity.ChannelId;
+
+    public TextChannel? Channel { get; }
 
     public User User { get; }
 
@@ -38,7 +39,7 @@ public abstract class Interaction : ClientEntity
         if (guildId.HasValue && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out Guild? guild))
         {
             Guild = guild;
-            User = new GuildUser(jsonEntity.GuildUser!, Guild, client.Rest);
+            User = new GuildInteractionUser(jsonEntity.GuildUser!, Guild, client.Rest);
             if (ChannelId.HasValue)
             {
                 if (guild._channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
@@ -62,22 +63,14 @@ public abstract class Interaction : ClientEntity
 
     internal static Interaction CreateFromJson(JsonInteraction jsonEntity, GatewayClient client)
     {
-        switch (jsonEntity.Type)
+        return jsonEntity.Type switch
         {
-            case InteractionType.ApplicationCommand:
-                return new ApplicationCommandInteraction(jsonEntity, client);
-            case InteractionType.MessageComponent:
-                var componentType = jsonEntity.Data.ComponentType;
-                if (componentType == ComponentType.Button)
-                    return new ButtonInteraction(jsonEntity, client);
-                else
-                    return new MenuInteraction(jsonEntity, client);
-            case InteractionType.ApplicationCommandAutocomplete:
-                return new ApplicationCommandAutocompleteInteraction(jsonEntity, client);
-            case InteractionType.ModalSubmit:
-                return new ModalSubmitInteraction(jsonEntity, client);
-        }
-        throw new InvalidOperationException();
+            InteractionType.ApplicationCommand => new ApplicationCommandInteraction(jsonEntity, client),
+            InteractionType.MessageComponent => jsonEntity.Data.ComponentType == ComponentType.Button ? new ButtonInteraction(jsonEntity, client) : (Interaction)new MenuInteraction(jsonEntity, client),
+            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonEntity, client),
+            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonEntity, client),
+            _ => throw new InvalidOperationException(),
+        };
     }
 
     public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? options = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, options);

@@ -4,31 +4,30 @@ namespace NetCord;
 
 public class Message : RestMessage
 {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal Message(JsonMessage jsonEntity, GatewayClient client) : base(jsonEntity, client.Rest)
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
-        DiscordId? guildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
-        if (guildId != null && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out var guild))
+        GuildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
+        if (GuildId.HasValue && client.Guilds.TryGetValue(GuildId.GetValueOrDefault(), out var guild))
         {
             Guild = guild;
-            if (guild._channels.TryGetValue(jsonEntity.ChannelId, out var channel))
+            if (guild._channels.TryGetValue(ChannelId, out var channel))
                 Channel = (TextChannel)channel;
-            else if (guild._activeThreads.TryGetValue(jsonEntity.ChannelId, out var thread))
+            else if (guild._activeThreads.TryGetValue(ChannelId, out var thread))
                 Channel = thread;
         }
         else
         {
-            if (client.DMChannels.TryGetValue(jsonEntity.ChannelId, out var dMChannel))
+            if (client.DMChannels.TryGetValue(ChannelId, out var dMChannel))
                 Channel = dMChannel;
-            else if (client.GroupDMChannels.TryGetValue(jsonEntity.ChannelId, out var groupDMChannel))
+            else if (client.GroupDMChannels.TryGetValue(ChannelId, out var groupDMChannel))
                 Channel = groupDMChannel;
         }
     }
 
+    public DiscordId? GuildId { get; }
     public Guild? Guild { get; }
-    public TextChannel Channel { get; }
+    public TextChannel? Channel { get; }
 
-    public string GetJumpUrl() => $"https://discord.com/channels/{(Guild != null ? Guild.Id : "@me")}/{ChannelId}/{Id}";
+    public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId.HasValue ? GuildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
     public override string GetJumpUrl(DiscordId? guildId) => GetJumpUrl();
 }

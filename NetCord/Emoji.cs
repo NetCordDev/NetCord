@@ -1,42 +1,25 @@
 ﻿namespace NetCord;
 
-public class Emoji : ClientEntity
+public class Emoji
 {
-    private readonly JsonModels.JsonEmoji _jsonEntity;
-
-    public override DiscordId Id
-    {
-        get
-        {
-            if (IsStandard)
-                throw new InvalidOperationException("This emoji has no id");
-            return _jsonEntity.Id.GetValueOrDefault();
-        }
-    }
-
-    public bool IsStandard => !_jsonEntity.Id.HasValue;
+    private protected readonly JsonModels.JsonEmoji _jsonEntity;
 
     public string Name => _jsonEntity.Name!;
 
-    public IReadOnlyDictionary<DiscordId, GuildRole>? AllowedRoles { get; }
-
-    public User? Creator { get; }
-
-    public bool? RequireColons => _jsonEntity.RequireColons;
-
-    public bool? Managed => _jsonEntity.Managed;
-
     public bool Animated => _jsonEntity.Animated;
 
-    public bool? Available => _jsonEntity.Available;
-
-    internal Emoji(JsonModels.JsonEmoji jsonEntity, RestClient client) : base(client)
+    internal Emoji(JsonModels.JsonEmoji jsonEntity)
     {
         _jsonEntity = jsonEntity;
-        if (jsonEntity.Creator != null)
-            Creator = new(jsonEntity.Creator, client);
-        AllowedRoles = jsonEntity.AllowedRoles?.ToDictionary(r => r.Id, r => new GuildRole(r, client));
     }
 
-    public override string ToString() => IsStandard ? Name : (Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>");
+    public override string ToString() => Name;
+
+    internal static Emoji CreateFromJson(JsonModels.JsonEmoji jsonEntity, DiscordId guildId, RestClient client)
+    {
+        if (jsonEntity.Id.HasValue)
+            return new GuildEmoji(jsonEntity, guildId, client);
+        else
+            return new Emoji(jsonEntity);
+    }
 }

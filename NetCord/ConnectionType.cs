@@ -3,9 +3,8 @@
 namespace NetCord;
 
 [JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling))]
-public enum Platform
+public enum ConnectionType
 {
-    Desktop,
-    Mobile,
-    Web,
+    Twitch,
+    Youtube,
 }

@@ -21,7 +21,7 @@ public class NormalCommands : CommandModule
     {
         if (Context.User is GuildUser guildUser)
         {
-            await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RolesIds.Concat(roles).Distinct());
+            await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RoleIds.Concat(roles).Distinct());
             await ReplyAsync("Added the roles!!!");
         }
         else
@@ -33,7 +33,7 @@ public class NormalCommands : CommandModule
     {
         if (Context.User is GuildUser user)
         {
-            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RolesIds);
+            var menu = CreateRolesMenu(Context.Guild!.Roles.Values, user.RoleIds);
             MessageProperties message = new()
             {
                 Content = "Select roles",

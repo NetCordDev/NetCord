@@ -1,15 +1,14 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord
+namespace NetCord;
+
+[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling))]
+public enum EmbedType
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum EmbedType
-    {
-        Rich,
-        Image,
-        Video,
-        Gifv,
-        Article,
-        Link,
-    }
+    Rich,
+    Image,
+    Video,
+    Gifv,
+    Article,
+    Link,
 }

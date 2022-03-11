@@ -108,5 +108,13 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
         {
             writer.WriteStringValue(value._value);
         }
+
+        public override DiscordId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            => new(reader.GetString()!, null);
+
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, DiscordId value, JsonSerializerOptions options)
+        {
+            writer.WritePropertyName(value._value!);
+        }
     }
 }

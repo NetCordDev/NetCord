@@ -23,7 +23,7 @@ public readonly struct Timestamp
         Style = style;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> value, out Timestamp timeStamp)
+    public static bool TryParse(ReadOnlySpan<char> value, out Timestamp timestamp)
     {
         if (value.StartsWith("<t:") && value.EndsWith(">"))
         {
@@ -31,7 +31,7 @@ public readonly struct Timestamp
             {
                 if (long.TryParse(value[3..^3], out var result))
                 {
-                    timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result), (TimestampStyle)value[^2]);
+                    timestamp = new(DateTimeOffset.FromUnixTimeSeconds(result), (TimestampStyle)value[^2]);
                     return true;
                 }
             }
@@ -39,12 +39,12 @@ public readonly struct Timestamp
             {
                 if (long.TryParse(value[3..^3], out var result))
                 {
-                    timeStamp = new(DateTimeOffset.FromUnixTimeSeconds(result));
+                    timestamp = new(DateTimeOffset.FromUnixTimeSeconds(result));
                     return true;
                 }
             }
         }
-        timeStamp = default;
+        timestamp = default;
         return false;
     }
 

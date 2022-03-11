@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class MessageReaction : ClientEntity
+public class MessageReaction
 {
     private readonly JsonModels.JsonMessageReaction _jsonEntity;
 
@@ -8,15 +8,7 @@ public class MessageReaction : ClientEntity
 
     public bool Me => _jsonEntity.Me;
 
-    public override DiscordId Id
-    {
-        get
-        {
-            if (!_jsonEntity.Emoji.Id.HasValue)
-                throw new InvalidOperationException("This reaction emoji has no id");
-            return _jsonEntity.Emoji.Id.GetValueOrDefault();
-        }
-    }
+    public DiscordId? Id => _jsonEntity.Emoji.Id;
 
     public string? Name => _jsonEntity.Emoji.Name;
 
@@ -24,7 +16,7 @@ public class MessageReaction : ClientEntity
 
     public bool IsStandard => !_jsonEntity.Emoji.Id.HasValue;
 
-    internal MessageReaction(JsonModels.JsonMessageReaction jsonEntity, RestClient client) : base(client)
+    internal MessageReaction(JsonModels.JsonMessageReaction jsonEntity, RestClient client)
     {
         _jsonEntity = jsonEntity;
     }

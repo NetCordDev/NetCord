@@ -23,7 +23,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
     }
 
-    [RequireUserPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
+    [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
     public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
@@ -34,7 +34,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
-    [RequireUserPermission<SlashCommandContext>(Permission.ModerateUsers), RequireBotPermission<SlashCommandContext>(Permission.ModerateUsers)]
+    [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.ModerateUsers), RequireBotPermission<SlashCommandContext>(Permission.ModerateUsers)]
     [SlashCommand("mute", "Mutes a user")]
     public async Task MuteAsync([SlashCommandParameter("user", "User to mute")] User user, double days, string reason = "no reason")
     {
@@ -71,7 +71,7 @@ public class Commands : SlashCommandModule<SlashCommandContext>
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
             var roleId = mentionable.Role!.Id;
-            foreach (var user in Context.Guild!.Users.Values.Where(u => u.RolesIds.Contains(roleId) && !u.RolesIds.Contains(roleToAdd)))
+            foreach (var user in Context.Guild!.Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd)))
                 await user.AddRoleAsync(roleToAdd);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
@@ -200,6 +200,20 @@ public class Commands : SlashCommandModule<SlashCommandContext>
                 })
             }
         }));
+    }
+
+    [SlashCommand("user-test", "Test")]
+    public Task TestAsync(User user1, User user2)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{(user1 is GuildUser g ? (g.Nickname ?? g.Username) : user1.Username)}\n{(user2 is GuildUser g2 ? (g2.Nickname ?? g2.Username) : user2.Username)}"));
+    }
+
+    [SlashCommand("large-user-test", "Test")]
+    public Task TestAsync(User user1, User user2, User user3, User user4, User user5, User user6, User user7, User user8, User user9)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{GetName(user1)}\n{GetName(user2)}\n{GetName(user3)}\n{GetName(user4)}\n{GetName(user5)}\n{GetName(user6)}\n{GetName(user7)}\n{GetName(user8)}\n{GetName(user9)}\n"));
+
+        static string GetName(User u) => u is GuildUser g ? (g.Nickname ?? g.Username) : u.Username;
     }
 }
 

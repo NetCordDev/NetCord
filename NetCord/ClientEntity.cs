@@ -2,9 +2,9 @@
 
 public abstract class ClientEntity : Entity
 {
-    protected RestClient _client;
+    private protected readonly RestClient _client;
 
-    protected ClientEntity(RestClient client)
+    private protected ClientEntity(RestClient client)
     {
         _client = client;
     }

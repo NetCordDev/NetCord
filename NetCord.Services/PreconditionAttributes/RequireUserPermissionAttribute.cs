@@ -35,10 +35,12 @@ public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TC
                 }
                 if (ChannelPermission != default)
                 {
+                    if (context.Channel == null)
+                        throw new EntityNotFoundException("Current channel could not be found");
                     var permissionOverwrites = ((IGuildChannel)context.Channel).PermissionOverwrites;
                     Permission denied = default;
                     Permission allowed = default;
-                    foreach (var r in guildUser.RolesIds)
+                    foreach (var r in guildUser.RoleIds)
                     {
                         if (permissionOverwrites.TryGetValue(r, out var permissionOverwrite))
                         {

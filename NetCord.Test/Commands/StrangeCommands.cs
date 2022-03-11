@@ -17,7 +17,7 @@ public class StrangeCommands : CommandModule
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
     public async Task SayDM(UserId userId, [Remainder] string text)
     {
-        var channel = await Context.Client.Rest.GetDMChannelByUserIdAsync(userId);
+        var channel = await Context.Client.Rest.GetDMChannelAsync(userId);
         await channel.SendMessageAsync(text);
     }
 
@@ -28,7 +28,7 @@ public class StrangeCommands : CommandModule
     [Command("delete", "remove")]
     public Task Delete(DiscordId id)
     {
-        return Context.Client.Rest.DeleteMessageAsync(Context.Channel, id);
+        return Context.Client.Rest.DeleteMessageAsync(Context.Message.ChannelId, id);
     }
 
     [Command("react")]
@@ -149,7 +149,7 @@ public class StrangeCommands : CommandModule
     [Command("messages")]
     public async Task Messages(DiscordId? channelId = null)
     {
-        channelId ??= Context.Channel;
+        channelId ??= Context.Message.ChannelId;
         await foreach (var m in Context.Client.Rest.GetMessagesAsync(channelId.GetValueOrDefault()))
             Console.WriteLine($"{m.Author.Username}: \t{m.Content} | {m.CreatedAt:g}");
     }
@@ -157,7 +157,7 @@ public class StrangeCommands : CommandModule
     [Command("message")]
     public async Task Message(DiscordId id)
     {
-        var m = await Context.Client.Rest.GetMessageAsync(Context.Channel, id);
+        var m = await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, id);
         await ReplyAsync($"{m.Author}: {m.Content}");
     }
 
@@ -252,7 +252,7 @@ public class StrangeCommands : CommandModule
 
     [Command("quote", Priority = 1)]
     public async Task Quote(DiscordId messageId)
-        => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Channel, messageId)).Content).ToString());
+        => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, messageId)).Content).ToString());
 
     [Command("quote", Priority = 0)]
     public Task Quote(string text) => ReplyAsync(Format.Quote(text).ToString());

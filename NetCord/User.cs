@@ -32,7 +32,7 @@ public class User : ClientEntity
 
     public string DefaultAvatarUrl => CDN.GetDefaultAvatarUrl(Discriminator);
 
-    public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelByUserIdAsync(Id);
+    public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelAsync(Id);
 
     public override string ToString() => $"<@{Id}>";
 }

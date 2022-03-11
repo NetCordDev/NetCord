@@ -16,7 +16,7 @@ public class GuildPreview : ClientEntity
 
     public string? DiscoverySplashHash => _jsonEntity.DiscoverySplashHash;
 
-    public ImmutableDictionary<DiscordId, Emoji> Emojis { get; }
+    public ImmutableDictionary<DiscordId, GuildEmoji> Emojis { get; }
 
     public GuildFeatures Features { get; }
 
@@ -29,7 +29,7 @@ public class GuildPreview : ClientEntity
     internal GuildPreview(JsonModels.JsonGuild jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
-        Emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new Emoji(e, client));
+        Emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Features = new(jsonEntity.Features);
     }
 }

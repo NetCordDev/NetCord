@@ -13,7 +13,7 @@ public partial class GatewayClient : IDisposable
 {
     private readonly string _botToken;
 
-    private readonly WebSocket _webSocket = new(new(Discord.GatewayUrl));
+    private readonly IWebSocket _webSocket;
 
     private readonly GatewayClientConfig _config;
     private readonly ReconnectTimer _reconnectTimer = new();
@@ -35,9 +35,9 @@ public partial class GatewayClient : IDisposable
     public event Func<Task>? Connected;
     public event Func<Task>? Disconnected;
     public event Func<Task>? Closed;
-    public event Func<ReadyEventArgs, Task>? Ready;
     public event LogEventHandler? Log;
 
+    public event Func<ReadyEventArgs, Task>? Ready;
     public event Func<GuildChannelEventArgs, Task>? GuildChannelCreate;
     public event Func<GuildChannelEventArgs, Task>? GuildChannelUpdate;
     public event Func<GuildChannelEventArgs, Task>? GuildChannelDelete;
@@ -112,19 +112,21 @@ public partial class GatewayClient : IDisposable
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public GatewayClient(string token, TokenType tokenType)
+    public GatewayClient(string token!!, TokenType tokenType, GatewayClientConfig? config = null)
     {
-        ArgumentNullException.ThrowIfNull(token, nameof(token));
-        SetupWebSocket();
         _botToken = token;
-        _config = new();
-        Rest = new(token, tokenType);
-    }
-
-    public GatewayClient(string token, TokenType tokenType, GatewayClientConfig? config) : this(token, tokenType)
-    {
         if (config != null)
+        {
             _config = config;
+            _webSocket = _config.WebSocket ?? new WebSocket();
+        }
+        else
+        {
+            _config = new();
+            _webSocket = new WebSocket();
+        }
+        SetupWebSocket();
+        Rest = new(token, tokenType);
     }
 
     private void SetupWebSocket()
@@ -223,7 +225,7 @@ public partial class GatewayClient : IDisposable
     public async Task StartAsync()
     {
         ThrowIfDisposed();
-        await _webSocket.ConnectAsync().ConfigureAwait(false);
+        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
         await SendIdentifyAsync().ConfigureAwait(false);
     }
 
@@ -242,7 +244,7 @@ public partial class GatewayClient : IDisposable
 
     private async Task ResumeAsync()
     {
-        await _webSocket.ConnectAsync().ConfigureAwait(false);
+        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
 
         var serializedPayload = new PayloadProperties<ResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize();
         _latencyTimer.Start();
@@ -333,63 +335,63 @@ public partial class GatewayClient : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private async Task ProcessMessage(JsonDocument message)
     {
-            var rootElement = message.RootElement;
-            switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
-            {
-                case GatewayOpcode.Dispatch:
-                    UpdateSequenceNumber(rootElement);
+        var rootElement = message.RootElement;
+        switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
+        {
+            case GatewayOpcode.Dispatch:
+                UpdateSequenceNumber(rootElement);
+                try
+                {
+                    await ProcessEvent(rootElement).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLog(LogMessage.Error(ex));
+                }
+                break;
+            case GatewayOpcode.Heartbeat:
+                break;
+            case GatewayOpcode.Reconnect:
+                InvokeLog(LogMessage.Info("Reconnect request"));
+                try
+                {
+                    await _webSocket.CloseAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLog(LogMessage.Error(ex));
+                }
+                while (true)
+                {
+                    await _reconnectTimer.NextAsync().ConfigureAwait(false);
                     try
                     {
-                        await ProcessEvent(rootElement).ConfigureAwait(false);
+                        await ResumeAsync().ConfigureAwait(false);
+                        return;
                     }
                     catch (Exception ex)
                     {
                         InvokeLog(LogMessage.Error(ex));
                     }
-                    break;
-                case GatewayOpcode.Heartbeat:
-                    break;
-                case GatewayOpcode.Reconnect:
-                    InvokeLog(LogMessage.Info("Reconnect request"));
-                    try
-                    {
-                        await _webSocket.CloseAsync().ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        InvokeLog(LogMessage.Error(ex));
-                    }
-                    while (true)
-                    {
-                        await _reconnectTimer.NextAsync().ConfigureAwait(false);
-                        try
-                        {
-                            await ResumeAsync().ConfigureAwait(false);
-                            return;
-                        }
-                        catch (Exception ex)
-                        {
-                            InvokeLog(LogMessage.Error(ex));
-                        }
-                    }
-                case GatewayOpcode.InvalidSession:
-                    InvokeLog(LogMessage.Info("Invalid session"));
-                    try
-                    {
-                        await SendIdentifyAsync().ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        InvokeLog(LogMessage.Error(ex));
-                    }
-                    break;
-                case GatewayOpcode.Hello:
-                    BeginHeartbeat(rootElement);
-                    break;
-                case GatewayOpcode.HeartbeatACK:
-                    Latency = _latencyTimer.Elapsed;
-                    break;
-            }
+                }
+            case GatewayOpcode.InvalidSession:
+                InvokeLog(LogMessage.Info("Invalid session"));
+                try
+                {
+                    await SendIdentifyAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLog(LogMessage.Error(ex));
+                }
+                break;
+            case GatewayOpcode.Hello:
+                BeginHeartbeat(rootElement);
+                break;
+            case GatewayOpcode.HeartbeatACK:
+                Latency = _latencyTimer.Elapsed;
+                break;
+        }
     }
 
     /// <summary>
@@ -1207,7 +1209,7 @@ public partial class GatewayClient : IDisposable
                             InvokeLog(LogMessage.Error(ex));
                         }
                     }
-                    if (TryGetGuild(presence.GuildId.GetValueOrDefault(), out var guild))
+                    if (TryGetGuild(presence.GuildId, out var guild))
                         guild._presences = guild._presences.SetItem(presence.User.Id, presence);
                 }
                 break;

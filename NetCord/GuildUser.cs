@@ -2,46 +2,43 @@
 
 public class GuildUser : User
 {
-    private readonly JsonModels.JsonGuildUser _jsonGuildEntity;
+    private protected readonly new JsonModels.JsonGuildUser _jsonEntity;
 
-    public override DiscordId Id => _jsonGuildEntity.User.Id;
-    public override string Username => _jsonGuildEntity.User.Username;
-    public override ushort Discriminator => _jsonGuildEntity.User.Discriminator;
-    public override string? AvatarHash => _jsonGuildEntity.User.AvatarHash;
-    public override bool IsBot => _jsonGuildEntity.User.IsBot;
-    public override bool? IsSystemUser => _jsonGuildEntity.User.IsSystemUser;
-    public override bool? MFAEnabled => _jsonGuildEntity.User.MFAEnabled;
-    public override string? Locale => _jsonGuildEntity.User.Locale;
-    public override bool? Verified => _jsonGuildEntity.User.Verified;
-    public override string? Email => _jsonGuildEntity.User.Email;
-    public override UserFlags? Flags => _jsonGuildEntity.User.Flags;
-    public override PremiumType? PremiumType => _jsonGuildEntity.User.PremiumType;
-    public override UserFlags? PublicFlags => _jsonGuildEntity.User.PublicFlags;
-    public string? Nickname => _jsonGuildEntity.Nickname;
-    public string? GuildAvatarHash => _jsonGuildEntity.GuildAvatarHash;
-    public IEnumerable<DiscordId> RolesIds => _jsonGuildEntity.RolesIds;
-    public DiscordId? HoistedRoleId => _jsonGuildEntity.HoistedRoleId;
-    public DateTimeOffset JoinedAt => _jsonGuildEntity.JoinedAt;
-    public DateTimeOffset? GuildBoostStart => _jsonGuildEntity.GuildBoostStart;
-    public bool Deafened => _jsonGuildEntity.Deafened;
-    public bool Muted => _jsonGuildEntity.Muted;
-    public bool? IsPending => _jsonGuildEntity.IsPending;
-    public Permission? Permissions { get; }
-    public DateTimeOffset? TimeOutUntil => _jsonGuildEntity.TimeOutUntil;
+    public override DiscordId Id => _jsonEntity.User.Id;
+    public override string Username => _jsonEntity.User.Username;
+    public override ushort Discriminator => _jsonEntity.User.Discriminator;
+    public override string? AvatarHash => _jsonEntity.User.AvatarHash;
+    public override bool IsBot => _jsonEntity.User.IsBot;
+    public override bool? IsSystemUser => _jsonEntity.User.IsSystemUser;
+    public override bool? MFAEnabled => _jsonEntity.User.MFAEnabled;
+    public override string? Locale => _jsonEntity.User.Locale;
+    public override bool? Verified => _jsonEntity.User.Verified;
+    public override string? Email => _jsonEntity.User.Email;
+    public override UserFlags? Flags => _jsonEntity.User.Flags;
+    public override PremiumType? PremiumType => _jsonEntity.User.PremiumType;
+    public override UserFlags? PublicFlags => _jsonEntity.User.PublicFlags;
+    public string? Nickname => _jsonEntity.Nickname;
+    public string? GuildAvatarHash => _jsonEntity.GuildAvatarHash;
+    public IEnumerable<DiscordId> RoleIds => _jsonEntity.RoleIds;
+    public DiscordId? HoistedRoleId => _jsonEntity.HoistedRoleId;
+    public DateTimeOffset JoinedAt => _jsonEntity.JoinedAt;
+    public DateTimeOffset? GuildBoostStart => _jsonEntity.GuildBoostStart;
+    public bool Deafened => _jsonEntity.Deafened;
+    public bool Muted => _jsonEntity.Muted;
+    public bool? IsPending => _jsonEntity.IsPending;
+    public DateTimeOffset? TimeOutUntil => _jsonEntity.TimeOutUntil;
     public DiscordId GuildId { get; }
 
     internal GuildUser(JsonModels.JsonGuildUser jsonEntity, DiscordId guildId, RestClient client) : base(jsonEntity.User, client)
     {
-        _jsonGuildEntity = jsonEntity;
+        _jsonEntity = jsonEntity;
         GuildId = guildId;
-        if (jsonEntity.Permissions != null)
-            Permissions = (Permission)ulong.Parse(jsonEntity.Permissions);
     }
 
-    public IEnumerable<GuildRole> GetRoles(Guild guild)
+    public IEnumerable<GuildRole> GetRoles(RestGuild guild)
     {
         var roles = guild.Roles;
-        return RolesIds.Select(r => roles[r]);
+        return RoleIds.Select(r => roles[r]);
     }
 
     public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestProperties? options = null)

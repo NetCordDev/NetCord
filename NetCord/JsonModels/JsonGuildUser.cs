@@ -14,7 +14,7 @@ internal record JsonGuildUser
     public string? GuildAvatarHash { get; init; }
 
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId> RolesIds { get; init; }
+    public IEnumerable<DiscordId> RoleIds { get; init; }
 
     [JsonPropertyName("hoisted_role")]
     public DiscordId? HoistedRoleId { get; init; }

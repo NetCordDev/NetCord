@@ -16,7 +16,4 @@ public class ButtonInteraction : Interaction
         else
             Message = new(jsonEntity.Message, client);
     }
-
-    //public Task ModifyMessageAsync(Message message, RequestOptions? options = null) => _client.Interaction.ModifyMessageAsync(ApplicationId, Token, Message.Id, message, options);
-
 }

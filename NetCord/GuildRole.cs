@@ -31,6 +31,14 @@ public class GuildRole : ClientEntity
     }
 
     public override string ToString() => $"<@&{Id}>";
+
+    public static bool operator >(GuildRole left, GuildRole right) => left.Position > right.Position;
+
+    public static bool operator <(GuildRole left, GuildRole right) => left.Position < right.Position;
+
+    public static bool operator >=(GuildRole left, GuildRole right) => left.Position >= right.Position;
+
+    public static bool operator <=(GuildRole left, GuildRole right) => left.Position <= right.Position;
 }
 
 public class GuildRoleTags

@@ -2,5 +2,5 @@
 
 public interface IChannelContext : IContext
 {
-    public TextChannel Channel { get; }
+    public TextChannel? Channel { get; }
 }
