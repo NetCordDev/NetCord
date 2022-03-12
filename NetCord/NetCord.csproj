@@ -11,7 +11,7 @@
     <PackageIcon>Small.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.33</VersionSuffix>
+    <VersionSuffix>alpha.34</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper. Supports all types of Discord interactions!</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
