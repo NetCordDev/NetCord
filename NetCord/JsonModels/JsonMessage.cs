@@ -35,7 +35,7 @@ internal record JsonMessage : JsonEntity
     public JsonUser[] MentionedUsers { get; init; }
 
     [JsonPropertyName("mention_roles")]
-    public DiscordId[] MentionedRoles { get; init; }
+    public DiscordId[] MentionedRoleIds { get; init; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; init; }

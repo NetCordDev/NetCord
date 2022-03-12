@@ -22,7 +22,7 @@ public class RestMessage : ClientEntity
 
     public IReadOnlyDictionary<DiscordId, User> MentionedUsers { get; }
 
-    public IEnumerable<DiscordId> MentionedRolesIds { get; }
+    public IEnumerable<DiscordId> MentionedRoleIds { get; }
 
     public IReadOnlyDictionary<DiscordId, GuildChannelMention> MentionedChannels { get; }
 
@@ -70,7 +70,7 @@ public class RestMessage : ClientEntity
             Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, jsonEntity.GuildId.GetValueOrDefault(), client);
 
         MentionedUsers = jsonEntity.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
-        MentionedRolesIds = jsonEntity.MentionedRoles;
+        MentionedRoleIds = jsonEntity.MentionedRoleIds;
         MentionedChannels = jsonEntity.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonEntity.Attachments.ToDictionary(a => a.Id, a => Attachment.CreateFromJson(a));
         Embeds = jsonEntity.Embeds.Select(e => new Embed(e));
@@ -91,7 +91,7 @@ public class RestMessage : ClientEntity
         if (jsonEntity.MessageReference != null)
             MessageReference = new(jsonEntity.MessageReference);
 
-        Components = jsonEntity.Components.Select(c => IComponent.CreateFromJson(c));
+        Components = jsonEntity.Components.Select(IComponent.CreateFromJson);
         Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 

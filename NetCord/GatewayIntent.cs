@@ -24,6 +24,7 @@ public enum GatewayIntent : uint
     DirectMessages = 1 << 12,
     DirectMessageReactions = 1 << 13,
     DirectMessageTyping = 1 << 14,
+    MessageContent = 1 << 15,
     GuildScheduledEvents = 1 << 16,
     All = Guilds
         | GuildUsers
@@ -40,6 +41,7 @@ public enum GatewayIntent : uint
         | DirectMessages
         | DirectMessageReactions
         | DirectMessageTyping
+        | MessageContent
         | GuildScheduledEvents,
     AllNonPrivileged = Guilds
         | GuildBans
