@@ -29,7 +29,7 @@ internal record JsonInteractionData
     public string[]? SelectedValues { get; init; }
 
     [JsonPropertyName("target_id")]
-    public DiscordId? MessageId { get; init; }
+    public DiscordId? TargetId { get; init; }
 
     [JsonPropertyName("components")]
     public JsonComponent[]? Components { get; init; }

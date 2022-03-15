@@ -192,7 +192,7 @@ public partial class RestClient
     private async Task<IEnumerable<RestMessage>> GetMaxMessagesAfterAsyncTask(DiscordId channelId, DiscordId messageId, RequestProperties? options = null)
     {
         var messagsJson = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages?limit=100&after={messageId}", options).ConfigureAwait(false))!;
-        return messagsJson.ToObject<IEnumerable<JsonMessage>>().Select(m => new RestMessage(m, this));
+        return messagsJson.ToObject<IEnumerable<JsonMessage>>().Select(m => new RestMessage(m, this)).Reverse();
     }
 
     public Task AddMessageReactionAsync(DiscordId channelId, DiscordId messageId, ReactionEmojiProperties emoji, RequestProperties? options = null)

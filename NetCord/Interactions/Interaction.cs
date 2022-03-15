@@ -65,7 +65,13 @@ public abstract class Interaction : ClientEntity
     {
         return jsonEntity.Type switch
         {
-            InteractionType.ApplicationCommand => new ApplicationCommandInteraction(jsonEntity, client),
+            InteractionType.ApplicationCommand => jsonEntity.Data.Type switch
+            {
+                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonEntity, client),
+                ApplicationCommandType.User => new UserCommandInteraction(jsonEntity, client),
+                ApplicationCommandType.Message => new MessageCommandInteraction(jsonEntity, client),
+                _ => throw new InvalidOperationException(),
+            },
             InteractionType.MessageComponent => jsonEntity.Data.ComponentType == ComponentType.Button ? new ButtonInteraction(jsonEntity, client) : (Interaction)new MenuInteraction(jsonEntity, client),
             InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonEntity, client),
             InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonEntity, client),

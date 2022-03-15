@@ -7,7 +7,7 @@ public partial class RestClient
     public async Task<IReadOnlyDictionary<DiscordId, ApplicationCommand>> GetGlobalApplicationCommandAsync(DiscordId applicationId, RequestProperties? options = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/commands", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonApplicationCommand[]>().ToDictionary(c => c.Id, c => new ApplicationCommand(c));
 
-    public async Task<ApplicationCommand> CreateGlobalApplicationCommandsAsync(DiscordId applicationId, ApplicationCommandProperties applicationCommandProperties, RequestProperties? options = null)
+    public async Task<ApplicationCommand> CreateGlobalApplicationCommandAsync(DiscordId applicationId, ApplicationCommandProperties applicationCommandProperties, RequestProperties? options = null)
         => new((await SendRequestAsync(HttpMethod.Post, new JsonContent(applicationCommandProperties), $"/applications/{applicationId}/commands", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonApplicationCommand>());
 
     public async Task<ApplicationCommand> GetGlobalApplicationCommandAsync(DiscordId applicationId, DiscordId commandId, RequestProperties? options = null)

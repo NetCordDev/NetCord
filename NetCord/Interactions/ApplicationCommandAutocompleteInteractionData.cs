@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ApplicationCommandAutocompleteInteractionData : ApplicationCommandInteractionData
+public class ApplicationCommandAutocompleteInteractionData : SlashCommandInteractionData
 {
     internal ApplicationCommandAutocompleteInteractionData(JsonModels.JsonInteractionData jsonEntity, DiscordId? guildId, RestClient client) : base(jsonEntity, guildId, client)
     {

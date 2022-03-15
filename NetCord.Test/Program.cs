@@ -2,22 +2,24 @@
 
 using NetCord.Services.Commands;
 using NetCord.Services.Interactions;
-using NetCord.Services.SlashCommands;
+using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.AllNonPrivileged, Presence = new(UserStatusType.Invisible, true), Shard = new(0, 1) });
-    private static readonly CommandService _commandService = new();
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All, Presence = new(UserStatusType.Invisible, true), Shard = new(0, 1) });
+    private static readonly CommandService<CommandContext> _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
     private static readonly InteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
-    private static readonly SlashCommandService<SlashCommandContext> _slashCommandService;
+    private static readonly ApplicationCommandService<SlashCommandContext> _slashCommandService;
+    private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
+    private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
 
     static Program()
     {
-        SlashCommandServiceOptions<SlashCommandContext> options = new();
+        ApplicationCommandServiceOptions<SlashCommandContext> options = new();
         options.TypeReaders.Add(typeof(Permission), new SlashCommands.PermissionTypeReader());
         _slashCommandService = new(options);
     }
@@ -33,9 +35,15 @@ internal static class Program
         _menuInteractionService.AddModules(assembly);
         _modalSubmitInteractionService.AddModules(assembly);
         _slashCommandService.AddModules(assembly);
+        _messageCommandService.AddModules(assembly);
+        _userCommandService.AddModules(assembly);
         await _client.StartAsync();
         await _client.ReadyAsync;
-        await _slashCommandService.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+        ApplicationCommandServiceManager manager = new();
+        manager.AddApplicationCommandService(_slashCommandService);
+        manager.AddApplicationCommandService(_messageCommandService);
+        manager.AddApplicationCommandService(_userCommandService);
+        await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }
 
@@ -45,8 +53,14 @@ internal static class Program
         {
             switch (interaction)
             {
-                case ApplicationCommandInteraction applicationCommandInteraction:
-                    await _slashCommandService.ExecuteAsync(new(applicationCommandInteraction, _client));
+                case SlashCommandInteraction slashCommandInteraction:
+                    await _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client));
+                    break;
+                case MessageCommandInteraction messageCommandInteraction:
+                    await _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client));
+                    break;
+                case UserCommandInteraction userCommandInteraction:
+                    await _userCommandService.ExecuteAsync(new(userCommandInteraction, _client));
                     break;
                 case MenuInteraction menuInteraction:
                     await _menuInteractionService.ExecuteAsync(new(menuInteraction, _client));

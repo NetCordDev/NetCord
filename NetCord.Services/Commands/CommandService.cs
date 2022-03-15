@@ -3,13 +3,6 @@ using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
-public class CommandService : CommandService<CommandContext>
-{
-    public CommandService(CommandServiceOptions<CommandContext>? options = null) : base(options)
-    {
-    }
-}
-
 public partial class CommandService<TContext> : IService where TContext : ICommandContext
 {
     private readonly CommandServiceOptions<TContext> _options;
