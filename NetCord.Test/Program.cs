@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
+using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.Interactions;
-using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test;
 

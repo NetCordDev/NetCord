@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 [Flags]
 public enum Permission : ulong

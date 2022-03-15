@@ -2,7 +2,7 @@
 
 public class GuildUser : User
 {
-    private protected readonly new JsonModels.JsonGuildUser _jsonEntity;
+    private protected new readonly JsonModels.JsonGuildUser _jsonEntity;
 
     public override DiscordId Id => _jsonEntity.User.Id;
     public override string Username => _jsonEntity.User.Username;
