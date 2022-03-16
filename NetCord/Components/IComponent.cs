@@ -3,6 +3,7 @@
 public interface IComponent
 {
     public ComponentType ComponentType { get; }
+    public string CustomId { get; }
 
     internal static IComponent CreateFromJson(JsonModels.JsonComponent jsonEntity)
     {

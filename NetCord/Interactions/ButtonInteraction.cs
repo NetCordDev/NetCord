@@ -11,7 +11,7 @@ public class ButtonInteraction : Interaction
     internal ButtonInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
     {
         Data = new(jsonEntity.Data);
-        if (Guild != null)
+        if (jsonEntity.GuildId.HasValue)
             Message = new(jsonEntity.Message with { GuildId = jsonEntity.GuildId }, client);
         else
             Message = new(jsonEntity.Message, client);
