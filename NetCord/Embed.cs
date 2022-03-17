@@ -33,6 +33,6 @@ public class Embed
             Provider = new(jsonEntity.Provider);
         if (jsonEntity.Author != null)
             Author = new(jsonEntity.Author);
-        Fields = jsonEntity.Fields.Select(f => new EmbedField(f));
+        Fields = jsonEntity.Fields.SelectOrEmpty(f => new EmbedField(f));
     }
 }

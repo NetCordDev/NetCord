@@ -72,7 +72,14 @@ public class StrangeCommands : CommandModule
             AllowedMentions = new()
             {
                 ReplyMention = false
-            }
+            },
+            Embeds = new List<EmbedProperties>
+            {
+                new()
+                {
+                    Title = "Wzium"
+                }
+            },
         };
         return SendAsync(messageBuilder);
     }
