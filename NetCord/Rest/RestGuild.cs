@@ -6,13 +6,9 @@ public class RestGuild : ClientEntity
 {
     private protected readonly JsonModels.JsonGuild _jsonEntity;
 
-    public ImmutableDictionary<DiscordId, GuildRole> Roles => _roles;
-    public ImmutableDictionary<DiscordId, GuildEmoji> Emojis => _emojis;
-    public ImmutableDictionary<DiscordId, GuildSticker> Stickers => _stickers;
-
-    internal ImmutableDictionary<DiscordId, GuildRole> _roles;
-    internal ImmutableDictionary<DiscordId, GuildEmoji> _emojis;
-    internal ImmutableDictionary<DiscordId, GuildSticker> _stickers;
+    public ImmutableDictionary<DiscordId, GuildRole> Roles { get; internal set; }
+    public ImmutableDictionary<DiscordId, GuildEmoji> Emojis { get; internal set; }
+    public ImmutableDictionary<DiscordId, GuildSticker> Stickers { get; internal set; }
 
     public override DiscordId Id => _jsonEntity.Id;
     public string Name => _jsonEntity.Name;
@@ -53,10 +49,10 @@ public class RestGuild : ClientEntity
     internal RestGuild(JsonModels.JsonGuild jsonEntity, RestClient client) : base(client)
     {
         _jsonEntity = jsonEntity;
-        _roles = jsonEntity.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
+        Roles = jsonEntity.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
         // guild emojis always have Id
-        _emojis = jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        _stickers = jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
+        Emojis = jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
         Features = new(jsonEntity.Features);
         if (jsonEntity.WelcomeScreen != null)
             WelcomeScreen = new(jsonEntity.WelcomeScreen);

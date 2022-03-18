@@ -10,9 +10,9 @@ public class Message : RestMessage
         if (GuildId.HasValue && client.Guilds.TryGetValue(GuildId.GetValueOrDefault(), out var guild))
         {
             Guild = guild;
-            if (guild._channels.TryGetValue(ChannelId, out var channel))
+            if (guild.Channels.TryGetValue(ChannelId, out var channel))
                 Channel = (TextChannel)channel;
-            else if (guild._activeThreads.TryGetValue(ChannelId, out var thread))
+            else if (guild.ActiveThreads.TryGetValue(ChannelId, out var thread))
                 Channel = thread;
         }
         else

@@ -42,9 +42,9 @@ public abstract class Interaction : ClientEntity
             User = new GuildInteractionUser(jsonEntity.GuildUser!, Guild, client.Rest);
             if (ChannelId.HasValue)
             {
-                if (guild._channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
+                if (guild.Channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
                     Channel = (TextChannel)channel;
-                else if (guild._activeThreads.TryGetValue(ChannelId.GetValueOrDefault(), out var thread))
+                else if (guild.ActiveThreads.TryGetValue(ChannelId.GetValueOrDefault(), out var thread))
                     Channel = thread;
             }
         }

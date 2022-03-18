@@ -461,7 +461,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._channels = guild._channels.SetItem(channel.Id, channel);
+                        guild.Channels = guild.Channels.SetItem(channel.Id, channel);
                 }
                 break;
             case "CHANNEL_UPDATE":
@@ -480,7 +480,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._channels = guild._channels.SetItem(channel.Id, channel);
+                        guild.Channels = guild.Channels.SetItem(channel.Id, channel);
                 }
                 break;
             case "CHANNEL_DELETE":
@@ -499,7 +499,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._channels = guild._channels.Remove(channel.Id);
+                        guild.Channels = guild.Channels.Remove(channel.Id);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
@@ -533,7 +533,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._activeThreads = guild._activeThreads.SetItem(thread.Id, thread);
+                        guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
                 }
                 break;
             case "THREAD_UPDATE":
@@ -552,7 +552,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._activeThreads = guild._activeThreads.SetItem(thread.Id, thread);
+                        guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
                 }
                 break;
             case "THREAD_DELETE":
@@ -571,7 +571,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._activeThreads = guild._activeThreads.Remove(jsonThread.Id);
+                        guild.ActiveThreads = guild.ActiveThreads.Remove(jsonThread.Id);
                 }
                 break;
             case "THREAD_LIST_SYNC":
@@ -590,7 +590,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(guildId, out var guild))
-                        guild._activeThreads = args.Threads;
+                        guild.ActiveThreads = args.Threads;
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
@@ -723,7 +723,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild._emojis = args.Emojis;
+                        guild.Emojis = args.Emojis;
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
@@ -741,7 +741,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild._stickers = args.Stickers;
+                        guild.Stickers = args.Stickers;
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
@@ -774,7 +774,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(user.GuildId, out var guild))
-                        guild._users = guild._users.Remove(user.Id);
+                        guild.Users = guild.Users.Remove(user.Id);
                 }
                 break;
             case "GUILD_MEMBER_UPDATE":
@@ -792,7 +792,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(user.GuildId, out var guild))
-                        guild._users = guild._users.SetItem(user.Id, user);
+                        guild.Users = guild.Users.SetItem(user.Id, user);
                 }
                 break;
             case "GUILD_MEMBER_REMOVE":
@@ -810,7 +810,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild._users = guild._users.Remove(args.User.Id);
+                        guild.Users = guild.Users.Remove(args.User.Id);
                 }
                 break;
             case "GUILD_MEMBERS_CHUNK":
@@ -829,9 +829,9 @@ public partial class GatewayClient : IDisposable
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
                     {
-                        guild._users = guild._users.SetItems(args.Users);
+                        guild.Users = guild.Users.SetItems(args.Users);
                         if (args.Presences != null)
-                            guild._presences = guild._presences.SetItems(args.Presences);
+                            guild.Presences = guild.Presences.SetItems(args.Presences);
                     }
                 }
                 break;
@@ -850,7 +850,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild.Roles.SetItem(args.Role.Id, args.Role);
+                        guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
@@ -868,7 +868,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild.Roles.SetItem(args.Role.Id, args.Role);
+                        guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
                 }
                 break;
             case "GUILD_ROLE_DELETE":
@@ -886,7 +886,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(args.GuildId, out var guild))
-                        guild.Roles.Remove(args.RoleId);
+                        guild.Roles = guild.Roles.Remove(args.RoleId);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
@@ -904,7 +904,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        guild._scheduledEvents = guild._scheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
+                        guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
@@ -922,7 +922,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        guild._scheduledEvents = guild._scheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
+                        guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
@@ -940,7 +940,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        guild._scheduledEvents = guild._scheduledEvents.Remove(scheduledEvent.Id);
+                        guild.ScheduledEvents = guild.ScheduledEvents.Remove(scheduledEvent.Id);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
@@ -1210,7 +1210,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(presence.GuildId, out var guild))
-                        guild._presences = guild._presences.SetItem(presence.User.Id, presence);
+                        guild.Presences = guild.Presences.SetItem(presence.User.Id, presence);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
@@ -1228,7 +1228,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        guild._stageInstances = guild._stageInstances.SetItem(stageInstance.Id, stageInstance);
+                        guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
                 }
                 break;
             case "STAGE_INSTANCE_UPDATE":
@@ -1246,7 +1246,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        guild._stageInstances = guild._stageInstances.SetItem(stageInstance.Id, stageInstance);
+                        guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
                 }
                 break;
             case "STAGE_INSTANCE_DELETE":
@@ -1264,7 +1264,7 @@ public partial class GatewayClient : IDisposable
                         }
                     }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        guild._stageInstances = guild._stageInstances.Remove(stageInstance.Id);
+                        guild.StageInstances = guild.StageInstances.Remove(stageInstance.Id);
                 }
                 break;
             case "TYPING_START":
@@ -1315,9 +1315,9 @@ public partial class GatewayClient : IDisposable
                     if (TryGetGuild(voiceState.GuildId.GetValueOrDefault(), out var guild))
                     {
                         if (voiceState.ChannelId.HasValue)
-                            guild._voiceStates = guild._voiceStates.Remove(voiceState.UserId);
+                            guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
                         else
-                            guild._voiceStates = guild._voiceStates.SetItem(voiceState.UserId, voiceState);
+                            guild.VoiceStates = guild.VoiceStates.SetItem(voiceState.UserId, voiceState);
                     }
                 }
                 break;
