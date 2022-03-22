@@ -1296,6 +1296,7 @@ public partial class GatewayClient : IDisposable
                             InvokeLog(LogMessage.Error(ex));
                         }
                     }
+                    User = user;
                 }
                 break;
             case "VOICE_STATE_UPDATE":
