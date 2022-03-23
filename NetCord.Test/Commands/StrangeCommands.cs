@@ -297,6 +297,26 @@ public class StrangeCommands : CommandModule
     {
         return ReplyAsync(s);
     }
+
+    [Command("attachment")]
+    public Task AttachmentAsync()
+    {
+        AttachmentProperties attachment = new("dzejus.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        return SendAsync(new()
+        {
+            Attachments = new List<AttachmentProperties>()
+            {
+                attachment
+            },
+            Embeds = new List<EmbedProperties>
+            {
+                new()
+                {
+                    Image = attachment
+                }
+            }
+        });
+    }
 }
 
 public enum Wzium

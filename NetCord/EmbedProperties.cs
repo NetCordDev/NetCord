@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace NetCord;
 
@@ -75,6 +76,10 @@ public class EmbedImageProperties : EmbedPartBaseProperties
     }
 
     public static implicit operator EmbedImageProperties(string? url) => new(url);
+
+    public static implicit operator EmbedImageProperties(AttachmentProperties attachment) => FromAttachment(attachment.FileName);
+
+    public static EmbedImageProperties FromAttachment(string attachmentFileName) => new($"attachment://{attachmentFileName}");
 }
 
 public class EmbedThumbnailProperties : EmbedPartBaseProperties
