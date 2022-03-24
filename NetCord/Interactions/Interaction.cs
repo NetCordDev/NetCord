@@ -72,7 +72,12 @@ public abstract class Interaction : ClientEntity
                 ApplicationCommandType.Message => new MessageCommandInteraction(jsonEntity, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.MessageComponent => jsonEntity.Data.ComponentType == ComponentType.Button ? new ButtonInteraction(jsonEntity, client) : new MenuInteraction(jsonEntity, client),
+            InteractionType.MessageComponent => jsonEntity.Data.ComponentType switch
+            {
+                ComponentType.Button => new ButtonInteraction(jsonEntity, client),
+                ComponentType.Menu => new MenuInteraction(jsonEntity, client),
+                _ => throw new InvalidOperationException(),
+            },
             InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonEntity, client),
             InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonEntity, client),
             _ => throw new InvalidOperationException(),
