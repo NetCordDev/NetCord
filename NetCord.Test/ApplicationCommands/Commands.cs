@@ -1,4 +1,6 @@
-﻿using NetCord.Services;
+﻿using System.Globalization;
+
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;
@@ -11,10 +13,54 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo")]
-    public Task SearchAsync([Autocomplete(typeof(DDGAutocomplete))][SlashCommandParameter("Search text")] string query)
+    [SlashCommand("search", "Search using DuckDuckGo", NameTranslateProviderType = typeof(SearchNameTranslateProvider), DescriptionTranslateProviderType = typeof(SearchDescriptionTranslateProvider))]
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslateProviderType = typeof(SearchQueryNameTranslateProvider), DescriptionTranslateProviderType = typeof(SearchQueryDescriptionTranslateProvider))] string query)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
+    }
+
+    private class SearchNameTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "szukaj"
+            }
+        };
+    }
+
+    private class SearchDescriptionTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "Szuka używając DuckDuckGo"
+            }
+        };
+    }
+
+    private class SearchQueryNameTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "fraza"
+            }
+        };
+    }
+
+    private class SearchQueryDescriptionTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "Flaza do szukania"
+            }
+        };
     }
 
     [SlashCommand("percentage", "Show formatted percentage")]
@@ -25,7 +71,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
-    public async Task BanAsync([SlashCommandParameter("user", "User to ban")] User user, [SlashCommandParameter("delete_messages", "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
+    public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is avaible only in guild");
@@ -36,7 +82,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.ModerateUsers), RequireBotPermission<SlashCommandContext>(Permission.ModerateUsers)]
     [SlashCommand("mute", "Mutes a user")]
-    public async Task MuteAsync([SlashCommandParameter("user", "User to mute")] User user, double days, string reason = "no reason")
+    public async Task MuteAsync([SlashCommandParameter(Description = "User to mute")] User user, double days, string reason = "no reason")
     {
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is avaible only in guild");
@@ -65,7 +111,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("add-role", "Adds role to user or users")]
-    public async Task AddRole(Mentionable mentionable, [SlashCommandParameter("role", "Role to give")] GuildRole roleToAdd)
+    public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] GuildRole roleToAdd)
     {
         if (mentionable.Type == MentionableType.Role)
         {
@@ -179,7 +225,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
     }
 
-    [SlashCommand("button", "Send button")]
+    [SlashCommand("button", "Sends button", NameTranslateProviderType = typeof(ButtonNameTranslateProvider), DescriptionTranslateProviderType = typeof(ButtonDescriptionTranslateProvider))]
     public Task ButtonAsync()
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
@@ -202,6 +248,28 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         }));
     }
 
+    private class ButtonNameTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "guzik"
+            }
+        };
+    }
+
+    private class ButtonDescriptionTranslateProvider : ITranslateProvider
+    {
+        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        {
+            {
+                new("pl"),
+                "Wysyła guzik"
+            }
+        };
+    }
+
     [SlashCommand("user-test", "Test")]
     public Task TestAsync(User user1, User user2)
     {
@@ -219,20 +287,31 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
 public enum DeleteMessagesDays
 {
-    [SlashCommandChoice("Don't remove")]
+    [SlashCommandChoice(Name = "Don't remove")]
     DontRemove = 0,
-    [SlashCommandChoice("Last 24 hours")]
+    [SlashCommandChoice(Name = "Last 24 hours")]
     Last24Hours = 1,
-    [SlashCommandChoice("Last 2 days")]
+    [SlashCommandChoice(Name = "Last 2 days")]
     Last2Days = 2,
-    [SlashCommandChoice("Last 3 days")]
+    [SlashCommandChoice(Name = "Last 3 days")]
     Last3Days = 3,
-    [SlashCommandChoice("Last 4 days")]
+    [SlashCommandChoice(Name = "Last 4 days")]
     Last4Days = 4,
-    [SlashCommandChoice("Last 5 days")]
+    [SlashCommandChoice(Name = "Last 5 days")]
     Last5Days = 5,
-    [SlashCommandChoice("Last 6 days")]
+    [SlashCommandChoice(Name = "Last 6 days")]
     Last6Days = 6,
-    [SlashCommandChoice("Last week")]
+    [SlashCommandChoice(Name = "Last week", TranslateProviderType = typeof(DeleteMessagesDaysLastWeekTranslateProvider))]
     LastWeek = 7,
+}
+
+public class DeleteMessagesDaysLastWeekTranslateProvider : ITranslateProvider
+{
+    public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+    {
+        {
+            new("pl"),
+            "Ostatni tydzień"
+        }
+    };
 }

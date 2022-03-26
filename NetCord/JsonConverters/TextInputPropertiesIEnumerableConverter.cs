@@ -14,7 +14,7 @@ internal class TextInputPropertiesIEnumerableConverter : JsonConverter<IEnumerab
             writer.WriteStartObject();
             writer.WriteNumber("type", 1);
             writer.WriteStartArray("components");
-            JsonSerializer.Serialize(writer, textInput);
+            JsonSerializer.Serialize(writer, textInput, options);
             writer.WriteEndArray();
             writer.WriteEndObject();
         }

@@ -9,8 +9,11 @@ public class NewsGuildThreadTypeReader<TContext> : SlashCommandTypeReader<TConte
         return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![new(value)]);
     }
 
-    public override IEnumerable<ChannelType>? GetAllowedChannelTypes(SlashCommandParameter<TContext> parameter)
+    public override IEnumerable<ChannelType>? AllowedChannelTypes
     {
-        yield return ChannelType.NewsGuildThread;
+        get
+        {
+            yield return ChannelType.NewsGuildThread;
+        }
     }
 }

@@ -19,7 +19,7 @@ internal class JsonContent : HttpContent
     public JsonContent(JsonDocument json) : this()
     {
         _stream = new MemoryStream();
-        JsonSerializer.Serialize(_stream, json);
+        JsonSerializer.Serialize(_stream, json, ToObjectExtensions._options);
         _stream.Position = 0;
         _start = 0;
     }
@@ -34,7 +34,7 @@ internal class JsonContent : HttpContent
     public JsonContent(object? objToSerialize) : this()
     {
         _stream = new MemoryStream();
-        JsonSerializer.Serialize(_stream, objToSerialize);
+        JsonSerializer.Serialize(_stream, objToSerialize, ToObjectExtensions._options);
         _stream.Position = 0;
         _start = 0;
     }

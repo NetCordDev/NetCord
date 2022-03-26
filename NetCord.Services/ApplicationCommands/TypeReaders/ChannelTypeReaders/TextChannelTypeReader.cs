@@ -9,15 +9,18 @@ public class TextChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> 
         return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![new(value)]);
     }
 
-    public override IEnumerable<ChannelType>? GetAllowedChannelTypes(SlashCommandParameter<TContext> parameter)
+    public override IEnumerable<ChannelType>? AllowedChannelTypes
     {
-        yield return ChannelType.TextGuildChannel;
-        yield return ChannelType.DMChannel;
-        yield return ChannelType.GroupDMChannel;
-        yield return ChannelType.NewsGuildChannel;
-        yield return ChannelType.StoreGuildChannel;
-        yield return ChannelType.NewsGuildThread;
-        yield return ChannelType.PublicGuildThread;
-        yield return ChannelType.PrivateGuildThread;
+        get
+        {
+            yield return ChannelType.TextGuildChannel;
+            yield return ChannelType.DMChannel;
+            yield return ChannelType.GroupDMChannel;
+            yield return ChannelType.NewsGuildChannel;
+            yield return ChannelType.StoreGuildChannel;
+            yield return ChannelType.NewsGuildThread;
+            yield return ChannelType.PublicGuildThread;
+            yield return ChannelType.PrivateGuildThread;
+        }
     }
 }

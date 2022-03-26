@@ -44,24 +44,24 @@ public class AllowedMentionsProperties
             else
             {
                 writer.WritePropertyName("roles");
-                JsonSerializer.Serialize(writer, value.TheOnlyAllowedRoles);
+                JsonSerializer.Serialize(writer, value.TheOnlyAllowedRoles, options);
             }
             if (value.TheOnlyAllowedUsers == null)
                 list.Add("users");
             else
             {
                 writer.WritePropertyName("users");
-                JsonSerializer.Serialize(writer, value.TheOnlyAllowedUsers);
+                JsonSerializer.Serialize(writer, value.TheOnlyAllowedUsers, options);
             }
             if (value.Everyone)
                 list.Add("everyone");
             writer.WritePropertyName("parse");
-            JsonSerializer.Serialize(writer, list);
+            JsonSerializer.Serialize(writer, list, options);
 
             if (value.ReplyMention == true)
             {
                 writer.WritePropertyName("replied_user");
-                JsonSerializer.Serialize(writer, value.ReplyMention);
+                JsonSerializer.Serialize(writer, value.ReplyMention, options);
             }
             writer.WriteEndObject();
         }

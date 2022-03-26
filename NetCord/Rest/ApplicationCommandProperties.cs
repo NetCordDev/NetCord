@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Globalization;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord;
@@ -7,6 +8,10 @@ public class SlashCommandProperties : ApplicationCommandProperties
 {
     [JsonPropertyName("description")]
     public string Description { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("description_localizations")]
+    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
@@ -50,6 +55,10 @@ public abstract class ApplicationCommandProperties
     public string Name { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("name_localizations")]
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
 
@@ -61,13 +70,13 @@ public abstract class ApplicationCommandProperties
             switch (value)
             {
                 case SlashCommandProperties slashCommandProperties:
-                    JsonSerializer.Serialize(writer, slashCommandProperties);
+                    JsonSerializer.Serialize(writer, slashCommandProperties, options);
                     break;
                 case UserCommandProperties userCommandProperties:
-                    JsonSerializer.Serialize(writer, userCommandProperties);
+                    JsonSerializer.Serialize(writer, userCommandProperties, options);
                     break;
                 case MessageCommandProperties messageCommandProperties:
-                    JsonSerializer.Serialize(writer, messageCommandProperties);
+                    JsonSerializer.Serialize(writer, messageCommandProperties, options);
                     break;
             }
         }

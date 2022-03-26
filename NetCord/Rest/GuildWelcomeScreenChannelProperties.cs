@@ -44,7 +44,7 @@ public class GuildWelcomeScreenChannelPropertiesEmoji
         public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelPropertiesEmoji value, JsonSerializerOptions options)
         {
             if (value.EmojiId != null)
-                JsonSerializer.Serialize(writer, value.EmojiId);
+                JsonSerializer.Serialize(writer, value.EmojiId, options);
             else
             {
                 writer.WriteNullValue();

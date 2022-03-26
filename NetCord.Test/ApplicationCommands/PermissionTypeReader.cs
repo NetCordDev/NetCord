@@ -11,10 +11,7 @@ internal class PermissionTypeReader : SlashCommandTypeReader<SlashCommandContext
         return Task.FromResult((object?)(Permission)ulong.Parse(value));
     }
 
-    public override IAutocompleteProvider GetAutocompleteProvider(SlashCommandParameter<SlashCommandContext> parameter)
-    {
-        return new PermissionAutocompleteProvider();
-    }
+    public override IAutocompleteProvider AutocompleteProvider => new PermissionAutocompleteProvider();
 
     public override double? GetMinValue(SlashCommandParameter<SlashCommandContext> parameter) => 0;
 }

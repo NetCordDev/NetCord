@@ -3,17 +3,17 @@
 [AttributeUsage(AttributeTargets.Parameter)]
 public class SlashCommandParameterAttribute : Attribute
 {
-    public string? Name { get; }
+    public string? Name { get; init; }
 
-    public string Description { get; }
+    public Type? NameTranslateProviderType { get; init; }
 
-    public SlashCommandParameterAttribute(string? name, string description) : this(description)
-    {
-        Name = name;
-    }
+    public string? Description { get; init; }
 
-    public SlashCommandParameterAttribute(string description)
-    {
-        Description = description;
-    }
+    public Type? DescriptionTranslateProviderType { get; init; }
+
+    public ChannelType[]? AllowedChannelTypes { get; init; }
+
+    public Type? ChoicesProviderType { get; init; }
+
+    public Type? AutocompleteProviderType { get; init; }
 }

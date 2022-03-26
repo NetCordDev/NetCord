@@ -36,7 +36,7 @@ public class GuildUserProperties : CurrentGuildUserProperties
             if (v == default)
                 writer.WriteNullValue();
             else
-                JsonSerializer.Serialize(writer, v);
+                JsonSerializer.Serialize(writer, v, options);
         }
     }
 }

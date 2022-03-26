@@ -24,14 +24,14 @@ public abstract class ComponentProperties
                 writer.WriteStartObject();
                 writer.WriteNumber("type", 1);
                 writer.WriteStartArray("components");
-                JsonSerializer.Serialize(writer, menu);
+                JsonSerializer.Serialize(writer, menu, options);
                 writer.WriteEndArray();
                 writer.WriteEndObject();
             }
             else
             {
                 var actionRow = (ActionRowProperties)component;
-                JsonSerializer.Serialize(writer, actionRow);
+                JsonSerializer.Serialize(writer, actionRow, options);
             }
         }
     }

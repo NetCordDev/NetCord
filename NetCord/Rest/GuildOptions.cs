@@ -65,7 +65,6 @@ public class GuildOptions
     [JsonPropertyName("public_updates_channel_id")]
     public DiscordId? PublicUpdatesChannelId { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.CultureInfoConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("preferred_locale")]
     public CultureInfo? PreferredLocale { get; set; }

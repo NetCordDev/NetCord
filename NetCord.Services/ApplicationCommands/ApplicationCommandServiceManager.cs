@@ -5,7 +5,7 @@ public class ApplicationCommandServiceManager
     private readonly List<(Action<IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)>> Action, IReadOnlyCollection<IApplicationCommandInfo> CommandInfos)> _globalCommands = new();
     private readonly List<(Action<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> Action, IReadOnlyCollection<IApplicationCommandInfo> CommandInfos)> _guildCommands = new();
 
-    public void AddApplicationCommandService<TContext>(ApplicationCommandService<TContext> service) where TContext : IApplicationCommandContext
+    public void AddService<TContext>(ApplicationCommandService<TContext> service) where TContext : IApplicationCommandContext
     {
         _globalCommands.Add((service.AddCommands, service._globalCommandsToCreate));
         _guildCommands.Add((service.AddCommand, service._guildCommandsToCreate));

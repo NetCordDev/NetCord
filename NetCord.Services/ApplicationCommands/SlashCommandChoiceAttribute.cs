@@ -3,10 +3,7 @@
 [AttributeUsage(AttributeTargets.Field)]
 public class SlashCommandChoiceAttribute : Attribute
 {
-    public string Name { get; }
+    public string? Name { get; init; }
 
-    public SlashCommandChoiceAttribute(string name)
-    {
-        Name = name;
-    }
+    public Type? TranslateProviderType { get; init; }
 }

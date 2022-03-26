@@ -33,9 +33,9 @@ public abstract class ButtonProperties
         public override void Write(Utf8JsonWriter writer, ButtonProperties button, JsonSerializerOptions options)
         {
             if (button is ActionButtonProperties actionButton)
-                JsonSerializer.Serialize(writer, actionButton);
+                JsonSerializer.Serialize(writer, actionButton, options);
             else if (button is LinkButtonProperties linkButton)
-                JsonSerializer.Serialize(writer, linkButton);
+                JsonSerializer.Serialize(writer, linkButton, options);
         }
     }
 }

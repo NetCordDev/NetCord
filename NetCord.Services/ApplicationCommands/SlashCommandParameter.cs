@@ -12,32 +12,24 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public object? DefaultValue { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Name { get; }
+    public ITranslateProvider? NameTranslateProvider { get; }
     public string Description { get; }
+    public ITranslateProvider? DescriptionTranslateProvider { get; }
     public IAutocompleteProvider? AutocompleteProvider { get; }
+    public IChoicesProvider<TContext>? ChoicesProvider { get; }
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
 
     internal SlashCommandParameter(ParameterInfo parameter, ApplicationCommandServiceOptions<TContext> options)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         Attributes = parameter.GetCustomAttributes().ToRankedDictionary(a => a.GetType());
-        if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
-        {
-            var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
-            Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
-            Description = slashCommandParameterAttribute.Description;
-        }
-        else
-        {
-            Name = parameter.Name!;
-            Description = $"Parameter of name {Name}";
-        }
 
         var type = parameter.ParameterType;
         var underlyingType = Nullable.GetUnderlyingType(type);
 
         var typeReaders = options.TypeReaders;
 
-        if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out attributes))
+        if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out var attributes))
         {
             if (underlyingType != null)
             {
@@ -104,27 +96,59 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             Type = type;
         }
 
-        if (Attributes.TryGetValue(typeof(AutocompleteAttribute), out attributes))
+        if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out attributes))
         {
-            var autocompleteAttribute = (AutocompleteAttribute)attributes[0];
-            AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(autocompleteAttribute.AutocompleteProviderType)!;
-        }
-        else
-        {
-            AutocompleteProvider = TypeReader.GetAutocompleteProvider(this);
-        }
+            var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
+            Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
+            Description = slashCommandParameterAttribute.Description ?? $"Parameter of name {Name}";
 
-        var allowedChannelTypes = TypeReader.GetAllowedChannelTypes(this);
-        if (allowedChannelTypes != null)
-        {
-            AllowedChannelTypes = allowedChannelTypes;
+            if (slashCommandParameterAttribute.NameTranslateProviderType != null)
+            {
+                if (!slashCommandParameterAttribute.NameTranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
+                NameTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandParameterAttribute.NameTranslateProviderType)!;
+            }
+            else
+                NameTranslateProvider = TypeReader.NameTranslateProvider;
+
+            if (slashCommandParameterAttribute.DescriptionTranslateProviderType != null)
+            {
+                if (!slashCommandParameterAttribute.DescriptionTranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
+                DescriptionTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandParameterAttribute.DescriptionTranslateProviderType)!;
+            }
+            else
+                DescriptionTranslateProvider = TypeReader.DescriptionTranslateProvider;
+
+            if (slashCommandParameterAttribute.ChoicesProviderType != null)
+            {
+                if (!slashCommandParameterAttribute.ChoicesProviderType.IsAssignableTo(typeof(IChoicesProvider<TContext>)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.ChoicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'");
+                ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(slashCommandParameterAttribute.ChoicesProviderType)!;
+            }
+            else
+                ChoicesProvider = TypeReader.ChoicesProvider;
+
+            if (slashCommandParameterAttribute.AutocompleteProviderType != null)
+            {
+                if (!slashCommandParameterAttribute.AutocompleteProviderType.IsAssignableTo(typeof(IAutocompleteProvider)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.AutocompleteProviderType}' is not assignable to '{nameof(IAutocompleteProvider)}'");
+                AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(slashCommandParameterAttribute.AutocompleteProviderType)!;
+            }
+            else
+                AutocompleteProvider = TypeReader.AutocompleteProvider;
+
+            AllowedChannelTypes = slashCommandParameterAttribute.AllowedChannelTypes ?? TypeReader.AllowedChannelTypes;
         }
         else
         {
-            if (Attributes.TryGetValue(typeof(AllowedChannelTypesAttribute), out attributes))
-            {
-                AllowedChannelTypes = ((AllowedChannelTypesAttribute)attributes[0]).ChannelTypes;
-            }
+            Name = parameter.Name!;
+            NameTranslateProvider = TypeReader.NameTranslateProvider;
+            Description = $"Parameter of name {Name}";
+            DescriptionTranslateProvider = TypeReader.DescriptionTranslateProvider;
+            ChoicesProvider = TypeReader.ChoicesProvider;
+            AutocompleteProvider = TypeReader.AutocompleteProvider;
+            AllowedChannelTypes = TypeReader.AllowedChannelTypes;
         }
     }
 
@@ -149,11 +173,13 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
         {
+            NameLocalizations = NameTranslateProvider?.Translations,
+            DescriptionLocalizations = DescriptionTranslateProvider?.Translations,
             MaxValue = maxValue,
             MinValue = minValue,
             Required = !HasDefaultValue,
             Autocomplete = autocomplete,
-            Choices = autocomplete ? null : TypeReader.GetChoices(this),
+            Choices = ChoicesProvider?.GetChoices(this),
             ChannelTypes = AllowedChannelTypes,
         };
     }

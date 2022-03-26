@@ -15,16 +15,36 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
             throw new FormatException($"Invalid {type}");
     }
 
-    public override IEnumerable<ApplicationCommandOptionChoiceProperties>? GetChoices(SlashCommandParameter<TContext> parameter)
+    public override IChoicesProvider<TContext>? ChoicesProvider { get; } = new EnumChoicesProvider();
+
+    private class EnumChoicesProvider : IChoicesProvider<TContext>
     {
-        var array = Enum.GetValues(parameter.Type);
-        if (array.Length > 25)
-            throw new InvalidOperationException($"{parameter.Type.FullName} has too many values, max choices count is 25");
-        foreach (Enum e in array)
+        public IEnumerable<ApplicationCommandOptionChoiceProperties>? GetChoices(SlashCommandParameter<TContext> parameter)
         {
-            var eString = e.ToString();
-            var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
-            yield return new(attribute != null ? attribute.Name : eString, Convert.ToDouble(e));
+            var array = Enum.GetValues(parameter.Type);
+            if (array.Length > 25)
+                throw new InvalidOperationException($"{parameter.Type.FullName} has too many values, max choices count is 25");
+            foreach (Enum e in array)
+            {
+                var eString = e.ToString();
+                var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
+                if (attribute != null)
+                {
+                    if (attribute.TranslateProviderType != null)
+                    {
+                        if (!attribute.TranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
+                            throw new InvalidOperationException($"'{attribute.TranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
+                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e))
+                        {
+                            NameLocalizations = ((ITranslateProvider)Activator.CreateInstance(attribute.TranslateProviderType)!).Translations
+                        };
+                    }
+                    else
+                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e));
+                }
+                else
+                    yield return new(eString, Convert.ToDouble(e));
+            }
         }
     }
 }

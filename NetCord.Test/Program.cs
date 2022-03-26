@@ -40,9 +40,9 @@ internal static class Program
         await _client.StartAsync();
         await _client.ReadyAsync;
         ApplicationCommandServiceManager manager = new();
-        manager.AddApplicationCommandService(_slashCommandService);
-        manager.AddApplicationCommandService(_messageCommandService);
-        manager.AddApplicationCommandService(_userCommandService);
+        manager.AddService(_slashCommandService);
+        manager.AddService(_messageCommandService);
+        manager.AddService(_userCommandService);
         await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }

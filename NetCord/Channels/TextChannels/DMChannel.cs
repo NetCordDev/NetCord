@@ -8,6 +8,6 @@ public class DMChannel : TextChannel
 
     internal DMChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {
-        Users = jsonEntity.Users.ToImmutableDictionary(u => u.Id, u => new User(u, client));
+        Users = jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
     }
 }

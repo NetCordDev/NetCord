@@ -4,23 +4,31 @@ namespace NetCord;
 
 internal static class ToObjectExtensions
 {
-    internal static T ToObject<T>(this JsonElement element, JsonSerializerOptions? options = null)
+    internal static readonly JsonSerializerOptions _options;
+
+    static ToObjectExtensions()
     {
-        return JsonSerializer.Deserialize<T>(element, options)!;
+        _options = new();
+        _options.Converters.Add(new JsonConverters.CultureInfoConverter());
     }
 
-    internal static T ToObject<T>(this ref Utf8JsonReader reader, JsonSerializerOptions? options = null)
+    internal static T ToObject<T>(this JsonElement element)
     {
-        return JsonSerializer.Deserialize<T>(ref reader, options)!;
+        return JsonSerializer.Deserialize<T>(element, _options)!;
     }
 
-    internal static T ToObject<T>(this JsonDocument document, JsonSerializerOptions? options = null)
+    internal static T ToObject<T>(this ref Utf8JsonReader reader)
     {
-        return JsonSerializer.Deserialize<T>(document, options)!;
+        return JsonSerializer.Deserialize<T>(ref reader, _options)!;
     }
 
-    internal static T ToObject<T>(this Stream stream, JsonSerializerOptions? options = null)
+    internal static T ToObject<T>(this JsonDocument document)
     {
-        return JsonSerializer.Deserialize<T>(stream, options)!;
+        return JsonSerializer.Deserialize<T>(document, _options)!;
+    }
+
+    internal static T ToObject<T>(this Stream stream)
+    {
+        return JsonSerializer.Deserialize<T>(stream, _options)!;
     }
 }

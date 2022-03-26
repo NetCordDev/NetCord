@@ -10,11 +10,15 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
 
     public virtual double? GetMinValue(SlashCommandParameter<TContext> parameter) => null;
 
-    public virtual IEnumerable<ApplicationCommandOptionChoiceProperties>? GetChoices(SlashCommandParameter<TContext> parameter) => null;
+    public virtual IChoicesProvider<TContext>? ChoicesProvider => null;
 
-    public virtual IAutocompleteProvider? GetAutocompleteProvider(SlashCommandParameter<TContext> parameter) => null;
+    public virtual IAutocompleteProvider? AutocompleteProvider => null;
 
-    public virtual IEnumerable<ChannelType>? GetAllowedChannelTypes(SlashCommandParameter<TContext> parameter) => null;
+    public virtual ITranslateProvider? NameTranslateProvider => null;
+
+    public virtual ITranslateProvider? DescriptionTranslateProvider => null;
+
+    public virtual IEnumerable<ChannelType>? AllowedChannelTypes => null;
 }
 
 internal interface ISlashCommandTypeReader

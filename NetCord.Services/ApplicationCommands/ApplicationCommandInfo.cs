@@ -7,7 +7,9 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 {
     public Type DeclaringType { get; }
     public string Name { get; }
+    public ITranslateProvider? NameTranslateProvider { get; }
     public string? Description { get; }
+    public ITranslateProvider? DescriptionTranslateProvider { get; }
     public bool DefaultPermission { get; init; }
     public DiscordId? GuildId { get; init; }
     public IEnumerable<DiscordId>? AllowedRoleIds { get; init; }
@@ -24,6 +26,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
+        if (slashCommandAttribute.DescriptionTranslateProviderType != null)
+            DescriptionTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandAttribute.DescriptionTranslateProviderType)!;
 
         Autocompletes = new();
 
@@ -67,6 +71,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     {
         DeclaringType = methodInfo.DeclaringType!;
         Name = attribute.Name;
+        if (attribute.NameTranslateProviderType != null)
+            NameTranslateProvider = (ITranslateProvider)Activator.CreateInstance(attribute.NameTranslateProviderType)!;
         DefaultPermission = attribute.DefaultPermission;
         if (attribute.GuildId != default)
         {
@@ -90,15 +96,19 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         {
             ApplicationCommandType.ChatInput => new SlashCommandProperties(Name, Description!)
             {
+                NameLocalizations = NameTranslateProvider?.Translations,
+                DescriptionLocalizations = DescriptionTranslateProvider?.Translations,
                 DefaultPermission = DefaultPermission,
                 Options = Parameters!.Select(p => p.GetRawValue()),
             },
             ApplicationCommandType.User => new UserCommandProperties(Name)
             {
+                NameLocalizations = NameTranslateProvider?.Translations,
                 DefaultPermission = DefaultPermission,
             },
             ApplicationCommandType.Message => new MessageCommandProperties(Name)
             {
+                NameLocalizations = NameTranslateProvider?.Translations,
                 DefaultPermission = DefaultPermission,
             },
             _ => throw new InvalidOperationException(),

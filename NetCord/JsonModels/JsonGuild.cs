@@ -123,7 +123,6 @@ internal record JsonGuild : JsonEntity
     [JsonPropertyName("premium_subscription_count")]
     public int? PremiumSubscriptionCount { get; init; }
 
-    [JsonConverter(typeof(CultureInfoConverter))]
     [JsonPropertyName("preferred_locale")]
     public System.Globalization.CultureInfo PreferredLocale { get; init; }
 

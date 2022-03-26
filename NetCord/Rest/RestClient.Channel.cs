@@ -117,7 +117,7 @@ public partial class RestClient
     }
 
     private Task BulkDeleteMessagesAsync(DiscordId channelId, DiscordId[] messagesIds, RequestProperties? options = null)
-        => SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"messages\":{JsonSerializer.Serialize(messagesIds)}}}"), $"/channels/{channelId}/messages/bulk-delete", options);
+        => SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"messages\":{JsonSerializer.Serialize(messagesIds, ToObjectExtensions._options)}}}"), $"/channels/{channelId}/messages/bulk-delete", options);
 
     public async Task<RestMessage> GetMessageAsync(DiscordId channelId, DiscordId messageId, RequestProperties? options = null)
     => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", options).ConfigureAwait(false))!.ToObject<JsonMessage>(), this);
