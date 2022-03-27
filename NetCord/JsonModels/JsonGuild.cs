@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.JsonConverters;
-
 namespace NetCord.JsonModels;
 
 internal record JsonGuild : JsonEntity

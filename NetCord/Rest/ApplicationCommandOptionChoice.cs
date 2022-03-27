@@ -10,7 +10,7 @@ public class ApplicationCommandOptionChoice
     public string Name => _jsonEntity.Name;
 
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonEntity.NameLocalizations;
-    
+
     public string Value { get; }
 
     internal ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonEntity)

@@ -11,11 +11,11 @@ public class ApplicationCommandOption
     public string Name => _jsonEntity.Name;
 
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonEntity.NameLocalizations;
-    
+
     public string Description => _jsonEntity.Description;
 
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonEntity.DescriptionLocalizations;
-    
+
     public bool Required => _jsonEntity.Required;
 
     public IEnumerable<ApplicationCommandOptionChoice>? Choices { get; }
