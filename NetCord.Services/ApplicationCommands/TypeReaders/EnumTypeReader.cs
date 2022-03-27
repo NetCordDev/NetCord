@@ -30,13 +30,13 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
                 var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
                 if (attribute != null)
                 {
-                    if (attribute.TranslateProviderType != null)
+                    if (attribute.TranslationsProviderType != null)
                     {
-                        if (!attribute.TranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
-                            throw new InvalidOperationException($"'{attribute.TranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
+                        if (!attribute.TranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                            throw new InvalidOperationException($"'{attribute.TranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
                         yield return new(attribute.Name ?? eString, Convert.ToDouble(e))
                         {
-                            NameLocalizations = ((ITranslateProvider)Activator.CreateInstance(attribute.TranslateProviderType)!).Translations
+                            NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(attribute.TranslationsProviderType)!).Translations
                         };
                     }
                     else

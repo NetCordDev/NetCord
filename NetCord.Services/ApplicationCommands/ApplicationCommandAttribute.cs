@@ -9,7 +9,7 @@ public abstract class ApplicationCommandAttribute : Attribute
     }
 
     public string Name { get; }
-    public Type? NameTranslateProviderType { get; init; }
+    public Type? NameTranslationsProviderType { get; init; }
     public bool DefaultPermission { get; init; } = true;
     public ulong GuildId { get; init; }
     public ulong[]? AllowedRoleIds { get; init; }

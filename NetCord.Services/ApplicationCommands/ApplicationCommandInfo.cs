@@ -7,9 +7,9 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 {
     public Type DeclaringType { get; }
     public string Name { get; }
-    public ITranslateProvider? NameTranslateProvider { get; }
+    public ITranslationsProvider? NameTranslationsProvider { get; }
     public string? Description { get; }
-    public ITranslateProvider? DescriptionTranslateProvider { get; }
+    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public bool DefaultPermission { get; init; }
     public DiscordId? GuildId { get; init; }
     public IEnumerable<DiscordId>? AllowedRoleIds { get; init; }
@@ -26,8 +26,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
-        if (slashCommandAttribute.DescriptionTranslateProviderType != null)
-            DescriptionTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandAttribute.DescriptionTranslateProviderType)!;
+        if (slashCommandAttribute.DescriptionTranslationsProviderType != null)
+            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandAttribute.DescriptionTranslationsProviderType)!;
 
         Autocompletes = new();
 
@@ -71,8 +71,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     {
         DeclaringType = methodInfo.DeclaringType!;
         Name = attribute.Name;
-        if (attribute.NameTranslateProviderType != null)
-            NameTranslateProvider = (ITranslateProvider)Activator.CreateInstance(attribute.NameTranslateProviderType)!;
+        if (attribute.NameTranslationsProviderType != null)
+            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
         DefaultPermission = attribute.DefaultPermission;
         if (attribute.GuildId != default)
         {
@@ -96,19 +96,19 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         {
             ApplicationCommandType.ChatInput => new SlashCommandProperties(Name, Description!)
             {
-                NameLocalizations = NameTranslateProvider?.Translations,
-                DescriptionLocalizations = DescriptionTranslateProvider?.Translations,
+                NameLocalizations = NameTranslationsProvider?.Translations,
+                DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
                 DefaultPermission = DefaultPermission,
                 Options = Parameters!.Select(p => p.GetRawValue()),
             },
             ApplicationCommandType.User => new UserCommandProperties(Name)
             {
-                NameLocalizations = NameTranslateProvider?.Translations,
+                NameLocalizations = NameTranslationsProvider?.Translations,
                 DefaultPermission = DefaultPermission,
             },
             ApplicationCommandType.Message => new MessageCommandProperties(Name)
             {
-                NameLocalizations = NameTranslateProvider?.Translations,
+                NameLocalizations = NameTranslationsProvider?.Translations,
                 DefaultPermission = DefaultPermission,
             },
             _ => throw new InvalidOperationException(),

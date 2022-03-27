@@ -8,5 +8,5 @@ public class SlashCommandAttribute : ApplicationCommandAttribute
     }
 
     public string Description { get; }
-    public Type? DescriptionTranslateProviderType { get; init; }
+    public Type? DescriptionTranslationsProviderType { get; init; }
 }

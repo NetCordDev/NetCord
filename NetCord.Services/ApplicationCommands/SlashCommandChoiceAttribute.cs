@@ -5,5 +5,5 @@ public class SlashCommandChoiceAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    public Type? TranslateProviderType { get; init; }
+    public Type? TranslationsProviderType { get; init; }
 }

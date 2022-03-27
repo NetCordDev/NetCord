@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.ApplicationCommands;
 
-public interface ITranslateProvider
+public interface ITranslationsProvider
 {
     public IReadOnlyDictionary<CultureInfo, string>? Translations { get; }
 }

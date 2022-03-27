@@ -12,9 +12,9 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public object? DefaultValue { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Name { get; }
-    public ITranslateProvider? NameTranslateProvider { get; }
+    public ITranslationsProvider? NameTranslationsProvider { get; }
     public string Description { get; }
-    public ITranslateProvider? DescriptionTranslateProvider { get; }
+    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IAutocompleteProvider? AutocompleteProvider { get; }
     public IChoicesProvider<TContext>? ChoicesProvider { get; }
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
@@ -102,23 +102,23 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
             Description = slashCommandParameterAttribute.Description ?? $"Parameter of name {Name}";
 
-            if (slashCommandParameterAttribute.NameTranslateProviderType != null)
+            if (slashCommandParameterAttribute.NameTranslationsProviderType != null)
             {
-                if (!slashCommandParameterAttribute.NameTranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
-                NameTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandParameterAttribute.NameTranslateProviderType)!;
+                if (!slashCommandParameterAttribute.NameTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
+                NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.NameTranslationsProviderType)!;
             }
             else
-                NameTranslateProvider = TypeReader.NameTranslateProvider;
+                NameTranslationsProvider = TypeReader.NameTranslationsProvider;
 
-            if (slashCommandParameterAttribute.DescriptionTranslateProviderType != null)
+            if (slashCommandParameterAttribute.DescriptionTranslationsProviderType != null)
             {
-                if (!slashCommandParameterAttribute.DescriptionTranslateProviderType.IsAssignableTo(typeof(ITranslateProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslateProviderType}' is not assignable to '{nameof(ITranslateProvider)}'");
-                DescriptionTranslateProvider = (ITranslateProvider)Activator.CreateInstance(slashCommandParameterAttribute.DescriptionTranslateProviderType)!;
+                if (!slashCommandParameterAttribute.DescriptionTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
+                DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.DescriptionTranslationsProviderType)!;
             }
             else
-                DescriptionTranslateProvider = TypeReader.DescriptionTranslateProvider;
+                DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
 
             if (slashCommandParameterAttribute.ChoicesProviderType != null)
             {
@@ -143,9 +143,9 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         else
         {
             Name = parameter.Name!;
-            NameTranslateProvider = TypeReader.NameTranslateProvider;
+            NameTranslationsProvider = TypeReader.NameTranslationsProvider;
             Description = $"Parameter of name {Name}";
-            DescriptionTranslateProvider = TypeReader.DescriptionTranslateProvider;
+            DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
             ChoicesProvider = TypeReader.ChoicesProvider;
             AutocompleteProvider = TypeReader.AutocompleteProvider;
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
@@ -173,8 +173,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
         {
-            NameLocalizations = NameTranslateProvider?.Translations,
-            DescriptionLocalizations = DescriptionTranslateProvider?.Translations,
+            NameLocalizations = NameTranslationsProvider?.Translations,
+            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
             MaxValue = maxValue,
             MinValue = minValue,
             Required = !HasDefaultValue,

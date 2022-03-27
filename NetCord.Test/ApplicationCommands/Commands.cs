@@ -13,13 +13,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo", NameTranslateProviderType = typeof(SearchNameTranslateProvider), DescriptionTranslateProviderType = typeof(SearchDescriptionTranslateProvider))]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslateProviderType = typeof(SearchQueryNameTranslateProvider), DescriptionTranslateProviderType = typeof(SearchQueryDescriptionTranslateProvider))] string query)
+    [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider))] string query)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
     }
 
-    private class SearchNameTranslateProvider : ITranslateProvider
+    private class SearchNameTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -30,7 +30,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         };
     }
 
-    private class SearchDescriptionTranslateProvider : ITranslateProvider
+    private class SearchDescriptionTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -41,7 +41,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         };
     }
 
-    private class SearchQueryNameTranslateProvider : ITranslateProvider
+    private class SearchQueryNameTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -52,7 +52,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         };
     }
 
-    private class SearchQueryDescriptionTranslateProvider : ITranslateProvider
+    private class SearchQueryDescriptionTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -225,7 +225,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
     }
 
-    [SlashCommand("button", "Sends button", NameTranslateProviderType = typeof(ButtonNameTranslateProvider), DescriptionTranslateProviderType = typeof(ButtonDescriptionTranslateProvider))]
+    [SlashCommand("button", "Sends button", NameTranslationsProviderType = typeof(ButtonNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(ButtonDescriptionTranslationsProvider))]
     public Task ButtonAsync()
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
@@ -248,7 +248,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         }));
     }
 
-    private class ButtonNameTranslateProvider : ITranslateProvider
+    private class ButtonNameTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -259,7 +259,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         };
     }
 
-    private class ButtonDescriptionTranslateProvider : ITranslateProvider
+    private class ButtonDescriptionTranslationsProvider : ITranslationsProvider
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
         {
@@ -301,11 +301,11 @@ public enum DeleteMessagesDays
     Last5Days = 5,
     [SlashCommandChoice(Name = "Last 6 days")]
     Last6Days = 6,
-    [SlashCommandChoice(Name = "Last week", TranslateProviderType = typeof(DeleteMessagesDaysLastWeekTranslateProvider))]
+    [SlashCommandChoice(Name = "Last week", TranslationsProviderType = typeof(DeleteMessagesDaysLastWeekTranslationsProvider))]
     LastWeek = 7,
 }
 
-public class DeleteMessagesDaysLastWeekTranslateProvider : ITranslateProvider
+public class DeleteMessagesDaysLastWeekTranslationsProvider : ITranslationsProvider
 {
     public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
     {

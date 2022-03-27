@@ -5,11 +5,11 @@ public class SlashCommandParameterAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    public Type? NameTranslateProviderType { get; init; }
+    public Type? NameTranslationsProviderType { get; init; }
 
     public string? Description { get; init; }
 
-    public Type? DescriptionTranslateProviderType { get; init; }
+    public Type? DescriptionTranslationsProviderType { get; init; }
 
     public ChannelType[]? AllowedChannelTypes { get; init; }
 
