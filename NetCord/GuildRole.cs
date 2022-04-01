@@ -4,7 +4,7 @@ public class GuildRole : ClientEntity
 {
     private readonly JsonModels.JsonGuildRole _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public string Name => _jsonEntity.Name;
 
@@ -45,9 +45,9 @@ public class GuildRoleTags
 {
     private readonly JsonModels.JsonTags _jsonEntity;
 
-    public DiscordId? BotId => _jsonEntity.BotId;
+    public Snowflake? BotId => _jsonEntity.BotId;
 
-    public DiscordId? IntegrationId => _jsonEntity.IntegrationId;
+    public Snowflake? IntegrationId => _jsonEntity.IntegrationId;
 
     public bool IsPremiumSubscriber => _jsonEntity.IsPremiumSubscriber;
 

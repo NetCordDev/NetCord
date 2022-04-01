@@ -11,7 +11,7 @@ public class GuildRoleDeleteEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public DiscordId RoleId => _jsonEntity.RoleId;
+    public Snowflake RoleId => _jsonEntity.RoleId;
 }

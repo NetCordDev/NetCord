@@ -7,7 +7,7 @@ public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractio
 {
     [RequireUserPermission<ButtonInteractionContext>(Permission.BanUsers), RequireBotPermission<ButtonInteractionContext>(Permission.BanUsers)]
     [Interaction("unban")]
-    public async Task UnbanAsync(DiscordId userId)
+    public async Task UnbanAsync(Snowflake userId)
     {
         await Context.Guild!.UnbanUserAsync(userId);
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**Ban cancelled by {Context.User}**", AllowedMentions = AllowedMentionsProperties.None, Components = Enumerable.Empty<ComponentProperties>() }));
@@ -15,7 +15,7 @@ public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractio
 
     [RequireUserPermission<ButtonInteractionContext>(Permission.ModerateUsers), RequireBotPermission<ButtonInteractionContext>(Permission.ModerateUsers)]
     [Interaction("unmute")]
-    public async Task UnmuteAsync(DiscordId userId)
+    public async Task UnmuteAsync(Snowflake userId)
     {
         await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild!, userId, u => u.TimeOutUntil = default(DateTimeOffset));
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**Mute cancelled by {Context.User}**", AllowedMentions = AllowedMentionsProperties.None, Components = Enumerable.Empty<ComponentProperties>() }));

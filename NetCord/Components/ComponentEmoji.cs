@@ -4,7 +4,7 @@ public class ComponentEmoji : Entity
 {
     private readonly JsonModels.JsonEmoji _jsonEntity;
 
-    public override DiscordId Id
+    public override Snowflake Id
     {
         get
         {

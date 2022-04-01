@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("type")]
     public ChannelType Type { get; init; }

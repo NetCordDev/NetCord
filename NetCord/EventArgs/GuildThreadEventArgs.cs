@@ -2,7 +2,7 @@
 
 public class GuildThreadEventArgs
 {
-    internal GuildThreadEventArgs(GuildThread thread, DiscordId guildId)
+    internal GuildThreadEventArgs(GuildThread thread, Snowflake guildId)
     {
         Thread = thread;
         GuildId = guildId;
@@ -10,5 +10,5 @@ public class GuildThreadEventArgs
 
     public GuildThread Thread { get; }
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 }

@@ -6,7 +6,7 @@ namespace NetCord;
 
 public class SlashCommandInteractionData : ApplicationCommandInteractionData
 {
-    internal SlashCommandInteractionData(JsonInteractionData jsonEntity, DiscordId? guildId, RestClient client) : base(jsonEntity, guildId, client)
+    internal SlashCommandInteractionData(JsonInteractionData jsonEntity, Snowflake? guildId, RestClient client) : base(jsonEntity, guildId, client)
     {
         Options = new(jsonEntity.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToList());
         if (jsonEntity.ResolvedData != null)

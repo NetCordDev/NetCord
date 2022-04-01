@@ -6,13 +6,13 @@ public class ApplicationCommand : Entity
 {
     private readonly JsonModels.JsonApplicationCommand _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public ApplicationCommandType Type => _jsonEntity.Type;
 
-    public DiscordId ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake ApplicationId => _jsonEntity.ApplicationId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 
     public string Name => _jsonEntity.Name;
 
@@ -26,7 +26,7 @@ public class ApplicationCommand : Entity
 
     public bool DefaultPermission => _jsonEntity.DefaultPermission;
 
-    public DiscordId Version => _jsonEntity.Version;
+    public Snowflake Version => _jsonEntity.Version;
 
     internal ApplicationCommand(JsonModels.JsonApplicationCommand jsonEntity)
     {

@@ -11,9 +11,9 @@ public class GuildInviteDeleteEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId InviteChannelId => _jsonEntity.InviteChannelId;
+    public Snowflake InviteChannelId => _jsonEntity.InviteChannelId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 
     public string InviteCode => _jsonEntity.InviteCode;
 }

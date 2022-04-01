@@ -10,7 +10,7 @@ public class MenuInteractions : BaseInteractionModule<MenuInteractionContext>
         var user = Context.User;
         if (user is GuildUser guildUser)
         {
-            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => new DiscordId(s));
+            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => new Snowflake(s));
             await guildUser.ModifyAsync(x => x.NewRolesIds = selectedValues);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = "Roles updated" }));
         }

@@ -9,7 +9,7 @@ internal record JsonChannel : JsonEntity
     public ChannelType Type { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("position")]
     public int? Position { get; init; }
@@ -27,7 +27,7 @@ internal record JsonChannel : JsonEntity
     public bool IsNsfw { get; init; }
 
     [JsonPropertyName("last_message_id")]
-    public DiscordId? LastMessageId { get; init; }
+    public Snowflake? LastMessageId { get; init; }
 
     [JsonPropertyName("bitrate")]
     public int? Bitrate { get; init; }
@@ -45,13 +45,13 @@ internal record JsonChannel : JsonEntity
     public string IconHash { get; init; }
 
     [JsonPropertyName("owner_id")]
-    public DiscordId? OwnerId { get; init; }
+    public Snowflake? OwnerId { get; init; }
 
     [JsonPropertyName("application_id")]
-    public DiscordId? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     [JsonPropertyName("parent_id")]
-    public DiscordId? ParentId { get; init; }
+    public Snowflake? ParentId { get; init; }
 
     [JsonPropertyName("last_pin_timestamp")]
     public DateTimeOffset? LastPin { get; init; }

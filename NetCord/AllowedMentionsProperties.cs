@@ -13,11 +13,11 @@ public class AllowedMentionsProperties
     /// <summary>
     /// <see langword="null"/> for all
     /// </summary>
-    public IEnumerable<DiscordId>? TheOnlyAllowedRoles { get; set; }
+    public IEnumerable<Snowflake>? TheOnlyAllowedRoles { get; set; }
     /// <summary>
     /// <see langword="null"/> for all
     /// </summary>
-    public IEnumerable<DiscordId>? TheOnlyAllowedUsers { get; set; }
+    public IEnumerable<Snowflake>? TheOnlyAllowedUsers { get; set; }
     public bool ReplyMention { get; set; }
 
     public static AllowedMentionsProperties All => new()
@@ -27,8 +27,8 @@ public class AllowedMentionsProperties
 
     public static AllowedMentionsProperties None => new()
     {
-        TheOnlyAllowedRoles = Enumerable.Empty<DiscordId>(),
-        TheOnlyAllowedUsers = Enumerable.Empty<DiscordId>(),
+        TheOnlyAllowedRoles = Enumerable.Empty<Snowflake>(),
+        TheOnlyAllowedUsers = Enumerable.Empty<Snowflake>(),
         Everyone = false,
     };
 

@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 internal record JsonMessage : JsonEntity
 {
     [JsonPropertyName("channel_id")]
-    public DiscordId ChannelId { get; init; }
+    public Snowflake ChannelId { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("author")]
     public JsonUser Author { get; init; }
@@ -35,7 +35,7 @@ internal record JsonMessage : JsonEntity
     public JsonUser[] MentionedUsers { get; init; }
 
     [JsonPropertyName("mention_roles")]
-    public DiscordId[] MentionedRoleIds { get; init; }
+    public Snowflake[] MentionedRoleIds { get; init; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; init; }
@@ -56,7 +56,7 @@ internal record JsonMessage : JsonEntity
     public bool IsPinned { get; init; }
 
     [JsonPropertyName("webhook_id")]
-    public DiscordId? WebhookId { get; init; }
+    public Snowflake? WebhookId { get; init; }
 
     [JsonPropertyName("type")]
     public MessageType Type { get; init; }
@@ -68,7 +68,7 @@ internal record JsonMessage : JsonEntity
     public JsonApplication? Application { get; init; }
 
     [JsonPropertyName("application_id")]
-    public DiscordId? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     [JsonPropertyName("message_reference")]
     public JsonMessageReference? MessageReference { get; init; }

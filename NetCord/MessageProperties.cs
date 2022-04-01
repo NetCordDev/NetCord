@@ -35,7 +35,7 @@ public class MessageProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("sticker_ids")]
-    public IEnumerable<DiscordId>? StickerIds { get; set; }
+    public IEnumerable<Snowflake>? StickerIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("flags")]

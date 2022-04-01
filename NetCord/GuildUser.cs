@@ -4,7 +4,7 @@ public class GuildUser : User
 {
     private protected new readonly JsonModels.JsonGuildUser _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.User.Id;
+    public override Snowflake Id => _jsonEntity.User.Id;
     public override string Username => _jsonEntity.User.Username;
     public override ushort Discriminator => _jsonEntity.User.Discriminator;
     public override string? AvatarHash => _jsonEntity.User.AvatarHash;
@@ -19,17 +19,17 @@ public class GuildUser : User
     public override UserFlags? PublicFlags => _jsonEntity.User.PublicFlags;
     public string? Nickname => _jsonEntity.Nickname;
     public string? GuildAvatarHash => _jsonEntity.GuildAvatarHash;
-    public IEnumerable<DiscordId> RoleIds => _jsonEntity.RoleIds;
-    public DiscordId? HoistedRoleId => _jsonEntity.HoistedRoleId;
+    public IEnumerable<Snowflake> RoleIds => _jsonEntity.RoleIds;
+    public Snowflake? HoistedRoleId => _jsonEntity.HoistedRoleId;
     public DateTimeOffset JoinedAt => _jsonEntity.JoinedAt;
     public DateTimeOffset? GuildBoostStart => _jsonEntity.GuildBoostStart;
     public bool Deafened => _jsonEntity.Deafened;
     public bool Muted => _jsonEntity.Muted;
     public bool? IsPending => _jsonEntity.IsPending;
     public DateTimeOffset? TimeOutUntil => _jsonEntity.TimeOutUntil;
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 
-    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, DiscordId guildId, RestClient client) : base(jsonEntity.User, client)
+    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, Snowflake guildId, RestClient client) : base(jsonEntity.User, client)
     {
         _jsonEntity = jsonEntity;
         GuildId = guildId;
@@ -61,7 +61,7 @@ public class GuildUser : User
     /// <returns></returns>
     public string GetGuildAvatarUrl(ImageFormat? format = null, int? size = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
 
-    public Task AddRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
+    public Task AddRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
 
-    public Task RemoveRoleAsync(DiscordId roleId, RequestProperties? options = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, options);
+    public Task RemoveRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, options);
 }

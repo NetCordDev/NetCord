@@ -6,7 +6,7 @@ public class Attachment : Entity
 {
     private protected readonly JsonModels.JsonAttachment _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
     public string Filename => _jsonEntity.Filename;
     public string? Description => _jsonEntity.Description;
     public ContentType? ContentType => _jsonEntity.ContentType;

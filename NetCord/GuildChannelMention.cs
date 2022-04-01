@@ -4,8 +4,8 @@
     {
         private readonly JsonModels.JsonGuildChannelMention _jsonEntity;
 
-        public override DiscordId Id => _jsonEntity.Id;
-        public DiscordId GuildId => _jsonEntity.GuildId;
+        public override Snowflake Id => _jsonEntity.Id;
+        public Snowflake GuildId => _jsonEntity.GuildId;
         public ChannelType Type => _jsonEntity.Type;
         public string Name => _jsonEntity.Name;
 

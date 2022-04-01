@@ -5,7 +5,7 @@ namespace NetCord;
 public class GuildUsersRequestProperties
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 
     [JsonPropertyName("query")]
     public string? Query { get; set; }
@@ -17,12 +17,12 @@ public class GuildUsersRequestProperties
     public bool? Presences { get; set; }
 
     [JsonPropertyName("user_ids")]
-    public IEnumerable<DiscordId>? UserIds { get; set; }
+    public IEnumerable<Snowflake>? UserIds { get; set; }
 
     [JsonPropertyName("nonce")]
     public string? Nonce { get; set; }
 
-    public GuildUsersRequestProperties(DiscordId guildId)
+    public GuildUsersRequestProperties(Snowflake guildId)
     {
         GuildId = guildId;
     }

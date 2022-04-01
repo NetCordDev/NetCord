@@ -25,7 +25,7 @@ public class OtherCommands : CommandModule
         else
             await SendAsync($"**Deleted {count} messages!**");
 
-        async IAsyncEnumerable<DiscordId> GetMessagesToRemove()
+        async IAsyncEnumerable<Snowflake> GetMessagesToRemove()
         {
             int i = 0;
             await foreach (var message in Context.Client.Rest.GetMessagesAsync(Context.Message.ChannelId))

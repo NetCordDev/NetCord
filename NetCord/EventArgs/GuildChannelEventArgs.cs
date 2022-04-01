@@ -2,7 +2,7 @@
 
 public class GuildChannelEventArgs
 {
-    internal GuildChannelEventArgs(IGuildChannel channel, DiscordId guildId)
+    internal GuildChannelEventArgs(IGuildChannel channel, Snowflake guildId)
     {
         Channel = channel;
         GuildId = guildId;
@@ -10,5 +10,5 @@ public class GuildChannelEventArgs
 
     public IGuildChannel Channel { get; }
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 }

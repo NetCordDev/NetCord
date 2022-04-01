@@ -26,7 +26,7 @@ public class UserActivityProperties
     public UserActivityTimestampsProperties? Timestamps { get; set; }
 
     [JsonPropertyName("application_id")]
-    public DiscordId? ApplicationId { get; set; }
+    public Snowflake? ApplicationId { get; set; }
 
     [JsonPropertyName("details")]
     public string? Details { get; set; }

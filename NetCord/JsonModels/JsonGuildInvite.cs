@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonGuildInvite
 {
     [JsonPropertyName("channel_id")]
-    public DiscordId ChannelId { get; init; }
+    public Snowflake ChannelId { get; init; }
 
     [JsonPropertyName("code")]
     public string Code { get; init; }
@@ -14,7 +14,7 @@ internal record JsonGuildInvite
     public DateTimeOffset CreatedAt { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("inviter")]
     public JsonUser? Inviter { get; init; }

@@ -4,7 +4,7 @@ public class MessageSticker : ClientEntity
 {
     private readonly JsonModels.JsonMessageSticker _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public string Name => _jsonEntity.Name;
 

@@ -32,10 +32,10 @@ internal record JsonGuildRole : JsonEntity
 internal record JsonTags
 {
     [JsonPropertyName("bot_id")]
-    public DiscordId? BotId { get; init; }
+    public Snowflake? BotId { get; init; }
 
     [JsonPropertyName("integration_id")]
-    public DiscordId? IntegrationId { get; init; }
+    public Snowflake? IntegrationId { get; init; }
 
     [JsonConverter(typeof(JsonConverters.NullConverter))]
     [JsonPropertyName("premium_subscriber")]

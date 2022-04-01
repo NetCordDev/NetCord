@@ -2,15 +2,15 @@
 
 public class SlashCommandInteractionResolvedData
 {
-    public IReadOnlyDictionary<DiscordId, User>? Users { get; }
+    public IReadOnlyDictionary<Snowflake, User>? Users { get; }
 
-    public IReadOnlyDictionary<DiscordId, GuildRole>? Roles { get; }
+    public IReadOnlyDictionary<Snowflake, GuildRole>? Roles { get; }
 
-    public IReadOnlyDictionary<DiscordId, Channel>? Channels { get; }
+    public IReadOnlyDictionary<Snowflake, Channel>? Channels { get; }
 
-    public IReadOnlyDictionary<DiscordId, Attachment>? Attachments { get; }
+    public IReadOnlyDictionary<Snowflake, Attachment>? Attachments { get; }
 
-    internal SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonEntity, DiscordId? guildId, RestClient client)
+    internal SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonEntity, Snowflake? guildId, RestClient client)
     {
         if (jsonEntity.Users != null)
         {
@@ -18,7 +18,7 @@ public class SlashCommandInteractionResolvedData
             {
                 var enumerator = jsonEntity.Users.GetEnumerator();
                 int max = jsonEntity.Users.Count - jsonEntity.GuildUsers.Count;
-                Dictionary<DiscordId, User> users = new();
+                Dictionary<Snowflake, User> users = new();
                 for (int i = 0; i < max; i++)
                 {
                     enumerator.MoveNext();

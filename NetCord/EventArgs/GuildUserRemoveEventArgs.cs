@@ -10,7 +10,7 @@ public class GuildUserRemoveEventArgs
         User = new(jsonEntity.User, client);
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
     public User User { get; }
 }

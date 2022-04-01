@@ -4,13 +4,13 @@ namespace NetCord.JsonModels;
 internal record JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     [JsonPropertyName("user_id")]
-    public DiscordId UserId { get; init; }
+    public Snowflake UserId { get; init; }
 
     //[JsonPropertyName("member")]
     //public GuildUser? User { get; init; }

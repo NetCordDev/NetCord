@@ -6,13 +6,13 @@ namespace NetCord.JsonModels;
 internal record JsonMessageReference
 {
     [JsonPropertyName("message_id")]
-    public DiscordId? MessageId { get; init; }
+    public Snowflake? MessageId { get; init; }
 
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("fail_if_not_exists")]
     public bool? FailIfNotExists { get; init; }

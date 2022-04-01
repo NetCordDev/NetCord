@@ -8,7 +8,7 @@ public class MessageReaction
 
     public bool Me => _jsonEntity.Me;
 
-    public DiscordId? Id => _jsonEntity.Emoji.Id;
+    public Snowflake? Id => _jsonEntity.Emoji.Id;
 
     public string? Name => _jsonEntity.Emoji.Name;
 

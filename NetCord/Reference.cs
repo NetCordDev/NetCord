@@ -4,9 +4,9 @@
     {
         private readonly JsonModels.JsonMessageReference _jsonEntity;
 
-        public DiscordId MessageId => _jsonEntity.MessageId.GetValueOrDefault();
-        public DiscordId ChannelId => _jsonEntity.ChannelId.GetValueOrDefault();
-        public DiscordId? GuildId => _jsonEntity.GuildId;
+        public Snowflake MessageId => _jsonEntity.MessageId.GetValueOrDefault();
+        public Snowflake ChannelId => _jsonEntity.ChannelId.GetValueOrDefault();
+        public Snowflake? GuildId => _jsonEntity.GuildId;
         public bool? FailIfNotExists => _jsonEntity.FailIfNotExists;
 
         internal Reference(JsonModels.JsonMessageReference jsonEntity)

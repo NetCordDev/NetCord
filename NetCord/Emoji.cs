@@ -15,7 +15,7 @@ public class Emoji
 
     public override string ToString() => Name;
 
-    internal static Emoji CreateFromJson(JsonModels.JsonEmoji jsonEntity, DiscordId guildId, RestClient client)
+    internal static Emoji CreateFromJson(JsonModels.JsonEmoji jsonEntity, Snowflake guildId, RestClient client)
     {
         if (jsonEntity.Id.HasValue)
             return new GuildEmoji(jsonEntity, guildId, client);

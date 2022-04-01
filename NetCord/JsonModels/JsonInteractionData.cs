@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonInteractionData
 {
     [JsonPropertyName("id")]
-    public DiscordId? Id { get; init; }
+    public Snowflake? Id { get; init; }
 
     [JsonPropertyName("name")]
     public string? Name { get; init; }
@@ -29,7 +29,7 @@ internal record JsonInteractionData
     public string[]? SelectedValues { get; init; }
 
     [JsonPropertyName("target_id")]
-    public DiscordId? TargetId { get; init; }
+    public Snowflake? TargetId { get; init; }
 
     [JsonPropertyName("components")]
     public JsonComponent[]? Components { get; init; }

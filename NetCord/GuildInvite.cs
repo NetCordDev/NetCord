@@ -15,13 +15,13 @@ public class GuildInvite
             TargetApplication = new(jsonEntity.TargetApplication, client);
     }
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
     public string Code => _jsonEntity.Code;
 
     public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 
     public User? Inviter { get; }
 

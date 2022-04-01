@@ -26,7 +26,7 @@ public class StrangeCommands : CommandModule
 
     [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
     [Command("delete", "remove")]
-    public Task Delete(DiscordId id)
+    public Task Delete(Snowflake id)
     {
         return Context.Client.Rest.DeleteMessageAsync(Context.Message.ChannelId, id);
     }
@@ -154,7 +154,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("messages")]
-    public async Task Messages(DiscordId? channelId = null)
+    public async Task Messages(Snowflake? channelId = null)
     {
         channelId ??= Context.Message.ChannelId;
         await foreach (var m in Context.Client.Rest.GetMessagesAsync(channelId.GetValueOrDefault()))
@@ -162,7 +162,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("message")]
-    public async Task Message(DiscordId id)
+    public async Task Message(Snowflake id)
     {
         var m = await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, id);
         await ReplyAsync($"{m.Author}: {m.Content}");
@@ -258,7 +258,7 @@ public class StrangeCommands : CommandModule
     }
 
     [Command("quote", Priority = 1)]
-    public async Task Quote(DiscordId messageId)
+    public async Task Quote(Snowflake messageId)
         => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, messageId)).Content).ToString());
 
     [Command("quote", Priority = 0)]

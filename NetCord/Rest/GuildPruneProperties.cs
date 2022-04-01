@@ -12,5 +12,5 @@ public class GuildPruneProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("include_roles")]
-    public IEnumerable<DiscordId>? Roles { get; set; }
+    public IEnumerable<Snowflake>? Roles { get; set; }
 }

@@ -6,7 +6,7 @@ public class GuildEmoji : Emoji
 {
     private protected readonly RestClient _client;
 
-    internal GuildEmoji(JsonEmoji jsonEntity, DiscordId guildId, RestClient client) : base(jsonEntity)
+    internal GuildEmoji(JsonEmoji jsonEntity, Snowflake guildId, RestClient client) : base(jsonEntity)
     {
         _client = client;
         if (jsonEntity.Creator != null)
@@ -16,9 +16,9 @@ public class GuildEmoji : Emoji
         GuildId = guildId;
     }
 
-    public DiscordId Id => _jsonEntity.Id.GetValueOrDefault();
+    public Snowflake Id => _jsonEntity.Id.GetValueOrDefault();
 
-    public IReadOnlyDictionary<DiscordId, GuildRole>? AllowedRoles { get; }
+    public IReadOnlyDictionary<Snowflake, GuildRole>? AllowedRoles { get; }
 
     public User? Creator { get; }
 
@@ -28,7 +28,7 @@ public class GuildEmoji : Emoji
 
     public bool? Available => _jsonEntity.Available;
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 

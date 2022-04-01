@@ -5,10 +5,10 @@ public abstract class GuildThread : TextGuildChannel
     public ThreadMetadata Metadata { get; }
     public ThreadSelfUser? CurrentUser { get; }
     //public int DefaultAutoArchiveDuration => (int)_jsonEntity.DefaultAutoArchiveDuration!;
-    public DiscordId OwnerId => _jsonEntity.OwnerId.GetValueOrDefault();
+    public Snowflake OwnerId => _jsonEntity.OwnerId.GetValueOrDefault();
     public override int Position => throw new NotImplementedException($"Threads don't have {nameof(Position)}");
 
-    public Task<IReadOnlyDictionary<DiscordId, ThreadUser>> GetUsersAsync() => _client.GetGuildThreadUsersAsync(Id);
+    public Task<IReadOnlyDictionary<Snowflake, ThreadUser>> GetUsersAsync() => _client.GetGuildThreadUsersAsync(Id);
 
     internal GuildThread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {

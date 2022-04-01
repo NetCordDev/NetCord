@@ -17,7 +17,7 @@ public class NormalCommands : CommandModule
     }
 
     [Command("roles")]
-    public async Task Roles(params DiscordId[] roles)
+    public async Task Roles(params Snowflake[] roles)
     {
         if (Context.User is GuildUser guildUser)
         {
@@ -48,7 +48,7 @@ public class NormalCommands : CommandModule
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<DiscordId> defaultValues)
+    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<Snowflake> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         List<MenuSelectOptionProperties> options = new();

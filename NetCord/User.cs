@@ -3,7 +3,7 @@ public class User : ClientEntity
 {
     private protected readonly JsonModels.JsonUser _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
     public virtual string Username => _jsonEntity.Username;
     public virtual ushort Discriminator => _jsonEntity.Discriminator;
     public virtual string? AvatarHash => _jsonEntity.AvatarHash;

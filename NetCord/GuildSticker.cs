@@ -6,7 +6,7 @@ public class GuildSticker : Sticker
 
     public bool? Available => _jsonEntity.Available;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
     public User Creator { get; }
 

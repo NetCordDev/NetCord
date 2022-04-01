@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 internal record JsonGuildUserChunkEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("members")]
     public JsonGuildUser[] Users { get; init; }
@@ -17,7 +17,7 @@ internal record JsonGuildUserChunkEventArgs
     public int ChunkCount { get; init; }
 
     [JsonPropertyName("not_found")]
-    public DiscordId[]? NotFound { get; init; }
+    public Snowflake[]? NotFound { get; init; }
 
     [JsonPropertyName("presences")]
     public JsonPresence[]? Presences { get; init; }

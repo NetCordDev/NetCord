@@ -11,9 +11,9 @@ public class GuildIntegrationDeleteEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId IntegrationId => _jsonEntity.IntegrationId;
+    public Snowflake IntegrationId => _jsonEntity.IntegrationId;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
 }

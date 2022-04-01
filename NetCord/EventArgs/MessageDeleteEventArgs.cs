@@ -9,9 +9,9 @@ public class MessageDeleteEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId MessageId => _jsonEntity.MessageId;
+    public Snowflake MessageId => _jsonEntity.MessageId;
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 }

@@ -7,7 +7,7 @@ public static class CDN
     /// <param name="guildAvatarHash"></param>
     /// <param name="format"></param>
     /// <param name="size">Any power of 2 between 16 and 4096.</param>
-    public static string GetGuildAvatarUrl(DiscordId guildId, DiscordId userId, string guildAvatarHash, ImageFormat? format = null, int? size = null)
+    public static string GetGuildAvatarUrl(Snowflake guildId, Snowflake userId, string guildAvatarHash, ImageFormat? format = null, int? size = null)
     {
         if (guildAvatarHash != null)
         {
@@ -23,7 +23,7 @@ public static class CDN
     /// <param name="avatarHash"></param>
     /// <param name="format"></param>
     /// <param name="size">Any power of 2 between 16 and 4096.</param>
-    public static string GetAvatarUrl(DiscordId userId, string avatarHash, ImageFormat? format = null, int? size = null)
+    public static string GetAvatarUrl(Snowflake userId, string avatarHash, ImageFormat? format = null, int? size = null)
     {
         if (avatarHash != null)
         {
@@ -37,7 +37,7 @@ public static class CDN
 
     public static string GetDefaultAvatarUrl(ushort discriminator) => $"{Discord.ImageBaseUrl}/embed/avatars/{discriminator % 5}.png";
 
-    public static string GetGuildWidgetImageUrl(DiscordId guildId, GuildWidgetImageStyle? style = null)
+    public static string GetGuildWidgetImageUrl(Snowflake guildId, GuildWidgetImageStyle? style = null)
     {
         if (style.HasValue)
             return $"https://discord.com/api/guilds/{guildId}/widget.png?style={(style.GetValueOrDefault() == GuildWidgetImageStyle.Shield ? "shield" : $"banner{(int)style.GetValueOrDefault()}")}";

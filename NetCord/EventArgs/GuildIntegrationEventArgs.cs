@@ -2,7 +2,7 @@
 
 public class GuildIntegrationEventArgs
 {
-    public GuildIntegrationEventArgs(Integration integration, DiscordId guildId)
+    public GuildIntegrationEventArgs(Integration integration, Snowflake guildId)
     {
         Integration = integration;
         GuildId = guildId;
@@ -10,5 +10,5 @@ public class GuildIntegrationEventArgs
 
     public Integration Integration { get; }
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 }

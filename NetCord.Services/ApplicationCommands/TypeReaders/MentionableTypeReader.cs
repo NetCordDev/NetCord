@@ -8,7 +8,7 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
     {
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
         var roles = slashInteraction.Data.ResolvedData!.Roles;
-        DiscordId id = new(value);
+        Snowflake id = new(value);
         if (roles != null && roles.TryGetValue(id, out var role))
             return Task.FromResult((object?)new Mentionable(role));
         else

@@ -17,7 +17,7 @@ internal record JsonIntegration : JsonEntity
     public bool? Syncing { get; init; }
 
     [JsonPropertyName("role_id")]
-    public DiscordId? RoleId { get; init; }
+    public Snowflake? RoleId { get; init; }
 
     [JsonPropertyName("enable_emoticons")]
     public bool? EnableEmoticons { get; init; }

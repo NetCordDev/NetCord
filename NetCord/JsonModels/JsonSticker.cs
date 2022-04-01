@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
-    public DiscordId? PackId { get; init; }
+    public Snowflake? PackId { get; init; }
 
     [JsonPropertyName("name")]
     public string Name { get; init; }
@@ -26,7 +26,7 @@ internal record JsonSticker : JsonEntity
     public bool? Available { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("user")]
     public JsonUser? Creator { get; init; }

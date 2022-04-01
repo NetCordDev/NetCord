@@ -12,13 +12,13 @@ public class MessageReactionAddEventArgs
         Emoji = new(jsonEntity.Emoji);
     }
 
-    public DiscordId UserId => _jsonEntity.UserId;
+    public Snowflake UserId => _jsonEntity.UserId;
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
-    public DiscordId MessageId => _jsonEntity.MessageId;
+    public Snowflake MessageId => _jsonEntity.MessageId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 
     public GuildUser? User { get; }
 

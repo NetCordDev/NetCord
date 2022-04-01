@@ -6,13 +6,13 @@ namespace NetCord;
 
 public class Guild : RestGuild
 {
-    public ImmutableDictionary<DiscordId, VoiceState> VoiceStates { get; internal set; }
-    public ImmutableDictionary<DiscordId, GuildUser> Users { get; internal set; }
-    public ImmutableDictionary<DiscordId, IGuildChannel> Channels { get; internal set; }
-    public ImmutableDictionary<DiscordId, GuildThread> ActiveThreads { get; internal set; }
-    public ImmutableDictionary<DiscordId, StageInstance> StageInstances { get; internal set; }
-    public ImmutableDictionary<DiscordId, Presence> Presences { get; internal set; }
-    public ImmutableDictionary<DiscordId, GuildScheduledEvent> ScheduledEvents { get; internal set; }
+    public ImmutableDictionary<Snowflake, VoiceState> VoiceStates { get; internal set; }
+    public ImmutableDictionary<Snowflake, GuildUser> Users { get; internal set; }
+    public ImmutableDictionary<Snowflake, IGuildChannel> Channels { get; internal set; }
+    public ImmutableDictionary<Snowflake, GuildThread> ActiveThreads { get; internal set; }
+    public ImmutableDictionary<Snowflake, StageInstance> StageInstances { get; internal set; }
+    public ImmutableDictionary<Snowflake, Presence> Presences { get; internal set; }
+    public ImmutableDictionary<Snowflake, GuildScheduledEvent> ScheduledEvents { get; internal set; }
 
     public string? IconHash => _jsonEntity.IconHash;
     public GuildUser Owner => Users[OwnerId];

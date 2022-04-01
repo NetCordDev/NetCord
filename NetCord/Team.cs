@@ -4,7 +4,7 @@ public class Team : Entity
 {
     private readonly JsonModels.JsonTeam _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public string? Icon => _jsonEntity.Icon;
 
@@ -12,7 +12,7 @@ public class Team : Entity
 
     public string Name => _jsonEntity.Name;
 
-    public DiscordId OwnerId => _jsonEntity.OwnerId;
+    public Snowflake OwnerId => _jsonEntity.OwnerId;
 
     internal Team(JsonModels.JsonTeam jsonEntity, RestClient client)
     {

@@ -23,19 +23,15 @@ public partial class GatewayClient : IDisposable
     private CancellationToken _token;
     private bool _disposed;
 
-    public ImmutableDictionary<DiscordId, Guild> Guilds => _guilds;
-    public ImmutableDictionary<DiscordId, DMChannel> DMChannels => _DMChannels;
-    public ImmutableDictionary<DiscordId, GroupDMChannel> GroupDMChannels => _groupDMChannels;
-
-    private ImmutableDictionary<DiscordId, Guild> _guilds = CollectionsUtils.CreateImmutableDictionary<DiscordId, Guild>();
-    private ImmutableDictionary<DiscordId, DMChannel> _DMChannels = CollectionsUtils.CreateImmutableDictionary<DiscordId, DMChannel>();
-    private ImmutableDictionary<DiscordId, GroupDMChannel> _groupDMChannels = CollectionsUtils.CreateImmutableDictionary<DiscordId, GroupDMChannel>();
+    public ImmutableDictionary<Snowflake, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, Guild>();
+    public ImmutableDictionary<Snowflake, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, DMChannel>();
+    public ImmutableDictionary<Snowflake, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, GroupDMChannel>();
 
     public event Func<Task>? Connecting;
     public event Func<Task>? Connected;
     public event Func<Task>? Disconnected;
     public event Func<Task>? Closed;
-    public event LogEventHandler? Log;
+    public event Func<LogMessage, Task>? Log;
 
     public event Func<ReadyEventArgs, Task>? Ready;
     public event Func<GuildChannelEventArgs, Task>? GuildChannelCreate;
@@ -92,10 +88,6 @@ public partial class GatewayClient : IDisposable
     public event Func<StageInstance, Task>? StageInstanceUpdate;
     public event Func<StageInstance, Task>? StageInstanceDelete;
 
-    public delegate Task LogEventHandler(LogMessage message);
-    //public delegate Task MessageReceivedEventHandler(Message message);
-    //public delegate Task InteractionCreatedEventHandler(Interaction interaction);
-
     /// <summary>
     /// Is <see langword="null"/> before <see cref="Ready"/> event
     /// </summary>
@@ -103,7 +95,7 @@ public partial class GatewayClient : IDisposable
     public string? SessionId { get; private set; }
     public int SequenceNumber { get; private set; }
     public Shard? Shard { get; private set; }
-    public DiscordId? ApplicationId { get; private set; }
+    public Snowflake? ApplicationId { get; private set; }
     public ApplicationFlags? ApplicationFlags { get; private set; }
     public RestClient Rest { get; }
     public int? Latency { get; private set; }
@@ -204,12 +196,11 @@ public partial class GatewayClient : IDisposable
         };
         _webSocket.MessageReceived += async data =>
         {
-            JsonDocument json;
             try
             {
-                json = JsonDocument.Parse(data);
+                //json = JsonDocument.Parse(data);
                 //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
-                await ProcessMessage(json).ConfigureAwait(false);
+                await ProcessMessage(JsonSerializer.Deserialize<JsonPayload>(data.Span)!).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -264,7 +255,7 @@ public partial class GatewayClient : IDisposable
 
     private async void BeginHeartbeat(JsonElement message)
     {
-        int interval = message.GetProperty("d").GetProperty("heartbeat_interval").GetInt32();
+        int interval = message.GetProperty("heartbeat_interval").GetInt32();
         HeartbeatInterval = interval;
 
         using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(interval));
@@ -284,22 +275,13 @@ public partial class GatewayClient : IDisposable
         }
     }
 
-    /// <summary>
-    /// Updates <see cref="SequenceNumber"/>
-    /// </summary>
-    /// <param name="element"></param>
-    private void UpdateSequenceNumber(JsonElement element)
-    {
-        SequenceNumber = element.GetProperty("s").GetInt32();
-    }
-
     public void Dispose()
     {
         _webSocket.Dispose();
         _tokenSource!.Dispose();
-        _guilds = null!;
-        _DMChannels = null!;
-        _groupDMChannels = null!;
+        Guilds = null!;
+        DMChannels = null!;
+        GroupDMChannels = null!;
         _disposed = true;
     }
 
@@ -327,22 +309,16 @@ public partial class GatewayClient : IDisposable
         return _webSocket.SendAsync(payload.Serialize(), _token);
     }
 
-    /// <summary>
-    /// Runs an action based on a <paramref name="message"/>
-    /// </summary>
-    /// <param name="message"></param>
-    /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private async Task ProcessMessage(JsonDocument message)
+    private async Task ProcessMessage(JsonPayload payload)
     {
-        var rootElement = message.RootElement;
-        switch ((GatewayOpcode)rootElement.GetProperty("op").GetByte())
+        switch (payload.Opcode)
         {
             case GatewayOpcode.Dispatch:
-                UpdateSequenceNumber(rootElement);
+                SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
                 try
                 {
-                    await ProcessEvent(rootElement).ConfigureAwait(false);
+                    await ProcessEvent(payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -386,7 +362,7 @@ public partial class GatewayClient : IDisposable
                 }
                 break;
             case GatewayOpcode.Hello:
-                BeginHeartbeat(rootElement);
+                BeginHeartbeat(payload.Data.GetValueOrDefault());
                 break;
             case GatewayOpcode.HeartbeatACK:
                 Latency = _latencyTimer.Elapsed;
@@ -394,22 +370,17 @@ public partial class GatewayClient : IDisposable
         }
     }
 
-    /// <summary>
-    /// Runs an action based on a <paramref name="jsonElement"/>
-    /// </summary>
-    /// <param name="jsonElement"></param>
-    /// <returns></returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private async Task ProcessEvent(JsonElement jsonElement)
+    private async Task ProcessEvent(JsonPayload payload)
     {
-        var d = jsonElement.GetProperty("d");
-        switch (jsonElement.GetProperty("t").GetString())
+        var data = payload.Data.GetValueOrDefault();
+        switch (payload.Event)
         {
             case "READY":
                 {
                     Latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
-                    ReadyEventArgs args = new(d.ToObject<JsonReadyEventArgs>(), this);
+                    ReadyEventArgs args = new(data.ToObject<JsonReadyEventArgs>(), this);
                     if (Ready != null)
                     {
                         try
@@ -425,9 +396,9 @@ public partial class GatewayClient : IDisposable
                     foreach (var channel in args.DMChannels)
                     {
                         if (channel is GroupDMChannel groupDm)
-                            _groupDMChannels = _groupDMChannels.Add(groupDm.Id, groupDm);
+                            GroupDMChannels = GroupDMChannels.Add(groupDm.Id, groupDm);
                         else if (channel is DMChannel dm)
-                            _DMChannels = _DMChannels.Add(dm.Id, dm);
+                            DMChannels = DMChannels.Add(dm.Id, dm);
                     }
                     SessionId = args.SessionId;
                     Shard = args.Shard;
@@ -447,7 +418,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "CHANNEL_CREATE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(d.ToObject<JsonChannel>(), Rest);
+                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelCreate != null)
                     {
@@ -466,7 +437,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "CHANNEL_UPDATE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(d.ToObject<JsonChannel>(), Rest);
+                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelUpdate != null)
                     {
@@ -485,7 +456,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "CHANNEL_DELETE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(d.ToObject<JsonChannel>(), Rest);
+                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelDelete != null)
                     {
@@ -508,7 +479,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await ChannelPinsUpdate(new(d.ToObject<JsonChannelPinsUpdateEventArgs>())).ConfigureAwait(false);
+                            await ChannelPinsUpdate(new(data.ToObject<JsonChannelPinsUpdateEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -519,7 +490,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "THREAD_CREATE":
                 {
-                    var thread = (GuildThread)Channel.CreateFromJson(d.ToObject<JsonChannel>(), Rest);
+                    var thread = (GuildThread)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
                     var guildId = GetGuildId();
                     if (GuildThreadCreate != null)
                     {
@@ -538,7 +509,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "THREAD_UPDATE":
                 {
-                    var thread = (GuildThread)Channel.CreateFromJson(d.ToObject<JsonChannel>(), Rest);
+                    var thread = (GuildThread)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
                     var guildId = GetGuildId();
                     if (GuildThreadUpdate != null)
                     {
@@ -557,7 +528,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "THREAD_DELETE":
                 {
-                    var jsonThread = d.ToObject<JsonChannel>();
+                    var jsonThread = data.ToObject<JsonChannel>();
                     var guildId = GetGuildId();
                     if (GuildThreadDelete != null)
                     {
@@ -576,7 +547,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "THREAD_LIST_SYNC":
                 {
-                    ThreadListSyncEventArgs args = new(d.ToObject<JsonThreadListSyncEventArgs>(), Rest);
+                    ThreadListSyncEventArgs args = new(data.ToObject<JsonThreadListSyncEventArgs>(), Rest);
                     var guildId = GetGuildId();
                     if (ThreadListSync != null)
                     {
@@ -599,7 +570,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await ThreadMemberUpdate(new(new(d.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await ThreadMemberUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -614,7 +585,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildThreadMembersUpdate(new(d.ToObject<JsonGuildThreadMembersUpdateEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildThreadMembersUpdate(new(data.ToObject<JsonGuildThreadMembersUpdateEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -625,7 +596,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_CREATE":
                 {
-                    Guild guild = new(d.ToObject<JsonGuild>(), Rest);
+                    Guild guild = new(data.ToObject<JsonGuild>(), Rest);
                     if (GuildCreate != null)
                     {
                         try
@@ -637,15 +608,15 @@ public partial class GatewayClient : IDisposable
                             InvokeLog(LogMessage.Error(ex));
                         }
                     }
-                    _guilds = _guilds.SetItem(guild.Id, guild);
+                    Guilds = Guilds.SetItem(guild.Id, guild);
                 }
                 break;
             case "GUILD_UPDATE":
                 {
                     var guildId = GetGuildId();
-                    if (_guilds.TryGetValue(guildId, out var oldGuild))
+                    if (Guilds.TryGetValue(guildId, out var oldGuild))
                     {
-                        Guild guild = new(d.ToObject<JsonGuild>(), oldGuild);
+                        Guild guild = new(data.ToObject<JsonGuild>(), oldGuild);
                         if (GuildUpdate != null)
                         {
                             try
@@ -657,7 +628,7 @@ public partial class GatewayClient : IDisposable
                                 InvokeLog(LogMessage.Error(ex));
                             }
                         }
-                        _guilds = _guilds.SetItem(guildId, guild);
+                        Guilds = Guilds.SetItem(guildId, guild);
                     }
                 }
                 break;
@@ -668,14 +639,14 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildDelete(new(guildId, !d.TryGetProperty("unavailable", out _))).ConfigureAwait(false);
+                            await GuildDelete(new(guildId, !data.TryGetProperty("unavailable", out _))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
                             InvokeLog(LogMessage.Error(ex));
                         }
                     }
-                    _guilds = _guilds.Remove(guildId);
+                    Guilds = Guilds.Remove(guildId);
                 }
                 break;
             case "GUILD_BAN_ADD":
@@ -684,7 +655,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildBanAdd(new(d.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildBanAdd(new(data.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -699,7 +670,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildBanRemove(new(d.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildBanRemove(new(data.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -710,7 +681,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_EMOJIS_UPDATE":
                 {
-                    GuildEmojisUpdateEventArgs args = new(d.ToObject<JsonGuildEmojisUpdateEventArgs>(), Rest);
+                    GuildEmojisUpdateEventArgs args = new(data.ToObject<JsonGuildEmojisUpdateEventArgs>(), Rest);
                     if (GuildEmojisUpdate != null)
                     {
                         try
@@ -728,7 +699,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
-                    GuildStickersUpdateEventArgs args = new(d.ToObject<JsonGuildStickersUpdateEventArgs>(), Rest);
+                    GuildStickersUpdateEventArgs args = new(data.ToObject<JsonGuildStickersUpdateEventArgs>(), Rest);
                     if (GuildStickersUpdate != null)
                     {
                         try
@@ -750,7 +721,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildIntegrationsUpdate(new(d.ToObject<JsonGuildIntegrationsUpdateEventArgs>())).ConfigureAwait(false);
+                            await GuildIntegrationsUpdate(new(data.ToObject<JsonGuildIntegrationsUpdateEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -761,7 +732,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_MEMBER_ADD":
                 {
-                    GuildUser user = new(d.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
+                    GuildUser user = new(data.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
                     if (GuildUserAdd != null)
                     {
                         try
@@ -779,7 +750,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
-                    GuildUser user = new(d.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
+                    GuildUser user = new(data.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
                     if (GuildUserUpdate != null)
                     {
                         try
@@ -797,7 +768,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
-                    GuildUserRemoveEventArgs args = new(d.ToObject<JsonGuildUserRemoveEventArgs>(), Rest);
+                    GuildUserRemoveEventArgs args = new(data.ToObject<JsonGuildUserRemoveEventArgs>(), Rest);
                     if (GuildUserRemove != null)
                     {
                         try
@@ -815,7 +786,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_MEMBERS_CHUNK":
                 {
-                    GuildUserChunkEventArgs args = new(d.ToObject<JsonGuildUserChunkEventArgs>(), Rest);
+                    GuildUserChunkEventArgs args = new(data.ToObject<JsonGuildUserChunkEventArgs>(), Rest);
                     if (GuildUserChunk != null)
                     {
                         try
@@ -837,7 +808,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_ROLE_CREATE":
                 {
-                    GuildRoleEventArgs args = new(d.ToObject<JsonGuildRoleEventArgs>(), Rest);
+                    GuildRoleEventArgs args = new(data.ToObject<JsonGuildRoleEventArgs>(), Rest);
                     if (GuildRoleCreate != null)
                     {
                         try
@@ -855,7 +826,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
-                    GuildRoleEventArgs args = new(d.ToObject<JsonGuildRoleEventArgs>(), Rest);
+                    GuildRoleEventArgs args = new(data.ToObject<JsonGuildRoleEventArgs>(), Rest);
                     if (GuildRoleUpdate != null)
                     {
                         try
@@ -873,7 +844,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_ROLE_DELETE":
                 {
-                    GuildRoleDeleteEventArgs args = new(d.ToObject<JsonGuildRoleDeleteEventArgs>());
+                    GuildRoleDeleteEventArgs args = new(data.ToObject<JsonGuildRoleDeleteEventArgs>());
                     if (GuildRoleDelete != null)
                     {
                         try
@@ -891,7 +862,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(d.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
                     if (GuildScheduledEventCreate != null)
                     {
                         try
@@ -909,7 +880,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(d.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
                     if (GuildScheduledEventUpdate != null)
                     {
                         try
@@ -927,7 +898,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(d.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
                     if (GuildScheduledEventDelete != null)
                     {
                         try
@@ -949,7 +920,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildScheduledEventUserAdd(new(d.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
+                            await GuildScheduledEventUserAdd(new(data.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -964,7 +935,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildScheduledEventUserRemove(new(d.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
+                            await GuildScheduledEventUserRemove(new(data.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -979,7 +950,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildIntegrationCreate(new(new(d.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildIntegrationCreate(new(new(data.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -994,7 +965,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildIntegrationUpdate(new(new(d.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildIntegrationUpdate(new(new(data.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1009,7 +980,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildIntegrationDelete(new(d.ToObject<JsonGuildIntegrationDeleteEventArgs>())).ConfigureAwait(false);
+                            await GuildIntegrationDelete(new(data.ToObject<JsonGuildIntegrationDeleteEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1020,7 +991,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "INTERACTION_CREATE":
                 {
-                    JsonInteraction interaction = d.ToObject<JsonInteraction>();
+                    JsonInteraction interaction = data.ToObject<JsonInteraction>();
                     if (interaction.GuildId.HasValue && interaction.ChannelId.HasValue)
                         await CacheChannelAsync(interaction.ChannelId.GetValueOrDefault()).ConfigureAwait(false);
 
@@ -1043,7 +1014,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildInviteCreate(new(d.ToObject<JsonGuildInvite>(), Rest)).ConfigureAwait(false);
+                            await GuildInviteCreate(new(data.ToObject<JsonGuildInvite>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1058,7 +1029,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await GuildInviteDelete(new(d.ToObject<JsonGuildInviteDeleteEventArgs>())).ConfigureAwait(false);
+                            await GuildInviteDelete(new(data.ToObject<JsonGuildInviteDeleteEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1069,7 +1040,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "MESSAGE_CREATE":
                 {
-                    var jsonMessage = d.ToObject<JsonMessage>();
+                    var jsonMessage = data.ToObject<JsonMessage>();
                     if (!jsonMessage.GuildId.HasValue)
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
@@ -1088,7 +1059,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    var jsonMessage = d.ToObject<JsonMessage>();
+                    var jsonMessage = data.ToObject<JsonMessage>();
                     if (!jsonMessage.GuildId.HasValue)
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
@@ -1111,7 +1082,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageDelete(new(d.ToObject<JsonMessageDeleteEventArgs>())).ConfigureAwait(false);
+                            await MessageDelete(new(data.ToObject<JsonMessageDeleteEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1126,7 +1097,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageDeleteBulk(new(d.ToObject<JsonMessageDeleteBulkEventArgs>())).ConfigureAwait(false);
+                            await MessageDeleteBulk(new(data.ToObject<JsonMessageDeleteBulkEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1141,7 +1112,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageReactionAdd(new(d.ToObject<JsonMessageReactionAddEventArgs>(), Rest)).ConfigureAwait(false);
+                            await MessageReactionAdd(new(data.ToObject<JsonMessageReactionAddEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1156,7 +1127,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageReactionRemove(new(d.ToObject<JsonMessageReactionRemoveEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemove(new(data.ToObject<JsonMessageReactionRemoveEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1171,7 +1142,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageReactionRemoveAll(new(d.ToObject<JsonMessageReactionRemoveAllEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemoveAll(new(data.ToObject<JsonMessageReactionRemoveAllEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1186,7 +1157,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await MessageReactionRemoveEmoji(new(d.ToObject<JsonMessageReactionRemoveEmojiEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemoveEmoji(new(data.ToObject<JsonMessageReactionRemoveEmojiEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1197,7 +1168,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "PRESENCE_UPDATE":
                 {
-                    Presence presence = new(d.ToObject<JsonPresence>(), Rest);
+                    Presence presence = new(data.ToObject<JsonPresence>(), Rest);
                     if (PresenceUpdate != null)
                     {
                         try
@@ -1215,7 +1186,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
-                    StageInstance stageInstance = new(d.ToObject<JsonStageInstance>(), Rest);
+                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
                     if (StageInstanceCreate != null)
                     {
                         try
@@ -1233,7 +1204,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
-                    StageInstance stageInstance = new(d.ToObject<JsonStageInstance>(), Rest);
+                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
                     if (StageInstanceUpdate != null)
                     {
                         try
@@ -1251,7 +1222,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
-                    StageInstance stageInstance = new(d.ToObject<JsonStageInstance>(), Rest);
+                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
                     if (StageInstanceDelete != null)
                     {
                         try
@@ -1273,7 +1244,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await TypingStart(new(d.ToObject<JsonTypingStartEventArgs>(), Rest)).ConfigureAwait(false);
+                            await TypingStart(new(data.ToObject<JsonTypingStartEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1284,7 +1255,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "USER_UPDATE":
                 {
-                    SelfUser user = new(d.ToObject<JsonUser>(), Rest);
+                    SelfUser user = new(data.ToObject<JsonUser>(), Rest);
                     if (CurrentUserUpdate != null)
                     {
                         try
@@ -1301,7 +1272,7 @@ public partial class GatewayClient : IDisposable
                 break;
             case "VOICE_STATE_UPDATE":
                 {
-                    VoiceState voiceState = new(d.ToObject<JsonVoiceState>());
+                    VoiceState voiceState = new(data.ToObject<JsonVoiceState>());
                     if (VoiceStateUpdate != null)
                     {
                         try
@@ -1328,7 +1299,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await VoiceServerUpdate(new(d.ToObject<JsonVoiceServerUpdateEventArgs>())).ConfigureAwait(false);
+                            await VoiceServerUpdate(new(data.ToObject<JsonVoiceServerUpdateEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1343,7 +1314,7 @@ public partial class GatewayClient : IDisposable
                     {
                         try
                         {
-                            await WebhooksUpdate(new(d.ToObject<JsonWebhooksUpdateEventArgs>())).ConfigureAwait(false);
+                            await WebhooksUpdate(new(data.ToObject<JsonWebhooksUpdateEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1355,21 +1326,21 @@ public partial class GatewayClient : IDisposable
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        DiscordId GetGuildId() => d.GetProperty("guild_id").ToObject<DiscordId>();
+        Snowflake GetGuildId() => data.GetProperty("guild_id").ToObject<Snowflake>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool TryGetGuild(DiscordId guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
+        bool TryGetGuild(Snowflake guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
     }
 
-    private async Task CacheChannelAsync(DiscordId channelId)
+    private async Task CacheChannelAsync(Snowflake channelId)
     {
-        if (!_DMChannels.ContainsKey(channelId) && !_groupDMChannels.ContainsKey(channelId))
+        if (!DMChannels.ContainsKey(channelId) && !GroupDMChannels.ContainsKey(channelId))
         {
             var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
             if (channel is GroupDMChannel groupDMChannel)
-                _groupDMChannels = _groupDMChannels.SetItem(channelId, groupDMChannel);
+                GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
             else if (channel is DMChannel dMChannel)
-                _DMChannels = _DMChannels.SetItem(channelId, dMChannel);
+                DMChannels = DMChannels.SetItem(channelId, dMChannel);
         }
     }
 

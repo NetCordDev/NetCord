@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 internal record JsonGuildScheduledEvent : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 
     [JsonPropertyName("creator_id")]
-    public DiscordId? CreatorId { get; init; }
+    public Snowflake? CreatorId { get; init; }
 
     [JsonPropertyName("name")]
     public string Name { get; init; }
@@ -35,7 +35,7 @@ internal record JsonGuildScheduledEvent : JsonEntity
     public GuildScheduledEventEntityType EntityType { get; init; }
 
     [JsonPropertyName("entity_id")]
-    public DiscordId? EntityId { get; init; }
+    public Snowflake? EntityId { get; init; }
 
     [JsonPropertyName("entity_metadata")]
     public JsonGuildScheduledEventMetadata? EntityMetadata { get; init; }

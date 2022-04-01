@@ -4,11 +4,11 @@ public class GuildScheduledEventUser
 {
     private readonly JsonModels.JsonGuildScheduledEventUser _jsonEntity;
 
-    public DiscordId ScheduledEventId => _jsonEntity.ScheduledEventId;
+    public Snowflake ScheduledEventId => _jsonEntity.ScheduledEventId;
 
     public User User { get; }
 
-    internal GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonEntity, DiscordId guildId, RestClient client)
+    internal GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonEntity, Snowflake guildId, RestClient client)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.GuildUser != null)

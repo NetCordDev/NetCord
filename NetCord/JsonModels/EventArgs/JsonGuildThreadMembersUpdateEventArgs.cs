@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 internal record JsonGuildThreadMembersUpdateEventArgs
 {
     [JsonPropertyName("id")]
-    public DiscordId ThreadId { get; init; }
+    public Snowflake ThreadId { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("member_count")]
     public int MemberCount { get; init; }
@@ -18,5 +18,5 @@ internal record JsonGuildThreadMembersUpdateEventArgs
     public JsonThreadUser[]? AddedUsers { get; init; }
 
     [JsonPropertyName("removed_member_ids")]
-    public DiscordId[] RemovedUserIds { get; init; }
+    public Snowflake[] RemovedUserIds { get; init; }
 }

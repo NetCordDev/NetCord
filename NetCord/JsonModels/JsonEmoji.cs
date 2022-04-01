@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonEmoji
 {
     [JsonPropertyName("id")]
-    public DiscordId? Id { get; init; }
+    public Snowflake? Id { get; init; }
 
     [JsonPropertyName("name")]
     public string? Name { get; init; }

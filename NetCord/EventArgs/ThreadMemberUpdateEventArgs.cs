@@ -2,7 +2,7 @@
 
 public class ThreadMemberUpdateEventArgs
 {
-    public ThreadMemberUpdateEventArgs(ThreadUser user, DiscordId guildId)
+    public ThreadMemberUpdateEventArgs(ThreadUser user, Snowflake guildId)
     {
         User = user;
         GuildId = guildId;
@@ -10,5 +10,5 @@ public class ThreadMemberUpdateEventArgs
 
     public ThreadUser User { get; }
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 }

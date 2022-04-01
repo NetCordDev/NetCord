@@ -14,7 +14,7 @@ internal record JsonTeam : JsonEntity
     public string Name { get; init; }
 
     [JsonPropertyName("owner_user_id")]
-    public DiscordId OwnerId { get; init; }
+    public Snowflake OwnerId { get; init; }
 }
 
 internal record JsonTeamUser
@@ -26,7 +26,7 @@ internal record JsonTeamUser
     public string[] Permissions { get; init; }
 
     [JsonPropertyName("team_id")]
-    public DiscordId TeamId { get; init; }
+    public Snowflake TeamId { get; init; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; init; }

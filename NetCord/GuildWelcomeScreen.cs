@@ -8,7 +8,7 @@ public class GuildWelcomeScreen
 
     public string? Description => _jsonEntity.Description;
 
-    public ImmutableDictionary<DiscordId, GuildWelcomeScreenChannel> WelcomeChannels { get; }
+    public ImmutableDictionary<Snowflake, GuildWelcomeScreenChannel> WelcomeChannels { get; }
 
     internal GuildWelcomeScreen(JsonModels.JsonWelcomeScreen jsonEntity)
     {

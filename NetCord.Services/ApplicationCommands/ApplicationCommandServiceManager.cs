@@ -11,7 +11,7 @@ public class ApplicationCommandServiceManager
         _guildCommands.Add((service.AddCommand, service._guildCommandsToCreate));
     }
 
-    public async Task CreateCommandsAsync(RestClient client, DiscordId applicationId, bool includeGuildCommands = false)
+    public async Task CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false)
     {
         var result = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommands.Select(c => c.CommandInfos).SelectMany(c => c.Select(x => x.GetRawValue()))).ConfigureAwait(false)).Values.Zip(_globalCommands.SelectMany(x => x.CommandInfos)).ToArray();
         int i = 0;

@@ -9,7 +9,7 @@ public class UserActivity
     public string? Url => _jsonEntity.Url;
     public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
     public UserActivityTimestamps? Timestamps { get; }
-    public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
     public string? Details => _jsonEntity.Details;
     public string? State => _jsonEntity.State;
     public Emoji? Emoji { get; }
@@ -22,9 +22,9 @@ public class UserActivity
     public bool? Instance => _jsonEntity.Instance;
     public UserActivityFlags? Flags => _jsonEntity.Flags;
     public IEnumerable<UserActivityButton> Buttons { get; }
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 
-    internal UserActivity(JsonModels.JsonUserActivity jsonEntity, DiscordId guildId, RestClient client)
+    internal UserActivity(JsonModels.JsonUserActivity jsonEntity, Snowflake guildId, RestClient client)
     {
         _jsonEntity = jsonEntity;
         if (jsonEntity.Timestamps != null)

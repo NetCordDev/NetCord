@@ -6,7 +6,7 @@ public class GuildScheduledEventOptions
 {
     [JsonPropertyName("channel_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public DiscordId? ChannelId { get; set; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonPropertyName("entity_metadata")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -9,5 +9,5 @@ public class GuildIntegrationsUpdateEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 }

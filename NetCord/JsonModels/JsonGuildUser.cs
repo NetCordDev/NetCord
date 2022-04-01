@@ -14,10 +14,10 @@ internal record JsonGuildUser
     public string? GuildAvatarHash { get; init; }
 
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId> RoleIds { get; init; }
+    public IEnumerable<Snowflake> RoleIds { get; init; }
 
     [JsonPropertyName("hoisted_role")]
-    public DiscordId? HoistedRoleId { get; init; }
+    public Snowflake? HoistedRoleId { get; init; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset JoinedAt { get; init; }

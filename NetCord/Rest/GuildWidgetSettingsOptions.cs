@@ -8,5 +8,5 @@ public class GuildWidgetSettingsOptions
     public bool Enabled { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; set; }
+    public Snowflake? ChannelId { get; set; }
 }

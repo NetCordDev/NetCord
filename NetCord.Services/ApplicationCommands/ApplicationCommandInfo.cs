@@ -11,11 +11,11 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public string? Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public bool DefaultPermission { get; init; }
-    public DiscordId? GuildId { get; init; }
-    public IEnumerable<DiscordId>? AllowedRoleIds { get; init; }
-    public IEnumerable<DiscordId>? DisallowedRoleIds { get; init; }
-    public IEnumerable<DiscordId>? AllowedUserIds { get; init; }
-    public IEnumerable<DiscordId>? DisallowedUserIds { get; init; }
+    public Snowflake? GuildId { get; init; }
+    public IEnumerable<Snowflake>? AllowedRoleIds { get; init; }
+    public IEnumerable<Snowflake>? DisallowedRoleIds { get; init; }
+    public IEnumerable<Snowflake>? AllowedUserIds { get; init; }
+    public IEnumerable<Snowflake>? DisallowedUserIds { get; init; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
     public ReadOnlyCollection<SlashCommandParameter<TContext>>? Parameters { get; }
     public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }
@@ -78,13 +78,13 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         {
             GuildId = attribute.GuildId;
             if (attribute.AllowedRoleIds != null)
-                AllowedRoleIds = attribute.AllowedRoleIds.Select(id => new DiscordId(id));
+                AllowedRoleIds = attribute.AllowedRoleIds.Select(id => new Snowflake(id));
             if (attribute.DisallowedRoleIds != null)
-                DisallowedRoleIds = attribute.DisallowedRoleIds.Select(id => new DiscordId(id));
+                DisallowedRoleIds = attribute.DisallowedRoleIds.Select(id => new Snowflake(id));
             if (attribute.AllowedUserIds != null)
-                AllowedUserIds = attribute.AllowedUserIds.Select(id => new DiscordId(id));
+                AllowedUserIds = attribute.AllowedUserIds.Select(id => new Snowflake(id));
             if (attribute.DisallowedUserIds != null)
-                DisallowedUserIds = attribute.DisallowedUserIds.Select(id => new DiscordId(id));
+                DisallowedUserIds = attribute.DisallowedUserIds.Select(id => new Snowflake(id));
         }
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
         Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));

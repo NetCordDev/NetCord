@@ -13,7 +13,7 @@ public class UserProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId>? RolesIds { get; set; }
+    public IEnumerable<Snowflake>? RolesIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]

@@ -12,7 +12,7 @@ public class GuildEmojisUpdateEventArgs
         Emojis = jsonEntity.Emojis.ToImmutableDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, GuildId, client));
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public ImmutableDictionary<DiscordId, GuildEmoji> Emojis { get; }
+    public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
 }

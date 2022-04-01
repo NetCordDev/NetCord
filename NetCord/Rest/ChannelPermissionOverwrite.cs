@@ -5,7 +5,7 @@ namespace NetCord;
 public class ChannelPermissionOverwrite
 {
     [JsonPropertyName("id")]
-    public DiscordId Id { get; }
+    public Snowflake Id { get; }
 
     [JsonPropertyName("type")]
     public PermissionOverwriteType Type { get; }
@@ -18,7 +18,7 @@ public class ChannelPermissionOverwrite
     [JsonPropertyName("deny")]
     public Permission? Denied { get; set; }
 
-    public ChannelPermissionOverwrite(DiscordId id, PermissionOverwriteType type)
+    public ChannelPermissionOverwrite(Snowflake id, PermissionOverwriteType type)
     {
         Id = id;
         Type = type;

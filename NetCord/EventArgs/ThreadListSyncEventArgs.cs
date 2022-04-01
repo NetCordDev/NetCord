@@ -13,11 +13,11 @@ public class ThreadListSyncEventArgs
         Users = jsonEntity.Users.Select(u => new ThreadUser(u, client));
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public IEnumerable<DiscordId>? ChannelIds => _jsonEntity.ChannelIds;
+    public IEnumerable<Snowflake>? ChannelIds => _jsonEntity.ChannelIds;
 
-    public ImmutableDictionary<DiscordId, GuildThread> Threads { get; }
+    public ImmutableDictionary<Snowflake, GuildThread> Threads { get; }
 
     public IEnumerable<ThreadUser> Users { get; }
 }

@@ -21,7 +21,7 @@ internal record JsonUserActivity
     public JsonUserActivityTimestamps Timestamps { get; init; }
 
     [JsonPropertyName("application_id")]
-    public DiscordId? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     [JsonPropertyName("details")]
     public string? Details { get; init; }

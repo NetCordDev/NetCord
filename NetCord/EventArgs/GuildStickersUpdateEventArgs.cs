@@ -12,7 +12,7 @@ public class GuildStickersUpdateEventArgs
         Stickers = jsonEntity.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public ImmutableDictionary<DiscordId, GuildSticker> Stickers { get; }
+    public ImmutableDictionary<Snowflake, GuildSticker> Stickers { get; }
 }

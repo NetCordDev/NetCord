@@ -11,9 +11,9 @@ public class GuildScheduledEventUserEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public DiscordId GuildScheduledEventId => _jsonEntity.GuildScheduledEventId;
+    public Snowflake GuildScheduledEventId => _jsonEntity.GuildScheduledEventId;
 
-    public DiscordId UserId => _jsonEntity.UserId;
+    public Snowflake UserId => _jsonEntity.UserId;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 }

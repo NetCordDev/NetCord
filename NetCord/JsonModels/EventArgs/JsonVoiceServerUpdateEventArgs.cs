@@ -8,7 +8,7 @@ internal record JsonVoiceServerUpdateEventArgs
     public string Token { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("endpoint")]
     public string? Endpoint { get; init; }

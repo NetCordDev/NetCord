@@ -9,9 +9,9 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
         var guild = context.Interaction.Guild;
         if (guild == null)
             goto exception;
-        IReadOnlyDictionary<DiscordId, GuildUser> users = guild.Users;
+        IReadOnlyDictionary<Snowflake, GuildUser> users = guild.Users;
         // by id
-        if (DiscordId.TryCreate(input, out DiscordId id))
+        if (Snowflake.TryCreate(input, out Snowflake id))
         {
             if (users.TryGetValue(id, out var user))
                 return Task.FromResult((object?)user);

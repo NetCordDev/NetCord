@@ -4,12 +4,12 @@ internal class TypingReminder : IDisposable
 {
     private readonly RestClient _client;
 
-    public DiscordId ChannelId { get; }
+    public Snowflake ChannelId { get; }
 
     private readonly CancellationTokenSource _tokenSource;
     private readonly RequestProperties? _options;
 
-    public TypingReminder(DiscordId channelId, RestClient client, RequestProperties? options)
+    public TypingReminder(Snowflake channelId, RestClient client, RequestProperties? options)
     {
         ChannelId = channelId;
         _client = client;

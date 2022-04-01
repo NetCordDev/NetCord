@@ -9,9 +9,9 @@ public class MessageDeleteBulkEventArgs
         _jsonEntity = jsonEntity;
     }
 
-    public IEnumerable<DiscordId> MessageIds => _jsonEntity.MessageIds;
+    public IEnumerable<Snowflake> MessageIds => _jsonEntity.MessageIds;
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 }

@@ -4,7 +4,7 @@
     {
         private protected readonly JsonModels.JsonSticker _jsonEntity;
 
-        public override DiscordId Id => _jsonEntity.Id;
+        public override Snowflake Id => _jsonEntity.Id;
 
         public string Name => _jsonEntity.Name;
 

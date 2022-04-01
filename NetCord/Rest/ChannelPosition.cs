@@ -10,9 +10,9 @@ public class ChannelPosition : GuildRolePosition
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("parent_id")]
-    public DiscordId? CategoryId { get; set; }
+    public Snowflake? CategoryId { get; set; }
 
-    public ChannelPosition(DiscordId id) : base(id)
+    public ChannelPosition(Snowflake id) : base(id)
     {
     }
 }

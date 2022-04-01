@@ -24,10 +24,10 @@ public class Message : RestMessage
         }
     }
 
-    public DiscordId? GuildId { get; }
+    public Snowflake? GuildId { get; }
     public Guild? Guild { get; }
     public TextChannel? Channel { get; }
 
     public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId.HasValue ? GuildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
-    public override string GetJumpUrl(DiscordId? guildId) => GetJumpUrl();
+    public override string GetJumpUrl(Snowflake? guildId) => GetJumpUrl();
 }

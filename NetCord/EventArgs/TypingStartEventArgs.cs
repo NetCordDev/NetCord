@@ -11,11 +11,11 @@ public class TypingStartEventArgs
             User = new(jsonEntity.User, _jsonEntity.GuildId.GetValueOrDefault(), client);
     }
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
-    public DiscordId? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonEntity.GuildId;
 
-    public DiscordId UserId => _jsonEntity.UserId;
+    public Snowflake UserId => _jsonEntity.UserId;
 
     public DateTimeOffset Timestamp => _jsonEntity.Timestamp;
 

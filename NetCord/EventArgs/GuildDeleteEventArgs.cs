@@ -2,13 +2,13 @@
 
 public class GuildDeleteEventArgs
 {
-    public GuildDeleteEventArgs(DiscordId guildId, bool isUserDeleted)
+    public GuildDeleteEventArgs(Snowflake guildId, bool isUserDeleted)
     {
         GuildId = guildId;
         IsUserDeleted = isUserDeleted;
     }
 
-    public DiscordId GuildId { get; }
+    public Snowflake GuildId { get; }
 
     public bool IsUserDeleted { get; }
 }

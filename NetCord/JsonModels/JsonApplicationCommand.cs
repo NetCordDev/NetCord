@@ -9,10 +9,10 @@ internal record JsonApplicationCommand : JsonEntity
     public ApplicationCommandType Type { get; init; } = ApplicationCommandType.ChatInput;
 
     [JsonPropertyName("application_id")]
-    public DiscordId ApplicationId { get; init; }
+    public Snowflake ApplicationId { get; init; }
 
     [JsonPropertyName("guild_id")]
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("name")]
     public string Name { get; init; }
@@ -33,5 +33,5 @@ internal record JsonApplicationCommand : JsonEntity
     public bool DefaultPermission { get; init; } = true;
 
     [JsonPropertyName("version")]
-    public DiscordId Version { get; init; }
+    public Snowflake Version { get; init; }
 }

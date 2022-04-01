@@ -6,15 +6,15 @@ namespace NetCord
     {
         private readonly JsonModels.JsonGuildWidget _jsonEntity;
 
-        public override DiscordId Id => _jsonEntity.Id;
+        public override Snowflake Id => _jsonEntity.Id;
 
         public string Name => _jsonEntity.Name;
 
         public string? InstantInvite => _jsonEntity.InstantInvite;
 
-        public ImmutableDictionary<DiscordId, GuildWidgetChannel> Channels { get; }
+        public ImmutableDictionary<Snowflake, GuildWidgetChannel> Channels { get; }
 
-        public ImmutableDictionary<DiscordId, User> Users { get; }
+        public ImmutableDictionary<Snowflake, User> Users { get; }
 
         public int PresenceCount => _jsonEntity.PresenceCount;
 

@@ -5,5 +5,5 @@ namespace NetCord.JsonModels.EventArgs;
 internal record JsonGuildIntegrationsUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 }

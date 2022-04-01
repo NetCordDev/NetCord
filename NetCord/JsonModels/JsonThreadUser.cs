@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 internal record JsonThreadUser
 {
     [JsonPropertyName("user_id")]
-    public DiscordId UserId { get; init; }
+    public Snowflake UserId { get; init; }
 
     [JsonPropertyName("id")]
-    public DiscordId ThreadId { get; init; }
+    public Snowflake ThreadId { get; init; }
 
     [JsonPropertyName("join_timestamp")]
     public DateTimeOffset JoinTimestamp { get; init; }

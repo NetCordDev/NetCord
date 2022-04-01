@@ -11,7 +11,7 @@ public class CategoryChannel : Channel, IGuildChannel
 
     public int Position => (int)_jsonEntity.Position!;
 
-    public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
+    public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, options).ConfigureAwait(false);
 }

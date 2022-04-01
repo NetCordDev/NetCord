@@ -5,7 +5,7 @@ namespace NetCord;
 public class ApplicationCommandPermissionProperties
 {
     [JsonPropertyName("id")]
-    public DiscordId Id { get; }
+    public Snowflake Id { get; }
 
     [JsonPropertyName("type")]
     public ApplicationCommandPermissionType Type { get; }
@@ -13,7 +13,7 @@ public class ApplicationCommandPermissionProperties
     [JsonPropertyName("permission")]
     public bool Permission { get; }
 
-    public ApplicationCommandPermissionProperties(DiscordId id, ApplicationCommandPermissionType type, bool permission)
+    public ApplicationCommandPermissionProperties(Snowflake id, ApplicationCommandPermissionType type, bool permission)
     {
         Id = id;
         Type = type;

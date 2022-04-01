@@ -4,7 +4,7 @@ public class ApplicationCommandPermission : Entity
 {
     private readonly JsonModels.JsonApplicationCommandPermission _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public ApplicationCommandPermissionType Type => _jsonEntity.Type;
 

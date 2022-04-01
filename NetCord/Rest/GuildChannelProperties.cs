@@ -37,7 +37,7 @@ public class GuildChannelProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("parent_id")]
-    public DiscordId? ParentId { get; set; }
+    public Snowflake? ParentId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("nsfw")]

@@ -20,8 +20,8 @@ public class GuildInviteProperties
     public GuildInviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user_id")]
-    public DiscordId? TargetUserId { get; set; }
+    public Snowflake? TargetUserId { get; set; }
 
     [JsonPropertyName("target_application_id")]
-    public DiscordId? TargetApplicationId { get; set; }
+    public Snowflake? TargetApplicationId { get; set; }
 }

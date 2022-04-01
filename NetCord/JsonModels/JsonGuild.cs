@@ -23,13 +23,13 @@ internal record JsonGuild : JsonEntity
     public bool? IsOwner { get; init; }
 
     [JsonPropertyName("owner_id")]
-    public DiscordId OwnerId { get; init; }
+    public Snowflake OwnerId { get; init; }
 
     [JsonPropertyName("permissions")]
     public string? Permissions { get; init; }
 
     [JsonPropertyName("afk_channel_id")]
-    public DiscordId? AfkChannelId { get; init; }
+    public Snowflake? AfkChannelId { get; init; }
 
     [JsonPropertyName("afk_timeout")]
     public int AfkTimeout { get; init; }
@@ -38,7 +38,7 @@ internal record JsonGuild : JsonEntity
     public bool? WidgetEnabled { get; init; }
 
     [JsonPropertyName("widget_channel_id")]
-    public DiscordId? WidgetChannelId { get; init; }
+    public Snowflake? WidgetChannelId { get; init; }
 
     [JsonPropertyName("verification_level")]
     public VerificationLevel VerificationLevel { get; init; }
@@ -62,16 +62,16 @@ internal record JsonGuild : JsonEntity
     public MFALevel MFALevel { get; init; }
 
     [JsonPropertyName("application_id")]
-    public DiscordId? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; init; }
 
     [JsonPropertyName("system_channel_id")]
-    public DiscordId? SystemChannelId { get; init; }
+    public Snowflake? SystemChannelId { get; init; }
 
     [JsonPropertyName("system_channel_flags")]
     public SystemChannelFlags SystemChannelFlags { get; init; }
 
     [JsonPropertyName("rules_channel_id")]
-    public DiscordId? RulesChannelId { get; init; }
+    public Snowflake? RulesChannelId { get; init; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset CreatedAt { get; init; }
@@ -125,7 +125,7 @@ internal record JsonGuild : JsonEntity
     public System.Globalization.CultureInfo PreferredLocale { get; init; }
 
     [JsonPropertyName("public_updates_channel_id")]
-    public DiscordId? PublicUpdatesChannelId { get; init; }
+    public Snowflake? PublicUpdatesChannelId { get; init; }
 
     [JsonPropertyName("max_video_channel_users")]
     public int? MaxVideoChannelUsers { get; init; }

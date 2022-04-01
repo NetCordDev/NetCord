@@ -7,7 +7,7 @@ public class GuildUserProperties : CurrentGuildUserProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId>? NewRolesIds { get; set; }
+    public IEnumerable<Snowflake>? NewRolesIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]
@@ -19,7 +19,7 @@ public class GuildUserProperties : CurrentGuildUserProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; set; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonConverter(typeof(TimeOutUntilConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

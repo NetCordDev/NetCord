@@ -4,7 +4,7 @@ namespace NetCord;
 
 public class DMChannel : TextChannel
 {
-    public ImmutableDictionary<DiscordId, User> Users { get; }
+    public ImmutableDictionary<Snowflake, User> Users { get; }
 
     internal DMChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {

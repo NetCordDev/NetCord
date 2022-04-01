@@ -6,7 +6,7 @@ public class GuildWidgetSettings
 
     public bool Enabled => _jsonEntity.Enabled;
 
-    public DiscordId? ChannelId => _jsonEntity.ChannelId;
+    public Snowflake? ChannelId => _jsonEntity.ChannelId;
 
     internal GuildWidgetSettings(JsonModels.JsonGuildWidgetSettings jsonEntity)
     {

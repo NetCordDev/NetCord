@@ -6,9 +6,9 @@ public class TeamUser : User
 
     public MembershipState MembershipState => _jsonTeamEntity.MembershipState;
     public IEnumerable<string> Permissions => _jsonTeamEntity.Permissions;
-    public DiscordId TeamId => _jsonTeamEntity.TeamId;
+    public Snowflake TeamId => _jsonTeamEntity.TeamId;
 
-    public override DiscordId Id => _jsonTeamEntity.User.Id;
+    public override Snowflake Id => _jsonTeamEntity.User.Id;
     public override string Username => _jsonTeamEntity.User.Username;
     public override ushort Discriminator => _jsonTeamEntity.User.Discriminator;
     public override string? AvatarHash => _jsonTeamEntity.User.AvatarHash;

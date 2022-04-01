@@ -6,13 +6,13 @@ public class ReadyEventArgs
 
     public SelfUser User { get; }
 
-    public IEnumerable<DiscordId> GuildIds { get; }
+    public IEnumerable<Snowflake> GuildIds { get; }
 
     public string SessionId => _jsonEntity.SessionId;
 
     public Shard? Shard => _jsonEntity.Shard;
 
-    public DiscordId ApplicationId => _jsonEntity.Application.Id;
+    public Snowflake ApplicationId => _jsonEntity.Application.Id;
 
     public ApplicationFlags ApplicationFlags => _jsonEntity.Application.Flags.GetValueOrDefault();
 

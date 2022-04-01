@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 internal record JsonGuildScheduledEventUser
 {
     [JsonPropertyName("")]
-    public DiscordId ScheduledEventId { get; init; }
+    public Snowflake ScheduledEventId { get; init; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; init; }

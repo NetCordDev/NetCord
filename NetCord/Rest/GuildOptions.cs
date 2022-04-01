@@ -23,7 +23,7 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("afk_channel_id")]
-    public DiscordId? AfkChannelId { get; set; }
+    public Snowflake? AfkChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("afk_timeout")]
@@ -35,7 +35,7 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("owner_id")]
-    public DiscordId? OwnerId { get; set; }
+    public Snowflake? OwnerId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("splash")]
@@ -51,7 +51,7 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_id")]
-    public DiscordId? SystemChannelId { get; set; }
+    public Snowflake? SystemChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_flags")]
@@ -59,11 +59,11 @@ public class GuildOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("rules_channel_id")]
-    public DiscordId? RulesChannelId { get; set; }
+    public Snowflake? RulesChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("public_updates_channel_id")]
-    public DiscordId? PublicUpdatesChannelId { get; set; }
+    public Snowflake? PublicUpdatesChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("preferred_locale")]

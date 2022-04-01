@@ -6,7 +6,7 @@ public class GuildPreview : ClientEntity
 {
     private readonly JsonModels.JsonGuild _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public string Name => _jsonEntity.Name;
 
@@ -16,7 +16,7 @@ public class GuildPreview : ClientEntity
 
     public string? DiscoverySplashHash => _jsonEntity.DiscoverySplashHash;
 
-    public ImmutableDictionary<DiscordId, GuildEmoji> Emojis { get; }
+    public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
 
     public GuildFeatures Features { get; }
 

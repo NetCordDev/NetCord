@@ -4,9 +4,9 @@ public class RestMessage : ClientEntity
 {
     private protected readonly JsonModels.JsonMessage _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
-    public DiscordId ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonEntity.ChannelId;
 
     public virtual User Author { get; }
 
@@ -20,13 +20,13 @@ public class RestMessage : ClientEntity
 
     public bool MentionEveryone => _jsonEntity.MentionEveryone;
 
-    public IReadOnlyDictionary<DiscordId, User> MentionedUsers { get; }
+    public IReadOnlyDictionary<Snowflake, User> MentionedUsers { get; }
 
-    public IEnumerable<DiscordId> MentionedRoleIds { get; }
+    public IEnumerable<Snowflake> MentionedRoleIds { get; }
 
-    public IReadOnlyDictionary<DiscordId, GuildChannelMention> MentionedChannels { get; }
+    public IReadOnlyDictionary<Snowflake, GuildChannelMention> MentionedChannels { get; }
 
-    public IReadOnlyDictionary<DiscordId, Attachment> Attachments { get; }
+    public IReadOnlyDictionary<Snowflake, Attachment> Attachments { get; }
 
     public IEnumerable<Embed> Embeds { get; }
 
@@ -36,7 +36,7 @@ public class RestMessage : ClientEntity
 
     public bool IsPinned => _jsonEntity.IsPinned;
 
-    public DiscordId? WebhookId => _jsonEntity.WebhookId;
+    public Snowflake? WebhookId => _jsonEntity.WebhookId;
 
     public MessageType Type => _jsonEntity.Type;
 
@@ -44,7 +44,7 @@ public class RestMessage : ClientEntity
 
     public Application? Application { get; }
 
-    public DiscordId? ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
 
     public Reference? MessageReference { get; }
 
@@ -56,7 +56,7 @@ public class RestMessage : ClientEntity
 
     public IEnumerable<IComponent> Components { get; }
 
-    public IReadOnlyDictionary<DiscordId, MessageSticker> Stickers { get; }
+    public IReadOnlyDictionary<Snowflake, MessageSticker> Stickers { get; }
 
     public GuildThread? StartedThread { get; }
 
@@ -97,13 +97,13 @@ public class RestMessage : ClientEntity
 
     public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, options);
 
-    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, DiscordId userId, RequestProperties? options = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, options);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, Snowflake userId, RequestProperties? options = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, options);
     public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, options);
     public Task DeleteAllReactionsAsync(RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, options);
 
     public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteMessageAsync(ChannelId, Id, options);
 
-    public virtual string GetJumpUrl(DiscordId? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
+    public virtual string GetJumpUrl(Snowflake? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
     {

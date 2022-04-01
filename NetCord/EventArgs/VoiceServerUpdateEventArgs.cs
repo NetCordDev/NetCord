@@ -11,7 +11,7 @@ public class VoiceServerUpdateEventArgs
 
     public string Token => _jsonEntity.Token;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
     public string? Endpoint => _jsonEntity.Endpoint;
 }

@@ -10,7 +10,7 @@ public class GuildRoleEventArgs
         Role = new(jsonEntity.Role, client);
     }
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
     public GuildRole Role { get; }
 }

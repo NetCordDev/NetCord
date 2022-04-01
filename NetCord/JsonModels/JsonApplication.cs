@@ -42,10 +42,10 @@ internal record JsonApplication : JsonEntity
 
     [JsonPropertyName("guild_id")]
 
-    public DiscordId? GuildId { get; init; }
+    public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("primary_sku_id")]
-    public DiscordId? PrimarySkuId { get; init; }
+    public Snowflake? PrimarySkuId { get; init; }
 
     [JsonPropertyName("slug")]
     public string? Slug { get; init; }

@@ -2,7 +2,7 @@
 
 public class TextGuildChannel : TextChannel, IGuildChannel
 {
-    public DiscordId? ParentId => _jsonEntity.ParentId;
+    public Snowflake? ParentId => _jsonEntity.ParentId;
     public string? Topic => _jsonEntity.Topic;
     public bool IsNsfw => _jsonEntity.IsNsfw;
     public int Slowmode => (int)_jsonEntity.Slowmode!;
@@ -11,7 +11,7 @@ public class TextGuildChannel : TextChannel, IGuildChannel
 
     public virtual int Position => _jsonEntity.Position.GetValueOrDefault();
 
-    public IReadOnlyDictionary<DiscordId, PermissionOverwrite> PermissionOverwrites { get; }
+    public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
     internal TextGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {

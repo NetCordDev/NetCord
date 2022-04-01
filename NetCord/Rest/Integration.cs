@@ -4,7 +4,7 @@ public class Integration : Entity
 {
     private readonly JsonModels.JsonIntegration _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public string Name => _jsonEntity.Name;
 
@@ -14,7 +14,7 @@ public class Integration : Entity
 
     public bool? Syncing => _jsonEntity.Syncing;
 
-    public DiscordId? RoleId => _jsonEntity.RoleId;
+    public Snowflake? RoleId => _jsonEntity.RoleId;
 
     public bool? EnableEmoticons => _jsonEntity.EnableEmoticons;
 

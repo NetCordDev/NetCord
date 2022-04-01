@@ -108,7 +108,7 @@ public class InteractionServiceOptions<TContext> where TContext : InteractionCon
             new TypeReaders.UriTypeReader<TContext>()
         },
         {
-            typeof(DiscordId),
+            typeof(Snowflake),
             new TypeReaders.DiscordIdTypeReader<TContext>()
         },
         {

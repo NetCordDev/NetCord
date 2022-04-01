@@ -9,7 +9,7 @@ public class MessageReactionEmoji : Entity
         _jsonEntity = jsonEntity;
     }
 
-    public override DiscordId Id
+    public override Snowflake Id
     {
         get
         {

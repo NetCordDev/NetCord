@@ -8,5 +8,5 @@ internal record JsonGuildWidgetSettings
     public bool Enabled { get; init; }
 
     [JsonPropertyName("channel_id")]
-    public DiscordId? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; init; }
 }

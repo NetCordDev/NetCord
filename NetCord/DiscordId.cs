@@ -4,13 +4,13 @@ using System.Text.Json.Serialization;
 namespace NetCord;
 
 [JsonConverter(typeof(DiscordIdConverter))]
-public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
+public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
 {
     private readonly string? _value;
 
     public override string? ToString() => _value;
 
-    public static bool TryCreate(string id, out DiscordId result)
+    public static bool TryCreate(string id, out Snowflake result)
     {
         if (ulong.TryParse(id, out _))
         {
@@ -24,12 +24,12 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
         }
     }
 
-    public static DiscordId Create(DateTimeOffset createdAt)
+    public static Snowflake Create(DateTimeOffset createdAt)
     {
         return new((ulong)((createdAt.ToUnixTimeMilliseconds() - Discord.Epoch) << 22));
     }
 
-    public static DiscordId Create(DateTimeOffset createdAt, byte internalWorkerId, byte internalProcessId, ushort increment)
+    public static Snowflake Create(DateTimeOffset createdAt, byte internalWorkerId, byte internalProcessId, ushort increment)
     {
         var c = (ulong)((createdAt.ToUnixTimeMilliseconds() - Discord.Epoch) << 22);
         var w = (ulong)((internalWorkerId << 17) & 0x3E0000);
@@ -38,12 +38,12 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
         return new(c | w | p | i);
     }
 
-    private DiscordId(string id, object? obj)
+    private Snowflake(string id, object? obj)
     {
         _value = id;
     }
 
-    public DiscordId(string s)
+    public Snowflake(string s)
     {
         if (ulong.TryParse(s, out _))
             _value = s;
@@ -51,17 +51,17 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
             throw new FormatException($"{nameof(s)} must consist of decimal digits and cannot be too large");
     }
 
-    public DiscordId(ulong u)
+    public Snowflake(ulong u)
     {
         _value = u.ToString();
     }
 
-    public static bool operator ==(DiscordId left, DiscordId right) => left.Equals(right);
+    public static bool operator ==(Snowflake left, Snowflake right) => left.Equals(right);
 
-    public static bool operator !=(DiscordId left, DiscordId right) => !(left == right);
+    public static bool operator !=(Snowflake left, Snowflake right) => !(left == right);
 
-    public override bool Equals(object? obj) => obj is DiscordId id && Equals(id);
-    public bool Equals(DiscordId id) => _value == id._value;
+    public override bool Equals(object? obj) => obj is Snowflake id && Equals(id);
+    public bool Equals(Snowflake id) => _value == id._value;
 
     public override int GetHashCode() => HashCode.Combine(_value);
 
@@ -96,23 +96,23 @@ public readonly struct DiscordId : IConvertible, IEquatable<DiscordId>
     uint IConvertible.ToUInt32(IFormatProvider? provider) => Convert.ToUInt32(_value, provider);
     ulong IConvertible.ToUInt64(IFormatProvider? provider) => Convert.ToUInt64(_value, provider);
 
-    public static implicit operator DiscordId(ulong u) => new(u);
-    public static explicit operator DiscordId(string s) => new(s);
+    public static implicit operator Snowflake(ulong u) => new(u);
+    public static explicit operator Snowflake(string s) => new(s);
 
-    private class DiscordIdConverter : JsonConverter<DiscordId>
+    private class DiscordIdConverter : JsonConverter<Snowflake>
     {
-        public override DiscordId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => new(reader.GetString()!, null);
 
-        public override void Write(Utf8JsonWriter writer, DiscordId value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, Snowflake value, JsonSerializerOptions options)
         {
             writer.WriteStringValue(value._value);
         }
 
-        public override DiscordId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Snowflake ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => new(reader.GetString()!, null);
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, DiscordId value, JsonSerializerOptions options)
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, Snowflake value, JsonSerializerOptions options)
         {
             writer.WritePropertyName(value._value!);
         }

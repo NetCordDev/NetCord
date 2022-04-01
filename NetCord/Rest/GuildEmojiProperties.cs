@@ -17,5 +17,5 @@ public class GuildEmojiProperties
     public ImageProperties Image { get; }
 
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId>? AllowedRoles { get; set; }
+    public IEnumerable<Snowflake>? AllowedRoles { get; set; }
 }

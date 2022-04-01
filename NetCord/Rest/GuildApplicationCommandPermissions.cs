@@ -4,13 +4,13 @@ public class GuildApplicationCommandPermissions
 {
     private readonly JsonModels.JsonGuildApplicationCommandPermissions _jsonEntity;
 
-    public DiscordId CommandId => _jsonEntity.CommandId;
+    public Snowflake CommandId => _jsonEntity.CommandId;
 
-    public DiscordId ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake ApplicationId => _jsonEntity.ApplicationId;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public IReadOnlyDictionary<DiscordId, ApplicationCommandPermission> Permissions { get; }
+    public IReadOnlyDictionary<Snowflake, ApplicationCommandPermission> Permissions { get; }
 
     internal GuildApplicationCommandPermissions(JsonModels.JsonGuildApplicationCommandPermissions jsonEntity)
     {

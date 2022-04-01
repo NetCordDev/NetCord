@@ -14,5 +14,5 @@ public class GroupDMChannelProperties
 
     //[JsonConverter(typeof(JsonConverters.GroupDMChannelPropertiesNicknamesConverter))]
     [JsonPropertyName("nicks")]
-    public IReadOnlyDictionary<DiscordId, string>? Nicknames { get; set; }
+    public IReadOnlyDictionary<Snowflake, string>? Nicknames { get; set; }
 }

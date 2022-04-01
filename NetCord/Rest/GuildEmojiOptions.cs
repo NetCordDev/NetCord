@@ -10,5 +10,5 @@ public class GuildEmojiOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<DiscordId>? AllowedRoles { get; set; }
+    public IEnumerable<Snowflake>? AllowedRoles { get; set; }
 }

@@ -17,7 +17,7 @@ public class Connection
 
     public bool? Revoked => _jsonEntity.Revoked;
 
-    public IReadOnlyDictionary<DiscordId, Integration>? Integrations { get; }
+    public IReadOnlyDictionary<Snowflake, Integration>? Integrations { get; }
 
     public bool Verified => _jsonEntity.Verified;
 

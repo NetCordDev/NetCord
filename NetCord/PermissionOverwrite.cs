@@ -4,7 +4,7 @@ public class PermissionOverwrite : Entity
 {
     private readonly JsonModels.JsonPermissionOverwrite _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     public PermissionOverwriteType Type => _jsonEntity.Type;
 

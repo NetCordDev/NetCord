@@ -4,13 +4,13 @@ public class GuildScheduledEvent : Entity
 {
     private readonly JsonModels.JsonGuildScheduledEvent _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
-    public DiscordId GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonEntity.GuildId;
 
-    public DiscordId? ChannelId => _jsonEntity.ChannelId;
+    public Snowflake? ChannelId => _jsonEntity.ChannelId;
 
-    public DiscordId? CreatorId => _jsonEntity.CreatorId;
+    public Snowflake? CreatorId => _jsonEntity.CreatorId;
 
     public string Name => _jsonEntity.Name;
 
@@ -26,7 +26,7 @@ public class GuildScheduledEvent : Entity
 
     public GuildScheduledEventEntityType EntityType => _jsonEntity.EntityType;
 
-    public DiscordId? EntityId => _jsonEntity.EntityId;
+    public Snowflake? EntityId => _jsonEntity.EntityId;
 
     public string? Location => _jsonEntity.EntityMetadata?.Location;
 

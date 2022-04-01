@@ -5,12 +5,12 @@ namespace NetCord;
 public class VoiceStateOptions
 {
     [JsonPropertyName("channel_id")]
-    public DiscordId ChannelId { get; }
+    public Snowflake ChannelId { get; }
 
     [JsonPropertyName("suppress")]
     public bool? Suppress { get; set; }
 
-    public VoiceStateOptions(DiscordId channelId)
+    public VoiceStateOptions(Snowflake channelId)
     {
         ChannelId = channelId;
     }

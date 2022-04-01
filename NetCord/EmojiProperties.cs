@@ -6,13 +6,13 @@ public class EmojiProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
-    public DiscordId? Id { get; }
+    public Snowflake? Id { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Unicode { get; }
 
-    public EmojiProperties(DiscordId customEmojiId)
+    public EmojiProperties(Snowflake customEmojiId)
     {
         Id = customEmojiId;
     }

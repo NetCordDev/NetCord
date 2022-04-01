@@ -4,7 +4,7 @@ namespace NetCord;
 
 public class UserCommandInteractionData : ApplicationCommandInteractionData
 {
-    internal UserCommandInteractionData(JsonInteractionData jsonEntity, DiscordId? guildId, RestClient client) : base(jsonEntity, guildId, client)
+    internal UserCommandInteractionData(JsonInteractionData jsonEntity, Snowflake? guildId, RestClient client) : base(jsonEntity, guildId, client)
     {
         if (jsonEntity.ResolvedData!.GuildUsers != null)
         {

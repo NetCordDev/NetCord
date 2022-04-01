@@ -4,7 +4,7 @@
     {
         private readonly JsonModels.JsonMessageInteraction _jsonEntity;
 
-        public override DiscordId Id => _jsonEntity.Id;
+        public override Snowflake Id => _jsonEntity.Id;
         public InteractionType Type => _jsonEntity.Type;
         public string Name => _jsonEntity.Name;
         public User User { get; }

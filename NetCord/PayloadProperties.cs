@@ -3,15 +3,15 @@ using System.Text.Json.Serialization;
 
 namespace NetCord;
 
-internal class PayloadProperties<TD>
+internal class PayloadProperties<T>
 {
     [JsonPropertyName("op")]
     public GatewayOpcode Opcode { get; }
 
     [JsonPropertyName("d")]
-    public TD D { get; }
+    public T D { get; }
 
-    public PayloadProperties(GatewayOpcode opcode, TD d)
+    public PayloadProperties(GatewayOpcode opcode, T d)
     {
         Opcode = opcode;
         D = d;

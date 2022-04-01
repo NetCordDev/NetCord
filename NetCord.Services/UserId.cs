@@ -2,15 +2,15 @@
 
 public class UserId : Entity
 {
-    public override DiscordId Id { get; }
+    public override Snowflake Id { get; }
     public User? User { get; }
 
-    public UserId(DiscordId id, User? user) : this(id)
+    public UserId(Snowflake id, User? user) : this(id)
     {
         User = user;
     }
 
-    public UserId(DiscordId id)
+    public UserId(Snowflake id)
     {
         Id = id;
     }

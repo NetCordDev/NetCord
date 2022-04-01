@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 internal record JsonGuildStickersUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public DiscordId GuildId { get; init; }
+    public Snowflake GuildId { get; init; }
 
     [JsonPropertyName("stickers")]
     public JsonSticker[] Stickers { get; init; }

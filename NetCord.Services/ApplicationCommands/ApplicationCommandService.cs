@@ -7,7 +7,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     private readonly ApplicationCommandServiceOptions<TContext> _options;
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
-    private readonly Dictionary<DiscordId, ApplicationCommandInfo<TContext>> _commands = new();
+    private readonly Dictionary<Snowflake, ApplicationCommandInfo<TContext>> _commands = new();
 
     public ApplicationCommandService(ApplicationCommandServiceOptions<TContext>? options = null)
     {
@@ -62,7 +62,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         }
     }
 
-    public async Task CreateCommandsAsync(RestClient client, DiscordId applicationId, bool includeGuildCommands = false)
+    public async Task CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false)
     {
         var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue())).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
         lock (_commands)

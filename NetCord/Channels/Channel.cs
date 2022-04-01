@@ -6,7 +6,7 @@ public abstract class Channel : ClientEntity
 {
     private protected JsonChannel _jsonEntity;
 
-    public override DiscordId Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonEntity.Id;
 
     private protected Channel(JsonChannel jsonEntity, RestClient client) : base(client)
     {
