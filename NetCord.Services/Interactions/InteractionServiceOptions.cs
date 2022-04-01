@@ -109,7 +109,7 @@ public class InteractionServiceOptions<TContext> where TContext : InteractionCon
         },
         {
             typeof(Snowflake),
-            new TypeReaders.DiscordIdTypeReader<TContext>()
+            new TypeReaders.SnowflakeTypeReader<TContext>()
         },
         {
             typeof(GuildUser),

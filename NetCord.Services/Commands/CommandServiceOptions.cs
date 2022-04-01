@@ -113,7 +113,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
         },
         {
             typeof(Snowflake),
-            new TypeReaders.DiscordIdTypeReader<TContext>()
+            new TypeReaders.SnowflakeTypeReader<TContext>()
         },
         {
             typeof(GuildUser),
