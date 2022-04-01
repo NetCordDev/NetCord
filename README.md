@@ -1,7 +1,7 @@
 <p align="center">
     <img src="https://cdn.discordapp.com/attachments/800832361351872524/910967946933833738/BigOutline.png" alt="Logo">
 </p>
-<b>A lightweight and asynchronous Discord API wrapper. Supports all types of Discord interactions!</b>
+<b>A lightweight and asynchronous Discord API wrapper.</b>
 <h1>Nuget packages:</h1>
 <p align="center">
     <a href="https://www.nuget.org/packages/NetCord">
