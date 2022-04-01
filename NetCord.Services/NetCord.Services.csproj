@@ -13,7 +13,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
     <VersionSuffix>alpha.15</VersionSuffix>
-    <Description>A lightweight and asynchronous Discord API wrapper. Supports all types of Discord interactions!</Description>
+    <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
