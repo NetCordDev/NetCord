@@ -40,12 +40,12 @@ public partial class RestClient
         do
         {
             count = 0;
-            foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?after={after}", options).ConfigureAwait(false))!
+            foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?after={guildId}", options).ConfigureAwait(false))!
                 .ToObject<IEnumerable<JsonModels.JsonGuild>>()
                 .Select(g => new RestGuild(g, this)))
             {
                 yield return guild;
-                after = guild.Id;
+                guildId = guild.Id;
                 count++;
             }
         }
@@ -58,12 +58,12 @@ public partial class RestClient
         do
         {
             count = 0;
-            foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?before={before}", options).ConfigureAwait(false))!
+            foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?before={guildId}", options).ConfigureAwait(false))!
                 .ToObject<IEnumerable<JsonModels.JsonGuild>>()
                 .Select(g => new RestGuild(g, this)))
             {
                 yield return guild;
-                before = guild.Id;
+                guildId = guild.Id;
                 count++;
             }
         }
