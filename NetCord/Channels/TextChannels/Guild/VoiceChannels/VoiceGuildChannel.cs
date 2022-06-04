@@ -1,12 +1,13 @@
 ﻿namespace NetCord;
 
-public class StageGuildChannel : Channel, IVoiceGuildChannel
+public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 {
     public int Bitrate => (int)_jsonEntity.Bitrate!;
     public Snowflake? CategoryId => _jsonEntity.ParentId;
-    public string? Topic => _jsonEntity.Topic;
+    public int UserLimit => (int)_jsonEntity.UserLimit!; //
     public string RtcRegion => _jsonEntity.RtcRegion;
-    public VideoQualityMode VideoQualityMode => VideoQualityMode.None;
+    public VideoQualityMode VideoQualityMode
+        => _jsonEntity.VideoQualityMode != null ? (VideoQualityMode)_jsonEntity.VideoQualityMode : VideoQualityMode.Auto;
 
     public string Name => _jsonEntity.Name!;
 
@@ -14,7 +15,7 @@ public class StageGuildChannel : Channel, IVoiceGuildChannel
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
-    internal StageGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
     {
         PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
