@@ -1062,9 +1062,9 @@ public partial class GatewayClient : WebSocketClient
                         }
                     if (TryGetGuild(voiceState.GuildId.GetValueOrDefault(), out var guild))
                         if (voiceState.ChannelId.HasValue)
-                            guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
-                        else
                             guild.VoiceStates = guild.VoiceStates.SetItem(voiceState.UserId, voiceState);
+                        else
+                            guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
                 }
                 break;
             case "VOICE_SERVER_UPDATE":
