@@ -6,7 +6,7 @@ public abstract class GuildThread : TextGuildChannel
     public ThreadSelfUser? CurrentUser { get; }
     //public int DefaultAutoArchiveDuration => (int)_jsonEntity.DefaultAutoArchiveDuration!;
     public Snowflake OwnerId => _jsonEntity.OwnerId.GetValueOrDefault();
-    public override int Position => throw new NotImplementedException($"Threads don't have {nameof(Position)}");
+    public override int Position => throw new InvalidOperationException($"Threads don't have {nameof(Position)}");
 
     public Task<IReadOnlyDictionary<Snowflake, ThreadUser>> GetUsersAsync() => _client.GetGuildThreadUsersAsync(Id);
 
