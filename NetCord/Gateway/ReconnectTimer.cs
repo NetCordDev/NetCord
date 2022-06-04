@@ -15,14 +15,14 @@ internal class ReconnectTimer
         }
         else
             if (Delay < 960_000)
-            {
-                var delay = Delay;
-                Delay *= 2;
-                _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, (_internalTokenSource = new()).Token);
-                return Task.Delay(delay, _linkedTokenSource.Token);
-            }
-            else
-                return Task.Delay(Delay, token);
+        {
+            var delay = Delay;
+            Delay *= 2;
+            _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, (_internalTokenSource = new()).Token);
+            return Task.Delay(delay, _linkedTokenSource.Token);
+        }
+        else
+            return Task.Delay(Delay, token);
     }
 
     public void Reset()

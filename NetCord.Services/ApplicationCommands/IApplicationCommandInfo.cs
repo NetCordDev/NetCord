@@ -16,6 +16,4 @@ public interface IApplicationCommandInfo
     public ApplicationCommandType Type { get; }
 
     public ApplicationCommandProperties GetRawValue();
-
-    public IEnumerable<ApplicationCommandPermissionProperties> GetRawPermissions();
 }

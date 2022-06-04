@@ -1,12 +1,11 @@
-﻿using NetCord.Services;
-using NetCord.Services.ApplicationCommands;
+﻿using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.ApplicationCommands;
 
 public class MessageCommands : ApplicationCommandModule<MessageCommandContext>
 {
-    [RequireContext<MessageCommandContext>(RequiredContext.Guild)]
-    [MessageCommand("Clear to this", GuildId = 856183259972763669)]
+    //[RequireContext<MessageCommandContext>(RequiredContext.Guild)]
+    [MessageCommand("Clear to this", DMPermission = false, DefaultGuildUserPermissions = Permission.ManageMessages)]
     public async Task ClearToAsync()
     {
         var now = DateTimeOffset.UtcNow;

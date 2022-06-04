@@ -68,6 +68,7 @@ public partial class RestClient
         }
     }
 
+    [Obsolete("This endpoint has been disabled with updates to command permissions (Permissions v2). Instead, you can edit each application command permissions (though you should be careful to handle any potential rate limits).", true)]
     public async Task<IReadOnlyDictionary<Snowflake, GuildApplicationCommandPermissions>> BulkOverwriteGuildApplicationCommandPermissions(Snowflake applicationId, Snowflake guildId, IEnumerable<GuildApplicationCommandPermissionsProperties> newPermissions, RequestProperties? options = null)
         => (await SendRequestAsync(HttpMethod.Put, new JsonContent(newPermissions), $"/applications/{applicationId}/guilds/{guildId}/commands/permissions", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildApplicationCommandPermissions[]>().ToDictionary(p => p.CommandId, p => new GuildApplicationCommandPermissions(p));
 }

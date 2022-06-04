@@ -10,6 +10,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public ITranslationsProvider? NameTranslationsProvider { get; }
     public string? Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
+    public Permission? DefaultGuildUserPermissions { get; }
+    public bool DMPermission { get; }
     public bool DefaultPermission { get; init; }
     public Snowflake? GuildId { get; init; }
     public IEnumerable<Snowflake>? AllowedRoleIds { get; init; }
@@ -73,70 +75,48 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Name = attribute.Name;
         if (attribute.NameTranslationsProviderType != null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
+        DefaultGuildUserPermissions = attribute.DefaultGuildUserPermissions == (Permission)((ulong)1 << 63) ? null : attribute.DefaultGuildUserPermissions;
+        DMPermission = attribute.DMPermission;
+#pragma warning disable CS0618 // Type or member is obsolete
         DefaultPermission = attribute.DefaultPermission;
+#pragma warning restore CS0618 // Type or member is obsolete
         if (attribute.GuildId != default)
-        {
             GuildId = attribute.GuildId;
-            if (attribute.AllowedRoleIds != null)
-                AllowedRoleIds = attribute.AllowedRoleIds.Select(id => new Snowflake(id));
-            if (attribute.DisallowedRoleIds != null)
-                DisallowedRoleIds = attribute.DisallowedRoleIds.Select(id => new Snowflake(id));
-            if (attribute.AllowedUserIds != null)
-                AllowedUserIds = attribute.AllowedUserIds.Select(id => new Snowflake(id));
-            if (attribute.DisallowedUserIds != null)
-                DisallowedUserIds = attribute.DisallowedUserIds.Select(id => new Snowflake(id));
-        }
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
         Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
     }
 
     public ApplicationCommandProperties GetRawValue()
     {
+#pragma warning disable CS0618 // Type or member is obsolete
         return Type switch
         {
             ApplicationCommandType.ChatInput => new SlashCommandProperties(Name, Description!)
             {
                 NameLocalizations = NameTranslationsProvider?.Translations,
                 DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
+                DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+                DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
                 Options = Parameters!.Select(p => p.GetRawValue()),
             },
             ApplicationCommandType.User => new UserCommandProperties(Name)
             {
                 NameLocalizations = NameTranslationsProvider?.Translations,
+                DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+                DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
             },
             ApplicationCommandType.Message => new MessageCommandProperties(Name)
             {
                 NameLocalizations = NameTranslationsProvider?.Translations,
+                DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+                DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
             },
             _ => throw new InvalidOperationException(),
         };
-    }
-
-    public IEnumerable<ApplicationCommandPermissionProperties> GetRawPermissions()
-    {
-        if (AllowedRoleIds != null)
-        {
-            foreach (var r in AllowedRoleIds)
-                yield return new(r, ApplicationCommandPermissionType.Role, true);
-        }
-        if (DisallowedRoleIds != null)
-        {
-            foreach (var r in DisallowedRoleIds)
-                yield return new(r, ApplicationCommandPermissionType.Role, false);
-        }
-        if (AllowedUserIds != null)
-        {
-            foreach (var u in AllowedUserIds)
-                yield return new(u, ApplicationCommandPermissionType.User, true);
-        }
-        if (DisallowedUserIds != null)
-        {
-            foreach (var u in DisallowedUserIds)
-                yield return new(u, ApplicationCommandPermissionType.User, false);
-        }
+#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

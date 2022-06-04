@@ -22,6 +22,10 @@ public class ApplicationCommand : Entity
 
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonEntity.DescriptionLocalizations;
 
+    public Permission? DefaultGuildUserPermissions { get; }
+
+    public bool? DMPermission => _jsonEntity.DMPermission;
+
     public IEnumerable<ApplicationCommandOption> Options { get; }
 
     public bool DefaultPermission => _jsonEntity.DefaultPermission;
@@ -32,5 +36,7 @@ public class ApplicationCommand : Entity
     {
         _jsonEntity = jsonEntity;
         Options = jsonEntity.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
+        if (jsonEntity.DefaultGuildUserPermissions != null)
+            DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonEntity.DefaultGuildUserPermissions);
     }
 }

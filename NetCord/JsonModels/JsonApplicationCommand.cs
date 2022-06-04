@@ -29,6 +29,12 @@ internal record JsonApplicationCommand : JsonEntity
     [JsonPropertyName("options")]
     public JsonApplicationCommandOption[]? Options { get; init; }
 
+    [JsonPropertyName("default_member_permissions")]
+    public string? DefaultGuildUserPermissions { get; init; }
+
+    [JsonPropertyName("dm_permission")]
+    public bool? DMPermission { get; init; }
+
     [JsonPropertyName("default_permission")]
     public bool DefaultPermission { get; init; } = true;
 

@@ -78,10 +78,6 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
                 var rawGuildCommands = c.Select(v => v.GetRawValue());
 
                 var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key.GetValueOrDefault(), rawGuildCommands).ConfigureAwait(false);
-                var permissions = newCommands.Zip(c)
-                    .Select(zip => new GuildApplicationCommandPermissionsProperties(zip.First.Key, zip.Second.GetRawPermissions()));
-                await client.BulkOverwriteGuildApplicationCommandPermissions(applicationId, c.Key.GetValueOrDefault(), permissions).ConfigureAwait(false);
-
                 lock (_commands)
                 {
                     foreach (var (First, Second) in newCommands.Zip(c))

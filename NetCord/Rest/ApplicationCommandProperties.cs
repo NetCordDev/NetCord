@@ -59,6 +59,15 @@ public abstract class ApplicationCommandProperties
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_member_permissions")]
+    public Permission? DefaultGuildUserPermissions { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("dm_permission")]
+    public bool? DMPermission { get; set; }
+
+    [Obsolete("Replaced by `default_member_permissions`")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
 

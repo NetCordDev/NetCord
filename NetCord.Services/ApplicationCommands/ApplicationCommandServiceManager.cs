@@ -23,8 +23,6 @@ public class ApplicationCommandServiceManager
             foreach (var g in _guildCommands.SelectMany(x => x.CommandInfos.Select(d => (d, x.Action))).GroupBy(c => c.d.GuildId))
             {
                 var guildResult = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, g.Key.GetValueOrDefault(), g.Select(c => c.d.GetRawValue())).ConfigureAwait(false);
-                await client.BulkOverwriteGuildApplicationCommandPermissions(applicationId, g.Key.GetValueOrDefault(), g.Select(c => c.d.GetRawPermissions()).Zip(guildResult).Select(zip => new GuildApplicationCommandPermissionsProperties(zip.Second.Key, zip.First))).ConfigureAwait(false);
-
                 foreach (var (First, Second) in g.Zip(guildResult.Values))
                     First.Action((Second, First.d));
             }

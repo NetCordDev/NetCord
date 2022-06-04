@@ -2,9 +2,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
+using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
-using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway;
 
@@ -271,8 +271,6 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     }
-                    if (!_readyCompletionSource.Task.IsCompleted)
-                        _readyCompletionSource.SetResult();
 
                     User = args.User;
                     foreach (var channel in args.DMChannels)
@@ -284,6 +282,9 @@ public partial class GatewayClient : WebSocketClient
                     Shard = args.Shard;
                     ApplicationId = args.ApplicationId;
                     ApplicationFlags = args.ApplicationFlags;
+
+                    if (!_readyCompletionSource.Task.IsCompleted)
+                        _readyCompletionSource.SetResult();
                 }
                 break;
             case "RESUMED":

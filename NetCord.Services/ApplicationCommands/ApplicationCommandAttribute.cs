@@ -10,10 +10,10 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     public string Name { get; }
     public Type? NameTranslationsProviderType { get; init; }
+    public Permission DefaultGuildUserPermissions { get; init; } = (Permission)((ulong)1 << 63);
+    public bool DMPermission { get; init; } = false;
+
+    [Obsolete("Replaced by `default_member_permissions`")]
     public bool DefaultPermission { get; init; } = true;
     public ulong GuildId { get; init; }
-    public ulong[]? AllowedRoleIds { get; init; }
-    public ulong[]? DisallowedRoleIds { get; init; }
-    public ulong[]? AllowedUserIds { get; init; }
-    public ulong[]? DisallowedUserIds { get; init; }
 }

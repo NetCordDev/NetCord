@@ -49,7 +49,7 @@ internal static class Program
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
         manager.AddService(_userCommandService);
-        //await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+        await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }
 
