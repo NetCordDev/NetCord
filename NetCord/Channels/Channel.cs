@@ -30,6 +30,8 @@ public abstract class Channel : ClientEntity
             ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),
             ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
+            ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, client),
+            ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, client),
             _ => throw new ArgumentException($"Invalid {nameof(jsonChannel.Type)}"),
         };
     }

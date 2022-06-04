@@ -13,4 +13,6 @@ public enum ChannelType
     PublicGuildThread = 11,
     PrivateGuildThread = 12,
     StageGuildChannel = 13,
+    DirectoryGuildChannel = 14,
+    ForumGuildChannel = 15,
 }
