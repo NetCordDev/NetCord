@@ -25,7 +25,6 @@ public abstract class Channel : ClientEntity
             ChannelType.GroupDMChannel => new GroupDMChannel(jsonChannel, client),
             ChannelType.CategoryChannel => new CategoryChannel(jsonChannel, client),
             ChannelType.NewsGuildChannel => new NewsGuildChannel(jsonChannel, client),
-            ChannelType.StoreGuildChannel => new StoreGuildChannel(jsonChannel, client),
             ChannelType.NewsGuildThread => new NewsGuildThread(jsonChannel, client),
             ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),
             ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),

@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.ApplicationCommands.TypeReaders.ChannelTypeReaders;
 
-public class TextChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
+public class ForumGuildChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 
@@ -13,13 +13,7 @@ public class TextChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> 
     {
         get
         {
-            yield return ChannelType.TextGuildChannel;
-            yield return ChannelType.DMChannel;
-            yield return ChannelType.GroupDMChannel;
-            yield return ChannelType.NewsGuildChannel;
-            yield return ChannelType.NewsGuildThread;
-            yield return ChannelType.PublicGuildThread;
-            yield return ChannelType.PrivateGuildThread;
+            yield return ChannelType.ForumGuildChannel;
         }
     }
 }

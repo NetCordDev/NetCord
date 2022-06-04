@@ -86,48 +86,44 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
             new TypeReaders.GuildRoleTypeReader<TContext>()
         },
         {
+            typeof(CategoryChannel),
+            new TypeReaders.ChannelTypeReaders.CategoryChannelTypeReader<TContext>()
+        },
+        {
             typeof(Channel),
             new TypeReaders.ChannelTypeReaders.ChannelTypeReader<TContext>()
         },
         {
-            typeof(TextGuildChannel),
-            new TypeReaders.ChannelTypeReaders.TextGuildChannelTypeReader<TContext>()
+            typeof(DirectoryGuildChannel),
+            new TypeReaders.ChannelTypeReaders.DirectoryGuildChannelTypeReader<TContext>()
         },
         {
             typeof(DMChannel),
             new TypeReaders.ChannelTypeReaders.DMChannelTypeReader<TContext>()
         },
         {
-            typeof(VoiceGuildChannel),
-            new TypeReaders.ChannelTypeReaders.VoiceGuildChannelTypeReader<TContext>()
+            typeof(ForumGuildChannel),
+            new TypeReaders.ChannelTypeReaders.ForumGuildChannelTypeReader<TContext>()
         },
         {
             typeof(GroupDMChannel),
             new TypeReaders.ChannelTypeReaders.GroupDMChannelTypeReader<TContext>()
         },
         {
-            typeof(CategoryChannel),
-            new TypeReaders.ChannelTypeReaders.CategoryChannelTypeReader<TContext>()
-        },
-        {
             typeof(NewsGuildChannel),
             new TypeReaders.ChannelTypeReaders.NewsGuildChannelTypeReader<TContext>()
-        },
-        {
-            typeof(StoreGuildChannel),
-            new TypeReaders.ChannelTypeReaders.StoreGuildChannelTypeReader<TContext>()
         },
         {
             typeof(NewsGuildThread),
             new TypeReaders.ChannelTypeReaders.NewsGuildThreadTypeReader<TContext>()
         },
         {
-            typeof(PublicGuildThread),
-            new TypeReaders.ChannelTypeReaders.PublicGuildThreadTypeReader<TContext>()
-        },
-        {
             typeof(PrivateGuildThread),
             new TypeReaders.ChannelTypeReaders.PrivateGuildThreadTypeReader<TContext>()
+        },
+        {
+            typeof(PublicGuildThread),
+            new TypeReaders.ChannelTypeReaders.PublicGuildThreadTypeReader<TContext>()
         },
         {
             typeof(StageGuildChannel),
@@ -136,6 +132,14 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
         {
             typeof(TextChannel),
             new TypeReaders.ChannelTypeReaders.TextChannelTypeReader<TContext>()
+        },
+        {
+            typeof(TextGuildChannel),
+            new TypeReaders.ChannelTypeReaders.TextGuildChannelTypeReader<TContext>()
+        },
+        {
+            typeof(VoiceGuildChannel),
+            new TypeReaders.ChannelTypeReaders.VoiceGuildChannelTypeReader<TContext>()
         },
         {
             typeof(Mentionable),

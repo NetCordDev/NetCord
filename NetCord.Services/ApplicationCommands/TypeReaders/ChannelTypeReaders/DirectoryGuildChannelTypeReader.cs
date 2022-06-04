@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.ApplicationCommands.TypeReaders.ChannelTypeReaders;
 
-public class StoreGuildChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
+public class DirectoryGuildChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 
@@ -13,7 +13,7 @@ public class StoreGuildChannelTypeReader<TContext> : SlashCommandTypeReader<TCon
     {
         get
         {
-            yield return ChannelType.StoreGuildChannel;
+            yield return ChannelType.DirectoryGuildChannel;
         }
     }
 }
