@@ -3,7 +3,6 @@
 [Flags]
 public enum UserFlags : uint
 {
-    None = 0,
     DiscordEmployee = 1 << 0,
     PartneredServerOwner = 1 << 1,
     HypeSquadEvents = 1 << 2,
@@ -17,4 +16,5 @@ public enum UserFlags : uint
     VerifiedBot = 1 << 16,
     EarlyVerifiedBotDeveloper = 1 << 17,
     DiscordCertifiedModerator = 1 << 18,
+    BotHttpInteractions = 1 << 19,
 }
