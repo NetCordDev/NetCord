@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 
+using NetCord.Gateway;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.Interactions;
@@ -8,7 +10,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All, Presence = new(UserStatusType.Invisible, true), Shard = new(0, 1) });
+    private static readonly GatewayClient _client = new(Environment.GetEnvironmentVariable("token")!, TokenType.Bot, new() { Intents = GatewayIntent.All });
     private static readonly CommandService<CommandContext> _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
@@ -16,6 +18,8 @@ internal static class Program
     private static readonly ApplicationCommandService<SlashCommandContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
+
+    private static readonly Dictionary<Snowflake, VoiceState> _voiceData = new();
 
     static Program()
     {
@@ -29,6 +33,8 @@ internal static class Program
         _client.Log += Client_Log;
         _client.MessageCreate += Client_MessageReceived;
         _client.InteractionCreate += Client_InteractionCreated;
+        _client.VoiceStateUpdate += Client_VoiceStateUpdate;
+        _client.VoiceServerUpdate += Client_VoiceServerUpdate;
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
@@ -43,11 +49,61 @@ internal static class Program
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
         manager.AddService(_userCommandService);
-        await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+        //await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }
 
-    private static async Task Client_InteractionCreated(Interaction interaction)
+    private static ValueTask Client_VoiceStateUpdate(VoiceState arg)
+    {
+        _voiceData[arg.GuildId!.Value] = arg;
+        return default;
+    }
+
+    private static async ValueTask Client_VoiceServerUpdate(VoiceServerUpdateEventArgs arg)
+    {
+        var state = _voiceData[arg.GuildId];
+        Gateway.Voice.VoiceClient client = new(arg.Endpoint!, arg.GuildId, state.UserId, state.SessionId, arg.Token, new()
+        {
+            RedirectInputStreams = true,
+        });
+        client.Log += (message) =>
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(message);
+            Console.ResetColor();
+            return default;
+        };
+        await client.StartAsync();
+        var stream = client.CreatePCMStream(Gateway.Voice.OpusApplication.Audio);
+        await client.ReadyAsync;
+        await client.EnterSpeakingStateAsync(Gateway.Voice.SpeakingFlags.Microphone);
+        var url = "https://cdn.discordapp.com/attachments/864636357821726730/982394204011520020/Pew_Pew-DKnight556-1379997159.mp3"; //00:00:02
+        //var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; //00:12:08
+        var ffmpeg = Process.Start(new ProcessStartInfo
+        {
+            FileName = "ffmpeg",
+            Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
+            RedirectStandardOutput = true,
+        })!;
+
+        //client.VoiceReceive += (ssrc, frame) =>
+        //{
+        //    stream.Write(frame.Span);
+        //    return default;
+        //};
+        try
+        {
+            await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
+        }
+        finally
+        {
+            await stream.FlushAsync();
+        }
+        //await _client.UpdateVoiceStateAsync(new VoiceStateProperties(arg.GuildId, null));
+        await Task.Delay(-1);
+    }
+
+    private static async ValueTask Client_InteractionCreated(Interaction interaction)
     {
         try
         {
@@ -100,7 +156,7 @@ internal static class Program
         }
     }
 
-    private static async Task Client_MessageReceived(Message message)
+    private static async ValueTask Client_MessageReceived(Message message)
     {
         if (!message.Author.IsBot)
         {
@@ -119,11 +175,11 @@ internal static class Program
         }
     }
 
-    private static Task Client_Log(LogMessage message)
+    private static ValueTask Client_Log(LogMessage message)
     {
         Console.ForegroundColor = message.Severity == LogSeverity.Info ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
         Console.WriteLine(message);
         Console.ResetColor();
-        return Task.CompletedTask;
+        return default;
     }
 }
