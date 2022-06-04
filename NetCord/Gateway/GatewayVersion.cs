@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Gateway;
 
 public enum GatewayVersion
 {

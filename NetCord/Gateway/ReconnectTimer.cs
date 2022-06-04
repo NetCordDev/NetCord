@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Gateway;
 
 internal class ReconnectTimer
 {
@@ -14,17 +14,15 @@ internal class ReconnectTimer
             return Task.CompletedTask;
         }
         else
-        {
             if (Delay < 960_000)
             {
-                int delay = Delay;
+                var delay = Delay;
                 Delay *= 2;
                 _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, (_internalTokenSource = new()).Token);
                 return Task.Delay(delay, _linkedTokenSource.Token);
             }
             else
                 return Task.Delay(Delay, token);
-        }
     }
 
     public void Reset()

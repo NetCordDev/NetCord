@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
-internal class IdentifyProperties
+internal class GatewayIdentifyProperties
 {
-    public IdentifyProperties(string token)
+    public GatewayIdentifyProperties(string token)
     {
         Token = token;
     }

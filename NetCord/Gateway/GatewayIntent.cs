@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Gateway;
 
 [Flags]
 public enum GatewayIntent : uint

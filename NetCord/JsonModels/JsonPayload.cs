@@ -6,7 +6,7 @@ namespace NetCord.JsonModels;
 internal class JsonPayload
 {
     [JsonPropertyName("op")]
-    public GatewayOpcode Opcode { get; init; }
+    public byte Opcode { get; init; }
 
     [JsonPropertyName("d")]
     public JsonElement? Data { get; init; }

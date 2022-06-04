@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Gateway;
 
 public class LogMessage
 {
@@ -8,6 +8,13 @@ public class LogMessage
         Severity = LogSeverity.Info;
     }
 
+    private LogMessage(string message, string? description)
+    {
+        Message = message;
+        Severity = LogSeverity.Info;
+        Description = description;
+    }
+
     private LogMessage(Exception exception)
     {
         Message = exception.Message;
@@ -15,19 +22,17 @@ public class LogMessage
         Severity = LogSeverity.Error;
     }
 
-    internal static LogMessage Error(Exception exception)
-    {
-        return new(exception);
-    }
+    internal static LogMessage Error(Exception exception) => new(exception);
 
-    internal static LogMessage Info(string message)
-    {
-        return new(message);
-    }
+    internal static LogMessage Info(string message) => new(message);
+
+    internal static LogMessage Info(string message, string? description) => new(message, description);
 
     public string Message { get; }
 
     public LogSeverity Severity { get; }
+
+    public string? Description { get; }
 
     public Exception? Exception { get; }
 
@@ -35,7 +40,9 @@ public class LogMessage
     {
         if (Severity == LogSeverity.Error)
             return $"{DateTime.Now:T} {Severity}\t{Exception}";
-        else
+        else if (Description == null)
             return $"{DateTime.Now:T} {Severity}\t{Message}";
+        else
+            return $"{DateTime.Now:T} {Severity}\t{Message}: {Description}";
     }
 }

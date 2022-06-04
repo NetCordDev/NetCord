@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.Commands;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services.Commands;
 
 public class CommandContext : ICommandContext, IUserContext, IGuildContext, IChannelContext, IMessageContext
 {

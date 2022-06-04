@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Gateway;
 
 internal enum GatewayOpcode : byte
 {

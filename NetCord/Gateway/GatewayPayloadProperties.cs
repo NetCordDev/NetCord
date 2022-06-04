@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
-internal class PayloadProperties<T>
+internal class GatewayPayloadProperties<T>
 {
     [JsonPropertyName("op")]
     public GatewayOpcode Opcode { get; }
@@ -11,7 +11,7 @@ internal class PayloadProperties<T>
     [JsonPropertyName("d")]
     public T D { get; }
 
-    public PayloadProperties(GatewayOpcode opcode, T d)
+    public GatewayPayloadProperties(GatewayOpcode opcode, T d)
     {
         Opcode = opcode;
         D = d;

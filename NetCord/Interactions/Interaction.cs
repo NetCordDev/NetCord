@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 
+using NetCord.Gateway;
 using NetCord.JsonModels;
 
 namespace NetCord;

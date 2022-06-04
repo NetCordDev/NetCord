@@ -77,7 +77,7 @@ public partial class RestClient
 
     private async Task<IEnumerable<GuildBan>> GetMaxGuildBansBeforeAsyncTask(Snowflake guildId, Snowflake before, RequestProperties? options = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?before={before}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, this)).Reverse();
-    
+
     private async Task<IEnumerable<GuildBan>> GetMaxGuildBansAfterAsyncTask(Snowflake guildId, Snowflake after, RequestProperties? options = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?after={after}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, this));
 
@@ -296,7 +296,7 @@ public partial class RestClient
             }
         }
         while (count == 1000);
-}
+    }
 
     private async Task<IEnumerable<GuildUser>> GetMaxGuildUsersAsyncTask(Snowflake guildId, RequestProperties? options = null)
     {

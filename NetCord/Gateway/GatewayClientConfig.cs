@@ -1,6 +1,6 @@
-﻿using NetCord.WebSockets;
+﻿using NetCord.Gateway.WebSockets;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
 public class GatewayClientConfig
 {

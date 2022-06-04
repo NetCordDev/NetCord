@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using NetCord.Gateway;
+
 namespace NetCord.JsonModels.EventArgs;
 
 internal record JsonReadyEventArgs

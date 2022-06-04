@@ -1,4 +1,5 @@
-﻿using NetCord.JsonModels;
+﻿using NetCord.Gateway;
+using NetCord.JsonModels;
 
 namespace NetCord;
 

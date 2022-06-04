@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services;
 
 public interface IContext
 {

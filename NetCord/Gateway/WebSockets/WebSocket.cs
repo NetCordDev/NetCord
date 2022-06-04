@@ -1,6 +1,6 @@
 ﻿using System.Net.WebSockets;
 
-namespace NetCord.WebSockets;
+namespace NetCord.Gateway.WebSockets;
 
 public class WebSocket : IWebSocket, IDisposable
 {

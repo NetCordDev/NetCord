@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.Interactions;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services.Interactions;
 
 public abstract class InteractionContext : IContext
 {
