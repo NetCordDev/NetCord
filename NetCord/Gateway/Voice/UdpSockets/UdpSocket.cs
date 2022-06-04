@@ -14,11 +14,6 @@ public class UdpSocket : IUdpSocket
         _ = ReadAsync();
     }
 
-    public void Close()
-    {
-        _udpClient!.Close();
-    }
-
     public void Send(ReadOnlySpan<byte> datagram)
     {
         _udpClient!.Send(datagram);
