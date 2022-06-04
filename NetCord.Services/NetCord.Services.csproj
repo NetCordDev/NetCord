@@ -24,14 +24,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCord\NetCord.csproj" />
+    <Compile Remove="Resources\**" />
+    <EmbeddedResource Remove="Resources\**" />
+    <None Remove="Resources\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\Desktop\NetCordLogo\png\Small.png">
+    <None Include="..\NetCord\Resources\Logo\png\Small.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetCord\NetCord.csproj" />
   </ItemGroup>
 
 </Project>

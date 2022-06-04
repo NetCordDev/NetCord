@@ -14,6 +14,7 @@
     <VersionSuffix>alpha.42</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,10 +26,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\..\Desktop\NetCordLogo\png\Small.png">
+    <None Remove="Resources\Logo\png\Big.png" />
+    <None Remove="Resources\Logo\png\BigOutline.png" />
+    <None Remove="Resources\Logo\png\Small.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Logo\png\Big.png" />
+    <Resource Include="Resources\Logo\png\BigOutline.png" />
+    <Resource Include="Resources\Logo\png\Small.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
+    </Resource>
   </ItemGroup>
 
 </Project>
