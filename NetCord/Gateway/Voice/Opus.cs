@@ -20,7 +20,7 @@ internal static class Opus
     public static extern OpusEncoderHandle OpusEncoderCreate(int Fs, int channels, OpusApplication application, out OpusError error);
 
     [DllImport("opus", EntryPoint = "opus_encoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void OpusEncoderDestroy(OpusEncoderHandle st);
+    public static extern void OpusEncoderDestroy(nint st);
 
     /// <param name="st">Encoder state.</param>
     /// <param name="pcm">Input signal (interleaved if 2 channels). Length is <paramref name="frame_size"/>*channels*<see langword="sizeof"/>(<see langword="short"/>).</param>
@@ -35,7 +35,7 @@ internal static class Opus
     public static extern OpusDecoderHandle OpusDecoderCreate(int Fs, int channels, out OpusError error);
 
     [DllImport("opus", EntryPoint = "opus_decoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void OpusDecoderDestroy(OpusDecoderHandle st);
+    public static extern void OpusDecoderDestroy(nint st);
 
     [DllImport("opus", EntryPoint = "opus_decode", CallingConvention = CallingConvention.Cdecl)]
     public static extern unsafe int OpusDecode(OpusDecoderHandle st, byte* data, int len, short* pcm, int frame_size, int decode_fec);

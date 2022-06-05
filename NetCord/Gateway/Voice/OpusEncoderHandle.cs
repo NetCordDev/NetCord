@@ -12,7 +12,7 @@ internal class OpusEncoderHandle : SafeHandle
 
     protected override bool ReleaseHandle()
     {
-        Opus.OpusEncoderDestroy(this);
+        Opus.OpusEncoderDestroy(handle);
         return true;
     }
 }
