@@ -40,7 +40,7 @@ public enum MessageFlags : uint
     /// </summary>
     FailedToMentionSomeRolesInThread = 1 << 8,
     /// <summary>
-    /// This message was sent by a spammer.
+    /// This message contains a abusive website link, pops up a warning when clicked.
     /// </summary>
-    Spam = 1 << 10,
+    ShouldShowLinkNotDiscordWarning = 1 << 10,
 }

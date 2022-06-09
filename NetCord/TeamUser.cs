@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Globalization;
+
+namespace NetCord;
 
 public class TeamUser : User
 {
@@ -15,7 +17,7 @@ public class TeamUser : User
     public override bool IsBot => _jsonTeamEntity.User.IsBot;
     public override bool? IsSystemUser => _jsonTeamEntity.User.IsSystemUser;
     public override bool? MFAEnabled => _jsonTeamEntity.User.MFAEnabled;
-    public override string? Locale => _jsonTeamEntity.User.Locale;
+    public override CultureInfo? Locale => _jsonTeamEntity.User.Locale;
     public override bool? Verified => _jsonTeamEntity.User.Verified;
     public override string? Email => _jsonTeamEntity.User.Email;
     public override UserFlags? Flags => _jsonTeamEntity.User.Flags;

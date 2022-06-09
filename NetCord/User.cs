@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Globalization;
+
+namespace NetCord;
 public class User : ClientEntity
 {
     private protected readonly JsonModels.JsonUser _jsonEntity;
@@ -12,7 +14,7 @@ public class User : ClientEntity
     public virtual bool? MFAEnabled => _jsonEntity.MFAEnabled;
     public virtual string? BannerHash => _jsonEntity.BannerHash;
     public virtual Color? AccentColor => _jsonEntity.AccentColor;
-    public virtual string? Locale => _jsonEntity.Locale;
+    public virtual CultureInfo? Locale => _jsonEntity.Locale;
     public virtual bool? Verified => _jsonEntity.Verified;
     public virtual string? Email => _jsonEntity.Email;
     public virtual UserFlags? Flags => _jsonEntity.Flags;

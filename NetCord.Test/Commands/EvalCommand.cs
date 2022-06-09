@@ -32,7 +32,7 @@ public class EvalCommand : CommandModule
                 }
                 catch (Exception ex)
                 {
-                    description = $"Exception was thrown: {ex.InnerException}";
+                    description = $"Exception was thrown: {ex}";
                 }
                 fields.Add(new() { Title = GetMaxLength(property.Name, 256), Description = GetMaxLength(description, 1024), Inline = true });
             }

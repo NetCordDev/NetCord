@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Globalization;
+
+namespace NetCord;
 
 public class GuildUser : User
 {
@@ -11,7 +13,7 @@ public class GuildUser : User
     public override bool IsBot => _jsonEntity.User.IsBot;
     public override bool? IsSystemUser => _jsonEntity.User.IsSystemUser;
     public override bool? MFAEnabled => _jsonEntity.User.MFAEnabled;
-    public override string? Locale => _jsonEntity.User.Locale;
+    public override CultureInfo? Locale => _jsonEntity.User.Locale;
     public override bool? Verified => _jsonEntity.User.Verified;
     public override string? Email => _jsonEntity.User.Email;
     public override UserFlags? Flags => _jsonEntity.User.Flags;
