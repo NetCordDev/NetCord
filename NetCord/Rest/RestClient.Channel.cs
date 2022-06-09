@@ -47,6 +47,120 @@ public partial class RestClient
     public Task GroupDMChannelDeleteUserAsync(Snowflake channelId, Snowflake userId, RequestProperties? options = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", options);
 
+    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, Snowflake messageId, ThreadWithMessageProperties properties, RequestProperties? options = null)
+     => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, new JsonContent(properties), $"/channels/{channelId}/messages/{messageId}/threads", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+
+    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, ThreadProperties properties, RequestProperties? options = null)
+        => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, new JsonContent(properties), $"/channels/{channelId}/threads", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+
+    public Task JoinGuildThreadAsync(Snowflake threadId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/@me", options);
+
+    public Task AddGuildThreadUserAsync(Snowflake threadId, Snowflake userId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/{userId}", options);
+
+    public Task LeaveGuildThreadAsync(Snowflake threadId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/@me", options);
+
+    public Task DeleteGuildThreadUserAsync(Snowflake threadId, Snowflake userId, RequestProperties? options = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/{userId}", options);
+
+    public async Task<ThreadUser> GetGuildThreadUserAsync(Snowflake threadId, Snowflake userId, RequestProperties? options = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonThreadUser>(), this);
+
+    public async Task<IReadOnlyDictionary<Snowflake, ThreadUser>> GetGuildThreadUsersAsync(Snowflake threadId, RequestProperties? options = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonThreadUser[]>().ToDictionary(u => u.UserId, u => new ThreadUser(u, this));
+
+    public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(Snowflake channelId, RequestProperties? options = null)
+    {
+        var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/public?limit=100", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+        GuildThread? last = null;
+        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+            yield return last = thread;
+
+        if (threads.HasMore)
+        {
+            await foreach (var t in GetPublicArchivedGuildThreadsBeforeAsync(channelId, last!.Metadata.ArchiveTimestamp, options))
+                yield return t;
+        }
+    }
+
+    public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsBeforeAsync(Snowflake channelId, DateTimeOffset before, RequestProperties? options = null)
+    {
+        while (true)
+        {
+            GuildThread? last = null;
+            var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/public?limit=100&before={before:s}", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+                yield return last = thread;
+
+            if (!threads.HasMore)
+                break;
+
+            before = last!.Metadata.ArchiveTimestamp;
+        }
+    }
+
+    public async IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(Snowflake channelId, RequestProperties? options = null)
+    {
+        var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/private?limit=100", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+        GuildThread? last = null;
+        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+            yield return last = thread;
+
+        if (threads.HasMore)
+        {
+            await foreach (var t in GetPrivateArchivedGuildThreadsBeforeAsync(channelId, last!.Metadata.ArchiveTimestamp, options))
+                yield return t;
+        }
+    }
+
+    public async IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsBeforeAsync(Snowflake channelId, DateTimeOffset before, RequestProperties? options = null)
+    {
+        while (true)
+        {
+            GuildThread? last = null;
+            var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/private?limit=100&before={before:s}", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+                yield return last = thread;
+
+            if (!threads.HasMore)
+                break;
+
+            before = last!.Metadata.ArchiveTimestamp;
+        }
+    }
+
+    public async IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(Snowflake channelId, RequestProperties? options = null)
+    {
+        var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/users/@me/threads/archived/private?limit=100", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+        GuildThread? last = null;
+        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+            yield return last = thread;
+
+        if (threads.HasMore)
+        {
+            await foreach (var t in GetJoinedPrivateArchivedGuildThreadsBeforeAsync(channelId, last!.Id, options))
+                yield return t;
+        }
+    }
+
+    public async IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsBeforeAsync(Snowflake channelId, Snowflake before, RequestProperties? options = null)
+    {
+        while (true)
+        {
+            GuildThread? last = null;
+            var threads = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/users/@me/threads/archived/private?limit=100&before={before:s}", options).ConfigureAwait(false)).ToObject<JsonRestGuildThreadPartialResult>();
+            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
+                yield return last = thread;
+
+            if (!threads.HasMore)
+                break;
+
+            before = last!.Id;
+        }
+    }
+
     /// <summary>
     /// Sends a <paramref name="message"/> to a specified channel by <paramref name="channelId"/>
     /// </summary>

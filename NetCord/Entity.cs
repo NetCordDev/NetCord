@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Runtime.CompilerServices;
+
+namespace NetCord;
 
 public abstract class Entity : IEntity
 {
@@ -13,5 +15,6 @@ public abstract class Entity : IEntity
 
     public override bool Equals(object? obj) => obj is Entity entity && Id == entity.Id;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Snowflake(Entity entity) => entity.Id;
 }

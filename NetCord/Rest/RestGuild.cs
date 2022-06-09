@@ -64,7 +64,7 @@ public class RestGuild : ClientEntity
     public Task<IReadOnlyDictionary<Snowflake, IGuildChannel>> GetChannelsAsync(RequestProperties? options = null) => _client.GetGuildChannelsAsync(Id, options);
     public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestProperties? options = null) => _client.CreateGuildChannelAsync(Id, channelBuilder, options);
     public Task ModifyPositionsAsync(ChannelPosition[] positions, RequestProperties? options = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, options);
-    public Task<(IReadOnlyDictionary<Snowflake, GuildThread> Threads, IReadOnlyDictionary<Snowflake, ThreadUser> CurrentUsers)> GetActiveThreadsAsync(RequestProperties? options = null) => _client.GetActiveGuildThreadsAsync(Id, options);
+    public Task<IReadOnlyDictionary<Snowflake, GuildThread>> GetActiveThreadsAsync(RequestProperties? options = null) => _client.GetActiveGuildThreadsAsync(Id, options);
     public IAsyncEnumerable<GuildBan> GetBansAsync(RequestProperties? options = null) => _client.GetGuildBansAsync(Id, options);
     public IAsyncEnumerable<GuildBan> GetBansBeforeAsync(Snowflake userId, RequestProperties? options = null) => _client.GetGuildBansBeforeAsync(Id, userId, options);
     public IAsyncEnumerable<GuildBan> GetBansAfterAsync(Snowflake userId, RequestProperties? options = null) => _client.GetGuildBansAfterAsync(Id, userId, options);
