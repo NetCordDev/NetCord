@@ -55,13 +55,7 @@ public class GuildUser : User
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="format"></param>
-    /// <param name="size">Any power of 2 between 16 and 4096.</param>
-    /// <returns></returns>
-    public string GetGuildAvatarUrl(ImageFormat? format = null, int? size = null) => CDN.GetGuildAvatarUrl(GuildId, Id, GuildAvatarHash!, format, size);
+    public ImageUrl GetGuildAvatarUrl(ImageFormat? format = null) => ImageUrl.GuildUserAvatar(GuildId, Id, GuildAvatarHash!, format);
 
     public Task AddRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
 

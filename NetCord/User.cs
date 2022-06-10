@@ -28,11 +28,13 @@ public class User : ClientEntity
 
     public bool HasAvatar => AvatarHash != null;
 
-    /// <param name="format"></param>
-    /// <param name="size">Any power of 2 between 16 and 4096.</param>
-    public string GetAvatarUrl(ImageFormat? format = null, int? size = null) => CDN.GetAvatarUrl(Id, AvatarHash!, format, size);
+    public ImageUrl GetAvatarUrl(ImageFormat? format = null) => ImageUrl.UserAvatar(Id, AvatarHash!, format);
 
-    public string DefaultAvatarUrl => CDN.GetDefaultAvatarUrl(Discriminator);
+    public bool HasBanner => BannerHash != null;
+
+    public ImageUrl GetBannerUrl(ImageFormat? format = null) => ImageUrl.UserBanner(Id, BannerHash!, format);
+
+    public ImageUrl DefaultAvatarUrl => ImageUrl.DefaultUserAvatar(Discriminator);
 
     public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelAsync(Id);
 

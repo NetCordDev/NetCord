@@ -25,20 +25,7 @@ public readonly struct ImageProperties
             if (value.Bytes.IsEmpty)
                 writer.WriteNullValue();
             else
-                writer.WriteStringValue($"data:image/{GetFormat(value.Format)};base64,{Convert.ToBase64String(value.Bytes.Span)}");
+                writer.WriteStringValue($"data:image/{ImageUrl.GetFormat(value.Format)};base64,{Convert.ToBase64String(value.Bytes.Span)}");
         }
-    }
-
-    internal static string GetFormat(ImageFormat format)
-    {
-        return format switch
-        {
-            ImageFormat.Jpeg => "jpg",
-            ImageFormat.Png => "png",
-            ImageFormat.WebP => "webp",
-            ImageFormat.Gif => "gif",
-            ImageFormat.Lottie => "json",
-            _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format")
-        };
     }
 }
