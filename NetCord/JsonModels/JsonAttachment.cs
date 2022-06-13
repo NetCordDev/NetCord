@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonAttachment : JsonEntity
+public record JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
     public string Filename { get; init; }

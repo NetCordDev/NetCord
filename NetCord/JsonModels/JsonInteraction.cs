@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonInteraction : JsonEntity
+public record JsonInteraction : JsonEntity
 {
     [JsonPropertyName("application_id")]
     public Snowflake ApplicationId { get; init; }

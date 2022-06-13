@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonMessageActivity
+public record JsonMessageActivity
 {
     [JsonPropertyName("type")]
     public MessageActivityType Type { get; init; }

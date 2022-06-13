@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonApplicationCommandPermission : JsonEntity
+public record JsonApplicationCommandPermission : JsonEntity
 {
     [JsonPropertyName("type")]
     public ApplicationCommandPermissionType Type { get; init; }

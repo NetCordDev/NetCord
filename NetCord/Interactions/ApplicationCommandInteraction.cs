@@ -7,7 +7,7 @@ public abstract class ApplicationCommandInteraction : Interaction
 {
     public abstract override ApplicationCommandInteractionData Data { get; }
 
-    internal ApplicationCommandInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public ApplicationCommandInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
     }
 }

@@ -1,24 +1,25 @@
 ﻿namespace NetCord;
 
-public class RestMessage : ClientEntity
+public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
 {
-    private protected readonly JsonModels.JsonMessage _jsonEntity;
+    JsonModels.JsonMessage IJsonModel<JsonModels.JsonMessage>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonMessage _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 
     public virtual User Author { get; }
 
-    public string Content => _jsonEntity.Content;
+    public string Content => _jsonModel.Content;
 
-    public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
+    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
 
-    public DateTimeOffset? EditedAt => _jsonEntity.EditedAt;
+    public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
 
-    public bool IsTts => _jsonEntity.IsTts;
+    public bool IsTts => _jsonModel.IsTts;
 
-    public bool MentionEveryone => _jsonEntity.MentionEveryone;
+    public bool MentionEveryone => _jsonModel.MentionEveryone;
 
     public IReadOnlyDictionary<Snowflake, User> MentionedUsers { get; }
 
@@ -32,23 +33,23 @@ public class RestMessage : ClientEntity
 
     public IEnumerable<MessageReaction> Reactions { get; }
 
-    public string? Nonce => _jsonEntity.Nonce;
+    public string? Nonce => _jsonModel.Nonce;
 
-    public bool IsPinned => _jsonEntity.IsPinned;
+    public bool IsPinned => _jsonModel.IsPinned;
 
-    public Snowflake? WebhookId => _jsonEntity.WebhookId;
+    public Snowflake? WebhookId => _jsonModel.WebhookId;
 
-    public MessageType Type => _jsonEntity.Type;
+    public MessageType Type => _jsonModel.Type;
 
     public MessageActivity? Activity { get; }
 
     public Application? Application { get; }
 
-    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
 
     public Reference? MessageReference { get; }
 
-    public MessageFlags? Flags => _jsonEntity.Flags;
+    public MessageFlags? Flags => _jsonModel.Flags;
 
     public RestMessage? ReferencedMessage { get; }
 
@@ -60,39 +61,39 @@ public class RestMessage : ClientEntity
 
     public GuildThread? StartedThread { get; }
 
-    internal RestMessage(JsonModels.JsonMessage jsonEntity, RestClient client) : base(client)
+    public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
 
-        if (jsonEntity.Member == null)
-            Author = new(jsonEntity.Author, client);
+        if (jsonModel.Member == null)
+            Author = new(jsonModel.Author, client);
         else
-            Author = new GuildUser(jsonEntity.Member with { User = jsonEntity.Author }, jsonEntity.GuildId.GetValueOrDefault(), client);
+            Author = new GuildUser(jsonModel.Member with { User = jsonModel.Author }, jsonModel.GuildId.GetValueOrDefault(), client);
 
-        MentionedUsers = jsonEntity.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
-        MentionedRoleIds = jsonEntity.MentionedRoleIds;
-        MentionedChannels = jsonEntity.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
-        Attachments = jsonEntity.Attachments.ToDictionary(a => a.Id, a => Attachment.CreateFromJson(a));
-        Embeds = jsonEntity.Embeds.Select(e => new Embed(e));
-        Reactions = jsonEntity.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
+        MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
+        MentionedRoleIds = jsonModel.MentionedRoleIds;
+        MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
+        Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, a => Attachment.CreateFromJson(a));
+        Embeds = jsonModel.Embeds.Select(e => new Embed(e));
+        Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
 
-        if (jsonEntity.Activity != null)
-            Activity = new(jsonEntity.Activity);
-        if (jsonEntity.Application != null)
-            Application = new(jsonEntity.Application, client);
-        if (jsonEntity.MessageReference != null)
-            MessageReference = new(jsonEntity.MessageReference);
-        if (jsonEntity.ReferencedMessage != null)
-            ReferencedMessage = new(jsonEntity.ReferencedMessage, client);
-        if (jsonEntity.Interaction != null)
-            Interaction = new(jsonEntity.Interaction, client);
-        if (jsonEntity.StartedThread != null)
-            StartedThread = (GuildThread)Channel.CreateFromJson(jsonEntity.StartedThread, client);
-        if (jsonEntity.MessageReference != null)
-            MessageReference = new(jsonEntity.MessageReference);
+        if (jsonModel.Activity != null)
+            Activity = new(jsonModel.Activity);
+        if (jsonModel.Application != null)
+            Application = new(jsonModel.Application, client);
+        if (jsonModel.MessageReference != null)
+            MessageReference = new(jsonModel.MessageReference);
+        if (jsonModel.ReferencedMessage != null)
+            ReferencedMessage = new(jsonModel.ReferencedMessage, client);
+        if (jsonModel.Interaction != null)
+            Interaction = new(jsonModel.Interaction, client);
+        if (jsonModel.StartedThread != null)
+            StartedThread = (GuildThread)Channel.CreateFromJson(jsonModel.StartedThread, client);
+        if (jsonModel.MessageReference != null)
+            MessageReference = new(jsonModel.MessageReference);
 
-        Components = jsonEntity.Components.Select(IComponent.CreateFromJson);
-        Stickers = jsonEntity.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
+        Components = jsonModel.Components.Select(IComponent.CreateFromJson);
+        Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 
     public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, options);

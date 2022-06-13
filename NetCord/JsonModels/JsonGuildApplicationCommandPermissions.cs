@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildApplicationCommandPermissions
+public record JsonGuildApplicationCommandPermissions
 {
     [JsonPropertyName("id")]
     public Snowflake CommandId { get; init; }

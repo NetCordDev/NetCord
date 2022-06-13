@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildWidgetSettings
+public record JsonGuildWidgetSettings
 {
     [JsonPropertyName("enabled")]
     public bool Enabled { get; init; }

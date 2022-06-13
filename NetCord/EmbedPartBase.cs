@@ -1,16 +1,17 @@
 ﻿namespace NetCord;
 
-public abstract class EmbedPartBase
+public abstract class EmbedPartBase : IJsonModel<JsonModels.JsonEmbedPartBase>
 {
-    private readonly JsonModels.JsonEmbedPartBase _jsonEntity;
+    JsonModels.JsonEmbedPartBase IJsonModel<JsonModels.JsonEmbedPartBase>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmbedPartBase _jsonModel;
 
-    public string? Url => _jsonEntity.Url;
-    public string? ProxyUrl => _jsonEntity.ProxyUrl;
-    public int? Height => _jsonEntity.Height;
-    public int? Width => _jsonEntity.Width;
+    public string? Url => _jsonModel.Url;
+    public string? ProxyUrl => _jsonModel.ProxyUrl;
+    public int? Height => _jsonModel.Height;
+    public int? Width => _jsonModel.Width;
 
-    internal EmbedPartBase(JsonModels.JsonEmbedPartBase jsonEntity)
+    public EmbedPartBase(JsonModels.JsonEmbedPartBase jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

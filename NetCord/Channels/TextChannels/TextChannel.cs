@@ -4,12 +4,12 @@ namespace NetCord;
 
 public abstract class TextChannel : Channel
 {
-    private protected TextChannel(JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    private protected TextChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
     }
 
-    public Snowflake? LastMessageId => _jsonEntity.LastMessageId;
-    public DateTimeOffset? LastPin => _jsonEntity.LastPin;
+    public Snowflake? LastMessageId => _jsonModel.LastMessageId;
+    public DateTimeOffset? LastPin => _jsonModel.LastPin;
 
     public IAsyncEnumerable<RestMessage> GetMessagesAsync(RequestProperties? options = null) => _client.GetMessagesAsync(Id, options);
     public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(Snowflake messageId, RequestProperties? options = null) => _client.GetMessagesBeforeAsync(Id, messageId, options);

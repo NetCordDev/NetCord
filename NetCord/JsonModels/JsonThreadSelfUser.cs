@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonThreadSelfUser
+public record JsonThreadSelfUser
 {
     [JsonPropertyName("join_timestamp")]
     public DateTimeOffset JoinTimestamp { get; init; }

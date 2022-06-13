@@ -3,7 +3,7 @@
 namespace NetCord.JsonModels;
 
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-internal record JsonMessageReference
+public record JsonMessageReference
 {
     [JsonPropertyName("message_id")]
     public Snowflake? MessageId { get; init; }

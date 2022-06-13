@@ -5,9 +5,9 @@ namespace NetCord;
 
 public class SlashCommandInteraction : ApplicationCommandInteraction
 {
-    internal SlashCommandInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public SlashCommandInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
-        Data = new(jsonEntity.Data, jsonEntity.GuildId, client.Rest);
+        Data = new(jsonModel.Data, jsonModel.GuildId, client.Rest);
     }
 
     public override SlashCommandInteractionData Data { get; }

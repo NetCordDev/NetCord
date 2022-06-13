@@ -48,7 +48,7 @@ public class ImageUrl
     {
         return new($"/emojis/{emojiId}", GetFormat(format));
     }
-    
+
     public static ImageUrl GuildIcon(Snowflake guildId, string iconHash, ImageFormat? format)
     {
         return new($"/icons/{guildId}/{iconHash}", GetExtension(iconHash, format));

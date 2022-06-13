@@ -2,41 +2,42 @@
 
 namespace NetCord;
 
-public class ApplicationCommand : Entity
+public class ApplicationCommand : Entity, IJsonModel<JsonModels.JsonApplicationCommand>
 {
-    private readonly JsonModels.JsonApplicationCommand _jsonEntity;
+    JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommand _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public ApplicationCommandType Type => _jsonEntity.Type;
+    public ApplicationCommandType Type => _jsonModel.Type;
 
-    public Snowflake ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake ApplicationId => _jsonModel.ApplicationId;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonEntity.NameLocalizations;
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
-    public string Description => _jsonEntity.Description;
+    public string Description => _jsonModel.Description;
 
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonEntity.DescriptionLocalizations;
+    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
     public Permission? DefaultGuildUserPermissions { get; }
 
-    public bool? DMPermission => _jsonEntity.DMPermission;
+    public bool? DMPermission => _jsonModel.DMPermission;
 
     public IEnumerable<ApplicationCommandOption> Options { get; }
 
-    public bool DefaultPermission => _jsonEntity.DefaultPermission;
+    public bool DefaultPermission => _jsonModel.DefaultPermission;
 
-    public Snowflake Version => _jsonEntity.Version;
+    public Snowflake Version => _jsonModel.Version;
 
-    internal ApplicationCommand(JsonModels.JsonApplicationCommand jsonEntity)
+    public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        Options = jsonEntity.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
-        if (jsonEntity.DefaultGuildUserPermissions != null)
-            DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonEntity.DefaultGuildUserPermissions);
+        _jsonModel = jsonModel;
+        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
+        if (jsonModel.DefaultGuildUserPermissions != null)
+            DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonModel.DefaultGuildUserPermissions);
     }
 }

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonApplicationCommandOptionChoice
+public record JsonApplicationCommandOptionChoice
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }

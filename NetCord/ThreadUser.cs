@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class ThreadUser : ClientEntity
+public class ThreadUser : ClientEntity, IJsonModel<JsonModels.JsonThreadUser>
 {
-    private readonly JsonModels.JsonThreadUser _jsonEntity;
+    JsonModels.JsonThreadUser IJsonModel<JsonModels.JsonThreadUser>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonThreadUser _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.UserId;
-    public Snowflake ThreadId => _jsonEntity.ThreadId;
-    public DateTimeOffset JoinTimestamp => _jsonEntity.JoinTimestamp;
-    public int Flags => _jsonEntity.Flags;
+    public override Snowflake Id => _jsonModel.UserId;
+    public Snowflake ThreadId => _jsonModel.ThreadId;
+    public DateTimeOffset JoinTimestamp => _jsonModel.JoinTimestamp;
+    public int Flags => _jsonModel.Flags;
 
-    internal ThreadUser(JsonModels.JsonThreadUser jsonEntity, RestClient client) : base(client)
+    public ThreadUser(JsonModels.JsonThreadUser jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
     public override string ToString() => $"<@{Id}>";

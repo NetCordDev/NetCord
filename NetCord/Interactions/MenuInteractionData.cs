@@ -6,8 +6,8 @@ public class MenuInteractionData : ButtonInteractionData, ICustomIdInteractionDa
 {
     public ReadOnlyCollection<string> SelectedValues { get; }
 
-    internal MenuInteractionData(JsonModels.JsonInteractionData jsonEntity) : base(jsonEntity)
+    public MenuInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
     {
-        SelectedValues = new(jsonEntity.SelectedValues!);
+        SelectedValues = new(jsonModel.SelectedValues!);
     }
 }

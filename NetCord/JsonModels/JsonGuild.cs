@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuild : JsonEntity
+public record JsonGuild : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }

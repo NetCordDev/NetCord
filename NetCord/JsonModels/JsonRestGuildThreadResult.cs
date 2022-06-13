@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonRestGuildThreadResult
+public record JsonRestGuildThreadResult
 {
     [JsonPropertyName("threads")]
     public JsonChannel[] Threads { get; init; }
@@ -11,7 +11,7 @@ internal record JsonRestGuildThreadResult
     public JsonThreadUser[] Users { get; init; }
 }
 
-internal record JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
+public record JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
 {
     [JsonPropertyName("has_more")]
     public bool HasMore { get; init; }

@@ -2,7 +2,7 @@
 
 public class EmbedThumbnail : EmbedPartBase
 {
-    internal EmbedThumbnail(JsonModels.JsonEmbedPartBase jsonEntity) : base(jsonEntity)
+    public EmbedThumbnail(JsonModels.JsonEmbedPartBase jsonModel) : base(jsonModel)
     {
     }
 }

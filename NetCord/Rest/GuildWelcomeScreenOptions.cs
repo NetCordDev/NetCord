@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GuildWelcomeScreenOptions
 {
+    internal GuildWelcomeScreenOptions()
+    {
+    }
+
     [JsonPropertyName("enabled")]
     public bool? Enabled { get; set; }
 

@@ -1,29 +1,30 @@
 ﻿namespace NetCord;
 
-public class Connection
+public class Connection : IJsonModel<JsonModels.JsonConnection>
 {
-    private readonly JsonModels.JsonConnection _jsonEntity;
+    JsonModels.JsonConnection IJsonModel<JsonModels.JsonConnection>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonConnection _jsonModel;
 
-    internal Connection(JsonModels.JsonConnection jsonEntity, RestClient client)
+    public Connection(JsonModels.JsonConnection jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Integrations != null)
-            Integrations = jsonEntity.Integrations.ToDictionary(i => i.Id, i => new Integration(i, client));
+        _jsonModel = jsonModel;
+        if (jsonModel.Integrations != null)
+            Integrations = jsonModel.Integrations.ToDictionary(i => i.Id, i => new Integration(i, client));
     }
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public ConnectionType Type => _jsonEntity.Type;
+    public ConnectionType Type => _jsonModel.Type;
 
-    public bool? Revoked => _jsonEntity.Revoked;
+    public bool? Revoked => _jsonModel.Revoked;
 
     public IReadOnlyDictionary<Snowflake, Integration>? Integrations { get; }
 
-    public bool Verified => _jsonEntity.Verified;
+    public bool Verified => _jsonModel.Verified;
 
-    public bool FriendSync => _jsonEntity.FriendSync;
+    public bool FriendSync => _jsonModel.FriendSync;
 
-    public bool ShowActivity => _jsonEntity.ShowActivity;
+    public bool ShowActivity => _jsonModel.ShowActivity;
 
-    public ConnectionVisibility Visibility => _jsonEntity.Visibility;
+    public ConnectionVisibility Visibility => _jsonModel.Visibility;
 }

@@ -4,36 +4,36 @@ namespace NetCord;
 
 public class GuildUser : User
 {
-    private protected new readonly JsonModels.JsonGuildUser _jsonEntity;
+    private protected new readonly JsonModels.JsonGuildUser _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.User.Id;
-    public override string Username => _jsonEntity.User.Username;
-    public override ushort Discriminator => _jsonEntity.User.Discriminator;
-    public override string? AvatarHash => _jsonEntity.User.AvatarHash;
-    public override bool IsBot => _jsonEntity.User.IsBot;
-    public override bool? IsSystemUser => _jsonEntity.User.IsSystemUser;
-    public override bool? MFAEnabled => _jsonEntity.User.MFAEnabled;
-    public override CultureInfo? Locale => _jsonEntity.User.Locale;
-    public override bool? Verified => _jsonEntity.User.Verified;
-    public override string? Email => _jsonEntity.User.Email;
-    public override UserFlags? Flags => _jsonEntity.User.Flags;
-    public override PremiumType? PremiumType => _jsonEntity.User.PremiumType;
-    public override UserFlags? PublicFlags => _jsonEntity.User.PublicFlags;
-    public string? Nickname => _jsonEntity.Nickname;
-    public string? GuildAvatarHash => _jsonEntity.GuildAvatarHash;
-    public IEnumerable<Snowflake> RoleIds => _jsonEntity.RoleIds;
-    public Snowflake? HoistedRoleId => _jsonEntity.HoistedRoleId;
-    public DateTimeOffset JoinedAt => _jsonEntity.JoinedAt;
-    public DateTimeOffset? GuildBoostStart => _jsonEntity.GuildBoostStart;
-    public bool Deafened => _jsonEntity.Deafened;
-    public bool Muted => _jsonEntity.Muted;
-    public bool? IsPending => _jsonEntity.IsPending;
-    public DateTimeOffset? TimeOutUntil => _jsonEntity.TimeOutUntil;
+    public override Snowflake Id => _jsonModel.User.Id;
+    public override string Username => _jsonModel.User.Username;
+    public override ushort Discriminator => _jsonModel.User.Discriminator;
+    public override string? AvatarHash => _jsonModel.User.AvatarHash;
+    public override bool IsBot => _jsonModel.User.IsBot;
+    public override bool? IsSystemUser => _jsonModel.User.IsSystemUser;
+    public override bool? MFAEnabled => _jsonModel.User.MFAEnabled;
+    public override CultureInfo? Locale => _jsonModel.User.Locale;
+    public override bool? Verified => _jsonModel.User.Verified;
+    public override string? Email => _jsonModel.User.Email;
+    public override UserFlags? Flags => _jsonModel.User.Flags;
+    public override PremiumType? PremiumType => _jsonModel.User.PremiumType;
+    public override UserFlags? PublicFlags => _jsonModel.User.PublicFlags;
+    public string? Nickname => _jsonModel.Nickname;
+    public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
+    public IEnumerable<Snowflake> RoleIds => _jsonModel.RoleIds;
+    public Snowflake? HoistedRoleId => _jsonModel.HoistedRoleId;
+    public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
+    public DateTimeOffset? GuildBoostStart => _jsonModel.GuildBoostStart;
+    public bool Deafened => _jsonModel.Deafened;
+    public bool Muted => _jsonModel.Muted;
+    public bool? IsPending => _jsonModel.IsPending;
+    public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
     public Snowflake GuildId { get; }
 
-    internal GuildUser(JsonModels.JsonGuildUser jsonEntity, Snowflake guildId, RestClient client) : base(jsonEntity.User, client)
+    public GuildUser(JsonModels.JsonGuildUser jsonModel, Snowflake guildId, RestClient client) : base(jsonModel.User, client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
         GuildId = guildId;
     }
 

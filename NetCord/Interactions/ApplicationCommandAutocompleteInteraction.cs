@@ -7,8 +7,8 @@ public class ApplicationCommandAutocompleteInteraction : Interaction
 {
     public override ApplicationCommandAutocompleteInteractionData Data { get; }
 
-    internal ApplicationCommandAutocompleteInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public ApplicationCommandAutocompleteInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
-        Data = new(jsonEntity.Data, jsonEntity.GuildId, client.Rest);
+        Data = new(jsonModel.Data, jsonModel.GuildId, client.Rest);
     }
 }

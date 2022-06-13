@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonStageInstance : JsonEntity
+public record JsonStageInstance : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public Snowflake GuildId { get; init; }

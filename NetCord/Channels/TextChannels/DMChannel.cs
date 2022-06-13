@@ -6,8 +6,8 @@ public class DMChannel : TextChannel
 {
     public ImmutableDictionary<Snowflake, User> Users { get; }
 
-    internal DMChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    public DMChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        Users = jsonEntity.Users.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
+        Users = jsonModel.Users.ToImmutableDictionaryOrEmpty(u => u.Id, u => new User(u, client));
     }
 }

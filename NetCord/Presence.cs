@@ -1,19 +1,20 @@
 ﻿namespace NetCord;
 
-public class Presence
+public class Presence : IJsonModel<JsonModels.JsonPresence>
 {
-    private readonly JsonModels.JsonPresence _jsonEntity;
+    JsonModels.JsonPresence IJsonModel<JsonModels.JsonPresence>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonPresence _jsonModel;
 
     public User User { get; }
-    public Snowflake GuildId => _jsonEntity.GuildId;
-    public UserStatusType Status => _jsonEntity.Status;
+    public Snowflake GuildId => _jsonModel.GuildId;
+    public UserStatusType Status => _jsonModel.Status;
     public IEnumerable<UserActivity> Activities { get; }
-    public IReadOnlyDictionary<Platform, UserStatusType> Platform => _jsonEntity.Platform;
+    public IReadOnlyDictionary<Platform, UserStatusType> Platform => _jsonModel.Platform;
 
-    internal Presence(JsonModels.JsonPresence jsonEntity, RestClient client)
+    public Presence(JsonModels.JsonPresence jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        User = new(jsonEntity.User, client);
-        Activities = jsonEntity.Activities.SelectOrEmpty(a => new UserActivity(a, GuildId, client));
+        _jsonModel = jsonModel;
+        User = new(jsonModel.User, client);
+        Activities = jsonModel.Activities.SelectOrEmpty(a => new UserActivity(a, GuildId, client));
     }
 }

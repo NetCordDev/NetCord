@@ -42,7 +42,8 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw new RestException(response);
 
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
@@ -116,7 +117,8 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+            throw new RestException(response);
 
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }

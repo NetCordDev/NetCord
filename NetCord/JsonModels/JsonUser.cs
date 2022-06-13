@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonUser : JsonEntity
+public record JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
     public virtual string Username { get; init; }

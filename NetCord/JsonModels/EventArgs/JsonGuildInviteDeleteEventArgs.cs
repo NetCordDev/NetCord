@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonGuildInviteDeleteEventArgs
+public record JsonGuildInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
     public Snowflake InviteChannelId { get; init; }

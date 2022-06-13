@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonIntegrationApplication : JsonEntity
+public record JsonIntegrationApplication : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }

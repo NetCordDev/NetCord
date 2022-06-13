@@ -2,16 +2,17 @@
 
 namespace NetCord;
 
-public class GuildRoleDeleteEventArgs
+public class GuildRoleDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildRoleDeleteEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildRoleDeleteEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildRoleDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildRoleDeleteEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildRoleDeleteEventArgs _jsonModel;
 
-    internal GuildRoleDeleteEventArgs(JsonGuildRoleDeleteEventArgs jsonEntity)
+    public GuildRoleDeleteEventArgs(JsonGuildRoleDeleteEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public Snowflake RoleId => _jsonEntity.RoleId;
+    public Snowflake RoleId => _jsonModel.RoleId;
 }

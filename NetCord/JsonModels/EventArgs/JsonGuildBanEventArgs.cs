@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonGuildBanEventArgs
+public record JsonGuildBanEventArgs
 {
     [JsonPropertyName("guild_id")]
     public Snowflake GuildId { get; init; }

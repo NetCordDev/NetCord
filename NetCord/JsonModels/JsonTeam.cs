@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonTeam : JsonEntity
+public record JsonTeam : JsonEntity
 {
     [JsonPropertyName("icon")]
     public string? Icon { get; init; }
@@ -17,7 +17,7 @@ internal record JsonTeam : JsonEntity
     public Snowflake OwnerId { get; init; }
 }
 
-internal record JsonTeamUser
+public record JsonTeamUser
 {
     [JsonPropertyName("membership_state")]
     public MembershipState MembershipState { get; init; }

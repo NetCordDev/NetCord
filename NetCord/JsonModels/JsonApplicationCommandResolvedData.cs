@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record class JsonApplicationCommandResolvedData
+public record JsonApplicationCommandResolvedData
 {
     [JsonPropertyName("users")]
     public IReadOnlyDictionary<Snowflake, JsonUser>? Users { get; init; }

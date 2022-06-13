@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonThreadUser : JsonThreadSelfUser
+public record JsonThreadUser : JsonThreadSelfUser
 {
     [JsonPropertyName("user_id")]
     public Snowflake UserId { get; init; }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonParty
+public record JsonParty
 {
     public string? Id { get; init; }
 

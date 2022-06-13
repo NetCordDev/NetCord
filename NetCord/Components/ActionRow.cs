@@ -2,17 +2,18 @@
 
 namespace NetCord;
 
-public class ActionRow : IComponent
+public class ActionRow : IComponent, IJsonModel<JsonComponent>
 {
-    private readonly JsonComponent _jsonEntity;
+    JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
+    private readonly JsonComponent _jsonModel;
 
     public ComponentType ComponentType => ComponentType.ActionRow;
-    public string CustomId => _jsonEntity.CustomId!;
+    public string CustomId => _jsonModel.CustomId!;
     public IEnumerable<Button> Buttons { get; }
 
-    internal ActionRow(JsonComponent jsonEntity)
+    public ActionRow(JsonComponent jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        Buttons = jsonEntity.Components.SelectOrEmpty(b => Button.CreateFromJson(b));
+        _jsonModel = jsonModel;
+        Buttons = jsonModel.Components.SelectOrEmpty(b => Button.CreateFromJson(b));
     }
 }

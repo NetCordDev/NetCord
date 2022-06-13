@@ -2,20 +2,21 @@
 
 namespace NetCord;
 
-public class ThreadListSyncEventArgs
+public class ThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonThreadListSyncEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonThreadListSyncEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonThreadListSyncEventArgs IJsonModel<JsonModels.EventArgs.JsonThreadListSyncEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonThreadListSyncEventArgs _jsonModel;
 
-    internal ThreadListSyncEventArgs(JsonModels.EventArgs.JsonThreadListSyncEventArgs jsonEntity, RestClient client)
+    public ThreadListSyncEventArgs(JsonModels.EventArgs.JsonThreadListSyncEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Threads = jsonEntity.Threads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));
-        Users = jsonEntity.Users.Select(u => new ThreadUser(u, client));
+        _jsonModel = jsonModel;
+        Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));
+        Users = jsonModel.Users.Select(u => new ThreadUser(u, client));
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public IEnumerable<Snowflake>? ChannelIds => _jsonEntity.ChannelIds;
+    public IEnumerable<Snowflake>? ChannelIds => _jsonModel.ChannelIds;
 
     public ImmutableDictionary<Snowflake, GuildThread> Threads { get; }
 

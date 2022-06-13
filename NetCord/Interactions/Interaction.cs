@@ -5,42 +5,43 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public abstract class Interaction : ClientEntity
+public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 {
-    private readonly JsonInteraction _jsonEntity;
+    JsonInteraction IJsonModel<JsonInteraction>.JsonModel => _jsonModel;
+    private readonly JsonInteraction _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public Snowflake ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake ApplicationId => _jsonModel.ApplicationId;
 
-    public InteractionType Type => _jsonEntity.Type;
+    public InteractionType Type => _jsonModel.Type;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
     public Guild? Guild { get; }
 
-    public Snowflake? ChannelId => _jsonEntity.ChannelId;
+    public Snowflake? ChannelId => _jsonModel.ChannelId;
 
     public TextChannel? Channel { get; }
 
     public User User { get; }
 
-    public string Token => _jsonEntity.Token;
+    public string Token => _jsonModel.Token;
 
-    public CultureInfo UserLocale => _jsonEntity.UserLocale;
+    public CultureInfo UserLocale => _jsonModel.UserLocale;
 
-    public CultureInfo? GuildLocale => _jsonEntity.GuildLocale;
+    public CultureInfo? GuildLocale => _jsonModel.GuildLocale;
 
     public abstract InteractionData Data { get; }
 
-    internal Interaction(JsonInteraction jsonEntity, GatewayClient client) : base(client.Rest)
+    public Interaction(JsonInteraction jsonModel, GatewayClient client) : base(client.Rest)
     {
-        _jsonEntity = jsonEntity;
-        var guildId = jsonEntity.GuildId;
+        _jsonModel = jsonModel;
+        var guildId = jsonModel.GuildId;
         if (guildId.HasValue && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out Guild? guild))
         {
             Guild = guild;
-            User = new GuildInteractionUser(jsonEntity.GuildUser!, Guild, client.Rest);
+            User = new GuildInteractionUser(jsonModel.GuildUser!, Guild, client.Rest);
             if (ChannelId.HasValue)
             {
                 if (guild.Channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
@@ -51,7 +52,7 @@ public abstract class Interaction : ClientEntity
         }
         else
         {
-            User = new User(jsonEntity.User!, client.Rest);
+            User = new User(jsonModel.User!, client.Rest);
             if (ChannelId.HasValue)
             {
                 if (client.DMChannels.TryGetValue(ChannelId.GetValueOrDefault(), out var dMChannel))
@@ -62,25 +63,25 @@ public abstract class Interaction : ClientEntity
         }
     }
 
-    internal static Interaction CreateFromJson(JsonInteraction jsonEntity, GatewayClient client)
+    internal static Interaction CreateFromJson(JsonInteraction jsonModel, GatewayClient client)
     {
-        return jsonEntity.Type switch
+        return jsonModel.Type switch
         {
-            InteractionType.ApplicationCommand => jsonEntity.Data.Type switch
+            InteractionType.ApplicationCommand => jsonModel.Data.Type switch
             {
-                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonEntity, client),
-                ApplicationCommandType.User => new UserCommandInteraction(jsonEntity, client),
-                ApplicationCommandType.Message => new MessageCommandInteraction(jsonEntity, client),
+                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, client),
+                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, client),
+                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.MessageComponent => jsonEntity.Data.ComponentType switch
+            InteractionType.MessageComponent => jsonModel.Data.ComponentType switch
             {
-                ComponentType.Button => new ButtonInteraction(jsonEntity, client),
-                ComponentType.Menu => new MenuInteraction(jsonEntity, client),
+                ComponentType.Button => new ButtonInteraction(jsonModel, client),
+                ComponentType.Menu => new MenuInteraction(jsonModel, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonEntity, client),
-            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonEntity, client),
+            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonModel, client),
+            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, client),
             _ => throw new InvalidOperationException(),
         };
     }

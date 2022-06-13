@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
-internal record JsonUserActivitySecrets
+public record JsonUserActivitySecrets
 {
     [JsonPropertyName("join")]
     public string? Join { get; init; }

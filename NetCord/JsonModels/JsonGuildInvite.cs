@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildInvite
+public record JsonGuildInvite
 {
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; init; }

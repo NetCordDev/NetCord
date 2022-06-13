@@ -14,11 +14,6 @@ public readonly struct Color : IEquatable<Color>
 
     public byte Blue => (byte)RawValue;
 
-    public Color()
-    {
-        RawValue = 0;
-    }
-
     public Color(byte r, byte g, byte b)
     {
         RawValue = (r << 16) | (g << 8) | b;
@@ -26,10 +21,7 @@ public readonly struct Color : IEquatable<Color>
 
     public Color(int rgb)
     {
-        if (rgb is >= 0 and <= 16777215)
-            RawValue = rgb;
-        else
-            throw new ArgumentOutOfRangeException(nameof(rgb), $"{rgb} is not >= 0 or not <= 16777215");
+        RawValue = rgb;
     }
 
     public bool Equals(Color other) => RawValue == other.RawValue;

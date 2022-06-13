@@ -2,7 +2,7 @@
 {
     public class NewsGuildChannel : TextGuildChannel
     {
-        internal NewsGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+        public NewsGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
         {
 
         }

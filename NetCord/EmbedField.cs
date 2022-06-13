@@ -2,15 +2,15 @@
 {
     public class EmbedField
     {
-        private readonly JsonModels.JsonEmbedField _jsonEntity;
+        private readonly JsonModels.JsonEmbedField _jsonModel;
 
-        public string Title => _jsonEntity.Title;
-        public string Description => _jsonEntity.Description;
-        public bool? Inline => _jsonEntity.Inline;
+        public string Title => _jsonModel.Title;
+        public string Description => _jsonModel.Description;
+        public bool? Inline => _jsonModel.Inline;
 
-        internal EmbedField(JsonModels.JsonEmbedField jsonEntity)
+        public EmbedField(JsonModels.JsonEmbedField jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

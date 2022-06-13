@@ -1,23 +1,24 @@
 ﻿namespace NetCord;
 
-public class TypingStartEventArgs
+public class TypingStartEventArgs : IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonTypingStartEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonTypingStartEventArgs IJsonModel<JsonModels.EventArgs.JsonTypingStartEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonTypingStartEventArgs _jsonModel;
 
-    internal TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonEntity, RestClient client)
+    public TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.User != null)
-            User = new(jsonEntity.User, _jsonEntity.GuildId.GetValueOrDefault(), client);
+        _jsonModel = jsonModel;
+        if (jsonModel.User != null)
+            User = new(jsonModel.User, _jsonModel.GuildId.GetValueOrDefault(), client);
     }
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
-    public Snowflake UserId => _jsonEntity.UserId;
+    public Snowflake UserId => _jsonModel.UserId;
 
-    public DateTimeOffset Timestamp => _jsonEntity.Timestamp;
+    public DateTimeOffset Timestamp => _jsonModel.Timestamp;
 
     public GuildUser? User { get; }
 }

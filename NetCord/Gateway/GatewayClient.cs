@@ -21,6 +21,7 @@ public partial class GatewayClient : WebSocketClient
     public ImmutableDictionary<Snowflake, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, GroupDMChannel>();
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
+    public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelCreate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelUpdate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelDelete;
@@ -107,20 +108,21 @@ public partial class GatewayClient : WebSocketClient
     /// Connects the <see cref="GatewayClient"/> to gateway
     /// </summary>
     /// <returns></returns>
-    public async Task StartAsync()
+    public async Task StartAsync(PresenceProperties? presence = null)
     {
         ThrowIfDisposed();
         await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
-        await SendIdentifyAsync().ConfigureAwait(false);
+        await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
-    private Task SendIdentifyAsync()
+    private Task SendIdentifyAsync(PresenceProperties? presence = null)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
         {
+            ConnectionProperties = _config.ConnectionProperties ?? ConnectionPropertiesProperties.Default,
             LargeThreshold = _config.LargeThreshold,
             Shard = _config.Shard,
-            Presence = _config.Presence,
+            Presence = presence ?? _config.Presence,
             Intents = _config.Intents,
         }).Serialize();
         _latencyTimer.Start();
@@ -292,6 +294,21 @@ public partial class GatewayClient : WebSocketClient
                     Latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
+                }
+                break;
+            case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
+                {
+                    if (ApplicationCommandPermissionsUpdate != null)
+                    {
+                        try
+                        {
+                            await ApplicationCommandPermissionsUpdate(new(data.ToObject<JsonApplicationCommandPermission>())).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
                 }
                 break;
             case "CHANNEL_CREATE":

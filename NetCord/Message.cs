@@ -5,9 +5,9 @@ namespace NetCord;
 
 public class Message : RestMessage
 {
-    internal Message(JsonMessage jsonEntity, GatewayClient client) : base(jsonEntity, client.Rest)
+    public Message(JsonMessage jsonModel, GatewayClient client) : base(jsonModel, client.Rest)
     {
-        GuildId = jsonEntity.GuildId ?? jsonEntity.MessageReference?.GuildId;
+        GuildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
         if (GuildId.HasValue && client.Guilds.TryGetValue(GuildId.GetValueOrDefault(), out var guild))
         {
             Guild = guild;

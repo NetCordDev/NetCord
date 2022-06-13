@@ -2,11 +2,11 @@
 
 public class ButtonInteractionData : InteractionData, ICustomIdInteractionData
 {
-    public string CustomId => _jsonEntity.CustomId!;
+    public string CustomId => _jsonModel.CustomId!;
 
-    public ComponentType ComponentType => _jsonEntity.ComponentType.GetValueOrDefault();
+    public ComponentType ComponentType => _jsonModel.ComponentType.GetValueOrDefault();
 
-    internal ButtonInteractionData(JsonModels.JsonInteractionData jsonEntity) : base(jsonEntity)
+    public ButtonInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
     {
     }
 }

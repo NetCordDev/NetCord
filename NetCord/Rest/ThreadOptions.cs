@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class ThreadOptions
 {
+    internal ThreadOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }

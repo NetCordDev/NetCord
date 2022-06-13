@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonFollowedChannel : JsonEntity
+public record JsonFollowedChannel : JsonEntity
 {
     [JsonPropertyName("channel_id")]
     public override Snowflake Id { get; init; }

@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GuildChannelOptions
 {
+    internal GuildChannelOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }

@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GuildScheduledEventOptions
 {
+    internal GuildScheduledEventOptions()
+    {
+    }
+
     [JsonPropertyName("channel_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public Snowflake? ChannelId { get; set; }

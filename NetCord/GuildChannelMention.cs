@@ -2,16 +2,16 @@
 {
     public class GuildChannelMention : Entity
     {
-        private readonly JsonModels.JsonGuildChannelMention _jsonEntity;
+        private readonly JsonModels.JsonGuildChannelMention _jsonModel;
 
-        public override Snowflake Id => _jsonEntity.Id;
-        public Snowflake GuildId => _jsonEntity.GuildId;
-        public ChannelType Type => _jsonEntity.Type;
-        public string Name => _jsonEntity.Name;
+        public override Snowflake Id => _jsonModel.Id;
+        public Snowflake GuildId => _jsonModel.GuildId;
+        public ChannelType Type => _jsonModel.Type;
+        public string Name => _jsonModel.Name;
 
-        internal GuildChannelMention(JsonModels.JsonGuildChannelMention jsonEntity)
+        public GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal record JsonReady
+public record JsonReady
 {
     [JsonPropertyName("ssrc")]
     public uint Ssrc { get; init; }

@@ -2,28 +2,29 @@
 
 namespace NetCord;
 
-public class ApplicationCommandInteractionDataOption
+public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>
 {
-    private readonly JsonModels.JsonApplicationCommandInteractionDataOption _jsonEntity;
+    JsonModels.JsonApplicationCommandInteractionDataOption IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommandInteractionDataOption _jsonModel;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public ApplicationCommandOptionType Type => _jsonEntity.Type;
+    public ApplicationCommandOptionType Type => _jsonModel.Type;
 
     public string? Value { get; }
 
     public IEnumerable<ApplicationCommandInteractionDataOption>? Options { get; }
 
-    public bool Focused => _jsonEntity.Focused;
+    public bool Focused => _jsonModel.Focused;
 
-    internal ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonEntity)
+    public ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Value.HasValue)
+        _jsonModel = jsonModel;
+        if (jsonModel.Value.HasValue)
         {
-            var value = jsonEntity.Value.GetValueOrDefault();
+            var value = jsonModel.Value.GetValueOrDefault();
             Value = value.ValueKind == JsonValueKind.String ? value.GetString() : value.GetRawText();
         }
-        Options = jsonEntity.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o));
+        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o));
     }
 }

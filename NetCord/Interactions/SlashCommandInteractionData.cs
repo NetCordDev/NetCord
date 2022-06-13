@@ -6,11 +6,11 @@ namespace NetCord;
 
 public class SlashCommandInteractionData : ApplicationCommandInteractionData
 {
-    internal SlashCommandInteractionData(JsonInteractionData jsonEntity, Snowflake? guildId, RestClient client) : base(jsonEntity, guildId, client)
+    public SlashCommandInteractionData(JsonInteractionData jsonModel, Snowflake? guildId, RestClient client) : base(jsonModel, guildId, client)
     {
-        Options = new(jsonEntity.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToList());
-        if (jsonEntity.ResolvedData != null)
-            ResolvedData = new(jsonEntity.ResolvedData, guildId, client);
+        Options = new(jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToList());
+        if (jsonModel.ResolvedData != null)
+            ResolvedData = new(jsonModel.ResolvedData, guildId, client);
     }
 
     public ReadOnlyCollection<ApplicationCommandInteractionDataOption> Options { get; }

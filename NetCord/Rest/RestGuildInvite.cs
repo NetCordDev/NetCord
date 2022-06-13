@@ -1,10 +1,11 @@
 ﻿namespace NetCord;
 
-public class RestGuildInvite
+public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
 {
-    private readonly JsonModels.JsonRestGuildInvite _jsonEntity;
+    JsonModels.JsonRestGuildInvite IJsonModel<JsonModels.JsonRestGuildInvite>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonRestGuildInvite _jsonModel;
 
-    public string Code => _jsonEntity.Code;
+    public string Code => _jsonModel.Code;
 
     public RestGuild? Guild { get; }
 
@@ -12,17 +13,17 @@ public class RestGuildInvite
 
     public User? Inviter { get; }
 
-    public GuildInviteTargetType? TargetType => _jsonEntity.TargetType;
+    public GuildInviteTargetType? TargetType => _jsonModel.TargetType;
 
     public User? TargetUser { get; }
 
     public Application? TargetApplication { get; }
 
-    public int? ApproximatePresenceCount => _jsonEntity.ApproximatePresenceCount;
+    public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
 
-    public int? ApproximateMemberCount => _jsonEntity.ApproximateMemberCount;
+    public int? ApproximateMemberCount => _jsonModel.ApproximateMemberCount;
 
-    public DateTimeOffset? ExpiresAt => _jsonEntity.ExpiresAt;
+    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
 
     public StageInstance? StageInstance { get; }
 
@@ -30,30 +31,24 @@ public class RestGuildInvite
 
     public GuildInviteMetadata? Metadata { get; }
 
-    internal RestGuildInvite(JsonModels.JsonRestGuildInvite jsonEntity, RestClient client)
+    public RestGuildInvite(JsonModels.JsonRestGuildInvite jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (_jsonEntity.Guild != null)
-            Guild = new(_jsonEntity.Guild, client);
-        if (_jsonEntity.Channel != null)
-            Channel = Channel.CreateFromJson(_jsonEntity.Channel, client);
-        if (_jsonEntity.Inviter != null)
-            Inviter = new(_jsonEntity.Inviter, client);
-        if (_jsonEntity.TargetUser != null)
-            TargetUser = new(_jsonEntity.TargetUser, client);
-        if (_jsonEntity.TargetApplication != null)
-            TargetApplication = new(_jsonEntity.TargetApplication, client);
-        if (_jsonEntity.StageInstance != null)
-            StageInstance = new(_jsonEntity.StageInstance, client);
-        if (_jsonEntity.GuildScheduledEvent != null)
-            GuildScheduledEvent = new(_jsonEntity.GuildScheduledEvent, client);
-        if (_jsonEntity.Metadata != null)
-            Metadata = new(_jsonEntity.Metadata);
+        _jsonModel = jsonModel;
+        if (_jsonModel.Guild != null)
+            Guild = new(_jsonModel.Guild, client);
+        if (_jsonModel.Channel != null)
+            Channel = Channel.CreateFromJson(_jsonModel.Channel, client);
+        if (_jsonModel.Inviter != null)
+            Inviter = new(_jsonModel.Inviter, client);
+        if (_jsonModel.TargetUser != null)
+            TargetUser = new(_jsonModel.TargetUser, client);
+        if (_jsonModel.TargetApplication != null)
+            TargetApplication = new(_jsonModel.TargetApplication, client);
+        if (_jsonModel.StageInstance != null)
+            StageInstance = new(_jsonModel.StageInstance, client);
+        if (_jsonModel.GuildScheduledEvent != null)
+            GuildScheduledEvent = new(_jsonModel.GuildScheduledEvent, client);
+        if (_jsonModel.Metadata != null)
+            Metadata = new(_jsonModel.Metadata);
     }
-}
-
-public enum GuildInviteTargetType
-{
-    Stream = 1,
-    EmbeddedApplication = 2,
 }

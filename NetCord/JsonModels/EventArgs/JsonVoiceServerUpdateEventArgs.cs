@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonVoiceServerUpdateEventArgs
+public record JsonVoiceServerUpdateEventArgs
 {
     [JsonPropertyName("token")]
     public string Token { get; init; }

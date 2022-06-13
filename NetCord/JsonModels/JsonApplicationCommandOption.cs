@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonApplicationCommandOption
+public record JsonApplicationCommandOption
 {
     [JsonPropertyName("type")]
     public ApplicationCommandOptionType Type { get; init; }

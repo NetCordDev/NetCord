@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class GuildWidgetChannel : Entity
+public class GuildWidgetChannel : Entity, IJsonModel<JsonModels.JsonGuildWidgetChannel>
 {
-    private readonly JsonModels.JsonGuildWidgetChannel _jsonEntity;
+    JsonModels.JsonGuildWidgetChannel IJsonModel<JsonModels.JsonGuildWidgetChannel>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildWidgetChannel _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public int Position => _jsonEntity.Position;
+    public int Position => _jsonModel.Position;
 
-    internal GuildWidgetChannel(JsonModels.JsonGuildWidgetChannel jsonEntity)
+    public GuildWidgetChannel(JsonModels.JsonGuildWidgetChannel jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

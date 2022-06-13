@@ -1,14 +1,15 @@
 ﻿namespace NetCord;
 
-public class UserActivityTimestamps
+public class UserActivityTimestamps : IJsonModel<JsonModels.JsonUserActivityTimestamps>
 {
-    private readonly JsonModels.JsonUserActivityTimestamps _jsonEntity;
+    JsonModels.JsonUserActivityTimestamps IJsonModel<JsonModels.JsonUserActivityTimestamps>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonUserActivityTimestamps _jsonModel;
 
-    public DateTimeOffset? StartTime => _jsonEntity.StartTime;
-    public DateTimeOffset? EndTime => _jsonEntity.EndTime;
+    public DateTimeOffset? StartTime => _jsonModel.StartTime;
+    public DateTimeOffset? EndTime => _jsonModel.EndTime;
 
-    internal UserActivityTimestamps(JsonModels.JsonUserActivityTimestamps jsonEntity)
+    public UserActivityTimestamps(JsonModels.JsonUserActivityTimestamps jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

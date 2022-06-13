@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildBan
+public record JsonGuildBan
 {
     [JsonPropertyName("reason")]
     public string? Reason { get; init; }

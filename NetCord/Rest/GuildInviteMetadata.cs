@@ -1,21 +1,22 @@
 ﻿namespace NetCord;
 
-public class GuildInviteMetadata
+public class GuildInviteMetadata : IJsonModel<JsonModels.JsonGuildInviteMetadata>
 {
-    private readonly JsonModels.JsonGuildInviteMetadata _jsonEntity;
+    JsonModels.JsonGuildInviteMetadata IJsonModel<JsonModels.JsonGuildInviteMetadata>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildInviteMetadata _jsonModel;
 
-    public int Uses => _jsonEntity.Uses;
+    public int Uses => _jsonModel.Uses;
 
-    public int MaxUses => _jsonEntity.MaxUses;
+    public int MaxUses => _jsonModel.MaxUses;
 
-    public int MaxAge => _jsonEntity.MaxAge;
+    public int MaxAge => _jsonModel.MaxAge;
 
-    public bool Temporary => _jsonEntity.Temporary;
+    public bool Temporary => _jsonModel.Temporary;
 
-    public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
+    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
 
-    internal GuildInviteMetadata(JsonModels.JsonGuildInviteMetadata jsonEntity)
+    public GuildInviteMetadata(JsonModels.JsonGuildInviteMetadata jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

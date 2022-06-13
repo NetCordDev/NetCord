@@ -7,8 +7,8 @@ public class ModalSubmitInteraction : Interaction
 {
     public override ModalSubmitInteractionData Data { get; }
 
-    internal ModalSubmitInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public ModalSubmitInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
-        Data = new(jsonEntity.Data);
+        Data = new(jsonModel.Data);
     }
 }

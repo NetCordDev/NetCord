@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonMessageReactionRemoveEmojiEventArgs
+public record JsonMessageReactionRemoveEmojiEventArgs
 {
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; init; }

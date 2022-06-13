@@ -2,60 +2,61 @@
 
 namespace NetCord;
 
-public class RestGuild : ClientEntity
+public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 {
-    private protected readonly JsonModels.JsonGuild _jsonEntity;
+    JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonGuild _jsonModel;
 
     public ImmutableDictionary<Snowflake, GuildRole> Roles { get; internal set; }
     public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; internal set; }
     public ImmutableDictionary<Snowflake, GuildSticker> Stickers { get; internal set; }
 
-    public override Snowflake Id => _jsonEntity.Id;
-    public string Name => _jsonEntity.Name;
-    public string? Icon => _jsonEntity.Icon;
-    public string? Splash => _jsonEntity.SplashHash;
-    public string? DiscoverySplashHash => _jsonEntity.DiscoverySplashHash;
-    public Snowflake OwnerId => _jsonEntity.OwnerId;
-    public Snowflake? AfkChannelId => _jsonEntity.AfkChannelId;
-    public int AfkTimeout => _jsonEntity.AfkTimeout;
-    public bool? WidgetEnabled => _jsonEntity.WidgetEnabled;
-    public Snowflake? WidgetChannelId => _jsonEntity.WidgetChannelId;
-    public VerificationLevel VerificationLevel => _jsonEntity.VerificationLevel;
-    public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonEntity.DefaultMessageNotificationLevel;
-    public ContentFilter ContentFilter => _jsonEntity.ContentFilter;
+    public override Snowflake Id => _jsonModel.Id;
+    public string Name => _jsonModel.Name;
+    public string? Icon => _jsonModel.Icon;
+    public string? Splash => _jsonModel.SplashHash;
+    public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
+    public Snowflake OwnerId => _jsonModel.OwnerId;
+    public Snowflake? AfkChannelId => _jsonModel.AfkChannelId;
+    public int AfkTimeout => _jsonModel.AfkTimeout;
+    public bool? WidgetEnabled => _jsonModel.WidgetEnabled;
+    public Snowflake? WidgetChannelId => _jsonModel.WidgetChannelId;
+    public VerificationLevel VerificationLevel => _jsonModel.VerificationLevel;
+    public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonModel.DefaultMessageNotificationLevel;
+    public ContentFilter ContentFilter => _jsonModel.ContentFilter;
     public GuildRole EveryoneRole => Roles[Id];
     public GuildFeatures Features { get; }
-    public MFALevel MFALevel => _jsonEntity.MFALevel;
-    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
-    public Snowflake? SystemChannelId => _jsonEntity.SystemChannelId;
-    public SystemChannelFlags SystemChannelFlags => _jsonEntity.SystemChannelFlags;
-    public Snowflake? RulesChannelId => _jsonEntity.RulesChannelId;
-    public int? MaxPresences => _jsonEntity.MaxPresences;
-    public int? MaxMembers => _jsonEntity.MaxMembers;
-    public string? VanityUrlCode => _jsonEntity.VanityUrlCode;
-    public string? Description => _jsonEntity.Description;
-    public string? BannerHash => _jsonEntity.BannerHash;
-    public int PremiumTier => _jsonEntity.PremiumTier;
-    public int? PremiumSubscriptionCount => _jsonEntity.PremiumSubscriptionCount;
-    public System.Globalization.CultureInfo PreferredLocale => _jsonEntity.PreferredLocale;
-    public Snowflake? PublicUpdatesChannelId => _jsonEntity.PublicUpdatesChannelId;
-    public int? MaxVideoChannelUsers => _jsonEntity.MaxVideoChannelUsers;
-    public int? ApproximateMemberCount => _jsonEntity.ApproximateMemberCount;
-    public int? ApproximatePresenceCount => _jsonEntity.ApproximatePresenceCount;
+    public MFALevel MFALevel => _jsonModel.MFALevel;
+    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
+    public Snowflake? SystemChannelId => _jsonModel.SystemChannelId;
+    public SystemChannelFlags SystemChannelFlags => _jsonModel.SystemChannelFlags;
+    public Snowflake? RulesChannelId => _jsonModel.RulesChannelId;
+    public int? MaxPresences => _jsonModel.MaxPresences;
+    public int? MaxMembers => _jsonModel.MaxMembers;
+    public string? VanityUrlCode => _jsonModel.VanityUrlCode;
+    public string? Description => _jsonModel.Description;
+    public string? BannerHash => _jsonModel.BannerHash;
+    public int PremiumTier => _jsonModel.PremiumTier;
+    public int? PremiumSubscriptionCount => _jsonModel.PremiumSubscriptionCount;
+    public System.Globalization.CultureInfo PreferredLocale => _jsonModel.PreferredLocale;
+    public Snowflake? PublicUpdatesChannelId => _jsonModel.PublicUpdatesChannelId;
+    public int? MaxVideoChannelUsers => _jsonModel.MaxVideoChannelUsers;
+    public int? ApproximateMemberCount => _jsonModel.ApproximateMemberCount;
+    public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
     public GuildWelcomeScreen? WelcomeScreen { get; }
-    public NSFWLevel NSFWLevel => _jsonEntity.NSFWLevel;
-    public bool PremiumProgressBarEnabled => _jsonEntity.PremiumPropressBarEnabled;
+    public NSFWLevel NSFWLevel => _jsonModel.NSFWLevel;
+    public bool PremiumProgressBarEnabled => _jsonModel.PremiumPropressBarEnabled;
 
-    internal RestGuild(JsonModels.JsonGuild jsonEntity, RestClient client) : base(client)
+    public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
-        Roles = jsonEntity.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
+        _jsonModel = jsonModel;
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
         // guild emojis always have Id
-        Emojis = jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = jsonEntity.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
-        Features = new(jsonEntity.Features);
-        if (jsonEntity.WelcomeScreen != null)
-            WelcomeScreen = new(jsonEntity.WelcomeScreen);
+        Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
+        Features = new(jsonModel.Features);
+        if (jsonModel.WelcomeScreen != null)
+            WelcomeScreen = new(jsonModel.WelcomeScreen);
     }
 
     public Task<GuildPreview> GetPreviewAsync(RequestProperties? options = null) => _client.GetGuildPreviewAsync(Id, options);

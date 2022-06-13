@@ -1,12 +1,13 @@
 ﻿namespace NetCord;
 
-public class MessageReactionEmoji : Entity
+public class MessageReactionEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
 {
-    private readonly JsonModels.JsonEmoji _jsonEntity;
+    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmoji _jsonModel;
 
-    internal MessageReactionEmoji(JsonModels.JsonEmoji jsonEntity)
+    public MessageReactionEmoji(JsonModels.JsonEmoji jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
     public override Snowflake Id
@@ -15,13 +16,13 @@ public class MessageReactionEmoji : Entity
         {
             if (IsStandard)
                 throw new InvalidOperationException("This emoji has no id");
-            return _jsonEntity.Id.GetValueOrDefault();
+            return _jsonModel.Id.GetValueOrDefault();
         }
     }
 
-    public bool IsStandard => !_jsonEntity.Id.HasValue;
+    public bool IsStandard => !_jsonModel.Id.HasValue;
 
-    public string? Name => _jsonEntity.Name;
+    public string? Name => _jsonModel.Name;
 
-    public bool Animated => _jsonEntity.Animated;
+    public bool Animated => _jsonModel.Animated;
 }

@@ -2,30 +2,31 @@
 
 namespace NetCord;
 
-public class TeamUser : User
+public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
 {
-    private readonly JsonModels.JsonTeamUser _jsonTeamEntity;
+    JsonModels.JsonTeamUser IJsonModel<JsonModels.JsonTeamUser>.JsonModel => _jsonTeamModel;
+    private readonly JsonModels.JsonTeamUser _jsonTeamModel;
 
-    public MembershipState MembershipState => _jsonTeamEntity.MembershipState;
-    public IEnumerable<string> Permissions => _jsonTeamEntity.Permissions;
-    public Snowflake TeamId => _jsonTeamEntity.TeamId;
+    public MembershipState MembershipState => _jsonTeamModel.MembershipState;
+    public IEnumerable<string> Permissions => _jsonTeamModel.Permissions;
+    public Snowflake TeamId => _jsonTeamModel.TeamId;
 
-    public override Snowflake Id => _jsonTeamEntity.User.Id;
-    public override string Username => _jsonTeamEntity.User.Username;
-    public override ushort Discriminator => _jsonTeamEntity.User.Discriminator;
-    public override string? AvatarHash => _jsonTeamEntity.User.AvatarHash;
-    public override bool IsBot => _jsonTeamEntity.User.IsBot;
-    public override bool? IsSystemUser => _jsonTeamEntity.User.IsSystemUser;
-    public override bool? MFAEnabled => _jsonTeamEntity.User.MFAEnabled;
-    public override CultureInfo? Locale => _jsonTeamEntity.User.Locale;
-    public override bool? Verified => _jsonTeamEntity.User.Verified;
-    public override string? Email => _jsonTeamEntity.User.Email;
-    public override UserFlags? Flags => _jsonTeamEntity.User.Flags;
-    public override PremiumType? PremiumType => _jsonTeamEntity.User.PremiumType;
-    public override UserFlags? PublicFlags => _jsonTeamEntity.User.PublicFlags;
+    public override Snowflake Id => _jsonTeamModel.User.Id;
+    public override string Username => _jsonTeamModel.User.Username;
+    public override ushort Discriminator => _jsonTeamModel.User.Discriminator;
+    public override string? AvatarHash => _jsonTeamModel.User.AvatarHash;
+    public override bool IsBot => _jsonTeamModel.User.IsBot;
+    public override bool? IsSystemUser => _jsonTeamModel.User.IsSystemUser;
+    public override bool? MFAEnabled => _jsonTeamModel.User.MFAEnabled;
+    public override CultureInfo? Locale => _jsonTeamModel.User.Locale;
+    public override bool? Verified => _jsonTeamModel.User.Verified;
+    public override string? Email => _jsonTeamModel.User.Email;
+    public override UserFlags? Flags => _jsonTeamModel.User.Flags;
+    public override PremiumType? PremiumType => _jsonTeamModel.User.PremiumType;
+    public override UserFlags? PublicFlags => _jsonTeamModel.User.PublicFlags;
 
-    internal TeamUser(JsonModels.JsonTeamUser jsonEntity, RestClient client) : base(jsonEntity.User, client)
+    public TeamUser(JsonModels.JsonTeamUser jsonModel, RestClient client) : base(jsonModel.User, client)
     {
-        _jsonTeamEntity = jsonEntity;
+        _jsonTeamModel = jsonModel;
     }
 }

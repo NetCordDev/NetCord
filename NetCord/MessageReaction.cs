@@ -1,23 +1,24 @@
 ﻿namespace NetCord;
 
-public class MessageReaction
+public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 {
-    private readonly JsonModels.JsonMessageReaction _jsonEntity;
+    JsonModels.JsonMessageReaction IJsonModel<JsonModels.JsonMessageReaction>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonMessageReaction _jsonModel;
 
-    public int Count => _jsonEntity.Count;
+    public int Count => _jsonModel.Count;
 
-    public bool Me => _jsonEntity.Me;
+    public bool Me => _jsonModel.Me;
 
-    public Snowflake? Id => _jsonEntity.Emoji.Id;
+    public Snowflake? Id => _jsonModel.Emoji.Id;
 
-    public string? Name => _jsonEntity.Emoji.Name;
+    public string? Name => _jsonModel.Emoji.Name;
 
-    public bool Animated => _jsonEntity.Emoji.Animated;
+    public bool Animated => _jsonModel.Emoji.Animated;
 
-    public bool IsStandard => !_jsonEntity.Emoji.Id.HasValue;
+    public bool IsStandard => !_jsonModel.Emoji.Id.HasValue;
 
-    internal MessageReaction(JsonModels.JsonMessageReaction jsonEntity, RestClient client)
+    public MessageReaction(JsonModels.JsonMessageReaction jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

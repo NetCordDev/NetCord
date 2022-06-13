@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class MessageDeleteBulkEventArgs
+public class MessageDeleteBulkEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs _jsonModel;
 
-    internal MessageDeleteBulkEventArgs(JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs jsonEntity)
+    public MessageDeleteBulkEventArgs(JsonModels.EventArgs.JsonMessageDeleteBulkEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public IEnumerable<Snowflake> MessageIds => _jsonEntity.MessageIds;
+    public IEnumerable<Snowflake> MessageIds => _jsonModel.MessageIds;
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 }

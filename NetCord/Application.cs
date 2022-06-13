@@ -1,36 +1,37 @@
 ﻿namespace NetCord;
 
-public class Application : Entity
+public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
 {
-    private readonly JsonModels.JsonApplication _jsonEntity;
+    JsonModels.JsonApplication IJsonModel<JsonModels.JsonApplication>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplication _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
-    public string Name => _jsonEntity.Name;
-    public string? IconHash => _jsonEntity.IconHash;
-    public string Description => _jsonEntity.Description;
-    public IEnumerable<string> RpcOrigins => _jsonEntity.RpcOrigins;
-    public bool IsBotPublic => _jsonEntity.IsBotPublic;
-    public bool BotRequireCodeGrant => _jsonEntity.BotRequireCodeGrant;
-    public string? TermsOfServiceUrl => _jsonEntity.TermsOfServiceUrl;
-    public string? PrivacyPolicyUrl => _jsonEntity.PrivacyPolicyUrl;
+    public override Snowflake Id => _jsonModel.Id;
+    public string Name => _jsonModel.Name;
+    public string? IconHash => _jsonModel.IconHash;
+    public string Description => _jsonModel.Description;
+    public IEnumerable<string> RpcOrigins => _jsonModel.RpcOrigins;
+    public bool IsBotPublic => _jsonModel.IsBotPublic;
+    public bool BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
+    public string? TermsOfServiceUrl => _jsonModel.TermsOfServiceUrl;
+    public string? PrivacyPolicyUrl => _jsonModel.PrivacyPolicyUrl;
     public User Owner { get; }
-    public string Summary => _jsonEntity.Summary;
-    public string VerifyKey => _jsonEntity.VerifyKey;
+    public string Summary => _jsonModel.Summary;
+    public string VerifyKey => _jsonModel.VerifyKey;
     public Team? Team { get; }
     /// <summary>
     /// If this application is a game sold on Discord, this field will be the guild to which it has been linked
     /// </summary>
-    public Snowflake? GuildId => _jsonEntity.GuildId;
-    public Snowflake? PrimarySkuId => _jsonEntity.PrimarySkuId;
-    public string? Slug => _jsonEntity.Slug;
-    public string? CoverImageHash => _jsonEntity.CoverImageHash;
-    public ApplicationFlags? Flags => _jsonEntity.Flags;
+    public Snowflake? GuildId => _jsonModel.GuildId;
+    public Snowflake? PrimarySkuId => _jsonModel.PrimarySkuId;
+    public string? Slug => _jsonModel.Slug;
+    public string? CoverImageHash => _jsonModel.CoverImageHash;
+    public ApplicationFlags? Flags => _jsonModel.Flags;
 
-    internal Application(JsonModels.JsonApplication jsonEntity, RestClient client)
+    public Application(JsonModels.JsonApplication jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Owner = new(jsonEntity.Owner, client);
-        if (jsonEntity.Team != null)
-            Team = new(jsonEntity.Team, client);
+        _jsonModel = jsonModel;
+        Owner = new(jsonModel.Owner, client);
+        if (jsonModel.Team != null)
+            Team = new(jsonModel.Team, client);
     }
 }

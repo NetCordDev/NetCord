@@ -1,11 +1,12 @@
 ﻿namespace NetCord;
 
-public abstract class InteractionData
+public abstract class InteractionData : IJsonModel<JsonModels.JsonInteractionData>
 {
-    private protected readonly JsonModels.JsonInteractionData _jsonEntity;
+    JsonModels.JsonInteractionData IJsonModel<JsonModels.JsonInteractionData>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonInteractionData _jsonModel;
 
-    private protected InteractionData(JsonModels.JsonInteractionData jsonEntity)
+    private protected InteractionData(JsonModels.JsonInteractionData jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

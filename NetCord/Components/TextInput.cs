@@ -2,21 +2,22 @@
 
 namespace NetCord;
 
-public class TextInput : IComponent
+public class TextInput : IComponent, IJsonModel<JsonComponent>
 {
-    private readonly JsonComponent _jsonEntity;
+    JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
+    private readonly JsonComponent _jsonModel;
 
     public ComponentType ComponentType => ComponentType.TextInput;
-    public string CustomId => _jsonEntity.CustomId!;
-    public string? Placeholder => _jsonEntity.Placeholder;
-    public string? Label => _jsonEntity.Label!;
-    public int? MinLength => _jsonEntity.MinLength;
-    public int? MaxLength => _jsonEntity.MaxLength;
-    public bool? Required => _jsonEntity.Required;
-    public string Value => _jsonEntity.Value;
+    public string CustomId => _jsonModel.CustomId!;
+    public string? Placeholder => _jsonModel.Placeholder;
+    public string? Label => _jsonModel.Label!;
+    public int? MinLength => _jsonModel.MinLength;
+    public int? MaxLength => _jsonModel.MaxLength;
+    public bool? Required => _jsonModel.Required;
+    public string Value => _jsonModel.Value;
 
-    internal TextInput(JsonComponent jsonEntity)
+    public TextInput(JsonComponent jsonModel)
     {
-        _jsonEntity = jsonEntity.Components[0];
+        _jsonModel = jsonModel.Components[0];
     }
 }

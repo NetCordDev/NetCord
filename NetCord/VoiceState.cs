@@ -2,37 +2,37 @@
 {
     public class VoiceState
     {
-        internal JsonModels.JsonVoiceState _jsonEntity;
+        internal JsonModels.JsonVoiceState _jsonModel;
 
-        public Snowflake? GuildId => _jsonEntity.GuildId;
+        public Snowflake? GuildId => _jsonModel.GuildId;
 
-        public Snowflake? ChannelId => _jsonEntity.ChannelId;
+        public Snowflake? ChannelId => _jsonModel.ChannelId;
 
-        public Snowflake UserId => _jsonEntity.UserId;
+        public Snowflake UserId => _jsonModel.UserId;
 
-        //public GuildUser? User => _jsonEntity.User;
+        //public GuildUser? User => _jsonModel.User;
 
-        public string SessionId => _jsonEntity.SessionId;
+        public string SessionId => _jsonModel.SessionId;
 
-        public bool IsDeafened => _jsonEntity.IsDeafened;
+        public bool IsDeafened => _jsonModel.IsDeafened;
 
-        public bool IsMuted => _jsonEntity.IsMuted;
+        public bool IsMuted => _jsonModel.IsMuted;
 
-        public bool IsSelfDeafened => _jsonEntity.IsSelfDeafened;
+        public bool IsSelfDeafened => _jsonModel.IsSelfDeafened;
 
-        public bool IsSelfMuted => _jsonEntity.IsSelfMuted;
+        public bool IsSelfMuted => _jsonModel.IsSelfMuted;
 
-        public bool? SelfStreamExists => _jsonEntity.SelfStreamExists;
+        public bool? SelfStreamExists => _jsonModel.SelfStreamExists;
 
-        public bool SelfVideoExists => _jsonEntity.SelfVideoExists;
+        public bool SelfVideoExists => _jsonModel.SelfVideoExists;
 
-        public bool Suppressed => _jsonEntity.Suppressed;
+        public bool Suppressed => _jsonModel.Suppressed;
 
-        public DateTimeOffset? RequestToSpeakTimestamp => _jsonEntity.RequestToSpeakTimestamp;
+        public DateTimeOffset? RequestToSpeakTimestamp => _jsonModel.RequestToSpeakTimestamp;
 
-        internal VoiceState(JsonModels.JsonVoiceState jsonEntity)
+        public VoiceState(JsonModels.JsonVoiceState jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

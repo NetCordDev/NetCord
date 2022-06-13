@@ -1,29 +1,31 @@
 ﻿using System.Globalization;
 
 namespace NetCord;
-public class User : ClientEntity
+
+public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 {
-    private protected readonly JsonModels.JsonUser _jsonEntity;
+    JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonUser _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
-    public virtual string Username => _jsonEntity.Username;
-    public virtual ushort Discriminator => _jsonEntity.Discriminator;
-    public virtual string? AvatarHash => _jsonEntity.AvatarHash;
-    public virtual bool IsBot => _jsonEntity.IsBot;
-    public virtual bool? IsSystemUser => _jsonEntity.IsSystemUser;
-    public virtual bool? MFAEnabled => _jsonEntity.MFAEnabled;
-    public virtual string? BannerHash => _jsonEntity.BannerHash;
-    public virtual Color? AccentColor => _jsonEntity.AccentColor;
-    public virtual CultureInfo? Locale => _jsonEntity.Locale;
-    public virtual bool? Verified => _jsonEntity.Verified;
-    public virtual string? Email => _jsonEntity.Email;
-    public virtual UserFlags? Flags => _jsonEntity.Flags;
-    public virtual PremiumType? PremiumType => _jsonEntity.PremiumType;
-    public virtual UserFlags? PublicFlags => _jsonEntity.PublicFlags;
+    public override Snowflake Id => _jsonModel.Id;
+    public virtual string Username => _jsonModel.Username;
+    public virtual ushort Discriminator => _jsonModel.Discriminator;
+    public virtual string? AvatarHash => _jsonModel.AvatarHash;
+    public virtual bool IsBot => _jsonModel.IsBot;
+    public virtual bool? IsSystemUser => _jsonModel.IsSystemUser;
+    public virtual bool? MFAEnabled => _jsonModel.MFAEnabled;
+    public virtual string? BannerHash => _jsonModel.BannerHash;
+    public virtual Color? AccentColor => _jsonModel.AccentColor;
+    public virtual CultureInfo? Locale => _jsonModel.Locale;
+    public virtual bool? Verified => _jsonModel.Verified;
+    public virtual string? Email => _jsonModel.Email;
+    public virtual UserFlags? Flags => _jsonModel.Flags;
+    public virtual PremiumType? PremiumType => _jsonModel.PremiumType;
+    public virtual UserFlags? PublicFlags => _jsonModel.PublicFlags;
 
-    internal User(JsonModels.JsonUser jsonEntity, RestClient client) : base(client)
+    public User(JsonModels.JsonUser jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
     public bool HasAvatar => AvatarHash != null;

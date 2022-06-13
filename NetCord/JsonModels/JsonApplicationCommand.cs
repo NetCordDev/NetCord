@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonApplicationCommand : JsonEntity
+public record JsonApplicationCommand : JsonEntity
 {
     [JsonPropertyName("type")]
     public ApplicationCommandType Type { get; init; } = ApplicationCommandType.ChatInput;

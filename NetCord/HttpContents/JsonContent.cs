@@ -13,7 +13,6 @@ internal class JsonContent : HttpContent
     public JsonContent(string json) : this()
     {
         _stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-        _start = 0;
     }
 
     public JsonContent(JsonDocument json) : this()
@@ -21,7 +20,6 @@ internal class JsonContent : HttpContent
         _stream = new MemoryStream();
         JsonSerializer.Serialize(_stream, json, ToObjectExtensions._options);
         _stream.Position = 0;
-        _start = 0;
     }
 
     public JsonContent(Stream jsonStream) : this()
@@ -36,7 +34,6 @@ internal class JsonContent : HttpContent
         _stream = new MemoryStream();
         JsonSerializer.Serialize(_stream, objToSerialize, ToObjectExtensions._options);
         _stream.Position = 0;
-        _start = 0;
     }
 
     private JsonContent()

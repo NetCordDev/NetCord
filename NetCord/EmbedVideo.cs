@@ -2,7 +2,7 @@
 {
     public class EmbedVideo : EmbedPartBase
     {
-        internal EmbedVideo(JsonModels.JsonEmbedPartBase jsonEntity) : base(jsonEntity)
+        public EmbedVideo(JsonModels.JsonEmbedPartBase jsonModel) : base(jsonModel)
         {
         }
     }

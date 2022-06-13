@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildScheduledEventMetadata
+public record JsonGuildScheduledEventMetadata
 {
     [JsonPropertyName("location")]
     public string? Location { get; init; }

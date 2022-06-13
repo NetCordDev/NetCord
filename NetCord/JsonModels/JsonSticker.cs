@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonSticker : JsonEntity
+public record JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
     public Snowflake? PackId { get; init; }
@@ -17,7 +17,7 @@ internal record JsonSticker : JsonEntity
     public string Tags { get; init; }
 
     [JsonPropertyName("type")]
-    public StickerType Type { get; init; }
+    public JsonStickerType Type { get; init; }
 
     [JsonPropertyName("format_type")]
     public StickerFormat Format { get; init; }
@@ -35,7 +35,7 @@ internal record JsonSticker : JsonEntity
     public int SortValue { get; init; }
 }
 
-internal enum StickerType
+public enum JsonStickerType
 {
     Standard = 1,
     Guild = 2,

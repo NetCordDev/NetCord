@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonWelcomeScreenChannel
+public record JsonWelcomeScreenChannel
 {
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; init; }

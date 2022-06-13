@@ -3,9 +3,9 @@
 public class LinkButton : Button
 {
     public ButtonStyle Style => (ButtonStyle)5;
-    public string Url => _jsonEntity.Url!;
+    public string Url => _jsonModel.Url!;
 
-    internal LinkButton(JsonModels.JsonComponent jsonEntity) : base(jsonEntity)
+    public LinkButton(JsonModels.JsonComponent jsonModel) : base(jsonModel)
     {
 
     }

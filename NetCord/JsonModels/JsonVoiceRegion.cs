@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonVoiceRegion
+public record JsonVoiceRegion
 {
     [JsonPropertyName("id")]
     public string Id { get; init; }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonMessageSticker : JsonEntity
+public record JsonMessageSticker : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }

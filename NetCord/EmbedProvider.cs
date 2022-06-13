@@ -2,14 +2,14 @@
 {
     public class EmbedProvider
     {
-        private readonly JsonModels.JsonEmbedProvider _jsonEntity;
+        private readonly JsonModels.JsonEmbedProvider _jsonModel;
 
-        public string? Name => _jsonEntity.Name;
-        public string? Url => _jsonEntity.Url;
+        public string? Name => _jsonModel.Name;
+        public string? Url => _jsonModel.Url;
 
-        internal EmbedProvider(JsonModels.JsonEmbedProvider jsonEntity)
+        public EmbedProvider(JsonModels.JsonEmbedProvider jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

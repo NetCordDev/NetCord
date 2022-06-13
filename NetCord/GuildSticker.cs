@@ -4,15 +4,16 @@ public class GuildSticker : Sticker
 {
     private readonly RestClient _client;
 
-    public bool? Available => _jsonEntity.Available;
+    public bool? Available => _jsonModel.Available;
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public User Creator { get; }
+    public User? Creator { get; }
 
-    internal GuildSticker(JsonModels.JsonSticker jsonEntity, RestClient client) : base(jsonEntity)
+    public GuildSticker(JsonModels.JsonSticker jsonModel, RestClient client) : base(jsonModel)
     {
         _client = client;
-        Creator = new(jsonEntity.Creator!, client);
+        if (jsonModel.Creator != null)
+            Creator = new(jsonModel.Creator, client);
     }
 }

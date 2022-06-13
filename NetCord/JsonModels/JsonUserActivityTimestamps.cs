@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
-internal record JsonUserActivityTimestamps
+public record JsonUserActivityTimestamps
 {
     [JsonConverter(typeof(JsonConverters.MillisecondsUnixDateTimeOffsetConverter))]
     [JsonPropertyName("start")]

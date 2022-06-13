@@ -2,24 +2,25 @@
 
 namespace NetCord;
 
-public class GuildThreadMembersUpdateEventArgs
+public class GuildThreadMembersUpdateEventArgs : IJsonModel<JsonGuildThreadMembersUpdateEventArgs>
 {
-    private readonly JsonGuildThreadMembersUpdateEventArgs _jsonEntity;
+    JsonGuildThreadMembersUpdateEventArgs IJsonModel<JsonGuildThreadMembersUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonGuildThreadMembersUpdateEventArgs _jsonModel;
 
-    internal GuildThreadMembersUpdateEventArgs(JsonGuildThreadMembersUpdateEventArgs jsonEntity, RestClient client)
+    public GuildThreadMembersUpdateEventArgs(JsonGuildThreadMembersUpdateEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.AddedUsers != null)
-            AddedUsers = jsonEntity.AddedUsers.ToDictionary(u => u.UserId, u => new ThreadUser(u, client));
+        _jsonModel = jsonModel;
+        if (jsonModel.AddedUsers != null)
+            AddedUsers = jsonModel.AddedUsers.ToDictionary(u => u.UserId, u => new ThreadUser(u, client));
     }
 
-    public Snowflake ThreadId => _jsonEntity.ThreadId;
+    public Snowflake ThreadId => _jsonModel.ThreadId;
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public int MemberCount => _jsonEntity.MemberCount;
+    public int MemberCount => _jsonModel.MemberCount;
 
     public IReadOnlyDictionary<Snowflake, ThreadUser>? AddedUsers { get; }
 
-    public IEnumerable<Snowflake> RemovedUserIds => _jsonEntity.RemovedUserIds;
+    public IEnumerable<Snowflake> RemovedUserIds => _jsonModel.RemovedUserIds;
 }

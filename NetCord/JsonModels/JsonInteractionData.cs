@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonInteractionData
+public record JsonInteractionData
 {
     [JsonPropertyName("id")]
     public Snowflake? Id { get; init; }

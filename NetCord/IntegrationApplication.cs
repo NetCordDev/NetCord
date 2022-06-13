@@ -1,25 +1,26 @@
 ﻿namespace NetCord;
 
-public class IntegrationApplication : Entity
+public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrationApplication>
 {
-    private readonly JsonModels.JsonIntegrationApplication _jsonEntity;
+    JsonModels.JsonIntegrationApplication IJsonModel<JsonModels.JsonIntegrationApplication>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonIntegrationApplication _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public string? IconHash => _jsonEntity.IconHash;
+    public string? IconHash => _jsonModel.IconHash;
 
-    public string Description => _jsonEntity.Description;
+    public string Description => _jsonModel.Description;
 
-    public string Summary => _jsonEntity.Summary;
+    public string Summary => _jsonModel.Summary;
 
     public User? Bot { get; }
 
-    internal IntegrationApplication(JsonModels.JsonIntegrationApplication jsonEntity, RestClient client)
+    public IntegrationApplication(JsonModels.JsonIntegrationApplication jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (_jsonEntity.Bot != null)
-            Bot = new(_jsonEntity.Bot, client);
+        _jsonModel = jsonModel;
+        if (_jsonModel.Bot != null)
+            Bot = new(_jsonModel.Bot, client);
     }
 }

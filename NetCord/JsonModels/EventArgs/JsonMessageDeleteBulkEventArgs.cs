@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonMessageDeleteBulkEventArgs
+public record JsonMessageDeleteBulkEventArgs
 {
     [JsonPropertyName("ids")]
     public Snowflake[] MessageIds { get; init; }

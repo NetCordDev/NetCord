@@ -4,6 +4,7 @@ namespace NetCord.Gateway;
 
 public class GatewayClientConfig
 {
+    public ConnectionPropertiesProperties? ConnectionProperties { get; init; }
     public GatewayVersion Version { get; init; } = GatewayVersion.V10;
     public GatewayIntent Intents { get; init; } = GatewayIntent.AllNonPrivileged;
     public int? LargeThreshold { get; init; }

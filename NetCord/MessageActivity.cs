@@ -1,14 +1,15 @@
 ﻿namespace NetCord;
 
-public class MessageActivity
+public class MessageActivity : IJsonModel<JsonModels.JsonMessageActivity>
 {
-    private readonly JsonModels.JsonMessageActivity _jsonEntity;
+    JsonModels.JsonMessageActivity IJsonModel<JsonModels.JsonMessageActivity>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonMessageActivity _jsonModel;
 
-    public MessageActivityType Type => _jsonEntity.Type;
-    public string? PartyId => _jsonEntity.PartyId;
+    public MessageActivityType Type => _jsonModel.Type;
+    public string? PartyId => _jsonModel.PartyId;
 
-    internal MessageActivity(JsonModels.JsonMessageActivity jsonEntity)
+    public MessageActivity(JsonModels.JsonMessageActivity jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

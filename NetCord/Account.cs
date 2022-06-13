@@ -1,15 +1,16 @@
 ﻿namespace NetCord;
 
-public class Account : Entity
+public class Account : Entity, IJsonModel<JsonModels.JsonAccount>
 {
-    private readonly JsonModels.JsonAccount _jsonEntity;
+    JsonModels.JsonAccount IJsonModel<JsonModels.JsonAccount>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonAccount _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    internal Account(JsonModels.JsonAccount jsonEntity)
+    public Account(JsonModels.JsonAccount jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

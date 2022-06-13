@@ -1,22 +1,23 @@
 ﻿namespace NetCord;
 
-public class Party
+public class Party : IJsonModel<JsonModels.JsonParty>
 {
-    private readonly JsonModels.JsonParty _jsonEntity;
+    JsonModels.JsonParty IJsonModel<JsonModels.JsonParty>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonParty _jsonModel;
 
-    public string? Id => _jsonEntity.Id;
+    public string? Id => _jsonModel.Id;
 
     public int? CurrentSize { get; }
 
     public int? MaxSize { get; }
 
-    internal Party(JsonModels.JsonParty jsonEntity)
+    public Party(JsonModels.JsonParty jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Size != null)
+        _jsonModel = jsonModel;
+        if (jsonModel.Size != null)
         {
-            CurrentSize = jsonEntity.Size[0];
-            MaxSize = jsonEntity.Size[1];
+            CurrentSize = jsonModel.Size[0];
+            MaxSize = jsonModel.Size[1];
         }
     }
 }

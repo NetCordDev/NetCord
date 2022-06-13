@@ -2,18 +2,19 @@
 
 namespace NetCord;
 
-public class GuildIntegrationDeleteEventArgs
+public class GuildIntegrationDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs _jsonModel;
 
-    internal GuildIntegrationDeleteEventArgs(JsonGuildIntegrationDeleteEventArgs jsonEntity)
+    public GuildIntegrationDeleteEventArgs(JsonGuildIntegrationDeleteEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public Snowflake IntegrationId => _jsonEntity.IntegrationId;
+    public Snowflake IntegrationId => _jsonModel.IntegrationId;
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ApplicationId => _jsonEntity.ApplicationId;
+    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
 }

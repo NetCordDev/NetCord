@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class ThreadMetadata
+public class ThreadMetadata : IJsonModel<JsonModels.JsonThreadMetadata>
 {
-    private readonly JsonModels.JsonThreadMetadata _jsonEntity;
+    JsonModels.JsonThreadMetadata IJsonModel<JsonModels.JsonThreadMetadata>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonThreadMetadata _jsonModel;
 
-    public bool Archived => _jsonEntity.Archived;
-    public int AutoArchiveDuration => _jsonEntity.AutoArchiveDuration;
-    public DateTimeOffset ArchiveTimestamp => _jsonEntity.ArchiveTimestamp;
-    public bool Locked => _jsonEntity.Locked;
-    public bool? Invitable => _jsonEntity.Invitable;
+    public bool Archived => _jsonModel.Archived;
+    public int AutoArchiveDuration => _jsonModel.AutoArchiveDuration;
+    public DateTimeOffset ArchiveTimestamp => _jsonModel.ArchiveTimestamp;
+    public bool Locked => _jsonModel.Locked;
+    public bool? Invitable => _jsonModel.Invitable;
 
-    internal ThreadMetadata(JsonModels.JsonThreadMetadata jsonEntity)
+    public ThreadMetadata(JsonModels.JsonThreadMetadata jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal record JsonSpeaking
+public record JsonSpeaking
 {
     [JsonPropertyName("user_id")]
     public Snowflake UserId { get; init; }

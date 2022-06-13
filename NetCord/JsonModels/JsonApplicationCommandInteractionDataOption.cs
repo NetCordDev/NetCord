@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal record JsonApplicationCommandInteractionDataOption
+public record JsonApplicationCommandInteractionDataOption
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }

@@ -2,40 +2,41 @@
 
 namespace NetCord;
 
-public class ApplicationCommandOption
+public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>
 {
-    private readonly JsonModels.JsonApplicationCommandOption _jsonEntity;
+    JsonModels.JsonApplicationCommandOption IJsonModel<JsonModels.JsonApplicationCommandOption>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommandOption _jsonModel;
 
-    public ApplicationCommandOptionType Type => _jsonEntity.Type;
+    public ApplicationCommandOptionType Type => _jsonModel.Type;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonEntity.NameLocalizations;
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
-    public string Description => _jsonEntity.Description;
+    public string Description => _jsonModel.Description;
 
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonEntity.DescriptionLocalizations;
+    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
-    public bool Required => _jsonEntity.Required;
+    public bool Required => _jsonModel.Required;
 
     public IEnumerable<ApplicationCommandOptionChoice>? Choices { get; }
 
     public IEnumerable<ApplicationCommandOption>? Options { get; }
 
-    public IEnumerable<ChannelType>? ChannelTypes => _jsonEntity.ChannelTypes;
+    public IEnumerable<ChannelType>? ChannelTypes => _jsonModel.ChannelTypes;
 
-    public double? MinValue => _jsonEntity.MinValue;
+    public double? MinValue => _jsonModel.MinValue;
 
-    public double? MaxValue => _jsonEntity.MaxValue;
+    public double? MaxValue => _jsonModel.MaxValue;
 
-    public bool Autocomplete => _jsonEntity.Autocomplete;
+    public bool Autocomplete => _jsonModel.Autocomplete;
 
-    internal ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonEntity)
+    public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Choices != null)
-            Choices = jsonEntity.Choices.Select(c => new ApplicationCommandOptionChoice(c));
-        if (jsonEntity.Options != null)
-            Options = jsonEntity.Options.Select(o => new ApplicationCommandOption(o));
+        _jsonModel = jsonModel;
+        if (jsonModel.Choices != null)
+            Choices = jsonModel.Choices.Select(c => new ApplicationCommandOptionChoice(c));
+        if (jsonModel.Options != null)
+            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o));
     }
 }

@@ -1,19 +1,20 @@
 ﻿namespace NetCord;
 
-public class UserActivityAssets
+public class UserActivityAssets : IJsonModel<JsonModels.JsonUserActivityAssets>
 {
-    private readonly JsonModels.JsonUserActivityAssets _jsonEntity;
+    JsonModels.JsonUserActivityAssets IJsonModel<JsonModels.JsonUserActivityAssets>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonUserActivityAssets _jsonModel;
 
-    public string? LargeImageId => _jsonEntity.LargeImageId;
+    public string? LargeImageId => _jsonModel.LargeImageId;
 
-    public string? LargeText => _jsonEntity.LargeText;
+    public string? LargeText => _jsonModel.LargeText;
 
-    public string? SmallImageId => _jsonEntity.SmallImageId;
+    public string? SmallImageId => _jsonModel.SmallImageId;
 
-    public string? SmallText => _jsonEntity.SmallText;
+    public string? SmallText => _jsonModel.SmallText;
 
-    internal UserActivityAssets(JsonModels.JsonUserActivityAssets jsonEntity)
+    public UserActivityAssets(JsonModels.JsonUserActivityAssets jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

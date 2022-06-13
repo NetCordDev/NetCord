@@ -2,17 +2,18 @@
 
 namespace NetCord;
 
-public class GuildWelcomeScreen
+public class GuildWelcomeScreen : IJsonModel<JsonModels.JsonWelcomeScreen>
 {
-    private readonly JsonModels.JsonWelcomeScreen _jsonEntity;
+    JsonModels.JsonWelcomeScreen IJsonModel<JsonModels.JsonWelcomeScreen>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonWelcomeScreen _jsonModel;
 
-    public string? Description => _jsonEntity.Description;
+    public string? Description => _jsonModel.Description;
 
     public ImmutableDictionary<Snowflake, GuildWelcomeScreenChannel> WelcomeChannels { get; }
 
-    internal GuildWelcomeScreen(JsonModels.JsonWelcomeScreen jsonEntity)
+    public GuildWelcomeScreen(JsonModels.JsonWelcomeScreen jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        WelcomeChannels = jsonEntity.WelcomeChannels.ToImmutableDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
+        _jsonModel = jsonModel;
+        WelcomeChannels = jsonModel.WelcomeChannels.ToImmutableDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
     }
 }

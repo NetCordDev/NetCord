@@ -1,23 +1,24 @@
 ﻿namespace NetCord;
 
-public class Team : Entity
+public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
 {
-    private readonly JsonModels.JsonTeam _jsonEntity;
+    JsonModels.JsonTeam IJsonModel<JsonModels.JsonTeam>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonTeam _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string? Icon => _jsonEntity.Icon;
+    public string? Icon => _jsonModel.Icon;
 
     public IEnumerable<TeamUser> Users { get; }
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public Snowflake OwnerId => _jsonEntity.OwnerId;
+    public Snowflake OwnerId => _jsonModel.OwnerId;
 
-    internal Team(JsonModels.JsonTeam jsonEntity, RestClient client)
+    public Team(JsonModels.JsonTeam jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Users = jsonEntity.Users.SelectOrEmpty(m => new TeamUser(m, client));
+        _jsonModel = jsonModel;
+        Users = jsonModel.Users.SelectOrEmpty(m => new TeamUser(m, client));
     }
 }
 

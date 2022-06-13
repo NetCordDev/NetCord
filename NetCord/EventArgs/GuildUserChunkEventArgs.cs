@@ -1,28 +1,29 @@
 ﻿namespace NetCord;
 
-public class GuildUserChunkEventArgs
+public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildUserChunkEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildUserChunkEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildUserChunkEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildUserChunkEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildUserChunkEventArgs _jsonModel;
 
-    internal GuildUserChunkEventArgs(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonEntity, RestClient client)
+    public GuildUserChunkEventArgs(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Users = jsonEntity.Users.ToDictionary(u => u.User.Id, u => new GuildUser(u, jsonEntity.GuildId, client));
-        if (jsonEntity.Presences != null)
-            Presences = jsonEntity.Presences.ToDictionary(p => p.User.Id, p => new Presence(p, client));
+        _jsonModel = jsonModel;
+        Users = jsonModel.Users.ToDictionary(u => u.User.Id, u => new GuildUser(u, jsonModel.GuildId, client));
+        if (jsonModel.Presences != null)
+            Presences = jsonModel.Presences.ToDictionary(p => p.User.Id, p => new Presence(p, client));
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
     public IReadOnlyDictionary<Snowflake, GuildUser> Users { get; }
 
-    public int ChunkIndex => _jsonEntity.ChunkIndex;
+    public int ChunkIndex => _jsonModel.ChunkIndex;
 
-    public int ChunkCount => _jsonEntity.ChunkCount;
+    public int ChunkCount => _jsonModel.ChunkCount;
 
-    public IEnumerable<Snowflake>? NotFound => _jsonEntity.NotFound;
+    public IEnumerable<Snowflake>? NotFound => _jsonModel.NotFound;
 
     public IReadOnlyDictionary<Snowflake, Presence>? Presences { get; }
 
-    public string? Nonce => _jsonEntity.Nonce;
+    public string? Nonce => _jsonModel.Nonce;
 }

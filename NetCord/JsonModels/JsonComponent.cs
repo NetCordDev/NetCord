@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonComponent
+public record JsonComponent
 {
     [JsonPropertyName("type")]
     public ComponentType Type { get; init; }
@@ -52,7 +52,7 @@ internal record JsonComponent
     [JsonPropertyName("value")]
     public string Value { get; init; }
 
-    internal record SelectOption
+    public record SelectOption
     {
         [JsonPropertyName("label")]
         public string Label { get; init; }

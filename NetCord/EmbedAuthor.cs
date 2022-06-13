@@ -2,16 +2,16 @@
 {
     public class EmbedAuthor
     {
-        private readonly JsonModels.JsonEmbedAuthor _jsonEntity;
+        private readonly JsonModels.JsonEmbedAuthor _jsonModel;
 
-        public string? Name => _jsonEntity.Name;
-        public string? Url => _jsonEntity.Url;
-        public string? IconUrl => _jsonEntity.IconUrl;
-        public string? ProxyIconUrl => _jsonEntity.ProxyIconUrl;
+        public string? Name => _jsonModel.Name;
+        public string? Url => _jsonModel.Url;
+        public string? IconUrl => _jsonModel.IconUrl;
+        public string? ProxyIconUrl => _jsonModel.ProxyIconUrl;
 
-        internal EmbedAuthor(JsonModels.JsonEmbedAuthor jsonEntity)
+        public EmbedAuthor(JsonModels.JsonEmbedAuthor jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

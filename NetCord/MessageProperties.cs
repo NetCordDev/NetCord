@@ -43,8 +43,10 @@ public class MessageProperties
 
     internal MultipartFormDataContent Build()
     {
-        MultipartFormDataContent content = new();
-        content.Add(new JsonContent(this), "payload_json");
+        MultipartFormDataContent content = new()
+        {
+            { new JsonContent(this), "payload_json" }
+        };
         if (Attachments != null)
         {
             int i = 0;

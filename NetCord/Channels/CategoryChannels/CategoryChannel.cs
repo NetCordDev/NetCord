@@ -2,14 +2,14 @@
 
 public class CategoryChannel : Channel, IGuildChannel
 {
-    internal CategoryChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    public CategoryChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
-    public string Name => _jsonEntity.Name!;
+    public string Name => _jsonModel.Name!;
 
-    public int Position => (int)_jsonEntity.Position!;
+    public int Position => (int)_jsonModel.Position!;
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 

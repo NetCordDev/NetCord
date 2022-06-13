@@ -2,7 +2,7 @@
 {
     public class NewsGuildThread : GuildThread
     {
-        internal NewsGuildThread(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+        public NewsGuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
         {
 
         }

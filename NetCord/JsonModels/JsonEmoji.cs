@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonEmoji
+public record JsonEmoji
 {
     [JsonPropertyName("id")]
     public Snowflake? Id { get; init; }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonGuildScheduledEventUserEventArgs
+public record JsonGuildScheduledEventUserEventArgs
 {
     [JsonPropertyName("guild_scheduled_event_id")]
     public Snowflake GuildScheduledEventId { get; init; }

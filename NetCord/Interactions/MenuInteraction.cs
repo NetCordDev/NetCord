@@ -8,12 +8,12 @@ public class MenuInteraction : Interaction
     public override MenuInteractionData Data { get; }
     public Message Message { get; }
 
-    internal MenuInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public MenuInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
-        Data = new(jsonEntity.Data);
-        if (jsonEntity.GuildId.HasValue)
-            Message = new(jsonEntity.Message with { GuildId = jsonEntity.GuildId }, client);
+        Data = new(jsonModel.Data);
+        if (jsonModel.GuildId.HasValue)
+            Message = new(jsonModel.Message with { GuildId = jsonModel.GuildId }, client);
         else
-            Message = new(jsonEntity.Message, client);
+            Message = new(jsonModel.Message, client);
     }
 }

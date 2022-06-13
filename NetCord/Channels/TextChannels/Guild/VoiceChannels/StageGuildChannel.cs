@@ -2,21 +2,21 @@
 
 public class StageGuildChannel : TextChannel, IVoiceGuildChannel
 {
-    public int Bitrate => (int)_jsonEntity.Bitrate!;
-    public Snowflake? CategoryId => _jsonEntity.ParentId;
-    public string? Topic => _jsonEntity.Topic;
-    public string RtcRegion => _jsonEntity.RtcRegion;
+    public int Bitrate => (int)_jsonModel.Bitrate!;
+    public Snowflake? CategoryId => _jsonModel.ParentId;
+    public string? Topic => _jsonModel.Topic;
+    public string RtcRegion => _jsonModel.RtcRegion;
     public VideoQualityMode VideoQualityMode => VideoQualityMode.None;
 
-    public string Name => _jsonEntity.Name!;
+    public string Name => _jsonModel.Name!;
 
-    public int Position => (int)_jsonEntity.Position!;
+    public int Position => (int)_jsonModel.Position!;
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
-    internal StageGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    public StageGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, options).ConfigureAwait(false);

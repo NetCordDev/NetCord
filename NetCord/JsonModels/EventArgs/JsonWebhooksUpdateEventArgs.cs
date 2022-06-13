@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonWebhooksUpdateEventArgs
+public record JsonWebhooksUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
     public Snowflake GuildId { get; init; }

@@ -4,9 +4,9 @@ namespace NetCord;
 
 public class GuildInteractionUser : GuildUser
 {
-    internal GuildInteractionUser(JsonGuildUser jsonEntity, Snowflake guildId, RestClient client) : base(jsonEntity, guildId, client)
+    public GuildInteractionUser(JsonGuildUser jsonModel, Snowflake guildId, RestClient client) : base(jsonModel, guildId, client)
     {
-        Permissions = (Permission)ulong.Parse(jsonEntity.Permissions!);
+        Permissions = (Permission)ulong.Parse(jsonModel.Permissions!);
     }
 
     public Permission Permissions { get; }

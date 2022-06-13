@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonRestGuildInvite
+public record JsonRestGuildInvite
 {
     [JsonPropertyName("code")]
     public string Code { get; init; }

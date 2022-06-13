@@ -1,47 +1,48 @@
 ﻿namespace NetCord;
 
-public class Integration : Entity
+public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
 {
-    private readonly JsonModels.JsonIntegration _jsonEntity;
+    JsonModels.JsonIntegration IJsonModel<JsonModels.JsonIntegration>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonIntegration _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public IntegrationType Type => _jsonEntity.Type;
+    public IntegrationType Type => _jsonModel.Type;
 
-    public bool Enabled => _jsonEntity.Enabled;
+    public bool Enabled => _jsonModel.Enabled;
 
-    public bool? Syncing => _jsonEntity.Syncing;
+    public bool? Syncing => _jsonModel.Syncing;
 
-    public Snowflake? RoleId => _jsonEntity.RoleId;
+    public Snowflake? RoleId => _jsonModel.RoleId;
 
-    public bool? EnableEmoticons => _jsonEntity.EnableEmoticons;
+    public bool? EnableEmoticons => _jsonModel.EnableEmoticons;
 
-    public IntegrationExpireBehavior? ExpireBehavior => _jsonEntity.ExpireBehavior;
+    public IntegrationExpireBehavior? ExpireBehavior => _jsonModel.ExpireBehavior;
 
-    public int? ExpireGracePeriod => _jsonEntity.ExpireGracePeriod;
+    public int? ExpireGracePeriod => _jsonModel.ExpireGracePeriod;
 
     public User? User { get; }
 
     public Account Account { get; }
 
-    public DateTimeOffset? SyncedAt => _jsonEntity.SyncedAt;
+    public DateTimeOffset? SyncedAt => _jsonModel.SyncedAt;
 
-    public int? SubscriberCount => _jsonEntity.SubscriberCount;
+    public int? SubscriberCount => _jsonModel.SubscriberCount;
 
-    public bool? Revoked => _jsonEntity.Revoked;
+    public bool? Revoked => _jsonModel.Revoked;
 
     public IntegrationApplication? Application { get; }
 
-    internal Integration(JsonModels.JsonIntegration jsonEntity, RestClient client)
+    public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (_jsonEntity.User != null)
-            User = new(_jsonEntity.User, client);
-        Account = new(_jsonEntity.Account);
+        _jsonModel = jsonModel;
+        if (_jsonModel.User != null)
+            User = new(_jsonModel.User, client);
+        Account = new(_jsonModel.Account);
 
-        if (_jsonEntity.Application != null)
-            Application = new(_jsonEntity.Application, client);
+        if (_jsonModel.Application != null)
+            Application = new(_jsonModel.Application, client);
     }
 }

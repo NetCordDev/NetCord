@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonGuildIntegrationDeleteEventArgs
+public record JsonGuildIntegrationDeleteEventArgs
 {
     [JsonPropertyName("id")]
     public Snowflake IntegrationId { get; init; }

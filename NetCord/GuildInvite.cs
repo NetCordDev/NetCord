@@ -1,41 +1,42 @@
 ﻿namespace NetCord;
 
-public class GuildInvite
+public class GuildInvite : IJsonModel<JsonModels.JsonGuildInvite>
 {
-    private readonly JsonModels.JsonGuildInvite _jsonEntity;
+    JsonModels.JsonGuildInvite IJsonModel<JsonModels.JsonGuildInvite>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildInvite _jsonModel;
 
-    internal GuildInvite(JsonModels.JsonGuildInvite jsonEntity, RestClient client)
+    public GuildInvite(JsonModels.JsonGuildInvite jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Inviter != null)
-            Inviter = new(jsonEntity.Inviter, client);
-        if (jsonEntity.TargetUser != null)
-            TargetUser = new(jsonEntity.TargetUser, client);
-        if (jsonEntity.TargetApplication != null)
-            TargetApplication = new(jsonEntity.TargetApplication, client);
+        _jsonModel = jsonModel;
+        if (jsonModel.Inviter != null)
+            Inviter = new(jsonModel.Inviter, client);
+        if (jsonModel.TargetUser != null)
+            TargetUser = new(jsonModel.TargetUser, client);
+        if (jsonModel.TargetApplication != null)
+            TargetApplication = new(jsonModel.TargetApplication, client);
     }
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 
-    public string Code => _jsonEntity.Code;
+    public string Code => _jsonModel.Code;
 
-    public DateTimeOffset CreatedAt => _jsonEntity.CreatedAt;
+    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
     public User? Inviter { get; }
 
-    public int MaxAge => _jsonEntity.MaxAge;
+    public int MaxAge => _jsonModel.MaxAge;
 
-    public int MaxUses => _jsonEntity.MaxUses;
+    public int MaxUses => _jsonModel.MaxUses;
 
-    public GuildInviteTargetType? TargetType => _jsonEntity.TargetType;
+    public GuildInviteTargetType? TargetType => _jsonModel.TargetType;
 
     public User? TargetUser { get; }
 
     public Application? TargetApplication { get; }
 
-    public bool Temporary => _jsonEntity.Temporary;
+    public bool Temporary => _jsonModel.Temporary;
 
-    public int Uses => _jsonEntity.Uses;
+    public int Uses => _jsonModel.Uses;
 }

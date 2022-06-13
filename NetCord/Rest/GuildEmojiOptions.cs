@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GuildEmojiOptions
 {
+    internal GuildEmojiOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }

@@ -1,13 +1,14 @@
 ﻿namespace NetCord;
 
-public class GuildIntegrationsUpdateEventArgs
+public class GuildIntegrationsUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs _jsonModel;
 
-    internal GuildIntegrationsUpdateEventArgs(JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs jsonEntity)
+    public GuildIntegrationsUpdateEventArgs(JsonModels.EventArgs.JsonGuildIntegrationsUpdateEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 }

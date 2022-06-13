@@ -1,33 +1,36 @@
-﻿namespace NetCord;
+﻿using NetCord.JsonModels;
 
-public class GuildRole : ClientEntity
+namespace NetCord;
+
+public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 {
-    private readonly JsonModels.JsonGuildRole _jsonEntity;
+    JsonGuildRole IJsonModel<JsonGuildRole>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildRole _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public Color Color => _jsonEntity.Color;
+    public Color Color => _jsonModel.Color;
 
-    public bool Hoist => _jsonEntity.Hoist;
+    public bool Hoist => _jsonModel.Hoist;
 
-    public int Position => _jsonEntity.Position;
+    public int Position => _jsonModel.Position;
 
     public Permission Permissions { get; }
 
-    public bool Managed => _jsonEntity.Managed;
+    public bool Managed => _jsonModel.Managed;
 
-    public bool Mentionable => _jsonEntity.Mentionable;
+    public bool Mentionable => _jsonModel.Mentionable;
 
     public GuildRoleTags? Tags { get; }
 
-    internal GuildRole(JsonModels.JsonGuildRole jsonEntity, RestClient client) : base(client)
+    public GuildRole(JsonGuildRole jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Tags != null)
-            Tags = new(jsonEntity.Tags);
-        Permissions = (Permission)ulong.Parse(jsonEntity.Permissions);
+        _jsonModel = jsonModel;
+        if (jsonModel.Tags != null)
+            Tags = new(jsonModel.Tags);
+        Permissions = (Permission)ulong.Parse(jsonModel.Permissions);
     }
 
     public override string ToString() => $"<@&{Id}>";
@@ -41,18 +44,19 @@ public class GuildRole : ClientEntity
     public static bool operator <=(GuildRole left, GuildRole right) => left.Position <= right.Position;
 }
 
-public class GuildRoleTags
+public class GuildRoleTags : IJsonModel<JsonModels.JsonTags>
 {
-    private readonly JsonModels.JsonTags _jsonEntity;
+    JsonModels.JsonTags IJsonModel<JsonModels.JsonTags>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonTags _jsonModel;
 
-    public Snowflake? BotId => _jsonEntity.BotId;
+    public Snowflake? BotId => _jsonModel.BotId;
 
-    public Snowflake? IntegrationId => _jsonEntity.IntegrationId;
+    public Snowflake? IntegrationId => _jsonModel.IntegrationId;
 
-    public bool IsPremiumSubscriber => _jsonEntity.IsPremiumSubscriber;
+    public bool IsPremiumSubscriber => _jsonModel.IsPremiumSubscriber;
 
-    internal GuildRoleTags(JsonModels.JsonTags jsonEntity)
+    public GuildRoleTags(JsonModels.JsonTags jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

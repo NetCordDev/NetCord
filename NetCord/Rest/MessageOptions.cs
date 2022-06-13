@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class MessageOptions
 {
+    internal MessageOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("content")]
     public string? Content { get; set; }
@@ -28,10 +32,6 @@ public class MessageOptions
     [JsonConverter(typeof(JsonConverters.MessageAttachmentIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
-
-    internal MessageOptions()
-    {
-    }
 
     internal MultipartFormDataContent Build()
     {

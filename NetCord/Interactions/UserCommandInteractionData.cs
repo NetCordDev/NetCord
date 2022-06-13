@@ -4,17 +4,17 @@ namespace NetCord;
 
 public class UserCommandInteractionData : ApplicationCommandInteractionData
 {
-    internal UserCommandInteractionData(JsonInteractionData jsonEntity, Snowflake? guildId, RestClient client) : base(jsonEntity, guildId, client)
+    public UserCommandInteractionData(JsonInteractionData jsonModel, Snowflake? guildId, RestClient client) : base(jsonModel, guildId, client)
     {
-        if (jsonEntity.ResolvedData!.GuildUsers != null)
+        if (jsonModel.ResolvedData!.GuildUsers != null)
         {
-            TargetUser = new GuildUser(jsonEntity.ResolvedData.GuildUsers[jsonEntity.TargetId.GetValueOrDefault()] with
+            TargetUser = new GuildUser(jsonModel.ResolvedData.GuildUsers[jsonModel.TargetId.GetValueOrDefault()] with
             {
-                User = jsonEntity.ResolvedData.Users![jsonEntity.TargetId.GetValueOrDefault()]
+                User = jsonModel.ResolvedData.Users![jsonModel.TargetId.GetValueOrDefault()]
             }, guildId.GetValueOrDefault(), client);
         }
         else
-            TargetUser = new(jsonEntity.ResolvedData.Users![jsonEntity.TargetId.GetValueOrDefault()], client);
+            TargetUser = new(jsonModel.ResolvedData.Users![jsonModel.TargetId.GetValueOrDefault()], client);
     }
 
     public User TargetUser { get; }

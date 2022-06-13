@@ -1,14 +1,15 @@
 ﻿namespace NetCord;
 
-public class ThreadSelfUser
+public class ThreadSelfUser : IJsonModel<JsonModels.JsonThreadSelfUser>
 {
-    private readonly JsonModels.JsonThreadSelfUser _jsonEntity;
+    JsonModels.JsonThreadSelfUser IJsonModel<JsonModels.JsonThreadSelfUser>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonThreadSelfUser _jsonModel;
 
-    public DateTimeOffset JoinTimestamp => _jsonEntity.JoinTimestamp;
-    public int Flags => _jsonEntity.Flags;
+    public DateTimeOffset JoinTimestamp => _jsonModel.JoinTimestamp;
+    public int Flags => _jsonModel.Flags;
 
-    internal ThreadSelfUser(JsonModels.JsonThreadSelfUser jsonEntity)
+    public ThreadSelfUser(JsonModels.JsonThreadSelfUser jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

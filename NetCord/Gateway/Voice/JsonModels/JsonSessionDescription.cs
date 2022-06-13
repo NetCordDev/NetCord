@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal record JsonSessionDescription
+public record JsonSessionDescription
 {
     [JsonConverter(typeof(ByteArrayOfLength32Converter))]
     [JsonPropertyName("secret_key")]

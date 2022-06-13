@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonGuildRole : JsonEntity
+public record JsonGuildRole : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; init; }
@@ -29,7 +29,7 @@ internal record JsonGuildRole : JsonEntity
     public JsonTags? Tags { get; init; }
 }
 
-internal record JsonTags
+public record JsonTags
 {
     [JsonPropertyName("bot_id")]
     public Snowflake? BotId { get; init; }

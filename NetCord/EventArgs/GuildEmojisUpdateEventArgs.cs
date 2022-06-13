@@ -2,17 +2,18 @@
 
 namespace NetCord;
 
-public class GuildEmojisUpdateEventArgs
+public class GuildEmojisUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs _jsonModel;
 
-    internal GuildEmojisUpdateEventArgs(JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs jsonEntity, RestClient client)
+    public GuildEmojisUpdateEventArgs(JsonModels.EventArgs.JsonGuildEmojisUpdateEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Emojis = jsonEntity.Emojis.ToImmutableDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, GuildId, client));
+        _jsonModel = jsonModel;
+        Emojis = jsonModel.Emojis.ToImmutableDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, GuildId, client));
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
     public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
 }

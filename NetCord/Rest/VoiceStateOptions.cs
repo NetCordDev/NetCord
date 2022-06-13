@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class VoiceStateOptions
 {
+    internal VoiceStateOptions()
+    {
+    }
+
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; }
 

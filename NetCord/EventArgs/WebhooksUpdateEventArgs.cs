@@ -1,15 +1,16 @@
 ﻿namespace NetCord;
 
-public class WebhooksUpdateEventArgs
+public class WebhooksUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonWebhooksUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonWebhooksUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonWebhooksUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonWebhooksUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonWebhooksUpdateEventArgs _jsonModel;
 
-    internal WebhooksUpdateEventArgs(JsonModels.EventArgs.JsonWebhooksUpdateEventArgs jsonEntity)
+    public WebhooksUpdateEventArgs(JsonModels.EventArgs.JsonWebhooksUpdateEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 }

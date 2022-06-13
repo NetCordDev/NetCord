@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonPresence
+public record JsonPresence
 {
     [JsonPropertyName("user")]
     public JsonUser User { get; init; }

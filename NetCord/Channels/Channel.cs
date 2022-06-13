@@ -2,15 +2,16 @@
 
 namespace NetCord;
 
-public abstract class Channel : ClientEntity
+public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>
 {
-    private protected JsonChannel _jsonEntity;
+    JsonChannel IJsonModel<JsonChannel>.JsonModel => _jsonModel;
+    private protected JsonChannel _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    private protected Channel(JsonChannel jsonEntity, RestClient client) : base(client)
+    private protected Channel(JsonChannel jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
     public override string ToString() => $"<#{Id}>";

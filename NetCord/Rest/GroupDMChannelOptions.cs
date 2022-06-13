@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GroupDMChannelOptions
 {
+    internal GroupDMChannelOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }

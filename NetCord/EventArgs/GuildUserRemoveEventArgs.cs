@@ -1,16 +1,17 @@
 ﻿namespace NetCord;
 
-public class GuildUserRemoveEventArgs
+public class GuildUserRemoveEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildUserRemoveEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildUserRemoveEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildUserRemoveEventArgs _jsonModel;
 
-    internal GuildUserRemoveEventArgs(JsonModels.EventArgs.JsonGuildUserRemoveEventArgs jsonEntity, RestClient client)
+    public GuildUserRemoveEventArgs(JsonModels.EventArgs.JsonGuildUserRemoveEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        User = new(jsonEntity.User, client);
+        _jsonModel = jsonModel;
+        User = new(jsonModel.User, client);
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
     public User User { get; }
 }

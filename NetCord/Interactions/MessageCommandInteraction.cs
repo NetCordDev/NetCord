@@ -5,9 +5,9 @@ namespace NetCord;
 
 public class MessageCommandInteraction : ApplicationCommandInteraction
 {
-    internal MessageCommandInteraction(JsonInteraction jsonEntity, GatewayClient client) : base(jsonEntity, client)
+    public MessageCommandInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
     {
-        Data = new(jsonEntity.Data, jsonEntity.GuildId, client.Rest);
+        Data = new(jsonModel.Data, jsonModel.GuildId, client.Rest);
     }
 
     public override MessageCommandInteractionData Data { get; }

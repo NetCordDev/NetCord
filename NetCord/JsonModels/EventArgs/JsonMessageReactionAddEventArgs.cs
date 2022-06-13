@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonMessageReactionAddEventArgs
+public record JsonMessageReactionAddEventArgs
 {
     [JsonPropertyName("user_id")]
     public Snowflake UserId { get; init; }

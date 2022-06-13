@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonPermissionOverwrite : JsonEntity
+public record JsonPermissionOverwrite : JsonEntity
 {
     [JsonPropertyName("type")]
     public PermissionOverwriteType Type { get; init; }

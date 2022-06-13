@@ -1,8 +1,9 @@
 ﻿namespace NetCord;
 
-public class ComponentEmoji : Entity
+public class ComponentEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
 {
-    private readonly JsonModels.JsonEmoji _jsonEntity;
+    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmoji _jsonModel;
 
     public override Snowflake Id
     {
@@ -10,18 +11,18 @@ public class ComponentEmoji : Entity
         {
             if (IsStandard)
                 throw new InvalidOperationException("This emoji has no id");
-            return _jsonEntity.Id.GetValueOrDefault();
+            return _jsonModel.Id.GetValueOrDefault();
         }
     }
 
-    public bool IsStandard => !_jsonEntity.Id.HasValue;
+    public bool IsStandard => !_jsonModel.Id.HasValue;
 
-    public string Name => _jsonEntity.Name!;
+    public string Name => _jsonModel.Name!;
 
-    public bool Animated => _jsonEntity.Animated;
+    public bool Animated => _jsonModel.Animated;
 
-    internal ComponentEmoji(JsonModels.JsonEmoji jsonEntity)
+    public ComponentEmoji(JsonModels.JsonEmoji jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

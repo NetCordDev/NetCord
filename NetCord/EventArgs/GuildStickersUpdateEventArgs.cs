@@ -2,17 +2,18 @@
 
 namespace NetCord;
 
-public class GuildStickersUpdateEventArgs
+public class GuildStickersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs _jsonModel;
 
-    internal GuildStickersUpdateEventArgs(JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs jsonEntity, RestClient client)
+    public GuildStickersUpdateEventArgs(JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        Stickers = jsonEntity.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
+        _jsonModel = jsonModel;
+        Stickers = jsonModel.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
     }
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
     public ImmutableDictionary<Snowflake, GuildSticker> Stickers { get; }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonUserActivityAssets
+public record JsonUserActivityAssets
 {
     [JsonPropertyName("large_image")]
     public string? LargeImageId { get; init; }

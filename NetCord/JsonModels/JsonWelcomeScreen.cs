@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonWelcomeScreen
+public record JsonWelcomeScreen
 {
     [JsonPropertyName("description")]
     public string? Description { get; init; }

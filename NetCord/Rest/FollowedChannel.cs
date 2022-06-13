@@ -1,15 +1,16 @@
 ﻿namespace NetCord;
 
-public class FollowedChannel : Entity
+public class FollowedChannel : Entity, IJsonModel<JsonModels.JsonFollowedChannel>
 {
-    private readonly JsonModels.JsonFollowedChannel _jsonEntity;
+    JsonModels.JsonFollowedChannel IJsonModel<JsonModels.JsonFollowedChannel>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonFollowedChannel _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public Snowflake WebhookId => _jsonEntity.WebhookId;
+    public Snowflake WebhookId => _jsonModel.WebhookId;
 
-    internal FollowedChannel(JsonModels.JsonFollowedChannel jsonEntity)
+    public FollowedChannel(JsonModels.JsonFollowedChannel jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

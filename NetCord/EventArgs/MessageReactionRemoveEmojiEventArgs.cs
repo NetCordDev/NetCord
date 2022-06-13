@@ -1,20 +1,21 @@
 ﻿namespace NetCord;
 
-public class MessageReactionRemoveEmojiEventArgs
+public class MessageReactionRemoveEmojiEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs _jsonModel;
 
-    internal MessageReactionRemoveEmojiEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs jsonEntity)
+    public MessageReactionRemoveEmojiEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        Emoji = new(jsonEntity.Emoji);
+        _jsonModel = jsonModel;
+        Emoji = new(jsonModel.Emoji);
     }
 
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
-    public Snowflake MessageId => _jsonEntity.MessageId;
+    public Snowflake MessageId => _jsonModel.MessageId;
 
     public MessageReactionEmoji Emoji { get; }
 }

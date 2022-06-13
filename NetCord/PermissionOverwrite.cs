@@ -1,27 +1,22 @@
 ﻿namespace NetCord;
 
-public class PermissionOverwrite : Entity
+public class PermissionOverwrite : Entity, IJsonModel<JsonModels.JsonPermissionOverwrite>
 {
-    private readonly JsonModels.JsonPermissionOverwrite _jsonEntity;
+    JsonModels.JsonPermissionOverwrite IJsonModel<JsonModels.JsonPermissionOverwrite>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonPermissionOverwrite _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public PermissionOverwriteType Type => _jsonEntity.Type;
+    public PermissionOverwriteType Type => _jsonModel.Type;
 
     public Permission Allowed { get; }
 
     public Permission Denied { get; }
 
-    internal PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonEntity)
+    public PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        Allowed = (Permission)ulong.Parse(jsonEntity.Allowed);
-        Denied = (Permission)ulong.Parse(jsonEntity.Denied);
+        _jsonModel = jsonModel;
+        Allowed = (Permission)ulong.Parse(jsonModel.Allowed);
+        Denied = (Permission)ulong.Parse(jsonModel.Denied);
     }
-}
-
-public enum PermissionOverwriteType
-{
-    Role = 0,
-    User = 1,
 }

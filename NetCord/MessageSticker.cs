@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class MessageSticker : ClientEntity
+public class MessageSticker : ClientEntity, IJsonModel<JsonModels.JsonMessageSticker>
 {
-    private readonly JsonModels.JsonMessageSticker _jsonEntity;
+    JsonModels.JsonMessageSticker IJsonModel<JsonModels.JsonMessageSticker>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonMessageSticker _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public StickerFormat Format => _jsonEntity.Format;
+    public StickerFormat Format => _jsonModel.Format;
 
-    internal MessageSticker(JsonModels.JsonMessageSticker jsonEntity, RestClient client) : base(client)
+    public MessageSticker(JsonModels.JsonMessageSticker jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

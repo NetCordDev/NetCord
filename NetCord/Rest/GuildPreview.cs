@@ -2,34 +2,35 @@
 
 namespace NetCord;
 
-public class GuildPreview : ClientEntity
+public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 {
-    private readonly JsonModels.JsonGuild _jsonEntity;
+    JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuild _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public string? IconHash => _jsonEntity.IconHash;
+    public string? IconHash => _jsonModel.IconHash;
 
-    public string? SplashHash => _jsonEntity.SplashHash;
+    public string? SplashHash => _jsonModel.SplashHash;
 
-    public string? DiscoverySplashHash => _jsonEntity.DiscoverySplashHash;
+    public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
 
     public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
 
     public GuildFeatures Features { get; }
 
-    public int ApproximateMemberCount => _jsonEntity.ApproximateMemberCount.GetValueOrDefault();
+    public int ApproximateMemberCount => _jsonModel.ApproximateMemberCount.GetValueOrDefault();
 
-    public int ApproximatePresenceCount => _jsonEntity.ApproximatePresenceCount.GetValueOrDefault();
+    public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
 
-    public string? Description => _jsonEntity.Description;
+    public string? Description => _jsonModel.Description;
 
-    internal GuildPreview(JsonModels.JsonGuild jsonEntity, RestClient client) : base(client)
+    public GuildPreview(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
-        Emojis = _jsonEntity.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Features = new(jsonEntity.Features);
+        _jsonModel = jsonModel;
+        Emojis = _jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Features = new(jsonModel.Features);
     }
 }

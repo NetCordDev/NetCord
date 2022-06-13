@@ -4,6 +4,10 @@ namespace NetCord;
 
 public class GuildWidgetSettingsOptions
 {
+    internal GuildWidgetSettingsOptions()
+    {
+    }
+
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }
 

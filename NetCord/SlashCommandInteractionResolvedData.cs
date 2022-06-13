@@ -10,14 +10,14 @@ public class SlashCommandInteractionResolvedData
 
     public IReadOnlyDictionary<Snowflake, Attachment>? Attachments { get; }
 
-    internal SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonEntity, Snowflake? guildId, RestClient client)
+    public SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, Snowflake? guildId, RestClient client)
     {
-        if (jsonEntity.Users != null)
+        if (jsonModel.Users != null)
         {
-            if (jsonEntity.GuildUsers != null)
+            if (jsonModel.GuildUsers != null)
             {
-                var enumerator = jsonEntity.Users.GetEnumerator();
-                int max = jsonEntity.Users.Count - jsonEntity.GuildUsers.Count;
+                var enumerator = jsonModel.Users.GetEnumerator();
+                int max = jsonModel.Users.Count - jsonModel.GuildUsers.Count;
                 Dictionary<Snowflake, User> users = new();
                 for (int i = 0; i < max; i++)
                 {
@@ -25,7 +25,7 @@ public class SlashCommandInteractionResolvedData
                     var current = enumerator.Current;
                     users.Add(current.Key, new(current.Value, client));
                 }
-                foreach (var guildUser in jsonEntity.GuildUsers)
+                foreach (var guildUser in jsonModel.GuildUsers)
                 {
                     enumerator.MoveNext();
                     var current = enumerator.Current;
@@ -35,14 +35,14 @@ public class SlashCommandInteractionResolvedData
                 Users = users;
             }
             else
-                Users = jsonEntity.Users.ToDictionary(u => u.Key, u => new User(u.Value, client));
+                Users = jsonModel.Users.ToDictionary(u => u.Key, u => new User(u.Value, client));
         }
 
-        if (jsonEntity.Roles != null)
-            Roles = jsonEntity.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, client));
-        if (jsonEntity.Channels != null)
-            Channels = jsonEntity.Channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
-        if (jsonEntity.Attachments != null)
-            Attachments = jsonEntity.Attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
+        if (jsonModel.Roles != null)
+            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, client));
+        if (jsonModel.Channels != null)
+            Channels = jsonModel.Channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
+        if (jsonModel.Attachments != null)
+            Attachments = jsonModel.Attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
     }
 }

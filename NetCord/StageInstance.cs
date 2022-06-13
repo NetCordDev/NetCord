@@ -1,18 +1,19 @@
 ﻿namespace NetCord;
 
-public class StageInstance : ClientEntity
+public class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstance>
 {
-    private readonly JsonModels.JsonStageInstance _jsonEntity;
+    JsonModels.JsonStageInstance IJsonModel<JsonModels.JsonStageInstance>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonStageInstance _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
-    public Snowflake GuildId => _jsonEntity.GuildId;
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
-    public string Topic => _jsonEntity.Topic;
-    public StageInstancePrivacyLevel PrivacyLevel => _jsonEntity.PrivacyLevel;
-    public bool DiscoverableDisabled => _jsonEntity.DiscoverableDisabled;
+    public override Snowflake Id => _jsonModel.Id;
+    public Snowflake GuildId => _jsonModel.GuildId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public string Topic => _jsonModel.Topic;
+    public StageInstancePrivacyLevel PrivacyLevel => _jsonModel.PrivacyLevel;
+    public bool DiscoverableDisabled => _jsonModel.DiscoverableDisabled;
 
-    internal StageInstance(JsonModels.JsonStageInstance jsonEntity, RestClient client) : base(client)
+    public StageInstance(JsonModels.JsonStageInstance jsonModel, RestClient client) : base(client)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

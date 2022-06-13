@@ -1,16 +1,17 @@
 ﻿namespace NetCord;
 
-public class GuildBan
+public class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
 {
-    private readonly JsonModels.JsonGuildBan _jsonEntity;
+    JsonModels.JsonGuildBan IJsonModel<JsonModels.JsonGuildBan>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildBan _jsonModel;
 
-    public string? Reason => _jsonEntity.Reason;
+    public string? Reason => _jsonModel.Reason;
 
     public User User { get; }
 
-    internal GuildBan(JsonModels.JsonGuildBan jsonEntity, RestClient client)
+    public GuildBan(JsonModels.JsonGuildBan jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        User = new(jsonEntity.User, client);
+        _jsonModel = jsonModel;
+        User = new(jsonModel.User, client);
     }
 }

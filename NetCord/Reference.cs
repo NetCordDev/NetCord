@@ -2,16 +2,16 @@
 {
     public class Reference
     {
-        private readonly JsonModels.JsonMessageReference _jsonEntity;
+        private readonly JsonModels.JsonMessageReference _jsonModel;
 
-        public Snowflake MessageId => _jsonEntity.MessageId.GetValueOrDefault();
-        public Snowflake ChannelId => _jsonEntity.ChannelId.GetValueOrDefault();
-        public Snowflake? GuildId => _jsonEntity.GuildId;
-        public bool? FailIfNotExists => _jsonEntity.FailIfNotExists;
+        public Snowflake MessageId => _jsonModel.MessageId.GetValueOrDefault();
+        public Snowflake ChannelId => _jsonModel.ChannelId.GetValueOrDefault();
+        public Snowflake? GuildId => _jsonModel.GuildId;
+        public bool? FailIfNotExists => _jsonModel.FailIfNotExists;
 
-        internal Reference(JsonModels.JsonMessageReference jsonEntity)
+        public Reference(JsonModels.JsonMessageReference jsonModel)
         {
-            _jsonEntity = jsonEntity;
+            _jsonModel = jsonModel;
         }
     }
 }

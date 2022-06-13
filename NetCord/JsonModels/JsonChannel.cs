@@ -3,7 +3,7 @@
 namespace NetCord.JsonModels;
 
 [JsonSourceGenerationOptions(IncludeFields = true)]
-internal record JsonChannel : JsonEntity
+public record JsonChannel : JsonEntity
 {
     [JsonPropertyName("type")]
     public ChannelType Type { get; init; }

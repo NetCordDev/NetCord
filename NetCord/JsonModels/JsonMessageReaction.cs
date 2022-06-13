@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonMessageReaction
+public record JsonMessageReaction
 {
     [JsonPropertyName("count")]
     public int Count { get; init; }

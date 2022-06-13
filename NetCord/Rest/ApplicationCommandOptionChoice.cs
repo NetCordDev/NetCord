@@ -3,20 +3,21 @@ using System.Text.Json;
 
 namespace NetCord;
 
-public class ApplicationCommandOptionChoice
+public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>
 {
-    private readonly JsonModels.JsonApplicationCommandOptionChoice _jsonEntity;
+    JsonModels.JsonApplicationCommandOptionChoice IJsonModel<JsonModels.JsonApplicationCommandOptionChoice>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommandOptionChoice _jsonModel;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonEntity.NameLocalizations;
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
     public string Value { get; }
 
-    internal ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonEntity)
+    public ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        JsonElement value = jsonEntity.Value;
+        _jsonModel = jsonModel;
+        JsonElement value = jsonModel.Value;
         Value = value.ValueKind == JsonValueKind.String ? value.GetString()! : value.GetRawText();
     }
 }

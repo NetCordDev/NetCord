@@ -2,18 +2,19 @@
 
 namespace NetCord;
 
-public class GuildInviteDeleteEventArgs
+public class GuildInviteDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs _jsonModel;
 
-    internal GuildInviteDeleteEventArgs(JsonGuildInviteDeleteEventArgs jsonEntity)
+    public GuildInviteDeleteEventArgs(JsonGuildInviteDeleteEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public Snowflake InviteChannelId => _jsonEntity.InviteChannelId;
+    public Snowflake InviteChannelId => _jsonModel.InviteChannelId;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
+    public Snowflake? GuildId => _jsonModel.GuildId;
 
-    public string InviteCode => _jsonEntity.InviteCode;
+    public string InviteCode => _jsonModel.InviteCode;
 }

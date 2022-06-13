@@ -6,27 +6,27 @@ public class GuildEmoji : Emoji
 {
     private protected readonly RestClient _client;
 
-    internal GuildEmoji(JsonEmoji jsonEntity, Snowflake guildId, RestClient client) : base(jsonEntity)
+    public GuildEmoji(JsonEmoji jsonModel, Snowflake guildId, RestClient client) : base(jsonModel)
     {
         _client = client;
-        if (jsonEntity.Creator != null)
-            Creator = new(jsonEntity.Creator, client);
-        if (jsonEntity.AllowedRoles != null)
-            AllowedRoles = jsonEntity.AllowedRoles.ToDictionary(r => r.Id, r => new GuildRole(r, client));
+        if (jsonModel.Creator != null)
+            Creator = new(jsonModel.Creator, client);
+        if (jsonModel.AllowedRoles != null)
+            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new GuildRole(r, client));
         GuildId = guildId;
     }
 
-    public Snowflake Id => _jsonEntity.Id.GetValueOrDefault();
+    public Snowflake Id => _jsonModel.Id.GetValueOrDefault();
 
     public IReadOnlyDictionary<Snowflake, GuildRole>? AllowedRoles { get; }
 
     public User? Creator { get; }
 
-    public bool? RequireColons => _jsonEntity.RequireColons;
+    public bool? RequireColons => _jsonModel.RequireColons;
 
-    public bool? Managed => _jsonEntity.Managed;
+    public bool? Managed => _jsonModel.Managed;
 
-    public bool? Available => _jsonEntity.Available;
+    public bool? Available => _jsonModel.Available;
 
     public Snowflake GuildId { get; }
 

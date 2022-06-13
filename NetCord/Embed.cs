@@ -1,15 +1,16 @@
 ﻿namespace NetCord;
 
-public class Embed
+public class Embed : IJsonModel<JsonModels.JsonEmbed>
 {
-    private readonly JsonModels.JsonEmbed _jsonEntity;
+    JsonModels.JsonEmbed IJsonModel<JsonModels.JsonEmbed>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmbed _jsonModel;
 
-    public string? Title => _jsonEntity.Title;
-    public EmbedType? Type => _jsonEntity.Type;
-    public string? Description => _jsonEntity.Description;
-    public string? Url => _jsonEntity.Url;
-    public DateTimeOffset? Timestamp => _jsonEntity.Timestamp;
-    public Color? Color => _jsonEntity.Color;
+    public string? Title => _jsonModel.Title;
+    public EmbedType? Type => _jsonModel.Type;
+    public string? Description => _jsonModel.Description;
+    public string? Url => _jsonModel.Url;
+    public DateTimeOffset? Timestamp => _jsonModel.Timestamp;
+    public Color? Color => _jsonModel.Color;
     public EmbedFooter? Footer { get; }
     public EmbedImage? Image { get; }
     public EmbedThumbnail? Thumbnail { get; }
@@ -18,21 +19,21 @@ public class Embed
     public EmbedAuthor? Author { get; }
     public IEnumerable<EmbedField> Fields { get; }
 
-    internal Embed(JsonModels.JsonEmbed jsonEntity)
+    public Embed(JsonModels.JsonEmbed jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Footer != null)
-            Footer = new(jsonEntity.Footer);
-        if (jsonEntity.Image != null)
-            Image = new(jsonEntity.Image);
-        if (jsonEntity.Thumbnail != null)
-            Thumbnail = new(jsonEntity.Thumbnail);
-        if (jsonEntity.Video != null)
-            Video = new(jsonEntity.Video);
-        if (jsonEntity.Provider != null)
-            Provider = new(jsonEntity.Provider);
-        if (jsonEntity.Author != null)
-            Author = new(jsonEntity.Author);
-        Fields = jsonEntity.Fields.SelectOrEmpty(f => new EmbedField(f));
+        _jsonModel = jsonModel;
+        if (jsonModel.Footer != null)
+            Footer = new(jsonModel.Footer);
+        if (jsonModel.Image != null)
+            Image = new(jsonModel.Image);
+        if (jsonModel.Thumbnail != null)
+            Thumbnail = new(jsonModel.Thumbnail);
+        if (jsonModel.Video != null)
+            Video = new(jsonModel.Video);
+        if (jsonModel.Provider != null)
+            Provider = new(jsonModel.Provider);
+        if (jsonModel.Author != null)
+            Author = new(jsonModel.Author);
+        Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f));
     }
 }

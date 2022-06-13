@@ -2,10 +2,10 @@
 
 public class ActionButton : Button, IComponent
 {
-    public ButtonStyle Style => _jsonEntity.Style.GetValueOrDefault();
-    public string CustomId => _jsonEntity.CustomId!;
+    public ButtonStyle Style => _jsonModel.Style.GetValueOrDefault();
+    public string CustomId => _jsonModel.CustomId!;
 
-    internal ActionButton(JsonModels.JsonComponent jsonEntity) : base(jsonEntity)
+    public ActionButton(JsonModels.JsonComponent jsonModel) : base(jsonModel)
     {
     }
 }

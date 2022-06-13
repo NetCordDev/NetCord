@@ -2,22 +2,22 @@
 
 public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 {
-    public int Bitrate => (int)_jsonEntity.Bitrate!;
-    public Snowflake? CategoryId => _jsonEntity.ParentId;
-    public int UserLimit => (int)_jsonEntity.UserLimit!; //
-    public string RtcRegion => _jsonEntity.RtcRegion;
+    public int Bitrate => (int)_jsonModel.Bitrate!;
+    public Snowflake? CategoryId => _jsonModel.ParentId;
+    public int UserLimit => (int)_jsonModel.UserLimit!; //
+    public string RtcRegion => _jsonModel.RtcRegion;
     public VideoQualityMode VideoQualityMode
-        => _jsonEntity.VideoQualityMode != null ? (VideoQualityMode)_jsonEntity.VideoQualityMode : VideoQualityMode.Auto;
+        => _jsonModel.VideoQualityMode != null ? (VideoQualityMode)_jsonModel.VideoQualityMode : VideoQualityMode.Auto;
 
-    public string Name => _jsonEntity.Name!;
+    public string Name => _jsonModel.Name!;
 
-    public int Position => (int)_jsonEntity.Position!;
+    public int Position => (int)_jsonModel.Position!;
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
-    internal VoiceGuildChannel(JsonModels.JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    public VoiceGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, options).ConfigureAwait(false);

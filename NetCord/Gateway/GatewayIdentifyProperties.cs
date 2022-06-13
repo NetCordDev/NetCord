@@ -13,7 +13,7 @@ internal class GatewayIdentifyProperties
     public string Token { get; }
 
     [JsonPropertyName("properties")]
-    public ConnectionPropertiesProperties Properties => new();
+    public ConnectionPropertiesProperties? ConnectionProperties { get; set; }
 
     //[JsonPropertyName("compress")]
     //public bool? Compress { get; }
@@ -32,16 +32,4 @@ internal class GatewayIdentifyProperties
 
     [JsonPropertyName("intents")]
     public GatewayIntent Intents { get; set; }
-}
-
-internal class ConnectionPropertiesProperties
-{
-    [JsonPropertyName("$os")]
-    public string Os { get; } = "linux";
-
-    [JsonPropertyName("$browser")]
-    public string Browser { get; } = "NetCord";
-
-    [JsonPropertyName("$device")]
-    public string Device { get; } = "NetCord";
 }

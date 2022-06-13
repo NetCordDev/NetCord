@@ -4,7 +4,7 @@ using NetCord.Gateway;
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonReadyEventArgs
+public record JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
     public GatewayVersion Version { get; init; }

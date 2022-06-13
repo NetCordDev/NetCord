@@ -1,30 +1,31 @@
 ﻿namespace NetCord;
 
-public abstract class Button
+public abstract class Button : IJsonModel<JsonModels.JsonComponent>
 {
-    private protected readonly JsonModels.JsonComponent _jsonEntity;
+    JsonModels.JsonComponent IJsonModel<JsonModels.JsonComponent>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonComponent _jsonModel;
 
     public ComponentType ComponentType => ComponentType.Button;
 
-    public string? Label => _jsonEntity.Label;
+    public string? Label => _jsonModel.Label;
 
     public ComponentEmoji? Emoji { get; }
 
-    public bool Disabled => _jsonEntity.Disabled;
+    public bool Disabled => _jsonModel.Disabled;
 
-    private protected Button(JsonModels.JsonComponent jsonEntity)
+    private protected Button(JsonModels.JsonComponent jsonModel)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.Emoji != null)
-            Emoji = new(jsonEntity.Emoji);
+        _jsonModel = jsonModel;
+        if (jsonModel.Emoji != null)
+            Emoji = new(jsonModel.Emoji);
     }
 
-    internal static Button CreateFromJson(JsonModels.JsonComponent jsonEntity)
+    internal static Button CreateFromJson(JsonModels.JsonComponent jsonModel)
     {
-        return (int)jsonEntity.Style! switch
+        return (int)jsonModel.Style! switch
         {
-            5 => new LinkButton(jsonEntity),
-            _ => new ActionButton(jsonEntity),
+            5 => new LinkButton(jsonModel),
+            _ => new ActionButton(jsonModel),
         };
     }
 }

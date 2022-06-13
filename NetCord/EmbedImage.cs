@@ -2,7 +2,7 @@
 {
     public class EmbedImage : EmbedPartBase
     {
-        internal EmbedImage(JsonModels.JsonEmbedPartBase jsonEntity) : base(jsonEntity)
+        public EmbedImage(JsonModels.JsonEmbedPartBase jsonModel) : base(jsonModel)
         {
         }
 

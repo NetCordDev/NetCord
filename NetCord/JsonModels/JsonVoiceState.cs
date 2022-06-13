@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
-internal record JsonVoiceState
+public record JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
     public Snowflake? GuildId { get; init; }

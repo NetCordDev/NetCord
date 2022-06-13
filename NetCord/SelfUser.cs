@@ -2,7 +2,7 @@
 
 public class SelfUser : User
 {
-    internal SelfUser(JsonModels.JsonUser jsonEntity, RestClient client) : base(jsonEntity, client)
+    public SelfUser(JsonModels.JsonUser jsonModel, RestClient client) : base(jsonModel, client)
     {
     }
 

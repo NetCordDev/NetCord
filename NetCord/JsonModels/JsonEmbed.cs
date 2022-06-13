@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-internal record JsonEmbed
+public record JsonEmbed
 {
     [JsonPropertyName("title")]
     public string? Title { get; init; }
@@ -32,7 +32,7 @@ internal record JsonEmbed
     public JsonEmbedField[] Fields { get; init; }
 }
 
-internal record JsonEmbedFooter
+public record JsonEmbedFooter
 {
     [JsonPropertyName("text")]
     public string Text { get; init; }
@@ -42,7 +42,7 @@ internal record JsonEmbedFooter
     public string? ProxyIconUrl { get; init; }
 }
 
-internal record JsonEmbedPartBase
+public record JsonEmbedPartBase
 {
     [JsonPropertyName("url")]
     public string? Url { get; init; }
@@ -57,7 +57,7 @@ internal record JsonEmbedPartBase
     public int? Width { get; init; }
 }
 
-internal record JsonEmbedProvider
+public record JsonEmbedProvider
 {
     [JsonPropertyName("name")]
     public string? Name { get; init; }
@@ -65,7 +65,7 @@ internal record JsonEmbedProvider
     public string? Url { get; init; }
 }
 
-internal record JsonEmbedAuthor
+public record JsonEmbedAuthor
 {
     [JsonPropertyName("name")]
     public string? Name { get; init; }
@@ -80,7 +80,7 @@ internal record JsonEmbedAuthor
     public string? ProxyIconUrl { get; init; }
 }
 
-internal record JsonEmbedField
+public record JsonEmbedField
 {
     [JsonPropertyName("name")]
     public string Title { get; init; }

@@ -4,14 +4,14 @@ namespace NetCord;
 
 public class DirectoryGuildChannel : Channel, IGuildChannel
 {
-    internal DirectoryGuildChannel(JsonChannel jsonEntity, RestClient client) : base(jsonEntity, client)
+    public DirectoryGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        PermissionOverwrites = jsonEntity.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
-    public string Name => _jsonEntity.Name!;
+    public string Name => _jsonModel.Name!;
 
-    public int Position => _jsonEntity.Position.GetValueOrDefault();
+    public int Position => _jsonModel.Position.GetValueOrDefault();
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 

@@ -1,21 +1,22 @@
 ﻿namespace NetCord;
 
-public class VoiceRegion
+public class VoiceRegion : IJsonModel<JsonModels.JsonVoiceRegion>
 {
-    private readonly JsonModels.JsonVoiceRegion _jsonEntity;
+    JsonModels.JsonVoiceRegion IJsonModel<JsonModels.JsonVoiceRegion>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonVoiceRegion _jsonModel;
 
-    public string Id => _jsonEntity.Id;
+    public string Id => _jsonModel.Id;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public bool Optimal => _jsonEntity.Optimal;
+    public bool Optimal => _jsonModel.Optimal;
 
-    public bool Deprecated => _jsonEntity.Deprecated;
+    public bool Deprecated => _jsonModel.Deprecated;
 
-    public bool Custom => _jsonEntity.Custom;
+    public bool Custom => _jsonModel.Custom;
 
-    internal VoiceRegion(JsonModels.JsonVoiceRegion jsonEntity)
+    public VoiceRegion(JsonModels.JsonVoiceRegion jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

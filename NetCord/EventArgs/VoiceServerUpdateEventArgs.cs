@@ -1,17 +1,18 @@
 ﻿namespace NetCord;
 
-public class VoiceServerUpdateEventArgs
+public class VoiceServerUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs _jsonModel;
 
-    internal VoiceServerUpdateEventArgs(JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs jsonEntity)
+    public VoiceServerUpdateEventArgs(JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    public string Token => _jsonEntity.Token;
+    public string Token => _jsonModel.Token;
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public string? Endpoint => _jsonEntity.Endpoint;
+    public string? Endpoint => _jsonModel.Endpoint;
 }

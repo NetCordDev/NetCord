@@ -1,24 +1,25 @@
 ﻿namespace NetCord;
 
-public class GuildScheduledEventUser
+public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledEventUser>
 {
-    private readonly JsonModels.JsonGuildScheduledEventUser _jsonEntity;
+    JsonModels.JsonGuildScheduledEventUser IJsonModel<JsonModels.JsonGuildScheduledEventUser>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildScheduledEventUser _jsonModel;
 
-    public Snowflake ScheduledEventId => _jsonEntity.ScheduledEventId;
+    public Snowflake ScheduledEventId => _jsonModel.ScheduledEventId;
 
     public User User { get; }
 
-    internal GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonEntity, Snowflake guildId, RestClient client)
+    public GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonModel, Snowflake guildId, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (jsonEntity.GuildUser != null)
+        _jsonModel = jsonModel;
+        if (jsonModel.GuildUser != null)
         {
-            User = new GuildUser(jsonEntity.GuildUser with
+            User = new GuildUser(jsonModel.GuildUser with
             {
-                User = jsonEntity.User
+                User = jsonModel.User
             }, guildId, client);
         }
         else
-            User = new(jsonEntity.User, client);
+            User = new(jsonModel.User, client);
     }
 }

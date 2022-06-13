@@ -6,12 +6,12 @@ namespace NetCord;
 
 public class ModalSubmitInteractionData : InteractionData, ICustomIdInteractionData
 {
-    public string CustomId => _jsonEntity.CustomId!;
+    public string CustomId => _jsonModel.CustomId!;
 
     public ReadOnlyCollection<TextInput> Components { get; }
 
-    internal ModalSubmitInteractionData(JsonInteractionData jsonEntity) : base(jsonEntity)
+    public ModalSubmitInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
     {
-        Components = new(jsonEntity.Components!.Select(c => new TextInput(c)).ToArray());
+        Components = new(jsonModel.Components!.Select(c => new TextInput(c)).ToArray());
     }
 }

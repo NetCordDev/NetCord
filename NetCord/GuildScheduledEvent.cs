@@ -1,43 +1,44 @@
 ﻿namespace NetCord;
 
-public class GuildScheduledEvent : Entity
+public class GuildScheduledEvent : Entity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
 {
-    private readonly JsonModels.JsonGuildScheduledEvent _jsonEntity;
+    JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
+    public override Snowflake Id => _jsonModel.Id;
 
-    public Snowflake GuildId => _jsonEntity.GuildId;
+    public Snowflake GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ChannelId => _jsonEntity.ChannelId;
+    public Snowflake? ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? CreatorId => _jsonEntity.CreatorId;
+    public Snowflake? CreatorId => _jsonModel.CreatorId;
 
-    public string Name => _jsonEntity.Name;
+    public string Name => _jsonModel.Name;
 
-    public string? Description => _jsonEntity.Description;
+    public string? Description => _jsonModel.Description;
 
-    public DateTimeOffset ScheduledStartTime => _jsonEntity.ScheduledStartTime;
+    public DateTimeOffset ScheduledStartTime => _jsonModel.ScheduledStartTime;
 
-    public DateTimeOffset? ScheduledEndTime => _jsonEntity.ScheduledEndTime;
+    public DateTimeOffset? ScheduledEndTime => _jsonModel.ScheduledEndTime;
 
-    public GuildScheduledEventPrivacyLevel PrivacyLevel => _jsonEntity.PrivacyLevel;
+    public GuildScheduledEventPrivacyLevel PrivacyLevel => _jsonModel.PrivacyLevel;
 
-    public GuildScheduledEventStatus Status => _jsonEntity.Status;
+    public GuildScheduledEventStatus Status => _jsonModel.Status;
 
-    public GuildScheduledEventEntityType EntityType => _jsonEntity.EntityType;
+    public GuildScheduledEventEntityType EntityType => _jsonModel.EntityType;
 
-    public Snowflake? EntityId => _jsonEntity.EntityId;
+    public Snowflake? EntityId => _jsonModel.EntityId;
 
-    public string? Location => _jsonEntity.EntityMetadata?.Location;
+    public string? Location => _jsonModel.EntityMetadata?.Location;
 
     public User? Creator { get; }
 
-    public int? UserCount => _jsonEntity.UserCount;
+    public int? UserCount => _jsonModel.UserCount;
 
-    internal GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonEntity, RestClient client)
+    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client)
     {
-        _jsonEntity = jsonEntity;
-        if (_jsonEntity.Creator != null)
-            Creator = new(_jsonEntity.Creator, client);
+        _jsonModel = jsonModel;
+        if (_jsonModel.Creator != null)
+            Creator = new(_jsonModel.Creator, client);
     }
 }

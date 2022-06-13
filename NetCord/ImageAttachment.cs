@@ -2,10 +2,10 @@
 {
     public class ImageAttachment : Attachment
     {
-        public int Height => (int)_jsonEntity.Height!;
-        public int Width => (int)_jsonEntity.Width!;
+        public int Height => (int)_jsonModel.Height!;
+        public int Width => (int)_jsonModel.Width!;
 
-        internal ImageAttachment(JsonModels.JsonAttachment jsonEntity) : base(jsonEntity)
+        public ImageAttachment(JsonModels.JsonAttachment jsonModel) : base(jsonModel)
         {
 
         }

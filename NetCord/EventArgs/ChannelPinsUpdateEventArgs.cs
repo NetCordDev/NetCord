@@ -1,15 +1,16 @@
 ﻿namespace NetCord;
 
-public class ChannelPinsUpdateEventArgs
+public class ChannelPinsUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs>
 {
-    private readonly JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs _jsonEntity;
+    JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs _jsonModel;
 
-    public Snowflake? GuildId => _jsonEntity.GuildId;
-    public Snowflake ChannelId => _jsonEntity.ChannelId;
-    public DateTimeOffset? LastPinTimestamp => _jsonEntity.LastPinTimestamp;
+    public Snowflake? GuildId => _jsonModel.GuildId;
+    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public DateTimeOffset? LastPinTimestamp => _jsonModel.LastPinTimestamp;
 
-    internal ChannelPinsUpdateEventArgs(JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs jsonEntity)
+    public ChannelPinsUpdateEventArgs(JsonModels.EventArgs.JsonChannelPinsUpdateEventArgs jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 }

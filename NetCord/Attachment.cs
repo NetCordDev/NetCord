@@ -2,29 +2,30 @@
 
 namespace NetCord;
 
-public class Attachment : Entity
+public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
 {
-    private protected readonly JsonModels.JsonAttachment _jsonEntity;
+    JsonModels.JsonAttachment IJsonModel<JsonModels.JsonAttachment>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonAttachment _jsonModel;
 
-    public override Snowflake Id => _jsonEntity.Id;
-    public string Filename => _jsonEntity.Filename;
-    public string? Description => _jsonEntity.Description;
-    public ContentType? ContentType => _jsonEntity.ContentType;
-    public int Size => _jsonEntity.Size;
-    public string Url => _jsonEntity.Url;
-    public string ProxyUrl => _jsonEntity.ProxyUrl;
-    public bool Ephemeral => _jsonEntity.Ephemeral;
+    public override Snowflake Id => _jsonModel.Id;
+    public string Filename => _jsonModel.Filename;
+    public string? Description => _jsonModel.Description;
+    public ContentType? ContentType => _jsonModel.ContentType;
+    public int Size => _jsonModel.Size;
+    public string Url => _jsonModel.Url;
+    public string ProxyUrl => _jsonModel.ProxyUrl;
+    public bool Ephemeral => _jsonModel.Ephemeral;
 
-    private protected Attachment(JsonModels.JsonAttachment jsonEntity)
+    private protected Attachment(JsonModels.JsonAttachment jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
-    internal static Attachment CreateFromJson(JsonModels.JsonAttachment jsonEntity)
+    internal static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
     {
-        if (jsonEntity.Width.HasValue)
-            return new ImageAttachment(jsonEntity);
+        if (jsonModel.Width.HasValue)
+            return new ImageAttachment(jsonModel);
         else
-            return new Attachment(jsonEntity);
+            return new Attachment(jsonModel);
     }
 }

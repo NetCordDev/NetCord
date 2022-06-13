@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-internal class JsonPayload
+public record JsonPayload
 {
     [JsonPropertyName("op")]
     public byte Opcode { get; init; }

@@ -2,17 +2,17 @@
 {
     public class MessageInteraction : Entity
     {
-        private readonly JsonModels.JsonMessageInteraction _jsonEntity;
+        private readonly JsonModels.JsonMessageInteraction _jsonModel;
 
-        public override Snowflake Id => _jsonEntity.Id;
-        public InteractionType Type => _jsonEntity.Type;
-        public string Name => _jsonEntity.Name;
+        public override Snowflake Id => _jsonModel.Id;
+        public InteractionType Type => _jsonModel.Type;
+        public string Name => _jsonModel.Name;
         public User User { get; }
 
-        internal MessageInteraction(JsonModels.JsonMessageInteraction jsonEntity, RestClient client)
+        public MessageInteraction(JsonModels.JsonMessageInteraction jsonModel, RestClient client)
         {
-            _jsonEntity = jsonEntity;
-            User = new(jsonEntity.User, client);
+            _jsonModel = jsonModel;
+            User = new(jsonModel.User, client);
         }
     }
 }

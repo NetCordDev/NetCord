@@ -1,25 +1,30 @@
-﻿namespace NetCord;
+﻿using NetCord.JsonModels;
 
-public class Emoji
+namespace NetCord;
+
+public class Emoji : IJsonModel<JsonEmoji>
 {
-    private protected readonly JsonModels.JsonEmoji _jsonEntity;
+    JsonEmoji IJsonModel<JsonEmoji>.JsonModel => _jsonModel;
 
-    public string Name => _jsonEntity.Name!;
+    private protected readonly JsonEmoji _jsonModel;
 
-    public bool Animated => _jsonEntity.Animated;
+    public string Name => _jsonModel.Name!;
 
-    internal Emoji(JsonModels.JsonEmoji jsonEntity)
+    public bool Animated => _jsonModel.Animated;
+
+
+    public Emoji(JsonEmoji jsonModel)
     {
-        _jsonEntity = jsonEntity;
+        _jsonModel = jsonModel;
     }
 
     public override string ToString() => Name;
 
-    internal static Emoji CreateFromJson(JsonModels.JsonEmoji jsonEntity, Snowflake guildId, RestClient client)
+    internal static Emoji CreateFromJson(JsonEmoji jsonModel, Snowflake guildId, RestClient client)
     {
-        if (jsonEntity.Id.HasValue)
-            return new GuildEmoji(jsonEntity, guildId, client);
+        if (jsonModel.Id.HasValue)
+            return new GuildEmoji(jsonModel, guildId, client);
         else
-            return new Emoji(jsonEntity);
+            return new Emoji(jsonModel);
     }
 }

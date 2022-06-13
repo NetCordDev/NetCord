@@ -4,9 +4,9 @@ namespace NetCord;
 
 public class MessageCommandInteractionData : ApplicationCommandInteractionData
 {
-    internal MessageCommandInteractionData(JsonInteractionData jsonEntity, Snowflake? guildId, RestClient client) : base(jsonEntity, guildId, client)
+    public MessageCommandInteractionData(JsonInteractionData jsonModel, Snowflake? guildId, RestClient client) : base(jsonModel, guildId, client)
     {
-        TargetMessage = new(jsonEntity.ResolvedData!.Messages![jsonEntity.TargetId.GetValueOrDefault()], client);
+        TargetMessage = new(jsonModel.ResolvedData!.Messages![jsonModel.TargetId.GetValueOrDefault()], client);
     }
 
     public RestMessage TargetMessage { get; }

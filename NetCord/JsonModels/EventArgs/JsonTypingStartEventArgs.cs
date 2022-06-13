@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-internal record JsonTypingStartEventArgs
+public record JsonTypingStartEventArgs
 {
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; init; }
