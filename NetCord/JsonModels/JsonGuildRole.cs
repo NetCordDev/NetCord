@@ -37,6 +37,7 @@ public record JsonTags
     [JsonPropertyName("integration_id")]
     public Snowflake? IntegrationId { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(JsonConverters.NullConverter))]
     [JsonPropertyName("premium_subscriber")]
     public bool IsPremiumSubscriber { get; init; }

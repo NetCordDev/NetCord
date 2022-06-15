@@ -17,21 +17,17 @@ internal class StringEnumConverterWithErrorHandling : JsonConverterFactory
             if (Enum.TryParse<T>(reader.GetString(), true, out var result))
                 return result;
             else
-                return (T)Enum.ToObject(typeToConvert, -1);
+                return (T)(object)-1;
         }
 
         public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
         {
             var v = value.ToString();
-            writer.WriteStringValue(v[0] >= 'A' ? v.ToLowerInvariant() : throw new System.ComponentModel.InvalidEnumArgumentException($"Type: {typeof(T)}"));
+            writer.WriteStringValue(v[0] >= 'A' ? v.ToLowerInvariant() : throw new System.ComponentModel.InvalidEnumArgumentException(null, (int)(object)value, typeof(T)));
         }
 
         public override T ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => Read(ref reader, typeToConvert, options);
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        {
-            var v = value.ToString();
-            writer.WritePropertyName(v[0] >= 'A' ? v.ToLowerInvariant() : throw new System.ComponentModel.InvalidEnumArgumentException($"Type: {typeof(T)}"));
-        }
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, T value, JsonSerializerOptions options) => Write(writer, value, options);
     }
 }
