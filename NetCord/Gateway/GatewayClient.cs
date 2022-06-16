@@ -870,7 +870,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageCreate != null)
                         try
                         {
-                            await MessageCreate(new(jsonMessage, this)).ConfigureAwait(false);
+                            await MessageCreate(Message.CreateFromJson(jsonMessage, this)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -887,7 +887,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageUpdate != null)
                         try
                         {
-                            await MessageUpdate(new(jsonMessage, this)).ConfigureAwait(false);
+                            await MessageUpdate(Message.CreateFromJson(jsonMessage, this)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

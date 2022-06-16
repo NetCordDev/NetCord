@@ -5,24 +5,50 @@ namespace NetCord;
 
 public class Message : RestMessage
 {
-    public Message(JsonMessage jsonModel, GatewayClient client) : base(jsonModel, client.Rest)
+    public Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, client)
     {
         GuildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
-        if (GuildId.HasValue && client.Guilds.TryGetValue(GuildId.GetValueOrDefault(), out var guild))
+        Guild = guild;
+        Channel = channel;
+    }
+
+    public static Message CreateFromJson(JsonMessage jsonModel, GatewayClient client)
+    {
+        Guild? guild;
+        TextChannel? channel;
+        var guildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
+        if (guildId.HasValue)
         {
-            Guild = guild;
-            if (guild.Channels.TryGetValue(ChannelId, out var channel))
-                Channel = (TextChannel)channel;
-            else if (guild.ActiveThreads.TryGetValue(ChannelId, out var thread))
-                Channel = thread;
+            if (client.Guilds.TryGetValue(jsonModel.GuildId.GetValueOrDefault(), out guild))
+            {
+                if (guild.Channels.TryGetValue(jsonModel.ChannelId, out var guildChannel))
+                    channel = (TextChannel)guildChannel;
+                else if (guild.ActiveThreads.TryGetValue(jsonModel.ChannelId, out var thread))
+                    channel = thread;
+                else
+                    channel = null;
+            }
+            else
+            {
+                if (client.DMChannels.TryGetValue(jsonModel.ChannelId, out var dMChannel))
+                    channel = dMChannel;
+                else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId, out var groupDMChannel))
+                    channel = groupDMChannel;
+                else
+                    channel = null;
+            }
         }
         else
         {
-            if (client.DMChannels.TryGetValue(ChannelId, out var dMChannel))
-                Channel = dMChannel;
-            else if (client.GroupDMChannels.TryGetValue(ChannelId, out var groupDMChannel))
-                Channel = groupDMChannel;
+            guild = null;
+            if (client.DMChannels.TryGetValue(jsonModel.ChannelId, out var dMChannel))
+                channel = dMChannel;
+            else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId, out var groupDMChannel))
+                channel = groupDMChannel;
+            else
+                channel = null;
         }
+        return new(jsonModel, guild, channel, client.Rest);
     }
 
     public Snowflake? GuildId { get; }

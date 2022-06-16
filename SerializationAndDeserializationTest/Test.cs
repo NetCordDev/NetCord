@@ -1,10 +1,10 @@
 using System.Text.Json;
 
+using DeepEqual.Syntax;
+
 using NetCord;
 using NetCord.Gateway;
 using NetCord.JsonModels;
-
-using DeepEqual.Syntax;
 
 namespace SerializationAndDeserializationTest;
 

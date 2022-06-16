@@ -34,56 +34,94 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public abstract InteractionData Data { get; }
 
-    public Interaction(JsonInteraction jsonModel, GatewayClient client) : base(client.Rest)
+    private protected Interaction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        var guildId = jsonModel.GuildId;
-        if (guildId.HasValue && client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out Guild? guild))
-        {
-            Guild = guild;
-            User = new GuildInteractionUser(jsonModel.GuildUser!, Guild, client.Rest);
-            if (ChannelId.HasValue)
-            {
-                if (guild.Channels.TryGetValue(ChannelId.GetValueOrDefault(), out var channel))
-                    Channel = (TextChannel)channel;
-                else if (guild.ActiveThreads.TryGetValue(ChannelId.GetValueOrDefault(), out var thread))
-                    Channel = thread;
-            }
-        }
+        if (_jsonModel.GuildId.HasValue)
+            User = new GuildInteractionUser(jsonModel.GuildUser!, jsonModel.GuildId.GetValueOrDefault(), client);
         else
-        {
-            User = new User(jsonModel.User!, client.Rest);
-            if (ChannelId.HasValue)
-            {
-                if (client.DMChannels.TryGetValue(ChannelId.GetValueOrDefault(), out var dMChannel))
-                    Channel = dMChannel;
-                else if (client.GroupDMChannels.TryGetValue(ChannelId.GetValueOrDefault(), out var groupDMChannel))
-                    Channel = groupDMChannel;
-            }
-        }
+            User = new(jsonModel.User!, client);
+
+        Guild = guild;
+        Channel = channel;
     }
 
-    internal static Interaction CreateFromJson(JsonInteraction jsonModel, GatewayClient client)
+    public static Interaction CreateFromJson(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client)
     {
         return jsonModel.Type switch
         {
             InteractionType.ApplicationCommand => jsonModel.Data.Type switch
             {
-                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, client),
-                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, client),
-                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, client),
+                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, channel, client),
+                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, channel, client),
+                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, channel, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.MessageComponent => jsonModel.Data.ComponentType switch
             {
-                ComponentType.Button => new ButtonInteraction(jsonModel, client),
-                ComponentType.Menu => new MenuInteraction(jsonModel, client),
+                ComponentType.Button => new ButtonInteraction(jsonModel, guild, channel, client),
+                ComponentType.Menu => new MenuInteraction(jsonModel, guild, channel, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonModel, client),
-            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, client),
+            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonModel, guild, channel, client),
+            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, guild, channel, client),
             _ => throw new InvalidOperationException(),
         };
+    }
+
+    public static Interaction CreateFromJson(JsonInteraction jsonModel, GatewayClient client)
+    {
+        Guild? guild;
+        TextChannel? channel;
+        var guildId = jsonModel.GuildId;
+        if (guildId.HasValue)
+        {
+            if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
+            {
+                if (jsonModel.ChannelId.HasValue)
+                {
+                    if (guild.Channels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var guildChannel))
+                        channel = (TextChannel)guildChannel;
+                    else if (guild.ActiveThreads.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var thread))
+                        channel = thread;
+                    else
+                        channel = null;
+                }
+                else
+                    channel = null;
+            }
+            else if (jsonModel.ChannelId.HasValue)
+            {
+                guild = null;
+                if (client.DMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var dMChannel))
+                    channel = dMChannel;
+                else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var groupDMChannel))
+                    channel = groupDMChannel;
+                else
+                    channel = null;
+            }
+            else
+            {
+                guild = null;
+                channel = null;
+            }
+        }
+        else
+        {
+            guild = null;
+            if (jsonModel.ChannelId.HasValue)
+            {
+                if (client.DMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var dMChannel))
+                    channel = dMChannel;
+                else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var groupDMChannel))
+                    channel = groupDMChannel;
+                else
+                    channel = null;
+            }
+            else
+                channel = null;
+        }
+        return CreateFromJson(jsonModel, guild, channel, client.Rest);
     }
 
     public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? options = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, options);

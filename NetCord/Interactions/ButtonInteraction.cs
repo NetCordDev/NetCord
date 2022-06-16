@@ -1,5 +1,4 @@
-﻿using NetCord.Gateway;
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
@@ -9,12 +8,9 @@ public class ButtonInteraction : Interaction
 
     public Message Message { get; }
 
-    public ButtonInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
+    public ButtonInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
     {
         Data = new(jsonModel.Data);
-        if (jsonModel.GuildId.HasValue)
-            Message = new(jsonModel.Message with { GuildId = jsonModel.GuildId }, client);
-        else
-            Message = new(jsonModel.Message, client);
+        Message = new(jsonModel.Message with { GuildId = jsonModel.GuildId }, guild, channel, client);
     }
 }

@@ -18,7 +18,7 @@ public class ConnectionPropertiesProperties
         Device = "NetCord",
     };
 
-    public static ConnectionPropertiesProperties IOS => new ()
+    public static ConnectionPropertiesProperties IOS => new()
     {
         Os = "linux",
         Browser = "Discord iOS",

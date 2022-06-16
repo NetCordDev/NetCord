@@ -1,13 +1,12 @@
-﻿using NetCord.Gateway;
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
 public class MessageCommandInteraction : ApplicationCommandInteraction
 {
-    public MessageCommandInteraction(JsonInteraction jsonModel, GatewayClient client) : base(jsonModel, client)
+    public MessageCommandInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
     {
-        Data = new(jsonModel.Data, jsonModel.GuildId, client.Rest);
+        Data = new(jsonModel.Data, jsonModel.GuildId, client);
     }
 
     public override MessageCommandInteractionData Data { get; }
