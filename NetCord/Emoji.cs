@@ -12,15 +12,14 @@ public class Emoji : IJsonModel<JsonEmoji>
 
     public bool Animated => _jsonModel.Animated;
 
-
-    public Emoji(JsonEmoji jsonModel)
+    private protected Emoji(JsonEmoji jsonModel)
     {
         _jsonModel = jsonModel;
     }
 
     public override string ToString() => Name;
 
-    internal static Emoji CreateFromJson(JsonEmoji jsonModel, Snowflake guildId, RestClient client)
+    public static Emoji CreateFromJson(JsonEmoji jsonModel, Snowflake guildId, RestClient client)
     {
         if (jsonModel.Id.HasValue)
             return new GuildEmoji(jsonModel, guildId, client);

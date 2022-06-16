@@ -16,7 +16,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>
 
     public override string ToString() => $"<#{Id}>";
 
-    internal static Channel CreateFromJson(JsonChannel jsonChannel, RestClient client)
+    public static Channel CreateFromJson(JsonChannel jsonChannel, RestClient client)
     {
         return jsonChannel.Type switch
         {

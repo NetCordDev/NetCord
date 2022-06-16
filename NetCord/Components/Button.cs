@@ -20,7 +20,7 @@ public abstract class Button : IJsonModel<JsonModels.JsonComponent>
             Emoji = new(jsonModel.Emoji);
     }
 
-    internal static Button CreateFromJson(JsonModels.JsonComponent jsonModel)
+    public static Button CreateFromJson(JsonModels.JsonComponent jsonModel)
     {
         return (int)jsonModel.Style! switch
         {

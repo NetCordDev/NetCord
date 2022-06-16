@@ -21,7 +21,7 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
         _jsonModel = jsonModel;
     }
 
-    internal static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
+    public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
     {
         if (jsonModel.Width.HasValue)
             return new ImageAttachment(jsonModel);
