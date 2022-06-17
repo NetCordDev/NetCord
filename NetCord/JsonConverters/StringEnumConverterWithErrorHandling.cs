@@ -28,6 +28,10 @@ internal class StringEnumConverterWithErrorHandling : JsonConverterFactory
 
         public override T ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => Read(ref reader, typeToConvert, options);
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, T value, JsonSerializerOptions options) => Write(writer, value, options);
+        public override void WriteAsPropertyName(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        {
+            var v = value.ToString();
+            writer.WritePropertyName(v[0] >= 'A' ? v.ToLowerInvariant() : throw new System.ComponentModel.InvalidEnumArgumentException(null, (int)(object)value, typeof(T)));
+        }
     }
 }
