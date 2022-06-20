@@ -18,7 +18,15 @@ public class EvalCommand : CommandModule
             return;
         }
 
-        var value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()), this, typeof(CommandModule));
+        object? value;
+        try
+        {
+            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()), this, typeof(CommandModule));
+        }
+        catch (RestException ex)
+        {
+            throw new($"{ex.Message}\n{new CodeBlock(await ex.GetDiscordErrorMessageAsync(), "json")}");
+        }
         if (value != null)
         {
             List<EmbedFieldProperties> fields = new();
