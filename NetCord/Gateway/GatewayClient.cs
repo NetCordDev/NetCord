@@ -505,7 +505,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_DELETE":
                 {
-                    var guildId = GetGuildId();
+                    var guildId = data.GetProperty("id").ToObject<Snowflake>();
                     if (GuildDelete != null)
                         try
                         {
