@@ -2,10 +2,10 @@
 
 namespace NetCord;
 
-public class GuildInviteDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>
+public class GuildInviteDeleteEventArgs : IJsonModel<JsonGuildInviteDeleteEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs _jsonModel;
+    JsonGuildInviteDeleteEventArgs IJsonModel<JsonGuildInviteDeleteEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonGuildInviteDeleteEventArgs _jsonModel;
 
     public GuildInviteDeleteEventArgs(JsonGuildInviteDeleteEventArgs jsonModel)
     {

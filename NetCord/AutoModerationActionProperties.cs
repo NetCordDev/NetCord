@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public class AutoModerationActionProperties
 {

@@ -1,28 +1,32 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
-public class AutoModerationRuleOptions
+public class AutoModerationRuleProperties
 {
-    internal AutoModerationRuleOptions()
+    public AutoModerationRuleProperties(string name, AutoModerationRuleEventType eventType, AutoModerationRuleTriggerType triggerType, IEnumerable<AutoModerationActionProperties> actions)
     {
+        Name = name;
+        EventType = eventType;
+        TriggerType = triggerType;
+        Actions = actions;
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
-    public string? Name { get; set; }
+    public string Name { get; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("event_type")]
-    public AutoModerationRuleEventType? EventType { get; set; }
+    public AutoModerationRuleEventType EventType { get; }
+
+    [JsonPropertyName("trigger_type")]
+    public AutoModerationRuleTriggerType TriggerType { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("trigger_metadata")]
-    public AutoModerationRuleTriggerMetadataProperties? TriggerMetadataProperties { get; set; }
+    public AutoModerationRuleTriggerMetadataProperties? TriggerMetadata { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("actions")]
-    public IEnumerable<AutoModerationActionProperties>? Actions { get; set; }
+    public IEnumerable<AutoModerationActionProperties> Actions { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("enabled")]

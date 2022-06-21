@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+﻿namespace NetCord;
 
 public enum AutoModerationRuleKeywordPresetType
 {

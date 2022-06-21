@@ -22,6 +22,10 @@ public partial class GatewayClient : WebSocketClient
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleCreate;
+    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleUpdate;
+    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleDelete;
+    public event Func<AutoModerationActionExecutionEventArgs, ValueTask>? AutoModerationActionExecution;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelCreate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelUpdate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelDelete;
@@ -303,6 +307,66 @@ public partial class GatewayClient : WebSocketClient
                         try
                         {
                             await ApplicationCommandPermissionsUpdate(new(data.ToObject<JsonApplicationCommandPermission>())).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
+                }
+                break;
+            case "AUTO_MODERATION_RULE_CREATE":
+                {
+                    if (AutoModerationRuleCreate != null)
+                    {
+                        try
+                        {
+                            await AutoModerationRuleCreate(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
+                }
+                break;
+            case "AUTO_MODERATION_RULE_UPDATE":
+                {
+                    if (AutoModerationRuleUpdate != null)
+                    {
+                        try
+                        {
+                            await AutoModerationRuleUpdate(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
+                }
+                break;
+            case "AUTO_MODERATION_RULE_DELETE":
+                {
+                    if (AutoModerationRuleDelete != null)
+                    {
+                        try
+                        {
+                            await AutoModerationRuleDelete(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLog(LogMessage.Error(ex));
+                        }
+                    }
+                }
+                break;
+            case "AUTO_MODERATION_ACTION_EXECUTION":
+                {
+                    if (AutoModerationActionExecution != null)
+                    {
+                        try
+                        {
+                            await AutoModerationActionExecution(new(data.ToObject<JsonAutoModerationActionExecutionEventArgs>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

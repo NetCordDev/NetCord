@@ -24,8 +24,13 @@ public enum GatewayIntent : uint
     DirectMessages = 1 << 12,
     DirectMessageReactions = 1 << 13,
     DirectMessageTyping = 1 << 14,
+    /// <summary>
+    /// Privileged
+    /// </summary>
     MessageContent = 1 << 15,
     GuildScheduledEvents = 1 << 16,
+    AutoModerationConfiguration = 1 << 20,
+    AutoModerationExecution = 1 << 21,
     All = Guilds
         | GuildUsers
         | GuildBans
@@ -42,7 +47,9 @@ public enum GatewayIntent : uint
         | DirectMessageReactions
         | DirectMessageTyping
         | MessageContent
-        | GuildScheduledEvents,
+        | GuildScheduledEvents
+        | AutoModerationConfiguration
+        | AutoModerationExecution,
     AllNonPrivileged = Guilds
         | GuildBans
         | GuildEmojisAndStickers
@@ -56,5 +63,7 @@ public enum GatewayIntent : uint
         | DirectMessages
         | DirectMessageReactions
         | DirectMessageTyping
-        | GuildScheduledEvents,
+        | GuildScheduledEvents
+        | AutoModerationConfiguration
+        | AutoModerationExecution,
 }
