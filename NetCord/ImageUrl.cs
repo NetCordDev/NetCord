@@ -143,4 +143,20 @@ public class ImageUrl
     {
         return new($"/guilds/{guildId}/users/{userId}/banners/{bannerHash}", GetExtension(bannerHash, format));
     }
+
+    public static string GuildWidgetUrl(Snowflake guildId, GuildWidgetStyle? style = null)
+    {
+        if (style is null)
+            return $"{Discord.RestUrl}/guilds/{guildId}/widget.png";
+        else
+            return $"{Discord.RestUrl}/guilds/{guildId}/widget.png?style={style switch
+            {
+                GuildWidgetStyle.Shield => "shield",
+                GuildWidgetStyle.Banner1 => "banner1",
+                GuildWidgetStyle.Banner2 => "banner2",
+                GuildWidgetStyle.Banner3 => "banner3",
+                GuildWidgetStyle.Banner4 => "banner4",
+                _ => throw new System.ComponentModel.InvalidEnumArgumentException(nameof(style), (int)style, typeof(GuildWidgetStyle)),
+            }}";
+    }
 }

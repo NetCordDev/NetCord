@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum GuildWidgetImageStyle
+public enum GuildWidgetStyle
 {
     /// <summary>
     /// Example: <see href="https://discord.com/api/guilds/81384788765712384/widget.png?style=shield"/>
