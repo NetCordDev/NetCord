@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
+
+namespace NetCord;
 
 public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageReactionAddEventArgs>
 {

@@ -2,7 +2,7 @@
 
 using NetCord.JsonModels;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public partial class RestClient
 {

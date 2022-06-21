@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+using NetCord.Rest;
+
 namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext

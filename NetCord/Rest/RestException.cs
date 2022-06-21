@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Net;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 [DebuggerDisplay("{GetDiscordErrorMessageAsync().Result}")]
 public class RestException : Exception

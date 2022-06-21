@@ -3,7 +3,7 @@ using System.Reflection;
 
 using NetCord.JsonModels;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
 {
@@ -106,10 +106,8 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
             var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p.Equals(propertyGetter));
             var targetMethod = interfaceMapping.TargetMethods[index];
             foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
-            {
                 if (targetMethod.Equals(runtimeProperty.GetMethod))
                     return (TMemberInfo)(object)runtimeProperty;
-            }
         }
 
         return memberInfo;

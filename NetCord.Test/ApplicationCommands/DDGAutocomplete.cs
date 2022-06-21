@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;

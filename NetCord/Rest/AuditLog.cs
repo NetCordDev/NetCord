@@ -1,6 +1,6 @@
 ﻿using NetCord.JsonModels;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 internal class AuditLog : IJsonModel<JsonAuditLog>
 {

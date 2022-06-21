@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
 [JsonConverter(typeof(PartySizePropertiesConverter))]
 public class PartySizeProperties

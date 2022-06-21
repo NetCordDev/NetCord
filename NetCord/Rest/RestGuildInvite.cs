@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
 {

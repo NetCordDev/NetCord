@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
+using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.Commands;
 

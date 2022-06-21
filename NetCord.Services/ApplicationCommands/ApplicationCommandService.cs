@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+using NetCord.Rest;
+
 namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandService<TContext> : IService where TContext : IApplicationCommandContext

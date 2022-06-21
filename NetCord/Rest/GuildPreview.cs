@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 {

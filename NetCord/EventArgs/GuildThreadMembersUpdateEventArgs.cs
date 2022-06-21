@@ -1,4 +1,5 @@
 ﻿using NetCord.JsonModels.EventArgs;
+using NetCord.Rest;
 
 namespace NetCord;
 

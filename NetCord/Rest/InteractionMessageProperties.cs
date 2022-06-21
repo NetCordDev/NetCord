@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class InteractionMessageProperties
 {
@@ -41,7 +41,7 @@ public class InteractionMessageProperties
         };
         if (Attachments != null)
         {
-            int i = 0;
+            var i = 0;
             foreach (var attachment in Attachments)
             {
                 content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);

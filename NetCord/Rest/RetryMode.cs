@@ -1,9 +1,8 @@
-﻿namespace NetCord
+﻿namespace NetCord.Rest;
+
+public enum RetryMode
 {
-    public enum RetryMode
-    {
-        Always,
-        Once,
-        Never,
-    }
+    Always,
+    Once,
+    Never,
 }

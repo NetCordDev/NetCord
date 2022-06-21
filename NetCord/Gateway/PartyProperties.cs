@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Gateway;
 
 public class PartyProperties
 {
@@ -8,5 +8,5 @@ public class PartyProperties
     public string? Id { get; set; }
 
     [JsonPropertyName("size")]
-    public PartySizeProperties? Size { get; }
+    public PartySizeProperties? Size { get; set; }
 }

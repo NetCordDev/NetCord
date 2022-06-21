@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class WebhookMessageProperties
 {
@@ -53,7 +53,7 @@ public class WebhookMessageProperties
         };
         if (Attachments != null)
         {
-            int i = 0;
+            var i = 0;
             foreach (var attachment in Attachments)
             {
                 content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);

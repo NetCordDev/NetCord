@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using NetCord.Rest;
+
+namespace NetCord.Services.ApplicationCommands;
 
 public interface IChoicesProvider<TContext> where TContext : IApplicationCommandContext
 {

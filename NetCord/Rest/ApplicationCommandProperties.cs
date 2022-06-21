@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class SlashCommandProperties : ApplicationCommandProperties
 {

@@ -2,6 +2,7 @@
 
 using NetCord.Gateway;
 using NetCord.JsonModels;
+using NetCord.Rest;
 
 namespace NetCord;
 

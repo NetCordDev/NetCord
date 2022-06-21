@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -77,7 +77,7 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", options);
 
     public async Task<DMChannel> GetDMChannelAsync(Snowflake userId, RequestProperties? options = null)
-        => new DMChannel((await SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"recipient_id\":\"{userId}\"}}"), "/users/@me/channels", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, new JsonContent($"{{\"recipient_id\":\"{userId}\"}}"), "/users/@me/channels", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
 
     public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties properties, RequestProperties? options = null)
         => new((await SendRequestAsync(HttpMethod.Post, new JsonContent(properties), "/users/@me/channels", options).ConfigureAwait(false)).ToObject<JsonModels.JsonChannel>(), this);

@@ -1,6 +1,6 @@
 ﻿using NetCord.JsonModels;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class AutoModerationActionMetadata : IJsonModel<JsonAutoModerationActionMetadata>
 {

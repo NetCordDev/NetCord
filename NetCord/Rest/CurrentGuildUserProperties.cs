@@ -1,11 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord
+namespace NetCord.Rest;
+
+public class CurrentGuildUserProperties
 {
-    public class CurrentGuildUserProperties
-    {
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyName("nick")]
-        public string? Nickname { get; set; }
-    }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("nick")]
+    public string? Nickname { get; set; }
 }

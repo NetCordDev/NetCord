@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 internal class TypingReminder : IDisposable
 {

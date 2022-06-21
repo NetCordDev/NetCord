@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient : IDisposable
 {
@@ -117,7 +117,6 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
-        Console.WriteLine(await content.ReadAsStringAsync());
         if (!response.IsSuccessStatusCode)
             throw new RestException(response);
 

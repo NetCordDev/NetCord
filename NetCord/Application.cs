@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
+
+namespace NetCord;
 
 public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
 {

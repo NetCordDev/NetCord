@@ -1,4 +1,5 @@
-﻿using NetCord.Services.Commands;
+﻿using NetCord.Rest;
+using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 

@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class ApplicationCommand : Entity, IJsonModel<JsonModels.JsonApplicationCommand>
 {

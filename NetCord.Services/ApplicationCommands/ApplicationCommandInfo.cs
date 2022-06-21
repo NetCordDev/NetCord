@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
 
+using NetCord.Rest;
+
 namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TContext : IApplicationCommandContext

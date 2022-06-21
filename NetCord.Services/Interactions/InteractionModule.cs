@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.Interactions;
+﻿using NetCord.Rest;
+
+namespace NetCord.Services.Interactions;
 
 public class InteractionModule<TContext> : BaseInteractionModule<TContext> where TContext : InteractionContext
 {

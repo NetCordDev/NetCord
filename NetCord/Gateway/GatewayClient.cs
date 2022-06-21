@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
+using NetCord.Rest;
 
 namespace NetCord.Gateway;
 

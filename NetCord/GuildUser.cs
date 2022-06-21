@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
 
+using NetCord.Rest;
+
 namespace NetCord;
 
 public class GuildUser : User

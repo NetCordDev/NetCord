@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledEventUser>
 {
@@ -13,12 +13,10 @@ public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledE
     {
         _jsonModel = jsonModel;
         if (jsonModel.GuildUser != null)
-        {
             User = new GuildUser(jsonModel.GuildUser with
             {
                 User = jsonModel.User
             }, guildId, client);
-        }
         else
             User = new(jsonModel.User, client);
     }

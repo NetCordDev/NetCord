@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 public class GuildWidgetChannel : Entity, IJsonModel<JsonModels.JsonGuildWidgetChannel>
 {

@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
+
+namespace NetCord;
 
 public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
 {

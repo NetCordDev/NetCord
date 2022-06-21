@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class ApplicationCommandOptionChoiceProperties
 {

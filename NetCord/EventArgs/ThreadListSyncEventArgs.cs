@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+using NetCord.Rest;
+
 namespace NetCord;
 
 public class ThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonThreadListSyncEventArgs>

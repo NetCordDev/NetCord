@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.Commands;
+﻿using NetCord.Rest;
+
+namespace NetCord.Services.Commands;
 
 public abstract class CommandModule<TContext> : BaseCommandModule<TContext> where TContext : CommandContext
 {

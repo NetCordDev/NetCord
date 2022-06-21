@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
+
+namespace NetCord;
 
 public class GuildScheduledEvent : Entity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
 {

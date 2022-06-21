@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Headers;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class RequestProperties
 {

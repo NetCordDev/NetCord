@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 
 using NetCord.JsonModels;
+using NetCord.Rest;
 
 namespace NetCord;
 

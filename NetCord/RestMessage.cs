@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
+
+namespace NetCord;
 
 public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
 {
@@ -111,7 +113,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
         MessageProperties message = new()
         {
             Content = content,
-            MessageReference = new(this, failIfNotExists),
+            MessageReference = new(Id, failIfNotExists),
             AllowedMentions = new()
             {
                 ReplyMention = replyMention

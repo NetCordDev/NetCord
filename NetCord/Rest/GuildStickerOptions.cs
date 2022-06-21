@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord;
+namespace NetCord.Rest;
 
 public class GuildStickerOptions
 {

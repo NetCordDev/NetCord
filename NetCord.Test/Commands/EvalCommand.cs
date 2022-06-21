@@ -3,6 +3,7 @@
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 
+using NetCord.Rest;
 using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;

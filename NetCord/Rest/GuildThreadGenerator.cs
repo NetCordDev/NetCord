@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+﻿namespace NetCord.Rest;
 
 internal class GuildThreadGenerator
 {
@@ -6,8 +6,8 @@ internal class GuildThreadGenerator
     {
         var threads = jsonThreads.Threads;
         var users = jsonThreads.Users;
-        int threadsLength = threads.Length;
-        int length = users.Length;
+        var threadsLength = threads.Length;
+        var length = users.Length;
         Dictionary<Snowflake, GuildThread> result = new(threadsLength);
         int threadIndex = 0, userIndex = 0;
         while (userIndex < length)
@@ -36,7 +36,7 @@ internal class GuildThreadGenerator
     {
         var threads = jsonThreads.Threads;
         var users = jsonThreads.Users;
-        int length = users.Length;
+        var length = users.Length;
         int threadIndex = 0, userIndex = 0;
         while (userIndex < length)
         {
