@@ -29,14 +29,16 @@ public class MessageOptions
     public IEnumerable<ComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonConverter(typeof(JsonConverters.MessageAttachmentIEnumerableConverter))]
+    [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
     internal MultipartFormDataContent Build()
     {
-        MultipartFormDataContent content = new();
-        content.Add(new JsonContent(this), "payload_json");
+        MultipartFormDataContent content = new()
+        {
+            { new JsonContent(this), "payload_json" }
+        };
         if (Attachments != null)
         {
             int i = 0;

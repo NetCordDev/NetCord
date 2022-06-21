@@ -117,6 +117,7 @@ public partial class RestClient : IDisposable
                     break;
             }
         }
+        Console.WriteLine(await content.ReadAsStringAsync());
         if (!response.IsSuccessStatusCode)
             throw new RestException(response);
 

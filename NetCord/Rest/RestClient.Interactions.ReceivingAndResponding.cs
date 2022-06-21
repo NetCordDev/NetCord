@@ -28,7 +28,7 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(messageOptions), $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage>(), this);
+        return new((await SendRequestAsync(HttpMethod.Patch, messageOptions.Build(), $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", options).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage>(), this);
     }
 
     public Task DeleteInteractionFollowupMessageAsync(Snowflake applicationId, string interactionToken, Snowflake messageId, RequestProperties? options = null)

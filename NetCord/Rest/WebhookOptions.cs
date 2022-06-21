@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public class GuildStickerOptions
+public class WebhookOptions
 {
-    internal GuildStickerOptions()
+    internal WebhookOptions()
     {
     }
 
@@ -13,10 +13,10 @@ public class GuildStickerOptions
     public string? Name { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
+    [JsonPropertyName("avatar")]
+    public ImageProperties? Avatar { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("tags")]
-    public string? Tags { get; set; }
+    [JsonPropertyName("channel_id")]
+    public Snowflake? ChannelId { get; set; }
 }

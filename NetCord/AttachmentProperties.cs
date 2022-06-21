@@ -3,7 +3,7 @@
 public class AttachmentProperties
 {
     public string FileName { get; }
-    public string? Description { get; init; }
+    public string? Description { get; set; }
 
     internal Stream Stream
     {

@@ -2,15 +2,23 @@
 
 namespace NetCord;
 
-public class InteractionMessageProperties
+public class WebhookMessageProperties
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("tts")]
-    public bool Tts { get; set; }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
     public string? Content { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("username")]
+    public string? Username { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("avatar_url")]
+    public string? AvatarUrl { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("tts")]
+    public bool Tts { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("embeds")]
@@ -21,10 +29,6 @@ public class InteractionMessageProperties
     public AllowedMentionsProperties? AllowedMentions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("flags")]
-    public MessageFlags? Flags { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
     public IEnumerable<ComponentProperties>? Components { get; set; }
 
@@ -32,6 +36,14 @@ public class InteractionMessageProperties
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("flags")]
+    public MessageFlags? Flags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("thread_name")]
+    public string? ThreadName { get; set; }
 
     internal MultipartFormDataContent Build()
     {
@@ -51,7 +63,7 @@ public class InteractionMessageProperties
         return content;
     }
 
-    public static implicit operator InteractionMessageProperties(string content) => new()
+    public static implicit operator WebhookMessageProperties(string content) => new()
     {
         Content = content
     };

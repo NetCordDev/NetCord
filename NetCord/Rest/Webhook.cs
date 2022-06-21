@@ -2,15 +2,19 @@
 
 namespace NetCord;
 
-public class Webhook : IJsonModel<JsonWebhook>
+public class Webhook : Entity, IJsonModel<JsonWebhook>
 {
     JsonWebhook IJsonModel<JsonWebhook>.JsonModel => _jsonModel;
     private readonly JsonWebhook _jsonModel;
 
-    public Webhook(JsonWebhook jsonModel)
+    public Webhook(JsonWebhook jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
+        if (_jsonModel.Creator != null)
+            Creator = new(_jsonModel.Creator, client);
     }
+
+    public override Snowflake Id => _jsonModel.Id;
 
     public WebhookType Type => _jsonModel.Type;
 
@@ -18,7 +22,7 @@ public class Webhook : IJsonModel<JsonWebhook>
 
     public Snowflake? ChannelId => _jsonModel.ChannelId;
 
-    public JsonUser? Creator => _jsonModel.Creator;
+    public User? Creator { get; }
 
     public string? Name => _jsonModel.Name;
 
@@ -31,4 +35,5 @@ public class Webhook : IJsonModel<JsonWebhook>
     public RestGuild? Guild => _jsonModel.Guild;
 
     public string? Url => _jsonModel.Url;
+
 }

@@ -13,7 +13,7 @@ public class MessageProperties
     public bool Tts { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonConverter(typeof(JsonConverters.MessageAttachmentIEnumerableConverter))]
+    [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 

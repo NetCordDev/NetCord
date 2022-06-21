@@ -22,7 +22,7 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         Integrations = _data.Integrations.Select(e => new Integration(e, _client));
         Threads = _data.Threads.Select(t => (GuildThread)Channel.CreateFromJson(t, _client));
         Users = _data.Users.Select(u => new User(u, _client));
-        Webhooks = _data.Webhooks.Select(w => new Webhook(w));
+        Webhooks = _data.Webhooks.Select(w => new Webhook(w, client));
     }
 
     public override Snowflake Id => _jsonModel.Id;

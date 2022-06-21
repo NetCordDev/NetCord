@@ -65,8 +65,10 @@ public class InteractionCallback
     {
         if (Data is InteractionMessageProperties message)
         {
-            MultipartFormDataContent content = new();
-            content.Add(new JsonContent(this), "payload_json");
+            MultipartFormDataContent content = new()
+            {
+                { new JsonContent(this), "payload_json" }
+            };
             var attachments = message.Attachments;
             if (attachments != null)
             {
