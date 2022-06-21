@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
-using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
@@ -86,7 +85,7 @@ public partial class GatewayClient : WebSocketClient
     public Shard? Shard { get; private set; }
     public Snowflake? ApplicationId { get; private set; }
     public ApplicationFlags? ApplicationFlags { get; private set; }
-    public RestClient Rest { get; }
+    public Rest.RestClient Rest { get; }
 
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();

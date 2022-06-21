@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+﻿namespace NetCord;
 
 public class ApplicationCommandPermission : Entity, IJsonModel<JsonModels.JsonApplicationCommandPermission>
 {
