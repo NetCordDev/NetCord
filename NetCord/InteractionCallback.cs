@@ -13,11 +13,6 @@ public class InteractionCallback
     [JsonPropertyName("data")]
     public object? Data { get; }
 
-    private InteractionCallback(InteractionCallbackType type)
-    {
-        Type = type;
-    }
-
     private InteractionCallback(InteractionCallbackType type, object? data)
     {
         Type = type;
@@ -42,7 +37,7 @@ public class InteractionCallback
     /// For components, ACK an interaction and edit the original message later; the user does not see a loading state
     /// </summary>
     public static InteractionCallback DeferredUpdateMessage
-        => new(InteractionCallbackType.DeferredUpdateMessage);
+        => new(InteractionCallbackType.DeferredUpdateMessage, null);
 
     /// <summary>
     /// For components, edit the message the component was attached to

@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {

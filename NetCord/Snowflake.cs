@@ -48,7 +48,7 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
         if (ulong.TryParse(s, out _))
             _value = s;
         else
-            throw new FormatException($"{nameof(s)} must consist of decimal digits and cannot be too large");
+            throw new FormatException($"'{nameof(s)}' must consist of decimal digits and cannot be too large");
     }
 
     public Snowflake(ulong u)

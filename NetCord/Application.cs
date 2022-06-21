@@ -21,7 +21,7 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string VerifyKey => _jsonModel.VerifyKey;
     public Team? Team { get; }
     /// <summary>
-    /// If this application is a game sold on Discord, this field will be the guild to which it has been linked
+    /// If this application is a game sold on Discord, this field will be the guild to which it has been linked.
     /// </summary>
     public Snowflake? GuildId => _jsonModel.GuildId;
     public Snowflake? PrimarySkuId => _jsonModel.PrimarySkuId;

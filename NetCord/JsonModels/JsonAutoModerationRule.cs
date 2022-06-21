@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using NetCord.Rest;
+
 namespace NetCord.JsonModels;
 
 public record JsonAutoModerationRule : JsonEntity

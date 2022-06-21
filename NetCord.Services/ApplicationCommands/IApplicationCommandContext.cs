@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services.ApplicationCommands;
 
 public interface IApplicationCommandContext : IContext
 {

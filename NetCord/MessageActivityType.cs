@@ -1,10 +1,9 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public enum MessageActivityType
 {
-    public enum MessageActivityType
-    {
-        Join = 1,
-        Spectate = 2,
-        Listen = 3,
-        JoinRequest = 5,
-    }
+    Join = 1,
+    Spectate = 2,
+    Listen = 3,
+    JoinRequest = 5,
 }

@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using NetCord.Rest;
+
+namespace NetCord.Services;
 
 public interface IRestMessageContext
 {

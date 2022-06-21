@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands.TypeReaders.ChannelTypeReaders;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Services.ApplicationCommands.TypeReaders.ChannelTypeReaders;
 
 public class PrivateGuildThreadTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {

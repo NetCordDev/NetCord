@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 

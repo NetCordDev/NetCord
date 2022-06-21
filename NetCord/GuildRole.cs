@@ -6,7 +6,7 @@ namespace NetCord;
 public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 {
     JsonGuildRole IJsonModel<JsonGuildRole>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildRole _jsonModel;
+    private readonly JsonGuildRole _jsonModel;
 
     public override Snowflake Id => _jsonModel.Id;
 

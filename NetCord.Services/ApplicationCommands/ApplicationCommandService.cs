@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 
+using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;

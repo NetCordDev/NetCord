@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using NetCord.Gateway;
+
+namespace NetCord;
 
 public class MessageReactionRemoveEmojiEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>
 {

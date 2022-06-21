@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+using NetCord.Gateway;
+
 namespace NetCord.Services.Interactions;
 
 public class InteractionService<TContext> : IService where TContext : InteractionContext

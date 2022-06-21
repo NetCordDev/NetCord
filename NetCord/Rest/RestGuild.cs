@@ -1,7 +1,5 @@
 ﻿using System.Collections.Immutable;
 
-using NetCord;
-
 namespace NetCord.Rest;
 
 public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>

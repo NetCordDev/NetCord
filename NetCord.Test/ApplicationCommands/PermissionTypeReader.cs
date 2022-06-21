@@ -1,4 +1,5 @@
-﻿using NetCord.Rest;
+﻿using NetCord.Gateway;
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;
