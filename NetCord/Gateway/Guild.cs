@@ -29,7 +29,7 @@ public class Guild : RestGuild
         Channels = _jsonModel.Channels.ToImmutableDictionary(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
         ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));
         StageInstances = _jsonModel.StageInstances.ToImmutableDictionary(i => i.Id, i => new StageInstance(i, client));
-        Presences = _jsonModel.Presences.ToImmutableDictionary(p => p.User.Id, p => new Presence(p, client));
+        Presences = _jsonModel.Presences.ToImmutableDictionary(p => p.User.Id, p => new Presence(p, Id, client));
         ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionary(e => e.Id, e => new GuildScheduledEvent(e, client));
     }
 

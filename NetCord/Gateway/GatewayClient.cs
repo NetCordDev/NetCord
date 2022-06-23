@@ -1039,7 +1039,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "PRESENCE_UPDATE":
                 {
-                    Presence presence = new(data.ToObject<JsonPresence>(), Rest);
+                    Presence presence = new(data.ToObject<JsonPresence>(), null, Rest);
                     if (PresenceUpdate != null)
                         try
                         {
