@@ -1,12 +1,14 @@
 ﻿using System.Globalization;
 
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public class GuildUser : User
+public class GuildUser : User, IJsonModel<JsonGuildUser>
 {
-    private protected new readonly JsonModels.JsonGuildUser _jsonModel;
+    JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
+    private protected new readonly JsonGuildUser _jsonModel;
 
     public override Snowflake Id => _jsonModel.User.Id;
     public override string Username => _jsonModel.User.Username;
@@ -33,7 +35,7 @@ public class GuildUser : User
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
     public Snowflake GuildId { get; }
 
-    public GuildUser(JsonModels.JsonGuildUser jsonModel, Snowflake guildId, RestClient client) : base(jsonModel.User, client)
+    public GuildUser(JsonGuildUser jsonModel, Snowflake guildId, RestClient client) : base(jsonModel.User, client)
     {
         _jsonModel = jsonModel;
         GuildId = guildId;
