@@ -12,7 +12,7 @@ public class GuildWelcomeScreenChannelProperties
     public string Description { get; set; }
 
     [JsonPropertyName("emoji_id")]
-    public GuildWelcomeScreenChannelPropertiesEmoji? Emoji { get; set; }
+    public GuildWelcomeScreenChannelEmojiProperties? Emoji { get; set; }
 
     public GuildWelcomeScreenChannelProperties(Snowflake channelId, string description)
     {
@@ -22,26 +22,26 @@ public class GuildWelcomeScreenChannelProperties
 }
 
 [JsonConverter(typeof(GuildWelcomeScreenChannelPropertiesEmojiConverter))]
-public class GuildWelcomeScreenChannelPropertiesEmoji
+public class GuildWelcomeScreenChannelEmojiProperties
 {
     public string? Unicode { get; }
 
     public Snowflake? EmojiId { get; }
 
-    public GuildWelcomeScreenChannelPropertiesEmoji(string unicode)
+    public GuildWelcomeScreenChannelEmojiProperties(string unicode)
     {
         Unicode = unicode;
     }
 
-    public GuildWelcomeScreenChannelPropertiesEmoji(Snowflake emojiId)
+    public GuildWelcomeScreenChannelEmojiProperties(Snowflake emojiId)
     {
         EmojiId = emojiId;
     }
 
-    private class GuildWelcomeScreenChannelPropertiesEmojiConverter : JsonConverter<GuildWelcomeScreenChannelPropertiesEmoji>
+    private class GuildWelcomeScreenChannelPropertiesEmojiConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
     {
-        public override GuildWelcomeScreenChannelPropertiesEmoji? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-        public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelPropertiesEmoji value, JsonSerializerOptions options)
+        public override GuildWelcomeScreenChannelEmojiProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+        public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelEmojiProperties value, JsonSerializerOptions options)
         {
             if (value.EmojiId != null)
                 JsonSerializer.Serialize(writer, value.EmojiId, options);
