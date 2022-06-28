@@ -47,7 +47,7 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
         return RoleIds.Select(r => roles[r]);
     }
 
-    public Task<GuildUser> ModifyAsync(Action<GuildUserProperties> func, RequestProperties? options = null)
+    public Task<GuildUser> ModifyAsync(Action<GuildUserOptions> func, RequestProperties? options = null)
         => _client.ModifyGuildUserAsync(GuildId, Id, func, options);
 
     public Task KickAsync(RequestProperties? options = null) => _client.KickGuildUserAsync(GuildId, Id, options);

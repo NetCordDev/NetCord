@@ -251,17 +251,17 @@ public partial class RestClient
             return new(v.ToObject<JsonModels.JsonGuildUser>(), guildId, this);
     }
 
-    public async Task<GuildUser> ModifyGuildUserAsync(Snowflake guildId, Snowflake userId, Action<GuildUserProperties> action, RequestProperties? options = null)
+    public async Task<GuildUser> ModifyGuildUserAsync(Snowflake guildId, Snowflake userId, Action<GuildUserOptions> action, RequestProperties? options = null)
     {
-        GuildUserProperties properties = new();
+        GuildUserOptions properties = new();
         action(properties);
         var result = (await SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/{userId}", options).ConfigureAwait(false))!;
         return new(result.ToObject<JsonModels.JsonGuildUser>(), guildId, this);
     }
 
-    public async Task<GuildUser> ModifyCurrentGuildUserAsync(Snowflake guildId, Action<CurrentGuildUserProperties> action, RequestProperties? options = null)
+    public async Task<GuildUser> ModifyCurrentGuildUserAsync(Snowflake guildId, Action<CurrentGuildUserOptions> action, RequestProperties? options = null)
     {
-        CurrentGuildUserProperties properties = new();
+        CurrentGuildUserOptions properties = new();
         action(properties);
         var result = (await SendRequestAsync(HttpMethod.Patch, new JsonContent(properties), $"/guilds/{guildId}/members/@me", options).ConfigureAwait(false))!;
         return new(result.ToObject<JsonModels.JsonGuildUser>(), guildId, this);
