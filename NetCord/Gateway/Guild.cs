@@ -25,7 +25,7 @@ public class Guild : RestGuild
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
         VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionary(s => new VoiceState(s));
-        Users = _jsonModel.Users.DistinctBy(u => u.Value.User.Id).ToImmutableDictionary(u => new GuildUser(u, Id, client));
+        Users = _jsonModel.Users.ToImmutableDictionary(u => new GuildUser(u, Id, client));
         Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
         ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionary(t => (GuildThread)Channel.CreateFromJson(t, client));
         StageInstances = _jsonModel.StageInstances.ToImmutableDictionary(i => new StageInstance(i, client));

@@ -35,7 +35,7 @@ internal class JsonGuildUserArrayToDictionaryConverter : JsonConverter<Dictionar
 {
     public override Dictionary<Snowflake, JsonGuildUser>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return reader.ToObject<JsonGuildUser[]>().ToDictionary(v => v.User.Id);
+        return reader.ToObject<JsonGuildUser[]>().DistinctBy(u => u.User.Id).ToDictionary(v => v.User.Id);
     }
 
     public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonGuildUser> value, JsonSerializerOptions options)
