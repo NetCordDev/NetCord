@@ -94,18 +94,11 @@ public partial class GatewayClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public GatewayClient(string token!!, TokenType tokenType, GatewayClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
+    public GatewayClient(Token token, GatewayClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
     {
-        _botToken = token;
-        if (config != null)
-        {
-            _config = config;
-        }
-        else
-        {
-            _config = new();
-        }
-        Rest = new(token, tokenType);
+        _botToken = token.RawToken;
+        _config = config ?? new();
+        Rest = new(token);
     }
 
     /// <summary>

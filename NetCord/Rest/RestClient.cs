@@ -10,10 +10,10 @@ public partial class RestClient : IDisposable
 
     private readonly RateLimits.Bucket _globalBucket;
 
-    public RestClient(string token, TokenType tokenType)
+    public RestClient(Token token)
     {
         _httpClient = new();
-        _httpClient.DefaultRequestHeaders.Add("Authorization", tokenType == TokenType.Bearer ? token : $"{tokenType} {token}");
+        _httpClient.DefaultRequestHeaders.Add("Authorization", token.ToHttpHeader());
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
         _globalBucket = new(this);
     }
