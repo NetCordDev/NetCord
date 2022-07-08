@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 using NetCord.Rest;
 
@@ -51,11 +52,12 @@ public record JsonGuild : JsonEntity
     [JsonPropertyName("explicit_content_filter")]
     public ContentFilter ContentFilter { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonGuildRole>))]
     [JsonPropertyName("roles")]
-    public JsonGuildRole[] Roles { get; init; }
+    public Dictionary<Snowflake, JsonGuildRole> Roles { get; init; }
 
     [JsonPropertyName("emojis")]
-    public JsonEmoji[] Emojis { get; init; }
+    public List<JsonEmoji> Emojis { get; init; }
 
     [JsonPropertyName("features")]
     public string[] Features { get; init; }
@@ -87,20 +89,25 @@ public record JsonGuild : JsonEntity
     [JsonPropertyName("member_count")]
     public int MemberCount { get; set; }
 
+    [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToDictionaryConverter))]
     [JsonPropertyName("voice_states")]
-    public JsonVoiceState[] VoiceStates { get; init; }
+    public Dictionary<Snowflake, JsonVoiceState> VoiceStates { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.JsonGuildUserArrayToDictionaryConverter))]
     [JsonPropertyName("members")]
-    public JsonGuildUser[] Users { get; init; }
+    public Dictionary<Snowflake, JsonGuildUser> Users { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonChannel>))]
     [JsonPropertyName("channels")]
-    public JsonChannel[] Channels { get; set; }
+    public Dictionary<Snowflake, JsonChannel> Channels { get; set; }
 
+    [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonChannel>))]
     [JsonPropertyName("threads")]
-    public JsonChannel[] ActiveThreads { get; init; }
+    public Dictionary<Snowflake, JsonChannel> ActiveThreads { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.JsonPresenceArrayToDictionaryConverter))]
     [JsonPropertyName("presences")]
-    public JsonPresence[] Presences { get; init; }
+    public Dictionary<Snowflake, JsonPresence> Presences { get; init; }
 
     [JsonPropertyName("max_presences")]
     public int? MaxPresences { get; init; }
@@ -144,14 +151,16 @@ public record JsonGuild : JsonEntity
     [JsonPropertyName("nsfw_level")]
     public NSFWLevel NSFWLevel { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonStageInstance>))]
     [JsonPropertyName("stage_instances")]
-    public JsonStageInstance[] StageInstances { get; init; }
+    public Dictionary<Snowflake, JsonStageInstance> StageInstances { get; init; }
 
     [JsonPropertyName("stickers")]
-    public JsonSticker[] Stickers { get; init; }
+    public List<JsonSticker> Stickers { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonGuildScheduledEvent>))]
     [JsonPropertyName("guild_scheduled_events")]
-    public JsonGuildScheduledEvent[] ScheduledEvents { get; init; }
+    public Dictionary<Snowflake, JsonGuildScheduledEvent> ScheduledEvents { get; init; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumPropressBarEnabled { get; init; }

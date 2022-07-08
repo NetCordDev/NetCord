@@ -12,8 +12,8 @@ public class GuildTemplateSourceGuild : IJsonModel<JsonGuild>
     public GuildTemplateSourceGuild(JsonGuild jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
-        Channels = _jsonModel.Channels.ToImmutableDictionary(c => c.Id, c => (IGuildChannel)Channel.CreateFromJson(c, client));
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, client));
+        Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
     }
 
     public string Name => _jsonModel.Name;

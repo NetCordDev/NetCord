@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 {
     JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonGuild _jsonModel;
+    internal readonly JsonModels.JsonGuild _jsonModel;
 
     public ImmutableDictionary<Snowflake, GuildRole> Roles { get; internal set; }
     public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; internal set; }
@@ -50,7 +50,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => r.Id, r => new GuildRole(r, client));
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, client));
         // guild emojis always have Id
         Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));

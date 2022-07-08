@@ -370,7 +370,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "CHANNEL_CREATE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
+                    var json = data.ToObject<JsonChannel>();
+                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelCreate != null)
                         try
@@ -382,12 +383,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.Channels = guild.Channels.SetItem(channel.Id, channel);
+                        guild._jsonModel.Channels[json.Id] = json;
+                    }
                 }
                 break;
             case "CHANNEL_UPDATE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
+                    var json = data.ToObject<JsonChannel>();
+                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelUpdate != null)
                         try
@@ -399,12 +404,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.Channels = guild.Channels.SetItem(channel.Id, channel);
+                        guild._jsonModel.Channels[json.Id] = json;
+                    }
                 }
                 break;
             case "CHANNEL_DELETE":
                 {
-                    var channel = (IGuildChannel)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
+                    var json = data.ToObject<JsonChannel>();
+                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = GetGuildId();
                     if (GuildChannelDelete != null)
                         try
@@ -416,7 +425,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.Channels = guild.Channels.Remove(channel.Id);
+                        guild._jsonModel.Channels.Remove(json.Id);
+                    }
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
@@ -434,7 +446,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_CREATE":
                 {
-                    var thread = (GuildThread)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
+                    var json = data.ToObject<JsonChannel>();
+                    var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
                     var guildId = GetGuildId();
                     if (GuildThreadCreate != null)
                         try
@@ -446,12 +459,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
+                        guild._jsonModel.ActiveThreads[json.Id] = json;
+                    }
                 }
                 break;
             case "THREAD_UPDATE":
                 {
-                    var thread = (GuildThread)Channel.CreateFromJson(data.ToObject<JsonChannel>(), Rest);
+                    var json = data.ToObject<JsonChannel>();
+                    var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
                     var guildId = GetGuildId();
                     if (GuildThreadUpdate != null)
                         try
@@ -463,7 +480,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
+                        guild._jsonModel.ActiveThreads[json.Id] = json;
+                    }
                 }
                 break;
             case "THREAD_DELETE":
@@ -480,7 +500,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(guildId, out var guild))
+                    {
                         guild.ActiveThreads = guild.ActiveThreads.Remove(jsonThread.Id);
+                        guild._jsonModel.ActiveThreads.Remove(jsonThread.Id);
+                    }
                 }
                 break;
             case "THREAD_LIST_SYNC":
@@ -603,7 +626,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_EMOJIS_UPDATE":
                 {
-                    GuildEmojisUpdateEventArgs args = new(data.ToObject<JsonGuildEmojisUpdateEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildEmojisUpdateEventArgs>();
+                    GuildEmojisUpdateEventArgs args = new(json, Rest);
                     if (GuildEmojisUpdate != null)
                         try
                         {
@@ -614,12 +638,17 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Emojis = args.Emojis;
+                        guild._jsonModel.Emojis.Clear();
+                        guild._jsonModel.Emojis.AddRange(json.Emojis);
+                    }
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
-                    GuildStickersUpdateEventArgs args = new(data.ToObject<JsonGuildStickersUpdateEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildStickersUpdateEventArgs>();
+                    GuildStickersUpdateEventArgs args = new(json, Rest);
                     if (GuildStickersUpdate != null)
                         try
                         {
@@ -630,7 +659,11 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Stickers = args.Stickers;
+                        guild._jsonModel.Stickers.Clear();
+                        guild._jsonModel.Stickers.AddRange(json.Stickers);
+                    }
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
@@ -648,7 +681,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBER_ADD":
                 {
-                    GuildUser user = new(data.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
+                    var json = data.ToObject<JsonGuildUser>();
+                    GuildUser user = new(json, GetGuildId(), Rest);
                     if (GuildUserAdd != null)
                         try
                         {
@@ -659,12 +693,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(user.GuildId, out var guild))
-                        guild.Users = guild.Users.Remove(user.Id);
+                    {
+                        guild.Users = guild.Users.SetItem(user.Id, user);
+                        guild._jsonModel.Users[json.User.Id] = json;
+                    }
                 }
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
-                    GuildUser user = new(data.ToObject<JsonGuildUser>(), GetGuildId(), Rest);
+                    var json = data.ToObject<JsonGuildUser>();
+                    GuildUser user = new(json, GetGuildId(), Rest);
                     if (GuildUserUpdate != null)
                         try
                         {
@@ -675,12 +713,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(user.GuildId, out var guild))
+                    {
                         guild.Users = guild.Users.SetItem(user.Id, user);
+                        guild._jsonModel.Users[json.User.Id] = json;
+                    }
                 }
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
-                    GuildUserRemoveEventArgs args = new(data.ToObject<JsonGuildUserRemoveEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildUserRemoveEventArgs>();
+                    GuildUserRemoveEventArgs args = new(json, Rest);
                     if (GuildUserRemove != null)
                         try
                         {
@@ -691,7 +733,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Users = guild.Users.Remove(args.User.Id);
+                        guild._jsonModel.Users.Remove(json.User.Id);
+                    }
                 }
                 break;
             case "GUILD_MEMBERS_CHUNK":
@@ -716,7 +761,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_CREATE":
                 {
-                    GuildRoleEventArgs args = new(data.ToObject<JsonGuildRoleEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildRoleEventArgs>();
+                    GuildRoleEventArgs args = new(json, Rest);
                     if (GuildRoleCreate != null)
                         try
                         {
@@ -727,12 +773,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
+                        guild._jsonModel.Roles[json.Role.Id] = json.Role;
+                    }
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
-                    GuildRoleEventArgs args = new(data.ToObject<JsonGuildRoleEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildRoleEventArgs>();
+                    GuildRoleEventArgs args = new(json, Rest);
                     if (GuildRoleUpdate != null)
                         try
                         {
@@ -743,12 +793,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
+                        guild._jsonModel.Roles[json.Role.Id] = json.Role;
+                    }
                 }
                 break;
             case "GUILD_ROLE_DELETE":
                 {
-                    GuildRoleDeleteEventArgs args = new(data.ToObject<JsonGuildRoleDeleteEventArgs>());
+                    var json = data.ToObject<JsonGuildRoleDeleteEventArgs>();
+                    GuildRoleDeleteEventArgs args = new(json);
                     if (GuildRoleDelete != null)
                         try
                         {
@@ -759,12 +813,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(args.GuildId, out var guild))
+                    {
                         guild.Roles = guild.Roles.Remove(args.RoleId);
+                        guild._jsonModel.Roles.Remove(json.RoleId);
+                    }
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventCreate != null)
                         try
                         {
@@ -775,12 +833,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
+                    {
                         guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
+                        guild._jsonModel.ScheduledEvents[json.Id] = json;
+                    }
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventUpdate != null)
                         try
                         {
@@ -791,12 +853,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
+                    {
                         guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
+                        guild._jsonModel.ScheduledEvents[json.Id] = json;
+                    }
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
-                    GuildScheduledEvent scheduledEvent = new(data.ToObject<JsonGuildScheduledEvent>(), Rest);
+                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventDelete != null)
                         try
                         {
@@ -807,7 +873,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(scheduledEvent.GuildId, out var guild))
+                    {
                         guild.ScheduledEvents = guild.ScheduledEvents.Remove(scheduledEvent.Id);
+                        guild._jsonModel.ScheduledEvents.Remove(json.Id);
+                    }
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
@@ -1032,7 +1101,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "PRESENCE_UPDATE":
                 {
-                    Presence presence = new(data.ToObject<JsonPresence>(), null, Rest);
+                    var json = data.ToObject<JsonPresence>();
+                    Presence presence = new(json, null, Rest);
                     if (PresenceUpdate != null)
                         try
                         {
@@ -1043,12 +1113,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(presence.GuildId, out var guild))
+                    {
                         guild.Presences = guild.Presences.SetItem(presence.User.Id, presence);
+                        guild._jsonModel.Presences[json.User.Id] = json;
+                    }
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
-                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
+                    var json = data.ToObject<JsonStageInstance>();
+                    StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceCreate != null)
                         try
                         {
@@ -1059,12 +1133,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
+                    {
                         guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
+                        guild._jsonModel.StageInstances[json.Id] = json;
+                    }
                 }
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
-                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
+                    var json = data.ToObject<JsonStageInstance>();
+                    StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceUpdate != null)
                         try
                         {
@@ -1075,12 +1153,16 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
+                    {
                         guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
+                        guild._jsonModel.StageInstances[json.Id] = json;
+                    }
                 }
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
-                    StageInstance stageInstance = new(data.ToObject<JsonStageInstance>(), Rest);
+                    var json = data.ToObject<JsonStageInstance>();
+                    StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceDelete != null)
                         try
                         {
@@ -1091,7 +1173,10 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(stageInstance.GuildId, out var guild))
+                    {
                         guild.StageInstances = guild.StageInstances.Remove(stageInstance.Id);
+                        guild._jsonModel.StageInstances.Remove(json.Id);
+                    }
                 }
                 break;
             case "TYPING_START":
@@ -1124,7 +1209,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "VOICE_STATE_UPDATE":
                 {
-                    VoiceState voiceState = new(data.ToObject<JsonVoiceState>());
+                    var json = data.ToObject<JsonVoiceState>();
+                    VoiceState voiceState = new(json);
                     if (VoiceStateUpdate != null)
                         try
                         {
@@ -1135,10 +1221,18 @@ public partial class GatewayClient : WebSocketClient
                             InvokeLog(LogMessage.Error(ex));
                         }
                     if (TryGetGuild(voiceState.GuildId.GetValueOrDefault(), out var guild))
+                    {
                         if (voiceState.ChannelId.HasValue)
+                        {
                             guild.VoiceStates = guild.VoiceStates.SetItem(voiceState.UserId, voiceState);
+                            guild._jsonModel.VoiceStates[json.UserId] = json;
+                        }
                         else
+                        {
                             guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
+                            guild._jsonModel.VoiceStates.Remove(json.UserId);
+                        }
+                    }
                 }
                 break;
             case "VOICE_SERVER_UPDATE":
