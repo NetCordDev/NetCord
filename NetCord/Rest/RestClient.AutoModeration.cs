@@ -1,23 +1,25 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Rest.RateLimits;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async Task<IReadOnlyDictionary<Snowflake, AutoModerationRule>> GetAutoModerationRulesForGuildAsync(Snowflake guildId, RequestProperties? options = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules", options).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule[]>().ToDictionary(r => r.Id, r => new AutoModerationRule(r));
+    public async Task<IReadOnlyDictionary<Snowflake, AutoModerationRule>> GetAutoModerationRulesAsync(Snowflake guildId, RequestProperties? properties = null)
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules", new Route(RouteParameter.GetAutoModerationRulesForGuild, guildId), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule[]>().ToDictionary(r => r.Id, r => new AutoModerationRule(r));
 
-    public async Task<AutoModerationRule> GetAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, RequestProperties? options = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", options).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
+    public async Task<AutoModerationRule> GetAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, RequestProperties? properties = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", new Route(RouteParameter.GetAutoModerationRule, guildId), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
 
-    public async Task<AutoModerationRule> CreateAutoModerationRuleAsync(Snowflake guildId, AutoModerationRuleProperties autoModerationRuleProperties, RequestProperties? options = null)
-        => new((await SendRequestAsync(HttpMethod.Post, new JsonContent(autoModerationRuleProperties), $"/guilds/{guildId}/auto-moderation/rules", options).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
+    public async Task<AutoModerationRule> CreateAutoModerationRuleAsync(Snowflake guildId, AutoModerationRuleProperties autoModerationRuleProperties, RequestProperties? properties = null)
+        => new((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/auto-moderation/rules", new Route(RouteParameter.CreateAutoModerationRule, guildId), new JsonContent(autoModerationRuleProperties), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
 
-    public async Task<AutoModerationRule> ModifyAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, Action<AutoModerationRuleOptions> action, RequestProperties? options = null)
+    public async Task<AutoModerationRule> ModifyAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, Action<AutoModerationRuleOptions> action, RequestProperties? properties = null)
     {
         AutoModerationRuleOptions autoModerationRuleOptions = new();
         action(autoModerationRuleOptions);
-        return new((await SendRequestAsync(HttpMethod.Patch, new JsonContent(autoModerationRuleOptions), $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", options).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
+        return new((await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", new Route(RouteParameter.ModifyAutoModerationRule, guildId), new JsonContent(autoModerationRuleOptions), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAutoModerationRule>());
     }
 
-    public Task DeleteAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, RequestProperties? options = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", options);
+    public Task DeleteAutoModerationRuleAsync(Snowflake guildId, Snowflake autoModerationRuleId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/auto-moderation/rules/{autoModerationRuleId}", new Route(RouteParameter.DeleteAutoModerationRule, guildId), properties);
 }

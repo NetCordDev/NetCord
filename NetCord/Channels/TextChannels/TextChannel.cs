@@ -12,9 +12,9 @@ public abstract class TextChannel : Channel
     public Snowflake? LastMessageId => _jsonModel.LastMessageId;
     public DateTimeOffset? LastPin => _jsonModel.LastPin;
 
-    public IAsyncEnumerable<RestMessage> GetMessagesAsync(RequestProperties? options = null) => _client.GetMessagesAsync(Id, options);
-    public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(Snowflake messageId, RequestProperties? options = null) => _client.GetMessagesBeforeAsync(Id, messageId, options);
-    public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(Snowflake messageId, RequestProperties? options = null) => _client.GetMessagesAfterAsync(Id, messageId, options);
-    public Task<RestMessage> GetMessageAsync(Snowflake messageId, RequestProperties? options = null) => _client.GetMessageAsync(Id, messageId, options);
-    public Task<RestMessage> SendMessageAsync(MessageProperties message, RequestProperties? options = null) => _client.SendMessageAsync(Id, message, options);
+    public IAsyncEnumerable<RestMessage> GetMessagesAsync(RequestProperties? properties = null) => _client.GetMessagesAsync(Id, properties);
+    public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(Snowflake messageId, RequestProperties? properties = null) => _client.GetMessagesBeforeAsync(Id, messageId, properties);
+    public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(Snowflake messageId, RequestProperties? properties = null) => _client.GetMessagesAfterAsync(Id, messageId, properties);
+    public Task<RestMessage> GetMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.GetMessageAsync(Id, messageId, properties);
+    public Task<RestMessage> SendMessageAsync(MessageProperties message, RequestProperties? properties = null) => _client.SendMessageAsync(Id, message, properties);
 }

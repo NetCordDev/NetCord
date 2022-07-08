@@ -21,7 +21,7 @@ public class GuildWelcomeScreenChannelProperties
     }
 }
 
-[JsonConverter(typeof(GuildWelcomeScreenChannelPropertiesEmojiConverter))]
+[JsonConverter(typeof(GuildWelcomeScreenChannelEmojiPropertiesConverter))]
 public class GuildWelcomeScreenChannelEmojiProperties
 {
     public string? Unicode { get; }
@@ -38,7 +38,7 @@ public class GuildWelcomeScreenChannelEmojiProperties
         EmojiId = emojiId;
     }
 
-    private class GuildWelcomeScreenChannelPropertiesEmojiConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
+    private class GuildWelcomeScreenChannelEmojiPropertiesConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
     {
         public override GuildWelcomeScreenChannelEmojiProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelEmojiProperties value, JsonSerializerOptions options)

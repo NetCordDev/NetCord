@@ -116,19 +116,19 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         return CreateFromJson(jsonModel, guild, channel, client.Rest);
     }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? options = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, options);
+    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, properties);
 
-    public Task<RestMessage> GetResponseAsync(RequestProperties? options = null) => _client.GetInteractionResponseAsync(ApplicationId, Token, options);
+    public Task<RestMessage> GetResponseAsync(RequestProperties? properties = null) => _client.GetInteractionResponseAsync(ApplicationId, Token, properties);
 
-    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RequestProperties? options = null) => _client.ModifyInteractionResponseAsync(ApplicationId, Token, action, options);
+    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionResponseAsync(ApplicationId, Token, action, properties);
 
-    public Task DeleteResponseAsync(RequestProperties? options = null) => _client.DeleteInteractionResponseAsync(ApplicationId, Token, options);
+    public Task DeleteResponseAsync(RequestProperties? properties = null) => _client.DeleteInteractionResponseAsync(ApplicationId, Token, properties);
 
-    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestProperties? options = null) => _client.SendInteractionFollowupMessageAsync(ApplicationId, Token, message, options);
+    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestProperties? properties = null) => _client.SendInteractionFollowupMessageAsync(ApplicationId, Token, message, properties);
 
-    public Task<RestMessage> GetFollowupMessageAsync(Snowflake messageId, RequestProperties? options = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, options);
+    public Task<RestMessage> GetFollowupMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
 
-    public Task<RestMessage> ModifyFollowupMessageAsync(Snowflake messageId, Action<MessageOptions> action, RequestProperties? options = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, options);
+    public Task<RestMessage> ModifyFollowupMessageAsync(Snowflake messageId, Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, properties);
 
-    public Task DeleteFollowupMessageAsync(Snowflake messageId, RequestProperties? options = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, options);
+    public Task DeleteFollowupMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
 }

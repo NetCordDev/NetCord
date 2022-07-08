@@ -33,7 +33,7 @@ public class GuildEmoji : Emoji
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 
-    public Task<GuildEmoji> ModifyAsync(Action<GuildEmojiOptions> action, RequestProperties? options = null) => _client.ModifyGuildEmojiAsync(GuildId, Id, action, options);
+    public Task<GuildEmoji> ModifyAsync(Action<GuildEmojiOptions> action, RequestProperties? properties = null) => _client.ModifyGuildEmojiAsync(GuildId, Id, action, properties);
 
-    public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteGuildEmojiAsync(GuildId, Id, options);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildEmojiAsync(GuildId, Id, properties);
 }

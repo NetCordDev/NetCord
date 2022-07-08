@@ -59,41 +59,41 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
             WelcomeScreen = new(jsonModel.WelcomeScreen);
     }
 
-    public Task<GuildPreview> GetPreviewAsync(RequestProperties? options = null) => _client.GetGuildPreviewAsync(Id, options);
-    public Task<RestGuild> ModifyAsync(Action<GuildOptions> action, RequestProperties? options = null) => _client.ModifyGuildAsync(Id, action, options);
-    public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteGuildAsync(Id, options);
-    public Task<IReadOnlyDictionary<Snowflake, IGuildChannel>> GetChannelsAsync(RequestProperties? options = null) => _client.GetGuildChannelsAsync(Id, options);
-    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestProperties? options = null) => _client.CreateGuildChannelAsync(Id, channelBuilder, options);
-    public Task ModifyPositionsAsync(ChannelPosition[] positions, RequestProperties? options = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, options);
-    public Task<IReadOnlyDictionary<Snowflake, GuildThread>> GetActiveThreadsAsync(RequestProperties? options = null) => _client.GetActiveGuildThreadsAsync(Id, options);
-    public IAsyncEnumerable<GuildBan> GetBansAsync(RequestProperties? options = null) => _client.GetGuildBansAsync(Id, options);
-    public IAsyncEnumerable<GuildBan> GetBansBeforeAsync(Snowflake userId, RequestProperties? options = null) => _client.GetGuildBansBeforeAsync(Id, userId, options);
-    public IAsyncEnumerable<GuildBan> GetBansAfterAsync(Snowflake userId, RequestProperties? options = null) => _client.GetGuildBansAfterAsync(Id, userId, options);
-    public Task<GuildBan> GetBanAsync(Snowflake userId, RequestProperties? options = null) => _client.GetGuildBanAsync(Id, userId, options);
-    public Task<IReadOnlyDictionary<Snowflake, GuildRole>> GetRolesAsync(RequestProperties? options = null) => _client.GetGuildRolesAsync(Id, options);
-    public Task<GuildRole> CreateRoleAsync(GuildRoleProperties guildRoleProperties, RequestProperties? options = null) => _client.CreateGuildRoleAsync(Id, guildRoleProperties, options);
-    public Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyRolePositionsAsync(GuildRolePosition[] positions, RequestProperties? options = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, options);
-    public Task<GuildRole> ModifyRoleAsync(Snowflake roleId, Action<GuildRoleOptions> action, RequestProperties? options = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, options);
-    public Task DeleteRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.DeleteGuildRoleAsync(Id, roleId, options);
-    public Task<int> GetPruneCountAsync(int days, Snowflake[]? roles = null, RequestProperties? options = null) => _client.GetGuildPruneCountAsync(Id, days, roles, options);
-    public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? options = null) => _client.GuildPruneAsync(Id, pruneProperties, options);
-    public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestProperties? options = null) => _client.GetGuildVoiceRegionsAsync(Id, options);
-    public Task<IEnumerable<RestGuildInvite>> GetInvitesAsync(RequestProperties? options = null) => _client.GetGuildInvitesAsync(Id, options);
-    public Task<IReadOnlyDictionary<Snowflake, Integration>> GetIntegrationsAsync(RequestProperties? options = null) => _client.GetGuildIntegrationsAsync(Id, options);
-    public Task DeleteIntegrationAsync(Snowflake integrationId, RequestProperties? options = null) => _client.DeleteGuildIntegrationAsync(Id, integrationId, options);
-    public Task<GuildWidgetSettings> GetWidgetSettingsAsync(RequestProperties? options = null) => _client.GetGuildWidgetSettingsAsync(Id, options);
-    public Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(Action<GuildWidgetSettingsOptions> action, RequestProperties? options = null) => _client.ModifyGuildWidgetSettingsAsync(Id, action, options);
-    public Task<GuildWidget> GetWidgetAsync(RequestProperties? options = null) => _client.GetGuildWidgetAsync(Id, options);
-    public Task<GuildVanityInvite> GetVanityInviteAsync(RequestProperties? options = null) => _client.GetGuildVanityInviteAsync(Id, options);
-    public Task<GuildWelcomeScreen> GetWelcomeScreenAsync(RequestProperties? options = null) => _client.GetGuildWelcomeScreenAsync(Id, options);
-    public Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<GuildWelcomeScreenOptions> action, RequestProperties? options = null) => _client.ModifyGuildWelcomeScreenAsync(Id, action, options);
-    public Task ModifyCurrentUserVoiceStateAsync(Snowflake channelId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? options = null) => _client.ModifyCurrentGuildUserVoiceStateAsync(Id, channelId, action, options);
-    public Task ModifyUserVoiceStateAsync(Snowflake channelId, Snowflake userId, Action<VoiceStateOptions> action, RequestProperties? options = null) => _client.ModifyGuildUserVoiceStateAsync(Id, channelId, userId, action, options);
+    public Task<GuildPreview> GetPreviewAsync(RequestProperties? properties = null) => _client.GetGuildPreviewAsync(Id, properties);
+    public Task<RestGuild> ModifyAsync(Action<GuildOptions> action, RequestProperties? properties = null) => _client.ModifyGuildAsync(Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildAsync(Id, properties);
+    public Task<IReadOnlyDictionary<Snowflake, IGuildChannel>> GetChannelsAsync(RequestProperties? properties = null) => _client.GetGuildChannelsAsync(Id, properties);
+    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestProperties? properties = null) => _client.CreateGuildChannelAsync(Id, channelBuilder, properties);
+    public Task ModifyPositionsAsync(ChannelPosition[] positions, RequestProperties? properties = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, properties);
+    public Task<IReadOnlyDictionary<Snowflake, GuildThread>> GetActiveThreadsAsync(RequestProperties? properties = null) => _client.GetActiveGuildThreadsAsync(Id, properties);
+    public IAsyncEnumerable<GuildBan> GetBansAsync(RequestProperties? properties = null) => _client.GetGuildBansAsync(Id, properties);
+    public IAsyncEnumerable<GuildBan> GetBansBeforeAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildBansBeforeAsync(Id, userId, properties);
+    public IAsyncEnumerable<GuildBan> GetBansAfterAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildBansAfterAsync(Id, userId, properties);
+    public Task<GuildBan> GetBanAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildBanAsync(Id, userId, properties);
+    public Task<IReadOnlyDictionary<Snowflake, GuildRole>> GetRolesAsync(RequestProperties? properties = null) => _client.GetGuildRolesAsync(Id, properties);
+    public Task<GuildRole> CreateRoleAsync(GuildRoleProperties guildRoleProperties, RequestProperties? properties = null) => _client.CreateGuildRoleAsync(Id, guildRoleProperties, properties);
+    public Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyRolePositionsAsync(GuildRolePosition[] positions, RequestProperties? properties = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, properties);
+    public Task<GuildRole> ModifyRoleAsync(Snowflake roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, properties);
+    public Task DeleteRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(Id, roleId, properties);
+    public Task<int> GetPruneCountAsync(int days, Snowflake[]? roles = null, RequestProperties? properties = null) => _client.GetGuildPruneCountAsync(Id, days, roles, properties);
+    public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? properties = null) => _client.GuildPruneAsync(Id, pruneProperties, properties);
+    public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestProperties? properties = null) => _client.GetGuildVoiceRegionsAsync(Id, properties);
+    public Task<IEnumerable<RestGuildInvite>> GetInvitesAsync(RequestProperties? properties = null) => _client.GetGuildInvitesAsync(Id, properties);
+    public Task<IReadOnlyDictionary<Snowflake, Integration>> GetIntegrationsAsync(RequestProperties? properties = null) => _client.GetGuildIntegrationsAsync(Id, properties);
+    public Task DeleteIntegrationAsync(Snowflake integrationId, RequestProperties? properties = null) => _client.DeleteGuildIntegrationAsync(Id, integrationId, properties);
+    public Task<GuildWidgetSettings> GetWidgetSettingsAsync(RequestProperties? properties = null) => _client.GetGuildWidgetSettingsAsync(Id, properties);
+    public Task<GuildWidgetSettings> ModifyWidgetSettingsAsync(Action<GuildWidgetSettingsOptions> action, RequestProperties? properties = null) => _client.ModifyGuildWidgetSettingsAsync(Id, action, properties);
+    public Task<GuildWidget> GetWidgetAsync(RequestProperties? properties = null) => _client.GetGuildWidgetAsync(Id, properties);
+    public Task<GuildVanityInvite> GetVanityInviteAsync(RequestProperties? properties = null) => _client.GetGuildVanityInviteAsync(Id, properties);
+    public Task<GuildWelcomeScreen> GetWelcomeScreenAsync(RequestProperties? properties = null) => _client.GetGuildWelcomeScreenAsync(Id, properties);
+    public Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<GuildWelcomeScreenOptions> action, RequestProperties? properties = null) => _client.ModifyGuildWelcomeScreenAsync(Id, action, properties);
+    public Task ModifyCurrentUserVoiceStateAsync(Snowflake channelId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? properties = null) => _client.ModifyCurrentGuildUserVoiceStateAsync(Id, channelId, action, properties);
+    public Task ModifyUserVoiceStateAsync(Snowflake channelId, Snowflake userId, Action<VoiceStateOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserVoiceStateAsync(Id, channelId, userId, action, properties);
 
-    public Task KickUserAsync(Snowflake userId, RequestProperties? options = null) => _client.KickGuildUserAsync(Id, userId, options);
+    public Task KickUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.KickGuildUserAsync(Id, userId, properties);
 
-    public Task BanUserAsync(Snowflake userId, RequestProperties? options = null) => _client.BanGuildUserAsync(Id, userId, options);
-    public Task BanUserAsync(Snowflake userId, int deleteMessageDays, RequestProperties? options = null) => _client.BanGuildUserAsync(Id, userId, deleteMessageDays, options);
+    public Task BanUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, properties);
+    public Task BanUserAsync(Snowflake userId, int deleteMessageDays, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, deleteMessageDays, properties);
 
-    public Task UnbanUserAsync(Snowflake userId, RequestProperties? options = null) => _client.UnbanGuildUserAsync(Id, userId, options);
+    public Task UnbanUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.UnbanGuildUserAsync(Id, userId, properties);
 }

@@ -885,7 +885,7 @@ public partial class GatewayClient : WebSocketClient
             case "INTERACTION_CREATE":
                 {
                     JsonInteraction interaction = data.ToObject<JsonInteraction>();
-                    if (interaction.GuildId.HasValue && interaction.ChannelId.HasValue)
+                    if (!interaction.GuildId.HasValue && interaction.ChannelId.HasValue)
                         await CacheChannelAsync(interaction.ChannelId.GetValueOrDefault()).ConfigureAwait(false);
 
                     if (InteractionCreate != null)
@@ -928,7 +928,7 @@ public partial class GatewayClient : WebSocketClient
             case "MESSAGE_CREATE":
                 {
                     var jsonMessage = data.ToObject<JsonMessage>();
-                    if (!jsonMessage.GuildId.HasValue)
+                    if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
                     if (MessageCreate != null)
@@ -945,7 +945,7 @@ public partial class GatewayClient : WebSocketClient
             case "MESSAGE_UPDATE":
                 {
                     var jsonMessage = data.ToObject<JsonMessage>();
-                    if (!jsonMessage.GuildId.HasValue)
+                    if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
                     if (MessageUpdate != null)

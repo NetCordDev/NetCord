@@ -1,23 +1,25 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Rest.RateLimits;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogAsync(Snowflake guildId, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? options = null)
+    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogAsync(Snowflake guildId, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
         Task<Stream> task;
         if (userId.HasValue)
         {
             if (actionType.HasValue)
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}", options);
+                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}", properties);
             else
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}", options);
+                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}", properties);
         }
         else
         {
             if (actionType.HasValue)
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}", options);
+                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}", properties);
             else
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100", options);
+                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100", properties);
         }
         JsonModels.JsonAuditLog? jsonAuditLog = (await task.ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
 
@@ -28,26 +30,81 @@ public partial class RestClient
             yield return auditLogEntry;
     }
 
-    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogBeforeAsync(Snowflake guildId, Snowflake before, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? options = null)
+    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogBeforeAsync(Snowflake guildId, Snowflake before, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
-        Task<Stream> task;
         if (userId.HasValue)
         {
             if (actionType.HasValue)
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}", options);
+            {
+                byte count;
+                do
+                {
+                    count = 0;
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+
+                    foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
+                    {
+                        yield return new(jsonAuditLogEntry, jsonAuditLog, this);
+                        before = jsonAuditLogEntry.Id;
+                        count++;
+                    }
+                }
+                while (count == 100);
+            }
             else
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&before={before}", options);
+            {
+                byte count;
+                do
+                {
+                    count = 0;
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+
+                    foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
+                    {
+                        yield return new(jsonAuditLogEntry, jsonAuditLog, this);
+                        before = jsonAuditLogEntry.Id;
+                        count++;
+                    }
+                }
+                while (count == 100);
+            }
         }
         else
         {
             if (actionType.HasValue)
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}", options);
-            else
-                task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&before={before}", options);
-        }
-        JsonModels.JsonAuditLog? jsonAuditLog = (await task.ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+            {
+                byte count;
+                do
+                {
+                    count = 0;
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
 
-        foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
-            yield return new(jsonAuditLogEntry, jsonAuditLog, this);
+                    foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
+                    {
+                        yield return new(jsonAuditLogEntry, jsonAuditLog, this);
+                        before = jsonAuditLogEntry.Id;
+                        count++;
+                    }
+                }
+                while (count == 100);
+            }
+            else
+            {
+                byte count;
+                do
+                {
+                    count = 0;
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+
+                    foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
+                    {
+                        yield return new(jsonAuditLogEntry, jsonAuditLog, this);
+                        before = jsonAuditLogEntry.Id;
+                        count++;
+                    }
+                }
+                while (count == 100);
+            }
+        }
     }
 }

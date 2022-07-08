@@ -19,5 +19,5 @@ public abstract class GuildThread : TextGuildChannel
             CurrentUser = new(jsonModel.CurrentUser);
     }
 
-    public async Task<GuildThread> ModifyAsync(Action<ThreadOptions> action, RequestProperties? options = null) => (GuildThread)await _client.ModifyGuildThreadAsync(Id, action, options).ConfigureAwait(false);
+    public async Task<GuildThread> ModifyAsync(Action<ThreadOptions> action, RequestProperties? properties = null) => (GuildThread)await _client.ModifyGuildThreadAsync(Id, action, properties).ConfigureAwait(false);
 }

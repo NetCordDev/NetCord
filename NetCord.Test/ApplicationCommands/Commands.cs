@@ -284,6 +284,23 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
         static string GetName(User u) => u is GuildUser g ? (g.Nickname ?? g.Username) : u.Username;
     }
+
+    [SlashCommand("rate-limit-test", "test")]
+    public async Task RateLimitTestAsync()
+    {
+        await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource("wz"));
+        await Context.Interaction.ModifyResponseAsync(m => m.Content = "wz2");
+        var message = await Context.Interaction.SendFollowupMessageAsync("xd");
+        await Context.Interaction.ModifyFollowupMessageAsync(message, m => m.Content = "xd2");
+        await Context.Interaction.GetFollowupMessageAsync(message);
+        await Context.Interaction.GetResponseAsync();
+        await Context.Interaction.DeleteFollowupMessageAsync(message);
+        await Context.Interaction.DeleteResponseAsync();
+    }
+
+    [SlashCommand("rate-limit-test2", "test")]
+    public Task RateLimitTest2Async()
+        => RateLimitTestAsync();
 }
 
 public enum DeleteMessagesDays

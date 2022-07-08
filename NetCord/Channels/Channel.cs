@@ -37,5 +37,5 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>
         };
     }
 
-    public async Task<Channel> DeleteAsync(RequestProperties? options = null) => await _client.DeleteChannelAsync(Id, options).ConfigureAwait(false);
+    public async Task<Channel> DeleteAsync(RequestProperties? properties = null) => await _client.DeleteChannelAsync(Id, properties).ConfigureAwait(false);
 }

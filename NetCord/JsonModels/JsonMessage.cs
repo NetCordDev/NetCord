@@ -32,10 +32,10 @@ public record JsonMessage : JsonEntity
     public bool MentionEveryone { get; init; }
 
     [JsonPropertyName("mentions")]
-    public JsonUser[] MentionedUsers { get; init; }
+    public JsonUser[]? MentionedUsers { get; init; }
 
     [JsonPropertyName("mention_roles")]
-    public Snowflake[] MentionedRoleIds { get; init; }
+    public Snowflake[]? MentionedRoleIds { get; init; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; init; }
@@ -86,7 +86,7 @@ public record JsonMessage : JsonEntity
     public JsonChannel? StartedThread { get; init; }
 
     [JsonPropertyName("components")]
-    public JsonComponent[] Components { get; init; }
+    public JsonComponent[]? Components { get; init; }
 
     [JsonPropertyName("sticker_items")]
     public JsonMessageSticker[]? Stickers { get; init; }

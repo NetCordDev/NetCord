@@ -1,14 +1,7 @@
 ﻿namespace NetCord.Rest;
 
-public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
+public class RestMessage : WebhookMessage
 {
-    JsonModels.JsonMessage IJsonModel<JsonModels.JsonMessage>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonMessage _jsonModel;
-
-    public override Snowflake Id => _jsonModel.Id;
-
-    public Snowflake ChannelId => _jsonModel.ChannelId;
-
     public virtual User Author { get; }
 
     public string Content => _jsonModel.Content;
@@ -45,33 +38,27 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
 
     public Application? Application { get; }
 
-    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
-
     public MessageReference? MessageReference { get; }
 
-    public MessageFlags? Flags => _jsonModel.Flags;
+    public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
 
     public RestMessage? ReferencedMessage { get; }
 
     public MessageInteraction? Interaction { get; }
 
-    public IEnumerable<IComponent> Components { get; }
-
     public IReadOnlyDictionary<Snowflake, MessageSticker> Stickers { get; }
 
     public GuildThread? StartedThread { get; }
 
-    public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(client)
+    public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(jsonModel, client)
     {
-        _jsonModel = jsonModel;
-
         if (jsonModel.Member == null)
             Author = new(jsonModel.Author, client);
         else
-            Author = new GuildUser(jsonModel.Member with { User = jsonModel.Author }, jsonModel.GuildId.GetValueOrDefault(), client);
+            Author = new GuildUser(jsonModel.Member with { User = jsonModel.Author }, GuildId.GetValueOrDefault(), client);
 
-        MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
-        MentionedRoleIds = jsonModel.MentionedRoleIds;
+        MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u => new User(u, client));
+        MentionedRoleIds = jsonModel.MentionedRoleIds!;
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, a => Attachment.CreateFromJson(a));
         Embeds = jsonModel.Embeds.Select(e => new Embed(e));
@@ -92,19 +79,16 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
         if (jsonModel.MessageReference != null)
             MessageReference = new(jsonModel.MessageReference);
 
-        Components = jsonModel.Components.Select(IComponent.CreateFromJson);
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
     }
 
-    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, options);
+    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, properties);
 
-    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, Snowflake userId, RequestProperties? options = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, options);
-    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, options);
-    public Task DeleteAllReactionsAsync(RequestProperties? options = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, options);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, Snowflake userId, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, properties);
+    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, properties);
+    public Task DeleteAllReactionsAsync(RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, properties);
 
-    public Task DeleteAsync(RequestProperties? options = null) => _client.DeleteMessageAsync(ChannelId, Id, options);
-
-    public virtual string GetJumpUrl(Snowflake? guildId) => $"https://discord.com/channels/{(guildId != null ? guildId : "@me")}/{ChannelId}/{Id}";
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteMessageAsync(ChannelId, Id, properties);
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
     {

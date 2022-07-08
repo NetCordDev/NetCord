@@ -22,7 +22,16 @@ public class EvalCommand : CommandModule
         object? value;
         try
         {
-            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()), this, typeof(CommandModule));
+            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).AddImports(new[]
+            {
+                "NetCord",
+                "NetCord.Rest",
+                "NetCord.Gateway",
+                "System",
+                "System.Linq",
+                "System.Threading",
+                "System.Threading.Tasks",
+            }), this, typeof(CommandModule));
         }
         catch (RestException ex)
         {
@@ -37,7 +46,7 @@ public class EvalCommand : CommandModule
                 try
                 {
                     var v = property.GetValue(value);
-                    description = v != null ? v.ToString()! : "null";
+                    description = v != null ? v.ToString() ?? "null" : "null";
                 }
                 catch (Exception ex)
                 {

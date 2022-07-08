@@ -13,5 +13,5 @@ public class GroupDMChannel : DMChannel
     {
     }
 
-    public async Task<GroupDMChannel> ModifyAsync(Action<GroupDMChannelOptions> action, RequestProperties? options = null) => (GroupDMChannel)await _client.ModifyChannelAsync(Id, action, options).ConfigureAwait(false);
+    public async Task<GroupDMChannel> ModifyAsync(Action<GroupDMChannelOptions> action, RequestProperties? properties = null) => (GroupDMChannel)await _client.ModifyChannelAsync(Id, action, properties).ConfigureAwait(false);
 }

@@ -4,7 +4,7 @@ namespace NetCord.Services.Commands;
 
 public abstract class CommandModule<TContext> : BaseCommandModule<TContext> where TContext : CommandContext
 {
-    public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
+    public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true, RequestProperties? properties = null)
     {
         MessageProperties message = new()
         {
@@ -15,10 +15,10 @@ public abstract class CommandModule<TContext> : BaseCommandModule<TContext> wher
                 ReplyMention = replyMention
             }
         };
-        return Context.Client.Rest.SendMessageAsync(Context.Message.ChannelId, message);
+        return Context.Client.Rest.SendMessageAsync(Context.Message.ChannelId, message, properties);
     }
 
-    public Task<RestMessage> SendAsync(MessageProperties message) => Context.Client.Rest.SendMessageAsync(Context.Message.ChannelId, message);
+    public Task<RestMessage> SendAsync(MessageProperties message, RequestProperties? properties = null) => Context.Client.Rest.SendMessageAsync(Context.Message.ChannelId, message, properties);
 }
 
 public abstract class CommandModule : CommandModule<CommandContext>

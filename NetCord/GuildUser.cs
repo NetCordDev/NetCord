@@ -47,21 +47,21 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
         return RoleIds.Select(r => roles[r]);
     }
 
-    public Task<GuildUser> ModifyAsync(Action<GuildUserOptions> func, RequestProperties? options = null)
-        => _client.ModifyGuildUserAsync(GuildId, Id, func, options);
+    public Task<GuildUser> ModifyAsync(Action<GuildUserOptions> func, RequestProperties? properties = null)
+        => _client.ModifyGuildUserAsync(GuildId, Id, func, properties);
 
-    public Task KickAsync(RequestProperties? options = null) => _client.KickGuildUserAsync(GuildId, Id, options);
+    public Task KickAsync(RequestProperties? properties = null) => _client.KickGuildUserAsync(GuildId, Id, properties);
 
-    public Task BanAsync(RequestProperties? options = null) => _client.BanGuildUserAsync(GuildId, Id, options);
-    public Task BanAsync(int deleteMessageDays, RequestProperties? options = null) => _client.BanGuildUserAsync(GuildId, Id, deleteMessageDays, options);
+    public Task BanAsync(RequestProperties? properties = null) => _client.BanGuildUserAsync(GuildId, Id, properties);
+    public Task BanAsync(int deleteMessageDays, RequestProperties? properties = null) => _client.BanGuildUserAsync(GuildId, Id, deleteMessageDays, properties);
 
-    public Task UnbanAsync(RequestProperties? options = null) => _client.UnbanGuildUserAsync(GuildId, Id, options);
+    public Task UnbanAsync(RequestProperties? properties = null) => _client.UnbanGuildUserAsync(GuildId, Id, properties);
 
     public bool HasGuildAvatar => GuildAvatarHash != null;
 
     public ImageUrl GetGuildAvatarUrl(ImageFormat? format = null) => ImageUrl.GuildUserAvatar(GuildId, Id, GuildAvatarHash!, format);
 
-    public Task AddRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, options);
+    public Task AddRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, properties);
 
-    public Task RemoveRoleAsync(Snowflake roleId, RequestProperties? options = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, options);
+    public Task RemoveRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, properties);
 }

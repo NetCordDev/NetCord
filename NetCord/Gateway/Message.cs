@@ -7,7 +7,6 @@ public class Message : RestMessage
 {
     public Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, client)
     {
-        GuildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
         Guild = guild;
         Channel = channel;
     }
@@ -45,10 +44,6 @@ public class Message : RestMessage
         return new(jsonModel, guild, channel, client.Rest);
     }
 
-    public Snowflake? GuildId { get; }
     public Guild? Guild { get; }
     public TextChannel? Channel { get; }
-
-    public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId.HasValue ? GuildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
-    public override string GetJumpUrl(Snowflake? guildId) => GetJumpUrl();
 }

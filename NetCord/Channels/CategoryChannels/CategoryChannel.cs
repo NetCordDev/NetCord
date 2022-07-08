@@ -15,5 +15,5 @@ public class CategoryChannel : Channel, IGuildChannel
 
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
 
-    public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? options = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, options).ConfigureAwait(false);
+    public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);
 }

@@ -10,11 +10,10 @@ internal class ReconnectTimer
     {
         if (Delay == 0)
         {
-            Delay = 30_000;
+            Delay = 10_000;
             return Task.CompletedTask;
         }
-        else
-            if (Delay < 960_000)
+        else if (Delay < 320_000) //5 minutes 20 seconds
         {
             var delay = Delay;
             Delay *= 2;

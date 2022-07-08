@@ -7,13 +7,13 @@ internal class TypingReminder : IDisposable
     public Snowflake ChannelId { get; }
 
     private readonly CancellationTokenSource _tokenSource;
-    private readonly RequestProperties? _options;
+    private readonly RequestProperties? _properties;
 
-    public TypingReminder(Snowflake channelId, RestClient client, RequestProperties? options)
+    public TypingReminder(Snowflake channelId, RestClient client, RequestProperties? properties)
     {
         ChannelId = channelId;
         _client = client;
-        _options = options;
+        _properties = properties;
         _tokenSource = new();
     }
 
@@ -30,7 +30,7 @@ internal class TypingReminder : IDisposable
         while (true)
         {
             await timer.WaitForNextTickAsync(token).ConfigureAwait(false);
-            await _client.TriggerTypingStateAsync(ChannelId, _options).ConfigureAwait(false);
+            await _client.TriggerTypingStateAsync(ChannelId, _properties).ConfigureAwait(false);
         }
     }
 

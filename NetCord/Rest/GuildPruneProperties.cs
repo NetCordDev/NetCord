@@ -13,4 +13,9 @@ public class GuildPruneProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("include_roles")]
     public IEnumerable<Snowflake>? Roles { get; set; }
+
+    public GuildPruneProperties(int days)
+    {
+        Days = days;
+    }
 }

@@ -8,6 +8,6 @@ public class SelfUser : User
     {
     }
 
-    public Task<SelfUser> ModifyAsync(Action<SelfUserProperties> action, RequestProperties? options = null)
-        => _client.ModifyCurrentUserAsync(action, options);
+    public Task<SelfUser> ModifyAsync(Action<SelfUserProperties> action, RequestProperties? properties = null)
+        => _client.ModifyCurrentUserAsync(action, properties);
 }

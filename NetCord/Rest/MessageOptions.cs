@@ -33,7 +33,7 @@ public class MessageOptions
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
-    internal MultipartFormDataContent Build()
+    internal HttpContent Build()
     {
         MultipartFormDataContent content = new()
         {

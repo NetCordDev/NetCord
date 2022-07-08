@@ -4,123 +4,105 @@ public partial class RestClient : IDisposable
 {
     private readonly HttpClient _httpClient;
 
+    private readonly Dictionary<RateLimits.Route, RateLimits.RouteBucket> _buckets = new();
+
+    internal long _globalRateLimitReset;
+
+    private readonly RateLimits.Bucket _globalBucket;
+
     public RestClient(string token, TokenType tokenType)
     {
         _httpClient = new();
         _httpClient.DefaultRequestHeaders.Add("Authorization", tokenType == TokenType.Bearer ? token : $"{tokenType} {token}");
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
+        _globalBucket = new(this);
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RequestProperties? options)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, RequestProperties? properties)
     {
-        string url = Discord.RestUrl + partialUrl;
-        HttpResponseMessage? response;
-        if (options != null)
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+        var bucket = GetBucket(route);
+
+        response = await bucket.SendAsync(_httpClient, () =>
         {
-            while (true)
-            {
-                HttpRequestMessage requestMessage = new(method, url);
-                options.AddHeaders(requestMessage.Headers);
-                response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                var retryAfter = response.Headers.RetryAfter;
-                if (retryAfter != null)
-                    await Task.Delay(retryAfter.Delta!.GetValueOrDefault()).ConfigureAwait(false);
-                else
-                    break;
-            }
-        }
-        else
-        {
-            while (true)
-            {
-                HttpRequestMessage requestMessage = new(method, url);
-                response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                var retryAfter = response.Headers.RetryAfter;
-                if (retryAfter != null)
-                    await Task.Delay(retryAfter.Delta!.GetValueOrDefault()).ConfigureAwait(false);
-                else
-                    break;
-            }
-        }
-        if (!response.IsSuccessStatusCode)
-            throw new RestException(response);
+            HttpRequestMessage requestMessage = new(method, url);
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
 
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, string partialUrl, RequestProperties? options)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, HttpContent content, RequestProperties? properties)
     {
-        string url = Discord.RestUrl + partialUrl;
-        HttpResponseMessage? response;
-        if (options != null)
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+        var bucket = GetBucket(route);
+
+        response = await bucket.SendAsync(_httpClient, () =>
         {
-            if (options.RetryMode == RetryMode.Always)
+            HttpRequestMessage requestMessage = new(method, url)
             {
-                while (true)
-                {
-                    HttpRequestMessage requestMessage = new(method, url)
-                    {
-                        Content = content,
-                    };
-                    options.AddHeaders(requestMessage.Headers);
-                    response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                    var retryAfter = response.Headers.RetryAfter;
-                    if (retryAfter != null)
-                        await Task.Delay(retryAfter.Delta!.GetValueOrDefault()).ConfigureAwait(false);
-                    else
-                        break;
-                }
-            }
-            else if (options.RetryMode == RetryMode.Once)
-            {
-                HttpRequestMessage requestMessage = new(method, url)
-                {
-                    Content = content,
-                };
-                options.AddHeaders(requestMessage.Headers);
-                response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                var retryAfter = response.Headers.RetryAfter;
-                if (retryAfter != null)
-                {
-                    await Task.Delay(retryAfter.Delta!.GetValueOrDefault()).ConfigureAwait(false);
-                    requestMessage = new(method, url)
-                    {
-                        Content = content,
-                    };
-                    options.AddHeaders(requestMessage.Headers);
-                    response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                }
-            }
-            else
-            {
-                HttpRequestMessage requestMessage = new(method, url)
-                {
-                    Content = content,
-                };
-                options.AddHeaders(requestMessage.Headers);
-                response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-            }
-        }
-        else
-        {
-            while (true)
-            {
-                HttpRequestMessage requestMessage = new(method, url)
-                {
-                    Content = content,
-                };
-                response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
-                var retryAfter = response.Headers.RetryAfter;
-                if (retryAfter != null)
-                    await Task.Delay(retryAfter.Delta!.GetValueOrDefault()).ConfigureAwait(false);
-                else
-                    break;
-            }
-        }
-        if (!response.IsSuccessStatusCode)
-            throw new RestException(response);
+                Content = content,
+            };
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
 
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    }
+
+    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RequestProperties? properties)
+    {
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+
+        response = await _globalBucket.SendAsync(_httpClient, () =>
+        {
+            HttpRequestMessage requestMessage = new(method, url);
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
+
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    }
+
+    public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, HttpContent content, RequestProperties? properties)
+    {
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+
+        response = await _globalBucket.SendAsync(_httpClient, () =>
+        {
+            HttpRequestMessage requestMessage = new(method, url)
+            {
+                Content = content,
+            };
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
+
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    }
+
+    private RateLimits.RouteBucket GetBucket(RateLimits.Route route)
+    {
+        RateLimits.RouteBucket? bucket;
+        lock (_buckets)
+        {
+            if (!_buckets.TryGetValue(route, out bucket))
+                _buckets.Add(route, bucket = new(this));
+        }
+        return bucket;
     }
 
     public void Dispose()
