@@ -33,7 +33,19 @@ public class Guild : RestGuild
         ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionary(e => new GuildScheduledEvent(e, client));
     }
 
-    public Guild(JsonGuild jsonModel, Guild oldGuild) : base(jsonModel with { CreatedAt = oldGuild.CreatedAt, IsLarge = oldGuild.IsLarge, MemberCount = oldGuild.MemberCount,  }, oldGuild._client)
+    public Guild(JsonGuild jsonModel, Guild oldGuild) : base(jsonModel with
+    {
+        CreatedAt = oldGuild._jsonModel.CreatedAt,
+        IsLarge = oldGuild._jsonModel.IsLarge,
+        MemberCount = oldGuild._jsonModel.MemberCount,
+        VoiceStates = oldGuild._jsonModel.VoiceStates,
+        Users = oldGuild._jsonModel.Users,
+        Channels = oldGuild._jsonModel.Channels,
+        ActiveThreads = oldGuild._jsonModel.ActiveThreads,
+        StageInstances = oldGuild._jsonModel.StageInstances,
+        Presences = oldGuild._jsonModel.Presences,
+        ScheduledEvents = oldGuild._jsonModel.ScheduledEvents
+    }, oldGuild._client)
     {
         VoiceStates = oldGuild.VoiceStates;
         Users = oldGuild.Users;
