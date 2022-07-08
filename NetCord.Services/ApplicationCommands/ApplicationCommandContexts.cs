@@ -1,19 +1,18 @@
 ﻿using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Services.Interactions;
 
 namespace NetCord.Services.ApplicationCommands;
 
-public abstract class ApplicationCommandContext : IApplicationCommandContext, IUserContext, IGuildContext, IChannelContext
+public abstract class ApplicationCommandContext : InteractionContext, IApplicationCommandContext, IUserContext, IGuildContext, IChannelContext
 {
-    public abstract ApplicationCommandInteraction Interaction { get; }
-    public GatewayClient Client { get; }
+    public override abstract ApplicationCommandInteraction Interaction { get; }
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel!;
     public User User => Interaction.User;
 
-    public ApplicationCommandContext(GatewayClient client)
+    public ApplicationCommandContext(GatewayClient client) : base(client)
     {
-        Client = client;
     }
 }
 

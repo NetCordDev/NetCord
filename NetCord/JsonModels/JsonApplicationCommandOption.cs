@@ -38,6 +38,12 @@ public record JsonApplicationCommandOption
     [JsonPropertyName("max_value")]
     public double? MaxValue { get; init; }
 
+    [JsonPropertyName("min_length")]
+    public int? MinLength { get; init; }
+
+    [JsonPropertyName("max_length")]
+    public int? MaxLength { get; init; }
+
     [JsonPropertyName("autocomplete")]
     public bool Autocomplete { get; init; }
 }

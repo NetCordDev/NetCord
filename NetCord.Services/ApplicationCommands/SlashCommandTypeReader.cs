@@ -10,6 +10,10 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
 
     public virtual double? GetMinValue(SlashCommandParameter<TContext> parameter) => null;
 
+    public virtual int? GetMaxLength(SlashCommandParameter<TContext> parameter) => null;
+
+    public virtual int? GetMinLength(SlashCommandParameter<TContext> parameter) => null;
+
     public virtual IChoicesProvider<TContext>? ChoicesProvider => null;
 
     public virtual IAutocompleteProvider? AutocompleteProvider => null;

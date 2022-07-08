@@ -160,16 +160,24 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             maxValue = ((MaxValueAttribute)attributes[0]).MaxValue;
         else
             maxValue = TypeReader.GetMaxValue(this);
-        if (maxValue.HasValue)
-            maxValue = maxValue.GetValueOrDefault();
 
         double? minValue;
         if (Attributes.TryGetValue(typeof(MinValueAttribute), out attributes))
             minValue = ((MinValueAttribute)attributes[0]).MinValue;
         else
             minValue = TypeReader.GetMinValue(this);
-        if (minValue.HasValue)
-            minValue = minValue.GetValueOrDefault();
+
+        int? maxLength;
+        if (Attributes.TryGetValue(typeof(MaxLengthAttribute), out attributes))
+            maxLength = ((MaxLengthAttribute)attributes[0]).MaxLength;
+        else
+            maxLength = TypeReader.GetMaxLength(this);
+
+        int? minLength;
+        if (Attributes.TryGetValue(typeof(MinLengthAttribute), out attributes))
+            minLength = ((MinLengthAttribute)attributes[0]).MinLength;
+        else
+            minLength = TypeReader.GetMinLength(this);
 
         var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
@@ -178,6 +186,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
             MaxValue = maxValue,
             MinValue = minValue,
+            MaxLength = maxLength,
+            MinLength = minLength,
             Required = !HasDefaultValue,
             Autocomplete = autocomplete,
             Choices = ChoicesProvider?.GetChoices(this),

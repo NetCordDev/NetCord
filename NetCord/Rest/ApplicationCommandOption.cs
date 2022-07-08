@@ -29,6 +29,10 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
 
     public double? MaxValue => _jsonModel.MaxValue;
 
+    public int? MinLength => _jsonModel.MinLength;
+
+    public int? MaxLength => _jsonModel.MaxLength;
+
     public bool Autocomplete => _jsonModel.Autocomplete;
 
     public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel)

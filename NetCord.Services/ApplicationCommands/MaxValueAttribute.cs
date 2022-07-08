@@ -5,8 +5,8 @@ public class MaxValueAttribute : Attribute
 {
     public double MaxValue { get; }
 
-    public MaxValueAttribute(double minValue)
+    public MaxValueAttribute(double maxValue)
     {
-        MaxValue = minValue;
+        MaxValue = maxValue;
     }
 }

@@ -28,6 +28,8 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public string Token => _jsonModel.Token;
 
+    public Permission? AppPermissions { get; }
+
     public CultureInfo UserLocale => _jsonModel.UserLocale;
 
     public CultureInfo? GuildLocale => _jsonModel.GuildLocale;
@@ -44,6 +46,8 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
         Guild = guild;
         Channel = channel;
+        if (_jsonModel.AppPermissions != null)
+            AppPermissions = (Permission)ulong.Parse(_jsonModel.AppPermissions);
     }
 
     public static Interaction CreateFromJson(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client)

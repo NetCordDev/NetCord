@@ -1,30 +1,28 @@
-﻿using NetCord.Gateway;
+﻿using NetCord.Services.Interactions;
 
 namespace NetCord.Services;
 
-/// <summary>
-/// Efficiently checks user channel permissions.
-/// </summary>
-public class InteractionRequireUserChannelPermissionAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IUserContext
+public class InteractionRequireBotChannelPermissionAttribute<TContext> : PreconditionAttribute<TContext> where TContext : InteractionContext
 {
     public Permission ChannelPermission { get; }
     public string Format { get; }
 
     /// <param name="channelPermission"></param>
     /// <param name="format">{0} - missing permissions</param>
-    public InteractionRequireUserChannelPermissionAttribute(Permission channelPermission, string? format = null)
+    public InteractionRequireBotChannelPermissionAttribute(Permission channelPermission, string? format = null)
     {
         ChannelPermission = channelPermission;
-        Format = format ?? "Required user channel permissions: {0}";
+        Format = format ?? "Required bot channel permissions: {0}";
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)
     {
-        if (context.User is GuildInteractionUser guildUser)
+        if (context.Interaction.AppPermissions.HasValue)
         {
-            if (!guildUser.Permissions.HasFlag(ChannelPermission))
+            var permissions = context.Interaction.AppPermissions.GetValueOrDefault();
+            if (!permissions.HasFlag(ChannelPermission))
             {
-                var missingPermissions = ChannelPermission & ~guildUser.Permissions;
+                var missingPermissions = ChannelPermission & ~permissions;
                 throw new PermissionException(string.Format(Format, missingPermissions), missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Channel);
             }
         }

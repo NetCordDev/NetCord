@@ -3,18 +3,26 @@
 public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext
 {
     public Permission GuildPermission { get; }
-
     public Permission ChannelPermission { get; }
+    public string GuildPermissionFormat { get; }
+    public string? ChannelPermissionFormat { get; }
 
-    public RequireBotPermissionAttribute(Permission guildPermission)
+    /// <param name="guildPermission"></param>
+    /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
+    public RequireBotPermissionAttribute(Permission guildPermission, string? guildPermissionFormat = null)
     {
         GuildPermission = guildPermission;
+        GuildPermissionFormat = guildPermissionFormat ?? "Required bot permissions: {0}";
     }
 
-    public RequireBotPermissionAttribute(Permission generalPermission, Permission channelPermission)
+    /// <param name="guildPermission"></param>
+    /// <param name="channelPermission"></param>
+    /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
+    /// <param name="channelPermissionFormat">{0} - missing channel permissions</param>
+    public RequireBotPermissionAttribute(Permission guildPermission, Permission channelPermission, string? guildPermissionFormat = null, string? channelPermissionFormat = null) : this(guildPermission, guildPermissionFormat)
     {
-        GuildPermission = generalPermission;
         ChannelPermission = channelPermission;
+        ChannelPermissionFormat = channelPermissionFormat ?? "Required bot channel permissions: {0}";
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)
@@ -31,7 +39,7 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
                 if (!permissions.HasFlag(GuildPermission))
                 {
                     var missingPermissions = GuildPermission & ~permissions;
-                    throw new PermissionException("Required bot permissions: " + missingPermissions, missingPermissions, PermissionExceptionEntityType.Bot, PermissionExceptionPermissionType.Guild);
+                    throw new PermissionException(string.Format(GuildPermissionFormat, missingPermissions), missingPermissions, PermissionExceptionEntityType.Bot, PermissionExceptionPermissionType.Guild);
                 }
                 if (ChannelPermission != default)
                 {
@@ -57,7 +65,7 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
                     if (!permissions.HasFlag(ChannelPermission))
                     {
                         var missingPermissions = ChannelPermission & ~permissions;
-                        throw new PermissionException("Required bot channel permissions: " + missingPermissions, missingPermissions, PermissionExceptionEntityType.Bot, PermissionExceptionPermissionType.Channel);
+                        throw new PermissionException(string.Format(ChannelPermissionFormat!, missingPermissions), missingPermissions, PermissionExceptionEntityType.Bot, PermissionExceptionPermissionType.Channel);
                     }
                 }
             }

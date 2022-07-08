@@ -47,6 +47,14 @@ public class ApplicationCommandOptionProperties
     public double? MaxValue { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("min_length")]
+    public int? MinLength { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("max_length")]
+    public int? MaxLength { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("autocomplete")]
     public bool? Autocomplete { get; set; }
 

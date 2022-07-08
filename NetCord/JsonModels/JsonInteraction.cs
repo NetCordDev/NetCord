@@ -32,6 +32,9 @@ public record JsonInteraction : JsonEntity
     [JsonPropertyName("message")]
     public JsonMessage Message { get; init; }
 
+    [JsonPropertyName("app_permissions")]
+    public string? AppPermissions { get; init; }
+
     [JsonPropertyName("locale")]
     public CultureInfo UserLocale { get; init; }
 

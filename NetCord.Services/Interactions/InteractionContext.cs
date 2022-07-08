@@ -5,14 +5,14 @@ namespace NetCord.Services.Interactions;
 
 public abstract class InteractionContext : IContext
 {
-    public abstract Interaction Interaction { get; }
-
-    public GatewayClient Client { get; }
-
     public InteractionContext(GatewayClient client)
     {
         Client = client;
     }
+
+    public abstract Interaction Interaction { get; }
+
+    public GatewayClient Client { get; }
 }
 
 public class BaseButtonInteractionContext : InteractionContext

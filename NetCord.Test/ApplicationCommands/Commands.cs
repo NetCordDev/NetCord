@@ -15,7 +15,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider))] string query)
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider))][MaxLength(500)] string query)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
     }
@@ -194,7 +194,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
     }
 
-    [RequireNsfw<SlashCommandContext>]
+    [RequireNsfw<SlashCommandContext>()]
     [SlashCommand("nsfw", "You can use this command in nsfw channel")]
     public Task NsfwAsync()
     {

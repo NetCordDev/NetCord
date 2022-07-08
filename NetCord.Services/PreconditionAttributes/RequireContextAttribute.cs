@@ -4,11 +4,16 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
 {
     public RequiredContext RequiredContext { get; }
 
-    public RequireContextAttribute(RequiredContext requiredContext)
+    public string Format { get; }
+
+    /// <param name="requiredContext"></param>
+    /// <param name="format">{0} - required context</param>
+    public RequireContextAttribute(RequiredContext requiredContext, string? format = null)
     {
         if (!Enum.IsDefined(requiredContext))
             throw new ArgumentException("Invalid value", nameof(requiredContext));
         RequiredContext = requiredContext;
+        Format = format ?? "Required context: {0}";
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)
@@ -22,7 +27,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
             RequiredContext.DM => channel is not DMChannel,
             _ => throw new InvalidOperationException(),
         })
-            throw new InvalidContextException(RequiredContext);
+            throw new InvalidContextException(string.Format(Format, RequiredContext), RequiredContext);
         return Task.CompletedTask;
     }
 }
@@ -38,7 +43,7 @@ public class InvalidContextException : Exception
 {
     public RequiredContext MissingContext { get; }
 
-    internal InvalidContextException(RequiredContext missingContext) : base($"Required context: {missingContext}")
+    internal InvalidContextException(string message, RequiredContext missingContext) : base(message)
     {
         MissingContext = missingContext;
     }

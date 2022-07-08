@@ -3,18 +3,26 @@
 public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IUserContext, IGuildContext, IChannelContext
 {
     public Permission GuildPermission { get; }
-
     public Permission ChannelPermission { get; }
+    public string GuildPermissionFormat { get; }
+    public string? ChannelPermissionFormat { get; }
 
-    public RequireUserPermissionAttribute(Permission guildPermission)
+    /// <param name="guildPermission"></param>
+    /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
+    public RequireUserPermissionAttribute(Permission guildPermission, string? guildPermissionFormat = null)
     {
         GuildPermission = guildPermission;
+        GuildPermissionFormat = guildPermissionFormat ?? "Required user permissions: {0}";
     }
 
-    public RequireUserPermissionAttribute(Permission generalPermission, Permission channelPermission)
+    /// <param name="guildPermission"></param>
+    /// <param name="channelPermission"></param>
+    /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
+    /// <param name="channelPermissionFormat">{0} - missing channel permissions</param>
+    public RequireUserPermissionAttribute(Permission guildPermission, Permission channelPermission, string? guildPermissionFormat = null, string? channelPermissionFormat = null) : this(guildPermission, guildPermissionFormat)
     {
-        GuildPermission = generalPermission;
         ChannelPermission = channelPermission;
+        ChannelPermissionFormat = channelPermissionFormat ?? "Required user channel permissions: {0}";
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)
@@ -31,7 +39,7 @@ public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TC
                 if (!permissions.HasFlag(GuildPermission))
                 {
                     var missingPermissions = GuildPermission & ~permissions;
-                    throw new PermissionException("Required user permissions: " + missingPermissions, missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Guild);
+                    throw new PermissionException(string.Format(GuildPermissionFormat, missingPermissions), missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Guild);
                 }
                 if (ChannelPermission != default)
                 {
@@ -57,7 +65,7 @@ public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TC
                     if (!permissions.HasFlag(ChannelPermission))
                     {
                         var missingPermissions = ChannelPermission & ~permissions;
-                        throw new PermissionException("Required user channel permissions: " + missingPermissions, missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Channel);
+                        throw new PermissionException(string.Format(ChannelPermissionFormat!, missingPermissions), missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Channel);
                     }
                 }
             }
