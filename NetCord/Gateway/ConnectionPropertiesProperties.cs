@@ -26,14 +26,14 @@ public class ConnectionPropertiesProperties
     };
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("$os")]
+    [JsonPropertyName("os")]
     public string? Os { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("$browser")]
+    [JsonPropertyName("browser")]
     public string? Browser { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("$device")]
+    [JsonPropertyName("device")]
     public string? Device { get; init; }
 }
