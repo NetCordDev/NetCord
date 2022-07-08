@@ -14,7 +14,7 @@ public class Test
     [TestMethod]
     public async Task TestAsync()
     {
-        GatewayClient client = new(Environment.GetEnvironmentVariable("OriginalTurboBoat")!, TokenType.Bot, new()
+        GatewayClient client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("OriginalTurboBoat")!), new()
         {
             Intents = GatewayIntent.All,
         });
