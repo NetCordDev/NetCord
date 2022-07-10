@@ -741,7 +741,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBERS_CHUNK":
                 {
-                    GuildUserChunkEventArgs args = new(data.ToObject<JsonGuildUserChunkEventArgs>(), Rest);
+                    var json = data.ToObject<JsonGuildUserChunkEventArgs>();
+                    GuildUserChunkEventArgs args = new(json, Rest);
                     if (GuildUserChunk != null)
                         try
                         {
@@ -754,8 +755,15 @@ public partial class GatewayClient : WebSocketClient
                     if (TryGetGuild(args.GuildId, out var guild))
                     {
                         guild.Users = guild.Users.SetItems(args.Users);
+                        foreach (var user in json.Users)
+                            guild._jsonModel.Users[user.User.Id] = user;
+
                         if (args.Presences != null)
+                        {
                             guild.Presences = guild.Presences.SetItems(args.Presences);
+                            foreach (var presence in json.Presences!)
+                                guild._jsonModel.Presences[presence.User.Id] = presence;
+                        }
                     }
                 }
                 break;

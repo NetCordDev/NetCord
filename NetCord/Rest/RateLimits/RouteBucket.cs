@@ -1,14 +1,11 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class RouteBucket : Bucket
+internal class RouteBucket : NonGlobalRouteBucket
 {
-    public int Remaining { get; private set; } = int.MaxValue;
-
-    public long Reset { get; private set; }
-
     public override async Task<HttpResponseMessage> SendAsync(HttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
     {
-        await _semaphore.WaitAsync().ConfigureAwait(false);
+        var semaphore = _semaphore;
+        await semaphore!.WaitAsync().ConfigureAwait(false);
         try
         {
             if (properties != null && properties.RateLimitHandling == RateLimitHandling.NoRetry)
@@ -30,6 +27,12 @@ internal class RouteBucket : Bucket
                     Remaining = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
                 if (response.Headers.TryGetValues("x-ratelimit-reset", out values))
                     Reset = ParseReset(values.First());
+                if (response.Headers.TryGetValues("x-ratelimit-limit", out values))
+                {
+                    int newLimit = int.Parse(values.First());
+                    if (_limit != newLimit)
+                        _semaphore = new(_limit = newLimit);
+                }
 
                 if (response.IsSuccessStatusCode)
                     return response;
@@ -56,8 +59,17 @@ internal class RouteBucket : Bucket
                     var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
                     var globalReset = _client._globalRateLimitReset;
                     if (now < globalReset)
+                    {
                         await Task.Delay((int)(globalReset - now)).ConfigureAwait(false);
-                    if (Remaining == 0)
+                        if (Remaining == 0)
+                        {
+                            now = globalReset;
+                            var reset = Reset;
+                            if (now < reset)
+                                await Task.Delay((int)(reset - now)).ConfigureAwait(false);
+                        }
+                    }
+                    else if (Remaining == 0)
                     {
                         var reset = Reset;
                         if (now < reset)
@@ -70,6 +82,12 @@ internal class RouteBucket : Bucket
                         Remaining = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
                     if (response.Headers.TryGetValues("x-ratelimit-reset", out values))
                         Reset = ParseReset(values.First());
+                    if (response.Headers.TryGetValues("x-ratelimit-limit", out values))
+                    {
+                        int newLimit = int.Parse(values.First());
+                        if (_limit != newLimit)
+                            _semaphore = new(_limit = newLimit);
+                    }
 
                     if (response.IsSuccessStatusCode)
                         return response;
@@ -89,11 +107,12 @@ internal class RouteBucket : Bucket
         }
         finally
         {
-            _semaphore.Release();
+            semaphore.Release();
         }
     }
 
     public RouteBucket(RestClient client) : base(client)
     {
+        _semaphore = new(50);
     }
 }

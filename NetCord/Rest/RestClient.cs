@@ -4,11 +4,12 @@ public partial class RestClient : IDisposable
 {
     private readonly HttpClient _httpClient;
 
-    private readonly Dictionary<RateLimits.Route, RateLimits.RouteBucket> _buckets = new();
+    private readonly Dictionary<RateLimits.Route, RateLimits.IBucket> _buckets = new();
 
     internal long _globalRateLimitReset;
 
-    private readonly RateLimits.Bucket _globalBucket;
+    private readonly RateLimits.GlobalBucket _globalBucket;
+    private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
 
     public RestClient(Token token)
     {
@@ -16,6 +17,7 @@ public partial class RestClient : IDisposable
         _httpClient.DefaultRequestHeaders.Add("Authorization", token.ToHttpHeader());
         _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
         _globalBucket = new(this);
+        _noRateLimitBucket = new(this);
     }
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, RequestProperties? properties)
@@ -94,13 +96,56 @@ public partial class RestClient : IDisposable
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
-    private RateLimits.RouteBucket GetBucket(RateLimits.Route route)
+    public async Task<Stream> SendRequestWithoutRateLimitAsync(HttpMethod method, string partialUrl, RequestProperties? properties)
     {
-        RateLimits.RouteBucket? bucket;
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+
+        response = await _noRateLimitBucket.SendAsync(_httpClient, () =>
+        {
+            HttpRequestMessage requestMessage = new(method, url);
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
+
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    }
+
+    public async Task<Stream> SendRequestWithoutRateLimitAsync(HttpMethod method, string partialUrl, HttpContent content, RequestProperties? properties)
+    {
+        string url = $"{Discord.RestUrl}{partialUrl}";
+        HttpResponseMessage response;
+
+        response = await _noRateLimitBucket.SendAsync(_httpClient, () =>
+        {
+            HttpRequestMessage requestMessage = new(method, url)
+            {
+                Content = content,
+            };
+            properties?.AddHeaders(requestMessage.Headers);
+            return requestMessage;
+        }, properties).ConfigureAwait(false);
+
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
+
+        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+    }
+
+    private RateLimits.IBucket GetBucket(RateLimits.Route route)
+    {
+        RateLimits.IBucket? bucket;
         lock (_buckets)
         {
             if (!_buckets.TryGetValue(route, out bucket))
-                _buckets.Add(route, bucket = new(this));
+            {
+                if (route.GlobalRateLimit)
+                    bucket = new RateLimits.RouteBucket(this);
+                else
+                    bucket = new RateLimits.NonGlobalRouteBucket(this);
+                _buckets.Add(route, bucket);
+            }
         }
         return bucket;
     }
