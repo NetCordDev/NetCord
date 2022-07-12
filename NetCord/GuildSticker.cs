@@ -18,4 +18,9 @@ public class GuildSticker : Sticker
         if (jsonModel.Creator != null)
             Creator = new(jsonModel.Creator, client);
     }
+
+    #region Sticker
+    public Task<GuildSticker> ModifyAsync(Action<GuildStickerOptions> action, RequestProperties? properties = null) => _client.ModifyGuildStickerAsync(GuildId, Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildStickerAsync(GuildId, Id, properties);
+    #endregion
 }

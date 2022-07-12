@@ -2,9 +2,9 @@
 
 namespace NetCord.Rest;
 
-public class ThreadOptions
+public class GuildThreadOptions
 {
-    internal ThreadOptions()
+    internal GuildThreadOptions()
     {
     }
 

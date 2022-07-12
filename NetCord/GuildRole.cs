@@ -1,4 +1,6 @@
-﻿using NetCord.JsonModels;
+﻿using System.Runtime.CompilerServices;
+
+using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -26,29 +28,41 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public GuildRoleTags? Tags { get; }
 
-    public GuildRole(JsonGuildRole jsonModel, RestClient client) : base(client)
+    public Snowflake GuildId { get; }
+
+    public GuildRole(JsonGuildRole jsonModel, Snowflake guildId, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.Tags != null)
             Tags = new(jsonModel.Tags);
         Permissions = (Permission)ulong.Parse(jsonModel.Permissions);
+        GuildId = guildId;
     }
 
     public override string ToString() => $"<@&{Id}>";
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(GuildRole left, GuildRole right) => left.Position > right.Position;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(GuildRole left, GuildRole right) => left.Position < right.Position;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >=(GuildRole left, GuildRole right) => left.Position >= right.Position;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(GuildRole left, GuildRole right) => left.Position <= right.Position;
+
+    #region Guild
+    public Task<GuildRole> ModifyAsync(Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(GuildId, Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(GuildId, Id, properties);
+    #endregion
 }
 
-public class GuildRoleTags : IJsonModel<JsonModels.JsonTags>
+public class GuildRoleTags : IJsonModel<JsonTags>
 {
-    JsonModels.JsonTags IJsonModel<JsonModels.JsonTags>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonTags _jsonModel;
+    JsonTags IJsonModel<JsonTags>.JsonModel => _jsonModel;
+    private readonly JsonTags _jsonModel;
 
     public Snowflake? BotId => _jsonModel.BotId;
 
@@ -56,7 +70,7 @@ public class GuildRoleTags : IJsonModel<JsonModels.JsonTags>
 
     public bool IsPremiumSubscriber => _jsonModel.IsPremiumSubscriber;
 
-    public GuildRoleTags(JsonModels.JsonTags jsonModel)
+    public GuildRoleTags(JsonTags jsonModel)
     {
         _jsonModel = jsonModel;
     }

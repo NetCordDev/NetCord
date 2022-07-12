@@ -39,7 +39,7 @@ public class SlashCommandInteractionResolvedData
                 Users = jsonModel.Users.ToDictionary(u => u.Key, u => new User(u.Value, client));
 
         if (jsonModel.Roles != null)
-            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, client));
+            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, guildId.GetValueOrDefault(), client));
         if (jsonModel.Channels != null)
             Channels = jsonModel.Channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
         if (jsonModel.Attachments != null)

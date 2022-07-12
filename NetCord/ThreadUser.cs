@@ -18,4 +18,8 @@ public class ThreadUser : ClientEntity, IJsonModel<JsonModels.JsonThreadUser>
     }
 
     public override string ToString() => $"<@{Id}>";
+
+    #region Channel
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildThreadUserAsync(ThreadId, Id, properties);
+    #endregion
 }

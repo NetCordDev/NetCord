@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GuildScheduledEvent : Entity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
+public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
 {
     JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
@@ -37,10 +37,18 @@ public class GuildScheduledEvent : Entity, IJsonModel<JsonModels.JsonGuildSchedu
 
     public int? UserCount => _jsonModel.UserCount;
 
-    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client)
+    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (_jsonModel.Creator != null)
             Creator = new(_jsonModel.Creator, client);
     }
+
+    #region GuildScheduledEvent
+    public Task<GuildScheduledEvent> ModifyAsync(Action<GuildScheduledEventOptions> action, RequestProperties? properties = null) => _client.ModifyGuildScheduledEventAsync(GuildId, Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildScheduledEventAsync(GuildId, Id, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAsync(bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(GuildId, Id, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAfterAsync(Snowflake userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(GuildId, Id, userId, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersBeforeAsync(Snowflake userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersBeforeAsync(GuildId, Id, userId, guildUsers, properties);
+    #endregion
 }

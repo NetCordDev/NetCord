@@ -4,17 +4,20 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
-public class GuildTemplateSourceGuild : IJsonModel<JsonGuild>
+public class GuildTemplateSourceGuild : Entity, IJsonModel<JsonGuild>
 {
     JsonGuild IJsonModel<JsonGuild>.JsonModel => _jsonModel;
     private readonly JsonGuild _jsonModel;
 
-    public GuildTemplateSourceGuild(JsonGuild jsonModel, RestClient client)
+    public GuildTemplateSourceGuild(JsonGuild jsonModel, Snowflake id, RestClient client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, client));
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, id, client));
         Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
+        Id = id;
     }
+
+    public override Snowflake Id { get; }
 
     public string Name => _jsonModel.Name;
 

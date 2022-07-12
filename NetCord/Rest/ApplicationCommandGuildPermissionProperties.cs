@@ -2,18 +2,18 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationCommandPermissionProperties
+public class ApplicationCommandGuildPermissionProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
 
     [JsonPropertyName("type")]
-    public ApplicationCommandPermissionType Type { get; }
+    public ApplicationCommandGuildPermissionType Type { get; }
 
     [JsonPropertyName("permission")]
     public bool Permission { get; }
 
-    public ApplicationCommandPermissionProperties(Snowflake id, ApplicationCommandPermissionType type, bool permission)
+    public ApplicationCommandGuildPermissionProperties(Snowflake id, ApplicationCommandGuildPermissionType type, bool permission)
     {
         Id = id;
         Type = type;

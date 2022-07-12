@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildRolePosition
+public class GuildRolePositionProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
@@ -11,7 +11,7 @@ public class GuildRolePosition
     [JsonPropertyName("position")]
     public int? Position { get; set; }
 
-    public GuildRolePosition(Snowflake id)
+    public GuildRolePositionProperties(Snowflake id)
     {
         Id = id;
     }

@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum ApplicationCommandPermissionType
+public enum ApplicationCommandGuildPermissionType
 {
     Role = 1,
     User = 2,

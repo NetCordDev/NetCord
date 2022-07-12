@@ -7,11 +7,14 @@ public class GuildTemplate : IJsonModel<JsonGuildTemplate>
     JsonGuildTemplate IJsonModel<JsonGuildTemplate>.JsonModel => _jsonModel;
     private readonly JsonGuildTemplate _jsonModel;
 
+    private readonly RestClient _client;
+
     public GuildTemplate(JsonGuildTemplate jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         Creator = new(_jsonModel.Creator, client);
-        SerializedSourceGuild = new(_jsonModel.SerializedSourceGuild, client);
+        SerializedSourceGuild = new(_jsonModel.SerializedSourceGuild, _jsonModel.SourceGuildId, client);
+        _client = client;
     }
 
     public string Code => _jsonModel.Code;
@@ -35,4 +38,11 @@ public class GuildTemplate : IJsonModel<JsonGuildTemplate>
     public GuildTemplateSourceGuild SerializedSourceGuild { get; }
 
     public bool? IsDirty => _jsonModel.IsDirty;
+
+    #region GuildTemplate
+    public Task<RestGuild> CreateGuildAsync(GuildFromGuildTemplateProperties guildProperties, RequestProperties? properties = null) => _client.CreateGuildFromGuildTemplateAsync(Code, guildProperties, properties);
+    public Task<GuildTemplate> SyncAsync(RequestProperties? properties = null) => _client.SyncGuildTemplateAsync(SourceGuildId, Code, properties);
+    public Task<GuildTemplate> ModifyAsync(Action<GuildTemplateOptions> action, RequestProperties? properties = null) => _client.ModifyGuildTemplateAsync(SourceGuildId, Code, action, properties);
+    public Task<GuildTemplate> DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildTemplateAsync(SourceGuildId, Code, properties);
+    #endregion
 }

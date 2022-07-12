@@ -18,4 +18,9 @@ public class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstan
     {
         _jsonModel = jsonModel;
     }
+
+    #region StageInstance
+    public Task<StageInstance> ModifyAsync(Action<StageInstanceOptions> action, RequestProperties? properties = null) => _client.ModifyStageInstanceAsync(ChannelId, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteStageInstanceAsync(ChannelId, properties);
+    #endregion
 }

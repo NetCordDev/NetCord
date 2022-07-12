@@ -1,17 +1,17 @@
 ﻿namespace NetCord;
 
-public class ApplicationCommandPermission : Entity, IJsonModel<JsonModels.JsonApplicationCommandPermission>
+public class ApplicationCommandPermission : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
 {
-    JsonModels.JsonApplicationCommandPermission IJsonModel<JsonModels.JsonApplicationCommandPermission>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandPermission _jsonModel;
+    JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommandGuildPermission _jsonModel;
 
     public override Snowflake Id => _jsonModel.Id;
 
-    public ApplicationCommandPermissionType Type => _jsonModel.Type;
+    public ApplicationCommandGuildPermissionType Type => _jsonModel.Type;
 
     public bool Permission => _jsonModel.Permission;
 
-    public ApplicationCommandPermission(JsonModels.JsonApplicationCommandPermission jsonModel)
+    public ApplicationCommandPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel)
     {
         _jsonModel = jsonModel;
     }

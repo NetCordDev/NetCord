@@ -40,7 +40,9 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 
     public ImageUrl DefaultAvatarUrl => ImageUrl.DefaultUserAvatar(Discriminator);
 
-    public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelAsync(Id);
-
     public override string ToString() => $"<@{Id}>";
+
+    #region User
+    public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelAsync(Id);
+    #endregion
 }

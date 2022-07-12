@@ -13,5 +13,9 @@ public class GroupDMChannel : DMChannel
     {
     }
 
-    public async Task<GroupDMChannel> ModifyAsync(Action<GroupDMChannelOptions> action, RequestProperties? properties = null) => (GroupDMChannel)await _client.ModifyChannelAsync(Id, action, properties).ConfigureAwait(false);
+    #region Channel
+    public async Task<GroupDMChannel> ModifyAsync(Action<GroupDMChannelOptions> action, RequestProperties? properties = null) => (GroupDMChannel)await _client.ModifyGroupDMChannelAsync(Id, action, properties).ConfigureAwait(false);
+    public Task AddUserAsync(Snowflake userId, GroupDMUserAddProperties groupDMUserAddProperties, RequestProperties? properties = null) => _client.GroupDMChannelAddUserAsync(Id, userId, groupDMUserAddProperties, properties);
+    public Task DeleteUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.GroupDMChannelDeleteUserAsync(Id, userId, properties);
+    #endregion
 }

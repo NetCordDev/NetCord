@@ -5,6 +5,8 @@ public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
     JsonModels.JsonRestGuildInvite IJsonModel<JsonModels.JsonRestGuildInvite>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonRestGuildInvite _jsonModel;
 
+    private readonly RestClient _client;
+
     public string Code => _jsonModel.Code;
 
     public RestGuild? Guild { get; }
@@ -50,5 +52,10 @@ public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
             GuildScheduledEvent = new(_jsonModel.GuildScheduledEvent, client);
         if (_jsonModel.Metadata != null)
             Metadata = new(_jsonModel.Metadata);
+        _client = client;
     }
+
+    #region Invite
+    public Task<RestGuildInvite> DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildInviteAsync(Code, properties);
+    #endregion
 }

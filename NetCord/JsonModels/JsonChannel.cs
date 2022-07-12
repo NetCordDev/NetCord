@@ -66,10 +66,10 @@ public record JsonChannel : JsonEntity
     public int? MessageCount { get; init; }
 
     [JsonPropertyName("member_count")]
-    public int? MemberCount { get; init; }
+    public int? UserCount { get; init; }
 
     [JsonPropertyName("thread_metadata")]
-    public JsonThreadMetadata Metadata { get; init; }
+    public JsonGuildThreadMetadata Metadata { get; init; }
 
     [JsonPropertyName("member")]
     public JsonThreadSelfUser? CurrentUser { get; init; }

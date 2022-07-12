@@ -3,32 +3,32 @@
 public partial class RestClient
 {
     public async Task<Webhook> CreateWebhookAsync(Snowflake channelId, WebhookProperties webhookProperties, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/webhooks", new JsonContent(webhookProperties), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
+        => Webhook.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/webhooks", new JsonContent(webhookProperties), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
 
     public async Task<IReadOnlyDictionary<Snowflake, Webhook>> GetChannelWebhooksAsync(Snowflake channelId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook[]>().ToDictionary(w => w.Id, w => new Webhook(w, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook[]>().ToDictionary(w => w.Id, w => Webhook.CreateFromJson(w, this));
 
     public async Task<IReadOnlyDictionary<Snowflake, Webhook>> GetGuildWebhooksAsync(Snowflake guildId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/webhooks", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook[]>().ToDictionary(w => w.Id, w => new Webhook(w, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/webhooks", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook[]>().ToDictionary(w => w.Id, w => Webhook.CreateFromJson(w, this));
 
     public async Task<Webhook> GetWebhookAsync(Snowflake webhookId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/webhooks/{webhookId}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
+        => Webhook.CreateFromJson((await SendRequestAsync(HttpMethod.Get, $"/webhooks/{webhookId}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
 
     public async Task<Webhook> GetWebhookWithTokenAsync(Snowflake webhookId, string webhookToken, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/webhooks/{webhookId}/{webhookToken}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
+        => Webhook.CreateFromJson((await SendRequestAsync(HttpMethod.Get, $"/webhooks/{webhookId}/{webhookToken}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
 
     public async Task<Webhook> ModifyWebhookAsync(Snowflake webhookId, Action<WebhookOptions> action, RequestProperties? properties = null)
     {
         WebhookOptions webhookOptions = new();
         action(webhookOptions);
-        return new((await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}", new JsonContent(webhookOptions), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
+        return Webhook.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}", new JsonContent(webhookOptions), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
     }
 
-    public async Task<Webhook> ModifyWebhookAsync(Snowflake webhookId, string webhookToken, Action<WebhookOptions> action, RequestProperties? properties = null)
+    public async Task<Webhook> ModifyWebhookWithTokenAsync(Snowflake webhookId, string webhookToken, Action<WebhookOptions> action, RequestProperties? properties = null)
     {
         WebhookOptions webhookOptions = new();
         action(webhookOptions);
-        return new((await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}/{webhookToken}", new JsonContent(webhookOptions), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
+        return Webhook.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}/{webhookToken}", new JsonContent(webhookOptions), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonWebhook>(), this);
     }
 
     public Task DeleteWebhookAsync(Snowflake webhookId, RequestProperties? properties = null)

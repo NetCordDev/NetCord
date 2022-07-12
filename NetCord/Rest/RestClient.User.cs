@@ -82,6 +82,6 @@ public partial class RestClient
     public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent(groupDMChannelProperties), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonChannel>(), this);
 
-    public async Task<IReadOnlyDictionary<Snowflake, Connection>> GetUserConnectionsAsync(RequestProperties? properties = null)
+    public async Task<IReadOnlyDictionary<Snowflake, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObject<IEnumerable<JsonModels.JsonConnection>>().ToDictionary(c => c.Id, c => new Connection(c, this));
 }

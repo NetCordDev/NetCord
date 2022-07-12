@@ -18,5 +18,16 @@ public class WebhookMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
     public Snowflake? ApplicationId => _jsonModel.ApplicationId;
     public IEnumerable<IComponent> Components { get; }
 
-    public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId != null ? GuildId : "@me")}/{ChannelId}/{Id}";
+    public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId.HasValue ? GuildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
+
+    #region Channel
+    public Task<RestMessage> CrosspostAsync(RequestProperties? properties = null) => _client.CrosspostMessageAsync(ChannelId, Id, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteMessageAsync(ChannelId, Id, properties);
+    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, properties);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, Snowflake userId, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, properties);
+    public IAsyncEnumerable<User> GetReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.GetMessageReactionsAsync(ChannelId, Id, emoji, properties);
+    public IAsyncEnumerable<User> GetReactionsAfterAsync(ReactionEmojiProperties emoji, Snowflake userId, RequestProperties? properties = null) => _client.GetMessageReactionsAfterAsync(ChannelId, Id, emoji, userId, properties);
+    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, properties);
+    public Task DeleteAllReactionsAsync(RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, properties);
+    #endregion
 }

@@ -2,18 +2,16 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationCommand : Entity, IJsonModel<JsonModels.JsonApplicationCommand>
+public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplicationCommand>
 {
     JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommand _jsonModel;
+    private protected readonly JsonModels.JsonApplicationCommand _jsonModel;
 
     public override Snowflake Id => _jsonModel.Id;
 
     public ApplicationCommandType Type => _jsonModel.Type;
 
     public Snowflake ApplicationId => _jsonModel.ApplicationId;
-
-    public Snowflake? GuildId => _jsonModel.GuildId;
 
     public string Name => _jsonModel.Name;
 
@@ -25,7 +23,7 @@ public class ApplicationCommand : Entity, IJsonModel<JsonModels.JsonApplicationC
 
     public Permission? DefaultGuildUserPermissions { get; }
 
-    public bool? DMPermission => _jsonModel.DMPermission;
+    public bool DMPermission => _jsonModel.DMPermission.GetValueOrDefault();
 
     public IEnumerable<ApplicationCommandOption> Options { get; }
 
@@ -33,11 +31,18 @@ public class ApplicationCommand : Entity, IJsonModel<JsonModels.JsonApplicationC
 
     public Snowflake Version => _jsonModel.Version;
 
-    public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel)
+    public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
         if (jsonModel.DefaultGuildUserPermissions != null)
             DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonModel.DefaultGuildUserPermissions);
     }
+
+    #region Interactions.ApplicationCommands
+    public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
+    public virtual Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGlobalApplicationCommandAsync(ApplicationId, Id, properties);
+    public Task<ApplicationCommandGuildPermissions> GetGuildPermissionsAsync(Snowflake guildId, RequestProperties? properties = null) => _client.GetApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, properties);
+    public Task<ApplicationCommandGuildPermissions> OverwriteGuildPermissionsAsync(Snowflake guildId, IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions, RequestProperties? properties = null) => _client.OverwriteApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, newPermissions, properties);
+    #endregion
 }

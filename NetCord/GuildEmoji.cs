@@ -13,7 +13,7 @@ public class GuildEmoji : Emoji
         if (jsonModel.Creator != null)
             Creator = new(jsonModel.Creator, client);
         if (jsonModel.AllowedRoles != null)
-            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new GuildRole(r, client));
+            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new GuildRole(r, guildId, client));
         GuildId = guildId;
     }
 
@@ -33,7 +33,8 @@ public class GuildEmoji : Emoji
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 
+    #region Guild
     public Task<GuildEmoji> ModifyAsync(Action<GuildEmojiOptions> action, RequestProperties? properties = null) => _client.ModifyGuildEmojiAsync(GuildId, Id, action, properties);
-
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildEmojiAsync(GuildId, Id, properties);
+    #endregion
 }

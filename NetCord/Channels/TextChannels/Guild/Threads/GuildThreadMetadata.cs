@@ -1,9 +1,9 @@
 ﻿namespace NetCord;
 
-public class ThreadMetadata : IJsonModel<JsonModels.JsonThreadMetadata>
+public class GuildThreadMetadata : IJsonModel<JsonModels.JsonGuildThreadMetadata>
 {
-    JsonModels.JsonThreadMetadata IJsonModel<JsonModels.JsonThreadMetadata>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonThreadMetadata _jsonModel;
+    JsonModels.JsonGuildThreadMetadata IJsonModel<JsonModels.JsonGuildThreadMetadata>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildThreadMetadata _jsonModel;
 
     public bool Archived => _jsonModel.Archived;
     public int AutoArchiveDuration => _jsonModel.AutoArchiveDuration;
@@ -11,7 +11,7 @@ public class ThreadMetadata : IJsonModel<JsonModels.JsonThreadMetadata>
     public bool Locked => _jsonModel.Locked;
     public bool? Invitable => _jsonModel.Invitable;
 
-    public ThreadMetadata(JsonModels.JsonThreadMetadata jsonModel)
+    public GuildThreadMetadata(JsonModels.JsonGuildThreadMetadata jsonModel)
     {
         _jsonModel = jsonModel;
     }

@@ -2,12 +2,12 @@
 
 namespace NetCord.Rest;
 
-public class Webhook : Entity, IJsonModel<JsonWebhook>
+public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
 {
     JsonWebhook IJsonModel<JsonWebhook>.JsonModel => _jsonModel;
-    private readonly JsonWebhook _jsonModel;
+    private protected readonly JsonWebhook _jsonModel;
 
-    public Webhook(JsonWebhook jsonModel, RestClient client)
+    public Webhook(JsonWebhook jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (_jsonModel.Creator != null)
@@ -28,7 +28,7 @@ public class Webhook : Entity, IJsonModel<JsonWebhook>
 
     public string? AvatarHash => _jsonModel.AvatarHash;
 
-    public string? Token => _jsonModel.Token;
+    
 
     public Snowflake? ApplicationId => _jsonModel.ApplicationId;
 
@@ -36,4 +36,14 @@ public class Webhook : Entity, IJsonModel<JsonWebhook>
 
     public string? Url => _jsonModel.Url;
 
+    public static Webhook CreateFromJson(JsonWebhook jsonModel, RestClient client) => jsonModel.Type switch
+    {
+        WebhookType.Incoming => new IncomingWebhook(jsonModel, client),
+        _ => new(jsonModel, client),
+    };
+
+    #region Webhook
+    public Task<Webhook> ModifyAsync(Action<WebhookOptions> action, RequestProperties? properties = null) => _client.ModifyWebhookAsync(Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteWebhookAsync(Id, properties);
+    #endregion
 }

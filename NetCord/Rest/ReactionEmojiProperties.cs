@@ -4,7 +4,7 @@ public class ReactionEmojiProperties
 {
     public string Name { get; }
     public Snowflake? Id { get; }
-    public Type EmojiType { get; }
+    public ReactionEmojiType EmojiType { get; }
 
     /// <summary>
     /// Creates <see cref="ReactionEmojiProperties"/> from guild emoji
@@ -15,7 +15,7 @@ public class ReactionEmojiProperties
     {
         Name = name;
         Id = id;
-        EmojiType = Type.Guild;
+        EmojiType = ReactionEmojiType.Guild;
     }
 
     /// <summary>
@@ -25,14 +25,14 @@ public class ReactionEmojiProperties
     public ReactionEmojiProperties(string unicode)
     {
         Name = unicode;
-        EmojiType = Type.Standard;
-    }
-
-    public enum Type
-    {
-        Guild,
-        Standard,
+        EmojiType = ReactionEmojiType.Standard;
     }
 
     public static implicit operator ReactionEmojiProperties(string unicode) => new(unicode);
+}
+
+public enum ReactionEmojiType
+{
+    Guild,
+    Standard,
 }

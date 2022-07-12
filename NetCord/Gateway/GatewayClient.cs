@@ -299,7 +299,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await ApplicationCommandPermissionsUpdate(new(data.ToObject<JsonApplicationCommandPermission>())).ConfigureAwait(false);
+                            await ApplicationCommandPermissionsUpdate(new(data.ToObject<JsonApplicationCommandGuildPermission>())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

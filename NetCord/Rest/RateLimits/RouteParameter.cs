@@ -69,7 +69,7 @@ public enum RouteParameter
     DeleteApplicationCommand,
     BulkOverwriteApplicationCommands,
     ModifyApplicationCommand,
-    OverwriteGuildApplicationCommandPermissions,
+    OverwriteApplicationCommandGuildPermissions,
     Interaction,
     GetGuildInvite,
     GetGuildChannels,

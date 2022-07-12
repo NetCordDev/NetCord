@@ -1,9 +1,9 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildApplicationCommandPermissions : IJsonModel<JsonModels.JsonGuildApplicationCommandPermissions>
+public class ApplicationCommandGuildPermissions : IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>
 {
-    JsonModels.JsonGuildApplicationCommandPermissions IJsonModel<JsonModels.JsonGuildApplicationCommandPermissions>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildApplicationCommandPermissions _jsonModel;
+    JsonModels.JsonApplicationCommandGuildPermissions IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonApplicationCommandGuildPermissions _jsonModel;
 
     public Snowflake CommandId => _jsonModel.CommandId;
 
@@ -13,7 +13,7 @@ public class GuildApplicationCommandPermissions : IJsonModel<JsonModels.JsonGuil
 
     public IReadOnlyDictionary<Snowflake, ApplicationCommandPermission> Permissions { get; }
 
-    public GuildApplicationCommandPermissions(JsonModels.JsonGuildApplicationCommandPermissions jsonModel)
+    public ApplicationCommandGuildPermissions(JsonModels.JsonApplicationCommandGuildPermissions jsonModel)
     {
         _jsonModel = jsonModel;
         Permissions = jsonModel.Permissions.ToDictionary(p => p.Id, p => new ApplicationCommandPermission(p));

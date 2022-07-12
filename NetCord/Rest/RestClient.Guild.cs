@@ -56,13 +56,13 @@ public partial class RestClient
         while (count == 1000);
     }
 
-    public async IAsyncEnumerable<GuildBan> GetGuildBansAfterAsync(Snowflake channelId, Snowflake userId, RequestProperties? properties = null)
+    public async IAsyncEnumerable<GuildBan> GetGuildBansAfterAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
     {
         int count;
         do
         {
             count = 0;
-            foreach (var ban in await GetMaxGuildBansAfterAsyncTask(channelId, userId, properties).ConfigureAwait(false))
+            foreach (var ban in await GetMaxGuildBansAfterAsyncTask(guildId, userId, properties).ConfigureAwait(false))
             {
                 yield return ban;
                 userId = ban.User.Id;
@@ -73,31 +73,31 @@ public partial class RestClient
     }
 
     private async Task<IEnumerable<GuildBan>> GetMaxGuildBansAsyncTask(Snowflake guildId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, guildId, this));
 
     private async Task<IEnumerable<GuildBan>> GetMaxGuildBansBeforeAsyncTask(Snowflake guildId, Snowflake before, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?before={before}", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, this)).Reverse();
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?before={before}", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, guildId, this)).Reverse();
 
     private async Task<IEnumerable<GuildBan>> GetMaxGuildBansAfterAsyncTask(Snowflake guildId, Snowflake after, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?after={after}", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans?after={after}", new RateLimits.Route(RateLimits.RouteParameter.GuildBans), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan[]>().Select(b => new GuildBan(b, guildId, this));
 
     public async Task<GuildBan> GetGuildBanAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan>(), this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildBan>(), guildId, this);
 
     public async Task<IReadOnlyDictionary<Snowflake, GuildRole>> GetGuildRolesAsync(Snowflake guildId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, guildId, this));
 
     public async Task<GuildRole> CreateGuildRoleAsync(Snowflake guildId, GuildRoleProperties guildRoleProperties, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.CreateGuildRole), new JsonContent(guildRoleProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.CreateGuildRole), new JsonContent(guildRoleProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), guildId, this);
 
-    public async Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyGuildRolePositionsAsync(Snowflake guildId, IEnumerable<GuildRolePosition> positions, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.ModifyGuildRolePositions), new JsonContent(positions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, this));
+    public async Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyGuildRolePositionsAsync(Snowflake guildId, IEnumerable<GuildRolePositionProperties> positions, RequestProperties? properties = null)
+        => (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.ModifyGuildRolePositions), new JsonContent(positions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole[]>().ToDictionary(r => r.Id, r => new GuildRole(r, guildId, this));
 
     public async Task<GuildRole> ModifyGuildRoleAsync(Snowflake guildId, Snowflake roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null)
     {
         GuildRoleOptions obj = new();
         action(obj);
-        return new((await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles/{roleId}", new(RateLimits.RouteParameter.ModifyGuildRole), new JsonContent(obj), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), this);
+        return new((await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles/{roleId}", new(RateLimits.RouteParameter.ModifyGuildRole), new JsonContent(obj), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildRole>(), guildId, this);
     }
 
     public Task DeleteGuildRoleAsync(Snowflake guildId, Snowflake roleId, RequestProperties? properties = null)
@@ -158,43 +158,14 @@ public partial class RestClient
     public async Task<IGuildChannel> CreateGuildChannelAsync(Snowflake guildId, GuildChannelProperties channelBuilder, RequestProperties? properties = null)
         => (IGuildChannel)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/channels", new(RateLimits.RouteParameter.GuildChannels), new JsonContent(channelBuilder), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
 
-    public async Task<Channel> ModifyGuildChannelAsync(Snowflake channelId, Action<GuildChannelOptions> action, RequestProperties? properties = null)
-    {
-        GuildChannelOptions guildChannelOptions = new();
-        action(guildChannelOptions);
-        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(guildChannelOptions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
-    }
-
-    public async Task<Channel> ModifyGuildThreadAsync(Snowflake channelId, Action<ThreadOptions> action, RequestProperties? properties = null)
-    {
-        ThreadOptions threadOptions = new();
-        action(threadOptions);
-        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(threadOptions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
-    }
-
-    public Task ModifyGuildChannelPositionsAsync(Snowflake guildId, IEnumerable<ChannelPosition> positions, RequestProperties? properties = null)
+    public Task ModifyGuildChannelPositionsAsync(Snowflake guildId, IEnumerable<ChannelPositionProperties> positions, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/channels", new(RateLimits.RouteParameter.GuildChannelPositions), new JsonContent(positions), properties);
 
     public async Task<IReadOnlyDictionary<Snowflake, GuildThread>> GetActiveGuildThreadsAsync(Snowflake guildId, RequestProperties? properties = null)
         => GuildThreadGenerator.CreateThreads((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/threads/active", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonRestGuildThreadResult>(), this);
 
-    public Task ModifyGuildChannelPermissionsAsync(Snowflake channelId, ChannelPermissionOverwrite permissionOverwrite, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), new JsonContent(permissionOverwrite), properties);
-
-    public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(Snowflake channelId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", properties).ConfigureAwait(false)).ToObject<IEnumerable<JsonModels.JsonRestGuildInvite>>().Select(r => new RestGuildInvite(r, this));
-
-    public async Task<RestGuildInvite> CreateGuildChannelInviteAsync(Snowflake channelId, GuildInviteProperties? guildInviteProperties = null, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", new(RateLimits.RouteParameter.CreateGuildChannelInvite), new JsonContent(guildInviteProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonRestGuildInvite>(), this);
-
-    public Task DeleteGuildChannelPermissionAsync(Snowflake channelId, Snowflake overwriteId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/permissions/{overwriteId}", new RateLimits.Route(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), properties);
-
-    public async Task<FollowedChannel> FollowNewsGuildChannelAsync(Snowflake channelId, Snowflake targetChannelId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/followers", new JsonContent(@$"{{""webhook_channel_id"":{targetChannelId}}}"), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonFollowedChannel>());
-
     public async Task<GuildUser> GetGuildUserAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
-    => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members/{userId}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildUser), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildUser>(), guildId, this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members/{userId}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildUser), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildUser>(), guildId, this);
 
     public async IAsyncEnumerable<GuildUser> GetGuildUsersAsync(Snowflake guildId, RequestProperties? properties = null)
     {

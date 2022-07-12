@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonThreadMetadata
+public record JsonGuildThreadMetadata
 {
     [JsonPropertyName("archived")]
     public bool Archived { get; init; }
