@@ -39,6 +39,12 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
             DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonModel.DefaultGuildUserPermissions);
     }
 
+    public override string ToString() => Type switch
+    {
+        ApplicationCommandType.ChatInput => $"</{Name}:{Id}>",
+        _ => Id.ToString()!,
+    };
+
     #region Interactions.ApplicationCommands
     public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
     public virtual Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGlobalApplicationCommandAsync(ApplicationId, Id, properties);
