@@ -22,10 +22,12 @@ public class Test
         TaskCompletionSource completionSource = new();
         client.GuildCreate += g =>
         {
-            if (g.Id == 819892011364122624)
+            if (g.GuildId == 819892011364122624)
             {
+                if (g.Guild == null)
+                    throw new Exception($"{nameof(g.Guild)} was null");
                 client.Dispose();
-                guild = g;
+                guild = g.Guild;
                 completionSource.SetResult();
             }
             return default;

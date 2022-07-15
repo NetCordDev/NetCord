@@ -36,7 +36,7 @@ public partial class GatewayClient : WebSocketClient
     public event Func<ThreadListSyncEventArgs, ValueTask>? ThreadListSync;
     public event Func<ThreadMemberUpdateEventArgs, ValueTask>? ThreadMemberUpdate;
     public event Func<GuildThreadMembersUpdateEventArgs, ValueTask>? GuildThreadMembersUpdate;
-    public event Func<Guild, ValueTask>? GuildCreate;
+    public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
     public event Func<Guild, ValueTask>? GuildUpdate;
     public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
     public event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
@@ -551,17 +551,34 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_CREATE":
                 {
-                    Guild guild = new(data.ToObject<JsonGuild>(), Rest);
-                    if (GuildCreate != null)
-                        try
-                        {
-                            await GuildCreate(guild).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            InvokeLog(LogMessage.Error(ex));
-                        }
-                    Guilds = Guilds.SetItem(guild.Id, guild);
+                    var jsonGuild = data.ToObject<JsonGuild>();
+                    var id = jsonGuild.Id;
+                    if (jsonGuild.IsUnavaible)
+                    {
+                        if (GuildCreate != null)
+                            try
+                            {
+                                await GuildCreate(new(id, null)).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                InvokeLog(LogMessage.Error(ex));
+                            }
+                    }
+                    else
+                    {
+                        Guild guild = new(jsonGuild, Rest);
+                        if (GuildCreate != null)
+                            try
+                            {
+                                await GuildCreate(new(id, guild)).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                InvokeLog(LogMessage.Error(ex));
+                            }
+                        Guilds = Guilds.SetItem(id, guild);
+                    }
                 }
                 break;
             case "GUILD_UPDATE":
