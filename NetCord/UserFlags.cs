@@ -17,4 +17,5 @@ public enum UserFlags : uint
     EarlyVerifiedBotDeveloper = 1 << 17,
     DiscordCertifiedModerator = 1 << 18,
     BotHttpInteractions = 1 << 19,
+    Spammer = 1 << 20,
 }
