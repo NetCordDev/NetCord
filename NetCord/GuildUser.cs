@@ -51,6 +51,8 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
 
     public ImageUrl GetGuildAvatarUrl(ImageFormat? format = null) => ImageUrl.GuildUserAvatar(GuildId, Id, GuildAvatarHash!, format);
 
+    public Task<GuildUser> TimeOutAsync(DateTimeOffset? until, RequestProperties? properties = null) => ModifyAsync(u => u.TimeOutUntil = until.GetValueOrDefault(), properties);
+
     #region Guild
     public Task<GuildUser> ModifyAsync(Action<GuildUserOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserAsync(GuildId, Id, action, properties);
     public Task AddRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, properties);
