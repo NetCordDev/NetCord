@@ -23,7 +23,7 @@ public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
 
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
 
-    public int? ApproximateMemberCount => _jsonModel.ApproximateMemberCount;
+    public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
 
     public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
 

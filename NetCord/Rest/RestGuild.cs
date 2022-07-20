@@ -33,7 +33,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public SystemChannelFlags SystemChannelFlags => _jsonModel.SystemChannelFlags;
     public Snowflake? RulesChannelId => _jsonModel.RulesChannelId;
     public int? MaxPresences => _jsonModel.MaxPresences;
-    public int? MaxMembers => _jsonModel.MaxMembers;
+    public int? MaxUsers => _jsonModel.MaxUsers;
     public string? VanityUrlCode => _jsonModel.VanityUrlCode;
     public string? Description => _jsonModel.Description;
     public string? BannerHash => _jsonModel.BannerHash;
@@ -42,7 +42,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public System.Globalization.CultureInfo PreferredLocale => _jsonModel.PreferredLocale;
     public Snowflake? PublicUpdatesChannelId => _jsonModel.PublicUpdatesChannelId;
     public int? MaxVideoChannelUsers => _jsonModel.MaxVideoChannelUsers;
-    public int? ApproximateMemberCount => _jsonModel.ApproximateMemberCount;
+    public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
     public GuildWelcomeScreen? WelcomeScreen { get; }
     public NSFWLevel NSFWLevel => _jsonModel.NSFWLevel;

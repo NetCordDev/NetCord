@@ -3,12 +3,12 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadMembersUpdateEventArgs : IJsonModel<JsonGuildThreadMembersUpdateEventArgs>
+public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonGuildThreadUsersUpdateEventArgs>
 {
-    JsonGuildThreadMembersUpdateEventArgs IJsonModel<JsonGuildThreadMembersUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonGuildThreadMembersUpdateEventArgs _jsonModel;
+    JsonGuildThreadUsersUpdateEventArgs IJsonModel<JsonGuildThreadUsersUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonGuildThreadUsersUpdateEventArgs _jsonModel;
 
-    public GuildThreadMembersUpdateEventArgs(JsonGuildThreadMembersUpdateEventArgs jsonModel, RestClient client)
+    public GuildThreadUsersUpdateEventArgs(JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.AddedUsers != null)
@@ -19,7 +19,7 @@ public class GuildThreadMembersUpdateEventArgs : IJsonModel<JsonGuildThreadMembe
 
     public Snowflake GuildId => _jsonModel.GuildId;
 
-    public int MemberCount => _jsonModel.MemberCount;
+    public int UserCount => _jsonModel.UserCount;
 
     public IReadOnlyDictionary<Snowflake, ThreadUser>? AddedUsers { get; }
 

@@ -52,10 +52,10 @@ public class RestMessage : WebhookMessage
 
     public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(jsonModel, client)
     {
-        if (jsonModel.Member == null)
+        if (jsonModel.GuildUser == null)
             Author = new(jsonModel.Author, client);
         else
-            Author = new GuildUser(jsonModel.Member with { User = jsonModel.Author }, GuildId.GetValueOrDefault(), client);
+            Author = new GuildUser(jsonModel.GuildUser with { User = jsonModel.Author }, GuildId.GetValueOrDefault(), client);
 
         MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u => new User(u, client));
         MentionedRoleIds = jsonModel.MentionedRoleIds!;

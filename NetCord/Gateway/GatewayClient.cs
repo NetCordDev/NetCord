@@ -34,8 +34,8 @@ public partial class GatewayClient : WebSocketClient
     public event Func<GuildThreadEventArgs, ValueTask>? GuildThreadUpdate;
     public event Func<GuildThreadDeleteEventArgs, ValueTask>? GuildThreadDelete;
     public event Func<ThreadListSyncEventArgs, ValueTask>? ThreadListSync;
-    public event Func<ThreadMemberUpdateEventArgs, ValueTask>? ThreadMemberUpdate;
-    public event Func<GuildThreadMembersUpdateEventArgs, ValueTask>? GuildThreadMembersUpdate;
+    public event Func<ThreadUserUpdateEventArgs, ValueTask>? ThreadUserUpdate;
+    public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
     public event Func<Guild, ValueTask>? GuildUpdate;
     public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
@@ -525,10 +525,10 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_MEMBER_UPDATE":
                 {
-                    if (ThreadMemberUpdate != null)
+                    if (ThreadUserUpdate != null)
                         try
                         {
-                            await ThreadMemberUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await ThreadUserUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -538,10 +538,10 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_MEMBERS_UPDATE":
                 {
-                    if (GuildThreadMembersUpdate != null)
+                    if (GuildThreadUsersUpdate != null)
                         try
                         {
-                            await GuildThreadMembersUpdate(new(data.ToObject<JsonGuildThreadMembersUpdateEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildThreadUsersUpdate(new(data.ToObject<JsonGuildThreadUsersUpdateEventArgs>(), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

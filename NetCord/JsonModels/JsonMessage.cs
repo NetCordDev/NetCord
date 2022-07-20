@@ -14,7 +14,7 @@ public record JsonMessage : JsonEntity
     public JsonUser Author { get; init; }
 
     [JsonPropertyName("member")]
-    public JsonGuildUser? Member { get; init; }
+    public JsonGuildUser? GuildUser { get; init; }
 
     [JsonPropertyName("content")]
     public string Content { get; init; }

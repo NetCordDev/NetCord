@@ -22,7 +22,7 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 
     public ReadOnlyCollection<string> Features { get; }
 
-    public int ApproximateMemberCount => _jsonModel.ApproximateMemberCount.GetValueOrDefault();
+    public int ApproximateUserCount => _jsonModel.ApproximateUserCount.GetValueOrDefault();
 
     public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
 

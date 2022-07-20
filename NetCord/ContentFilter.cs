@@ -3,6 +3,6 @@
 public enum ContentFilter
 {
     Disabled = 0,
-    MembersWithoutRoles = 1,
-    AllMembers = 2,
+    UsersWithoutRoles = 1,
+    AllUsers = 2,
 }

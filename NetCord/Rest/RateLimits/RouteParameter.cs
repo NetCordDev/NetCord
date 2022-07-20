@@ -9,7 +9,7 @@ public enum RouteParameter
     Typing,
     Pins,
     Recipients,
-    ThreadMembers,
+    ThreadUsers,
     Threads,
     Users,
     Messages,

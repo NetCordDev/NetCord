@@ -20,7 +20,7 @@ public class Guild : RestGuild
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public bool IsLarge => _jsonModel.IsLarge;
     public bool IsUnavaible => _jsonModel.IsUnavaible;
-    public int MemberCount => _jsonModel.MemberCount;
+    public int UserCount => _jsonModel.UserCount;
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
@@ -37,7 +37,7 @@ public class Guild : RestGuild
     {
         CreatedAt = oldGuild._jsonModel.CreatedAt,
         IsLarge = oldGuild._jsonModel.IsLarge,
-        MemberCount = oldGuild._jsonModel.MemberCount,
+        UserCount = oldGuild._jsonModel.UserCount,
         VoiceStates = oldGuild._jsonModel.VoiceStates,
         Users = oldGuild._jsonModel.Users,
         Channels = oldGuild._jsonModel.Channels,

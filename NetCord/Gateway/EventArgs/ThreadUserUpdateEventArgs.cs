@@ -1,8 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class ThreadMemberUpdateEventArgs
+public class ThreadUserUpdateEventArgs
 {
-    public ThreadMemberUpdateEventArgs(ThreadUser user, Snowflake guildId)
+    public ThreadUserUpdateEventArgs(ThreadUser user, Snowflake guildId)
     {
         User = user;
         GuildId = guildId;

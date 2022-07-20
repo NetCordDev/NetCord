@@ -31,7 +31,7 @@ public record JsonRestGuildInvite
     public int? ApproximatePresenceCount { get; init; }
 
     [JsonPropertyName("approximate_member_count")]
-    public int? ApproximateMemberCount { get; init; }
+    public int? ApproximateUserCount { get; init; }
 
     [JsonPropertyName("expires_at")]
     public DateTimeOffset? ExpiresAt { get; init; }

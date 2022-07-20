@@ -87,7 +87,7 @@ public record JsonGuild : JsonEntity
     public bool IsUnavaible { get; init; }
 
     [JsonPropertyName("member_count")]
-    public int MemberCount { get; set; }
+    public int UserCount { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToDictionaryConverter))]
     [JsonPropertyName("voice_states")]
@@ -113,7 +113,7 @@ public record JsonGuild : JsonEntity
     public int? MaxPresences { get; init; }
 
     [JsonPropertyName("max_members")]
-    public int? MaxMembers { get; init; }
+    public int? MaxUsers { get; init; }
 
     [JsonPropertyName("vanity_url_code")]
     public string? VanityUrlCode { get; init; }
@@ -140,7 +140,7 @@ public record JsonGuild : JsonEntity
     public int? MaxVideoChannelUsers { get; init; }
 
     [JsonPropertyName("approximate_member_count")]
-    public int? ApproximateMemberCount { get; set; }
+    public int? ApproximateUserCount { get; set; }
 
     [JsonPropertyName("approximate_presence_count")]
     public int? ApproximatePresenceCount { get; init; }
