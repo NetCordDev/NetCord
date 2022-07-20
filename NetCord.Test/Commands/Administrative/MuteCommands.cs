@@ -35,7 +35,7 @@ public class MuteCommands : CommandModule
     [Command("unmute")]
     public async Task Unmute(GuildUser user, [Remainder] string? reason = null)
     {
-        await user.TimeOutAsync(null, new() { AuditLogReason = reason });
+        await user.TimeOutAsync(default, new() { AuditLogReason = reason });
         await ReplyAsync($"{user} got unmuted");
     }
 }
