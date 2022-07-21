@@ -58,8 +58,7 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
     public Task AddRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(GuildId, Id, roleId, properties);
     public Task RemoveRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.RemoveGuildUserRoleAsync(GuildId, Id, roleId, properties);
     public Task KickAsync(RequestProperties? properties = null) => _client.KickGuildUserAsync(GuildId, Id, properties);
-    public Task BanAsync(RequestProperties? properties = null) => _client.BanGuildUserAsync(GuildId, Id, properties);
-    public Task BanAsync(int deleteMessageDays, RequestProperties? properties = null) => _client.BanGuildUserAsync(GuildId, Id, deleteMessageDays, properties);
+    public Task BanAsync(GuildBanProperties? guildBanProperties = null, RequestProperties? properties = null) => _client.BanGuildUserAsync(GuildId, Id, guildBanProperties, properties);
     public Task UnbanAsync(RequestProperties? properties = null) => _client.UnbanGuildUserAsync(GuildId, Id, properties);
     public Task ModifyVoiceStateAsync(Snowflake channelId, Action<VoiceStateOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserVoiceStateAsync(GuildId, channelId, Id, action, properties);
     #endregion

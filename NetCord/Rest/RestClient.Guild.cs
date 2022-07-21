@@ -247,11 +247,8 @@ public partial class RestClient
     public Task KickGuildUserAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/members/{userId}", new RateLimits.Route(RateLimits.RouteParameter.KickGuildUser), properties);
 
-    public Task BanGuildUserAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/guilds/{guildId}/bans/{userId}", properties);
-
-    public Task BanGuildUserAsync(Snowflake guildId, Snowflake userId, int deleteMessageDays, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/guilds/{guildId}/bans/{userId}", new JsonContent($"{{\"delete_message_days\":{deleteMessageDays}}}"), properties);
+    public Task BanGuildUserAsync(Snowflake guildId, Snowflake userId, GuildBanProperties? guildBanProperties = null, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/guilds/{guildId}/bans/{userId}", new JsonContent(guildBanProperties), properties);
 
     public Task UnbanGuildUserAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/bans/{userId}", properties);

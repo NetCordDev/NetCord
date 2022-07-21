@@ -99,8 +99,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public Task AddUserRoleAsync(Snowflake userId, Snowflake roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(Id, userId, roleId, properties);
     public Task RemoveUserRoleAsync(Snowflake userId, Snowflake roleId, RequestProperties? properties = null) => _client.RemoveGuildUserRoleAsync(Id, userId, roleId, properties);
     public Task KickUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.KickGuildUserAsync(Id, userId, properties);
-    public Task BanUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, properties);
-    public Task BanUserAsync(Snowflake userId, int deleteMessageDays, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, deleteMessageDays, properties);
+    public Task BanUserAsync(Snowflake userId, GuildBanProperties? guildBanProperties = null, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, guildBanProperties, properties);
     public Task UnbanUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.UnbanGuildUserAsync(Id, userId, properties);
     public Task ModifyCurrentUserVoiceStateAsync(Snowflake channelId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? properties = null) => _client.ModifyCurrentGuildUserVoiceStateAsync(Id, channelId, action, properties);
     public Task ModifyUserVoiceStateAsync(Snowflake channelId, Snowflake userId, Action<VoiceStateOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserVoiceStateAsync(Id, channelId, userId, action, properties);

@@ -77,7 +77,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is avaible only in guild");
 
-        await Context.Guild.BanUserAsync(user, (int)deleteMessages, new() { AuditLogReason = reason });
+        await Context.Guild.BanUserAsync(user, new()
+        {
+            DeleteMessageSeconds = (int)deleteMessages
+        }, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
@@ -306,21 +309,21 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 public enum DeleteMessagesDays
 {
     [SlashCommandChoice(Name = "Don't remove")]
-    DontRemove = 0,
+    DontRemove = 0 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 24 hours")]
-    Last24Hours = 1,
+    Last24Hours = 1 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 2 days")]
-    Last2Days = 2,
+    Last2Days = 2 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 3 days")]
-    Last3Days = 3,
+    Last3Days = 3 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 4 days")]
-    Last4Days = 4,
+    Last4Days = 4 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 5 days")]
-    Last5Days = 5,
+    Last5Days = 5 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 6 days")]
-    Last6Days = 6,
+    Last6Days = 6 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last week", TranslationsProviderType = typeof(DeleteMessagesDaysLastWeekTranslationsProvider))]
-    LastWeek = 7,
+    LastWeek = 7 * 24 * 60 * 60,
 }
 
 public class DeleteMessagesDaysLastWeekTranslationsProvider : ITranslationsProvider
