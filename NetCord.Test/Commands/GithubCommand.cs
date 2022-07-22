@@ -5,7 +5,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
-public class GithubCommand : CommandModule
+public class GithubCommand : CommandModule<CommandContext>
 {
     [Command("github", "gh")]
     public async Task Github([Remainder] string userName)

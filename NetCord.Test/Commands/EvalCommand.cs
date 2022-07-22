@@ -8,7 +8,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
-public class EvalCommand : CommandModule
+public class EvalCommand : CommandModule<CommandContext>
 {
     [Command("eval", Priority = 0)]
     public async Task Eval([Remainder] string code)
@@ -31,7 +31,7 @@ public class EvalCommand : CommandModule
                 "System.Linq",
                 "System.Threading",
                 "System.Threading.Tasks",
-            }), this, typeof(CommandModule));
+            }), this, typeof(CommandModule<CommandContext>));
         }
         catch (RestException ex)
         {

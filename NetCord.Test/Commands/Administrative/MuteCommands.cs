@@ -5,7 +5,7 @@ using NetCord.Services.Commands;
 namespace NetCord.Test.Commands.Administrative;
 
 [RequireUserPermission<CommandContext>(Permission.ModerateUsers), RequireBotPermission<CommandContext>(Permission.ModerateUsers)]
-public class MuteCommands : CommandModule
+public class MuteCommands : CommandModule<CommandContext>
 {
     [Command("mute")]
     public async Task Mute(GuildUser user, TimeSpan time, [Remainder] string? reason = null)

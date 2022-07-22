@@ -20,7 +20,3 @@ public abstract class CommandModule<TContext> : BaseCommandModule<TContext> wher
 
     public Task<RestMessage> SendAsync(MessageProperties message, RequestProperties? properties = null) => Context.Client.Rest.SendMessageAsync(Context.Message.ChannelId, message, properties);
 }
-
-public abstract class CommandModule : CommandModule<CommandContext>
-{
-}

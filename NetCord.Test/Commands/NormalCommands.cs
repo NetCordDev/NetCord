@@ -3,7 +3,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
-public class NormalCommands : CommandModule
+public class NormalCommands : CommandModule<CommandContext>
 {
     [Command("say")]
     public Task Say([Remainder] string text)

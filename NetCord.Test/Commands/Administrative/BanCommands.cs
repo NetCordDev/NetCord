@@ -6,7 +6,7 @@ namespace NetCord.Test.Commands.Administrative;
 
 [RequireContext<CommandContext>(Services.RequiredContext.Guild)]
 [RequireUserPermission<CommandContext>(Permission.BanUsers), RequireBotPermission<CommandContext>(Permission.BanUsers)]
-public class BanCommands : CommandModule
+public class BanCommands : CommandModule<CommandContext>
 {
     [RequireContext<CommandContext>(Services.RequiredContext.Guild)]
     [Command("ban")]

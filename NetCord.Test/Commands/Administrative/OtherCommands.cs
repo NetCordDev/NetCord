@@ -3,7 +3,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
-public class OtherCommands : CommandModule
+public class OtherCommands : CommandModule<CommandContext>
 {
     [RequireUserPermission<CommandContext>(Permission.KickUsers), RequireBotPermission<CommandContext>(Permission.KickUsers)]
     public static Task Kick(GuildUser user, [Remainder] string? reason = null)
