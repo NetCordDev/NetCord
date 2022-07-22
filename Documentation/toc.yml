@@ -1,0 +1,5 @@
+- name: Guides
+  href: guides/
+- name: Documentation
+  href: docs/
+  homepage: docs/index.md

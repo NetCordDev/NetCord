@@ -1,0 +1,14 @@
+- name: Getting Started
+  items:
+    - name: Installation
+      href: getting-started/installation.md
+    - name: Creating a First Bot!
+      href: getting-started/creating-a-first-bot.md
+    - name: Coding Time!
+      href: getting-started/coding.md
+- name: Working with Events
+  items:
+    - name: Intents
+      href: events/intents.md
+    - name: First Events
+      href: events/first-events.md

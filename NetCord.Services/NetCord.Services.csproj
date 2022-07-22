@@ -6,13 +6,13 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
 
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
-    <PackageTags>discord;discordapp;bot</PackageTags>
-    <PackageIcon>Small.png</PackageIcon>
+    <PackageTags>bot;discord;discord-api</PackageTags>
+    <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.23</VersionSuffix>
+    <VersionSuffix>alpha.24</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -24,13 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Resources\**" />
-    <EmbeddedResource Remove="Resources\**" />
-    <None Remove="Resources\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\NetCord\Resources\Logo\png\Small.png">
+    <None Include="..\NetCord\Resources\Logo\png\SmallSquare.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

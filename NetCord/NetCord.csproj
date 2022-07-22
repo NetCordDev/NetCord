@@ -4,37 +4,28 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <LangVersion>preview</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
-    <PackageTags>discord;discordapp;bot</PackageTags>
-    <PackageIcon>Small.png</PackageIcon>
+    <PackageTags>bot;discord;discord-api</PackageTags>
+    <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.62</VersionSuffix>
+    <VersionSuffix>alpha.63</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\Logo\png\Big.png" />
-    <None Remove="Resources\Logo\png\BigOutline.png" />
-    <None Remove="Resources\Logo\png\Small.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\Logo\png\Big.png" />
-    <Resource Include="Resources\Logo\png\BigOutline.png" />
-    <Resource Include="Resources\Logo\png\Small.png">
+    <Resource Include="Resources\Logo\png\SmallSquare.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </Resource>
