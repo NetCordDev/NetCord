@@ -11,4 +11,5 @@ public enum ApplicationFlags : uint
     Embedded = 1 << 17,
     GatewayMessageContent = 1 << 18,
     GatewayMessageContentLimited = 1 << 19,
+    ApplicationCommandBadge = 1 << 23,
 }
