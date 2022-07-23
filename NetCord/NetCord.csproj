@@ -9,11 +9,12 @@
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
+    <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>
     <PackageTags>bot;discord;discord-api</PackageTags>
     <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.63</VersionSuffix>
+    <VersionSuffix>alpha.64</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
