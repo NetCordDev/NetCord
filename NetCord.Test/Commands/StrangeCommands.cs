@@ -260,7 +260,7 @@ public class StrangeCommands : CommandModule<CommandContext>
 
     [Command("quote", Priority = 1)]
     public async Task Quote(Snowflake messageId)
-        => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, messageId)).Content).ToString());
+        => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, messageId)).Content));
 
     [Command("quote", Priority = 0)]
     public Task Quote(string text) => ReplyAsync(Format.Quote(text).ToString());

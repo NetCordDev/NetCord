@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 
+using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
@@ -77,10 +78,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is avaible only in guild");
 
-        await Context.Guild.BanUserAsync(user, new()
-        {
-            DeleteMessageSeconds = (int)deleteMessages
-        }, new() { AuditLogReason = reason });
+        await Context.Guild.BanUserAsync(user, (int)deleteMessages, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
@@ -102,11 +100,11 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(role.Permissions.ToString()));
     }
 
-    [SlashCommand("channel-name", "Shows channel name")]
-    public Task ChannelNameAsync(Channel? channel = null)
-    {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource((channel ?? Context.Channel).ToString()));
-    }
+    //[SlashCommand("channel-name", "Shows channel name")]
+    //public Task ChannelNameAsync(Channel? channel = null)
+    //{
+    //    return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource((channel ?? Context.Channel).ToString()));
+    //}
 
     [SlashCommand("user", "Shows user info")]
     public Task UserAsync(User user)
@@ -121,7 +119,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
             var roleId = mentionable.Role!.Id;
-            foreach (var user in Context.Guild!.Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd)))
+            foreach (var user in Context.Client.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd)))
                 await user.AddRoleAsync(roleToAdd);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
@@ -154,48 +152,59 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(((ulong)permission).ToString()));
     }
 
-    [RequireContext<SlashCommandContext>(RequiredContext.Guild)]
-    [RequireUserPermission<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
-    [SlashCommand("clear", "Clears channel", GuildId = 856183259972763669)]
-    public async Task ClearAsync([MinValue(1)] int count, TextChannel? channel = null)
-    {
-        channel ??= Context.Channel;
-        int i = 0;
-        try
-        {
-            if (count > 100)
-            {
-                var first = await channel.GetMessagesAsync().Take(100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
-                await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource());
-                var firstCount = first.Count;
-                i = firstCount;
-                if (firstCount > 0)
-                {
-                    var lastId = first[^1];
-                    Task t = Context.Client.Rest.DeleteMessagesAsync(channel, first);
-                    if (firstCount == 100)
-                    {
-                        var next = channel.GetMessagesBeforeAsync(lastId).Take(count - 100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => { i++; return m.Id; });
-                        await Context.Client.Rest.DeleteMessagesAsync(channel, next);
-                    }
-                    await t;
-                }
-            }
-            else
-            {
-                var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
-                await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
-                await Context.Client.Rest.DeleteMessagesAsync(channel, messages);
-                i = messages.Count;
-            }
-        }
-        catch (Exception ex)
-        {
-            await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**{ex.Message}**");
-            return;
-        }
-        await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
-    }
+    ////[RequireContext<SlashCommandContext>(RequiredContext.Guild)]
+    ////[RequireUserPermission<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
+    //[SlashCommand("clear", "Clears channel")]
+    //public async Task ClearAsync([MinValue(1)] int count, TextChannel? channel = null)
+    //{
+    //    if (channel == null)
+    //    {
+    //        if (!((GuildInteractionUser)Context.User).Permissions.HasFlag(Permission.ManageMessages))
+    //            throw new("Missing permissions!");
+    //        channel = Context.Channel;
+    //    }
+    //    else
+    //    {
+    //        if (!((IInteractionChannel)channel).Permissions.HasFlag(Permission.ManageMessages))
+    //            throw new("Missing permissions!");
+    //    }
+
+    //    int i = 0;
+    //    try
+    //    {
+    //        if (count > 100)
+    //        {
+    //            var first = await channel.GetMessagesAsync().Take(100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
+    //            await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource());
+    //            var firstCount = first.Count;
+    //            i = firstCount;
+    //            if (firstCount > 0)
+    //            {
+    //                var lastId = first[^1];
+    //                Task t = Context.Client.Rest.DeleteMessagesAsync(channel, first);
+    //                if (firstCount == 100)
+    //                {
+    //                    var next = channel.GetMessagesBeforeAsync(lastId).Take(count - 100).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => { i++; return m.Id; });
+    //                    await Context.Client.Rest.DeleteMessagesAsync(channel, next);
+    //                }
+    //                await t;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            var messages = await channel.GetMessagesAsync().Take(count).TakeWhile(m => m.CreatedAt >= DateTimeOffset.UtcNow.AddDays(-14)).Select(m => m.Id).ToListAsync();
+    //            await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
+    //            await Context.Client.Rest.DeleteMessagesAsync(channel, messages);
+    //            i = messages.Count;
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**{ex.Message}**");
+    //        return;
+    //    }
+    //    await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
+    //}
 
     [RequireNsfw<SlashCommandContext>()]
     [SlashCommand("nsfw", "You can use this command in nsfw channel")]

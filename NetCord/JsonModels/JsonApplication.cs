@@ -17,10 +17,10 @@ public record JsonApplication : JsonEntity
     public string[] RpcOrigins { get; init; }
 
     [JsonPropertyName("bot_public")]
-    public bool IsBotPublic { get; init; }
+    public bool? BotPublic { get; init; }
 
     [JsonPropertyName("bot_require_code_grant")]
-    public bool BotRequireCodeGrant { get; init; }
+    public bool? BotRequireCodeGrant { get; init; }
 
     [JsonPropertyName("terms_of_service_url")]
     public string? TermsOfServiceUrl { get; init; }
@@ -29,10 +29,7 @@ public record JsonApplication : JsonEntity
     public string? PrivacyPolicyUrl { get; init; }
 
     [JsonPropertyName("owner")]
-    public JsonUser Owner { get; init; }
-
-    [JsonPropertyName("summary")]
-    public string Summary { get; init; }
+    public JsonUser? Owner { get; init; }
 
     [JsonPropertyName("verify_key")]
     public string VerifyKey { get; init; }
@@ -41,7 +38,6 @@ public record JsonApplication : JsonEntity
     public JsonTeam? Team { get; init; }
 
     [JsonPropertyName("guild_id")]
-
     public Snowflake? GuildId { get; init; }
 
     [JsonPropertyName("primary_sku_id")]
@@ -55,4 +51,13 @@ public record JsonApplication : JsonEntity
 
     [JsonPropertyName("flags")]
     public ApplicationFlags? Flags { get; init; }
+
+    [JsonPropertyName("tags")]
+    public string[]? Tags { get; init; }
+
+    [JsonPropertyName("install_params")]
+    public JsonApplicationInstallParams? InstallParams { get; init; }
+
+    [JsonPropertyName("custom_install_url")]
+    public string? CustomInstallUrl { get; init; }
 }

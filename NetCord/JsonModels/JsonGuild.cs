@@ -29,7 +29,7 @@ public record JsonGuild : JsonEntity
     public Snowflake OwnerId { get; init; }
 
     [JsonPropertyName("permissions")]
-    public string? Permissions { get; init; }
+    public Permission? Permissions { get; init; }
 
     [JsonPropertyName("afk_channel_id")]
     public Snowflake? AfkChannelId { get; init; }

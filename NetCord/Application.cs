@@ -12,12 +12,11 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string? IconHash => _jsonModel.IconHash;
     public string Description => _jsonModel.Description;
     public IEnumerable<string> RpcOrigins => _jsonModel.RpcOrigins;
-    public bool IsBotPublic => _jsonModel.IsBotPublic;
-    public bool BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
+    public bool? BotPublic => _jsonModel.BotPublic;
+    public bool? BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
     public string? TermsOfServiceUrl => _jsonModel.TermsOfServiceUrl;
     public string? PrivacyPolicyUrl => _jsonModel.PrivacyPolicyUrl;
-    public User Owner { get; }
-    public string Summary => _jsonModel.Summary;
+    public User? Owner { get; }
     public string VerifyKey => _jsonModel.VerifyKey;
     public Team? Team { get; }
     /// <summary>
@@ -28,12 +27,20 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string? Slug => _jsonModel.Slug;
     public string? CoverImageHash => _jsonModel.CoverImageHash;
     public ApplicationFlags? Flags => _jsonModel.Flags;
+    public IReadOnlyList<string>? Tags => _jsonModel.Tags;
+
+    public ApplicationInstallParams? InstallParams { get; }
+
+    public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
 
     public Application(JsonModels.JsonApplication jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Owner = new(jsonModel.Owner, client);
+        if (jsonModel.Owner != null)
+            Owner = new(jsonModel.Owner, client);
         if (jsonModel.Team != null)
             Team = new(jsonModel.Team, client);
+        if (jsonModel.InstallParams != null)
+            InstallParams = new(jsonModel.InstallParams);
     }
 }

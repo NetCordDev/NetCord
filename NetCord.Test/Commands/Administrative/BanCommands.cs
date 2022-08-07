@@ -10,12 +10,9 @@ public class BanCommands : CommandModule<CommandContext>
 {
     [RequireContext<CommandContext>(Services.RequiredContext.Guild)]
     [Command("ban")]
-    public async Task Ban(UserId userId, TimeSpan deleteMessagesTime, [Remainder] string? reason = null)
+    public async Task Ban(UserId userId, TimeSpan deleteMessagesTime = default, [Remainder] string? reason = null)
     {
-        await Context.Guild!.BanUserAsync(userId, new()
-        {
-            DeleteMessageSeconds = (int)deleteMessagesTime.TotalSeconds,
-        }, new() { AuditLogReason = reason });
+        await Context.Guild!.BanUserAsync(userId, (int)deleteMessagesTime.TotalSeconds, new() { AuditLogReason = reason });
 
         ActionRowProperties actionRow = new(new List<ButtonProperties>
             {

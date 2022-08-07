@@ -10,6 +10,7 @@ internal static class ToObjectExtensions
     {
         _options = new();
         _options.Converters.Add(new JsonConverters.CultureInfoConverter());
+        _options.Converters.Add(new JsonConverters.PermissionConverter());
     }
 
     internal static T ToObject<T>(this JsonElement element)

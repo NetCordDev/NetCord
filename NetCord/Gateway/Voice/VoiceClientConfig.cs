@@ -9,5 +9,5 @@ public class VoiceClientConfig
 
     public bool RedirectInputStreams { get; init; }
 
-    public IUdpSocket? UdpClient { get; init; }
+    public IUdpSocket? UdpSocket { get; init; }
 }

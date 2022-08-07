@@ -17,7 +17,7 @@ public record JsonGuildRole : JsonEntity
     public int Position { get; init; }
 
     [JsonPropertyName("permissions")]
-    public string Permissions { get; init; }
+    public Permission Permissions { get; init; }
 
     [JsonPropertyName("managed")]
     public bool Managed { get; init; }

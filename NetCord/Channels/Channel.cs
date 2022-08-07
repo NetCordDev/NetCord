@@ -3,12 +3,14 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>
+public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChannel
 {
     JsonChannel IJsonModel<JsonChannel>.JsonModel => _jsonModel;
     private protected JsonChannel _jsonModel;
 
     public override Snowflake Id => _jsonModel.Id;
+
+    Permission IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 
     private protected Channel(JsonChannel jsonModel, RestClient client) : base(client)
     {
@@ -37,5 +39,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>
         };
     }
 
+    #region Channel
     public async Task<Channel> DeleteAsync(RequestProperties? properties = null) => await _client.DeleteChannelAsync(Id, properties).ConfigureAwait(false);
+    #endregion
 }

@@ -54,7 +54,7 @@ public class VoiceClient : WebSocketClient
         Token = token;
         if (config != null)
         {
-            _udpSocket = config.UdpClient ?? new UdpSocket();
+            _udpSocket = config.UdpSocket ?? new UdpSocket();
             RedirectInputStreams = config.RedirectInputStreams;
         }
         else
@@ -78,21 +78,21 @@ public class VoiceClient : WebSocketClient
                     bytes.Span[1] = 1;
 
                     TaskCompletionSource<byte[]> result = new();
-                    _udpSocket.DatagramReceive += UdpClient_DatagramReceiveOnce;
+                    _udpSocket.DatagramReceive += UdpSocket_DatagramReceiveOnce;
                     await _udpSocket.SendAsync(bytes).ConfigureAwait(false);
                     var datagram = await result.Task.ConfigureAwait(false);
 
                     string ip;
                     ushort port;
                     GetIpAndPort();
-                    _udpSocket.DatagramReceive += UdpClient_DatagramReceive;
+                    _udpSocket.DatagramReceive += UdpSocket_DatagramReceive;
                     VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
                     await _webSocket.SendAsync(protocolPayload.Serialize()).ConfigureAwait(false);
 
 
-                    void UdpClient_DatagramReceiveOnce(UdpReceiveResult datagram)
+                    void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
                     {
-                        _udpSocket.DatagramReceive -= UdpClient_DatagramReceiveOnce;
+                        _udpSocket.DatagramReceive -= UdpSocket_DatagramReceiveOnce;
                         result.SetResult(datagram.Buffer);
                     }
 
@@ -150,7 +150,7 @@ public class VoiceClient : WebSocketClient
         }
     }
 
-    private async void UdpClient_DatagramReceive(UdpReceiveResult obj)
+    private async void UdpSocket_DatagramReceive(UdpReceiveResult obj)
     {
         if (VoiceReceive != null)
         {

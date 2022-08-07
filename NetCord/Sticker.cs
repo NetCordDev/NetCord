@@ -11,12 +11,13 @@ public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
 
     public string Description => _jsonModel.Description;
 
-    public string Tags => _jsonModel.Tags;
+    public IReadOnlyList<string> Tags { get; }
 
     public StickerFormat Format => _jsonModel.Format;
 
     private protected Sticker(JsonModels.JsonSticker jsonModel)
     {
         _jsonModel = jsonModel;
+        Tags = _jsonModel.Tags.Split(',');
     }
 }

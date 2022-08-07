@@ -12,6 +12,9 @@ public abstract class GuildThread : TextChannel
     public string Name => _jsonModel.Name!;
     public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
     public int UserCount => _jsonModel.UserCount.GetValueOrDefault();
+    public int DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration.GetValueOrDefault();
+    public ChannelFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+    public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
 
     public GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {

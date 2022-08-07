@@ -7,6 +7,5 @@ public class LinkButton : Button
 
     public LinkButton(JsonModels.JsonComponent jsonModel) : base(jsonModel)
     {
-
     }
 }

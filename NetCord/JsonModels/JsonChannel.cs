@@ -74,9 +74,15 @@ public record JsonChannel : JsonEntity
     [JsonPropertyName("member")]
     public JsonThreadSelfUser? CurrentUser { get; init; }
 
-    //[JsonPropertyName("default_auto_archive_duration")]
-    //public int? DefaultAutoArchiveDuration { get; init; }
+    [JsonPropertyName("default_auto_archive_duration")]
+    public int? DefaultAutoArchiveDuration { get; init; }
 
     [JsonPropertyName("permissions")]
-    public string Permissions { get; init; }
+    public Permission? Permissions { get; init; }
+
+    [JsonPropertyName("flags")]
+    public ChannelFlags? Flags { get; init; }
+
+    [JsonPropertyName("total_message_sent")]
+    public int? TotalMessageSent { get; init; }
 }

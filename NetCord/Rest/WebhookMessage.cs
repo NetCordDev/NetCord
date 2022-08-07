@@ -20,6 +20,8 @@ public class WebhookMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
 
     public string GetJumpUrl() => $"https://discord.com/channels/{(GuildId.HasValue ? GuildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
 
+    public string GetJumpUrl(Snowflake? guildId = null) => $"https://discord.com/channels/{(guildId.HasValue ? guildId.GetValueOrDefault() : "@me")}/{ChannelId}/{Id}";
+
     #region Channel
     public Task<RestMessage> CrosspostAsync(RequestProperties? properties = null) => _client.CrosspostMessageAsync(ChannelId, Id, properties);
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteMessageAsync(ChannelId, Id, properties);

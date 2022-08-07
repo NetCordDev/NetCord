@@ -28,7 +28,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public string Token => _jsonModel.Token;
 
-    public Permission? AppPermissions { get; }
+    public Permission? AppPermissions => _jsonModel.AppPermissions;
 
     public CultureInfo UserLocale => _jsonModel.UserLocale;
 
@@ -46,8 +46,6 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
         Guild = guild;
         Channel = channel;
-        if (_jsonModel.AppPermissions != null)
-            AppPermissions = (Permission)ulong.Parse(_jsonModel.AppPermissions);
     }
 
     public static Interaction CreateFromJson(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client)
@@ -79,16 +77,21 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         TextChannel? channel;
         var guildId = jsonModel.GuildId;
         if (guildId.HasValue)
+        {
             if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
+            {
                 if (jsonModel.ChannelId.HasValue)
+                {
                     if (guild.Channels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var guildChannel))
                         channel = (TextChannel)guildChannel;
                     else if (guild.ActiveThreads.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var thread))
                         channel = thread;
                     else
                         channel = null;
+                }
                 else
                     channel = null;
+            }
             else if (jsonModel.ChannelId.HasValue)
             {
                 guild = null;
@@ -104,6 +107,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
                 guild = null;
                 channel = null;
             }
+        }
         else
         {
             guild = null;

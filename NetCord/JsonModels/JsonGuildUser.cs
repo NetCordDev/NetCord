@@ -35,7 +35,7 @@ public record JsonGuildUser
     public bool? IsPending { get; init; }
 
     [JsonPropertyName("permissions")]
-    public string? Permissions { get; init; }
+    public Permission? Permissions { get; init; }
 
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; init; }

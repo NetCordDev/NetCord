@@ -2,7 +2,7 @@
 
 public class GuildStickerProperties
 {
-    public GuildStickerProperties(string name, string description, string tags, Stream stream, StickerFormat format)
+    public GuildStickerProperties(string name, string description, IEnumerable<string> tags, Stream stream, StickerFormat format)
     {
         Name = name;
         Description = description;
@@ -15,7 +15,7 @@ public class GuildStickerProperties
 
     public string Description { get; }
 
-    public string Tags { get; }
+    public IEnumerable<string> Tags { get; }
 
     public StickerFormat Format { get; }
 
@@ -47,7 +47,7 @@ public class GuildStickerProperties
         {
             { new StringContent(Name), "name" },
             { new StringContent(Description), "description" },
-            { new StringContent(Tags), "tags" },
+            { new StringContent(string.Join(',', Tags)), "tags" },
             { file, "file", "f" },
         };
         return content;

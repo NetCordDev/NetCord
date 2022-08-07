@@ -20,7 +20,7 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public int Position => _jsonModel.Position;
 
-    public Permission Permissions { get; }
+    public Permission Permissions => _jsonModel.Permissions;
 
     public bool Managed => _jsonModel.Managed;
 
@@ -35,7 +35,6 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
         _jsonModel = jsonModel;
         if (jsonModel.Tags != null)
             Tags = new(jsonModel.Tags);
-        Permissions = (Permission)ulong.Parse(jsonModel.Permissions);
         GuildId = guildId;
     }
 

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord;
 
-[JsonConverter(typeof(DiscordIdConverter))]
+[JsonConverter(typeof(SnowflakeConverter))]
 public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
 {
     private readonly string? _value;
@@ -99,7 +99,7 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
     public static implicit operator Snowflake(ulong u) => new(u);
     public static explicit operator Snowflake(string s) => new(s);
 
-    private class DiscordIdConverter : JsonConverter<Snowflake>
+    private class SnowflakeConverter : JsonConverter<Snowflake>
     {
         public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => new(reader.TokenType is JsonTokenType.String ? reader.GetString()! : reader.GetUInt32().ToString(), null);
