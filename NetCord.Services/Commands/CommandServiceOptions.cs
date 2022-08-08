@@ -2,10 +2,6 @@
 
 namespace NetCord.Services.Commands;
 
-public class CommandServiceOptions : CommandServiceOptions<CommandContext>
-{
-}
-
 public class CommandServiceOptions<TContext> where TContext : ICommandContext
 {
     public Dictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; } = new()
@@ -139,7 +135,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
     /// <summary>
     /// Default = ' ', '\n'
     /// </summary>
-    public IReadOnlyCollection<char> ParamSeparators
+    public IReadOnlyList<char> ParamSeparators
     {
         get => _paramSeparators;
         init
