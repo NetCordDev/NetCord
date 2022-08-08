@@ -15,7 +15,7 @@ public class InteractionRequireBotChannelPermissionAttribute<TContext> : Precond
         Format = format;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         if (context.Interaction.AppPermissions.HasValue)
         {
@@ -26,6 +26,6 @@ public class InteractionRequireBotChannelPermissionAttribute<TContext> : Precond
                 throw new PermissionException(string.Format(Format, missingPermissions), missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Channel);
             }
         }
-        return Task.CompletedTask;
+        return default;
     }
 }

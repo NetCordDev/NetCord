@@ -25,7 +25,7 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
         ChannelPermissionFormat = channelPermissionFormat;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         var guild = context.Guild;
         if (guild != null && guild.OwnerId != context.Client.User!.Id)
@@ -70,6 +70,6 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
                 }
             }
         }
-        return Task.CompletedTask;
+        return default;
     }
 }

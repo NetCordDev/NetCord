@@ -17,7 +17,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
         Format = format;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         var channel = context.Channel;
 
@@ -29,7 +29,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
             _ => throw new InvalidOperationException(),
         })
             throw new InvalidContextException(string.Format(Format, RequiredContext), RequiredContext);
-        return Task.CompletedTask;
+        return default;
     }
 }
 

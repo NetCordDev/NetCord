@@ -18,7 +18,7 @@ public class InteractionRequireUserChannelPermissionAttribute<TContext> : Precon
         Format = format;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         if (context.User is GuildInteractionUser guildUser)
         {
@@ -28,6 +28,6 @@ public class InteractionRequireUserChannelPermissionAttribute<TContext> : Precon
                 throw new PermissionException(string.Format(Format, missingPermissions), missingPermissions, PermissionExceptionEntityType.User, PermissionExceptionPermissionType.Channel);
             }
         }
-        return Task.CompletedTask;
+        return default;
     }
 }

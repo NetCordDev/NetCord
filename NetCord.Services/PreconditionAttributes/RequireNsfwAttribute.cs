@@ -9,11 +9,11 @@ public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> wh
         Message = message;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         if (context.Channel is TextGuildChannel guildChannel && !guildChannel.IsNsfw)
             throw new RequiredNsfwException(Message);
-        return Task.CompletedTask;
+        return default;
     }
 }
 

@@ -25,7 +25,7 @@ public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TC
         ChannelPermissionFormat = channelPermissionFormat;
     }
 
-    public override Task EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         var guild = context.Guild;
         if (guild != null && guild.OwnerId != context.User.Id)
@@ -70,6 +70,6 @@ public class RequireUserPermissionAttribute<TContext> : PreconditionAttribute<TC
                 }
             }
         }
-        return Task.CompletedTask;
+        return default;
     }
 }
