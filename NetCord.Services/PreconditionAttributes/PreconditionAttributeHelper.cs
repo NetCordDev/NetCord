@@ -21,7 +21,7 @@ internal static class PreconditionAttributeHelper
                 if (iPreconditionAttribute is PreconditionAttribute<TContext> preconditionAttribute)
                     preconditions.Add(preconditionAttribute);
                 else
-                    throw new InvalidDefinitionException($"{iPreconditionAttribute.GetType().FullName} has invalid {nameof(TContext)}", methodInfo);
+                    throw new InvalidDefinitionException($"'{iPreconditionAttribute.GetType().FullName}' has invalid '{nameof(TContext)}'.", methodInfo);
             }
         }
     }

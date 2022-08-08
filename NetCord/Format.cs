@@ -9,7 +9,7 @@ public static class Format
     public static string Spoiler(ReadOnlySpan<char> text) => $"||{text}||";
     public static string EscapeUrl(ReadOnlySpan<char> url) => $"<{url}>";
     public static string Link(ReadOnlySpan<char> text, ReadOnlySpan<char> url) => $"[{text}]({url})";
-    public static string CodeBlock(ReadOnlySpan<char> code, ReadOnlySpan<char> formatter = default) => new CodeBlock(code, formatter).ToString();
+    public static string CodeBlock(ReadOnlySpan<char> code, ReadOnlySpan<char> formatter = default) => $"```{formatter}\n{code}```";
     public static string Timestamp(DateTimeOffset dateTime, TimestampStyle? style) => new Timestamp(dateTime, style).ToString();
     public static string Quote(ReadOnlySpan<char> text) => $">>> {text}";
     public static string Escape(ReadOnlySpan<char> text)

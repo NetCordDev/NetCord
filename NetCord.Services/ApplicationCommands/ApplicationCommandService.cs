@@ -33,7 +33,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     public void AddModule(Type type)
     {
         if (!type.IsAssignableTo(typeof(ApplicationCommandModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from {nameof(ApplicationCommandModule<TContext>)}");
+            throw new InvalidOperationException($"Modules must inherit from '{nameof(ApplicationCommandModule<TContext>)}'.");
 
         lock (_commands)
             AddModuleCore(type);

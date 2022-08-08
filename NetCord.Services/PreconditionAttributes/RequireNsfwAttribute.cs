@@ -4,9 +4,9 @@ public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> wh
 {
     public string Message { get; }
 
-    public RequireNsfwAttribute(string? message = null)
+    public RequireNsfwAttribute(string message = "Required nsfw channel.")
     {
-        Message = message ?? "Required nsfw channel";
+        Message = message;
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)

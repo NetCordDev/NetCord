@@ -26,7 +26,7 @@ public static class MentionUtils
         if (TryParseUser(mention, out Snowflake id))
             return id;
         else
-            throw new FormatException("Cannot parse the mention");
+            throw new FormatException("Cannot parse the mention.");
     }
 
     public static bool TryParseChannel(ReadOnlySpan<char> mention, out Snowflake id)
@@ -45,7 +45,7 @@ public static class MentionUtils
         if (TryParseChannel(mention, out Snowflake id))
             return id;
         else
-            throw new FormatException("Cannot parse the mention");
+            throw new FormatException("Cannot parse the mention.");
     }
 
     public static bool TryParseRole(ReadOnlySpan<char> mention, [NotNullWhen(true)] out Snowflake id)
@@ -64,6 +64,6 @@ public static class MentionUtils
         if (TryParseChannel(mention, out Snowflake id))
             return id;
         else
-            throw new FormatException("Cannot parse the mention");
+            throw new FormatException("Cannot parse the mention.");
     }
 }

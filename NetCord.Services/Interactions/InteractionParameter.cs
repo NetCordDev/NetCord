@@ -62,7 +62,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
                 TypeReader = options.EnumTypeReader;
             }
             else
-                throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
             Type = underlyingType;
         }
         else
@@ -72,7 +72,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
             else if (type.IsEnum)
                 TypeReader = options.EnumTypeReader;
             else
-                throw new TypeReaderNotFoundException("Type name: " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;
         }
     }

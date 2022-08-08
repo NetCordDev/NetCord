@@ -8,12 +8,13 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
 
     /// <param name="requiredContext"></param>
     /// <param name="format">{0} - required context</param>
-    public RequireContextAttribute(RequiredContext requiredContext, string? format = null)
+    public RequireContextAttribute(RequiredContext requiredContext, string format = "Required context: {0}.")
     {
         if (!Enum.IsDefined(requiredContext))
-            throw new ArgumentException("Invalid value", nameof(requiredContext));
+            throw new System.ComponentModel.InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext));
+
         RequiredContext = requiredContext;
-        Format = format ?? "Required context: {0}";
+        Format = format;
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)

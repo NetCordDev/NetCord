@@ -21,6 +21,6 @@ public class TimeSpanTypeReader<TContext> : InteractionTypeReader<TContext> wher
             return Task.FromResult((object?)new TimeSpan(days, h.Success ? int.Parse(h.Value) : 0, m.Success ? int.Parse(m.Value) : 0, s.Success ? int.Parse(s.Value) : 0));
         }
         else
-            throw new FormatException("Invalid TimeSpan");
+            throw new FormatException($"Invalid {nameof(TimeSpan)}.");
     }
 }

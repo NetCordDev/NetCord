@@ -5,19 +5,16 @@ namespace NetCord;
 public class CodeBlock
 {
     public string Code { get; }
-    public string Formatter { get; }
+    public string? Formatter { get; }
 
-    public CodeBlock(ReadOnlySpan<char> code, ReadOnlySpan<char> formatter = default)
+    public CodeBlock(string code, string? formatter = null)
     {
-        Code = code.ToString();
-        Formatter = formatter.ToString();
+        Code = code;
+        Formatter = formatter;
     }
 
     public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock)
     {
-        if (text == null)
-            throw new ArgumentNullException(nameof(text));
-
         if (text.StartsWith("```") && text.EndsWith("```"))
         {
             text = text[3..^3];
@@ -29,16 +26,16 @@ public class CodeBlock
                 {
                     if (c is not ((>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '+' or '-'))
                     {
-                        codeBlock = new(text);
+                        codeBlock = new(text.ToString());
                         return true;
                     }
                 }
-                codeBlock = new(text[(formatter.Length + 1)..], formatter);
+                codeBlock = new(text[(formatter.Length + 1)..].ToString(), formatter.ToString());
                 return true;
             }
             else
             {
-                codeBlock = new(text);
+                codeBlock = new(text.ToString());
                 return true;
             }
         }
@@ -51,7 +48,7 @@ public class CodeBlock
         if (TryParse(text, out var codeBlock))
             return codeBlock;
         else
-            throw new FormatException($"Cannot parse {nameof(CodeBlock)}");
+            throw new FormatException($"Cannot parse '{nameof(CodeBlock)}'.");
     }
 
     public override string ToString() => $"```{Formatter}\n{Code}```";

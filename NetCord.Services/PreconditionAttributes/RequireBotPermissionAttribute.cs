@@ -9,20 +9,20 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
 
     /// <param name="guildPermission"></param>
     /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
-    public RequireBotPermissionAttribute(Permission guildPermission, string? guildPermissionFormat = null)
+    public RequireBotPermissionAttribute(Permission guildPermission, string guildPermissionFormat = "Required bot permissions: {0}.")
     {
         GuildPermission = guildPermission;
-        GuildPermissionFormat = guildPermissionFormat ?? "Required bot permissions: {0}";
+        GuildPermissionFormat = guildPermissionFormat;
     }
 
     /// <param name="guildPermission"></param>
     /// <param name="channelPermission"></param>
     /// <param name="guildPermissionFormat">{0} - missing guild permissions</param>
     /// <param name="channelPermissionFormat">{0} - missing channel permissions</param>
-    public RequireBotPermissionAttribute(Permission guildPermission, Permission channelPermission, string? guildPermissionFormat = null, string? channelPermissionFormat = null) : this(guildPermission, guildPermissionFormat)
+    public RequireBotPermissionAttribute(Permission guildPermission, Permission channelPermission, string guildPermissionFormat = "Required bot permissions: {0}.", string channelPermissionFormat = "Required bot channel permissions: {0}.") : this(guildPermission, guildPermissionFormat)
     {
         ChannelPermission = channelPermission;
-        ChannelPermissionFormat = channelPermissionFormat ?? "Required bot channel permissions: {0}";
+        ChannelPermissionFormat = channelPermissionFormat;
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)
@@ -44,7 +44,7 @@ public class RequireBotPermissionAttribute<TContext> : PreconditionAttribute<TCo
                 if (ChannelPermission != default)
                 {
                     if (context.Channel == null)
-                        throw new EntityNotFoundException("Current channel could not be found");
+                        throw new EntityNotFoundException("Current channel could not be found.");
                     var permissionOverwrites = ((IGuildChannel)context.Channel).PermissionOverwrites;
                     Permission denied = default;
                     Permission allowed = default;

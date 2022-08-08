@@ -18,7 +18,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
         if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Commands must return {typeof(Task).FullName}", methodInfo);
+            throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", methodInfo);
 
         Priority = attribute.Priority;
         DeclaringType = methodInfo.DeclaringType!;
@@ -33,28 +33,12 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters", methodInfo);
+                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", methodInfo);
             p[i] = new(parameter, options);
         }
         Parameters = new(p);
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
-
-        //ModuleAttribute? moduleAttribute = DeclaringType.GetCustomAttribute<ModuleAttribute>();
-        //if (moduleAttribute != null)
-        //{
-        //    RequiredBotPermissions = attribute.RequiredBotPermissions | moduleAttribute.RequiredBotPermissions;
-        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions | moduleAttribute.RequiredBotChannelPermissions;
-        //    RequiredUserPermissions = attribute.RequiredUserPermissions | moduleAttribute.RequiredUserPermissions;
-        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions | moduleAttribute.RequiredUserChannelPermissions;
-        //}
-        //else
-        //{
-        //    RequiredBotPermissions = attribute.RequiredBotPermissions;
-        //    RequiredBotChannelPermissions = attribute.RequiredBotChannelPermissions;
-        //    RequiredUserPermissions = attribute.RequiredUserPermissions;
-        //    RequiredUserChannelPermissions = attribute.RequiredUserChannelPermissions;
-        //}
 
         Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
     }

@@ -118,6 +118,6 @@ public class WebSocket : IWebSocket, IDisposable
         if (_disposed)
             throw new ObjectDisposedException(nameof(WebSocket));
         else if (!IsConnected)
-            throw new WebSocketException("WebSocket wasn't connected");
+            throw new WebSocketException("WebSocket wasn't connected.");
     }
 }

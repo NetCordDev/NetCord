@@ -51,7 +51,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                     }
                     catch
                     {
-                        throw new AmbiguousMatchException("Too many users found");
+                        throw new AmbiguousMatchException("Too many users found.");
                     }
                     if (user != null)
                         return Task.FromResult((object?)new UserId(user.Id, user));
@@ -100,7 +100,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                     }
                     catch
                     {
-                        throw new AmbiguousMatchException("Too many users found");
+                        throw new AmbiguousMatchException("Too many users found.");
                     }
                     if (user != null)
                         return Task.FromResult((object?)new UserId(user.Id, user));
@@ -108,6 +108,6 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             }
         }
 
-        throw new EntityNotFoundException("The user was not found");
+        throw new EntityNotFoundException("The user was not found.");
     }
 }

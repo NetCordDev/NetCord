@@ -12,7 +12,7 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
 
     public static bool TryCreate(string id, out Snowflake result)
     {
-        if (ulong.TryParse(id, out _))
+        if (ulong.TryParse(id, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out _))
         {
             result = new(id);
             return true;
@@ -45,10 +45,10 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
 
     public Snowflake(string s)
     {
-        if (ulong.TryParse(s, out _))
+        if (ulong.TryParse(s, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out _))
             _value = s;
         else
-            throw new FormatException($"'{nameof(s)}' must consist of decimal digits and cannot be too large");
+            throw new FormatException($"'{nameof(s)}' must consist of decimal digits and cannot be too large.");
     }
 
     public Snowflake(ulong u)

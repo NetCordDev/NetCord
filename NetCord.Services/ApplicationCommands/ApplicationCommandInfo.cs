@@ -45,7 +45,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters", methodInfo);
+                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", methodInfo);
             SlashCommandParameter<TContext> newP = new(parameter, options);
             p[i] = newP;
             var autocompleteProvider = newP.AutocompleteProvider;
@@ -60,7 +60,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Type = ApplicationCommandType.User;
 
         if (methodInfo.GetParameters().Length > 0)
-            throw new InvalidDefinitionException($"User commands must be parameterless", methodInfo);
+            throw new InvalidDefinitionException($"User commands must be parameterless.", methodInfo);
     }
 
     internal ApplicationCommandInfo(MethodInfo methodInfo, MessageCommandAttribute messageCommandAttribute) : this(methodInfo, attribute: messageCommandAttribute)
@@ -68,7 +68,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Type = ApplicationCommandType.Message;
 
         if (methodInfo.GetParameters().Length > 0)
-            throw new InvalidDefinitionException($"Message commands must be parameterless", methodInfo);
+            throw new InvalidDefinitionException($"Message commands must be parameterless.", methodInfo);
     }
 
     private ApplicationCommandInfo(MethodInfo methodInfo, ApplicationCommandAttribute attribute)

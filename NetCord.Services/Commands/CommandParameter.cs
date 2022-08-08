@@ -93,7 +93,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                 TypeReader = options.EnumTypeReader;
             }
             else
-                throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
             Type = underlyingType;
         }
         else
@@ -106,7 +106,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             else if (type.IsEnum)
                 TypeReader = options.EnumTypeReader;
             else
-                throw new TypeReaderNotFoundException("Type name: " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;
         }
     }

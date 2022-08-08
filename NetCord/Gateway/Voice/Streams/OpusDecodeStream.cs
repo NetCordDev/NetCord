@@ -24,9 +24,8 @@ internal class OpusDecodeStream : RewritingStream
     public override unsafe ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         Memory<byte> bytes = new(new byte[Opus.FrameSize]);
-        int r;
         fixed (byte* data = buffer.Span, pcm = bytes.Span)
-            r = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
+            _ = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
 
         return _next.WriteAsync(bytes, cancellationToken);
     }

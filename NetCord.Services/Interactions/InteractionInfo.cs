@@ -10,10 +10,10 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
     public Func<object, object[], Task> InvokeAsync { get; }
     public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    public InteractionInfo(MethodInfo methodInfo, InteractionAttribute attribute, InteractionServiceOptions<TContext> options)
+    public InteractionInfo(MethodInfo methodInfo, InteractionServiceOptions<TContext> options)
     {
         if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Interactions must return {typeof(Task).FullName}", methodInfo);
+            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task).FullName}'.", methodInfo);
 
         DeclaringType = methodInfo.DeclaringType!;
 

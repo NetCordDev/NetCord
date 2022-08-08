@@ -2,7 +2,7 @@
 
 public class InteractionNotFoundException : Exception
 {
-    internal InteractionNotFoundException() : base("Interaction not found")
+    internal InteractionNotFoundException() : base("Interaction not found.")
     {
     }
 }

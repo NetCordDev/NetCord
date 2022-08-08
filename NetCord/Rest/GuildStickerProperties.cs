@@ -24,7 +24,7 @@ public class GuildStickerProperties
         get
         {
             if (_read == true)
-                throw new InvalidOperationException("The attachment was already sent");
+                throw new InvalidOperationException("The attachment was already sent.");
             else
                 _read = true;
             return _stream;

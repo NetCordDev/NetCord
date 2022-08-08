@@ -2,7 +2,7 @@
 
 public class CommandNotFoundException : Exception
 {
-    internal CommandNotFoundException() : base("Command not found")
+    internal CommandNotFoundException() : base("Command not found.")
     {
     }
 }

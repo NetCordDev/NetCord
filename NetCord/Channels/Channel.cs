@@ -35,7 +35,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, client),
             ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, client),
-            _ => throw new ArgumentException($"Invalid {nameof(jsonChannel.Type)}"),
+            _ => throw new ArgumentException($"Invalid '{nameof(jsonChannel.Type)}'."),
         };
     }
 

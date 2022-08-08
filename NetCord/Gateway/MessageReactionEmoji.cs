@@ -15,7 +15,7 @@ public class MessageReactionEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
         get
         {
             if (IsStandard)
-                throw new InvalidOperationException("This emoji has no id");
+                throw new InvalidOperationException("This emoji has no id.");
             return _jsonModel.Id.GetValueOrDefault();
         }
     }

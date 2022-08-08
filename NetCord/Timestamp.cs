@@ -53,7 +53,7 @@ public readonly struct Timestamp
         if (TryParse(value, out var timestamp))
             return timestamp;
         else
-            throw new FormatException($"{value} is not well formed {nameof(Timestamp)}");
+            throw new FormatException($"Cannot parse '{nameof(Timestamp)}'.");
     }
 
     /// <summary>

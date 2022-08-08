@@ -8,20 +8,20 @@ public class ImageUrl
 
     private ImageUrl(string partialUrl, string extension)
     {
-        _url = $"{Discord.CDNUrl}{partialUrl}.{extension}?";
+        _url = $"{Discord.CDNUrl}{partialUrl}.{extension}";
     }
 
-    public override string ToString() => _url[..^1];
+    public override string ToString() => _url;
 
-    public string ToString(int size) => $"{_url}size={size}";
+    public string ToString(int size) => $"{_url}?size={size}";
 
     public void AddSize(int size)
     {
         if (HasSize)
-            throw new InvalidOperationException("Size is already added");
+            throw new InvalidOperationException("Size is already added.");
 
         HasSize = true;
-        _url += $"size={size}&";
+        _url += $"?size={size}";
     }
 
     private static string GetExtension(string hash, ImageFormat? format)
@@ -40,7 +40,7 @@ public class ImageUrl
             ImageFormat.WebP => "webp",
             ImageFormat.Gif => "gif",
             ImageFormat.Lottie => "json",
-            _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format")
+            _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
         };
     }
 

@@ -2,7 +2,7 @@
 
 public class AutocompleteNotFoundException : Exception
 {
-    public AutocompleteNotFoundException() : base("Autocomplete not found")
+    public AutocompleteNotFoundException() : base("Autocomplete not found.")
     {
     }
 }

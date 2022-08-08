@@ -80,7 +80,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
                 TypeReader = options.EnumTypeReader;
             }
             else
-                throw new TypeReaderNotFoundException("Type name: " + underlyingType.FullName + " or " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
             Type = underlyingType;
         }
         else
@@ -93,7 +93,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             else if (type.IsEnum)
                 TypeReader = options.EnumTypeReader;
             else
-                throw new TypeReaderNotFoundException("Type name: " + type.FullName);
+                throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;
         }
 
@@ -106,7 +106,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (slashCommandParameterAttribute.NameTranslationsProviderType != null)
             {
                 if (!slashCommandParameterAttribute.NameTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
                 NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.NameTranslationsProviderType)!;
             }
             else
@@ -115,7 +115,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (slashCommandParameterAttribute.DescriptionTranslationsProviderType != null)
             {
                 if (!slashCommandParameterAttribute.DescriptionTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
                 DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.DescriptionTranslationsProviderType)!;
             }
             else
@@ -124,7 +124,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (slashCommandParameterAttribute.ChoicesProviderType != null)
             {
                 if (!slashCommandParameterAttribute.ChoicesProviderType.IsAssignableTo(typeof(IChoicesProvider<TContext>)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.ChoicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'");
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.ChoicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'.");
                 ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(slashCommandParameterAttribute.ChoicesProviderType)!;
             }
             else
@@ -133,7 +133,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (slashCommandParameterAttribute.AutocompleteProviderType != null)
             {
                 if (!slashCommandParameterAttribute.AutocompleteProviderType.IsAssignableTo(typeof(IAutocompleteProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.AutocompleteProviderType}' is not assignable to '{nameof(IAutocompleteProvider)}'");
+                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.AutocompleteProviderType}' is not assignable to '{nameof(IAutocompleteProvider)}'.");
                 AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(slashCommandParameterAttribute.AutocompleteProviderType)!;
             }
             else

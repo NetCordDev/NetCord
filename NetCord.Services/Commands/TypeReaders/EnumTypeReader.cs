@@ -18,6 +18,6 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                 return Task.FromResult(value);
         }
 
-        throw new FormatException($"Invalid {type.Name}");
+        throw new FormatException($"Invalid {type.Name}.");
     }
 }

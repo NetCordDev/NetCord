@@ -9,10 +9,10 @@ public class InteractionRequireBotChannelPermissionAttribute<TContext> : Precond
 
     /// <param name="channelPermission"></param>
     /// <param name="format">{0} - missing permissions</param>
-    public InteractionRequireBotChannelPermissionAttribute(Permission channelPermission, string? format = null)
+    public InteractionRequireBotChannelPermissionAttribute(Permission channelPermission, string format = "Required bot channel permissions: {0}.")
     {
         ChannelPermission = channelPermission;
-        Format = format ?? "Required bot channel permissions: {0}";
+        Format = format;
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)

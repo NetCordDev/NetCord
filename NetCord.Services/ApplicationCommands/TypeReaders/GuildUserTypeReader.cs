@@ -12,6 +12,6 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
         if (user is GuildUser guildUser)
             return Task.FromResult((object?)guildUser);
         else
-            throw new InvalidOperationException("The user must be in a guild");
+            throw new InvalidOperationException("The user must be in a guild.");
     }
 }

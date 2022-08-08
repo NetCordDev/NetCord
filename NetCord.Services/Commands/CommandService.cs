@@ -47,7 +47,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     public void AddModule(Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from {nameof(BaseCommandModule<TContext>)}");
+            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseCommandModule<TContext>)}'.");
 
         lock (_commands)
             AddModuleCore(type);
@@ -64,7 +64,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             foreach (var alias in commandAttribute.Aliases)
             {
                 if (alias.ContainsAny(_options._paramSeparators))
-                    throw new InvalidDefinitionException($"Any alias cannot contain {nameof(_options.ParamSeparators)}", method);
+                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_options.ParamSeparators)}'.", method);
                 if (!_commands.TryGetValue(alias, out var list))
                 {
                     list = new((ci1, ci2) =>
@@ -182,7 +182,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                         isLastArgGood = true;
                     }
                     else if (lastCommand)
-                        throw new ParameterCountException("Too few parameters");
+                        throw new ParameterCountException("Too few parameters.");
                     else
                         goto Continue;
                 }
@@ -204,14 +204,14 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                 else if (parameter.HasDefaultValue)
                     parametersToPass[commandParamIndex] = parameter.DefaultValue;
                 else if (lastCommand)
-                    throw new ParameterCountException("Too few parameters");
+                    throw new ParameterCountException("Too few parameters.");
                 else
                     goto Continue;
                 commandParamIndex++;
             }
             if (arguments.Length != 0)
                 if (lastCommand)
-                    throw new ParameterCountException("Too many parameters");
+                    throw new ParameterCountException("Too many parameters.");
                 else
                     continue;
             Break:

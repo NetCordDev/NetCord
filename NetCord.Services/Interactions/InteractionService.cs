@@ -30,7 +30,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
     public void AddModule(Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseInteractionModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from {nameof(BaseInteractionModule<TContext>)}");
+            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseInteractionModule<TContext>)}'.");
 
         lock (_interactions)
             AddModuleCore(type);
@@ -43,7 +43,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
             if (interactionAttribute == null)
                 continue;
-            InteractionInfo<TContext> interactionInfo = new(method, interactionAttribute, _options);
+            InteractionInfo<TContext> interactionInfo = new(method, _options);
             _interactions.Add(interactionAttribute.CustomId, interactionInfo);
         }
     }

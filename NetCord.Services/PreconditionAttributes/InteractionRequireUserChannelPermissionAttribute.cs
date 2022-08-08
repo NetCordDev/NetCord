@@ -12,10 +12,10 @@ public class InteractionRequireUserChannelPermissionAttribute<TContext> : Precon
 
     /// <param name="channelPermission"></param>
     /// <param name="format">{0} - missing permissions</param>
-    public InteractionRequireUserChannelPermissionAttribute(Permission channelPermission, string? format = null)
+    public InteractionRequireUserChannelPermissionAttribute(Permission channelPermission, string format = "Required user channel permissions: {0}.")
     {
         ChannelPermission = channelPermission;
-        Format = format ?? "Required user channel permissions: {0}";
+        Format = format;
     }
 
     public override Task EnsureCanExecuteAsync(TContext context)

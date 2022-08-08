@@ -58,29 +58,17 @@ public class StrangeCommands : CommandModule<CommandContext>
             Emoji = new(888159212109197382),
             Label = "Click it!",
         };
-        ActionRowProperties actionRow = new(new List<ButtonProperties>
-        {
-            button
-        });
+        ActionRowProperties actionRow = new(new ButtonProperties[] { button });
         MessageProperties messageBuilder = new()
         {
             Content = "This is button:",
-            Components = new List<ComponentProperties>()
-            {
-                actionRow
-            },
+            Components = new ComponentProperties[] { actionRow },
             MessageReference = new(Context.Message.Id),
             AllowedMentions = new()
             {
                 ReplyMention = false
             },
-            Embeds = new List<EmbedProperties>
-            {
-                new()
-                {
-                    Title = "Wzium"
-                }
-            },
+            Embeds = new EmbedProperties[] { new() { Title = "Wzium" } },
         };
         return SendAsync(messageBuilder);
     }
@@ -88,16 +76,16 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("link")]
     public Task Link([Remainder] Uri url)
     {
-        ActionRowProperties actionRow = new(new List<ButtonProperties>
+        ActionRowProperties actionRow = new(new ButtonProperties[]
         {
-            new LinkButtonProperties(url)
+            new LinkButtonProperties(url.AbsoluteUri)
             {
                 Label = "Link",
             }
         });
         MessageProperties message = new()
         {
-            Components = new List<ComponentProperties>()
+            Components = new ComponentProperties[]
             {
                 actionRow
             },
@@ -126,10 +114,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         AttachmentProperties file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
         MessageProperties message = new()
         {
-            Attachments = new List<AttachmentProperties>()
-            {
-                file
-            },
+            Attachments = new AttachmentProperties[] { file },
             MessageReference = new(Context.Message),
             AllowedMentions = AllowedMentionsProperties.None
         };
@@ -185,10 +170,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
         MessageProperties message = new()
         {
-            Embeds = new List<EmbedProperties>()
-            {
-                embed
-            }
+            Embeds = new EmbedProperties[] { embed }
         };
         return SendAsync(message);
     }
@@ -200,14 +182,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = "Here is your menu:",
-            Components = new List<ComponentProperties>()
-            {
-                new MenuProperties("menu")
-                {
-                    Options = values.Select(v => new MenuSelectOptionProperties(v, v)).ToList(),
-                    MaxValues = values.Length
-                }
-            },
+            Components = new ComponentProperties[] { new MenuProperties("menu") { Options = values.Select(v => new MenuSelectOptionProperties(v, v)).ToList(), MaxValues = values.Length } },
             MessageReference = new(Context.Message)
         };
         return SendAsync(message);
@@ -276,21 +251,9 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         EmbedProperties embedBuilder = new()
         {
-            Fields = new List<EmbedFieldProperties>()
-            {
-                new()
-                {
-                    Title = "xd",
-                    Description = "wzium"
-                },
-                new()
-                {
-                    Title = "xd2",
-                    Description = "wzium2"
-                }
-            }
+            Fields = new EmbedFieldProperties[] { new() { Title = "xd", Description = "wzium" } }
         };
-        return SendAsync(new MessageProperties() { Embeds = new List<EmbedProperties>() { embedBuilder } });
+        return SendAsync(new MessageProperties() { Embeds = new EmbedProperties[] { embedBuilder } });
     }
 
     [Command("reverse")]
@@ -305,17 +268,8 @@ public class StrangeCommands : CommandModule<CommandContext>
         AttachmentProperties attachment = new("dzejus.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
         return SendAsync(new()
         {
-            Attachments = new List<AttachmentProperties>()
-            {
-                attachment
-            },
-            Embeds = new List<EmbedProperties>
-            {
-                new()
-                {
-                    Image = attachment
-                }
-            }
+            Attachments = new AttachmentProperties[] { attachment },
+            Embeds = new EmbedProperties[] { new() { Image = attachment } }
         });
     }
 }

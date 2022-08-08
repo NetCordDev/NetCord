@@ -53,13 +53,13 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                 }
                 catch
                 {
-                    throw new AmbiguousMatchException("Too many users found");
+                    throw new AmbiguousMatchException("Too many users found.");
                 }
                 if (user != null)
                     return Task.FromResult((object?)user);
             }
         }
         exception:
-        throw new EntityNotFoundException("The user was not found");
+        throw new EntityNotFoundException("The user was not found.");
     }
 }

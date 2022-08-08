@@ -14,7 +14,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
         if (Enum.TryParse(type, value, out var result) && Enum.IsDefined(type, result!))
             return Task.FromResult(result);
         else
-            throw new FormatException($"Invalid {type}");
+            throw new FormatException($"Invalid {type.Name}.");
     }
 
     public override IChoicesProvider<TContext>? ChoicesProvider { get; } = new EnumChoicesProvider();
@@ -25,7 +25,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
         {
             var array = Enum.GetValues(parameter.Type);
             if (array.Length > 25)
-                throw new InvalidOperationException($"{parameter.Type.FullName} has too many values, max choices count is 25");
+                throw new InvalidOperationException($"'{parameter.Type.FullName}' has too many values, max choices count is 25.");
             foreach (Enum e in array)
             {
                 var eString = e.ToString();
@@ -35,7 +35,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
                     if (attribute.TranslationsProviderType != null)
                     {
                         if (!attribute.TranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                            throw new InvalidOperationException($"'{attribute.TranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'");
+                            throw new InvalidOperationException($"'{attribute.TranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
                         yield return new(attribute.Name ?? eString, Convert.ToDouble(e))
                         {
                             NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(attribute.TranslationsProviderType)!).Translations
