@@ -68,6 +68,7 @@
     "globalMetadata": {
       "_appFooter": "<span><strong>NetCord</strong></span>",
       "_enableNewTab": true
-    }
+    },
+    "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}"
   }
 }

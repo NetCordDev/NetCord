@@ -2,9 +2,9 @@
   items:
     - name: Installation
       href: getting-started/installation.md
-    - name: Creating a First Bot!
+    - name: Creating a First Bot
       href: getting-started/creating-a-first-bot.md
-    - name: Coding Time!
+    - name: Coding Time
       href: getting-started/coding.md
 - name: Working with Events
   items:
@@ -12,3 +12,19 @@
       href: events/intents.md
     - name: First Events
       href: events/first-events.md
+- name: Services
+  items:
+    - name: Introduction
+      href: services/introduction.md
+    - name: Text Commands
+      items:
+        - name: Introduction
+          href: services/text-commands/introduction.md
+        - name: Arguments
+          href: services/text-commands/arguments.md
+        - name: Aliases
+          href: services/text-commands/aliases.md
+    - name: Type Readers
+      href: services/type-readers.md
+    - name: Preconditions
+      href: services/preconditions.md
