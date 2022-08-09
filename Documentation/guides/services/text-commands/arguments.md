@@ -21,7 +21,7 @@ public Task AverageAsync(params double[] numbers)
 ```
 
 ## Remainder
-You can use `Remainder` attribute to accept rest of input as one argument, example:
+You can use @NetCord.Services.Commands.RemainderAttribute attribute to accept rest of input as one argument, example:
 ```cs
 [Command("reverse")]
 public Task ReverseAsync([Remainder] string toReverse)
@@ -33,10 +33,10 @@ public Task ReverseAsync([Remainder] string toReverse)
 ```
 
 ## Command overloading
-You can overload commands to accept different argument types, you can specify `Priority` to set a priority for each command overload, example:
+You can overload commands to accept different argument types, you can specify @NetCord.Services.Commands.CommandAttribute.Priority to set a priority for each command overload, example:
 ```cs
 [Command("multiply", Priority = 0)]
-public Task MultiplyAsync(int times, [] string text)
+public Task MultiplyAsync(int times, [Remainder] string text)
 {
     return ReplyAsync(string.Concat(Enumerable.Repeat(text, times)));
 }

@@ -5,7 +5,7 @@ Firstly, add the following line to using section.
 using NetCord.Services.Commands;
 ```
 
-Now, it's time to create `CommandService` instance and add modules to it.
+Now, it's time to create @NetCord.Services.Commands.CommandService`1 instance and add modules to it.
 ```cs
 CommandService<CommandContext> commandService = new();
 commandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
