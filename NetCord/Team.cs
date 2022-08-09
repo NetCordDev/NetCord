@@ -23,9 +23,3 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
         Users = jsonModel.Users.SelectOrEmpty(m => new TeamUser(m, client));
     }
 }
-
-public enum MembershipState
-{
-    Invited = 1,
-    Accepted = 2,
-}

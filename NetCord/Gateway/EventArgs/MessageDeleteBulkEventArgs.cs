@@ -10,7 +10,7 @@ public class MessageDeleteBulkEventArgs : IJsonModel<JsonModels.EventArgs.JsonMe
         _jsonModel = jsonModel;
     }
 
-    public IEnumerable<Snowflake> MessageIds => _jsonModel.MessageIds;
+    public IReadOnlyList<Snowflake> MessageIds => _jsonModel.MessageIds;
 
     public Snowflake ChannelId => _jsonModel.ChannelId;
 

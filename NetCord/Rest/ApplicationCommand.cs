@@ -21,7 +21,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
 
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
-    public Permission? DefaultGuildUserPermissions { get; }
+    public Permission? DefaultGuildUserPermissions => _jsonModel.DefaultGuildUserPermissions;
 
     public bool DMPermission => _jsonModel.DMPermission.GetValueOrDefault();
 
@@ -35,8 +35,6 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     {
         _jsonModel = jsonModel;
         Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
-        if (jsonModel.DefaultGuildUserPermissions != null)
-            DefaultGuildUserPermissions = (Permission)ulong.Parse(jsonModel.DefaultGuildUserPermissions);
     }
 
     public override string ToString() => Type switch

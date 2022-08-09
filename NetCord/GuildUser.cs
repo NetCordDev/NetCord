@@ -25,7 +25,7 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
     public override UserFlags? PublicFlags => _jsonModel.User.PublicFlags;
     public string? Nickname => _jsonModel.Nickname;
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
-    public IEnumerable<Snowflake> RoleIds => _jsonModel.RoleIds;
+    public IReadOnlyList<Snowflake> RoleIds => _jsonModel.RoleIds;
     public Snowflake? HoistedRoleId => _jsonModel.HoistedRoleId;
     public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
     public DateTimeOffset? GuildBoostStart => _jsonModel.GuildBoostStart;

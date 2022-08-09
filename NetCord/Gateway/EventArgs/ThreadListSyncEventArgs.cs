@@ -18,7 +18,7 @@ public class ThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonThrea
 
     public Snowflake GuildId => _jsonModel.GuildId;
 
-    public IEnumerable<Snowflake>? ChannelIds => _jsonModel.ChannelIds;
+    public IReadOnlyList<Snowflake>? ChannelIds => _jsonModel.ChannelIds;
 
     public ImmutableDictionary<Snowflake, GuildThread> Threads { get; }
 

@@ -12,7 +12,7 @@ public class AutoModerationRuleTriggerMetadata : IJsonModel<JsonAutoModerationRu
         _jsonModel = jsonModel;
     }
 
-    public IReadOnlyCollection<string>? KeywordFilter => _jsonModel.KeywordFilter;
+    public IReadOnlyList<string>? KeywordFilter => _jsonModel.KeywordFilter;
 
-    public IReadOnlyCollection<AutoModerationRuleKeywordPresetType>? Presets => _jsonModel.Presets;
+    public IReadOnlyList<AutoModerationRuleKeywordPresetType>? Presets => _jsonModel.Presets;
 }

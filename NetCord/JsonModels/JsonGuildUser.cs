@@ -14,7 +14,7 @@ public record JsonGuildUser
     public string? GuildAvatarHash { get; init; }
 
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake> RoleIds { get; init; }
+    public Snowflake[] RoleIds { get; init; }
 
     [JsonPropertyName("hoisted_role")]
     public Snowflake? HoistedRoleId { get; init; }

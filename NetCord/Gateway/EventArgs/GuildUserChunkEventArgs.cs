@@ -24,7 +24,7 @@ public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuild
 
     public int ChunkCount => _jsonModel.ChunkCount;
 
-    public IEnumerable<Snowflake>? NotFound => _jsonModel.NotFound;
+    public IReadOnlyList<Snowflake>? NotFound => _jsonModel.NotFound;
 
     public IReadOnlyDictionary<Snowflake, Presence>? Presences { get; }
 

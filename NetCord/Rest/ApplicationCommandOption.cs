@@ -23,7 +23,7 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
 
     public IEnumerable<ApplicationCommandOption>? Options { get; }
 
-    public IEnumerable<ChannelType>? ChannelTypes => _jsonModel.ChannelTypes;
+    public IReadOnlyList<ChannelType>? ChannelTypes => _jsonModel.ChannelTypes;
 
     public double? MinValue => _jsonModel.MinValue;
 

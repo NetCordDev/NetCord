@@ -4,8 +4,8 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandServiceManager
 {
-    private readonly List<(Action<IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)>> Action, IReadOnlyCollection<IApplicationCommandInfo> CommandInfos)> _globalCommands = new();
-    private readonly List<(Action<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> Action, IReadOnlyCollection<IApplicationCommandInfo> CommandInfos)> _guildCommands = new();
+    private readonly List<(Action<IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)>> Action, IReadOnlyList<IApplicationCommandInfo> CommandInfos)> _globalCommands = new();
+    private readonly List<(Action<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> Action, IReadOnlyList<IApplicationCommandInfo> CommandInfos)> _guildCommands = new();
 
     public void AddService<TContext>(ApplicationCommandService<TContext> service) where TContext : IApplicationCommandContext
     {

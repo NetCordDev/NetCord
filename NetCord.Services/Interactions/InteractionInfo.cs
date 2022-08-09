@@ -8,7 +8,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
     public Type DeclaringType { get; }
     public ReadOnlyCollection<InteractionParameter<TContext>> Parameters { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
-    public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
+    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     public InteractionInfo(MethodInfo methodInfo, InteractionServiceOptions<TContext> options)
     {
@@ -26,7 +26,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

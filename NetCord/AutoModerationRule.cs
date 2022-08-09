@@ -32,7 +32,7 @@ public class AutoModerationRule : Entity, IJsonModel<JsonAutoModerationRule>
 
     public bool Enabled => _jsonModel.Enabled;
 
-    public IReadOnlyCollection<Snowflake> ExemptRoles => _jsonModel.ExemptRoles;
+    public IReadOnlyList<Snowflake> ExemptRoles => _jsonModel.ExemptRoles;
 
-    public IReadOnlyCollection<Snowflake> ExemptChannels => _jsonModel.ExemptChannels;
+    public IReadOnlyList<Snowflake> ExemptChannels => _jsonModel.ExemptChannels;
 }

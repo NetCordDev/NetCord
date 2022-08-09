@@ -10,7 +10,7 @@ public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
     private readonly JsonModels.JsonTeamUser _jsonTeamModel;
 
     public MembershipState MembershipState => _jsonTeamModel.MembershipState;
-    public IEnumerable<string> Permissions => _jsonTeamModel.Permissions;
+    public IReadOnlyList<string> Permissions => _jsonTeamModel.Permissions;
     public Snowflake TeamId => _jsonTeamModel.TeamId;
 
     public override Snowflake Id => _jsonTeamModel.User.Id;

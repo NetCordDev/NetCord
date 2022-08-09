@@ -13,7 +13,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public Permission RequiredUserPermissions { get; }
     public Permission RequiredUserChannelPermissions { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
-    public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
+    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
@@ -40,7 +40,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

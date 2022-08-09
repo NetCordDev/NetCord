@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Commands;
 
-internal class SortedList<T> : ICollection<T>, IReadOnlyCollection<T>
+internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 {
     private const int DefaultCapacity = 4;
     private T[] _items;

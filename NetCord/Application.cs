@@ -11,7 +11,7 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string Name => _jsonModel.Name;
     public string? IconHash => _jsonModel.IconHash;
     public string Description => _jsonModel.Description;
-    public IEnumerable<string> RpcOrigins => _jsonModel.RpcOrigins;
+    public IReadOnlyList<string> RpcOrigins => _jsonModel.RpcOrigins;
     public bool? BotPublic => _jsonModel.BotPublic;
     public bool? BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
     public string? TermsOfServiceUrl => _jsonModel.TermsOfServiceUrl;

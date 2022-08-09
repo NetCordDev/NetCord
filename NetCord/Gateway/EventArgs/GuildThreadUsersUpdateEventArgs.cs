@@ -23,5 +23,5 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonGuildThreadUsersUp
 
     public IReadOnlyDictionary<Snowflake, ThreadUser>? AddedUsers { get; }
 
-    public IEnumerable<Snowflake> RemovedUserIds => _jsonModel.RemovedUserIds;
+    public IReadOnlyList<Snowflake> RemovedUserIds => _jsonModel.RemovedUserIds;
 }

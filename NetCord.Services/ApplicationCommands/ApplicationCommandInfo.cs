@@ -14,16 +14,12 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public Permission? DefaultGuildUserPermissions { get; }
     public bool DMPermission { get; }
-    public bool DefaultPermission { get; init; }
-    public Snowflake? GuildId { get; init; }
-    public IEnumerable<Snowflake>? AllowedRoleIds { get; init; }
-    public IEnumerable<Snowflake>? DisallowedRoleIds { get; init; }
-    public IEnumerable<Snowflake>? AllowedUserIds { get; init; }
-    public IEnumerable<Snowflake>? DisallowedUserIds { get; init; }
+    public bool DefaultPermission { get; }
+    public Snowflake? GuildId { get; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
     public ReadOnlyCollection<SlashCommandParameter<TContext>>? Parameters { get; }
     public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }
-    public ReadOnlyCollection<PreconditionAttribute<TContext>> Preconditions { get; }
+    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
     internal ApplicationCommandInfo(MethodInfo methodInfo, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(methodInfo, attribute: slashCommandAttribute)
@@ -85,7 +81,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         if (attribute.GuildId != default)
             GuildId = attribute.GuildId;
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
-        Preconditions = new(PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType));
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
     }
 
     public ApplicationCommandProperties GetRawValue()
