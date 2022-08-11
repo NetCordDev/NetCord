@@ -53,11 +53,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("button")]
     public Task Button()
     {
-        ActionButtonProperties button = new("click it", ButtonStyle.Success)
-        {
-            Emoji = new(888159212109197382),
-            Label = "Click it!",
-        };
+        ActionButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
         ActionRowProperties actionRow = new(new ButtonProperties[] { button });
         MessageProperties messageBuilder = new()
         {
@@ -78,10 +74,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         ActionRowProperties actionRow = new(new ButtonProperties[]
         {
-            new LinkButtonProperties(url.AbsoluteUri)
-            {
-                Label = "Link",
-            }
+            new LinkButtonProperties(url.AbsoluteUri, "Link"),
         });
         MessageProperties message = new()
         {
@@ -182,7 +175,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = "Here is your menu:",
-            Components = new ComponentProperties[] { new MenuProperties("menu") { Options = values.Select(v => new MenuSelectOptionProperties(v, v)).ToList(), MaxValues = values.Length } },
+            Components = new ComponentProperties[] { new MenuProperties("menu", values.Select(v => new MenuSelectOptionProperties(v, v))) { MaxValues = values.Length } },
             MessageReference = new(Context.Message)
         };
         return SendAsync(message);

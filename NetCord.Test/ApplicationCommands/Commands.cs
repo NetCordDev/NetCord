@@ -247,14 +247,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             {
                 new ActionRowProperties(new List<ButtonProperties>
                 {
-                    new ActionButtonProperties("id", ButtonStyle.Success)
-                    {
-                        Emoji = new(942818016222138399)
-                    },
-                    new LinkButtonProperties(new("https://google.com"))
-                    {
-                        Emoji = new(942818016222138399)
-                    }
+                    new ActionButtonProperties("id", new EmojiProperties(942818016222138399), ButtonStyle.Success),
+                    new LinkButtonProperties(new("https://google.com"), new EmojiProperties(942818016222138399)),
                 })
             }
         }));

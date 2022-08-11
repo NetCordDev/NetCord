@@ -8,47 +8,27 @@ public class MenuProperties : ComponentProperties
     public string CustomId { get; }
 
     [JsonPropertyName("options")]
-    public IEnumerable<MenuSelectOptionProperties>? Options { get; set; }
+    public IEnumerable<MenuSelectOptionProperties> Options { get; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("max_values")]
     public int? MaxValues { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
-    public MenuProperties(string customId) : base(ComponentType.Menu)
+    public MenuProperties(string customId, IEnumerable<MenuSelectOptionProperties> options) : base(ComponentType.Menu)
     {
         CustomId = customId;
-    }
-}
-
-public class MenuSelectOptionProperties
-{
-    [JsonPropertyName("label")]
-    public string Label { get; }
-
-    [JsonPropertyName("value")]
-    public string Value { get; }
-
-    [JsonPropertyName("description")]
-    public string? Description { get; set; }
-
-    [JsonPropertyName("emoji")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EmojiProperties? Emoji { get; set; }
-
-    [JsonPropertyName("default")]
-    public bool? IsDefault { get; set; }
-
-    public MenuSelectOptionProperties(string label, string value)
-    {
-        Label = label;
-        Value = value;
+        Options = options;
     }
 }

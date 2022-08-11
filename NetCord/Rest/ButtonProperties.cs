@@ -12,19 +12,35 @@ public abstract class ButtonProperties
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.Button;
 
-    [JsonPropertyName("label")]
-    public string? Label { get; set; }
-
-    [JsonPropertyName("emoji")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public EmojiProperties? Emoji { get; set; }
+    [JsonPropertyName("label")]
+    public string? Label { get; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("emoji")]
+    public EmojiProperties? Emoji { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
-    protected ButtonProperties(ButtonStyle style)
+    protected ButtonProperties(ButtonStyle style, string label)
     {
         Style = style;
+        Label = label;
+    }
+
+    protected ButtonProperties(ButtonStyle style, EmojiProperties emoji)
+    {
+        Style = style;
+        Emoji = emoji;
+    }
+
+    protected ButtonProperties(ButtonStyle style, string label, EmojiProperties emoji)
+    {
+        Style = style;
+        Label = label;
+        Emoji = emoji;
     }
 
     private class MessageButtonConverter : JsonConverter<ButtonProperties>

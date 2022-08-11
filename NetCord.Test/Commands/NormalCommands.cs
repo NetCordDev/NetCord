@@ -54,14 +54,13 @@ public class NormalCommands : CommandModule<CommandContext>
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         List<MenuSelectOptionProperties> options = new();
         foreach (var role in roles)
-            options.Add(new(role.Name, role.Id.ToString()!) { IsDefault = defaultValues.Contains(role.Id) });
+            options.Add(new(role.Name, role.Id.ToString()!) { Default = defaultValues.Contains(role.Id) });
 
-        MenuProperties menu = new("roles")
+        MenuProperties menu = new("roles", options)
         {
             Placeholder = "Select roles",
-            MaxValues = roles.Count(),
+            MaxValues = options.Count,
             MinValues = 0,
-            Options = options
         };
 
         return menu;
