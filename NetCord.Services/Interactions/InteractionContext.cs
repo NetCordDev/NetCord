@@ -70,6 +70,8 @@ public class MenuInteractionContext : BaseMenuInteractionContext, IUserContext, 
 
     public TextChannel Channel => Interaction.Channel!;
 
+    public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
+
     public MenuInteractionContext(MenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
     }
@@ -82,6 +84,8 @@ public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, 
     public Guild? Guild => Interaction.Guild;
 
     public TextChannel Channel => Interaction.Channel!;
+
+    public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 
     public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction, client)
     {
