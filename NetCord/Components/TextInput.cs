@@ -9,12 +9,7 @@ public class TextInput : IComponent, IJsonModel<JsonComponent>
 
     public ComponentType ComponentType => ComponentType.TextInput;
     public string CustomId => _jsonModel.CustomId!;
-    public string? Placeholder => _jsonModel.Placeholder;
-    public string? Label => _jsonModel.Label!;
-    public int? MinLength => _jsonModel.MinLength;
-    public int? MaxLength => _jsonModel.MaxLength;
-    public bool? Required => _jsonModel.Required;
-    public string Value => _jsonModel.Value;
+    public string Value => _jsonModel.Value!;
 
     public TextInput(JsonComponent jsonModel)
     {

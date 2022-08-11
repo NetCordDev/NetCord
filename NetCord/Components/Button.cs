@@ -11,7 +11,7 @@ public abstract class Button : IJsonModel<JsonModels.JsonComponent>
 
     public ComponentEmoji? Emoji { get; }
 
-    public bool Disabled => _jsonModel.Disabled;
+    public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
 
     private protected Button(JsonModels.JsonComponent jsonModel)
     {
@@ -22,9 +22,9 @@ public abstract class Button : IJsonModel<JsonModels.JsonComponent>
 
     public static Button CreateFromJson(JsonModels.JsonComponent jsonModel)
     {
-        return (int)jsonModel.Style! switch
+        return jsonModel.Style.GetValueOrDefault() switch
         {
-            5 => new LinkButton(jsonModel),
+            (ButtonStyle)5 => new LinkButton(jsonModel),
             _ => new ActionButton(jsonModel),
         };
     }

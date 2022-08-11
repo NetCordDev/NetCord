@@ -11,7 +11,7 @@ public record JsonComponent
     public string? CustomId { get; init; }
 
     [JsonPropertyName("disabled")]
-    public bool Disabled { get; init; }
+    public bool? Disabled { get; init; }
 
     [JsonPropertyName("style")]
     public ButtonStyle? Style { get; init; }
@@ -26,7 +26,7 @@ public record JsonComponent
     public string? Url { get; init; }
 
     [JsonPropertyName("options")]
-    public SelectOption[] Options { get; init; }
+    public JsonMenuSelectOption[] Options { get; init; }
 
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; init; }
@@ -41,32 +41,14 @@ public record JsonComponent
     public JsonComponent[] Components { get; init; }
 
     [JsonPropertyName("min_length")]
-    public int MinLength { get; init; }
+    public int? MinLength { get; init; }
 
     [JsonPropertyName("max_length")]
-    public int MaxLength { get; init; }
+    public int? MaxLength { get; init; }
 
     [JsonPropertyName("required")]
-    public bool Required { get; init; }
+    public bool? Required { get; init; }
 
     [JsonPropertyName("value")]
-    public string Value { get; init; }
-
-    public record SelectOption
-    {
-        [JsonPropertyName("label")]
-        public string Label { get; init; }
-
-        [JsonPropertyName("value")]
-        public string Value { get; init; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; init; }
-
-        [JsonPropertyName("emoji")]
-        public JsonEmoji? Emoji { get; init; }
-
-        [JsonPropertyName("default")]
-        public bool? IsDefault { get; init; }
-    }
+    public string? Value { get; init; }
 }

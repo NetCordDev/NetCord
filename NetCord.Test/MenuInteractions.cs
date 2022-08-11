@@ -25,7 +25,7 @@ public class MenuInteractions : BaseInteractionModule<MenuInteractionContext>
         InteractionMessageProperties interactionMessage = new()
         {
             Flags = MessageFlags.Ephemeral,
-            Content = "You selected: " + string.Join(", ", Context.Interaction.Data.SelectedValues),
+            Content = "You selected: " + string.Join(", ", Context.SelectedValues),
         };
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
     }
