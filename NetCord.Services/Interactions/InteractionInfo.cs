@@ -1,12 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace NetCord.Services.Interactions;
 
 public class InteractionInfo<TContext> where TContext : InteractionContext
 {
     public Type DeclaringType { get; }
-    public ReadOnlyCollection<InteractionParameter<TContext>> Parameters { get; }
+    public IReadOnlyList<InteractionParameter<TContext>> Parameters { get; }
     public Func<object, object[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -22,7 +21,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         var p = new InteractionParameter<TContext>[parametersLength];
         for (var i = 0; i < parametersLength; i++)
             p[i] = new(parameters[i], options);
-        Parameters = new(p);
+        Parameters = p;
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 

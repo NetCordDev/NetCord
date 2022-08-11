@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 
-using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;

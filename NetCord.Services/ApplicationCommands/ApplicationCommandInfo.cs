@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
+﻿using System.Reflection;
 
 using NetCord.Rest;
 
@@ -17,7 +16,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public bool DefaultPermission { get; }
     public Snowflake? GuildId { get; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
-    public ReadOnlyCollection<SlashCommandParameter<TContext>>? Parameters { get; }
+    public IReadOnlyList<SlashCommandParameter<TContext>>? Parameters { get; }
     public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
@@ -48,7 +47,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             if (autocompleteProvider != null)
                 Autocompletes.Add(newP.Name, autocompleteProvider);
         }
-        Parameters = new(p);
+        Parameters = p;
     }
 
     internal ApplicationCommandInfo(MethodInfo methodInfo, UserCommandAttribute userCommandAttribute) : this(methodInfo, attribute: userCommandAttribute)

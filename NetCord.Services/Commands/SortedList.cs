@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Commands;
@@ -112,6 +111,4 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
     IEnumerator IEnumerable.GetEnumerator() => _items[.._size].GetEnumerator();
 
     public int IndexOf(T item) => Array.IndexOf(_items, item);
-
-    public ReadOnlyCollection<T> AsReadOnly() => new(_items[.._size]);
 }

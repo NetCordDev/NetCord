@@ -28,7 +28,7 @@ public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
 
     public string? AvatarHash => _jsonModel.AvatarHash;
 
-    
+
 
     public Snowflake? ApplicationId => _jsonModel.ApplicationId;
 

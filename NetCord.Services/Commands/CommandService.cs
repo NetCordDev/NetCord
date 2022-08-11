@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
@@ -8,12 +7,12 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     private readonly CommandServiceOptions<TContext> _options;
     private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
-    public IReadOnlyDictionary<string, ReadOnlyCollection<CommandInfo<TContext>>> Commands
+    public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> Commands
     {
         get
         {
             lock (_commands)
-                return _commands.ToDictionary(v => v.Key, v => v.Value.AsReadOnly());
+                return _commands.ToDictionary(v => v.Key, v => (IReadOnlyList<CommandInfo<TContext>>)v.Value);
         }
     }
 
@@ -136,7 +135,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     continue;
             }
 
-            ReadOnlyCollection<CommandParameter<TContext>> commandParameters = commandInfo.Parameters;
+            var commandParameters = commandInfo.Parameters;
             var commandParametersLength = commandParameters.Count;
             var arguments = baseArguments;
             parametersToPass = new object[commandParametersLength];

@@ -1,6 +1,4 @@
-﻿using NetCord.Rest.RateLimits;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {

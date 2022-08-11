@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord.Gateway;
 
@@ -8,10 +6,10 @@ public class ModalSubmitInteractionData : InteractionData, ICustomIdInteractionD
 {
     public string CustomId => _jsonModel.CustomId!;
 
-    public ReadOnlyCollection<TextInput> Components { get; }
+    public IReadOnlyList<TextInput> Components { get; }
 
     public ModalSubmitInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
     {
-        Components = new(jsonModel.Components!.Select(c => new TextInput(c)).ToArray());
+        Components = jsonModel.Components!.Select(c => new TextInput(c)).ToArray();
     }
 }

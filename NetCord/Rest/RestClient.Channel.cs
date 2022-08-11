@@ -1,8 +1,7 @@
 ﻿using System.Text.Json;
 
-using NetCord.Rest.RateLimits;
-
 using NetCord.JsonModels;
+using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;
 

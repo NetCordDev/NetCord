@@ -1,12 +1,11 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
 public record CommandInfo<TContext> where TContext : ICommandContext
 {
     public Type DeclaringType { get; }
-    public ReadOnlyCollection<CommandParameter<TContext>> Parameters { get; }
+    public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
     public int Priority { get; }
     public Permission RequiredBotPermissions { get; }
     public Permission RequiredBotChannelPermissions { get; }
@@ -36,7 +35,7 @@ public record CommandInfo<TContext> where TContext : ICommandContext
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", methodInfo);
             p[i] = new(parameter, options);
         }
-        Parameters = new(p);
+        Parameters = p;
 
         InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 

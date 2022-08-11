@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 
 namespace NetCord.Rest;
 
@@ -20,7 +19,7 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 
     public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
 
-    public ReadOnlyCollection<string> Features { get; }
+    public IReadOnlyList<string> Features => _jsonModel.Features;
 
     public int ApproximateUserCount => _jsonModel.ApproximateUserCount.GetValueOrDefault();
 
@@ -32,6 +31,5 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     {
         _jsonModel = jsonModel;
         Emojis = _jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Features = new(jsonModel.Features);
     }
 }

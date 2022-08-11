@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 
 namespace NetCord.Rest;
 
@@ -27,7 +26,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonModel.DefaultMessageNotificationLevel;
     public ContentFilter ContentFilter => _jsonModel.ContentFilter;
     public GuildRole EveryoneRole => Roles[Id];
-    public ReadOnlyCollection<string> Features { get; }
+    public IReadOnlyList<string> Features => _jsonModel.Features;
     public MFALevel MFALevel => _jsonModel.MFALevel;
     public Snowflake? ApplicationId => _jsonModel.ApplicationId;
     public Snowflake? SystemChannelId => _jsonModel.SystemChannelId;
@@ -56,7 +55,6 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
         // guild emojis always have Id
         Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
-        Features = new(jsonModel.Features);
         if (jsonModel.WelcomeScreen != null)
             WelcomeScreen = new(jsonModel.WelcomeScreen);
     }
