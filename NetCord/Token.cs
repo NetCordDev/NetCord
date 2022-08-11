@@ -2,8 +2,9 @@
 
 public class Token
 {
-    public Token(TokenType type, string token!!)
+    public Token(TokenType type, string token)
     {
+        ArgumentNullException.ThrowIfNull(type);
         Type = type;
         RawToken = token;
     }
