@@ -10,7 +10,7 @@ public enum GatewayIntent : uint
     GuildUsers = 1 << 1,
     GuildBans = 1 << 2,
     GuildEmojisAndStickers = 1 << 3,
-    GuildInteractions = 1 << 4,
+    GuildIntegrations = 1 << 4,
     GuildWebhooks = 1 << 5,
     GuildInvites = 1 << 6,
     GuildVoiceStates = 1 << 7,
@@ -35,7 +35,7 @@ public enum GatewayIntent : uint
         | GuildUsers
         | GuildBans
         | GuildEmojisAndStickers
-        | GuildInteractions
+        | GuildIntegrations
         | GuildWebhooks
         | GuildInvites
         | GuildVoiceStates
@@ -53,7 +53,7 @@ public enum GatewayIntent : uint
     AllNonPrivileged = Guilds
         | GuildBans
         | GuildEmojisAndStickers
-        | GuildInteractions
+        | GuildIntegrations
         | GuildWebhooks
         | GuildInvites
         | GuildVoiceStates
