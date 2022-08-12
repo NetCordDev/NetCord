@@ -3,10 +3,16 @@
     {
       "src": [
         {
+          //"src": "../",
+          //"files": [
+          //  "NetCord/NetCord.csproj",
+          //  "NetCord.Services/NetCord.Services.csproj"
+          //]
+          //https://github.com/dotnet/docfx/issues/8097
           "src": "../",
           "files": [
-            "NetCord/NetCord.csproj",
-            "NetCord.Services/NetCord.Services.csproj"
+            "NetCord/bin/Release/net6.0/NetCord.dll",
+            "NetCord.Services/bin/Release/net6.0/NetCord.Services.dll"
           ]
         }
       ],

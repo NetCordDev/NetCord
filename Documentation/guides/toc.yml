@@ -20,11 +20,31 @@
       items:
         - name: Introduction
           href: services/text-commands/introduction.md
-        - name: Arguments
-          href: services/text-commands/arguments.md
+        - name: Parameters
+          href: services/text-commands/parameters.md
         - name: Aliases
           href: services/text-commands/aliases.md
+    - name: Application Commands
+      items:
+        - name: Introduction
+          href: services/application-commands/introduction.md
+        - name: Multiple Services
+          href: services/application-commands/multiple-services.md
+        - name: Parameters
+          href: services/application-commands/parameters.md
+        - name: Permissions
+          href: services/application-commands/permissions.md
+        - name: Translations
+          href: services/application-commands/translations.md
+    - name: Interactions
+      items:
+        - name: Introduction
+          href: services/interactions/introduction.md
+        - name: Parameters
+          href: services/interactions/parameters.md
     - name: Type Readers
       href: services/type-readers.md
     - name: Preconditions
       href: services/preconditions.md
+    - name: Custom Module Bases and Contexts
+      href: services/custom-module-bases-and-contexts.md
