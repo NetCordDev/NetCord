@@ -27,4 +27,4 @@ GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Develope
 If you made this, you receive guild and direct messages.
 
 > [!NOTE]
-> `GatewayIntent.MessageContent` is a special intent that allows you to get @NetCord.Rest.RestMessage.Content on events. Otherwise it is empty.
+> `GatewayIntent.MessageContent` is a special intent that allows you to get @NetCord.Rest.RestMessage.Content of message on events. Otherwise it is empty.
