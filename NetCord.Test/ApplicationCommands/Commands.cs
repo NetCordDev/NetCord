@@ -9,13 +9,13 @@ namespace NetCord.Test.SlashCommands;
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permission.AddReactions)]
-    public Task TestAsync([MinValue(10), MaxValue(100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
+    public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
     [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider))][MaxLength(500)] string query)
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider), MaxLength = 500)] string query)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
     }

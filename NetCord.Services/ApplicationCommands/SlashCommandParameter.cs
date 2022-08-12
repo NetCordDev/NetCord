@@ -18,6 +18,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IAutocompleteProvider? AutocompleteProvider { get; }
     public IChoicesProvider<TContext>? ChoicesProvider { get; }
+    public double? MaxValue { get; }
+    public double? MinValue { get; }
+    public int? MaxLength { get; }
+    public int? MinLength { get; }
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
 
     internal SlashCommandParameter(ParameterInfo parameter, ApplicationCommandServiceOptions<TContext> options)
@@ -140,6 +144,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
                 AutocompleteProvider = TypeReader.AutocompleteProvider;
 
             AllowedChannelTypes = slashCommandParameterAttribute.AllowedChannelTypes ?? TypeReader.AllowedChannelTypes;
+            MaxValue = slashCommandParameterAttribute._maxValue ?? TypeReader.GetMaxValue(this);
+            MinValue = slashCommandParameterAttribute._minValue ?? TypeReader.GetMinValue(this);
+            MaxLength = slashCommandParameterAttribute._maxLength ?? TypeReader.GetMaxLength(this);
+            MinLength = slashCommandParameterAttribute._minLength ?? TypeReader.GetMinLength(this);
         }
         else
         {
@@ -155,39 +163,15 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
     public ApplicationCommandOptionProperties GetRawValue()
     {
-        double? maxValue;
-        if (Attributes.TryGetValue(typeof(MaxValueAttribute), out var attributes))
-            maxValue = ((MaxValueAttribute)attributes[0]).MaxValue;
-        else
-            maxValue = TypeReader.GetMaxValue(this);
-
-        double? minValue;
-        if (Attributes.TryGetValue(typeof(MinValueAttribute), out attributes))
-            minValue = ((MinValueAttribute)attributes[0]).MinValue;
-        else
-            minValue = TypeReader.GetMinValue(this);
-
-        int? maxLength;
-        if (Attributes.TryGetValue(typeof(MaxLengthAttribute), out attributes))
-            maxLength = ((MaxLengthAttribute)attributes[0]).MaxLength;
-        else
-            maxLength = TypeReader.GetMaxLength(this);
-
-        int? minLength;
-        if (Attributes.TryGetValue(typeof(MinLengthAttribute), out attributes))
-            minLength = ((MinLengthAttribute)attributes[0]).MinLength;
-        else
-            minLength = TypeReader.GetMinLength(this);
-
         var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
         {
             NameLocalizations = NameTranslationsProvider?.Translations,
             DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
-            MaxValue = maxValue,
-            MinValue = minValue,
-            MaxLength = maxLength,
-            MinLength = minLength,
+            MaxValue = MaxValue,
+            MinValue = MinValue,
+            MaxLength = MaxLength,
+            MinLength = MinLength,
             Required = !HasDefaultValue,
             Autocomplete = autocomplete,
             Choices = ChoicesProvider?.GetChoices(this),
