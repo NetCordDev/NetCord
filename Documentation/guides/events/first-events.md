@@ -8,8 +8,8 @@
 ```cs
 client.MessageCreate += message =>
 {
-	Console.WriteLine(message.Content);
-	return default;
+    Console.WriteLine(message.Content);
+    return default;
 };
 ```
 When you run this code, when you send a message, the message will be printed on a console.
@@ -19,7 +19,7 @@ When you run this code, when you send a message, the message will be printed on 
 ```cs
 client.MessageUpdate += async message =>
 {
-	await message.ReplyAsync("This message was modified!");
+    await message.ReplyAsync("This message was modified!");
 };
 ```
 Now your bot is notifying everyone that someone has modified a message!
