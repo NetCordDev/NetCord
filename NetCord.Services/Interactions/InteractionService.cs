@@ -54,16 +54,16 @@ public class InteractionService<TContext> : IService where TContext : Interactio
         var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId;
         var index = content.IndexOf(separator);
         string? customId;
-        string arguments;
+        ReadOnlyMemory<char> arguments;
         if (index == -1)
         {
             customId = content;
-            arguments = string.Empty;
+            arguments = default;
         }
         else
         {
             customId = content[..index];
-            arguments = content[(index + 1)..];
+            arguments = content.AsMemory(index + 1);
         }
         InteractionInfo<TContext> interactionInfo;
         lock (_interactions)
@@ -84,12 +84,12 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             InteractionParameter<TContext> parameter = interactionParameters[commandParamIndex];
             if (!parameter.Params)
             {
-                string currentArg;
+                ReadOnlyMemory<char> currentArg;
                 if (commandParamIndex == maxCommandParamIndex)
                     currentArg = arguments;
                 else
                 {
-                    index = arguments.IndexOf(separator);
+                    index = arguments.Span.IndexOf(separator);
                     currentArg = index == -1 ? arguments : arguments[..index];
                     arguments = arguments[(currentArg.Length + 1)..];
                 }
@@ -97,12 +97,12 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             }
             else
             {
-                var args = arguments.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                var args = new string(arguments.Span).Split(separator, StringSplitOptions.RemoveEmptyEntries);
                 var len = args.Length;
                 var o = Array.CreateInstance(parameter.Type, len);
 
                 for (var a = 0; a < len; a++)
-                    o.SetValue(await parameter.TypeReader.ReadAsync(args[a], context, parameter, _options).ConfigureAwait(false), a);
+                    o.SetValue(await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false), a);
 
                 parametersToPass[commandParamIndex] = o;
             }

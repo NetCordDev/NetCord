@@ -4,12 +4,12 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class TimeSpanTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object?> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
     {
         RegexOptions regexOptions = options.IgnoreCase ? RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft | RegexOptions.IgnoreCase
                                                        : RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.RightToLeft;
         // Regex blocks minus values
-        var timeSpan = Regex.Match(input, @"^((?<y>\d+)y)?((?<d>\d+)d)?((?<h>\d+)h)?((?<m>\d+)m)?((?<s>\d+)s)?$", regexOptions);
+        var timeSpan = Regex.Match(input.ToString(), @"^((?<y>\d+)y)?((?<d>\d+)d)?((?<h>\d+)h)?((?<m>\d+)m)?((?<s>\d+)s)?$", regexOptions);
         if (timeSpan.Success)
         {
             var y = timeSpan.Groups["y"];

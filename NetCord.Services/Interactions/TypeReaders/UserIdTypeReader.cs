@@ -4,20 +4,21 @@ namespace NetCord.Services.Interactions.TypeReaders;
 
 public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : InteractionContext
 {
-    public override Task<object?> ReadAsync(string input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceOptions<TContext> options)
     {
         var guild = context.Interaction.Guild;
         if (guild != null)
         {
             IReadOnlyDictionary<Snowflake, GuildUser> users = guild.Users;
+            var span = input.Span;
+            var s = span.ToString();
+
             // by id
-            if (Snowflake.TryCreate(input, out Snowflake id))
+            if (Snowflake.TryCreate(s, out Snowflake id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));
             }
-
-            var span = input.AsSpan();
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
@@ -46,7 +47,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                     GuildUser? user;
                     try
                     {
-                        user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == input || u.Nickname == input : u => u.Nickname == input);
+                        user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s);
                     }
                     catch
                     {
@@ -60,14 +61,15 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
         else if (context.Interaction.Channel is DMChannel dm)
         {
             IReadOnlyDictionary<Snowflake, User> users = dm.Users;
+            var span = input.Span;
+            var s = span.ToString();
+
             // by id
-            if (Snowflake.TryCreate(input, out Snowflake id))
+            if (Snowflake.TryCreate(s, out Snowflake id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));
             }
-
-            var span = input.AsSpan();
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
@@ -95,7 +97,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                     User? user;
                     try
                     {
-                        user = users.Values.SingleOrDefault(u => u.Username == input);
+                        user = users.Values.SingleOrDefault(u => u.Username == s);
                     }
                     catch
                     {

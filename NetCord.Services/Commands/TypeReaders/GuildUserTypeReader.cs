@@ -4,21 +4,23 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object?> ReadAsync(string input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options)
     {
         var guild = context.Message.Guild;
         if (guild == null)
             goto exception;
         IReadOnlyDictionary<Snowflake, GuildUser> users = guild.Users;
+        var span = input.Span;
+        var s = span.ToString();
+
         // by id
-        if (Snowflake.TryCreate(input, out Snowflake id))
+        if (Snowflake.TryCreate(s, out Snowflake id))
         {
             if (users.TryGetValue(id, out var user))
                 return Task.FromResult((object?)user);
         }
         else
         {
-            var span = input.AsSpan();
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
             {
@@ -49,7 +51,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
                 GuildUser? user;
                 try
                 {
-                    user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == input || u.Nickname == input : u => u.Nickname == input);
+                    user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s);
                 }
                 catch
                 {

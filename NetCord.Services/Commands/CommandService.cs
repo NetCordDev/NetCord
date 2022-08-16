@@ -97,21 +97,21 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         var separators = _options._paramSeparators;
 
         SortedList<CommandInfo<TContext>> commandInfos;
-        string baseArguments;
+        ReadOnlyMemory<char> baseArguments;
         var index = messageContentWithoutPrefix.IndexOfAny(separators);
         if (index == -1)
         {
             lock (_commands)
                 if (!_commands.TryGetValue(messageContentWithoutPrefix, out commandInfos!))
                     throw new CommandNotFoundException();
-            baseArguments = string.Empty;
+            baseArguments = default;
         }
         else
         {
             lock (_commands)
                 if (!_commands.TryGetValue(messageContentWithoutPrefix[..index], out commandInfos!))
                     throw new CommandNotFoundException();
-            baseArguments = messageContentWithoutPrefix[(index + 1)..].TrimStart(separators);
+            baseArguments = messageContentWithoutPrefix.AsMemory(index + 1).TrimStart(separators);
         }
 
         var maxIndex = commandInfos.Count - 1;
@@ -140,7 +140,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             var arguments = baseArguments;
             parametersToPass = new object[commandParametersLength];
             var isLastArgGood = false;
-            string? currentArg = null;
+            ReadOnlyMemory<char> currentArg = default;
 
             var commandParamIndex = 0;
             var maxCommandParamIndex = commandParametersLength - 1;
@@ -152,7 +152,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                 {
                     UpdateCurrentArg(separators, arguments, isLastArgGood, parameter.Remainder, ref currentArg);
 
-                    var currentArgLength = currentArg!.Length;
+                    var currentArgLength = currentArg.Length;
                     if (currentArgLength != 0)
                     {
                         try
@@ -225,25 +225,25 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         await commandInfo.InvokeAsync(methodClass, parametersToPass!).ConfigureAwait(false);
     }
 
-    private static void UpdateCurrentArg(char[] separators, string arguments, bool isLastArgGood, bool remainder, ref string? currentArg)
+    private static void UpdateCurrentArg(char[] separators, ReadOnlyMemory<char> arguments, bool isLastArgGood, bool remainder, ref ReadOnlyMemory<char> currentArg)
     {
         if (remainder)
             currentArg = arguments;
         else if (isLastArgGood == false)
         {
-            var index = arguments.IndexOfAny(separators);
+            var index = arguments.Span.IndexOfAny(separators);
             currentArg = index == -1 ? arguments : arguments[..index];
         }
     }
 
-    private async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, string arguments, int commandParamIndex, CommandParameter<TContext> parameter)
+    private async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int commandParamIndex, CommandParameter<TContext> parameter)
     {
-        var args = arguments.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        var args = new string(arguments.Span).Split(separators, StringSplitOptions.RemoveEmptyEntries);
         var len = args.Length;
         var o = Array.CreateInstance(parameter.Type, len);
 
         for (var a = 0; a < len; a++)
-            o.SetValue(await parameter.TypeReader.ReadAsync(args[a], context, parameter, _options).ConfigureAwait(false), a);
+            o.SetValue(await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false), a);
 
         parametersToPass[commandParamIndex] = o;
     }

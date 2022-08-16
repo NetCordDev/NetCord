@@ -14,7 +14,7 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
     {
         if (ulong.TryParse(id, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out _))
         {
-            result = new(id);
+            result = new(id, null);
             return true;
         }
         else
