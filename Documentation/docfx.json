@@ -34,7 +34,7 @@
           "guides/**.md",
           "guides/**/toc.yml",
           "toc.yml",
-          "*.md"
+          "index.md"
         ]
       }
     ],
