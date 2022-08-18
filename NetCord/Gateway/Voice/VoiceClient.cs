@@ -21,9 +21,9 @@ public class VoiceClient : WebSocketClient
 
     public bool RedirectInputStreams { get; }
 
-    public IReadOnlyDictionary<Snowflake, uint> Ssrcs => _ssrcs;
+    public IReadOnlyDictionary<uint, Snowflake> Users => _users;
 
-    private readonly Dictionary<Snowflake, uint> _ssrcs = new(0);
+    private readonly Dictionary<uint, Snowflake> _users = new(0);
 
     private readonly Dictionary<uint, InputStream> _inputStreams = new(0);
 
@@ -89,7 +89,6 @@ public class VoiceClient : WebSocketClient
                     VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
                     await _webSocket.SendAsync(protocolPayload.Serialize()).ConfigureAwait(false);
 
-
                     void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
                     {
                         _udpSocket.DatagramReceive -= UdpSocket_DatagramReceiveOnce;
@@ -127,7 +126,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Speaking:
                 var speaking = jsonPayload.Data.GetValueOrDefault().ToObject<JsonModels.JsonSpeaking>();
-                _ssrcs[speaking.UserId] = speaking.Ssrc;
+                _users[speaking.Ssrc] = speaking.UserId;
 
                 ToArrayStream toArrayStream = new();
                 OpusDecodeStream opusDecodeStream = new(toArrayStream);
