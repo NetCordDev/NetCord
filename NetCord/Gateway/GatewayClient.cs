@@ -372,7 +372,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = GetGuildId();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelCreate != null)
                         try
                         {
@@ -393,7 +393,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = GetGuildId();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelUpdate != null)
                         try
                         {
@@ -414,7 +414,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = GetGuildId();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelDelete != null)
                         try
                         {
@@ -448,7 +448,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    var guildId = GetGuildId();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadCreate != null)
                         try
                         {
@@ -469,7 +469,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    var guildId = GetGuildId();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadUpdate != null)
                         try
                         {
@@ -488,12 +488,12 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_DELETE":
                 {
-                    var jsonThread = data.ToObject<JsonChannel>();
-                    var guildId = GetGuildId();
+                    var json = data.ToObject<JsonChannel>();
+                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadDelete != null)
                         try
                         {
-                            await GuildThreadDelete(new(jsonThread.Id, guildId, jsonThread.ParentId.GetValueOrDefault(), jsonThread.Type)).ConfigureAwait(false);
+                            await GuildThreadDelete(new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -501,15 +501,15 @@ public partial class GatewayClient : WebSocketClient
                         }
                     if (TryGetGuild(guildId, out var guild))
                     {
-                        guild.ActiveThreads = guild.ActiveThreads.Remove(jsonThread.Id);
-                        guild._jsonModel.ActiveThreads.Remove(jsonThread.Id);
+                        guild.ActiveThreads = guild.ActiveThreads.Remove(json.Id);
+                        guild._jsonModel.ActiveThreads.Remove(json.Id);
                     }
                 }
                 break;
             case "THREAD_LIST_SYNC":
                 {
                     ThreadListSyncEventArgs args = new(data.ToObject<JsonThreadListSyncEventArgs>(), Rest);
-                    var guildId = GetGuildId();
+                    var guildId = args.GuildId;
                     if (ThreadListSync != null)
                         try
                         {
