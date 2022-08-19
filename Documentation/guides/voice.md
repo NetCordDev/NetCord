@@ -3,10 +3,10 @@
 ## Installation
 
 # [Windows](#tab/installation-windows)
-Sending and receiving voice requires opus.dll and libsodium.dll files. You should place them in your application runtime directory.
+Sending and receiving voice requires `opus.dll` and `libsodium.dll` files. You should place them in your application runtime directory.
 
 # [Linux and MacOS](#tab/installation-linux-and-macos)
-Sending and receiving voice requires opus.so and libsodium.so files. You should place them in your application runtime directory or install them using a package manager.
+Sending and receiving voice requires `opus.so` and `libsodium.so` files. You should place them in your application runtime directory or install them using a package manager.
 
 ***
 
