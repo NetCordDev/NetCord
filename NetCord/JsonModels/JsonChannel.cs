@@ -24,7 +24,7 @@ public record JsonChannel : JsonEntity
     public string? Topic { get; init; }
 
     [JsonPropertyName("nsfw")]
-    public bool IsNsfw { get; init; }
+    public bool Nsfw { get; init; }
 
     [JsonPropertyName("last_message_id")]
     public Snowflake? LastMessageId { get; init; }

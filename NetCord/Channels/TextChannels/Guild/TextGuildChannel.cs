@@ -6,7 +6,7 @@ public class TextGuildChannel : TextChannel, IGuildChannel
 {
     public Snowflake? ParentId => _jsonModel.ParentId;
     public string? Topic => _jsonModel.Topic;
-    public bool IsNsfw => _jsonModel.IsNsfw;
+    public bool Nsfw => _jsonModel.Nsfw;
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
     public string Name => _jsonModel.Name!;
     public int Position => _jsonModel.Position.GetValueOrDefault();

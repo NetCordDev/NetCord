@@ -5,10 +5,11 @@ namespace NetCord;
 public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 {
     public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();
-    public Snowflake? CategoryId => _jsonModel.ParentId;
-    public int UserLimit => _jsonModel.UserLimit.GetValueOrDefault(); //
+    public Snowflake? ParentId => _jsonModel.ParentId;
+    public bool Nsfw => _jsonModel.Nsfw;
+    public int? UserLimit => _jsonModel.UserLimit;
     public string RtcRegion => _jsonModel.RtcRegion;
-    public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.HasValue ? _jsonModel.VideoQualityMode.GetValueOrDefault() : VideoQualityMode.Auto;
+    public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
 
     public string Name => _jsonModel.Name!;
 

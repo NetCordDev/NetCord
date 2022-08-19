@@ -11,7 +11,7 @@ public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> wh
 
     public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
-        if (context.Channel is TextGuildChannel guildChannel && !guildChannel.IsNsfw)
+        if (context.Channel is TextGuildChannel guildChannel && !guildChannel.Nsfw)
             throw new RequiredNsfwException(Message);
         return default;
     }
