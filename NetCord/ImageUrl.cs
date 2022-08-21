@@ -4,8 +4,6 @@ public class ImageUrl
 {
     private string _url;
 
-    public bool HasSize { get; private set; }
-
     private ImageUrl(string partialUrl, string extension)
     {
         _url = $"{Discord.CDNUrl}{partialUrl}.{extension}";
@@ -14,15 +12,6 @@ public class ImageUrl
     public override string ToString() => _url;
 
     public string ToString(int size) => $"{_url}?size={size}";
-
-    public void AddSize(int size)
-    {
-        if (HasSize)
-            throw new InvalidOperationException("Size is already added.");
-
-        HasSize = true;
-        _url += $"?size={size}";
-    }
 
     private static string GetExtension(string hash, ImageFormat? format)
     {
@@ -129,7 +118,7 @@ public class ImageUrl
         return new($"/stickers/{stickerId}", GetFormat(format));
     }
 
-    public static ImageUrl RoleIcon(Snowflake roleId, ImageFormat format)
+    public static ImageUrl GuildRoleIcon(Snowflake roleId, ImageFormat format)
     {
         return new($"/role-icons/{roleId}/role_icon", GetFormat(format));
     }
@@ -146,7 +135,7 @@ public class ImageUrl
 
     public static string GuildWidgetUrl(Snowflake guildId, GuildWidgetStyle? style = null)
     {
-        if (style is null)
+        if (!style.HasValue)
             return $"{Discord.RestUrl}/guilds/{guildId}/widget.png";
         else
             return $"{Discord.RestUrl}/guilds/{guildId}/widget.png?style={style switch

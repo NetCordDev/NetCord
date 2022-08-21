@@ -18,6 +18,10 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public bool Hoist => _jsonModel.Hoist;
 
+    public string? IconHash => _jsonModel.IconHash;
+
+    public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
+
     public int Position => _jsonModel.Position;
 
     public Permission Permissions => _jsonModel.Permissions;

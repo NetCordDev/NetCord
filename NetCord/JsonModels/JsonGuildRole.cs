@@ -13,6 +13,12 @@ public record JsonGuildRole : JsonEntity
     [JsonPropertyName("hoist")]
     public bool Hoist { get; init; }
 
+    [JsonPropertyName("icon")]
+    public string? IconHash { get; init; }
+
+    [JsonPropertyName("unicode_emoji")]
+    public string? UnicodeEmoji { get; init; }
+
     [JsonPropertyName("position")]
     public int Position { get; init; }
 
