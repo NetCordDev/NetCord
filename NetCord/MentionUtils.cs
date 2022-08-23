@@ -61,7 +61,7 @@ public static class MentionUtils
 
     public static Snowflake ParseRole(ReadOnlySpan<char> mention)
     {
-        if (TryParseChannel(mention, out Snowflake id))
+        if (TryParseRole(mention, out Snowflake id))
             return id;
         else
             throw new FormatException("Cannot parse the mention.");
