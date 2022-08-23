@@ -35,12 +35,20 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
 
     public bool Autocomplete => _jsonModel.Autocomplete;
 
-    public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel)
+    private readonly string _fullName;
+
+    private readonly Snowflake _parentId;
+
+    public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel, string parentName, Snowflake parentId)
     {
         _jsonModel = jsonModel;
+        _fullName = $"{parentName} {jsonModel.Name}";
+        _parentId = parentId;
         if (jsonModel.Choices != null)
             Choices = jsonModel.Choices.Select(c => new ApplicationCommandOptionChoice(c));
         if (jsonModel.Options != null)
-            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o));
+            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId));
     }
+
+    public override string ToString() => $"</{_fullName}:{_parentId}>";
 }

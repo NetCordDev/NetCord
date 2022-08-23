@@ -34,14 +34,10 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o));
+        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id));
     }
 
-    public override string ToString() => Type switch
-    {
-        ApplicationCommandType.ChatInput => $"</{Name}:{Id}>",
-        _ => Id.ToString()!,
-    };
+    public override string ToString() => $"</{Name}:{Id}>";
 
     #region Interactions.ApplicationCommands
     public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
