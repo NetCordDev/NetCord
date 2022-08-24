@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationAndDeserializa
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5E156987-5CC6-4873-B774-F41CBD7D3F3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SnowflakeTest", "SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeTest", "SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MentionUtilsTest", "MentionUtilsTest\MentionUtilsTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +59,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
+		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}
