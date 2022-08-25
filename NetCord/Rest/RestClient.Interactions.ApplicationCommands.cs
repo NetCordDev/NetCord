@@ -48,7 +48,7 @@ public partial class RestClient
     public async Task<IReadOnlyDictionary<Snowflake, GuildApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(Snowflake applicationId, Snowflake guildId, IEnumerable<ApplicationCommandProperties> commands, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Put, $"/applications/{applicationId}/guilds/{guildId}/commands", new(RateLimits.RouteParameter.BulkOverwriteApplicationCommands), new JsonContent(commands), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonApplicationCommand[]>().ToDictionary(c => c.Id, c => new GuildApplicationCommand(c, this));
 
-    public async Task<IReadOnlyDictionary<Snowflake, ApplicationCommandGuildPermissions>> GetGuildApplicationCommandsPermissionsAsync(Snowflake applicationId, Snowflake guildId, RequestProperties? properties = null)
+    public async Task<IReadOnlyDictionary<Snowflake, ApplicationCommandGuildPermissions>> GetApplicationCommandsGuildPermissionsAsync(Snowflake applicationId, Snowflake guildId, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/guilds/{guildId}/commands/permissions", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonApplicationCommandGuildPermissions[]>().ToDictionary(p => p.CommandId, p => new ApplicationCommandGuildPermissions(p));
 
     public async Task<ApplicationCommandGuildPermissions> GetApplicationCommandGuildPermissionsAsync(Snowflake applicationId, Snowflake guildId, Snowflake commandId, RequestProperties? properties = null)
