@@ -32,7 +32,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
             throw new($"Failed to join <#{channelId}>!");
         }
 
-        VoiceClient voiceClient = new(server.Endpoint!, state.GuildId.GetValueOrDefault(), client.User!.Id, state.SessionId, server.Token); // Creating VoiceClient instance with data from events.
+        VoiceClient voiceClient = new(state.UserId, state.SessionId, server.Endpoint!, server.GuildId, server.Token); // Creating VoiceClient instance with data from events.
         await voiceClient.StartAsync(); // Connecting
         await voiceClient.ReadyAsync;
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone); // Entering speaking state, to be able to send voice.
