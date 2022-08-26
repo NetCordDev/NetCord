@@ -1,14 +1,11 @@
 name: .NET
 
 on:
-  push:
-    branches: [ "alpha" ]
-  pull_request:
-    branches: [ "alpha" ]
+  - push
+  - pull_request
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
