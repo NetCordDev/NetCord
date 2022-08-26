@@ -44,12 +44,13 @@ internal static class Program
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
         _userCommandService.AddModules(assembly);
-        await _client.StartAsync();
-        await _client.ReadyAsync;
         ApplicationCommandServiceManager manager = new();
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
         manager.AddService(_userCommandService);
+
+        await _client.StartAsync();
+        await _client.ReadyAsync;
         await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
         await Task.Delay(-1);
     }
@@ -63,7 +64,7 @@ internal static class Program
     private static async ValueTask Client_VoiceServerUpdate(VoiceServerUpdateEventArgs arg)
     {
         var state = _voiceData[arg.GuildId];
-        Gateway.Voice.VoiceClient client = new(arg.Endpoint!, arg.GuildId, state.UserId, state.SessionId, arg.Token, new()
+        Gateway.Voice.VoiceClient client = new(state.UserId, state.SessionId, arg.Endpoint!, arg.GuildId, arg.Token, new()
         {
             RedirectInputStreams = true,
         });
@@ -78,8 +79,7 @@ internal static class Program
         var stream = client.CreatePCMStream(Gateway.Voice.OpusApplication.Audio);
         await client.ReadyAsync;
         await client.EnterSpeakingStateAsync(Gateway.Voice.SpeakingFlags.Microphone);
-        var url = "https://cdn.discordapp.com/attachments/864636357821726730/982394204011520020/Pew_Pew-DKnight556-1379997159.mp3"; //00:00:02
-        //var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; //00:12:08
+        var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; //00:12:08
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
@@ -92,14 +92,8 @@ internal static class Program
         //    stream.Write(frame.Span);
         //    return default;
         //};
-        try
-        {
-            await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
-        }
-        finally
-        {
-            await stream.FlushAsync();
-        }
+        await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
+        await stream.FlushAsync();
         //await _client.UpdateVoiceStateAsync(new VoiceStateProperties(arg.GuildId, null));
         await Task.Delay(-1);
     }

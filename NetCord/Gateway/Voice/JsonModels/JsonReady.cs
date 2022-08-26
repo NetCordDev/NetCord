@@ -11,7 +11,7 @@ public record JsonReady
     public string Ip { get; init; }
 
     [JsonPropertyName("port")]
-    public int Port { get; init; }
+    public ushort Port { get; init; }
 
     [JsonPropertyName("modes")]
     public string[] Modes { get; init; }

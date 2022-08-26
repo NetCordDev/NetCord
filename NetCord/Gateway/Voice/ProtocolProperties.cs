@@ -19,7 +19,7 @@ internal class ProtocolProperties
 
 internal class ProtocolDataProperties
 {
-    public ProtocolDataProperties(string address, int port, string mode)
+    public ProtocolDataProperties(string address, ushort port, string mode)
     {
         Address = address;
         Port = port;
@@ -30,7 +30,7 @@ internal class ProtocolDataProperties
     public string Address { get; }
 
     [JsonPropertyName("port")]
-    public int Port { get; }
+    public ushort Port { get; }
 
     [JsonPropertyName("mode")]
     public string Mode { get; }

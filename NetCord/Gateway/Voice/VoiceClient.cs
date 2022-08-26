@@ -43,14 +43,12 @@ public class VoiceClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public VoiceClient(string endpoint, Snowflake guildId, Snowflake userId, string sessionId, string token, VoiceClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
+    public VoiceClient(Snowflake userId, string sessionId, string endpoint, Snowflake guildId, string token, VoiceClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
     {
-        _cancellationTokenSource = new();
-        _cancellationToken = _cancellationTokenSource.Token;
-        Endpoint = endpoint;
-        GuildId = guildId;
         UserId = userId;
         SessionId = sessionId;
+        Endpoint = endpoint;
+        GuildId = guildId;
         Token = token;
         if (config != null)
         {
@@ -59,6 +57,9 @@ public class VoiceClient : WebSocketClient
         }
         else
             _udpSocket = new UdpSocket();
+
+        _cancellationTokenSource = new();
+        _cancellationToken = _cancellationTokenSource.Token;
     }
 
     private protected override async Task ProcessMessageAsync(JsonPayload jsonPayload)
