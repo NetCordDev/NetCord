@@ -17,6 +17,6 @@ jobs:
     - name: Create Package
       run: dotnet build -c Release
     - name: Publish NetCord
-      run: dotnet nuget push NetCord/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
+      run: dotnet nuget push NetCord/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols
     - name: Publish NetCord.Services
-      run: dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols true
+      run: dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols
