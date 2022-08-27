@@ -3,7 +3,7 @@ name: Build and Publish
 on: push
 
 jobs:
-  build and publish:
+  build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
