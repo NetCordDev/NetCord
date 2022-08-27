@@ -118,6 +118,8 @@ public class EmbedAuthorProperties
 
 public class EmbedFieldProperties
 {
+    private const string Default = "\u00AD";
+
     [JsonPropertyName("name")]
     public string Title
     {
@@ -125,13 +127,13 @@ public class EmbedFieldProperties
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                _title = "­";
+                _title = Default;
             else
                 _title = value;
         }
     }
 
-    private string _title = "­";
+    private string _title = Default;
 
     [JsonPropertyName("value")]
     public string Description
@@ -140,13 +142,13 @@ public class EmbedFieldProperties
         set
         {
             if (string.IsNullOrWhiteSpace(value))
-                _description = "­";
+                _description = Default;
             else
                 _description = value;
         }
     }
 
-    private string _description = "­";
+    private string _description = Default;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]
