@@ -7,7 +7,7 @@ public class GuildUserOptions : CurrentGuildUserOptions
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake>? NewRolesIds { get; set; }
+    public IEnumerable<Snowflake>? RoleIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]

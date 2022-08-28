@@ -22,7 +22,7 @@ public class NormalCommands : CommandModule<CommandContext>
     {
         if (Context.User is GuildUser guildUser)
         {
-            await guildUser.ModifyAsync(p => p.NewRolesIds = guildUser.RoleIds.Concat(roles).Distinct());
+            await guildUser.ModifyAsync(p => p.RoleIds = guildUser.RoleIds.Concat(roles).Distinct());
             await ReplyAsync("Added the roles!!!");
         }
         else
