@@ -112,7 +112,7 @@ public partial class GatewayClient : WebSocketClient
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
-    private Task SendIdentifyAsync(PresenceProperties? presence = null)
+    private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
         {
@@ -123,7 +123,7 @@ public partial class GatewayClient : WebSocketClient
             Intents = _config.Intents,
         }).Serialize();
         _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload, _token);
+        return _webSocket.SendAsync(serializedPayload);
     }
 
     private protected override async Task ResumeAsync()
@@ -132,25 +132,25 @@ public partial class GatewayClient : WebSocketClient
 
         var serializedPayload = new GatewayPayloadProperties<ResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize();
         _latencyTimer.Start();
-        await _webSocket.SendAsync(serializedPayload, _token).ConfigureAwait(false);
+        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Disconnects the <see cref="GatewayClient"/> from gateway
     /// </summary>
     /// <returns></returns>
-    public async Task CloseAsync()
+    public Task CloseAsync()
     {
         ThrowIfDisposed();
         _tokenSource!.Cancel();
-        await _webSocket.CloseAsync().ConfigureAwait(false);
+        return _webSocket.CloseAsync();
     }
 
-    private protected override Task HeartbeatAsync()
+    private protected override ValueTask HeartbeatAsync()
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize();
         _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload, _token);
+        return _webSocket.SendAsync(serializedPayload);
     }
 
     public override void Dispose()
@@ -168,22 +168,22 @@ public partial class GatewayClient : WebSocketClient
             throw new ObjectDisposedException(nameof(GatewayClient));
     }
 
-    public Task UpdateVoiceStateAsync(VoiceStateProperties voiceState)
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return _webSocket.SendAsync(payload.Serialize(), _token);
+        return _webSocket.SendAsync(payload.Serialize());
     }
 
-    public Task UpdatePresenceAsync(PresenceProperties presence)
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return _webSocket.SendAsync(payload.Serialize(), _token);
+        return _webSocket.SendAsync(payload.Serialize());
     }
 
-    public Task RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return _webSocket.SendAsync(payload.Serialize(), _token);
+        return _webSocket.SendAsync(payload.Serialize());
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.Voice.Streams;
 
-internal class ToArrayStream : Stream
+internal class ToMemoryStream : Stream
 {
     public ReadOnlyMemory<byte> Data { get; private set; }
 

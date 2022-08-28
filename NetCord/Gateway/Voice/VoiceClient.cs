@@ -27,9 +27,6 @@ public class VoiceClient : WebSocketClient
 
     private readonly Dictionary<uint, InputStream> _inputStreams = new(0);
 
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly CancellationToken _cancellationToken;
-
     public uint Ssrc { get; private set; }
 
     internal byte[]? _secretKey;
@@ -57,9 +54,6 @@ public class VoiceClient : WebSocketClient
         }
         else
             _udpSocket = new UdpSocket();
-
-        _cancellationTokenSource = new();
-        _cancellationToken = _cancellationTokenSource.Token;
     }
 
     private protected override async Task ProcessMessageAsync(JsonPayload jsonPayload)
@@ -129,10 +123,10 @@ public class VoiceClient : WebSocketClient
                 var speaking = jsonPayload.Data.GetValueOrDefault().ToObject<JsonModels.JsonSpeaking>();
                 _users[speaking.Ssrc] = speaking.UserId;
 
-                ToArrayStream toArrayStream = new();
-                OpusDecodeStream opusDecodeStream = new(toArrayStream);
+                ToMemoryStream toMemoryStream = new();
+                OpusDecodeStream opusDecodeStream = new(toMemoryStream);
                 SodiumDecryptStream sodiumDecryptStream = new(opusDecodeStream, this);
-                _inputStreams[speaking.Ssrc] = new(toArrayStream, sodiumDecryptStream);
+                _inputStreams[speaking.Ssrc] = new(toMemoryStream, sodiumDecryptStream);
                 break;
             case VoiceOpcode.HeartbeatACK:
                 Latency = _latencyTimer.Elapsed;
@@ -152,22 +146,29 @@ public class VoiceClient : WebSocketClient
 
     private async void UdpSocket_DatagramReceive(UdpReceiveResult obj)
     {
-        if (VoiceReceive != null)
+        try
         {
-            var ssrc = BinaryPrimitives.ReadUInt32BigEndian(((Span<byte>)obj.Buffer)[8..]);
-            if (_inputStreams.TryGetValue(ssrc, out var stream))
+            if (VoiceReceive != null)
             {
-                _ = stream.WriteStream.WriteAsync(obj.Buffer); //it's sync
-                await VoiceReceive(ssrc, stream.Stream.Data!).ConfigureAwait(false);
+                var ssrc = BinaryPrimitives.ReadUInt32BigEndian(((Span<byte>)obj.Buffer)[8..]);
+                if (_inputStreams.TryGetValue(ssrc, out var stream))
+                {
+                    _ = stream.WriteStream.WriteAsync(obj.Buffer); //it's sync
+                    await VoiceReceive(ssrc, stream.Stream.Data).ConfigureAwait(false);
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
         }
     }
 
-    private protected override Task HeartbeatAsync()
+    private protected override ValueTask HeartbeatAsync()
     {
         var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize();
         _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload, _cancellationToken);
+        return _webSocket.SendAsync(serializedPayload);
     }
 
     public async Task StartAsync()
@@ -182,17 +183,17 @@ public class VoiceClient : WebSocketClient
         _udpSocket.Dispose();
     }
 
-    public async Task EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
+    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Ssrc));
-        await _webSocket.SendAsync(payload.Serialize()).ConfigureAwait(false);
+        return _webSocket.SendAsync(payload.Serialize());
     }
 
-    private Task SendIdentifyAsync()
+    private ValueTask SendIdentifyAsync()
     {
-        var payload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token));
+        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize();
         _latencyTimer.Start();
-        return _webSocket.SendAsync(payload.Serialize());
+        return _webSocket.SendAsync(serializedPayload);
     }
 
     public Stream CreatePCMStream(OpusApplication application)

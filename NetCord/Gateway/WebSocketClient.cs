@@ -70,9 +70,13 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                //json = JsonDocument.Parse(data);
-                //Console.WriteLine(JsonSerializer.Serialize(json, new JsonSerializerOptions() { WriteIndented = true }));
-                await ProcessMessageAsync(JsonSerializer.Deserialize<JsonPayload>(data.Span, ToObjectExtensions._options)!).ConfigureAwait(false);
+                await ProcessMessageAsync(Deserialize()).ConfigureAwait(false);
+
+                JsonPayload Deserialize()
+                {
+                    Utf8JsonReader reader = new(data);
+                    return JsonSerializer.Deserialize<JsonPayload>(ref reader, ToObjectExtensions._options)!;
+                }
             }
             catch (Exception ex)
             {
@@ -130,7 +134,7 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected abstract Task HeartbeatAsync();
+    private protected abstract ValueTask HeartbeatAsync();
 
     private protected abstract Task ResumeAsync();
 
@@ -151,6 +155,6 @@ public abstract class WebSocketClient : IDisposable
     public virtual void Dispose()
     {
         _webSocket.Dispose();
-        _tokenSource!.Dispose();
+        _tokenSource?.Dispose();
     }
 }

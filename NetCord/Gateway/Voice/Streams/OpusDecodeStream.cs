@@ -14,9 +14,8 @@ internal class OpusDecodeStream : RewritingStream
     public override unsafe void Write(ReadOnlySpan<byte> buffer)
     {
         Span<byte> bytes = new(new byte[Opus.FrameSize]);
-        int r;
         fixed (byte* data = buffer, pcm = bytes)
-            r = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
+            _ = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
 
         _next.Write(bytes);
     }

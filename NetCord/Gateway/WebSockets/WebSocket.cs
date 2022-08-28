@@ -1,4 +1,5 @@
 ﻿using System.Net.WebSockets;
+using System.IO.Pipelines;
 
 namespace NetCord.Gateway.WebSockets;
 
@@ -49,46 +50,37 @@ public class WebSocket : IWebSocket, IDisposable
     /// <summary>
     /// Sends a message
     /// </summary>
-    public Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
+    public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
     {
         ThrowIfInvalid();
-        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, true, token).AsTask();
-    }
-
-    /// <summary>
-    /// Sends a message
-    /// </summary>
-    public Task SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageFlags flags, CancellationToken token = default)
-    {
-        ThrowIfInvalid();
-        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, flags, token).AsTask();
+        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, true, token);
     }
 
     private async Task ReadAsync()
     {
-        var webSocket = _webSocket;
+        var webSocket = _webSocket!;
         try
         {
-            Memory<byte> receiveBuffer = new(new byte[128]);
-            using MemoryStream stream = new();
+            Pipe pipe = new();
             while (true)
             {
-                while (true)
+                var writeBuffer = pipe.Writer.GetMemory(128);
+                var r = await webSocket.ReceiveAsync(writeBuffer, default).ConfigureAwait(false);
+                if (r.EndOfMessage)
                 {
-                    var r = await webSocket!.ReceiveAsync(receiveBuffer, default).ConfigureAwait(false);
-                    if (r.EndOfMessage)
+                    if (r.MessageType != WebSocketMessageType.Close)
                     {
-                        if (r.MessageType != WebSocketMessageType.Close)
-                        {
-                            stream.Write(receiveBuffer[..r.Count].Span);
-                            MessageReceived?.Invoke(stream.ToArray());
-                        }
-                        break;
+                        pipe.Writer.Advance(r.Count);
+                        await pipe.Writer.FlushAsync().ConfigureAwait(false);
+                        var readResult = await pipe.Reader.ReadAsync().ConfigureAwait(false);
+                        var buffer = readResult.Buffer;
+
+                        MessageReceived?.Invoke(buffer);
+                        pipe.Reader.AdvanceTo(buffer.End);
                     }
-                    else
-                        stream.Write(receiveBuffer.Span);
                 }
-                stream.SetLength(0);
+                else
+                    pipe.Writer.Advance(r.Count);
             }
         }
         catch
@@ -97,7 +89,7 @@ public class WebSocket : IWebSocket, IDisposable
             if (_closed)
                 Closed?.Invoke();
             else
-                Disconnected?.Invoke(webSocket!.CloseStatus, webSocket!.CloseStatusDescription);
+                Disconnected?.Invoke(webSocket.CloseStatus, webSocket.CloseStatusDescription);
         }
     }
 

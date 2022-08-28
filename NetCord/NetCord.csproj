@@ -26,6 +26,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IO.Pipelines" Version="6.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Resources\Logo\png\SmallSquare.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
