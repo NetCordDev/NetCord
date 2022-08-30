@@ -1,4 +1,6 @@
-﻿namespace NetCord.Rest.RateLimits;
+﻿using NetCord.Rest.HttpClients;
+
+namespace NetCord.Rest.RateLimits;
 
 internal class NonGlobalRouteBucket : NoRateLimitBucket
 {
@@ -10,7 +12,7 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
 
     public long Reset { get; protected set; }
 
-    public override async Task<HttpResponseMessage> SendAsync(HttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
+    public override async Task<HttpResponseMessage> SendAsync(IHttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
     {
         var semaphore = _semaphore;
         if (semaphore == null)

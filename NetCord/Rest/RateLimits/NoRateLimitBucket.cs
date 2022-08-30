@@ -1,12 +1,14 @@
 ﻿using System.Text.Json;
 
+using NetCord.Rest.HttpClients;
+
 namespace NetCord.Rest.RateLimits;
 
 internal class NoRateLimitBucket : IBucket
 {
     private protected readonly RestClient _client;
 
-    public virtual async Task<HttpResponseMessage> SendAsync(HttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
+    public virtual async Task<HttpResponseMessage> SendAsync(IHttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
     {
         var response = await client.SendAsync(message()).ConfigureAwait(false);
 

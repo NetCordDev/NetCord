@@ -1,10 +1,12 @@
-﻿namespace NetCord.Rest.RateLimits;
+﻿using NetCord.Rest.HttpClients;
+
+namespace NetCord.Rest.RateLimits;
 
 internal class GlobalBucket : NoRateLimitBucket
 {
     private readonly SemaphoreSlim _semaphore;
 
-    public override async Task<HttpResponseMessage> SendAsync(HttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
+    public override async Task<HttpResponseMessage> SendAsync(IHttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
     {
         await _semaphore!.WaitAsync().ConfigureAwait(false);
         try

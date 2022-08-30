@@ -98,7 +98,7 @@ public partial class GatewayClient : WebSocketClient
     {
         _botToken = token.RawToken;
         _config = config ?? new();
-        Rest = new(token);
+        Rest = new(token, _config.RestClientConfig);
     }
 
     /// <summary>

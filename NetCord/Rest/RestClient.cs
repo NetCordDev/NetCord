@@ -1,8 +1,10 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Rest.HttpClients;
+
+namespace NetCord.Rest;
 
 public partial class RestClient : IDisposable
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClient _httpClient;
 
     private readonly Dictionary<RateLimits.Route, RateLimits.IBucket> _buckets = new();
 
@@ -11,11 +13,15 @@ public partial class RestClient : IDisposable
     private readonly RateLimits.GlobalBucket _globalBucket;
     private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
 
-    public RestClient(Token token)
+    public RestClient(Token token, RestClientConfig? config = null)
     {
-        _httpClient = new();
-        _httpClient.DefaultRequestHeaders.Add("Authorization", token.ToHttpHeader());
-        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("NetCord");
+        if (config != null)
+            _httpClient = config.HttpClient ?? new HttpClients.HttpClient();
+        else
+            _httpClient = new HttpClients.HttpClient();
+
+        _httpClient.AddDefaultRequestHeader("Authorization", token.ToHttpHeader());
+        _httpClient.AddDefaultRequestHeader("User-Agent", "NetCord");
         _globalBucket = new(this);
         _noRateLimitBucket = new(this);
     }

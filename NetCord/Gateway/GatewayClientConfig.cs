@@ -11,4 +11,5 @@ public class GatewayClientConfig
     public PresenceProperties? Presence { get; init; }
     public ShardProperties? Shard { get; init; }
     public IWebSocket? WebSocket { get; init; }
+    public Rest.RestClientConfig? RestClientConfig { get; init; }
 }
