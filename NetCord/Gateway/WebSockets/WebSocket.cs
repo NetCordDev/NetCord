@@ -71,7 +71,7 @@ public class WebSocket : IWebSocket, IDisposable
                     if (r.MessageType != WebSocketMessageType.Close)
                     {
                         pipe.Writer.Advance(r.Count);
-                        await pipe.Writer.FlushAsync().ConfigureAwait(false);
+                        _ = pipe.Writer.FlushAsync();
                         var readResult = await pipe.Reader.ReadAsync().ConfigureAwait(false);
                         var buffer = readResult.Buffer;
 
