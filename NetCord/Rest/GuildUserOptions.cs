@@ -21,22 +21,8 @@ public class GuildUserOptions : CurrentGuildUserOptions
     [JsonPropertyName("channel_id")]
     public Snowflake? ChannelId { get; set; }
 
-    [JsonConverter(typeof(TimeOutUntilConverter))]
+    [JsonConverter(typeof(JsonConverters.NullableDateTimeOffsetConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
-
-    private class TimeOutUntilConverter : JsonConverter<DateTimeOffset?>
-    {
-        public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-
-        public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
-        {
-            var v = value.GetValueOrDefault();
-            if (v == default)
-                writer.WriteNullValue();
-            else
-                JsonSerializer.Serialize(writer, v, options);
-        }
-    }
 }

@@ -253,9 +253,9 @@ public partial class RestClient
     public Task UnbanGuildUserAsync(Snowflake guildId, Snowflake userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/bans/{userId}", properties);
 
-    public Task ModifyCurrentGuildUserVoiceStateAsync(Snowflake guildId, Snowflake channelId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? properties = null)
+    public Task ModifyCurrentGuildUserVoiceStateAsync(Snowflake guildId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? properties = null)
     {
-        CurrentUserVoiceStateOptions obj = new(channelId);
+        CurrentUserVoiceStateOptions obj = new();
         action(obj);
         return SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/voice-states/@me", new(RateLimits.RouteParameter.ModifyGuildUserVoiceState), new JsonContent(obj), properties);
     }
