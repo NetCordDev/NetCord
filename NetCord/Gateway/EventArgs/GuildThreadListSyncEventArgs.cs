@@ -4,12 +4,12 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonThreadListSyncEventArgs>
+public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>
 {
-    JsonModels.EventArgs.JsonThreadListSyncEventArgs IJsonModel<JsonModels.EventArgs.JsonThreadListSyncEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonThreadListSyncEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs _jsonModel;
 
-    public GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonThreadListSyncEventArgs jsonModel, RestClient client)
+    public GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));

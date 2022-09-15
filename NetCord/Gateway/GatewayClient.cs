@@ -506,7 +506,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_LIST_SYNC":
                 {
-                    GuildThreadListSyncEventArgs args = new(data.ToObject<JsonThreadListSyncEventArgs>(), Rest);
+                    GuildThreadListSyncEventArgs args = new(data.ToObject<JsonGuildThreadListSyncEventArgs>(), Rest);
                     var guildId = args.GuildId;
                     if (GuildThreadListSync != null)
                         try
