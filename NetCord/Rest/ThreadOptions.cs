@@ -31,4 +31,12 @@ public class GuildThreadOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("rate_limit_per_user")]
     public int? Slowmode { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("flags")]
+    public ChannelFlags? Flags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("applied_tags")]
+    public IEnumerable<Snowflake>? AppliedTags { get; set; }
 }

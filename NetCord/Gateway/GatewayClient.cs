@@ -551,7 +551,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var jsonGuild = data.ToObject<JsonGuild>();
                     var id = jsonGuild.Id;
-                    if (jsonGuild.IsUnavaible)
+                    if (jsonGuild.IsUnavailable)
                     {
                         if (GuildCreate != null)
                             try

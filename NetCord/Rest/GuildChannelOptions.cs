@@ -60,5 +60,19 @@ public class GuildChannelOptions
     [JsonPropertyName("default_auto_archive_duration")]
     public int? DefaultAutoArchiveDuration { get; set; }
 
-    public IEnumerable<ForumTag>? AvailableTags { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("available_tags")]
+    public IEnumerable<ForumTagProperties>? AvailableTags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_reaction_emoji")]
+    public EmojiProperties? DefaultReactionEmoji { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_thread_rate_limit_per_user")]
+    public int? DefaultThreadRateLimitPerUser { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("flags")]
+    public ChannelFlags? Flags { get; set; }
 }

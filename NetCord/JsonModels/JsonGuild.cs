@@ -83,7 +83,7 @@ public record JsonGuild : JsonEntity
     public bool IsLarge { get; init; }
 
     [JsonPropertyName("unavailable")]
-    public bool IsUnavaible { get; init; }
+    public bool IsUnavailable { get; init; }
 
     [JsonPropertyName("member_count")]
     public int UserCount { get; set; }

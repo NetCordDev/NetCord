@@ -75,7 +75,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
     {
         if (Context.Guild == null)
-            throw new InvalidOperationException("This command is avaible only in guild");
+            throw new InvalidOperationException("This command is available only in guild");
 
         await Context.Guild.BanUserAsync(user, (int)deleteMessages, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
@@ -86,7 +86,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     public async Task MuteAsync([SlashCommandParameter(Description = "User to mute")] User user, double days, string reason = "no reason")
     {
         if (Context.Guild == null)
-            throw new InvalidOperationException("This command is avaible only in guild");
+            throw new InvalidOperationException("This command is available only in guild");
 
         var until = DateTimeOffset.UtcNow.AddDays(days);
         await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild, user, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });

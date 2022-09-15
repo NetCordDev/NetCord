@@ -19,7 +19,7 @@ public class Guild : RestGuild
     public GuildUser Owner => Users[OwnerId];
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public bool IsLarge => _jsonModel.IsLarge;
-    public bool IsUnavaible => _jsonModel.IsUnavaible;
+    public bool IsUnavailable => _jsonModel.IsUnavailable;
     public int UserCount => _jsonModel.UserCount;
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
