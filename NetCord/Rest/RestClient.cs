@@ -13,17 +13,22 @@ public partial class RestClient : IDisposable
     private readonly RateLimits.GlobalBucket _globalBucket;
     private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
 
-    public RestClient(Token token, RestClientConfig? config = null)
+    public RestClient(RestClientConfig? config = null)
     {
         if (config != null)
             _httpClient = config.HttpClient ?? new HttpClients.HttpClient();
         else
             _httpClient = new HttpClients.HttpClient();
 
-        _httpClient.AddDefaultRequestHeader("Authorization", token.ToHttpHeader());
-        _httpClient.AddDefaultRequestHeader("User-Agent", "NetCord");
         _globalBucket = new(this);
         _noRateLimitBucket = new(this);
+
+        _httpClient.AddDefaultRequestHeader("User-Agent", "NetCord");
+    }
+
+    public RestClient(Token token, RestClientConfig? config = null) : this(config)
+    {
+        _httpClient.AddDefaultRequestHeader("Authorization", token.ToHttpHeader());
     }
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, RequestProperties? properties)
