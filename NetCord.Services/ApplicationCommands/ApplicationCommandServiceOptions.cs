@@ -110,7 +110,7 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
             new TypeReaders.ChannelTypeReaders.GroupDMChannelTypeReader<TContext>()
         },
         {
-            typeof(NewsGuildChannel),
+            typeof(AnnouncementGuildChannel),
             new TypeReaders.ChannelTypeReaders.NewsGuildChannelTypeReader<TContext>()
         },
         {

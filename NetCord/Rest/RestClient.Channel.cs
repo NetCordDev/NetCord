@@ -260,8 +260,8 @@ public partial class RestClient
     public Task DeleteGuildChannelPermissionAsync(Snowflake channelId, Snowflake overwriteId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/permissions/{overwriteId}", new RateLimits.Route(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), properties);
 
-    public async Task<FollowedChannel> FollowNewsGuildChannelAsync(Snowflake channelId, Snowflake targetChannelId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/followers", new JsonContent(@$"{{""webhook_channel_id"":{targetChannelId}}}"), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonFollowedChannel>(), this);
+    public async Task<FollowedChannel> FollowAnnouncementGuildChannelAsync(Snowflake channelId, Snowflake targetChannelId, RequestProperties? properties = null)
+        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/followers", new JsonContent(@$"{{""webhook_channel_id"":{targetChannelId}}}"), properties).ConfigureAwait(false))!.ToObject<JsonFollowedChannel>(), this);
 
     public async Task<RestMessage> GetMessageAsync(Snowflake channelId, Snowflake messageId, RequestProperties? properties = null)
     => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", new Route(RouteParameter.GetMessage), properties).ConfigureAwait(false))!.ToObject<JsonMessage>(), this);

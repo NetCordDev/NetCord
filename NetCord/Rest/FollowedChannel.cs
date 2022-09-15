@@ -49,7 +49,7 @@ public class FollowedChannel : ClientEntity, IJsonModel<JsonModels.JsonFollowedC
     public Task DeletePermissionAsync(Snowflake overwriteId, RequestProperties? properties = null) => _client.DeleteGuildChannelPermissionAsync(Id, overwriteId, properties);
 
     public Task<RestMessage> CrosspostMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.CrosspostMessageAsync(Id, messageId, properties);
-    public Task<FollowedChannel> FollowAsync(Snowflake targetChannelId, RequestProperties? properties = null) => _client.FollowNewsGuildChannelAsync(Id, targetChannelId, properties);
+    public Task<FollowedChannel> FollowAsync(Snowflake targetChannelId, RequestProperties? properties = null) => _client.FollowAnnouncementGuildChannelAsync(Id, targetChannelId, properties);
     #endregion
 
     #region Webhook
