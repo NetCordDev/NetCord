@@ -2,12 +2,8 @@
 
 namespace NetCord.Rest;
 
-public class InteractionMessageProperties
+public class ForumGuildThreadMessageProperties
 {
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("tts")]
-    public bool Tts { get; set; }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
     public string? Content { get; set; }
@@ -21,37 +17,23 @@ public class InteractionMessageProperties
     public AllowedMentionsProperties? AllowedMentions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("flags")]
-    public MessageFlags? Flags { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
     public IEnumerable<ComponentProperties>? Components { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("sticker_ids")]
+    public IEnumerable<Snowflake>? StickerIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
-    internal HttpContent Build()
-    {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent(this), "payload_json" }
-        };
-        if (Attachments != null)
-        {
-            var i = 0;
-            foreach (var attachment in Attachments)
-            {
-                content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
-        return content;
-    }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("flags")]
+    public MessageFlags? Flags { get; set; }
 
-    public static implicit operator InteractionMessageProperties(string content) => new()
+    public static implicit operator ForumGuildThreadMessageProperties(string content) => new()
     {
         Content = content
     };

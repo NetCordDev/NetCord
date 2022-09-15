@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ThreadProperties : ThreadWithMessageProperties
+public class GuildThreadProperties : GuildThreadFromMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("type")]
@@ -12,7 +12,7 @@ public class ThreadProperties : ThreadWithMessageProperties
     [JsonPropertyName("invitable")]
     public bool? Invitable { get; set; }
 
-    public ThreadProperties(string name) : base(name)
+    public GuildThreadProperties(string name) : base(name)
     {
     }
 }

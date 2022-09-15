@@ -39,10 +39,10 @@ public record JsonChannel : JsonEntity
     public int? Slowmode { get; init; }
 
     [JsonPropertyName("recipients")]
-    public JsonUser[] Users { get; init; }
+    public JsonUser[]? Users { get; init; }
 
     [JsonPropertyName("icon")]
-    public string IconHash { get; init; }
+    public string? IconHash { get; init; }
 
     [JsonPropertyName("owner_id")]
     public Snowflake? OwnerId { get; init; }
@@ -57,7 +57,7 @@ public record JsonChannel : JsonEntity
     public DateTimeOffset? LastPin { get; init; }
 
     [JsonPropertyName("rtc_region")]
-    public string RtcRegion { get; init; }
+    public string? RtcRegion { get; init; }
 
     [JsonPropertyName("video_quality_mode")]
     public VideoQualityMode? VideoQualityMode { get; init; }
@@ -69,7 +69,7 @@ public record JsonChannel : JsonEntity
     public int? UserCount { get; init; }
 
     [JsonPropertyName("thread_metadata")]
-    public JsonGuildThreadMetadata Metadata { get; init; }
+    public JsonGuildThreadMetadata? Metadata { get; init; }
 
     [JsonPropertyName("member")]
     public JsonThreadSelfUser? CurrentUser { get; init; }
@@ -85,4 +85,22 @@ public record JsonChannel : JsonEntity
 
     [JsonPropertyName("total_message_sent")]
     public int? TotalMessageSent { get; init; }
+
+    [JsonPropertyName("available_tags")]
+    public JsonForumTag[]? AvailableTags { get; init; }
+
+    [JsonPropertyName("applied_tags")]
+    public Snowflake[]? AppliedTags { get; init; }
+
+    [JsonPropertyName("default_reaction_emoji")]
+    public JsonDefaultReaction? DefaultReactionEmoji { get; init; }
+
+    [JsonPropertyName("default_thread_rate_limit_per_user")]
+    public int? DefaultThreadRateLimitPerUser { get; init; }
+
+    [JsonPropertyName("message")]
+    public JsonMessage? Message { get; init; }
+
+    [JsonPropertyName("newly_created")]
+    public bool? NewlyCreated { get; init; }
 }

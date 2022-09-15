@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ThreadWithMessageProperties
+public class GuildThreadFromMessageProperties
 {
     [JsonPropertyName("name")]
     public string Name { get; }
@@ -15,7 +15,7 @@ public class ThreadWithMessageProperties
     [JsonPropertyName("rate_limit_per_user")]
     public int? Slowmode { get; set; }
 
-    public ThreadWithMessageProperties(string name)
+    public GuildThreadFromMessageProperties(string name)
     {
         Name = name;
     }

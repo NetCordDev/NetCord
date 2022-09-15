@@ -35,8 +35,8 @@ public class FollowedChannel : ClientEntity, IJsonModel<JsonModels.JsonFollowedC
     public Task DeleteAllMessageReactionsAsync(Snowflake messageId, RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(Id, messageId, properties);
 
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);
-    public Task<GuildThread> CreateThreadAsync(Snowflake messageId, ThreadWithMessageProperties threadWithMessageProperties, RequestProperties? properties = null) => _client.CreateGuildThreadAsync(Id, messageId, threadWithMessageProperties, properties);
-    public Task<GuildThread> CreateThreadAsync(ThreadProperties threadProperties, RequestProperties? properties = null) => _client.CreateGuildThreadAsync(Id, threadProperties, properties);
+    public Task<GuildThread> CreateThreadAsync(Snowflake messageId, GuildThreadFromMessageProperties threadWithMessageProperties, RequestProperties? properties = null) => _client.CreateGuildThreadAsync(Id, messageId, threadWithMessageProperties, properties);
+    public Task<GuildThread> CreateThreadAsync(GuildThreadProperties threadProperties, RequestProperties? properties = null) => _client.CreateGuildThreadAsync(Id, threadProperties, properties);
     public IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(RequestProperties? properties = null) => _client.GetPublicArchivedGuildThreadsAsync(Id, properties);
     public IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsBeforeAsync(DateTimeOffset before, RequestProperties? properties = null) => _client.GetPublicArchivedGuildThreadsBeforeAsync(Id, before, properties);
     public IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(RequestProperties? properties = null) => _client.GetPrivateArchivedGuildThreadsAsync(Id, properties);

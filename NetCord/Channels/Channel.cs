@@ -28,7 +28,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
             ChannelType.VoiceGuildChannel => new VoiceGuildChannel(jsonChannel, client),
             ChannelType.GroupDMChannel => new GroupDMChannel(jsonChannel, client),
             ChannelType.CategoryChannel => new CategoryChannel(jsonChannel, client),
-            ChannelType.NewsGuildChannel => new NewsGuildChannel(jsonChannel, client),
+            ChannelType.NewsGuildChannel => new AnnouncementGuildChannel(jsonChannel, client),
             ChannelType.NewsGuildThread => new NewsGuildThread(jsonChannel, client),
             ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),
             ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),

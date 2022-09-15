@@ -59,4 +59,6 @@ public class GuildChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_auto_archive_duration")]
     public int? DefaultAutoArchiveDuration { get; set; }
+
+    public IEnumerable<ForumTag>? AvailableTags { get; set; }
 }

@@ -9,4 +9,10 @@ public record JsonThreadUser : JsonThreadSelfUser
 
     [JsonPropertyName("id")]
     public Snowflake ThreadId { get; init; }
+
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; init; }
+
+    [JsonPropertyName("presence")]
+    public JsonPresence? Presence { get; init; }
 }

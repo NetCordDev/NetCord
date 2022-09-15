@@ -10,7 +10,7 @@ public partial class RestClient
     public async Task<Channel> GetChannelAsync(Snowflake channelId, RequestProperties? properties = null)
     {
         var json = (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}", properties).ConfigureAwait(false))!;
-        return Channel.CreateFromJson(json.ToObject<JsonModels.JsonChannel>(), this);
+        return Channel.CreateFromJson(json.ToObject<JsonChannel>(), this);
     }
 
     public async Task<Channel> ModifyGroupDMChannelAsync(Snowflake channelId, Action<GroupDMChannelOptions> action, RequestProperties? properties = null)
@@ -24,18 +24,18 @@ public partial class RestClient
     {
         GuildChannelOptions guildChannelOptions = new();
         action(guildChannelOptions);
-        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(guildChannelOptions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(guildChannelOptions), properties).ConfigureAwait(false))!.ToObject<JsonChannel>(), this);
     }
 
     public async Task<Channel> ModifyGuildThreadAsync(Snowflake channelId, Action<GuildThreadOptions> action, RequestProperties? properties = null)
     {
         GuildThreadOptions threadOptions = new();
         action(threadOptions);
-        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(threadOptions), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+        return Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}", new(RateLimits.RouteParameter.Channels), new JsonContent(threadOptions), properties).ConfigureAwait(false))!.ToObject<JsonChannel>(), this);
     }
 
     public async Task<Channel> DeleteChannelAsync(Snowflake channelId, RequestProperties? properties = null)
-        => Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+        => Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", properties).ConfigureAwait(false))!.ToObject<JsonChannel>(), this);
 
     public Task TriggerTypingStateAsync(Snowflake channelId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", new Route(RouteParameter.Typing), properties);
@@ -48,7 +48,7 @@ public partial class RestClient
     }
 
     public async Task<IReadOnlyDictionary<Snowflake, RestMessage>> GetPinnedMessagesAsync(Snowflake channelId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", new Route(RouteParameter.GetPinnedMessages), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage[]>().ToDictionary(m => m.Id, m => new RestMessage(m, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", new Route(RouteParameter.GetPinnedMessages), properties).ConfigureAwait(false))!.ToObject<JsonMessage[]>().ToDictionary(m => m.Id, m => new RestMessage(m, this));
 
     public Task PinMessageAsync(Snowflake channelId, Snowflake messageId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", new Route(RouteParameter.PinUnpinMessage), properties);
@@ -62,11 +62,14 @@ public partial class RestClient
     public Task GroupDMChannelDeleteUserAsync(Snowflake channelId, Snowflake userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", new Route(RouteParameter.Recipients, channelId), properties);
 
-    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, Snowflake messageId, ThreadWithMessageProperties threadWithMessageProperties, RequestProperties? properties = null)
-     => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/threads", new Route(RouteParameter.CreateGuildThread), new JsonContent(threadWithMessageProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, Snowflake messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RequestProperties? properties = null)
+     => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/threads", new Route(RouteParameter.CreateGuildThread), new JsonContent(threadFromMessageProperties), properties).ConfigureAwait(false))!.ToObject<JsonChannel>(), this);
 
-    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, ThreadProperties threadProperties, RequestProperties? properties = null)
-        => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/threads", new Route(RouteParameter.CreateGuildThread), new JsonContent(threadProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+    public async Task<GuildThread> CreateGuildThreadAsync(Snowflake channelId, GuildThreadProperties threadProperties, RequestProperties? properties = null)
+        => (GuildThread)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/threads", new Route(RouteParameter.CreateGuildThread), new JsonContent(threadProperties), properties).ConfigureAwait(false))!.ToObject<JsonChannel>(), this);
+
+    public async Task<ForumGuildThread> CreateForumGuildThreadAsync(Snowflake channelId, ForumGuildThreadProperties threadProperties, RequestProperties? properties = null)
+        => new ForumGuildThread((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/threads", new Route(RouteParameter.CreateGuildThread), threadProperties.Build(), properties).ConfigureAwait(false)).ToObject<JsonChannel>(), this);
 
     public Task JoinGuildThreadAsync(Snowflake threadId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/@me", properties);
@@ -81,10 +84,10 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/{userId}", properties);
 
     public async Task<ThreadUser> GetGuildThreadUserAsync(Snowflake threadId, Snowflake userId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", new Route(RouteParameter.GetGuildThreadUser), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonThreadUser>(), this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", new Route(RouteParameter.GetGuildThreadUser), properties).ConfigureAwait(false))!.ToObject<JsonThreadUser>(), this);
 
     public async Task<IReadOnlyDictionary<Snowflake, ThreadUser>> GetGuildThreadUsersAsync(Snowflake threadId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", new Route(RouteParameter.GetGuildThreadUsers), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonThreadUser[]>().ToDictionary(u => u.UserId, u => new ThreadUser(u, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", new Route(RouteParameter.GetGuildThreadUsers), properties).ConfigureAwait(false))!.ToObject<JsonThreadUser[]>().ToDictionary(u => u.UserId, u => new ThreadUser(u, this));
 
     public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(Snowflake channelId, RequestProperties? properties = null)
     {
@@ -183,17 +186,17 @@ public partial class RestClient
     public async Task<RestMessage> SendMessageAsync(Snowflake channelId, MessageProperties message, RequestProperties? properties = null)
     {
         var json = (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages", new Route(RouteParameter.SendMessage, channelId), message.Build(), properties).ConfigureAwait(false))!;
-        return new(json.ToObject<JsonModels.JsonMessage>(), this);
+        return new(json.ToObject<JsonMessage>(), this);
     }
 
     public async Task<RestMessage> CrosspostMessageAsync(Snowflake channelId, Snowflake messageId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/crosspost", new Route(RouteParameter.CrosspostMessage, channelId), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/crosspost", new Route(RouteParameter.CrosspostMessage, channelId), properties).ConfigureAwait(false))!.ToObject<JsonMessage>(), this);
 
     public async Task<RestMessage> ModifyMessageAsync(Snowflake channelId, Snowflake messageId, Action<MessageOptions> action, RequestProperties? properties = null)
     {
         MessageOptions obj = new();
         action(obj);
-        return new((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}/messages/{messageId}", new Route(RouteParameter.ModifyMessage), obj.Build(), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonMessage>(), this);
+        return new((await SendRequestAsync(HttpMethod.Patch, $"/channels/{channelId}/messages/{messageId}", new Route(RouteParameter.ModifyMessage), obj.Build(), properties).ConfigureAwait(false))!.ToObject<JsonMessage>(), this);
     }
 
     public Task DeleteMessageAsync(Snowflake channelId, Snowflake messageId, RequestProperties? properties = null)
@@ -252,10 +255,10 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), new JsonContent(permissionOverwrite), properties);
 
     public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(Snowflake channelId, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonRestGuildInvite[]>().Select(r => new RestGuildInvite(r, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", properties).ConfigureAwait(false)).ToObject<JsonRestGuildInvite[]>().Select(r => new RestGuildInvite(r, this));
 
     public async Task<RestGuildInvite> CreateGuildChannelInviteAsync(Snowflake channelId, GuildInviteProperties? guildInviteProperties = null, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", new(RateLimits.RouteParameter.CreateGuildChannelInvite), new JsonContent(guildInviteProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonRestGuildInvite>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", new(RateLimits.RouteParameter.CreateGuildChannelInvite), new JsonContent(guildInviteProperties), properties).ConfigureAwait(false))!.ToObject<JsonRestGuildInvite>(), this);
 
     public Task DeleteGuildChannelPermissionAsync(Snowflake channelId, Snowflake overwriteId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/permissions/{overwriteId}", new RateLimits.Route(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), properties);

@@ -30,11 +30,11 @@ public partial class GatewayClient : WebSocketClient
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelUpdate;
     public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelDelete;
     public event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
-    public event Func<GuildThreadEventArgs, ValueTask>? GuildThreadCreate;
-    public event Func<GuildThreadEventArgs, ValueTask>? GuildThreadUpdate;
+    public event Func<GuildThreadCreateEventArgs, ValueTask>? GuildThreadCreate;
+    public event Func<GuildThread, ValueTask>? GuildThreadUpdate;
     public event Func<GuildThreadDeleteEventArgs, ValueTask>? GuildThreadDelete;
-    public event Func<ThreadListSyncEventArgs, ValueTask>? ThreadListSync;
-    public event Func<ThreadUserUpdateEventArgs, ValueTask>? ThreadUserUpdate;
+    public event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
+    public event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
     public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
     public event Func<Guild, ValueTask>? GuildUpdate;
@@ -448,17 +448,16 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadCreate != null)
                         try
                         {
-                            await GuildThreadCreate(new(thread, guildId)).ConfigureAwait(false);
+                            await GuildThreadCreate(new(thread, json.NewlyCreated.GetValueOrDefault())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
                             InvokeLog(LogMessage.Error(ex));
                         }
-                    if (TryGetGuild(guildId, out var guild))
+                    if (TryGetGuild(thread.GuildId, out var guild))
                     {
                         guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
                         guild._jsonModel.ActiveThreads[json.Id] = json;
@@ -469,17 +468,16 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject<JsonChannel>();
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadUpdate != null)
                         try
                         {
-                            await GuildThreadUpdate(new(thread, guildId)).ConfigureAwait(false);
+                            await GuildThreadUpdate(thread).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
                             InvokeLog(LogMessage.Error(ex));
                         }
-                    if (TryGetGuild(guildId, out var guild))
+                    if (TryGetGuild(thread.GuildId, out var guild))
                     {
                         guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
                         guild._jsonModel.ActiveThreads[json.Id] = json;
@@ -508,12 +506,12 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_LIST_SYNC":
                 {
-                    ThreadListSyncEventArgs args = new(data.ToObject<JsonThreadListSyncEventArgs>(), Rest);
+                    GuildThreadListSyncEventArgs args = new(data.ToObject<JsonThreadListSyncEventArgs>(), Rest);
                     var guildId = args.GuildId;
-                    if (ThreadListSync != null)
+                    if (GuildThreadListSync != null)
                         try
                         {
-                            await ThreadListSync(args).ConfigureAwait(false);
+                            await GuildThreadListSync(args).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -525,10 +523,10 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_MEMBER_UPDATE":
                 {
-                    if (ThreadUserUpdate != null)
+                    if (GuildThreadUserUpdate != null)
                         try
                         {
-                            await ThreadUserUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildThreadUserUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

@@ -4,6 +4,7 @@ namespace NetCord;
 
 public abstract class GuildThread : TextChannel
 {
+    public Snowflake GuildId => _jsonModel.GuildId.GetValueOrDefault();
     public Snowflake OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
     public GuildThreadMetadata Metadata { get; }
     public ThreadSelfUser? CurrentUser { get; }
@@ -18,7 +19,7 @@ public abstract class GuildThread : TextChannel
 
     public GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
-        Metadata = new(jsonModel.Metadata);
+        Metadata = new(jsonModel.Metadata!);
         if (jsonModel.CurrentUser != null)
             CurrentUser = new(jsonModel.CurrentUser);
     }

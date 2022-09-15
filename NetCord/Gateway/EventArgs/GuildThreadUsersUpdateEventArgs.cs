@@ -12,7 +12,7 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonGuildThreadUsersUp
     {
         _jsonModel = jsonModel;
         if (jsonModel.AddedUsers != null)
-            AddedUsers = jsonModel.AddedUsers.ToDictionary(u => u.UserId, u => new ThreadUser(u, client));
+            AddedUsers = jsonModel.AddedUsers.ToDictionary(u => u.UserId, u => new AddedThreadUser(u, GuildId, client));
     }
 
     public Snowflake ThreadId => _jsonModel.ThreadId;
@@ -21,7 +21,7 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonGuildThreadUsersUp
 
     public int UserCount => _jsonModel.UserCount;
 
-    public IReadOnlyDictionary<Snowflake, ThreadUser>? AddedUsers { get; }
+    public IReadOnlyDictionary<Snowflake, AddedThreadUser>? AddedUsers { get; }
 
     public IReadOnlyList<Snowflake> RemovedUserIds => _jsonModel.RemovedUserIds;
 }

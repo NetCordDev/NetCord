@@ -34,7 +34,7 @@ public class GuildStickerProperties
     private readonly Stream _stream;
     private bool _read;
 
-    internal MultipartFormDataContent Build()
+    internal HttpContent Build()
     {
         StreamContent file = new(Stream);
         file.Headers.ContentType = new(Format switch
