@@ -72,6 +72,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyRolePositionsAsync(GuildRolePositionProperties[] positions, RequestProperties? properties = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, properties);
     public Task<GuildRole> ModifyRoleAsync(Snowflake roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, properties);
     public Task DeleteRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(Id, roleId, properties);
+    public Task<MFALevel> ModifyMFALevelAsync(MFALevel mFALevel, RequestProperties? properties = null) => _client.ModifyGuildMFALevelAsync(Id, mFALevel, properties);
     public Task<int> GetPruneCountAsync(int days, Snowflake[]? roles = null, RequestProperties? properties = null) => _client.GetGuildPruneCountAsync(Id, days, roles, properties);
     public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? properties = null) => _client.GuildPruneAsync(Id, pruneProperties, properties);
     public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestProperties? properties = null) => _client.GetGuildVoiceRegionsAsync(Id, properties);

@@ -73,7 +73,9 @@ public class GuildOptions
     [JsonPropertyName("preferred_locale")]
     public CultureInfo? PreferredLocale { get; set; }
 
-    // features
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("features")]
+    public IEnumerable<string>? Features { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]

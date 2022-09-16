@@ -43,6 +43,18 @@ public class GuildChannelProperties
     [JsonPropertyName("nsfw")]
     public bool? Nsfw { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("rtc_region")]
+    public string? RtcRegion { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("video_quality_mode")]
+    public VideoQualityMode? VideoQualityMode { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_auto_archive_duration")]
+    public int? DefaultAutoArchiveDuration { get; set; }
+
     public GuildChannelProperties(string name)
     {
         Name = name;
