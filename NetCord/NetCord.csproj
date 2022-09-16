@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Logo\png\SmallSquare.png">
+    <Resource Include="..\Resources\Logo\png\SmallSquare.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </Resource>
