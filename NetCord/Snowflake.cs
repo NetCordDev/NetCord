@@ -102,7 +102,7 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
     private class SnowflakeConverter : JsonConverter<Snowflake>
     {
         public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => new(reader.TokenType is JsonTokenType.String ? reader.GetString()! : reader.GetUInt32().ToString(), null);
+            => new(reader.TokenType is JsonTokenType.String ? reader.GetString()! : reader.GetInt64().ToString(), null);
 
         public override void Write(Utf8JsonWriter writer, Snowflake value, JsonSerializerOptions options)
         {
