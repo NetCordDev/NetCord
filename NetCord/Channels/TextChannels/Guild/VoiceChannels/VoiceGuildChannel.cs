@@ -8,7 +8,7 @@ public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
     public Snowflake? ParentId => _jsonModel.ParentId;
     public bool Nsfw => _jsonModel.Nsfw;
     public int? UserLimit => _jsonModel.UserLimit;
-    public string RtcRegion => _jsonModel.RtcRegion;
+    public string? RtcRegion => _jsonModel.RtcRegion;
     public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
 
     public string Name => _jsonModel.Name!;

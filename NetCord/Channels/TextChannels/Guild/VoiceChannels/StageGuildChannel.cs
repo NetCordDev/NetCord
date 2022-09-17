@@ -7,7 +7,7 @@ public class StageGuildChannel : TextChannel, IVoiceGuildChannel
     public int Bitrate => (int)_jsonModel.Bitrate!;
     public Snowflake? ParentId => _jsonModel.ParentId;
     public string? Topic => _jsonModel.Topic;
-    public string RtcRegion => _jsonModel.RtcRegion;
+    public string? RtcRegion => _jsonModel.RtcRegion;
     public VideoQualityMode VideoQualityMode => VideoQualityMode.None;
 
     public string Name => _jsonModel.Name!;
