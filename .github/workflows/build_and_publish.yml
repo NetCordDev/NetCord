@@ -26,6 +26,7 @@ jobs:
   publish:
     if: github.ref_name == 'stable' || github.ref_name == 'alpha'
     needs: build
+    runs-on: ubuntu-latest
 
     steps:
       - name: Publish NetCord
