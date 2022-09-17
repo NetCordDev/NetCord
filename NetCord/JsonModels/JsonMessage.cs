@@ -49,6 +49,7 @@ public record JsonMessage : JsonEntity
     [JsonPropertyName("reactions")]
     public JsonMessageReaction[]? Reactions { get; init; }
 
+    [JsonConverter(typeof(JsonConverters.NonceConverter))]
     [JsonPropertyName("nonce")]
     public string? Nonce { get; init; }
 

@@ -9,6 +9,10 @@ public class MessageProperties
     public string? Content { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("nonce")]
+    public NonceProperties? Nonce { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("tts")]
     public bool Tts { get; set; }
 
