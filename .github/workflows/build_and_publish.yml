@@ -1,6 +1,10 @@
 name: Build and Publish
 
-on: push
+on:
+  push:
+    branches:
+    - 'stable'
+    - 'alpha'
 
 jobs:
   build-and-publish:
