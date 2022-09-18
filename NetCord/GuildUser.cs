@@ -16,7 +16,7 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
     public override string? AvatarHash => _jsonModel.User.AvatarHash;
     public override bool IsBot => _jsonModel.User.IsBot;
     public override bool? IsSystemUser => _jsonModel.User.IsSystemUser;
-    public override bool? MFAEnabled => _jsonModel.User.MFAEnabled;
+    public override bool? MfaEnabled => _jsonModel.User.MfaEnabled;
     public override CultureInfo? Locale => _jsonModel.User.Locale;
     public override bool? Verified => _jsonModel.User.Verified;
     public override string? Email => _jsonModel.User.Email;

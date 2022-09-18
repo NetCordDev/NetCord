@@ -22,7 +22,7 @@ public record JsonUser : JsonEntity
     public virtual bool? IsSystemUser { get; init; }
 
     [JsonPropertyName("mfa_enabled")]
-    public virtual bool? MFAEnabled { get; init; }
+    public virtual bool? MfaEnabled { get; init; }
 
     [JsonPropertyName("banner")]
     public string? BannerHash { get; init; }

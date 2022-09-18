@@ -15,7 +15,7 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     public virtual string? AvatarHash => _jsonModel.AvatarHash;
     public virtual bool IsBot => _jsonModel.IsBot;
     public virtual bool? IsSystemUser => _jsonModel.IsSystemUser;
-    public virtual bool? MFAEnabled => _jsonModel.MFAEnabled;
+    public virtual bool? MfaEnabled => _jsonModel.MfaEnabled;
     public virtual string? BannerHash => _jsonModel.BannerHash;
     public virtual Color? AccentColor => _jsonModel.AccentColor;
     public virtual CultureInfo? Locale => _jsonModel.Locale;

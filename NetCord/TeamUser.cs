@@ -19,7 +19,7 @@ public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
     public override string? AvatarHash => _jsonTeamModel.User.AvatarHash;
     public override bool IsBot => _jsonTeamModel.User.IsBot;
     public override bool? IsSystemUser => _jsonTeamModel.User.IsSystemUser;
-    public override bool? MFAEnabled => _jsonTeamModel.User.MFAEnabled;
+    public override bool? MfaEnabled => _jsonTeamModel.User.MfaEnabled;
     public override CultureInfo? Locale => _jsonTeamModel.User.Locale;
     public override bool? Verified => _jsonTeamModel.User.Verified;
     public override string? Email => _jsonTeamModel.User.Email;

@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum MFALevel
+public enum MfaLevel
 {
     None = 0,
     Elevated = 1,

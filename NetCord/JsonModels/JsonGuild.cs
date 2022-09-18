@@ -62,7 +62,7 @@ public record JsonGuild : JsonEntity
     public string[] Features { get; init; }
 
     [JsonPropertyName("mfa_level")]
-    public MFALevel MFALevel { get; init; }
+    public MfaLevel MfaLevel { get; init; }
 
     [JsonPropertyName("application_id")]
     public Snowflake? ApplicationId { get; init; }
@@ -148,7 +148,7 @@ public record JsonGuild : JsonEntity
     public JsonWelcomeScreen? WelcomeScreen { get; init; }
 
     [JsonPropertyName("nsfw_level")]
-    public NSFWLevel NSFWLevel { get; init; }
+    public NsfwLevel NsfwLevel { get; init; }
 
     [JsonConverter(typeof(JsonConverters.ArrayToDictionaryConverter<JsonStageInstance>))]
     [JsonPropertyName("stage_instances")]

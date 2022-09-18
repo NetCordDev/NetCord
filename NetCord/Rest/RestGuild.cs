@@ -27,7 +27,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public ContentFilter ContentFilter => _jsonModel.ContentFilter;
     public GuildRole EveryoneRole => Roles[Id];
     public IReadOnlyList<string> Features => _jsonModel.Features;
-    public MFALevel MFALevel => _jsonModel.MFALevel;
+    public MfaLevel MfaLevel => _jsonModel.MfaLevel;
     public Snowflake? ApplicationId => _jsonModel.ApplicationId;
     public Snowflake? SystemChannelId => _jsonModel.SystemChannelId;
     public SystemChannelFlags SystemChannelFlags => _jsonModel.SystemChannelFlags;
@@ -45,7 +45,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
     public GuildWelcomeScreen? WelcomeScreen { get; }
-    public NSFWLevel NSFWLevel => _jsonModel.NSFWLevel;
+    public NsfwLevel NsfwLevel => _jsonModel.NsfwLevel;
     public bool PremiumProgressBarEnabled => _jsonModel.PremiumPropressBarEnabled;
 
     public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
@@ -72,7 +72,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public Task<IReadOnlyDictionary<Snowflake, GuildRole>> ModifyRolePositionsAsync(GuildRolePositionProperties[] positions, RequestProperties? properties = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, properties);
     public Task<GuildRole> ModifyRoleAsync(Snowflake roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, properties);
     public Task DeleteRoleAsync(Snowflake roleId, RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(Id, roleId, properties);
-    public Task<MFALevel> ModifyMFALevelAsync(MFALevel mFALevel, RequestProperties? properties = null) => _client.ModifyGuildMFALevelAsync(Id, mFALevel, properties);
+    public Task<MfaLevel> ModifyMfaLevelAsync(MfaLevel mfaLevel, RequestProperties? properties = null) => _client.ModifyGuildMfaLevelAsync(Id, mfaLevel, properties);
     public Task<int> GetPruneCountAsync(int days, Snowflake[]? roles = null, RequestProperties? properties = null) => _client.GetGuildPruneCountAsync(Id, days, roles, properties);
     public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? properties = null) => _client.GuildPruneAsync(Id, pruneProperties, properties);
     public Task<IEnumerable<VoiceRegion>> GetVoiceRegionsAsync(RequestProperties? properties = null) => _client.GetGuildVoiceRegionsAsync(Id, properties);

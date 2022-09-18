@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum NSFWLevel
+public enum NsfwLevel
 {
     Default = 0,
     Explicit = 1,

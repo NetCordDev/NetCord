@@ -103,8 +103,8 @@ public partial class RestClient
     public Task DeleteGuildRoleAsync(Snowflake guildId, Snowflake roleId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", properties);
 
-    public async Task<MFALevel> ModifyGuildMFALevelAsync(Snowflake guildId, MFALevel mFALevel, RequestProperties? properties = null)
-        => JsonDocument.Parse(await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/mfa", new JsonContent($"{{\"level\":{(int)mFALevel}}}"), properties).ConfigureAwait(false)).RootElement.GetProperty("level").ToObject<MFALevel>();
+    public async Task<MfaLevel> ModifyGuildMfaLevelAsync(Snowflake guildId, MfaLevel mfaLevel, RequestProperties? properties = null)
+        => JsonDocument.Parse(await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/mfa", new JsonContent($"{{\"level\":{(int)mfaLevel}}}"), properties).ConfigureAwait(false)).RootElement.GetProperty("level").ToObject<MfaLevel>();
 
     public async Task<int> GetGuildPruneCountAsync(Snowflake guildId, int days, IEnumerable<Snowflake>? roles = null, RequestProperties? properties = null)
     {
