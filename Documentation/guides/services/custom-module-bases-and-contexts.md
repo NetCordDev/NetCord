@@ -48,7 +48,7 @@ public class CustomCommandContext : CommandContext
 ```cs
 public class ExampleModule : CommandModule<CustomCommandContext>
 {
-    [RequireContext<CommandContext>(RequiredContext.Guild)]
+    [RequireContext<CustomCommandContext>(RequiredContext.Guild)]
     [Command("botname")]
     public Task BotNameAsync()
     {
