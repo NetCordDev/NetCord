@@ -75,4 +75,8 @@ public class GuildChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]
     public ChannelFlags? Flags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_sort_order")]
+    public SortOrderMode? DefaultSortOrder { get; set; }
 }

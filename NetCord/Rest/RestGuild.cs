@@ -86,7 +86,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public Task<GuildWelcomeScreen> GetWelcomeScreenAsync(RequestProperties? properties = null) => _client.GetGuildWelcomeScreenAsync(Id, properties);
     public Task<GuildWelcomeScreen> ModifyWelcomeScreenAsync(Action<GuildWelcomeScreenOptions> action, RequestProperties? properties = null) => _client.ModifyGuildWelcomeScreenAsync(Id, action, properties);
     public Task<IReadOnlyDictionary<Snowflake, IGuildChannel>> GetChannelsAsync(RequestProperties? properties = null) => _client.GetGuildChannelsAsync(Id, properties);
-    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelBuilder, RequestProperties? properties = null) => _client.CreateGuildChannelAsync(Id, channelBuilder, properties);
+    public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelProperties, RequestProperties? properties = null) => _client.CreateGuildChannelAsync(Id, channelProperties, properties);
     public Task ModifyChannelPositionsAsync(IEnumerable<ChannelPositionProperties> positions, RequestProperties? properties = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, properties);
     public Task<IReadOnlyDictionary<Snowflake, GuildThread>> GetActiveThreadsAsync(RequestProperties? properties = null) => _client.GetActiveGuildThreadsAsync(Id, properties);
     public Task<GuildUser> GetUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildUserAsync(Id, userId, properties);

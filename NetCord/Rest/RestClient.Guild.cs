@@ -158,8 +158,8 @@ public partial class RestClient
     public async Task<IReadOnlyDictionary<Snowflake, IGuildChannel>> GetGuildChannelsAsync(Snowflake guildId, RequestProperties? properties = null)
     => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/channels", new RateLimits.Route(RateLimits.RouteParameter.GetGuildChannels), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel[]>().ToDictionary(c => c.Id, c => (IGuildChannel)NetCord.Channel.CreateFromJson(c, this));
 
-    public async Task<IGuildChannel> CreateGuildChannelAsync(Snowflake guildId, GuildChannelProperties channelBuilder, RequestProperties? properties = null)
-        => (IGuildChannel)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/channels", new(RateLimits.RouteParameter.GuildChannels), new JsonContent(channelBuilder), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+    public async Task<IGuildChannel> CreateGuildChannelAsync(Snowflake guildId, GuildChannelProperties channelProperties, RequestProperties? properties = null)
+        => (IGuildChannel)Channel.CreateFromJson((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/channels", new(RateLimits.RouteParameter.GuildChannels), new JsonContent(channelProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
 
     public Task ModifyGuildChannelPositionsAsync(Snowflake guildId, IEnumerable<ChannelPositionProperties> positions, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/channels", new(RateLimits.RouteParameter.GuildChannelPositions), new JsonContent(positions), properties);
