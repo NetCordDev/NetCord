@@ -18,8 +18,8 @@ public class TextChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> 
             yield return ChannelType.TextGuildChannel;
             yield return ChannelType.DMChannel;
             yield return ChannelType.GroupDMChannel;
-            yield return ChannelType.NewsGuildChannel;
-            yield return ChannelType.NewsGuildThread;
+            yield return ChannelType.AnnouncementGuildChannel;
+            yield return ChannelType.AnnouncementGuildThread;
             yield return ChannelType.PublicGuildThread;
             yield return ChannelType.PrivateGuildThread;
         }

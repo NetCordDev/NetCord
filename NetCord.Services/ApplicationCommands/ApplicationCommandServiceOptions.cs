@@ -111,11 +111,11 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
         },
         {
             typeof(AnnouncementGuildChannel),
-            new TypeReaders.ChannelTypeReaders.NewsGuildChannelTypeReader<TContext>()
+            new TypeReaders.ChannelTypeReaders.AnnouncementGuildChannelTypeReader<TContext>()
         },
         {
-            typeof(NewsGuildThread),
-            new TypeReaders.ChannelTypeReaders.NewsGuildThreadTypeReader<TContext>()
+            typeof(AnnouncementGuildThread),
+            new TypeReaders.ChannelTypeReaders.AnnouncementGuildThreadTypeReader<TContext>()
         },
         {
             typeof(PrivateGuildThread),
