@@ -19,7 +19,7 @@ public class ForumGuildChannel : Channel, IGuildChannel
     public IEnumerable<ForumTag> AvailableTags { get; }
     public DefaultReaction? DefaultReactionEmoji { get; }
     public int? DefaultThreadRateLimitPerUser => _jsonModel.DefaultThreadRateLimitPerUser;
-    public SortOrderMode DefaultSortOrder => _jsonModel.DefaultSortOrder.GetValueOrDefault();
+    public SortOrderType DefaultSortOrder => _jsonModel.DefaultSortOrder.GetValueOrDefault();
 
     #region Channel
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);

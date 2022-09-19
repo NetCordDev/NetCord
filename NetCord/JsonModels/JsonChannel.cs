@@ -99,7 +99,7 @@ public record JsonChannel : JsonEntity
     public int? DefaultThreadRateLimitPerUser { get; init; }
 
     [JsonPropertyName("default_sort_order")]
-    public SortOrderMode? DefaultSortOrder { get; init; }
+    public SortOrderType? DefaultSortOrder { get; init; }
 
     [JsonPropertyName("message")]
     public JsonMessage? Message { get; init; }

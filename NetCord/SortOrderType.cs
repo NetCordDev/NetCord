@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
-public enum SortOrderMode
+public enum SortOrderType
 {
     RecentActivity = 0,
-    CreationTime = 1,
+    CreationDate = 1,
 }

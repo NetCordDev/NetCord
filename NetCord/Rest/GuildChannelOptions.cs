@@ -78,5 +78,5 @@ public class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_sort_order")]
-    public SortOrderMode? DefaultSortOrder { get; set; }
+    public SortOrderType? DefaultSortOrder { get; set; }
 }
