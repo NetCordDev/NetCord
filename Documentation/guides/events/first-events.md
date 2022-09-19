@@ -24,4 +24,5 @@ client.MessageUpdate += async message =>
 ```
 Now your bot is notifying everyone that someone has modified a message!
 
-**Other events work similar to these. You can play with them if you want.**
+## Other Events
+Other events work similar to these. You can play with them if you want!
