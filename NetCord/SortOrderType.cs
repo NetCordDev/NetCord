@@ -2,6 +2,6 @@
 
 public enum SortOrderType
 {
-    RecentActivity = 0,
+    LatestActivity = 0,
     CreationDate = 1,
 }
