@@ -18,7 +18,7 @@ public class AutoModerationRuleOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("trigger_metadata")]
-    public AutoModerationRuleTriggerMetadataProperties? TriggerMetadataProperties { get; set; }
+    public AutoModerationRuleTriggerMetadataProperties? TriggerMetadata { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("actions")]

@@ -9,4 +9,10 @@ public record JsonAutoModerationRuleTriggerMetadata
 
     [JsonPropertyName("presets")]
     public AutoModerationRuleKeywordPresetType[]? Presets { get; init; }
+
+    [JsonPropertyName("allow_list")]
+    public string[]? AllowList { get; init; }
+
+    [JsonPropertyName("mention_total_limit")]
+    public int? MentionTotalLimit { get; init; }
 }

@@ -28,9 +28,9 @@ public class AutoModerationRuleProperties
     [JsonPropertyName("actions")]
     public IEnumerable<AutoModerationActionProperties> Actions { get; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("enabled")]
-    public bool? Enabled { get; set; }
+    public bool Enabled { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("exempt_roles")]

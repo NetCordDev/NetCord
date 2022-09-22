@@ -10,9 +10,11 @@ public class AutoModerationAction : IJsonModel<JsonAutoModerationAction>
     public AutoModerationAction(JsonAutoModerationAction jsonModel)
     {
         _jsonModel = jsonModel;
+        if (_jsonModel.Metadata != null)
+            Metadata = new(_jsonModel.Metadata);
     }
 
     public AutoModerationActionType Type => _jsonModel.Type;
 
-    public JsonAutoModerationActionMetadata? Metadata => _jsonModel.Metadata;
+    public AutoModerationActionMetadata? Metadata { get; }
 }
