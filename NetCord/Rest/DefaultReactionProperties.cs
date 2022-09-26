@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class DefaultReactionProperties
+public struct DefaultReactionProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_id")]
