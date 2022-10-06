@@ -11,7 +11,7 @@ Sending and receiving voice requires `opus.so` and `libsodium.so` files. You sho
 ***
 
 ## Connecting
-You can join a voice channel using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync(NetCord.Gateway.VoiceStateProperties). When you use it, if you are succesfully connected to the voice channel, you will receive @NetCord.Gateway.GatewayClient.VoiceStateUpdate event, and then @NetCord.Gateway.GatewayClient.VoiceServerUpdate event. When you receive them, you can create @NetCord.Gateway.Voice.VoiceClient instance and start sending voice! Example:
+You can join a voice channel using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync(NetCord.Gateway.VoiceStateProperties). When you use it, if you are successfully connected to the voice channel, you will receive @NetCord.Gateway.GatewayClient.VoiceStateUpdate event, and then @NetCord.Gateway.GatewayClient.VoiceServerUpdate event. When you receive them, you can create @NetCord.Gateway.Voice.VoiceClient instance and start sending voice! Example:
 [!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L12-L56)]
 
 ## Example Usage
