@@ -13,6 +13,6 @@ internal class NullableDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
         if (v == default)
             writer.WriteNullValue();
         else
-            JsonSerializer.Serialize(writer, v, options);
+            writer.WriteStringValue(v);
     }
 }

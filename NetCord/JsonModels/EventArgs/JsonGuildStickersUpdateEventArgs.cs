@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonGuildStickersUpdateEventArgs
+public partial class JsonGuildStickersUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("stickers")]
-    public JsonSticker[] Stickers { get; init; }
+    public JsonSticker[] Stickers { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildStickersUpdateEventArgs))]
+    public partial class JsonGuildStickersUpdateEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildStickersUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

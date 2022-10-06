@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace NetCord.Gateway.Voice;
 internal class VoicePayloadProperties<T>
@@ -16,5 +17,38 @@ internal class VoicePayloadProperties<T>
         D = d;
     }
 
-    public byte[] Serialize() => JsonSerializer.SerializeToUtf8Bytes(this);
+    public byte[] Serialize(JsonTypeInfo<VoicePayloadProperties<T>> jsonTypeInfo) => JsonSerializer.SerializeToUtf8Bytes(this, jsonTypeInfo);
+}
+
+internal static partial class VoicePayloadProperties
+{
+    [JsonSerializable(typeof(VoicePayloadProperties<ProtocolProperties>))]
+    internal partial class VoicePayloadPropertiesOfProtocolPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static VoicePayloadPropertiesOfProtocolPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(VoicePayloadProperties<int>))]
+    internal partial class VoicePayloadPropertiesOfInt32SerializerContext : JsonSerializerContext
+    {
+        public static VoicePayloadPropertiesOfInt32SerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(VoicePayloadProperties<SpeakingProperties>))]
+    internal partial class VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(VoicePayloadProperties<VoiceIdentifyProperties>))]
+    internal partial class VoicePayloadPropertiesOfVoiceIdentifyPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static VoicePayloadPropertiesOfVoiceIdentifyPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(VoicePayloadProperties<VoiceResumeProperties>))]
+    internal partial class VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

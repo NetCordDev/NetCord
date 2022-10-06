@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationCommandGuildPermissionProperties
+public partial class ApplicationCommandGuildPermissionProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
@@ -18,5 +18,11 @@ public class ApplicationCommandGuildPermissionProperties
         Id = id;
         Type = type;
         Permission = permission;
+    }
+
+    [JsonSerializable(typeof(ApplicationCommandGuildPermissionProperties))]
+    public partial class ApplicationCommandGuildPermissionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ApplicationCommandGuildPermissionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

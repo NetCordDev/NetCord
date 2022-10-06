@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class UserActivityProperties
+public partial class UserActivityProperties
 {
     public UserActivityProperties(string name, UserActivityType type)
     {
@@ -54,4 +54,10 @@ public class UserActivityProperties
 
     [JsonPropertyName("buttons")]
     public IEnumerable<UserActivityButtonProperties>? Buttons { get; set; }
+
+    [JsonSerializable(typeof(UserActivityProperties))]
+    public partial class UserActivityPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static UserActivityPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

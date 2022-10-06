@@ -13,10 +13,10 @@ public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledE
     {
         _jsonModel = jsonModel;
         if (jsonModel.GuildUser != null)
-            User = new GuildUser(jsonModel.GuildUser with
-            {
-                User = jsonModel.User
-            }, guildId, client);
+        {
+            jsonModel.GuildUser.User = jsonModel.User;
+            User = new GuildUser(jsonModel.GuildUser, guildId, client);
+        }
         else
             User = new(jsonModel.User, client);
     }

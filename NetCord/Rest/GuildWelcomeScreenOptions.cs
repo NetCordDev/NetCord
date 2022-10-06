@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildWelcomeScreenOptions
+public partial class GuildWelcomeScreenOptions
 {
     internal GuildWelcomeScreenOptions()
     {
@@ -16,4 +16,10 @@ public class GuildWelcomeScreenOptions
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
+
+    [JsonSerializable(typeof(GuildWelcomeScreenOptions))]
+    public partial class GuildWelcomeScreenOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildWelcomeScreenOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

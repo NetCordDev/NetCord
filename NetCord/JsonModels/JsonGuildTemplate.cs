@@ -2,38 +2,50 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildTemplate
+public partial class JsonGuildTemplate
 {
     [JsonPropertyName("code")]
-    public string Code { get; init; }
+    public string Code { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; init; }
+    public string Description { get; set; }
 
     [JsonPropertyName("usage_count")]
-    public int UsageCount { get; init; }
+    public int UsageCount { get; set; }
 
     [JsonPropertyName("creator_id")]
-    public Snowflake CreatorId { get; init; }
+    public Snowflake CreatorId { get; set; }
 
     [JsonPropertyName("creator")]
-    public JsonUser Creator { get; init; }
+    public JsonUser Creator { get; set; }
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("updated_at")]
-    public DateTimeOffset UpdatedAt { get; init; }
+    public DateTimeOffset UpdatedAt { get; set; }
 
     [JsonPropertyName("source_guild_id")]
-    public Snowflake SourceGuildId { get; init; }
+    public Snowflake SourceGuildId { get; set; }
 
     [JsonPropertyName("serialized_source_guild")]
-    public JsonGuild SerializedSourceGuild { get; init; }
+    public JsonGuild SerializedSourceGuild { get; set; }
 
     [JsonPropertyName("is_dirty")]
-    public bool? IsDirty { get; init; }
+    public bool? IsDirty { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildTemplate))]
+    public partial class JsonGuildTemplateSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildTemplateSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonGuildTemplate[]))]
+    public partial class JsonGuildTemplateArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildTemplateArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

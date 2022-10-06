@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(NoncePropertiesConverter))]
-public class NonceProperties
+public partial class NonceProperties
 {
     private readonly long? _l;
     private readonly string? _s;
@@ -23,7 +23,7 @@ public class NonceProperties
 
     public static implicit operator NonceProperties(string s) => new(s);
 
-    private class NoncePropertiesConverter : JsonConverter<NonceProperties>
+    internal class NoncePropertiesConverter : JsonConverter<NonceProperties>
     {
         public override NonceProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
@@ -34,5 +34,11 @@ public class NonceProperties
             else
                 writer.WriteStringValue(value._s!);
         }
+    }
+
+    [JsonSerializable(typeof(NonceProperties))]
+    public partial class NoncePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static NoncePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

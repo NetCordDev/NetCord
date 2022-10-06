@@ -3,7 +3,7 @@
 namespace NetCord.Rest;
 
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-public class ActionButtonProperties : ButtonProperties
+public partial class ActionButtonProperties : ButtonProperties
 {
     [JsonPropertyName("custom_id")]
     public string CustomId { get; }
@@ -21,5 +21,11 @@ public class ActionButtonProperties : ButtonProperties
     public ActionButtonProperties(string customId, string label, EmojiProperties emoji, ButtonStyle style) : base(style, label, emoji)
     {
         CustomId = customId;
+    }
+
+    [JsonSerializable(typeof(ActionButtonProperties))]
+    public partial class ActionButtonPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ActionButtonPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

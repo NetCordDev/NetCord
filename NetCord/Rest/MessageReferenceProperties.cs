@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class MessageReferenceProperties : Entity
+public partial class MessageReferenceProperties : Entity
 {
     [JsonPropertyName("message_id")]
     public override Snowflake Id { get; }
@@ -14,5 +14,11 @@ public class MessageReferenceProperties : Entity
     {
         Id = messageId;
         FailIfNotExists = failIfNotExists;
+    }
+
+    [JsonSerializable(typeof(MessageReferenceProperties))]
+    public partial class MessageReferencePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static MessageReferencePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

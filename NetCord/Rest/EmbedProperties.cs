@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class EmbedProperties
+public partial class EmbedProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("title")]
@@ -43,9 +43,15 @@ public class EmbedProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("fields")]
     public IEnumerable<EmbedFieldProperties>? Fields { get; set; }
+
+    [JsonSerializable(typeof(EmbedProperties))]
+    public partial class EmbedPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public class EmbedFooterProperties
+public partial class EmbedFooterProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("text")]
@@ -54,6 +60,12 @@ public class EmbedFooterProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
+
+    [JsonSerializable(typeof(EmbedFooterProperties))]
+    public partial class EmbedFooterPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedFooterPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
 public abstract class EmbedPartBaseProperties
@@ -68,7 +80,7 @@ public abstract class EmbedPartBaseProperties
     }
 }
 
-public class EmbedImageProperties : EmbedPartBaseProperties
+public partial class EmbedImageProperties : EmbedPartBaseProperties
 {
     public EmbedImageProperties(string? url) : base(url)
     {
@@ -90,7 +102,7 @@ public class EmbedThumbnailProperties : EmbedPartBaseProperties
     public static implicit operator EmbedThumbnailProperties(string? url) => new(url);
 }
 
-public class EmbedProviderProperties
+public partial class EmbedProviderProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("name")]
@@ -99,9 +111,15 @@ public class EmbedProviderProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; set; }
+
+    [JsonSerializable(typeof(EmbedImageProperties))]
+    public partial class EmbedImagePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedImagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public class EmbedAuthorProperties
+public partial class EmbedAuthorProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("name")]
@@ -114,9 +132,15 @@ public class EmbedAuthorProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
+
+    [JsonSerializable(typeof(EmbedAuthorProperties))]
+    public partial class EmbedAuthorPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedAuthorPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public class EmbedFieldProperties
+public partial class EmbedFieldProperties
 {
     private const string Default = "\u00AD";
 
@@ -153,4 +177,10 @@ public class EmbedFieldProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]
     public bool Inline { get; set; }
+
+    [JsonSerializable(typeof(EmbedFieldProperties))]
+    public partial class EmbedFieldPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedFieldPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -55,7 +55,10 @@ public class RestMessage : WebhookMessage
         if (jsonModel.GuildUser == null)
             Author = new(jsonModel.Author, client);
         else
-            Author = new GuildUser(jsonModel.GuildUser with { User = jsonModel.Author }, GuildId.GetValueOrDefault(), client);
+        {
+            jsonModel.GuildUser.User = jsonModel.Author;
+            Author = new GuildUser(jsonModel.GuildUser, GuildId.GetValueOrDefault(), client);
+        }
 
         MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u => new User(u, client));
         MentionedRoleIds = jsonModel.MentionedRoleIds!;

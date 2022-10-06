@@ -2,10 +2,16 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonParty
+public partial class JsonParty
 {
-    public string? Id { get; init; }
+    public string? Id { get; set; }
 
     [JsonPropertyName("size")]
-    public int[]? Size { get; init; }
+    public int[]? Size { get; set; }
+
+    [JsonSerializable(typeof(JsonParty))]
+    public partial class JsonPartySerializerContext : JsonSerializerContext
+    {
+        public static JsonPartySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

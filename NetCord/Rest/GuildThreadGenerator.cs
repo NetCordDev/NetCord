@@ -16,10 +16,7 @@ internal class GuildThreadGenerator
             var user = users[userIndex];
             if (thread.Id == user.ThreadId)
             {
-                thread = thread with
-                {
-                    CurrentUser = user
-                };
+                thread.CurrentUser = user;
                 userIndex++;
             }
             result.Add(thread.Id, (GuildThread)Channel.CreateFromJson(thread, client));
@@ -44,10 +41,7 @@ internal class GuildThreadGenerator
             var user = users[userIndex];
             if (thread.Id == user.ThreadId)
             {
-                thread = thread with
-                {
-                    CurrentUser = user
-                };
+                thread.CurrentUser = user;
                 userIndex++;
             }
             yield return (GuildThread)Channel.CreateFromJson(thread, client);

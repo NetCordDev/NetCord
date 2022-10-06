@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
 
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
     <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>
     <PackageTags>bot;discord;discord-api</PackageTags>

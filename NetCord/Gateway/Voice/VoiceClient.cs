@@ -63,7 +63,7 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.Ready:
                 Latency = _latencyTimer.Elapsed;
                 _reconnectTimer.Reset();
-                var ready = jsonPayload.Data.GetValueOrDefault().ToObject<JsonModels.JsonReady>();
+                var ready = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
                 Ssrc = ready.Ssrc;
 
                 _udpSocket.Connect(ready.Ip, ready.Port);
@@ -82,7 +82,7 @@ public class VoiceClient : WebSocketClient
                     GetIpAndPort();
                     _udpSocket.DatagramReceive += UdpSocket_DatagramReceive;
                     VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
-                    await _webSocket.SendAsync(protocolPayload.Serialize()).ConfigureAwait(false);
+                    await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
 
                     void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
                     {
@@ -100,11 +100,11 @@ public class VoiceClient : WebSocketClient
                 else
                 {
                     VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, "xsalsa20_poly1305")));
-                    await _webSocket.SendAsync(protocolPayload.Serialize()).ConfigureAwait(false);
+                    await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.SessionDescription:
-                var sessionDescription = jsonPayload.Data.GetValueOrDefault().ToObject<JsonModels.JsonSessionDescription>();
+                var sessionDescription = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
                 _secretKey = sessionDescription.SecretKey;
                 InvokeLog(LogMessage.Info("Ready"));
                 try
@@ -120,7 +120,7 @@ public class VoiceClient : WebSocketClient
                     _readyCompletionSource.SetResult();
                 break;
             case VoiceOpcode.Speaking:
-                var speaking = jsonPayload.Data.GetValueOrDefault().ToObject<JsonModels.JsonSpeaking>();
+                var speaking = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
                 _users[speaking.Ssrc] = speaking.UserId;
 
                 ToMemoryStream toMemoryStream = new();
@@ -166,7 +166,7 @@ public class VoiceClient : WebSocketClient
 
     private protected override ValueTask HeartbeatAsync()
     {
-        var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize();
+        var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfInt32SerializerContext.WithOptions.VoicePayloadPropertiesInt32);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
     }
@@ -186,12 +186,12 @@ public class VoiceClient : WebSocketClient
     public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Ssrc));
-        return _webSocket.SendAsync(payload.Serialize());
+        return _webSocket.SendAsync(payload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesSpeakingProperties));
     }
 
     private ValueTask SendIdentifyAsync()
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize();
+        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceIdentifyPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
     }
@@ -234,7 +234,7 @@ public class VoiceClient : WebSocketClient
     private protected override async Task ResumeAsync()
     {
         await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
-        var serializedPayload = new VoicePayloadProperties<ResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize();
+        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize((System.Text.Json.Serialization.Metadata.JsonTypeInfo<VoicePayloadProperties<VoiceResumeProperties>>)VoicePayloadProperties.VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
         await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
     }

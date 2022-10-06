@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildChannelOptions
+public partial class GuildChannelOptions
 {
     internal GuildChannelOptions()
     {
@@ -42,7 +42,7 @@ public class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("permission_overwrites")]
-    public IEnumerable<ChannelPermissionOverwrite>? PermissionOverwrites { get; set; }
+    public IEnumerable<ChannelPermissionOverwriteProperties>? PermissionOverwrites { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("parent_id")]
@@ -79,4 +79,10 @@ public class GuildChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }
+
+    [JsonSerializable(typeof(GuildChannelOptions))]
+    public partial class GuildChannelOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildChannelOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

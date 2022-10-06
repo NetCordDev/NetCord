@@ -4,23 +4,29 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public record JsonAuditLogEntry : JsonEntity
+public partial class JsonAuditLogEntry : JsonEntity
 {
     [JsonPropertyName("target_id")]
-    public Snowflake? TargetId { get; init; }
+    public Snowflake? TargetId { get; set; }
 
     [JsonPropertyName("changes")]
-    public JsonAuditLogChange[]? Changes { get; init; }
+    public JsonAuditLogChange[]? Changes { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake? UserId { get; init; }
+    public Snowflake? UserId { get; set; }
 
     [JsonPropertyName("action_type")]
-    public AuditLogEvent? ActionType { get; init; } //https://github.com/discord/discord-api-docs/issues/5055
+    public AuditLogEvent? ActionType { get; set; } //https://github.com/discord/discord-api-docs/issues/5055
 
     [JsonPropertyName("options")]
-    public JsonAuditLogEntryInfo? Options { get; init; }
+    public JsonAuditLogEntryInfo? Options { get; set; }
 
     [JsonPropertyName("reason")]
-    public string? Reason { get; init; }
+    public string? Reason { get; set; }
+
+    [JsonSerializable(typeof(JsonAuditLogEntry))]
+    public partial class JsonAuditLogEntrySerializerContext : JsonSerializerContext
+    {
+        public static JsonAuditLogEntrySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

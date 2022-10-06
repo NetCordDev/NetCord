@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class MessageProperties
+public partial class MessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
@@ -49,7 +49,7 @@ public class MessageProperties
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent(this), "payload_json" }
+            { new JsonContent<MessageProperties>(this, MessagePropertiesSerializerContext.WithOptions.MessageProperties), "payload_json" }
         };
         if (Attachments != null)
         {
@@ -67,4 +67,10 @@ public class MessageProperties
     {
         Content = content
     };
+
+    [JsonSerializable(typeof(MessageProperties))]
+    public partial class MessagePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static MessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

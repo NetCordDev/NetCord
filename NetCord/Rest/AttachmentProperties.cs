@@ -1,6 +1,8 @@
-﻿namespace NetCord.Rest;
+﻿using System.Text.Json.Serialization;
 
-public class AttachmentProperties
+namespace NetCord.Rest;
+
+public partial class AttachmentProperties
 {
     public string FileName { get; }
     public string? Description { get; set; }
@@ -28,5 +30,11 @@ public class AttachmentProperties
     {
         FileName = name;
         _stream = stream;
+    }
+
+    [JsonSerializable(typeof(AttachmentProperties))]
+    public partial class AttachmentPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static AttachmentPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

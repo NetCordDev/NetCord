@@ -4,29 +4,41 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public record JsonConnection : JsonEntity
+public partial class JsonConnection : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public ConnectionType Type { get; init; }
+    public ConnectionType Type { get; set; }
 
     [JsonPropertyName("revoked")]
-    public bool? Revoked { get; init; }
+    public bool? Revoked { get; set; }
 
     [JsonPropertyName("integrations")]
-    public JsonIntegration[]? Integrations { get; init; }
+    public JsonIntegration[]? Integrations { get; set; }
 
     [JsonPropertyName("verified")]
-    public bool Verified { get; init; }
+    public bool Verified { get; set; }
 
     [JsonPropertyName("friend_sync")]
-    public bool FriendSync { get; init; }
+    public bool FriendSync { get; set; }
 
     [JsonPropertyName("show_activity")]
-    public bool ShowActivity { get; init; }
+    public bool ShowActivity { get; set; }
 
     [JsonPropertyName("visibility")]
-    public ConnectionVisibility Visibility { get; init; }
+    public ConnectionVisibility Visibility { get; set; }
+
+    [JsonSerializable(typeof(JsonConnection))]
+    public partial class JsonConnectionSerializerContext : JsonSerializerContext
+    {
+        public static JsonConnectionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonConnection[]))]
+    public partial class JsonConnectionArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonConnectionArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

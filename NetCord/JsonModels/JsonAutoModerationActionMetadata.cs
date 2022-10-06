@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAutoModerationActionMetadata
+public partial class JsonAutoModerationActionMetadata
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonPropertyName("duration_seconds")]
-    public int? DurationSeconds { get; init; }
+    public int? DurationSeconds { get; set; }
+
+    [JsonSerializable(typeof(JsonAutoModerationActionMetadata))]
+    public partial class JsonAutoModerationActionMetadataSerializerContext : JsonSerializerContext
+    {
+        public static JsonAutoModerationActionMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

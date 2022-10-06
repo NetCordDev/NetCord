@@ -2,9 +2,9 @@
 
 namespace NetCord.Gateway;
 
-internal class ResumeProperties
+internal class GatewayResumeProperties
 {
-    public ResumeProperties(string token, string sessionId, int sequenceNumber)
+    public GatewayResumeProperties(string token, string sessionId, int sequenceNumber)
     {
         Token = token;
         SessionId = sessionId;

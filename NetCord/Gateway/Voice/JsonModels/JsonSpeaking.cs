@@ -2,14 +2,20 @@
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-public record JsonSpeaking
+public partial class JsonSpeaking
 {
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; init; }
+    public Snowflake UserId { get; set; }
 
     [JsonPropertyName("ssrc")]
-    public uint Ssrc { get; init; }
+    public uint Ssrc { get; set; }
 
     [JsonPropertyName("speaking")]
-    public SpeakingFlags Speaking { get; init; }
+    public SpeakingFlags Speaking { get; set; }
+
+    [JsonSerializable(typeof(JsonSpeaking))]
+    public partial class JsonSpeakingSerializerContext : JsonSerializerContext
+    {
+        public static JsonSpeakingSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

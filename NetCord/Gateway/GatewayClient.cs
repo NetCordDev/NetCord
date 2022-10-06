@@ -121,7 +121,7 @@ public partial class GatewayClient : WebSocketClient
             Shard = _config.Shard,
             Presence = presence ?? _config.Presence,
             Intents = _config.Intents,
-        }).Serialize();
+        }).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayIdentifyPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
     }
@@ -130,7 +130,7 @@ public partial class GatewayClient : WebSocketClient
     {
         await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
 
-        var serializedPayload = new GatewayPayloadProperties<ResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize();
+        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
         await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
     }
@@ -148,7 +148,7 @@ public partial class GatewayClient : WebSocketClient
 
     private protected override ValueTask HeartbeatAsync()
     {
-        var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize();
+        var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfInt32SerializerContext.WithOptions.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
     }
@@ -171,19 +171,19 @@ public partial class GatewayClient : WebSocketClient
     public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return _webSocket.SendAsync(payload.Serialize());
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
     }
 
     public ValueTask UpdatePresenceAsync(PresenceProperties presence)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return _webSocket.SendAsync(payload.Serialize());
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
     }
 
     public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return _webSocket.SendAsync(payload.Serialize());
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGuildUsersRequestPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGuildUsersRequestProperties));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -257,7 +257,7 @@ public partial class GatewayClient : WebSocketClient
                 {
                     Latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
-                    ReadyEventArgs args = new(data.ToObject<JsonReadyEventArgs>(), this);
+                    ReadyEventArgs args = new(data.ToObject(JsonReadyEventArgs.JsonReadyEventArgsSerializerContext.WithOptions.JsonReadyEventArgs), this);
                     InvokeLog(LogMessage.Info("Ready"));
                     if (Ready != null)
                     {
@@ -299,7 +299,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await ApplicationCommandPermissionsUpdate(new(data.ToObject<JsonApplicationCommandGuildPermission>())).ConfigureAwait(false);
+                            await ApplicationCommandPermissionsUpdate(new(data.ToObject(JsonApplicationCommandGuildPermission.JsonApplicationCommandGuildPermissionSerializerContext.WithOptions.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -314,7 +314,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await AutoModerationRuleCreate(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                            await AutoModerationRuleCreate(new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -329,7 +329,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await AutoModerationRuleUpdate(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                            await AutoModerationRuleUpdate(new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -344,7 +344,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await AutoModerationRuleDelete(new(data.ToObject<JsonAutoModerationRule>())).ConfigureAwait(false);
+                            await AutoModerationRuleDelete(new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -359,7 +359,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         try
                         {
-                            await AutoModerationActionExecution(new(data.ToObject<JsonAutoModerationActionExecutionEventArgs>())).ConfigureAwait(false);
+                            await AutoModerationActionExecution(new(data.ToObject(JsonAutoModerationActionExecutionEventArgs.JsonAutoModerationActionExecutionEventArgsSerializerContext.WithOptions.JsonAutoModerationActionExecutionEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -370,7 +370,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "CHANNEL_CREATE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelCreate != null)
@@ -391,7 +391,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "CHANNEL_UPDATE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelUpdate != null)
@@ -412,7 +412,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "CHANNEL_DELETE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildChannelDelete != null)
@@ -436,7 +436,7 @@ public partial class GatewayClient : WebSocketClient
                     if (ChannelPinsUpdate != null)
                         try
                         {
-                            await ChannelPinsUpdate(new(data.ToObject<JsonChannelPinsUpdateEventArgs>())).ConfigureAwait(false);
+                            await ChannelPinsUpdate(new(data.ToObject(JsonChannelPinsUpdateEventArgs.JsonChannelPinsUpdateEventArgsSerializerContext.WithOptions.JsonChannelPinsUpdateEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -446,7 +446,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_CREATE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
                     if (GuildThreadCreate != null)
                         try
@@ -466,7 +466,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_UPDATE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
                     if (GuildThreadUpdate != null)
                         try
@@ -486,7 +486,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_DELETE":
                 {
-                    var json = data.ToObject<JsonChannel>();
+                    var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var guildId = json.GuildId.GetValueOrDefault();
                     if (GuildThreadDelete != null)
                         try
@@ -506,7 +506,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "THREAD_LIST_SYNC":
                 {
-                    GuildThreadListSyncEventArgs args = new(data.ToObject<JsonGuildThreadListSyncEventArgs>(), Rest);
+                    GuildThreadListSyncEventArgs args = new(data.ToObject(JsonGuildThreadListSyncEventArgs.JsonGuildThreadListSyncEventArgsSerializerContext.WithOptions.JsonGuildThreadListSyncEventArgs), Rest);
                     var guildId = args.GuildId;
                     if (GuildThreadListSync != null)
                         try
@@ -526,7 +526,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildThreadUserUpdate != null)
                         try
                         {
-                            await GuildThreadUserUpdate(new(new(data.ToObject<JsonThreadUser>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildThreadUserUpdate(new(new(data.ToObject(JsonThreadUser.JsonThreadUserSerializerContext.WithOptions.JsonThreadUser), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -539,7 +539,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildThreadUsersUpdate != null)
                         try
                         {
-                            await GuildThreadUsersUpdate(new(data.ToObject<JsonGuildThreadUsersUpdateEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildThreadUsersUpdate(new(data.ToObject(JsonGuildThreadUsersUpdateEventArgs.JsonGuildThreadUsersUpdateEventArgsSerializerContext.WithOptions.JsonGuildThreadUsersUpdateEventArgs), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -549,7 +549,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_CREATE":
                 {
-                    var jsonGuild = data.ToObject<JsonGuild>();
+                    var jsonGuild = data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild);
                     var id = jsonGuild.Id;
                     if (jsonGuild.IsUnavailable)
                     {
@@ -584,7 +584,7 @@ public partial class GatewayClient : WebSocketClient
                     var guildId = GetGuildId();
                     if (Guilds.TryGetValue(guildId, out var oldGuild))
                     {
-                        Guild guild = new(data.ToObject<JsonGuild>(), oldGuild);
+                        Guild guild = new(data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild), oldGuild);
                         if (GuildUpdate != null)
                             try
                             {
@@ -600,7 +600,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_DELETE":
                 {
-                    var guildId = data.GetProperty("id").ToObject<Snowflake>();
+                    var guildId = data.GetProperty("id").ToObject(SnowflakeSerializerContext.WithOptions.Snowflake);
                     if (GuildDelete != null)
                         try
                         {
@@ -618,7 +618,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildBanAdd != null)
                         try
                         {
-                            await GuildBanAdd(new(data.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildBanAdd(new(data.ToObject(JsonGuildBanEventArgs.JsonGuildBanEventArgsSerializerContext.WithOptions.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -631,7 +631,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildBanRemove != null)
                         try
                         {
-                            await GuildBanRemove(new(data.ToObject<JsonGuildBanEventArgs>(), Rest)).ConfigureAwait(false);
+                            await GuildBanRemove(new(data.ToObject(JsonGuildBanEventArgs.JsonGuildBanEventArgsSerializerContext.WithOptions.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -641,7 +641,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_EMOJIS_UPDATE":
                 {
-                    var json = data.ToObject<JsonGuildEmojisUpdateEventArgs>();
+                    var json = data.ToObject(JsonGuildEmojisUpdateEventArgs.JsonGuildEmojisUpdateEventArgsSerializerContext.WithOptions.JsonGuildEmojisUpdateEventArgs);
                     GuildEmojisUpdateEventArgs args = new(json, Rest);
                     if (GuildEmojisUpdate != null)
                         try
@@ -662,7 +662,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
-                    var json = data.ToObject<JsonGuildStickersUpdateEventArgs>();
+                    var json = data.ToObject(JsonGuildStickersUpdateEventArgs.JsonGuildStickersUpdateEventArgsSerializerContext.WithOptions.JsonGuildStickersUpdateEventArgs);
                     GuildStickersUpdateEventArgs args = new(json, Rest);
                     if (GuildStickersUpdate != null)
                         try
@@ -686,7 +686,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildIntegrationsUpdate != null)
                         try
                         {
-                            await GuildIntegrationsUpdate(new(data.ToObject<JsonGuildIntegrationsUpdateEventArgs>())).ConfigureAwait(false);
+                            await GuildIntegrationsUpdate(new(data.ToObject(JsonGuildIntegrationsUpdateEventArgs.JsonGuildIntegrationsUpdateEventArgsSerializerContext.WithOptions.JsonGuildIntegrationsUpdateEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -696,7 +696,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBER_ADD":
                 {
-                    var json = data.ToObject<JsonGuildUser>();
+                    var json = data.ToObject(JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser);
                     GuildUser user = new(json, GetGuildId(), Rest);
                     if (GuildUserAdd != null)
                         try
@@ -716,7 +716,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
-                    var json = data.ToObject<JsonGuildUser>();
+                    var json = data.ToObject(JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser);
                     GuildUser user = new(json, GetGuildId(), Rest);
                     if (GuildUserUpdate != null)
                         try
@@ -736,7 +736,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
-                    var json = data.ToObject<JsonGuildUserRemoveEventArgs>();
+                    var json = data.ToObject(JsonGuildUserRemoveEventArgs.JsonGuildUserRemoveEventArgsSerializerContext.WithOptions.JsonGuildUserRemoveEventArgs);
                     GuildUserRemoveEventArgs args = new(json, Rest);
                     if (GuildUserRemove != null)
                         try
@@ -756,7 +756,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_MEMBERS_CHUNK":
                 {
-                    var json = data.ToObject<JsonGuildUserChunkEventArgs>();
+                    var json = data.ToObject(JsonGuildUserChunkEventArgs.JsonGuildUserChunkEventArgsSerializerContext.WithOptions.JsonGuildUserChunkEventArgs);
                     GuildUserChunkEventArgs args = new(json, Rest);
                     if (GuildUserChunk != null)
                         try
@@ -784,7 +784,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_CREATE":
                 {
-                    var json = data.ToObject<JsonGuildRoleEventArgs>();
+                    var json = data.ToObject(JsonGuildRoleEventArgs.JsonGuildRoleEventArgsSerializerContext.WithOptions.JsonGuildRoleEventArgs);
                     GuildRoleEventArgs args = new(json, Rest);
                     if (GuildRoleCreate != null)
                         try
@@ -804,7 +804,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
-                    var json = data.ToObject<JsonGuildRoleEventArgs>();
+                    var json = data.ToObject(JsonGuildRoleEventArgs.JsonGuildRoleEventArgsSerializerContext.WithOptions.JsonGuildRoleEventArgs);
                     GuildRoleEventArgs args = new(json, Rest);
                     if (GuildRoleUpdate != null)
                         try
@@ -824,7 +824,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_DELETE":
                 {
-                    var json = data.ToObject<JsonGuildRoleDeleteEventArgs>();
+                    var json = data.ToObject(JsonGuildRoleDeleteEventArgs.JsonGuildRoleDeleteEventArgsSerializerContext.WithOptions.JsonGuildRoleDeleteEventArgs);
                     GuildRoleDeleteEventArgs args = new(json);
                     if (GuildRoleDelete != null)
                         try
@@ -844,7 +844,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
-                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
                     GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventCreate != null)
                         try
@@ -864,7 +864,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
-                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
                     GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventUpdate != null)
                         try
@@ -884,7 +884,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
-                    var json = data.ToObject<JsonGuildScheduledEvent>();
+                    var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
                     GuildScheduledEvent scheduledEvent = new(json, Rest);
                     if (GuildScheduledEventDelete != null)
                         try
@@ -907,7 +907,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildScheduledEventUserAdd != null)
                         try
                         {
-                            await GuildScheduledEventUserAdd(new(data.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
+                            await GuildScheduledEventUserAdd(new(data.ToObject(JsonGuildScheduledEventUserEventArgs.JsonGuildScheduledEventUserEventArgsSerializerContext.WithOptions.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -920,7 +920,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildScheduledEventUserRemove != null)
                         try
                         {
-                            await GuildScheduledEventUserRemove(new(data.ToObject<JsonGuildScheduledEventUserEventArgs>())).ConfigureAwait(false);
+                            await GuildScheduledEventUserRemove(new(data.ToObject(JsonGuildScheduledEventUserEventArgs.JsonGuildScheduledEventUserEventArgsSerializerContext.WithOptions.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -933,7 +933,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildIntegrationCreate != null)
                         try
                         {
-                            await GuildIntegrationCreate(new(new(data.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildIntegrationCreate(new(new(data.ToObject(JsonIntegration.JsonIntegrationSerializerContext.WithOptions.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -946,7 +946,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildIntegrationUpdate != null)
                         try
                         {
-                            await GuildIntegrationUpdate(new(new(data.ToObject<JsonIntegration>(), Rest), GetGuildId())).ConfigureAwait(false);
+                            await GuildIntegrationUpdate(new(new(data.ToObject(JsonIntegration.JsonIntegrationSerializerContext.WithOptions.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -959,7 +959,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildIntegrationDelete != null)
                         try
                         {
-                            await GuildIntegrationDelete(new(data.ToObject<JsonGuildIntegrationDeleteEventArgs>())).ConfigureAwait(false);
+                            await GuildIntegrationDelete(new(data.ToObject(JsonGuildIntegrationDeleteEventArgs.JsonGuildIntegrationDeleteEventArgsSerializerContext.WithOptions.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -969,7 +969,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "INTERACTION_CREATE":
                 {
-                    JsonInteraction interaction = data.ToObject<JsonInteraction>();
+                    JsonInteraction interaction = data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction);
                     if (!interaction.GuildId.HasValue && interaction.ChannelId.HasValue)
                         await CacheChannelAsync(interaction.ChannelId.GetValueOrDefault()).ConfigureAwait(false);
 
@@ -989,7 +989,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildInviteCreate != null)
                         try
                         {
-                            await GuildInviteCreate(new(data.ToObject<JsonGuildInvite>(), Rest)).ConfigureAwait(false);
+                            await GuildInviteCreate(new(data.ToObject(JsonGuildInvite.JsonGuildInviteSerializerContext.WithOptions.JsonGuildInvite), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1002,7 +1002,7 @@ public partial class GatewayClient : WebSocketClient
                     if (GuildInviteDelete != null)
                         try
                         {
-                            await GuildInviteDelete(new(data.ToObject<JsonGuildInviteDeleteEventArgs>())).ConfigureAwait(false);
+                            await GuildInviteDelete(new(data.ToObject(JsonGuildInviteDeleteEventArgs.JsonGuildInviteDeleteEventArgsSerializerContext.WithOptions.JsonGuildInviteDeleteEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1012,7 +1012,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "MESSAGE_CREATE":
                 {
-                    var jsonMessage = data.ToObject<JsonMessage>();
+                    var jsonMessage = data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage);
                     if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
@@ -1029,7 +1029,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    var jsonMessage = data.ToObject<JsonMessage>();
+                    var jsonMessage = data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage);
                     if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
                         await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
 
@@ -1049,7 +1049,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageDelete != null)
                         try
                         {
-                            await MessageDelete(new(data.ToObject<JsonMessageDeleteEventArgs>())).ConfigureAwait(false);
+                            await MessageDelete(new(data.ToObject(JsonMessageDeleteEventArgs.JsonMessageDeleteEventArgsSerializerContext.WithOptions.JsonMessageDeleteEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1062,7 +1062,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageDeleteBulk != null)
                         try
                         {
-                            await MessageDeleteBulk(new(data.ToObject<JsonMessageDeleteBulkEventArgs>())).ConfigureAwait(false);
+                            await MessageDeleteBulk(new(data.ToObject(JsonMessageDeleteBulkEventArgs.JsonMessageDeleteBulkEventArgsSerializerContext.WithOptions.JsonMessageDeleteBulkEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1075,7 +1075,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageReactionAdd != null)
                         try
                         {
-                            await MessageReactionAdd(new(data.ToObject<JsonMessageReactionAddEventArgs>(), Rest)).ConfigureAwait(false);
+                            await MessageReactionAdd(new(data.ToObject(JsonMessageReactionAddEventArgs.JsonMessageReactionAddEventArgsSerializerContext.WithOptions.JsonMessageReactionAddEventArgs), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1088,7 +1088,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageReactionRemove != null)
                         try
                         {
-                            await MessageReactionRemove(new(data.ToObject<JsonMessageReactionRemoveEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemove(new(data.ToObject(JsonMessageReactionRemoveEventArgs.JsonMessageReactionRemoveEventArgsSerializerContext.WithOptions.JsonMessageReactionRemoveEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1101,7 +1101,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageReactionRemoveAll != null)
                         try
                         {
-                            await MessageReactionRemoveAll(new(data.ToObject<JsonMessageReactionRemoveAllEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemoveAll(new(data.ToObject(JsonMessageReactionRemoveAllEventArgs.JsonMessageReactionRemoveAllEventArgsSerializerContext.WithOptions.JsonMessageReactionRemoveAllEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1114,7 +1114,7 @@ public partial class GatewayClient : WebSocketClient
                     if (MessageReactionRemoveEmoji != null)
                         try
                         {
-                            await MessageReactionRemoveEmoji(new(data.ToObject<JsonMessageReactionRemoveEmojiEventArgs>())).ConfigureAwait(false);
+                            await MessageReactionRemoveEmoji(new(data.ToObject(JsonMessageReactionRemoveEmojiEventArgs.JsonMessageReactionRemoveEmojiEventArgsSerializerContext.WithOptions.JsonMessageReactionRemoveEmojiEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1124,7 +1124,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "PRESENCE_UPDATE":
                 {
-                    var json = data.ToObject<JsonPresence>();
+                    var json = data.ToObject(JsonPresence.JsonPresenceSerializerContext.WithOptions.JsonPresence);
                     Presence presence = new(json, null, Rest);
                     if (PresenceUpdate != null)
                         try
@@ -1144,7 +1144,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
-                    var json = data.ToObject<JsonStageInstance>();
+                    var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
                     StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceCreate != null)
                         try
@@ -1164,7 +1164,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
-                    var json = data.ToObject<JsonStageInstance>();
+                    var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
                     StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceUpdate != null)
                         try
@@ -1184,7 +1184,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
-                    var json = data.ToObject<JsonStageInstance>();
+                    var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
                     StageInstance stageInstance = new(json, Rest);
                     if (StageInstanceDelete != null)
                         try
@@ -1207,7 +1207,7 @@ public partial class GatewayClient : WebSocketClient
                     if (TypingStart != null)
                         try
                         {
-                            await TypingStart(new(data.ToObject<JsonTypingStartEventArgs>(), Rest)).ConfigureAwait(false);
+                            await TypingStart(new(data.ToObject(JsonTypingStartEventArgs.JsonTypingStartEventArgsSerializerContext.WithOptions.JsonTypingStartEventArgs), Rest)).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1217,7 +1217,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "USER_UPDATE":
                 {
-                    SelfUser user = new(data.ToObject<JsonUser>(), Rest);
+                    SelfUser user = new(data.ToObject(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), Rest);
                     if (CurrentUserUpdate != null)
                         try
                         {
@@ -1232,7 +1232,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "VOICE_STATE_UPDATE":
                 {
-                    var json = data.ToObject<JsonVoiceState>();
+                    var json = data.ToObject(JsonVoiceState.JsonVoiceStateSerializerContext.WithOptions.JsonVoiceState);
                     VoiceState voiceState = new(json);
                     if (VoiceStateUpdate != null)
                         try
@@ -1263,7 +1263,7 @@ public partial class GatewayClient : WebSocketClient
                     if (VoiceServerUpdate != null)
                         try
                         {
-                            await VoiceServerUpdate(new(data.ToObject<JsonVoiceServerUpdateEventArgs>())).ConfigureAwait(false);
+                            await VoiceServerUpdate(new(data.ToObject(JsonVoiceServerUpdateEventArgs.JsonVoiceServerUpdateEventArgsSerializerContext.WithOptions.JsonVoiceServerUpdateEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1276,7 +1276,7 @@ public partial class GatewayClient : WebSocketClient
                     if (WebhooksUpdate != null)
                         try
                         {
-                            await WebhooksUpdate(new(data.ToObject<JsonWebhooksUpdateEventArgs>())).ConfigureAwait(false);
+                            await WebhooksUpdate(new(data.ToObject(JsonWebhooksUpdateEventArgs.JsonWebhooksUpdateEventArgsSerializerContext.WithOptions.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {
@@ -1287,7 +1287,7 @@ public partial class GatewayClient : WebSocketClient
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Snowflake GetGuildId() => data.GetProperty("guild_id").ToObject<Snowflake>();
+        Snowflake GetGuildId() => data.GetProperty("guild_id").ToObject(SnowflakeSerializerContext.WithOptions.Snowflake);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool TryGetGuild(Snowflake guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);

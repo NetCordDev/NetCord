@@ -4,51 +4,57 @@ using NetCord.Gateway;
 
 namespace NetCord.JsonModels;
 
-public record JsonUserActivity
+public partial class JsonUserActivity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public UserActivityType Type { get; init; }
+    public UserActivityType Type { get; set; }
 
     [JsonPropertyName("url")]
-    public string? Url { get; init; }
+    public string? Url { get; set; }
 
     [JsonConverter(typeof(JsonConverters.MillisecondsUnixDateTimeOffsetConverter))]
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("timestamps")]
-    public JsonUserActivityTimestamps Timestamps { get; init; }
+    public JsonUserActivityTimestamps Timestamps { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; set; }
 
     [JsonPropertyName("details")]
-    public string? Details { get; init; }
+    public string? Details { get; set; }
 
     [JsonPropertyName("state")]
-    public string? State { get; init; }
+    public string? State { get; set; }
 
     [JsonPropertyName("emoji")]
-    public JsonEmoji? Emoji { get; init; }
+    public JsonEmoji? Emoji { get; set; }
 
     [JsonPropertyName("party")]
-    public JsonParty? Party { get; init; }
+    public JsonParty? Party { get; set; }
 
     [JsonPropertyName("assets")]
-    public JsonUserActivityAssets? Assets { get; init; }
+    public JsonUserActivityAssets? Assets { get; set; }
 
     [JsonPropertyName("secrets")]
-    public JsonUserActivitySecrets? Secrets { get; init; }
+    public JsonUserActivitySecrets? Secrets { get; set; }
 
     [JsonPropertyName("instance")]
-    public bool? Instance { get; init; }
+    public bool? Instance { get; set; }
 
     [JsonPropertyName("flags")]
-    public UserActivityFlags? Flags { get; init; }
+    public UserActivityFlags? Flags { get; set; }
 
     [JsonPropertyName("buttons")]
-    public string[] ButtonsLabels { get; init; }
+    public string[] ButtonsLabels { get; set; }
+
+    [JsonSerializable(typeof(JsonUserActivity))]
+    public partial class JsonUserActivitySerializerContext : JsonSerializerContext
+    {
+        public static JsonUserActivitySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

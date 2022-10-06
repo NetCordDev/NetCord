@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class WebhookProperties
+public partial class WebhookProperties
 {
     public WebhookProperties(string name)
     {
@@ -15,4 +15,10 @@ public class WebhookProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("avatar")]
     public ImageProperties? Avatar { get; set; }
+
+    [JsonSerializable(typeof(WebhookProperties))]
+    public partial class WebhookPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static WebhookPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

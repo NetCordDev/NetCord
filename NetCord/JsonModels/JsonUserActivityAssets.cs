@@ -2,17 +2,23 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonUserActivityAssets
+public partial class JsonUserActivityAssets
 {
     [JsonPropertyName("large_image")]
-    public string? LargeImageId { get; init; }
+    public string? LargeImageId { get; set; }
 
     [JsonPropertyName("large_text")]
-    public string? LargeText { get; init; }
+    public string? LargeText { get; set; }
 
     [JsonPropertyName("small_image")]
-    public string? SmallImageId { get; init; }
+    public string? SmallImageId { get; set; }
 
     [JsonPropertyName("small_text")]
-    public string? SmallText { get; init; }
+    public string? SmallText { get; set; }
+
+    [JsonSerializable(typeof(JsonUserActivityAssets))]
+    public partial class JsonUserActivityAssetsSerializerContext : JsonSerializerContext
+    {
+        public static JsonUserActivityAssetsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

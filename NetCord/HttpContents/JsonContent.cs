@@ -1,25 +1,19 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace NetCord;
 
 internal class JsonContent : HttpContent
 {
-    private readonly Stream _stream;
-    private readonly long _start;
+    protected readonly Stream _stream;
+    protected readonly long _start;
     private bool _used = false;
 
     public JsonContent(string json) : this()
     {
         _stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
-    }
-
-    public JsonContent(JsonDocument json) : this()
-    {
-        _stream = new MemoryStream();
-        JsonSerializer.Serialize(_stream, json, ToObjectExtensions._options);
-        _stream.Position = 0;
     }
 
     public JsonContent(Stream jsonStream) : this()
@@ -29,14 +23,7 @@ internal class JsonContent : HttpContent
             _start = _stream.Position;
     }
 
-    public JsonContent(object? objToSerialize) : this()
-    {
-        _stream = new MemoryStream();
-        JsonSerializer.Serialize(_stream, objToSerialize, ToObjectExtensions._options);
-        _stream.Position = 0;
-    }
-
-    private JsonContent()
+    protected JsonContent()
     {
         Headers.ContentType = new("application/json");
     }
@@ -68,5 +55,20 @@ internal class JsonContent : HttpContent
             length = 0;
             return false;
         }
+    }
+}
+
+internal class JsonContent<T> : JsonContent
+{
+    public JsonContent(T objToSerialize, JsonTypeInfo<T> jsonTypeInfo) : base(CreateStream(objToSerialize, jsonTypeInfo))
+    {
+    }
+
+    private static Stream CreateStream(T objToSerialize, JsonTypeInfo<T> jsonTypeInfo)
+    {
+        MemoryStream stream = new();
+        JsonSerializer.Serialize(stream, objToSerialize, jsonTypeInfo);
+        stream.Position = 0;
+        return stream;
     }
 }

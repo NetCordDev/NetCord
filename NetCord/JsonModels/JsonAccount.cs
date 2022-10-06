@@ -2,8 +2,14 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAccount : JsonEntity
+public partial class JsonAccount : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
+
+    [JsonSerializable(typeof(JsonAccount))]
+    public partial class JsonAccountSerializerContext : JsonSerializerContext
+    {
+        public static JsonAccountSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

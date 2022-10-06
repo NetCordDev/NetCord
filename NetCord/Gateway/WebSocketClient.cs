@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
@@ -75,7 +76,8 @@ public abstract class WebSocketClient : IDisposable
                 JsonPayload Deserialize()
                 {
                     Utf8JsonReader reader = new(data);
-                    return JsonSerializer.Deserialize<JsonPayload>(ref reader, ToObjectExtensions._options)!;
+                    return JsonSerializer.Deserialize(ref reader, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
+                    //return JsonSerializer.Deserialize<JsonPayload>(ref reader, JsonTypeInfo., ToObjectExtensions._options)!;
                 }
             }
             catch (Exception ex)

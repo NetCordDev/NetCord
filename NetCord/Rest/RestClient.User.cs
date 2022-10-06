@@ -3,17 +3,17 @@
 public partial class RestClient
 {
     public async Task<SelfUser> GetCurrentUserAsync(RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, "/users/@me", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonUser>(), this);
+        => new((await SendRequestAsync(HttpMethod.Get, "/users/@me", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), this);
 
     public async Task<User> GetUserAsync(Snowflake userId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", new RateLimits.Route(RateLimits.RouteParameter.GetUser), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonUser>(), this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", new RateLimits.Route(RateLimits.RouteParameter.GetUser), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), this);
 
-    public async Task<SelfUser> ModifyCurrentUserAsync(Action<SelfUserProperties> action, RequestProperties? properties = null)
+    public async Task<SelfUser> ModifyCurrentUserAsync(Action<SelfUserOptions> action, RequestProperties? properties = null)
     {
-        SelfUserProperties selfUserProperties = new();
-        action(selfUserProperties);
-        var result = (await SendRequestAsync(HttpMethod.Patch, $"/users/@me", new(RateLimits.RouteParameter.ModifyCurrentUser), new JsonContent(selfUserProperties), properties).ConfigureAwait(false))!;
-        return new(result.ToObject<JsonModels.JsonUser>(), this);
+        SelfUserOptions selfUserOptions = new();
+        action(selfUserOptions);
+        var result = (await SendRequestAsync(HttpMethod.Patch, $"/users/@me", new(RateLimits.RouteParameter.ModifyCurrentUser), new JsonContent<SelfUserOptions>(selfUserOptions, SelfUserOptions.SelfUserOptionsSerializerContext.WithOptions.SelfUserOptions), properties).ConfigureAwait(false))!;
+        return new(result.ToObject(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), this);
     }
 
     public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(RequestProperties? properties = null)
@@ -21,7 +21,7 @@ public partial class RestClient
         byte count = 0;
         RestGuild? last = null;
         foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", new RateLimits.Route(RateLimits.RouteParameter.GetCurrentUserGuilds), properties).ConfigureAwait(false))!
-            .ToObject<JsonModels.JsonGuild[]>()
+            .ToObject(JsonModels.JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray)
             .Select(g => new RestGuild(g, this)))
         {
             yield return last = guild;
@@ -41,7 +41,7 @@ public partial class RestClient
         {
             count = 0;
             foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?after={guildId}", new RateLimits.Route(RateLimits.RouteParameter.GetCurrentUserGuilds), properties).ConfigureAwait(false))!
-                .ToObject<JsonModels.JsonGuild[]>()
+                .ToObject(JsonModels.JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray)
                 .Select(g => new RestGuild(g, this)))
             {
                 yield return guild;
@@ -59,7 +59,7 @@ public partial class RestClient
         {
             count = 0;
             foreach (var guild in (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds?before={guildId}", new RateLimits.Route(RateLimits.RouteParameter.GetCurrentUserGuilds), properties).ConfigureAwait(false))!
-                .ToObject<JsonModels.JsonGuild[]>()
+                .ToObject(JsonModels.JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray)
                 .Select(g => new RestGuild(g, this)))
             {
                 yield return guild;
@@ -71,17 +71,17 @@ public partial class RestClient
     }
 
     public async Task<GuildUser> GetCurrentUserGuildUserAsync(Snowflake guildId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds/{guildId}/member", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonGuildUser>(), guildId, this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds/{guildId}/member", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser), guildId, this);
 
     public Task LeaveGuildAsync(Snowflake guildId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", properties);
 
     public async Task<DMChannel> GetDMChannelAsync(Snowflake userId, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent($"{{\"recipient_id\":\"{userId}\"}}"), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonChannel>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<DMChannelProperties>(new(userId), DMChannelProperties.DMChannelPropertiesSerializerContext.WithOptions.DMChannelProperties), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel), this);
 
     public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent(groupDMChannelProperties), properties).ConfigureAwait(false)).ToObject<JsonModels.JsonChannel>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<GroupDMChannelProperties>(groupDMChannelProperties, GroupDMChannelProperties.GroupDMChannelPropertiesSerializerContext.WithOptions.GroupDMChannelProperties), properties).ConfigureAwait(false)).ToObject(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel), this);
 
     public async Task<IReadOnlyDictionary<Snowflake, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObject<IEnumerable<JsonModels.JsonConnection>>().ToDictionary(c => c.Id, c => new Connection(c, this));
+        => (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonConnection.JsonConnectionArraySerializerContext.WithOptions.JsonConnectionArray).ToDictionary(c => c.Id, c => new Connection(c, this));
 }

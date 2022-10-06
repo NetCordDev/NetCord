@@ -43,15 +43,15 @@ public abstract class ButtonProperties
         Emoji = emoji;
     }
 
-    private class MessageButtonConverter : JsonConverter<ButtonProperties>
+    internal class MessageButtonConverter : JsonConverter<ButtonProperties>
     {
         public override ButtonProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, ButtonProperties button, JsonSerializerOptions options)
         {
             if (button is ActionButtonProperties actionButton)
-                JsonSerializer.Serialize(writer, actionButton, options);
+                JsonSerializer.Serialize(writer, actionButton, ActionButtonProperties.ActionButtonPropertiesSerializerContext.WithOptions.ActionButtonProperties);
             else if (button is LinkButtonProperties linkButton)
-                JsonSerializer.Serialize(writer, linkButton, options);
+                JsonSerializer.Serialize(writer, linkButton, LinkButtonProperties.LinkButtonPropertiesSerializerContext.WithOptions.LinkButtonProperties);
         }
     }
 }

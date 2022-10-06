@@ -2,14 +2,20 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonVoiceServerUpdateEventArgs
+public partial class JsonVoiceServerUpdateEventArgs
 {
     [JsonPropertyName("token")]
-    public string Token { get; init; }
+    public string Token { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("endpoint")]
-    public string? Endpoint { get; init; }
+    public string? Endpoint { get; set; }
+
+    [JsonSerializable(typeof(JsonVoiceServerUpdateEventArgs))]
+    public partial class JsonVoiceServerUpdateEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonVoiceServerUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

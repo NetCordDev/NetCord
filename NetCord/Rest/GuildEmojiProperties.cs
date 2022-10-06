@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildEmojiProperties
+public partial class GuildEmojiProperties
 {
     public GuildEmojiProperties(string name, ImageProperties image)
     {
@@ -18,4 +18,10 @@ public class GuildEmojiProperties
 
     [JsonPropertyName("roles")]
     public IEnumerable<Snowflake>? AllowedRoles { get; set; }
+
+    [JsonSerializable(typeof(GuildEmojiProperties))]
+    public partial class GuildEmojiPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildEmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

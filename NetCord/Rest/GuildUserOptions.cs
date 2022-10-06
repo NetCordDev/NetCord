@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildUserOptions : CurrentGuildUserOptions
+public partial class GuildUserOptions : CurrentGuildUserOptions
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
@@ -24,4 +24,10 @@ public class GuildUserOptions : CurrentGuildUserOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
+
+    [JsonSerializable(typeof(GuildUserOptions))]
+    public partial class GuildUserOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildUserOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

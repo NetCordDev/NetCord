@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling))]
+[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<ConnectionType>))]
 public enum ConnectionType
 {
     Twitch,

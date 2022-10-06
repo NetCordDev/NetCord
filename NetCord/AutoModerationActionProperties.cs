@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class AutoModerationActionProperties
+public partial class AutoModerationActionProperties
 {
     public AutoModerationActionProperties(AutoModerationActionType type)
     {
@@ -15,4 +15,10 @@ public class AutoModerationActionProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("metadata")]
     public AutoModerationActionMetadataProperties? Metadata { get; set; }
+
+    [JsonSerializable(typeof(AutoModerationActionProperties))]
+    public partial class AutoModerationActionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static AutoModerationActionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

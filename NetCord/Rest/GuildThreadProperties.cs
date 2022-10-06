@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildThreadProperties : GuildThreadFromMessageProperties
+public partial class GuildThreadProperties : GuildThreadFromMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("type")]
@@ -14,5 +14,11 @@ public class GuildThreadProperties : GuildThreadFromMessageProperties
 
     public GuildThreadProperties(string name) : base(name)
     {
+    }
+
+    [JsonSerializable(typeof(GuildThreadProperties))]
+    public partial class GuildThreadPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildThreadPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

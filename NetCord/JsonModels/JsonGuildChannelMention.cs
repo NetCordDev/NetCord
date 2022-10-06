@@ -2,14 +2,20 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildChannelMention : JsonEntity
+public partial class JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("type")]
-    public ChannelType Type { get; init; }
+    public ChannelType Type { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildChannelMention))]
+    public partial class JsonGuildChannelMentionSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildChannelMentionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

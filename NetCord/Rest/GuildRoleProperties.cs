@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildRoleProperties
+public partial class GuildRoleProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
@@ -31,4 +31,10 @@ public class GuildRoleProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mentionable")]
     public bool? Mentionable { get; set; }
+
+    [JsonSerializable(typeof(GuildRoleProperties))]
+    public partial class GuildRolePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildRolePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

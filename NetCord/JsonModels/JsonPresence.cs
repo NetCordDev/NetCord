@@ -4,20 +4,26 @@ using NetCord.Gateway;
 
 namespace NetCord.JsonModels;
 
-public record JsonPresence
+public partial class JsonPresence
 {
     [JsonPropertyName("user")]
-    public JsonUser User { get; init; }
+    public JsonUser User { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; init; }
+    public Snowflake? GuildId { get; set; }
 
     [JsonPropertyName("status")]
-    public UserStatusType Status { get; init; }
+    public UserStatusType Status { get; set; }
 
     [JsonPropertyName("activities")]
-    public JsonUserActivity[]? Activities { get; init; }
+    public JsonUserActivity[]? Activities { get; set; }
 
     [JsonPropertyName("client_status")]
-    public IReadOnlyDictionary<Platform, UserStatusType> Platform { get; init; }
+    public IReadOnlyDictionary<Platform, UserStatusType> Platform { get; set; }
+
+    [JsonSerializable(typeof(JsonPresence))]
+    public partial class JsonPresenceSerializerContext : JsonSerializerContext
+    {
+        public static JsonPresenceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

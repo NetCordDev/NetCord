@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildScheduledEventOptions
+public partial class GuildScheduledEventOptions
 {
     internal GuildScheduledEventOptions()
     {
@@ -47,4 +47,10 @@ public class GuildScheduledEventOptions
     [JsonPropertyName("image")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ImageProperties? Image { get; set; }
+
+    [JsonSerializable(typeof(GuildScheduledEventOptions))]
+    public partial class GuildScheduledEventOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildScheduledEventOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

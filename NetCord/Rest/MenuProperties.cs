@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class MenuProperties : ComponentProperties
+public partial class MenuProperties : ComponentProperties
 {
     [JsonPropertyName("custom_id")]
     public string CustomId { get; }
@@ -30,5 +30,11 @@ public class MenuProperties : ComponentProperties
     {
         CustomId = customId;
         Options = options;
+    }
+
+    [JsonSerializable(typeof(MenuProperties))]
+    public partial class MenuPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static MenuPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

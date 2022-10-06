@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord;
 
 [JsonConverter(typeof(SnowflakeConverter))]
-public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
+public readonly partial struct Snowflake : IConvertible, IEquatable<Snowflake>
 {
     private readonly string? _value;
 
@@ -99,7 +99,8 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
     public static implicit operator Snowflake(ulong u) => new(u);
     public static explicit operator Snowflake(string s) => new(s);
 
-    private class SnowflakeConverter : JsonConverter<Snowflake>
+
+    internal class SnowflakeConverter : JsonConverter<Snowflake>
     {
         public override Snowflake Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => new(reader.TokenType is JsonTokenType.String ? reader.GetString()! : reader.GetUInt64().ToString(), null);
@@ -117,4 +118,10 @@ public readonly struct Snowflake : IConvertible, IEquatable<Snowflake>
             writer.WritePropertyName(value._value!);
         }
     }
+}
+
+[JsonSerializable(typeof(Snowflake))]
+internal partial class SnowflakeSerializerContext : JsonSerializerContext
+{
+    public static SnowflakeSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
 }

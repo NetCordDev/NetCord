@@ -2,17 +2,23 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonForumTag : JsonEntity
+public partial class JsonForumTag : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("moderated")]
-    public bool Moderated { get; init; }
+    public bool Moderated { get; set; }
 
     [JsonPropertyName("emoji_id")]
-    public Snowflake? EmojiId { get; init; }
+    public Snowflake? EmojiId { get; set; }
 
     [JsonPropertyName("emoji_name")]
-    public string? EmojiName { get; init; }
+    public string? EmojiName { get; set; }
+
+    [JsonSerializable(typeof(JsonForumTag))]
+    public partial class JsonForumTagSerializerContext : JsonSerializerContext
+    {
+        public static JsonForumTagSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class ApplicationCommandOptionProperties
+public partial class ApplicationCommandOptionProperties
 {
     [JsonPropertyName("type")]
     public ApplicationCommandOptionType Type { get; }
@@ -63,5 +63,11 @@ public class ApplicationCommandOptionProperties
         Type = type;
         Name = name;
         Description = description;
+    }
+
+    [JsonSerializable(typeof(ApplicationCommandOptionProperties))]
+    public partial class ApplicationCommandOptionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ApplicationCommandOptionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

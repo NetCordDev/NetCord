@@ -4,41 +4,47 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildInvite
+public partial class JsonGuildInvite
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; init; }
+    public Snowflake ChannelId { get; set; }
 
     [JsonPropertyName("code")]
-    public string Code { get; init; }
+    public string Code { get; set; }
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; init; }
+    public Snowflake? GuildId { get; set; }
 
     [JsonPropertyName("inviter")]
-    public JsonUser? Inviter { get; init; }
+    public JsonUser? Inviter { get; set; }
 
     [JsonPropertyName("max_age")]
-    public int MaxAge { get; init; }
+    public int MaxAge { get; set; }
 
     [JsonPropertyName("max_uses")]
-    public int MaxUses { get; init; }
+    public int MaxUses { get; set; }
 
     [JsonPropertyName("target_type")]
-    public GuildInviteTargetType? TargetType { get; init; }
+    public GuildInviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user")]
-    public JsonUser? TargetUser { get; init; }
+    public JsonUser? TargetUser { get; set; }
 
     [JsonPropertyName("target_application")]
-    public JsonApplication? TargetApplication { get; init; }
+    public JsonApplication? TargetApplication { get; set; }
 
     [JsonPropertyName("temporary")]
-    public bool Temporary { get; init; }
+    public bool Temporary { get; set; }
 
     [JsonPropertyName("uses")]
-    public int Uses { get; init; }
+    public int Uses { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildInvite))]
+    public partial class JsonGuildInviteSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildInviteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

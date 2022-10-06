@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class CurrentUserVoiceStateOptions
+public partial class CurrentUserVoiceStateOptions
 {
     internal CurrentUserVoiceStateOptions()
     {
@@ -20,4 +20,10 @@ public class CurrentUserVoiceStateOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }
+
+    [JsonSerializable(typeof(CurrentUserVoiceStateOptions))]
+    public partial class CurrentUserVoiceStateOptionsSerializerContext : JsonSerializerContext
+    {
+        public static CurrentUserVoiceStateOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,14 +2,20 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonMessageReaction
+public partial class JsonMessageReaction
 {
     [JsonPropertyName("count")]
-    public int Count { get; init; }
+    public int Count { get; set; }
 
     [JsonPropertyName("me")]
-    public bool Me { get; init; }
+    public bool Me { get; set; }
 
     [JsonPropertyName("emoji")]
-    public JsonEmoji Emoji { get; init; }
+    public JsonEmoji Emoji { get; set; }
+
+    [JsonSerializable(typeof(JsonMessageReaction))]
+    public partial class JsonMessageReactionSerializerContext : JsonSerializerContext
+    {
+        public static JsonMessageReactionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

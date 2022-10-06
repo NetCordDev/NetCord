@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonThreadSelfUser
+public partial class JsonThreadSelfUser
 {
     [JsonPropertyName("join_timestamp")]
-    public DateTimeOffset JoinTimestamp { get; init; }
+    public DateTimeOffset JoinTimestamp { get; set; }
 
     [JsonPropertyName("flags")]
-    public int Flags { get; init; }
+    public int Flags { get; set; }
+
+    [JsonSerializable(typeof(JsonThreadSelfUser))]
+    public partial class JsonThreadSelfUserSerializerContext : JsonSerializerContext
+    {
+        public static JsonThreadSelfUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildTemplateOptions
+public partial class GuildTemplateOptions
 {
     internal GuildTemplateOptions()
     {
@@ -15,4 +15,10 @@ public class GuildTemplateOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]
     public string? Description { get; set; }
+
+    [JsonSerializable(typeof(GuildTemplateOptions))]
+    public partial class GuildTemplateOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildTemplateOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

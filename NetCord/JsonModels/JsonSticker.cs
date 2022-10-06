@@ -2,37 +2,49 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonSticker : JsonEntity
+public partial class JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
-    public Snowflake? PackId { get; init; }
+    public Snowflake? PackId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; init; }
+    public string Description { get; set; }
 
     [JsonPropertyName("tags")]
-    public string Tags { get; init; }
+    public string Tags { get; set; }
 
     [JsonPropertyName("type")]
-    public JsonStickerType Type { get; init; }
+    public JsonStickerType Type { get; set; }
 
     [JsonPropertyName("format_type")]
-    public StickerFormat Format { get; init; }
+    public StickerFormat Format { get; set; }
 
     [JsonPropertyName("available")]
-    public bool? Available { get; init; }
+    public bool? Available { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser? Creator { get; init; }
+    public JsonUser? Creator { get; set; }
 
     [JsonPropertyName("sort_value")]
-    public int SortValue { get; init; }
+    public int SortValue { get; set; }
+
+    [JsonSerializable(typeof(JsonSticker))]
+    public partial class JsonStickerSerializerContext : JsonSerializerContext
+    {
+        public static JsonStickerSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonSticker[]))]
+    public partial class JsonStickerArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonStickerArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
 public enum JsonStickerType

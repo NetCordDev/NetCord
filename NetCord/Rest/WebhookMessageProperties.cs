@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class WebhookMessageProperties
+public partial class WebhookMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
@@ -45,11 +45,11 @@ public class WebhookMessageProperties
     [JsonPropertyName("thread_name")]
     public string? ThreadName { get; set; }
 
-    internal MultipartFormDataContent Build()
+    internal HttpContent Build()
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent(this), "payload_json" }
+            { new JsonContent<WebhookMessageProperties>(this, WebhookMessagePropertiesSerializerContext.WithOptions.WebhookMessageProperties), "payload_json" }
         };
         if (Attachments != null)
         {
@@ -67,4 +67,10 @@ public class WebhookMessageProperties
     {
         Content = content
     };
+
+    [JsonSerializable(typeof(WebhookMessageProperties))]
+    public partial class WebhookMessagePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static WebhookMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

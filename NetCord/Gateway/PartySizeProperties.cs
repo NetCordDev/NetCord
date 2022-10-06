@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(PartySizePropertiesConverter))]
-public class PartySizeProperties
+public partial class PartySizeProperties
 {
     public PartySizeProperties(int currentSize, int maxSize)
     {
@@ -16,7 +16,7 @@ public class PartySizeProperties
 
     public int MaxSize { get; }
 
-    private class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
+    internal class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
     {
         public override PartySizeProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, PartySizeProperties value, JsonSerializerOptions options)
@@ -26,5 +26,11 @@ public class PartySizeProperties
             writer.WriteNumberValue(value.MaxSize);
             writer.WriteEndArray();
         }
+    }
+
+    [JsonSerializable(typeof(PartySizeProperties))]
+    public partial class PartySizePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static PartySizePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

@@ -4,35 +4,50 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public record JsonWebhook : JsonEntity
+public partial class JsonWebhook : JsonEntity
 {
     [JsonPropertyName("type")]
-    public WebhookType Type { get; init; }
+    public WebhookType Type { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; init; }
+    public Snowflake? GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser? Creator { get; init; }
+    public JsonUser? Creator { get; set; }
 
     [JsonPropertyName("name")]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("avatar")]
-    public string? AvatarHash { get; init; }
+    public string? AvatarHash { get; set; }
 
     [JsonPropertyName("token")]
-    public string? Token { get; init; }
+    public string? Token { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; init; }
+    public Snowflake? ApplicationId { get; set; }
 
     [JsonPropertyName("source_guild")]
-    public RestGuild? Guild { get; init; }
+    public JsonGuild? Guild { get; set; }
 
     [JsonPropertyName("source_channel")]
-    public string? Url { get; init; }
+    public JsonChannel? Channel { get; set; }
+
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonSerializable(typeof(JsonWebhook))]
+    public partial class JsonWebhookSerializerContext : JsonSerializerContext
+    {
+        public static JsonWebhookSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonWebhook[]))]
+    public partial class JsonWebhookArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonWebhookArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

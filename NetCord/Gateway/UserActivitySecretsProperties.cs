@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class UserActivitySecretsProperties
+public partial class UserActivitySecretsProperties
 {
     [JsonPropertyName("join")]
     public string? Join { get; set; }
@@ -12,4 +12,10 @@ public class UserActivitySecretsProperties
 
     [JsonPropertyName("match")]
     public string? Match { get; set; }
+
+    [JsonSerializable(typeof(UserActivitySecretsProperties))]
+    public partial class UserActivitySecretsPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static UserActivitySecretsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

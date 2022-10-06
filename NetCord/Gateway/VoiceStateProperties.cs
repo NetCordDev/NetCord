@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class VoiceStateProperties
+public partial class VoiceStateProperties
 {
     [JsonPropertyName("guild_id")]
     public Snowflake GuildId { get; }
@@ -22,5 +22,11 @@ public class VoiceStateProperties
     {
         GuildId = guildId;
         ChannelId = channelId;
+    }
+
+    [JsonSerializable(typeof(VoiceStateProperties))]
+    public partial class VoiceStatePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static VoiceStatePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

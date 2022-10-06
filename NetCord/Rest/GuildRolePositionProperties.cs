@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildRolePositionProperties
+public partial class GuildRolePositionProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
@@ -14,5 +14,17 @@ public class GuildRolePositionProperties
     public GuildRolePositionProperties(Snowflake id)
     {
         Id = id;
+    }
+
+    [JsonSerializable(typeof(GuildRolePositionProperties))]
+    public partial class GuildRolePositionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(IEnumerable<GuildRolePositionProperties>))]
+    public partial class IEnumerableOfGuildRolePositionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static IEnumerableOfGuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

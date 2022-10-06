@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class GuildWelcomeScreenChannelProperties
+public partial class GuildWelcomeScreenChannelProperties
 {
     [JsonPropertyName("channel_id")]
     public Snowflake ChannelId { get; }
@@ -19,10 +19,16 @@ public class GuildWelcomeScreenChannelProperties
         ChannelId = channelId;
         Description = description;
     }
+
+    [JsonSerializable(typeof(GuildWelcomeScreenChannelProperties))]
+    public partial class GuildWelcomeScreenChannelPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
 [JsonConverter(typeof(GuildWelcomeScreenChannelEmojiPropertiesConverter))]
-public class GuildWelcomeScreenChannelEmojiProperties
+public partial class GuildWelcomeScreenChannelEmojiProperties
 {
     public string? Unicode { get; }
 
@@ -38,18 +44,24 @@ public class GuildWelcomeScreenChannelEmojiProperties
         EmojiId = emojiId;
     }
 
-    private class GuildWelcomeScreenChannelEmojiPropertiesConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
+    internal class GuildWelcomeScreenChannelEmojiPropertiesConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
     {
         public override GuildWelcomeScreenChannelEmojiProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelEmojiProperties value, JsonSerializerOptions options)
         {
             if (value.EmojiId != null)
-                JsonSerializer.Serialize(writer, value.EmojiId, options);
+                writer.WriteStringValue(value.EmojiId.ToString());
             else
             {
                 writer.WriteNullValue();
                 writer.WriteString("emoji_name", value.Unicode);
             }
         }
+    }
+
+    [JsonSerializable(typeof(GuildWelcomeScreenChannelEmojiProperties))]
+    public partial class GuildWelcomeScreenChannelEmojiPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildWelcomeScreenChannelEmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

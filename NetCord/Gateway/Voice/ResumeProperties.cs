@@ -2,9 +2,9 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class ResumeProperties
+internal class VoiceResumeProperties
 {
-    public ResumeProperties(Snowflake guildId, string sessionId, string token)
+    public VoiceResumeProperties(Snowflake guildId, string sessionId, string token)
     {
         GuildId = guildId;
         SessionId = sessionId;

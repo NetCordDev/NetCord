@@ -1,13 +1,19 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
-public record JsonUserActivityTimestamps
+public partial class JsonUserActivityTimestamps
 {
-    [JsonConverter(typeof(JsonConverters.MillisecondsUnixDateTimeOffsetConverter))]
+    [JsonConverter(typeof(JsonConverters.MillisecondsNullableUnixDateTimeOffsetConverter))]
     [JsonPropertyName("start")]
-    public DateTimeOffset? StartTime { get; init; }
+    public DateTimeOffset? StartTime { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.MillisecondsUnixDateTimeOffsetConverter))]
+    [JsonConverter(typeof(JsonConverters.MillisecondsNullableUnixDateTimeOffsetConverter))]
     [JsonPropertyName("end")]
-    public DateTimeOffset? EndTime { get; init; }
+    public DateTimeOffset? EndTime { get; set; }
+
+    [JsonSerializable(typeof(JsonUserActivityTimestamps))]
+    public partial class JsonUserActivityTimestampsSerializerContext : JsonSerializerContext
+    {
+        public static JsonUserActivityTimestampsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

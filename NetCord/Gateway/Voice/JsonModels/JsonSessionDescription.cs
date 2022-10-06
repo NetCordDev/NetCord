@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-public record JsonSessionDescription
+public partial class JsonSessionDescription
 {
     [JsonConverter(typeof(ByteArrayOfLength32Converter))]
     [JsonPropertyName("secret_key")]
-    public byte[] SecretKey { get; init; }
+    public byte[] SecretKey { get; set; }
 
-    private class ByteArrayOfLength32Converter : JsonConverter<byte[]>
+    internal class ByteArrayOfLength32Converter : JsonConverter<byte[]>
     {
         public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
@@ -24,5 +24,11 @@ public record JsonSessionDescription
         }
 
         public override void Write(Utf8JsonWriter writer, byte[] value, JsonSerializerOptions options) => throw new NotImplementedException();
+    }
+
+    [JsonSerializable(typeof(JsonSessionDescription))]
+    public partial class JsonSessionDescriptionSerializerContext : JsonSerializerContext
+    {
+        public static JsonSessionDescriptionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

@@ -17,7 +17,7 @@ public readonly struct ImageProperties
 
     public static ImageProperties Empty => default;
 
-    private class ImagePropertiesConverter : JsonConverter<ImageProperties>
+    internal class ImagePropertiesConverter : JsonConverter<ImageProperties>
     {
         public override ImageProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, ImageProperties value, JsonSerializerOptions options)

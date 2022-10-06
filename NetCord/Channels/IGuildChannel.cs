@@ -10,7 +10,7 @@ public interface IGuildChannel : IEntity
 
     #region Channel
     public Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null);
-    public Task ModifyPermissionsAsync(ChannelPermissionOverwrite permissionOverwrite, RequestProperties? properties = null);
+    public Task ModifyPermissionsAsync(ChannelPermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null);
     public Task<IEnumerable<RestGuildInvite>> GetInvitesAsync(RequestProperties? properties = null);
     public Task<RestGuildInvite> CreateInviteAsync(GuildInviteProperties? guildInviteProperties = null, RequestProperties? properties = null);
     public Task DeletePermissionAsync(Snowflake overwriteId, RequestProperties? properties = null);

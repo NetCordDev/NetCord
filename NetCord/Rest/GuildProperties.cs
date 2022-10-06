@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildProperties
+public partial class GuildProperties
 {
     [JsonPropertyName("name")]
     public string Name { get; }
@@ -50,5 +50,11 @@ public class GuildProperties
     public GuildProperties(string name)
     {
         Name = name;
+    }
+
+    [JsonSerializable(typeof(GuildProperties))]
+    public partial class GuildPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

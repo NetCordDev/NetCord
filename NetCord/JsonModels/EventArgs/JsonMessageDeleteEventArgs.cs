@@ -2,14 +2,20 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonMessageDeleteEventArgs
+public partial class JsonMessageDeleteEventArgs
 {
     [JsonPropertyName("id")]
-    public Snowflake MessageId { get; init; }
+    public Snowflake MessageId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; init; }
+    public Snowflake ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; init; }
+    public Snowflake? GuildId { get; set; }
+
+    [JsonSerializable(typeof(JsonMessageDeleteEventArgs))]
+    public partial class JsonMessageDeleteEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonMessageDeleteEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

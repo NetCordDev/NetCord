@@ -2,8 +2,14 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildScheduledEventMetadata
+public partial class JsonGuildScheduledEventMetadata
 {
     [JsonPropertyName("location")]
-    public string? Location { get; init; }
+    public string? Location { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildScheduledEventMetadata))]
+    public partial class JsonGuildScheduledEventMetadataSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildScheduledEventMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

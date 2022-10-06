@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class UserActivityAssetsProperties
+public partial class UserActivityAssetsProperties
 {
     [JsonPropertyName("large_image")]
     public string? LargeImage { get; set; }
@@ -15,4 +15,10 @@ public class UserActivityAssetsProperties
 
     [JsonPropertyName("small_text")]
     public string? SmallText { get; set; }
+
+    [JsonSerializable(typeof(UserActivityAssetsProperties))]
+    public partial class UserActivityAssetsPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static UserActivityAssetsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

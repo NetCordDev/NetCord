@@ -93,7 +93,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public IAsyncEnumerable<GuildUser> GetUsersAsync(RequestProperties? properties = null) => _client.GetGuildUsersAsync(Id, properties);
     public IAsyncEnumerable<GuildUser> GetUsersAfterAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildUsersAfterAsync(Id, userId, properties);
     public Task<IReadOnlyDictionary<Snowflake, GuildUser>> FindUserAsync(string name, int limit, RequestProperties? properties = null) => _client.FindGuildUserAsync(Id, name, limit, properties);
-    public Task<GuildUser?> AddUserAsync(Snowflake userId, UserProperties userProperties, RequestProperties? properties = null) => _client.AddGuildUserAsync(Id, userId, userProperties, properties);
+    public Task<GuildUser?> AddUserAsync(Snowflake userId, GuildUserProperties userProperties, RequestProperties? properties = null) => _client.AddGuildUserAsync(Id, userId, userProperties, properties);
     public Task<GuildUser> ModifyUserAsync(Snowflake userId, Action<GuildUserOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserAsync(Id, userId, action, properties);
     public Task<GuildUser> ModifyCurrentUserAsync(Action<CurrentGuildUserOptions> action, RequestProperties? properties = null) => _client.ModifyCurrentGuildUserAsync(Id, action, properties);
     public Task AddUserRoleAsync(Snowflake userId, Snowflake roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(Id, userId, roleId, properties);

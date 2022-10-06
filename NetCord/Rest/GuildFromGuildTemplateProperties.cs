@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildFromGuildTemplateProperties
+public partial class GuildFromGuildTemplateProperties
 {
     public GuildFromGuildTemplateProperties(string name)
     {
@@ -15,4 +15,10 @@ public class GuildFromGuildTemplateProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
     public ImageProperties? Icon { get; set; }
+
+    [JsonSerializable(typeof(GuildFromGuildTemplateProperties))]
+    public partial class GuildFromGuildTemplatePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildFromGuildTemplatePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

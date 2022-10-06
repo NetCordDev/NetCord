@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class ApplicationCommandOptions
+public partial class ApplicationCommandOptions
 {
     internal ApplicationCommandOptions()
     {
@@ -41,4 +41,10 @@ public class ApplicationCommandOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
+
+    [JsonSerializable(typeof(ApplicationCommandOptions))]
+    public partial class ApplicationCommandOptionsSerializerContext : JsonSerializerContext
+    {
+        public static ApplicationCommandOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

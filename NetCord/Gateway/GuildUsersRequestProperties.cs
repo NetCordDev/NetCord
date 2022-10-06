@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class GuildUsersRequestProperties
+public partial class GuildUsersRequestProperties
 {
     [JsonPropertyName("guild_id")]
     public Snowflake GuildId { get; }
@@ -25,5 +25,11 @@ public class GuildUsersRequestProperties
     public GuildUsersRequestProperties(Snowflake guildId)
     {
         GuildId = guildId;
+    }
+
+    [JsonSerializable(typeof(GuildUsersRequestProperties))]
+    public partial class GuildUsersRequestPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildUsersRequestPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ForumGuildThreadProperties : GuildThreadFromMessageProperties
+public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperties
 {
     public ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : base(name)
     {
@@ -20,7 +20,7 @@ public class ForumGuildThreadProperties : GuildThreadFromMessageProperties
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent(this), "payload_json" }
+            { new JsonContent<ForumGuildThreadProperties>(this, ForumGuildThreadPropertiesSerializerContext.WithOptions.ForumGuildThreadProperties), "payload_json" }
         };
         var attachments = Message.Attachments;
         if (attachments != null)
@@ -33,5 +33,11 @@ public class ForumGuildThreadProperties : GuildThreadFromMessageProperties
             }
         }
         return content;
+    }
+
+    [JsonSerializable(typeof(ForumGuildThreadProperties))]
+    public partial class ForumGuildThreadPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ForumGuildThreadPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

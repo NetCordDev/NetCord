@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GroupDMChannelOptions
+public partial class GroupDMChannelOptions
 {
     internal GroupDMChannelOptions()
     {
@@ -15,4 +15,10 @@ public class GroupDMChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
     public ImageProperties? Icon { get; set; }
+
+    [JsonSerializable(typeof(GroupDMChannelOptions))]
+    public partial class GroupDMChannelOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GroupDMChannelOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

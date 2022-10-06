@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonMessageSticker : JsonEntity
+public partial class JsonMessageSticker : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("format_type")]
-    public StickerFormat Format { get; init; }
+    public StickerFormat Format { get; set; }
+
+    [JsonSerializable(typeof(JsonMessageSticker))]
+    public partial class JsonMessageStickerSerializerContext : JsonSerializerContext
+    {
+        public static JsonMessageStickerSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

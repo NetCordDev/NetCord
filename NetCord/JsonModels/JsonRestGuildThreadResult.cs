@@ -2,17 +2,29 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonRestGuildThreadResult
+public partial class JsonRestGuildThreadResult
 {
     [JsonPropertyName("threads")]
-    public JsonChannel[] Threads { get; init; }
+    public JsonChannel[] Threads { get; set; }
 
     [JsonPropertyName("members")]
-    public JsonThreadUser[] Users { get; init; }
+    public JsonThreadUser[] Users { get; set; }
+
+    [JsonSerializable(typeof(JsonRestGuildThreadResult))]
+    public partial class JsonRestGuildThreadResultSerializerContext : JsonSerializerContext
+    {
+        public static JsonRestGuildThreadResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
+public partial class JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
 {
     [JsonPropertyName("has_more")]
-    public bool HasMore { get; init; }
+    public bool HasMore { get; set; }
+
+    [JsonSerializable(typeof(JsonRestGuildThreadPartialResult))]
+    public partial class JsonRestGuildThreadPartialResultSerializerContext : JsonSerializerContext
+    {
+        public static JsonRestGuildThreadPartialResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -3,17 +3,23 @@
 namespace NetCord.JsonModels;
 
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
-public record JsonMessageReference
+public partial class JsonMessageReference
 {
     [JsonPropertyName("message_id")]
-    public Snowflake? MessageId { get; init; }
+    public Snowflake? MessageId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; init; }
+    public Snowflake? GuildId { get; set; }
 
     [JsonPropertyName("fail_if_not_exists")]
-    public bool? FailIfNotExists { get; init; }
+    public bool? FailIfNotExists { get; set; }
+
+    [JsonSerializable(typeof(JsonMessageReference))]
+    public partial class JsonMessageReferenceSerializerContext : JsonSerializerContext
+    {
+        public static JsonMessageReferenceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

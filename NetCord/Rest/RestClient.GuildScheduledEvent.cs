@@ -3,19 +3,19 @@
 public partial class RestClient
 {
     public async Task<IReadOnlyDictionary<Snowflake, GuildScheduledEvent>> GetGuildScheduledEventsAsync(Snowflake guildId, bool withUserCount = false, RequestProperties? properties = null)
-        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events?with_user_count={withUserCount}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEvents), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildScheduledEvent[]>().ToDictionary(e => e.Id, e => new GuildScheduledEvent(e, this));
+        => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events?with_user_count={withUserCount}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEvents), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonGuildScheduledEvent.JsonGuildScheduledEventArraySerializerContext.WithOptions.JsonGuildScheduledEventArray).ToDictionary(e => e.Id, e => new GuildScheduledEvent(e, this));
 
     public async Task<GuildScheduledEvent> CreateGuildScheduledEventAsync(Snowflake guildId, GuildScheduledEventProperties guildScheduledEventProperties, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/scheduled-events", new(RateLimits.RouteParameter.CreateGuildScheduledEvent), new JsonContent(guildScheduledEventProperties), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildScheduledEvent>(), this);
+        => new((await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/scheduled-events", new(RateLimits.RouteParameter.CreateGuildScheduledEvent), new JsonContent<GuildScheduledEventProperties>(guildScheduledEventProperties, GuildScheduledEventProperties.GuildScheduledEventPropertiesSerializerContext.WithOptions.GuildScheduledEventProperties), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent), this);
 
     public async Task<GuildScheduledEvent> GetGuildScheduledEventAsync(Snowflake guildId, Snowflake scheduledEventId, bool withUserCount = false, RequestProperties? properties = null)
-        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}?with_user_count={withUserCount}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEvent), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildScheduledEvent>(), this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}?with_user_count={withUserCount}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEvent), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent), this);
 
     public async Task<GuildScheduledEvent> ModifyGuildScheduledEventAsync(Snowflake guildId, Snowflake scheduledEventId, Action<GuildScheduledEventOptions> action, RequestProperties? properties = null)
     {
-        GuildScheduledEventOptions o = new();
-        action(o);
-        return new((await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", new(RateLimits.RouteParameter.ModifyGuildScheduledEvent), new JsonContent(o), properties).ConfigureAwait(false))!.ToObject<JsonModels.JsonGuildScheduledEvent>(), this);
+        GuildScheduledEventOptions options = new();
+        action(options);
+        return new((await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", new(RateLimits.RouteParameter.ModifyGuildScheduledEvent), new JsonContent<GuildScheduledEventOptions>(options, GuildScheduledEventOptions.GuildScheduledEventOptionsSerializerContext.WithOptions.GuildScheduledEventOptions), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent), this);
     }
 
     public Task DeleteGuildScheduledEventAsync(Snowflake guildId, Snowflake scheduledEventId, RequestProperties? properties = null)
@@ -71,16 +71,16 @@ public partial class RestClient
 
     private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersAsyncTask(Snowflake guildId, Snowflake scheduledEventId, bool guildUsers, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users?with_member={guildUsers}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEventUsers), properties).ConfigureAwait(false))!
-                .ToObject<IEnumerable<JsonModels.JsonGuildScheduledEventUser>>()
+                .ToObject(JsonModels.JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray)
                 .Select(u => new GuildScheduledEventUser(u, guildId, this));
 
     private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersAfterAsyncTask(Snowflake guildId, Snowflake scheduledEventId, Snowflake after, bool guildUsers, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users?after={after}&with_member={guildUsers}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEventUsers), properties).ConfigureAwait(false))!
-                .ToObject<IEnumerable<JsonModels.JsonGuildScheduledEventUser>>()
+                .ToObject(JsonModels.JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray)
                 .Select(u => new GuildScheduledEventUser(u, guildId, this));
 
     private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersBeforeAsyncTask(Snowflake guildId, Snowflake scheduledEventId, Snowflake before, bool guildUsers, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users?before={before}&with_member={guildUsers}", new RateLimits.Route(RateLimits.RouteParameter.GetGuildScheduledEventUsers), properties).ConfigureAwait(false))!
-                .ToObject<IEnumerable<JsonModels.JsonGuildScheduledEventUser>>()
+                .ToObject(JsonModels.JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray)
                 .Select(u => new GuildScheduledEventUser(u, guildId, this)).Reverse();
 }

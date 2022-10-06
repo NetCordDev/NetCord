@@ -9,6 +9,6 @@ public class SelfUser : User
     }
 
     #region User
-    public Task<SelfUser> ModifyAsync(Action<SelfUserProperties> action, RequestProperties? properties = null) => _client.ModifyCurrentUserAsync(action, properties);
+    public Task<SelfUser> ModifyAsync(Action<SelfUserOptions> action, RequestProperties? properties = null) => _client.ModifyCurrentUserAsync(action, properties);
     #endregion
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class EmojiProperties
+public partial class EmojiProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
@@ -20,5 +20,11 @@ public class EmojiProperties
     public EmojiProperties(string unicode)
     {
         Unicode = unicode;
+    }
+
+    [JsonSerializable(typeof(EmojiProperties))]
+    public partial class EmojiPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

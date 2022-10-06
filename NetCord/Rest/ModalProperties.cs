@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ModalProperties
+public partial class ModalProperties
 {
     [JsonPropertyName("custom_id")]
     public string CustomId { get; }
@@ -19,5 +19,11 @@ public class ModalProperties
         CustomId = customId;
         Title = title;
         Components = components;
+    }
+
+    [JsonSerializable(typeof(ModalProperties))]
+    public partial class ModalPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ModalPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

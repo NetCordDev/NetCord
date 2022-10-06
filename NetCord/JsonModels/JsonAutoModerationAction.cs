@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAutoModerationAction
+public partial class JsonAutoModerationAction
 {
     [JsonPropertyName("type")]
-    public AutoModerationActionType Type { get; init; }
+    public AutoModerationActionType Type { get; set; }
 
     [JsonPropertyName("metadata")]
-    public JsonAutoModerationActionMetadata? Metadata { get; init; }
+    public JsonAutoModerationActionMetadata? Metadata { get; set; }
+
+    [JsonSerializable(typeof(JsonAutoModerationAction))]
+    public partial class JsonAutoModerationActionSerializerContext : JsonSerializerContext
+    {
+        public static JsonAutoModerationActionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

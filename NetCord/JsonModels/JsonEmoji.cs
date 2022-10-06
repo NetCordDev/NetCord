@@ -2,29 +2,41 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonEmoji
+public partial class JsonEmoji
 {
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; init; }
+    public Snowflake? Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("roles")]
-    public JsonGuildRole[] AllowedRoles { get; init; }
+    public JsonGuildRole[] AllowedRoles { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser? Creator { get; init; }
+    public JsonUser? Creator { get; set; }
 
     [JsonPropertyName("require_colons")]
-    public bool? RequireColons { get; init; }
+    public bool? RequireColons { get; set; }
 
     [JsonPropertyName("managed")]
-    public bool? Managed { get; init; }
+    public bool? Managed { get; set; }
 
     [JsonPropertyName("animated")]
-    public bool Animated { get; init; }
+    public bool Animated { get; set; }
 
     [JsonPropertyName("available")]
-    public bool? Available { get; init; }
+    public bool? Available { get; set; }
+
+    [JsonSerializable(typeof(JsonEmoji))]
+    public partial class JsonEmojiSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmojiSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonEmoji[]))]
+    public partial class JsonEmojiArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonEmojiArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

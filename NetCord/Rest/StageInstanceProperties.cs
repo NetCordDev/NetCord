@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class StageInstanceProperties
+public partial class StageInstanceProperties
 {
     public StageInstanceProperties(Snowflake channelId, string topic)
     {
@@ -21,4 +21,10 @@ public class StageInstanceProperties
 
     [JsonPropertyName("send_start_notification")]
     public bool? SendStartNotification { get; set; }
+
+    [JsonSerializable(typeof(StageInstanceProperties))]
+    public partial class StageInstancePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static StageInstancePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

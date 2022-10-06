@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonGuildRoleEventArgs
+public partial class JsonGuildRoleEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("role")]
-    public JsonGuildRole Role { get; init; }
+    public JsonGuildRole Role { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildRoleEventArgs))]
+    public partial class JsonGuildRoleEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildRoleEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

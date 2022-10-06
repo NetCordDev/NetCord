@@ -4,26 +4,32 @@ using NetCord.Gateway;
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonReadyEventArgs
+public partial class JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
-    public GatewayVersion Version { get; init; }
+    public GatewayVersion Version { get; set; }
 
     [JsonPropertyName("user")]
-    public JsonUser User { get; init; }
+    public JsonUser User { get; set; }
 
     [JsonPropertyName("guilds")]
-    public IEnumerable<JsonGuild> Guilds { get; init; }
+    public IEnumerable<JsonGuild> Guilds { get; set; }
 
     [JsonPropertyName("session_id")]
-    public string SessionId { get; init; }
+    public string SessionId { get; set; }
 
     [JsonPropertyName("shard")]
-    public Shard? Shard { get; init; }
+    public Shard? Shard { get; set; }
 
     [JsonPropertyName("application")]
-    public JsonApplication Application { get; init; }
+    public JsonApplication Application { get; set; }
 
     [JsonPropertyName("private_channels")]
-    public JsonChannel[] DMChannels { get; init; }
+    public JsonChannel[] DMChannels { get; set; }
+
+    [JsonSerializable(typeof(JsonReadyEventArgs))]
+    public partial class JsonReadyEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonReadyEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

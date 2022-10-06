@@ -51,7 +51,14 @@ internal static class Program
 
         await _client.StartAsync();
         await _client.ReadyAsync;
-        await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+        try
+        {
+            await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+        }
+        catch (RestException ex)
+        {
+            Console.WriteLine(await ex.GetDiscordErrorMessageAsync());
+        }
         await Task.Delay(-1);
     }
 

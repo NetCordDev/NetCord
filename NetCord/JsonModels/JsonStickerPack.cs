@@ -2,23 +2,29 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonStickerPack : JsonEntity
+public partial class JsonStickerPack : JsonEntity
 {
     [JsonPropertyName("stickers")]
-    public JsonSticker[] Stickers { get; init; }
+    public JsonSticker[] Stickers { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("sku_id")]
-    public Snowflake SkuId { get; init; }
+    public Snowflake SkuId { get; set; }
 
     [JsonPropertyName("cover_sticker_id")]
-    public Snowflake? CoverStickerId { get; init; }
+    public Snowflake? CoverStickerId { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; init; }
+    public string Description { get; set; }
 
     [JsonPropertyName("banner_asset_id")]
-    public Snowflake? BannerAssetId { get; init; }
+    public Snowflake? BannerAssetId { get; set; }
+
+    [JsonSerializable(typeof(JsonStickerPack))]
+    public partial class JsonStickerPackSerializerContext : JsonSerializerContext
+    {
+        public static JsonStickerPackSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

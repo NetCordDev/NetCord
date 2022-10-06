@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildThreadOptions
+public partial class GuildThreadOptions
 {
     internal GuildThreadOptions()
     {
@@ -39,4 +39,10 @@ public class GuildThreadOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("applied_tags")]
     public IEnumerable<Snowflake>? AppliedTags { get; set; }
+
+    [JsonSerializable(typeof(GuildThreadOptions))]
+    public partial class GuildThreadOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildThreadOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ForumTagProperties
+public partial class ForumTagProperties
 {
     public ForumTagProperties(string name)
     {
@@ -27,4 +27,10 @@ public class ForumTagProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_name")]
     public string? EmojiName { get; set; }
+
+    [JsonSerializable(typeof(ForumTagProperties))]
+    public partial class ForumTagPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ForumTagPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

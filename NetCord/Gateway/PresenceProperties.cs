@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class PresenceProperties
+public partial class PresenceProperties
 {
     public PresenceProperties(UserStatusType statusType, bool afk)
     {
@@ -21,4 +21,10 @@ public class PresenceProperties
 
     [JsonPropertyName("afk")]
     public bool Afk { get; }
+
+    [JsonSerializable(typeof(PresenceProperties))]
+    public partial class PresencePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static PresencePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

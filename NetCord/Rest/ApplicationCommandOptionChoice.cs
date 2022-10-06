@@ -12,12 +12,25 @@ public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicat
 
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
-    public string Value { get; }
+    public string? ValueString { get; }
+
+    public double? ValueNumeric { get; }
+
+    public ApplicationCommandOptionChoiceValueType ValueType { get; }
 
     public ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonModel)
     {
         _jsonModel = jsonModel;
         JsonElement value = jsonModel.Value;
-        Value = value.ValueKind == JsonValueKind.String ? value.GetString()! : value.GetRawText();
+        if (value.ValueKind == JsonValueKind.String)
+        {
+            ValueString = value.GetString()!;
+            ValueType = ApplicationCommandOptionChoiceValueType.String;
+        }
+        else
+        {
+            ValueNumeric = value.GetDouble();
+            ValueType = ApplicationCommandOptionChoiceValueType.Numeric;
+        }
     }
 }

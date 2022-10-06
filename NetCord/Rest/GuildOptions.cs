@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class GuildOptions
+public partial class GuildOptions
 {
     internal GuildOptions()
     {
@@ -84,4 +84,10 @@ public class GuildOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool? PremiumProgressBarEnabled { get; set; }
+
+    [JsonSerializable(typeof(GuildOptions))]
+    public partial class GuildOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

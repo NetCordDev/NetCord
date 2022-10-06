@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GroupDMUserAddProperties
+public partial class GroupDMUserAddProperties
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; }
@@ -13,5 +13,11 @@ public class GroupDMUserAddProperties
     public GroupDMUserAddProperties(string accessToken)
     {
         AccessToken = accessToken;
+    }
+
+    [JsonSerializable(typeof(GroupDMUserAddProperties))]
+    public partial class GroupDMUserAddPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GroupDMUserAddPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

@@ -2,17 +2,29 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonThreadUser : JsonThreadSelfUser
+public partial class JsonThreadUser : JsonThreadSelfUser
 {
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; init; }
+    public Snowflake UserId { get; set; }
 
     [JsonPropertyName("id")]
-    public Snowflake ThreadId { get; init; }
+    public Snowflake ThreadId { get; set; }
 
     [JsonPropertyName("member")]
-    public JsonGuildUser? GuildUser { get; init; }
+    public JsonGuildUser? GuildUser { get; set; }
 
     [JsonPropertyName("presence")]
-    public JsonPresence? Presence { get; init; }
+    public JsonPresence? Presence { get; set; }
+
+    [JsonSerializable(typeof(JsonThreadUser))]
+    public partial class JsonThreadUserSerializerContext : JsonSerializerContext
+    {
+        public static JsonThreadUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonThreadUser[]))]
+    public partial class JsonThreadUserArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonThreadUserArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

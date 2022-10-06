@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class AutoModerationRuleOptions
+public partial class AutoModerationRuleOptions
 {
     internal AutoModerationRuleOptions()
     {
@@ -35,4 +35,10 @@ public class AutoModerationRuleOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("exempt_channels")]
     public IEnumerable<Snowflake>? ExemptChannels { get; set; }
+
+    [JsonSerializable(typeof(AutoModerationRuleOptions))]
+    public partial class AutoModerationRuleOptionsSerializerContext : JsonSerializerContext
+    {
+        public static AutoModerationRuleOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

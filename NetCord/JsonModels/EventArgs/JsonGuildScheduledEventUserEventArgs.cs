@@ -2,14 +2,20 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public record JsonGuildScheduledEventUserEventArgs
+public partial class JsonGuildScheduledEventUserEventArgs
 {
     [JsonPropertyName("guild_scheduled_event_id")]
-    public Snowflake GuildScheduledEventId { get; init; }
+    public Snowflake GuildScheduledEventId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; init; }
+    public Snowflake UserId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildScheduledEventUserEventArgs))]
+    public partial class JsonGuildScheduledEventUserEventArgsSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildScheduledEventUserEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,23 +2,29 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAuditLog
+public partial class JsonAuditLog
 {
     [JsonPropertyName("audit_log_entries")]
-    public JsonAuditLogEntry[] AuditLogEntries { get; init; }
+    public JsonAuditLogEntry[] AuditLogEntries { get; set; }
 
     [JsonPropertyName("guild_scheduled_events")]
-    public JsonGuildScheduledEvent[] GuildScheduledEvents { get; init; }
+    public JsonGuildScheduledEvent[] GuildScheduledEvents { get; set; }
 
     [JsonPropertyName("integrations")]
-    public JsonIntegration[] Integrations { get; init; }
+    public JsonIntegration[] Integrations { get; set; }
 
     [JsonPropertyName("threads")]
-    public JsonChannel[] Threads { get; init; }
+    public JsonChannel[] Threads { get; set; }
 
     [JsonPropertyName("users")]
-    public JsonUser[] Users { get; init; }
+    public JsonUser[] Users { get; set; }
 
     [JsonPropertyName("webhooks")]
-    public JsonWebhook[] Webhooks { get; init; }
+    public JsonWebhook[] Webhooks { get; set; }
+
+    [JsonSerializable(typeof(JsonAuditLog))]
+    public partial class JsonAuditLogSerializerContext : JsonSerializerContext
+    {
+        public static JsonAuditLogSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

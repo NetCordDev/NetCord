@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling))]
+[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<Platform>))]
 public enum Platform
 {
     Desktop,

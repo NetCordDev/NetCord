@@ -2,35 +2,41 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonInteractionData
+public partial class JsonInteractionData
 {
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; init; }
+    public Snowflake? Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("type")]
-    public ApplicationCommandType? Type { get; init; }
+    public ApplicationCommandType? Type { get; set; }
 
     [JsonPropertyName("resolved")]
-    public JsonApplicationCommandResolvedData? ResolvedData { get; init; }
+    public JsonApplicationCommandResolvedData? ResolvedData { get; set; }
 
     [JsonPropertyName("options")]
-    public JsonApplicationCommandInteractionDataOption[]? Options { get; init; }
+    public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }
 
     [JsonPropertyName("custom_id")]
-    public string? CustomId { get; init; }
+    public string? CustomId { get; set; }
 
     [JsonPropertyName("component_type")]
-    public ComponentType? ComponentType { get; init; }
+    public ComponentType? ComponentType { get; set; }
 
     [JsonPropertyName("values")]
-    public string[]? SelectedValues { get; init; }
+    public string[]? SelectedValues { get; set; }
 
     [JsonPropertyName("target_id")]
-    public Snowflake? TargetId { get; init; }
+    public Snowflake? TargetId { get; set; }
 
     [JsonPropertyName("components")]
-    public JsonComponent[]? Components { get; init; }
+    public JsonComponent[]? Components { get; set; }
+
+    [JsonSerializable(typeof(JsonInteractionData))]
+    public partial class JsonInteractionDataSerializerContext : JsonSerializerContext
+    {
+        public static JsonInteractionDataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

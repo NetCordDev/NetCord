@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildThreadFromMessageProperties
+public partial class GuildThreadFromMessageProperties
 {
     [JsonPropertyName("name")]
     public string Name { get; }
@@ -18,5 +18,11 @@ public class GuildThreadFromMessageProperties
     public GuildThreadFromMessageProperties(string name)
     {
         Name = name;
+    }
+
+    [JsonSerializable(typeof(GuildThreadFromMessageProperties))]
+    public partial class GuildThreadFromMessagePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildThreadFromMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

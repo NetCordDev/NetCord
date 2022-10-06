@@ -2,47 +2,59 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildScheduledEvent : JsonEntity
+public partial class JsonGuildScheduledEvent : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; init; }
+    public Snowflake? ChannelId { get; set; }
 
     [JsonPropertyName("creator_id")]
-    public Snowflake? CreatorId { get; init; }
+    public Snowflake? CreatorId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("description")]
-    public string? Description { get; init; }
+    public string? Description { get; set; }
 
     [JsonPropertyName("scheduled_start_time")]
-    public DateTimeOffset ScheduledStartTime { get; init; }
+    public DateTimeOffset ScheduledStartTime { get; set; }
 
     [JsonPropertyName("scheduled_end_time")]
-    public DateTimeOffset? ScheduledEndTime { get; init; }
+    public DateTimeOffset? ScheduledEndTime { get; set; }
 
     [JsonPropertyName("privacy_level")]
-    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; init; }
+    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; }
 
     [JsonPropertyName("status")]
-    public GuildScheduledEventStatus Status { get; init; }
+    public GuildScheduledEventStatus Status { get; set; }
 
     [JsonPropertyName("entity_type")]
-    public GuildScheduledEventEntityType EntityType { get; init; }
+    public GuildScheduledEventEntityType EntityType { get; set; }
 
     [JsonPropertyName("entity_id")]
-    public Snowflake? EntityId { get; init; }
+    public Snowflake? EntityId { get; set; }
 
     [JsonPropertyName("entity_metadata")]
-    public JsonGuildScheduledEventMetadata? EntityMetadata { get; init; }
+    public JsonGuildScheduledEventMetadata? EntityMetadata { get; set; }
 
     [JsonPropertyName("creator")]
-    public JsonUser? Creator { get; init; }
+    public JsonUser? Creator { get; set; }
 
     [JsonPropertyName("user_count")]
-    public int? UserCount { get; init; }
+    public int? UserCount { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildScheduledEvent))]
+    public partial class JsonGuildScheduledEventSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildScheduledEventSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonGuildScheduledEvent[]))]
+    public partial class JsonGuildScheduledEventArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildScheduledEventArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class ConnectionPropertiesProperties
+public partial class ConnectionPropertiesProperties
 {
     public static ConnectionPropertiesProperties Default => new()
     {
@@ -27,13 +27,19 @@ public class ConnectionPropertiesProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("os")]
-    public string? Os { get; init; }
+    public string? Os { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("browser")]
-    public string? Browser { get; init; }
+    public string? Browser { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("device")]
-    public string? Device { get; init; }
+    public string? Device { get; set; }
+
+    [JsonSerializable(typeof(ConnectionPropertiesProperties))]
+    public partial class ConnectionPropertiesPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ConnectionPropertiesPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

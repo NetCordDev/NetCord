@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildInviteProperties
+public partial class GuildInviteProperties
 {
     [JsonPropertyName("max_age")]
     public int? MaxAge { get; set; }
@@ -24,4 +24,10 @@ public class GuildInviteProperties
 
     [JsonPropertyName("target_application_id")]
     public Snowflake? TargetApplicationId { get; set; }
+
+    [JsonSerializable(typeof(GuildInviteProperties))]
+    public partial class GuildInvitePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildInvitePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

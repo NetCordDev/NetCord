@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildScheduledEventProperties
+public partial class GuildScheduledEventProperties
 {
     [JsonPropertyName("channel_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -42,5 +42,11 @@ public class GuildScheduledEventProperties
         PrivacyLevel = privacyLevel;
         ScheduledStartTime = scheduledStartTime;
         EntityType = entityType;
+    }
+
+    [JsonSerializable(typeof(GuildScheduledEventProperties))]
+    public partial class GuildScheduledEventPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildScheduledEventPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

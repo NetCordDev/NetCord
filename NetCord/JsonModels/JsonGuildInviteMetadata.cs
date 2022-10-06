@@ -2,20 +2,26 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildInviteMetadata
+public partial class JsonGuildInviteMetadata
 {
     [JsonPropertyName("uses")]
-    public int Uses { get; init; }
+    public int Uses { get; set; }
 
     [JsonPropertyName("max_uses")]
-    public int MaxUses { get; init; }
+    public int MaxUses { get; set; }
 
     [JsonPropertyName("max_age")]
-    public int MaxAge { get; init; }
+    public int MaxAge { get; set; }
 
     [JsonPropertyName("temporary")]
-    public bool Temporary { get; init; }
+    public bool Temporary { get; set; }
 
     [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildInviteMetadata))]
+    public partial class JsonGuildInviteMetadataSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildInviteMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonEntity
+public class JsonEntity
 {
     [JsonPropertyName("id")]
-    public virtual Snowflake Id { get; init; }
+    public virtual Snowflake Id { get; set; }
 }

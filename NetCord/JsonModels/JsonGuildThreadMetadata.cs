@@ -2,20 +2,26 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildThreadMetadata
+public partial class JsonGuildThreadMetadata
 {
     [JsonPropertyName("archived")]
-    public bool Archived { get; init; }
+    public bool Archived { get; set; }
 
     [JsonPropertyName("auto_archive_duration")]
-    public int AutoArchiveDuration { get; init; }
+    public int AutoArchiveDuration { get; set; }
 
     [JsonPropertyName("archive_timestamp")]
-    public DateTimeOffset ArchiveTimestamp { get; init; }
+    public DateTimeOffset ArchiveTimestamp { get; set; }
 
     [JsonPropertyName("locked")]
-    public bool Locked { get; init; }
+    public bool Locked { get; set; }
 
     [JsonPropertyName("invitable")]
-    public bool? Invitable { get; init; }
+    public bool? Invitable { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildThreadMetadata))]
+    public partial class JsonGuildThreadMetadataSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildThreadMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

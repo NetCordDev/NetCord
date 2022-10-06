@@ -4,14 +4,20 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public record JsonApplicationCommandOptionChoice
+public partial class JsonApplicationCommandOptionChoice
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; init; }
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("value")]
-    public JsonElement Value { get; init; }
+    public JsonElement Value { get; set; }
+
+    [JsonSerializable(typeof(JsonApplicationCommandOptionChoice))]
+    public partial class JsonApplicationCommandOptionChoiceSerializerContext : JsonSerializerContext
+    {
+        public static JsonApplicationCommandOptionChoiceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

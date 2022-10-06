@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json.Serialization.Metadata;
 
 using NetCord.JsonModels;
 
@@ -31,7 +32,7 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
 
     public IEnumerable<AuditLogChange> Changes { get; }
 
-    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue>> expression) where TObject : JsonEntity
+    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue>> expression, JsonTypeInfo<TValue> jsonTypeInfo) where TObject : JsonEntity
     {
         if (_jsonModel.Changes == null)
             throw new EntityNotFoundException();
@@ -43,7 +44,7 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         if (result == null)
             throw new EntityNotFoundException();
 
-        return new(result);
+        return new(result, jsonTypeInfo);
     }
 
     public User? User

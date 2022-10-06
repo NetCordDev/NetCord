@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildPruneProperties
+public partial class GuildPruneProperties
 {
     [JsonPropertyName("days")]
     public int Days { get; set; }
@@ -17,5 +17,11 @@ public class GuildPruneProperties
     public GuildPruneProperties(int days)
     {
         Days = days;
+    }
+
+    [JsonSerializable(typeof(GuildPruneProperties))]
+    public partial class GuildPrunePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildPrunePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

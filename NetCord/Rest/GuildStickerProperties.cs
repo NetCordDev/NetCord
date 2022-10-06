@@ -1,6 +1,8 @@
-﻿namespace NetCord.Rest;
+﻿using System.Text.Json.Serialization;
 
-public class GuildStickerProperties
+namespace NetCord.Rest;
+
+public partial class GuildStickerProperties
 {
     public GuildStickerProperties(string name, string description, IEnumerable<string> tags, Stream stream, StickerFormat format)
     {
@@ -51,5 +53,11 @@ public class GuildStickerProperties
             { file, "file", "f" },
         };
         return content;
+    }
+
+    [JsonSerializable(typeof(GuildStickerProperties))]
+    public partial class GuildStickerPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildStickerPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

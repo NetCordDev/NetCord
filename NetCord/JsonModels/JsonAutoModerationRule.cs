@@ -2,35 +2,47 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAutoModerationRule : JsonEntity
+public partial class JsonAutoModerationRule : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; init; }
+    public Snowflake GuildId { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("creator_id")]
-    public Snowflake CreatorId { get; init; }
+    public Snowflake CreatorId { get; set; }
 
     [JsonPropertyName("event_type")]
-    public AutoModerationRuleEventType EventType { get; init; }
+    public AutoModerationRuleEventType EventType { get; set; }
 
     [JsonPropertyName("trigger_type")]
-    public AutoModerationRuleTriggerType TriggerType { get; init; }
+    public AutoModerationRuleTriggerType TriggerType { get; set; }
 
     [JsonPropertyName("trigger_metadata")]
-    public JsonAutoModerationRuleTriggerMetadata TriggerMetadata { get; init; }
+    public JsonAutoModerationRuleTriggerMetadata TriggerMetadata { get; set; }
 
     [JsonPropertyName("actions")]
-    public JsonAutoModerationAction[] Actions { get; init; }
+    public JsonAutoModerationAction[] Actions { get; set; }
 
     [JsonPropertyName("enabled")]
-    public bool Enabled { get; init; }
+    public bool Enabled { get; set; }
 
     [JsonPropertyName("exempt_roles")]
-    public Snowflake[] ExemptRoles { get; init; }
+    public Snowflake[] ExemptRoles { get; set; }
 
     [JsonPropertyName("exempt_channels")]
-    public Snowflake[] ExemptChannels { get; init; }
+    public Snowflake[] ExemptChannels { get; set; }
+
+    [JsonSerializable(typeof(JsonAutoModerationRule))]
+    public partial class JsonAutoModerationRuleSerializerContext : JsonSerializerContext
+    {
+        public static JsonAutoModerationRuleSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(JsonAutoModerationRule[]))]
+    public partial class JsonAutoModerationRuleArraySerializerContext : JsonSerializerContext
+    {
+        public static JsonAutoModerationRuleArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

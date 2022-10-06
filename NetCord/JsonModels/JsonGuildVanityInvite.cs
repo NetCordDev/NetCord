@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildVanityInvite
+public partial class JsonGuildVanityInvite
 {
     [JsonPropertyName("code")]
-    public string Code { get; init; }
+    public string Code { get; set; }
 
     [JsonPropertyName("uses")]
-    public int Uses { get; init; }
+    public int Uses { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildVanityInvite))]
+    public partial class JsonGuildVanityInviteSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildVanityInviteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class InteractionMessageProperties
+public partial class InteractionMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("tts")]
@@ -37,7 +37,7 @@ public class InteractionMessageProperties
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent(this), "payload_json" }
+            { new JsonContent<InteractionMessageProperties>(this, InteractionMessagePropertiesSerializerContext.WithOptions.InteractionMessageProperties), "payload_json" }
         };
         if (Attachments != null)
         {
@@ -55,4 +55,10 @@ public class InteractionMessageProperties
     {
         Content = content
     };
+
+    [JsonSerializable(typeof(InteractionMessageProperties))]
+    public partial class InteractionMessagePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static InteractionMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

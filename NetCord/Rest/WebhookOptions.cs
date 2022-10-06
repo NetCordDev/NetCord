@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class WebhookOptions
+public partial class WebhookOptions
 {
     internal WebhookOptions()
     {
@@ -19,4 +19,10 @@ public class WebhookOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
     public Snowflake? ChannelId { get; set; }
+
+    [JsonSerializable(typeof(WebhookOptions))]
+    public partial class WebhookOptionsSerializerContext : JsonSerializerContext
+    {
+        public static WebhookOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -3,33 +3,39 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public record JsonAttachment : JsonEntity
+public partial class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
-    public string Filename { get; init; }
+    public string Filename { get; set; }
 
     [JsonPropertyName("description")]
-    public string? Description { get; init; }
+    public string? Description { get; set; }
 
     [JsonConverter(typeof(JsonConverters.ContentTypeConverter))]
     [JsonPropertyName("content_type")]
-    public ContentType? ContentType { get; init; }
+    public ContentType? ContentType { get; set; }
 
     [JsonPropertyName("size")]
-    public int Size { get; init; }
+    public int Size { get; set; }
 
     [JsonPropertyName("url")]
-    public string Url { get; init; }
+    public string Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
-    public string ProxyUrl { get; init; }
+    public string ProxyUrl { get; set; }
 
     [JsonPropertyName("height")]
-    public int? Height { get; init; }
+    public int? Height { get; set; }
 
     [JsonPropertyName("width")]
-    public int? Width { get; init; }
+    public int? Width { get; set; }
 
     [JsonPropertyName("ephemeral")]
-    public bool Ephemeral { get; init; }
+    public bool Ephemeral { get; set; }
+
+    [JsonSerializable(typeof(JsonAttachment))]
+    public partial class JsonAttachmentSerializerContext : JsonSerializerContext
+    {
+        public static JsonAttachmentSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

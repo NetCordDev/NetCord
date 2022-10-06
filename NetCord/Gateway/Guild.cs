@@ -33,19 +33,7 @@ public class Guild : RestGuild
         ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionary(e => new GuildScheduledEvent(e, client));
     }
 
-    public Guild(JsonGuild jsonModel, Guild oldGuild) : base(jsonModel with
-    {
-        CreatedAt = oldGuild._jsonModel.CreatedAt,
-        IsLarge = oldGuild._jsonModel.IsLarge,
-        UserCount = oldGuild._jsonModel.UserCount,
-        VoiceStates = oldGuild._jsonModel.VoiceStates,
-        Users = oldGuild._jsonModel.Users,
-        Channels = oldGuild._jsonModel.Channels,
-        ActiveThreads = oldGuild._jsonModel.ActiveThreads,
-        StageInstances = oldGuild._jsonModel.StageInstances,
-        Presences = oldGuild._jsonModel.Presences,
-        ScheduledEvents = oldGuild._jsonModel.ScheduledEvents
-    }, oldGuild._client)
+    public Guild(JsonGuild jsonModel, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)
     {
         VoiceStates = oldGuild.VoiceStates;
         Users = oldGuild.Users;
@@ -54,5 +42,21 @@ public class Guild : RestGuild
         StageInstances = oldGuild.StageInstances;
         Presences = oldGuild.Presences;
         ScheduledEvents = oldGuild.ScheduledEvents;
+    }
+
+    private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)
+    {
+        var oldJsonModel = oldGuild._jsonModel;
+        jsonModel.CreatedAt = oldJsonModel.CreatedAt;
+        jsonModel.IsLarge = oldJsonModel.IsLarge;
+        jsonModel.UserCount = oldJsonModel.UserCount;
+        jsonModel.VoiceStates = oldJsonModel.VoiceStates;
+        jsonModel.Users = oldJsonModel.Users;
+        jsonModel.Channels = oldJsonModel.Channels;
+        jsonModel.ActiveThreads = oldJsonModel.ActiveThreads;
+        jsonModel.StageInstances = oldJsonModel.StageInstances;
+        jsonModel.Presences = oldJsonModel.Presences;
+        jsonModel.ScheduledEvents = oldJsonModel.ScheduledEvents;
+        return jsonModel;
     }
 }

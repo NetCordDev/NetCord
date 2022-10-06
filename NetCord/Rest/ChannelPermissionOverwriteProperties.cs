@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ChannelPermissionOverwrite
+public partial class ChannelPermissionOverwriteProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
@@ -18,9 +18,15 @@ public class ChannelPermissionOverwrite
     [JsonPropertyName("deny")]
     public Permission? Denied { get; set; }
 
-    public ChannelPermissionOverwrite(Snowflake id, PermissionOverwriteType type)
+    public ChannelPermissionOverwriteProperties(Snowflake id, PermissionOverwriteType type)
     {
         Id = id;
         Type = type;
+    }
+
+    [JsonSerializable(typeof(ChannelPermissionOverwriteProperties))]
+    public partial class ChannelPermissionOverwritePropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ChannelPermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class TextInputProperties
+public partial class TextInputProperties
 {
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.TextInput;
@@ -41,5 +41,11 @@ public class TextInputProperties
         CustomId = customId;
         Style = style;
         Label = label;
+    }
+
+    [JsonSerializable(typeof(TextInputProperties))]
+    public partial class TextInputPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static TextInputPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

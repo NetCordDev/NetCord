@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ChannelPositionProperties
+public partial class ChannelPositionProperties
 {
     [JsonPropertyName("id")]
     public Snowflake Id { get; }
@@ -19,5 +19,17 @@ public class ChannelPositionProperties
     public ChannelPositionProperties(Snowflake id)
     {
         Id = id;
+    }
+
+    [JsonSerializable(typeof(ChannelPositionProperties))]
+    public partial class ChannelPositionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ChannelPositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
+
+    [JsonSerializable(typeof(IEnumerable<ChannelPositionProperties>))]
+    public partial class IEnumerableOfChannelPositionPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static IEnumerableOfChannelPositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

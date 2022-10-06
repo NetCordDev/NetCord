@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class StageInstanceOptions
+public partial class StageInstanceOptions
 {
     internal StageInstanceOptions()
     {
@@ -15,4 +15,10 @@ public class StageInstanceOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("privacy_level")]
     public StageInstancePrivacyLevel? PrivacyLevel { get; set; }
+
+    [JsonSerializable(typeof(StageInstanceOptions))]
+    public partial class StageInstanceOptionsSerializerContext : JsonSerializerContext
+    {
+        public static StageInstanceOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

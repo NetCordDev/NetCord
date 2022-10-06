@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class MessageOptions
+public partial class MessageOptions
 {
     internal MessageOptions()
     {
@@ -37,7 +37,7 @@ public class MessageOptions
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent(this), "payload_json" }
+            { new JsonContent<MessageOptions>(this, MessageOptionsSerializerContext.WithOptions.MessageOptions), "payload_json" }
         };
         if (Attachments != null)
         {
@@ -49,5 +49,11 @@ public class MessageOptions
             }
         }
         return content;
+    }
+
+    [JsonSerializable(typeof(MessageOptions))]
+    public partial class MessageOptionsSerializerContext : JsonSerializerContext
+    {
+        public static MessageOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

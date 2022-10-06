@@ -2,17 +2,23 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonWelcomeScreenChannel
+public partial class JsonWelcomeScreenChannel
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; init; }
+    public Snowflake ChannelId { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; init; }
+    public string Description { get; set; }
 
     [JsonPropertyName("emoji_id")]
-    public Snowflake? EmojiId { get; init; }
+    public Snowflake? EmojiId { get; set; }
 
     [JsonPropertyName("emoji_name")]
-    public string? EmojiName { get; init; }
+    public string? EmojiName { get; set; }
+
+    [JsonSerializable(typeof(JsonWelcomeScreenChannel))]
+    public partial class JsonWelcomeScreenChannelSerializerContext : JsonSerializerContext
+    {
+        public static JsonWelcomeScreenChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

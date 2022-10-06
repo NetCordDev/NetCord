@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(ShardPropertiesConverter))]
-public class ShardProperties
+public partial class ShardProperties
 {
     public ShardProperties(int shardId, int shardsCount)
     {
@@ -16,7 +16,7 @@ public class ShardProperties
 
     public int ShardsCount { get; }
 
-    private class ShardPropertiesConverter : JsonConverter<ShardProperties>
+    internal class ShardPropertiesConverter : JsonConverter<ShardProperties>
     {
         public override ShardProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, ShardProperties value, JsonSerializerOptions options)
@@ -26,5 +26,11 @@ public class ShardProperties
             writer.WriteNumberValue(value.ShardsCount);
             writer.WriteEndArray();
         }
+    }
+
+    [JsonSerializable(typeof(ShardProperties))]
+    public partial class ShardPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static ShardPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

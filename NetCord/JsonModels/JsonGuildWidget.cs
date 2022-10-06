@@ -2,20 +2,26 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildWidget : JsonEntity
+public partial class JsonGuildWidget : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("instant_invite")]
-    public string? InstantInvite { get; init; }
+    public string? InstantInvite { get; set; }
 
     [JsonPropertyName("channels")]
-    public JsonGuildWidgetChannel[] Channels { get; init; }
+    public JsonGuildWidgetChannel[] Channels { get; set; }
 
     [JsonPropertyName("members")]
-    public JsonUser[] Users { get; init; }
+    public JsonUser[] Users { get; set; }
 
     [JsonPropertyName("presence_count")]
-    public int PresenceCount { get; init; }
+    public int PresenceCount { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildWidget))]
+    public partial class JsonGuildWidgetSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildWidgetSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GroupDMChannelProperties
+public partial class GroupDMChannelProperties
 {
     public GroupDMChannelProperties(IEnumerable<string> accessTokens)
     {
@@ -12,7 +12,12 @@ public class GroupDMChannelProperties
     [JsonPropertyName("access_tokens")]
     public IEnumerable<string> AccessTokens { get; }
 
-    //[JsonConverter(typeof(JsonConverters.GroupDMChannelPropertiesNicknamesConverter))]
     [JsonPropertyName("nicks")]
     public IReadOnlyDictionary<Snowflake, string>? Nicknames { get; set; }
+
+    [JsonSerializable(typeof(GroupDMChannelProperties))]
+    public partial class GroupDMChannelPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GroupDMChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

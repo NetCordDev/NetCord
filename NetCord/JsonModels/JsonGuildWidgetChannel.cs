@@ -2,11 +2,17 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonGuildWidgetChannel : JsonEntity
+public partial class JsonGuildWidgetChannel : JsonEntity
 {
     [JsonPropertyName("name")]
-    public string Name { get; init; }
+    public string Name { get; set; }
 
     [JsonPropertyName("position")]
-    public int Position { get; init; }
+    public int Position { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildWidgetChannel))]
+    public partial class JsonGuildWidgetChannelSerializerContext : JsonSerializerContext
+    {
+        public static JsonGuildWidgetChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildWidgetSettingsOptions
+public partial class GuildWidgetSettingsOptions
 {
     internal GuildWidgetSettingsOptions()
     {
@@ -13,4 +13,10 @@ public class GuildWidgetSettingsOptions
 
     [JsonPropertyName("channel_id")]
     public Snowflake? ChannelId { get; set; }
+
+    [JsonSerializable(typeof(GuildWidgetSettingsOptions))]
+    public partial class GuildWidgetSettingsOptionsSerializerContext : JsonSerializerContext
+    {
+        public static GuildWidgetSettingsOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

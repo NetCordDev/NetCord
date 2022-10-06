@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class UserProperties
+public partial class GuildUserProperties
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; }
@@ -23,8 +23,14 @@ public class UserProperties
     [JsonPropertyName("deaf")]
     public bool? Deafened { get; set; }
 
-    public UserProperties(string accessToken)
+    public GuildUserProperties(string accessToken)
     {
         AccessToken = accessToken;
+    }
+
+    [JsonSerializable(typeof(GuildUserProperties))]
+    public partial class GuildUserPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static GuildUserPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

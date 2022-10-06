@@ -3,7 +3,7 @@ name: Build and Publish
 on: push
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,14 +22,17 @@ jobs:
 
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
+        env:
+          OriginalTurboBoat: ${{ secrets.ORIGINALTURBOBOAT }}
 
-      - name: Publish NetCord
+      - name: Pack
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        run: dotnet nuget push NetCord/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate
+        run: |
+          dotnet pack NetCord -c Release --no-restore --no-build
+          dotnet pack NetCord.Services -c Release --no-restore --no-build
 
-      - name: Publish NetCord.Services
+      - name: Publish
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        run: dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate
-      
-env:
-  OriginalTurboBoat: ${{ secrets.ORIGINALTURBOBOAT }}
+        run: |
+          dotnet nuget push NetCord/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate
+          dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols --skip-duplicate

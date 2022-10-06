@@ -30,7 +30,8 @@ public class SlashCommandInteractionResolvedData
                 {
                     enumerator.MoveNext();
                     var current = enumerator.Current;
-                    users.Add(current.Key, new GuildInteractionUser(guildUser.Value with { User = current.Value }, guildId.GetValueOrDefault(), client));
+                    guildUser.Value.User = current.Value;
+                    users.Add(current.Key, new GuildInteractionUser(guildUser.Value, guildId.GetValueOrDefault(), client));
                 }
                 enumerator.Dispose();
                 Users = users;

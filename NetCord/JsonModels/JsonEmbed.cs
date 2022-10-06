@@ -2,92 +2,128 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonEmbed
+public partial class JsonEmbed
 {
     [JsonPropertyName("title")]
-    public string? Title { get; init; }
+    public string? Title { get; set; }
     [JsonPropertyName("type")]
-    public EmbedType? Type { get; init; }
+    public EmbedType? Type { get; set; }
     [JsonPropertyName("description")]
-    public string? Description { get; init; }
+    public string? Description { get; set; }
     [JsonPropertyName("url")]
-    public string? Url { get; init; }
+    public string? Url { get; set; }
     [JsonPropertyName("timestamp")]
-    public DateTimeOffset? Timestamp { get; init; }
+    public DateTimeOffset? Timestamp { get; set; }
     [JsonPropertyName("color")]
-    public Color? Color { get; init; }
+    public Color? Color { get; set; }
     [JsonPropertyName("footer")]
-    public JsonEmbedFooter? Footer { get; init; }
+    public JsonEmbedFooter? Footer { get; set; }
     [JsonPropertyName("image")]
-    public JsonEmbedPartBase? Image { get; init; }
+    public JsonEmbedPartBase? Image { get; set; }
     [JsonPropertyName("thumbnail")]
-    public JsonEmbedPartBase? Thumbnail { get; init; }
+    public JsonEmbedPartBase? Thumbnail { get; set; }
     [JsonPropertyName("video")]
-    public JsonEmbedPartBase? Video { get; init; }
+    public JsonEmbedPartBase? Video { get; set; }
     [JsonPropertyName("provider")]
-    public JsonEmbedProvider? Provider { get; init; }
+    public JsonEmbedProvider? Provider { get; set; }
     [JsonPropertyName("author")]
-    public JsonEmbedAuthor? Author { get; init; }
+    public JsonEmbedAuthor? Author { get; set; }
     [JsonPropertyName("fields")]
-    public JsonEmbedField[] Fields { get; init; }
+    public JsonEmbedField[] Fields { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbed))]
+    public partial class JsonEmbedSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonEmbedFooter
+public partial class JsonEmbedFooter
 {
     [JsonPropertyName("text")]
-    public string Text { get; init; }
+    public string Text { get; set; }
     [JsonPropertyName("icon_url")]
-    public string? IconUrl { get; init; }
+    public string? IconUrl { get; set; }
     [JsonPropertyName("proxy_icon_url")]
-    public string? ProxyIconUrl { get; init; }
+    public string? ProxyIconUrl { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedFooter))]
+    public partial class JsonEmbedFooterSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedFooterSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonEmbedPartBase
+public partial class JsonEmbedPartBase
 {
     [JsonPropertyName("url")]
-    public string? Url { get; init; }
+    public string? Url { get; set; }
 
     [JsonPropertyName("proxy_url")]
-    public string? ProxyUrl { get; init; }
+    public string? ProxyUrl { get; set; }
 
     [JsonPropertyName("height")]
-    public int? Height { get; init; }
+    public int? Height { get; set; }
 
     [JsonPropertyName("width")]
-    public int? Width { get; init; }
+    public int? Width { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedPartBase))]
+    public partial class JsonEmbedPartBaseSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedPartBaseSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonEmbedProvider
+public partial class JsonEmbedProvider
 {
     [JsonPropertyName("name")]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
     [JsonPropertyName("url")]
-    public string? Url { get; init; }
+    public string? Url { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedProvider))]
+    public partial class JsonEmbedProviderSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedProviderSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonEmbedAuthor
+public partial class JsonEmbedAuthor
 {
     [JsonPropertyName("name")]
-    public string? Name { get; init; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("url")]
-    public string? Url { get; init; }
+    public string? Url { get; set; }
 
     [JsonPropertyName("icon_url")]
-    public string? IconUrl { get; init; }
+    public string? IconUrl { get; set; }
 
     [JsonPropertyName("proxy_icon_url")]
-    public string? ProxyIconUrl { get; init; }
+    public string? ProxyIconUrl { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedAuthor))]
+    public partial class JsonEmbedAuthorSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedAuthorSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }
 
-public record JsonEmbedField
+public partial class JsonEmbedField
 {
     [JsonPropertyName("name")]
-    public string Title { get; init; }
+    public string Title { get; set; }
 
     [JsonPropertyName("value")]
-    public string Description { get; init; }
+    public string Description { get; set; }
 
     [JsonPropertyName("inline")]
-    public bool? Inline { get; init; }
+    public bool? Inline { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedField))]
+    public partial class JsonEmbedFieldSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedFieldSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    }
 }

@@ -19,7 +19,7 @@ public partial class RestClient
             else
                 task = SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100", properties);
         }
-        JsonModels.JsonAuditLog? jsonAuditLog = (await task.ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+        JsonModels.JsonAuditLog? jsonAuditLog = (await task.ConfigureAwait(false)).ToObject(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog);
 
         foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
             yield return new(jsonAuditLogEntry, jsonAuditLog, this);
@@ -38,7 +38,7 @@ public partial class RestClient
                 do
                 {
                     count = 0;
-                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog);
 
                     foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
                     {
@@ -55,7 +55,7 @@ public partial class RestClient
                 do
                 {
                     count = 0;
-                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog);
 
                     foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
                     {
@@ -75,7 +75,7 @@ public partial class RestClient
                 do
                 {
                     count = 0;
-                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog);
 
                     foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
                     {
@@ -92,7 +92,7 @@ public partial class RestClient
                 do
                 {
                     count = 0;
-                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&before={before}", properties).ConfigureAwait(false)).ToObject<JsonModels.JsonAuditLog>();
+                    var jsonAuditLog = (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs?limit=100&before={before}", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog);
 
                     foreach (var jsonAuditLogEntry in jsonAuditLog.AuditLogEntries)
                     {
