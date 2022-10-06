@@ -93,24 +93,6 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         if (memberInfo == null)
             throw new ArgumentException($"The expression '{nameof(memberAccessExpression)}' is not a valid member access expression. The expression should represent a simple property or field access: 't => t.MyProperty'.", nameof(memberAccessExpression));
 
-        var declaringType = memberInfo.DeclaringType;
-        var parameterType = parameterExpression.Type;
-
-        if (declaringType != null
-            && declaringType != parameterType
-            && declaringType.IsInterface
-            && declaringType.IsAssignableFrom(parameterType)
-            && memberInfo is PropertyInfo propertyInfo)
-        {
-            var propertyGetter = propertyInfo.GetMethod;
-            var interfaceMapping = parameterType.GetTypeInfo().GetRuntimeInterfaceMap(declaringType);
-            var index = Array.FindIndex(interfaceMapping.InterfaceMethods, p => p.Equals(propertyGetter));
-            var targetMethod = interfaceMapping.TargetMethods[index];
-            foreach (var runtimeProperty in parameterType.GetRuntimeProperties())
-                if (targetMethod.Equals(runtimeProperty.GetMethod))
-                    return (TMemberInfo)(object)runtimeProperty;
-        }
-
         return memberInfo;
     }
 
