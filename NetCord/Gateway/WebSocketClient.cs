@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 using NetCord.Gateway.WebSockets;
@@ -14,58 +15,26 @@ public abstract class WebSocketClient : IDisposable
         _webSocket.Connecting += async () =>
         {
             InvokeLog(LogMessage.Info("Connecting"));
-            try
-            {
-                if (Connecting != null)
-                    await Connecting().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+            await InvokeEventAsync(Connecting).ConfigureAwait(false);
         };
         _webSocket.Connected += async () =>
         {
             _token = (_tokenSource = new()).Token;
             InvokeLog(LogMessage.Info("Connected"));
-            try
-            {
-                if (Connected != null)
-                    await Connected().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+            await InvokeEventAsync(Connected).ConfigureAwait(false);
         };
         _webSocket.Disconnected += async (closeStatus, description) =>
         {
             _tokenSource!.Cancel();
             InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
-            try
-            {
-                if (Disconnected != null)
-                    await Disconnected().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+            await InvokeEventAsync(Disconnected).ConfigureAwait(false);
             await ReconnectAsync(closeStatus, description).ConfigureAwait(false);
         };
         _webSocket.Closed += async () =>
         {
             _tokenSource!.Cancel();
             InvokeLog(LogMessage.Info("Closed"));
-            try
-            {
-                if (Closed != null)
-                    await Closed.Invoke().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+            await InvokeEventAsync(Closed).ConfigureAwait(false);
         };
         _webSocket.MessageReceived += async data =>
         {
@@ -77,7 +46,6 @@ public abstract class WebSocketClient : IDisposable
                 {
                     Utf8JsonReader reader = new(data);
                     return JsonSerializer.Deserialize(ref reader, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
-                    //return JsonSerializer.Deserialize<JsonPayload>(ref reader, JsonTypeInfo., ToObjectExtensions._options)!;
                 }
             }
             catch (Exception ex)
@@ -94,8 +62,11 @@ public abstract class WebSocketClient : IDisposable
     private protected CancellationTokenSource? _tokenSource;
     private protected CancellationToken _token;
 
-    public int? Latency { get; private protected set; }
+    public TimeSpan? Latency => _latency;
+    private TimeSpan? _latency;
 
+    public event Func<TimeSpan, ValueTask>? LatencyUpdated;
+    public event Func<ValueTask>? Resumed;
     public event Func<ValueTask>? Connecting;
     public event Func<ValueTask>? Connected;
     public event Func<ValueTask>? Disconnected;
@@ -144,14 +115,186 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async void InvokeLog(LogMessage logMessage)
     {
-        try
+        if (Log != null)
         {
-            if (Log != null)
+            try
+            {
                 await Log(logMessage).ConfigureAwait(false);
+            }
+            catch
+            {
+            }
         }
-        catch
+    }
+
+    private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
+        => InvokeEventAsync(LatencyUpdated, latency, out _latency);
+
+    private protected ValueTask InvokeResumedEventAsync()
+        => InvokeEventAsync(Resumed);
+
+    private protected async ValueTask InvokeEventAsync(Func<ValueTask>? @event)
+    {
+        if (@event != null)
         {
+            try
+            {
+                await @event().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
         }
+    }
+
+    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
+    {
+        if (@event != null)
+        {
+            try
+            {
+                await @event(dataFunc()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
+        }
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T dataField)
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            try
+            {
+                task = @event(data);
+                dataField = data;
+            }
+            catch (Exception ex)
+            {
+                dataField = data;
+                InvokeLog(LogMessage.Error(ex));
+                return default;
+            }
+            return AwaitEventAsync();
+
+            async ValueTask AwaitEventAsync()
+            {
+                try
+                {
+                    await task.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLog(LogMessage.Error(ex));
+                }
+            }
+        }
+        else
+        {
+            dataField = data;
+            return default;
+        }
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T? dataField) where T : struct
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            try
+            {
+                task = @event(data);
+                dataField = data;
+            }
+            catch (Exception ex)
+            {
+                dataField = data;
+                InvokeLog(LogMessage.Error(ex));
+                return default;
+            }
+            return AwaitEventAsync();
+
+            async ValueTask AwaitEventAsync()
+            {
+                try
+                {
+                    await task.ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLog(LogMessage.Error(ex));
+                }
+            }
+        }
+        else
+        {
+            dataField = data;
+            return default;
+        }
+    }
+
+    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            try
+            {
+                task = @event(data);
+                updateData(data);
+            }
+            catch (Exception ex)
+            {
+                updateData(data);
+                InvokeLog(LogMessage.Error(ex));
+                return;
+            }
+            try
+            {
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
+        }
+        else
+        {
+            updateData(data);
+        }
+    }
+
+    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            try
+            {
+                task = @event(dataFunc());
+                updateData();
+            }
+            catch (Exception ex)
+            {
+                updateData();
+                InvokeLog(LogMessage.Error(ex));
+                return;
+            }
+            try
+            {
+                await task.ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
+        }
+        else
+            updateData();
     }
 
     public virtual void Dispose()

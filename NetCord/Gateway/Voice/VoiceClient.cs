@@ -61,83 +61,95 @@ public class VoiceClient : WebSocketClient
         switch ((VoiceOpcode)jsonPayload.Opcode)
         {
             case VoiceOpcode.Ready:
-                Latency = _latencyTimer.Elapsed;
-                _reconnectTimer.Reset();
-                var ready = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
-                Ssrc = ready.Ssrc;
-
-                _udpSocket.Connect(ready.Ip, ready.Port);
-                if (RedirectInputStreams)
                 {
-                    Memory<byte> bytes = new(new byte[70]);
-                    bytes.Span[1] = 1;
+                    var latency = _latencyTimer.Elapsed;
+                    _reconnectTimer.Reset();
+                    await UpdateLatencyAsync(latency).ConfigureAwait(false);
+                    var ready = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
+                    Ssrc = ready.Ssrc;
 
-                    TaskCompletionSource<byte[]> result = new();
-                    _udpSocket.DatagramReceive += UdpSocket_DatagramReceiveOnce;
-                    await _udpSocket.SendAsync(bytes).ConfigureAwait(false);
-                    var datagram = await result.Task.ConfigureAwait(false);
-
-                    string ip;
-                    ushort port;
-                    GetIpAndPort();
-                    _udpSocket.DatagramReceive += UdpSocket_DatagramReceive;
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
-                    await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
-
-                    void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
+                    _udpSocket.Connect(ready.Ip, ready.Port);
+                    if (RedirectInputStreams)
                     {
-                        _udpSocket.DatagramReceive -= UdpSocket_DatagramReceiveOnce;
-                        result.SetResult(datagram.Buffer);
+                        Memory<byte> bytes = new(new byte[70]);
+                        bytes.Span[1] = 1;
+
+                        TaskCompletionSource<byte[]> result = new();
+                        _udpSocket.DatagramReceive += UdpSocket_DatagramReceiveOnce;
+                        await _udpSocket.SendAsync(bytes).ConfigureAwait(false);
+                        var datagram = await result.Task.ConfigureAwait(false);
+
+                        string ip;
+                        ushort port;
+                        GetIpAndPort();
+                        _udpSocket.DatagramReceive += UdpSocket_DatagramReceive;
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
+                        await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
+
+                        void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
+                        {
+                            _udpSocket.DatagramReceive -= UdpSocket_DatagramReceiveOnce;
+                            result.SetResult(datagram.Buffer);
+                        }
+
+                        void GetIpAndPort()
+                        {
+                            Span<byte> span = new(datagram);
+                            ip = System.Text.Encoding.UTF8.GetString(span[4..(64 + 4)].TrimEnd((byte)0));
+                            port = BinaryPrimitives.ReadUInt16BigEndian(span[68..]);
+                        }
                     }
-
-                    void GetIpAndPort()
+                    else
                     {
-                        Span<byte> span = new(datagram);
-                        ip = System.Text.Encoding.UTF8.GetString(span[4..(64 + 4)].TrimEnd((byte)0));
-                        port = BinaryPrimitives.ReadUInt16BigEndian(span[68..]);
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, "xsalsa20_poly1305")));
+                        await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
                     }
                 }
-                else
-                {
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, "xsalsa20_poly1305")));
-                    await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
-                }
+
                 break;
             case VoiceOpcode.SessionDescription:
-                var sessionDescription = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
-                _secretKey = sessionDescription.SecretKey;
-                InvokeLog(LogMessage.Info("Ready"));
-                try
                 {
-                    if (Ready != null)
-                        await Ready().ConfigureAwait(false);
+                    var sessionDescription = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
+                    _secretKey = sessionDescription.SecretKey;
+                    InvokeLog(LogMessage.Info("Ready"));
+                    var updateLatencyTask = InvokeEventAsync(Ready);
+
+                    if (!_readyCompletionSource.Task.IsCompleted)
+                        _readyCompletionSource.SetResult();
+
+                    await updateLatencyTask.ConfigureAwait(false);
                 }
-                catch (Exception ex)
-                {
-                    InvokeLog(LogMessage.Error(ex));
-                }
-                if (!_readyCompletionSource.Task.IsCompleted)
-                    _readyCompletionSource.SetResult();
                 break;
             case VoiceOpcode.Speaking:
-                var speaking = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
-                _users[speaking.Ssrc] = speaking.UserId;
+                {
+                    var speaking = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
+                    _users[speaking.Ssrc] = speaking.UserId;
 
-                ToMemoryStream toMemoryStream = new();
-                OpusDecodeStream opusDecodeStream = new(toMemoryStream);
-                SodiumDecryptStream sodiumDecryptStream = new(opusDecodeStream, this);
-                _inputStreams[speaking.Ssrc] = new(toMemoryStream, sodiumDecryptStream);
+                    ToMemoryStream toMemoryStream = new();
+                    OpusDecodeStream opusDecodeStream = new(toMemoryStream);
+                    SodiumDecryptStream sodiumDecryptStream = new(opusDecodeStream, this);
+                    _inputStreams[speaking.Ssrc] = new(toMemoryStream, sodiumDecryptStream);
+                }
                 break;
             case VoiceOpcode.HeartbeatACK:
-                Latency = _latencyTimer.Elapsed;
+                {
+                    await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
+                }
                 break;
             case VoiceOpcode.Hello:
-                BeginHeartbeating(jsonPayload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
+                {
+                    BeginHeartbeating(jsonPayload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
+                }
                 break;
             case VoiceOpcode.Resumed:
-                Latency = _latencyTimer.Elapsed;
-                _reconnectTimer.Reset();
-                InvokeLog(LogMessage.Info("Resumed"));
+                {
+                    var latency = _latencyTimer.Elapsed;
+                    _reconnectTimer.Reset();
+                    InvokeLog(LogMessage.Info("Resumed"));
+                    var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
+                    await InvokeResumedEventAsync().ConfigureAwait(false);
+                    await updateLatencyTask;
+                }
                 break;
             case VoiceOpcode.ClientDisconnect:
                 break;
@@ -146,9 +158,9 @@ public class VoiceClient : WebSocketClient
 
     private async void UdpSocket_DatagramReceive(UdpReceiveResult obj)
     {
-        try
+        if (VoiceReceive != null)
         {
-            if (VoiceReceive != null)
+            try
             {
                 var ssrc = BinaryPrimitives.ReadUInt32BigEndian(((Span<byte>)obj.Buffer)[8..]);
                 if (_inputStreams.TryGetValue(ssrc, out var stream))
@@ -157,10 +169,10 @@ public class VoiceClient : WebSocketClient
                     await VoiceReceive(ssrc, stream.Stream.Data).ConfigureAwait(false);
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            InvokeLog(LogMessage.Error(ex));
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
         }
     }
 
@@ -225,10 +237,10 @@ public class VoiceClient : WebSocketClient
 
     private protected override ValueTask ReconnectAsync(WebSocketCloseStatus? status, string? description)
     {
-        if (status is not (WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014)
-            return base.ReconnectAsync(status, description);
-        else
+        if (status is (WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014)
             return default;
+        else
+            return base.ReconnectAsync(status, description);
     }
 
     private protected override async Task ResumeAsync()

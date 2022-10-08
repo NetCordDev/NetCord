@@ -1,13 +1,15 @@
-﻿namespace NetCord.Gateway;
+﻿using System.Diagnostics;
+
+namespace NetCord.Gateway;
 
 internal class LatencyTimer
 {
-    private int _startInterval;
+    private readonly Stopwatch _stopwatch = new();
 
     public void Start()
     {
-        _startInterval = Environment.TickCount;
+        _stopwatch.Restart();
     }
 
-    public int Elapsed => Environment.TickCount - _startInterval;
+    public TimeSpan Elapsed => _stopwatch.Elapsed;
 }

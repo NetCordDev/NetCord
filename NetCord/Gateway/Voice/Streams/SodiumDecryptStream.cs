@@ -12,15 +12,15 @@ internal class SodiumDecryptStream : RewritingStream
     public override unsafe void Write(ReadOnlySpan<byte> buffer)
     {
         Span<byte> nonce = new byte[24];
-        buffer[..12].CopyTo(nonce);
 
         const int headerSize = 12;
+        buffer[..headerSize].CopyTo(nonce);
+
         var bufferLen = buffer.Length - headerSize;
         Span<byte> result = new byte[bufferLen - 16];
 
-        int r;
         fixed (byte* resultPtr = result, bufferPtr = buffer, noncePtr = nonce)
-            r = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
+            _ = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
 
         _next.Write(result[8..]);
     }
@@ -29,15 +29,15 @@ internal class SodiumDecryptStream : RewritingStream
     {
         var bufferSpan = buffer.Span;
         Span<byte> nonce = new byte[24];
-        bufferSpan[..12].CopyTo(nonce);
 
         const int headerSize = 12;
+        bufferSpan[..headerSize].CopyTo(nonce);
+
         var bufferLen = bufferSpan.Length - headerSize;
         Memory<byte> result = new(new byte[bufferLen - 16]);
 
-        int r;
         fixed (byte* resultPtr = result.Span, bufferPtr = bufferSpan, noncePtr = nonce)
-            r = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
+            _ = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
 
         return _next.WriteAsync(result[8..], cancellationToken);
     }

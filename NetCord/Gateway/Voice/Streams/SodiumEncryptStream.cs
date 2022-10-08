@@ -19,9 +19,8 @@ internal class SodiumEncryptStream : RewritingStream
         var nonce = CreateNonce();
         nonce[..12].CopyTo(result);
 
-        int r;
         fixed (byte* resultPtr = result, bufferPtr = buffer, noncePtr = nonce)
-            r = Libsodium.CryptoSecretboxEasy(resultPtr + 12, bufferPtr, (ulong)bufferLen, noncePtr, _client._secretKey!);
+            _ = Libsodium.CryptoSecretboxEasy(resultPtr + 12, bufferPtr, (ulong)bufferLen, noncePtr, _client._secretKey!);
 
         _next.Write(result);
     }
@@ -35,9 +34,8 @@ internal class SodiumEncryptStream : RewritingStream
         var nonce = CreateNonce();
         nonce[..12].CopyTo(resultSpan);
 
-        int r;
         fixed (byte* resultPtr = resultSpan, bufferPtr = buffer.Span, noncePtr = nonce)
-            r = Libsodium.CryptoSecretboxEasy(resultPtr + 12, bufferPtr, (ulong)bufferLen, noncePtr, _client._secretKey!);
+            _ = Libsodium.CryptoSecretboxEasy(resultPtr + 12, bufferPtr, (ulong)bufferLen, noncePtr, _client._secretKey!);
 
         return _next.WriteAsync(result, cancellationToken);
     }

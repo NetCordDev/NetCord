@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway;
+﻿using NetCord.Rest;
+
+namespace NetCord.Gateway;
 
 public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>
 {
@@ -19,11 +21,11 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public IEnumerable<DMChannel> DMChannels { get; }
 
-    public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, GatewayClient client)
+    public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        User = new(jsonModel.User, client.Rest);
+        User = new(jsonModel.User, client);
         GuildIds = _jsonModel.Guilds.Select(g => g.Id);
-        DMChannels = _jsonModel.DMChannels.Select(c => (DMChannel)Channel.CreateFromJson(c, client.Rest));
+        DMChannels = _jsonModel.DMChannels.Select(c => (DMChannel)Channel.CreateFromJson(c, client));
     }
 }

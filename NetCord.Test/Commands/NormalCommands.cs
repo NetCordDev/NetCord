@@ -67,7 +67,7 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("ping")]
-    public Task Ping() => ReplyAsync($"Pong! {Context.Client.Latency} ms");
+    public Task Ping() => ReplyAsync($"Pong! {Math.Round(Context.Client.Latency.GetValueOrDefault().TotalMilliseconds)} ms");
 
     [Command("pong")]
     public Task Pong() => ReplyAsync("Ping!");
