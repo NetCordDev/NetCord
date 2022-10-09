@@ -77,4 +77,5 @@ public enum RouteParameter
     GetGuildInvites,
     CreateGuildScheduledEvent,
     ModifyGuildScheduledEvent,
+    GetGatewayBot,
 }
