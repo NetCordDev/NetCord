@@ -8,7 +8,7 @@ public class ForumGuildChannel : Channel, IGuildChannel
     public ForumGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
-        AvailableTags = jsonModel.AvailableTags!.Select(t => new ForumTag(t));
+        AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t));
         if (jsonModel.DefaultReactionEmoji != null)
             DefaultReactionEmoji = new(jsonModel.DefaultReactionEmoji);
     }

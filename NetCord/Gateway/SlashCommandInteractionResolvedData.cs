@@ -15,6 +15,7 @@ public class SlashCommandInteractionResolvedData
     public SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, Snowflake? guildId, RestClient client)
     {
         if (jsonModel.Users != null)
+        {
             if (jsonModel.GuildUsers != null)
             {
                 var enumerator = jsonModel.Users.GetEnumerator();
@@ -38,6 +39,7 @@ public class SlashCommandInteractionResolvedData
             }
             else
                 Users = jsonModel.Users.ToDictionary(u => u.Key, u => new User(u.Value, client));
+        }
 
         if (jsonModel.Roles != null)
             Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, guildId.GetValueOrDefault(), client));
