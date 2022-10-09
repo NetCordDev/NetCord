@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {

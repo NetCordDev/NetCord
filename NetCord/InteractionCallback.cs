@@ -1,13 +1,10 @@
 ﻿using System.ComponentModel;
-using System.Reflection.Metadata.Ecma335;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using NetCord.Rest;
 
 namespace NetCord;
 
-//[JsonConverter(typeof(InteractionCallbackConverter))]
 public partial class InteractionCallback
 {
     [JsonPropertyName("type")]
@@ -19,43 +16,43 @@ public partial class InteractionCallback
     }
 
     /// <summary>
-    /// Respond to an interaction with a <paramref name="message"/>
+    /// Respond to an interaction with a <paramref name="message"/>.
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback ChannelMessageWithSource(InteractionMessageProperties message)
-        => new InteractionCallback<InteractionMessageProperties>(InteractionCallbackType.ChannelMessageWithSource, message);
+    public static InteractionCallback<InteractionMessageProperties> ChannelMessageWithSource(InteractionMessageProperties message)
+        => new(InteractionCallbackType.ChannelMessageWithSource, message);
 
     /// <summary>
-    /// ACK an interaction and edit a response later, the user sees a loading state
+    /// ACK an interaction and edit a response later, the user sees a loading state.
     /// </summary>
-    public static InteractionCallback DeferredChannelMessageWithSource(MessageFlags? messageFlags = null)
-        => new InteractionCallback<InteractionMessageProperties>(InteractionCallbackType.DeferredChannelMessageWithSource, new InteractionMessageProperties() { Flags = messageFlags });
+    public static InteractionCallback<InteractionMessageProperties> DeferredChannelMessageWithSource(MessageFlags? messageFlags = null)
+        => new(InteractionCallbackType.DeferredChannelMessageWithSource, new InteractionMessageProperties() { Flags = messageFlags });
 
     /// <summary>
-    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state
+    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state.
     /// </summary>
     public static InteractionCallback DeferredUpdateMessage
         => new(InteractionCallbackType.DeferredUpdateMessage);
 
     /// <summary>
-    /// For components, edit the message the component was attached to
+    /// For components, edit the message the component was attached to.
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback UpdateMessage(InteractionMessageProperties message)
-        => new InteractionCallback<InteractionMessageProperties>(InteractionCallbackType.UpdateMessage, message);
+    public static InteractionCallback<InteractionMessageProperties> UpdateMessage(InteractionMessageProperties message)
+        => new(InteractionCallbackType.UpdateMessage, message);
 
     /// <summary>
-    /// Respond to an autocomplete interaction with suggested <paramref name="choices"/>
+    /// Respond to an autocomplete interaction with suggested <paramref name="choices"/>.
     /// </summary>
     /// <param name="choices"></param>
     /// <returns></returns>
-    public static InteractionCallback ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
-        => new InteractionCallback<InteractionCallbackChoicesDataProperties>(InteractionCallbackType.ApplicationCommandAutocompleteResult, new InteractionCallbackChoicesDataProperties(choices));
+    public static InteractionCallback<InteractionCallbackChoicesDataProperties> ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
+        => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new InteractionCallbackChoicesDataProperties(choices));
 
-    public static InteractionCallback Modal(ModalProperties modal)
-        => new InteractionCallback<ModalProperties>(InteractionCallbackType.Modal, modal);
+    public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
+        => new(InteractionCallbackType.Modal, modal);
 
     internal HttpContent Build()
     {
@@ -114,33 +111,6 @@ public partial class InteractionCallback
     {
         public static InteractionCallbackOfModalPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
-
-    //internal partial class InteractionCallbackConverter : JsonConverter<InteractionCallback>
-    //{
-    //    public override InteractionCallback? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-    //    public override void Write(Utf8JsonWriter writer, InteractionCallback value, JsonSerializerOptions options)
-    //    {
-    //        switch (value.Type)
-    //        {
-    //            case InteractionCallbackType.ChannelMessageWithSource:
-    //            case InteractionCallbackType.DeferredChannelMessageWithSource:
-    //            case InteractionCallbackType.UpdateMessage:
-    //                JsonSerializer.Serialize(writer, (InteractionCallback<InteractionMessageProperties>)value, InteractionCallbackOfInteractionMessagePropertiesSerializerContext.WithOptions.InteractionCallbackInteractionMessageProperties);
-    //                break;
-    //            case InteractionCallbackType.DeferredUpdateMessage:
-    //                JsonSerializer.Serialize(writer, value, InteractionCallbackSerializerContext.WithOptions.InteractionCallback);
-    //                break;
-    //            case InteractionCallbackType.ApplicationCommandAutocompleteResult:
-    //                JsonSerializer.Serialize(writer, (InteractionCallback<ChoicesData>)value, InteractionCallbackOfChoicesDataSerializerContext.WithOptions.InteractionCallbackChoicesData);
-    //                break;
-    //            case InteractionCallbackType.Modal:
-    //                JsonSerializer.Serialize(writer, (InteractionCallback<ModalProperties>)value, InteractionCallbackOfModalPropertiesSerializerContext.WithOptions.InteractionCallbackModalProperties);
-    //                break;
-    //            default:
-    //                throw new InvalidEnumArgumentException(null, (int)value.Type, typeof(InteractionCallbackType));
-    //        }
-    //    }
-    //}
 }
 
 public class InteractionCallback<T> : InteractionCallback
@@ -152,21 +122,4 @@ public class InteractionCallback<T> : InteractionCallback
 
     [JsonPropertyName("data")]
     public T Data { get; }
-}
-
-internal partial class InteractionCallbackChoicesDataProperties
-{
-    [JsonPropertyName("choices")]
-    public IEnumerable<ApplicationCommandOptionChoiceProperties>? Choices { get; }
-
-    public InteractionCallbackChoicesDataProperties(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
-    {
-        Choices = choices;
-    }
-
-    [JsonSerializable(typeof(InteractionCallbackChoicesDataProperties))]
-    public partial class InteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
-    }
 }
