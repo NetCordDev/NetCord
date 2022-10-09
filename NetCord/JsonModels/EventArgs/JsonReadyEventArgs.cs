@@ -13,7 +13,7 @@ public partial class JsonReadyEventArgs
     public JsonUser User { get; set; }
 
     [JsonPropertyName("guilds")]
-    public IEnumerable<JsonGuild> Guilds { get; set; }
+    public JsonEntity[] Guilds { get; set; }
 
     [JsonPropertyName("session_id")]
     public string SessionId { get; set; }
