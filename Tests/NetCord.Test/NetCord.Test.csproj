@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCord.Services\NetCord.Services.csproj" />
-    <ProjectReference Include="..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="..\..\NetCord.Services\NetCord.Services.csproj" />
+    <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
   </ItemGroup>
 
   <ItemGroup>

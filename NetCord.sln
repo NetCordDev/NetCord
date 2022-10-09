@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31410.414
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord", "NetCord\NetCord.csproj", "{802F5245-48E0-4554-ABA7-F4E8DAD47E52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test", "NetCord.Test\NetCord.Test.csproj", "{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test", "Tests\NetCord.Test\NetCord.Test.csproj", "{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8B9CC088-2C2E-4AC4-B6E6-14A02DCBEF3E}"
 	ProjectSection(SolutionItems) = preProject
@@ -14,13 +14,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Services", "NetCord.Services\NetCord.Services.csproj", "{495D537B-2E05-44F0-9993-2600311A15B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationAndDeserializationTest", "SerializationAndDeserializationTest\SerializationAndDeserializationTest.csproj", "{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationAndDeserializationTest", "Tests\SerializationAndDeserializationTest\SerializationAndDeserializationTest.csproj", "{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5E156987-5CC6-4873-B774-F41CBD7D3F3D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeTest", "SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeTest", "Tests\SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentionUtilsTest", "MentionUtilsTest\MentionUtilsTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentionUtilsTest", "Tests\MentionUtilsTest\MentionUtilsTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +57,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}

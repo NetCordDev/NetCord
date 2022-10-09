@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
   </ItemGroup>
 
 </Project>
