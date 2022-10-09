@@ -93,7 +93,7 @@ public partial class JsonChannel : JsonEntity
     public Snowflake[]? AppliedTags { get; set; }
 
     [JsonPropertyName("default_reaction_emoji")]
-    public JsonDefaultReaction? DefaultReactionEmoji { get; set; }
+    public JsonForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; set; }
 
     [JsonPropertyName("default_thread_rate_limit_per_user")]
     public int? DefaultThreadRateLimitPerUser { get; set; }

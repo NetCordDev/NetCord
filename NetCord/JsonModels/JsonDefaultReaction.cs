@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public class JsonDefaultReaction
+public class JsonForumGuildChannelDefaultReaction
 {
     [JsonPropertyName("emoji_id")]
     public Snowflake? EmojiId { get; set; }
