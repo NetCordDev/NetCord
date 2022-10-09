@@ -57,7 +57,7 @@ public partial class GuildChannelProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_reaction_emoji")]
-    public DefaultReactionProperties? DefaultReactionEmoji { get; set; }
+    public ForumGuildChannelDefaultReactionProperties? DefaultReactionEmoji { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("available_tags")]

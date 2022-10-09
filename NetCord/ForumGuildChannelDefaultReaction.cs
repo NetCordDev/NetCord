@@ -2,12 +2,12 @@
 
 namespace NetCord;
 
-public class DefaultReaction : IJsonModel<JsonDefaultReaction>
+public class ForumGuildChannelDefaultReaction : IJsonModel<JsonDefaultReaction>
 {
     private readonly JsonDefaultReaction _jsonModel;
     JsonDefaultReaction IJsonModel<JsonDefaultReaction>.JsonModel => _jsonModel;
 
-    public DefaultReaction(JsonDefaultReaction jsonModel)
+    public ForumGuildChannelDefaultReaction(JsonDefaultReaction jsonModel)
     {
         _jsonModel = jsonModel;
     }

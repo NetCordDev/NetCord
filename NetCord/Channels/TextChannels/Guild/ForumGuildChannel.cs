@@ -17,7 +17,7 @@ public class ForumGuildChannel : Channel, IGuildChannel
     public int Position => _jsonModel.Position.GetValueOrDefault();
     public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
     public IEnumerable<ForumTag> AvailableTags { get; }
-    public DefaultReaction? DefaultReactionEmoji { get; }
+    public ForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; }
     public int? DefaultThreadRateLimitPerUser => _jsonModel.DefaultThreadRateLimitPerUser;
     public SortOrderType DefaultSortOrder => _jsonModel.DefaultSortOrder.GetValueOrDefault();
 

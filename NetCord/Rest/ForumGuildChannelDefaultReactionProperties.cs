@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public struct DefaultReactionProperties
+public struct ForumGuildChannelDefaultReactionProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_id")]
@@ -12,12 +12,12 @@ public struct DefaultReactionProperties
     [JsonPropertyName("emoji_name")]
     public string? Unicode { get; }
 
-    public DefaultReactionProperties(Snowflake id)
+    public ForumGuildChannelDefaultReactionProperties(Snowflake id)
     {
         Id = id;
     }
 
-    public DefaultReactionProperties(string unicode)
+    public ForumGuildChannelDefaultReactionProperties(string unicode)
     {
         Unicode = unicode;
     }
