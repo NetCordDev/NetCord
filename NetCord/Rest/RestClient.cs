@@ -82,7 +82,7 @@ public partial class RestClient : IDisposable
             return requestMessage;
         }, properties).ConfigureAwait(false);
 
-        Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
+        //Console.WriteLine($"{method} {partialUrl}: {(response.Headers.TryGetValues("x-ratelimit-bucket", out var values) ? values.First() : "None"),50}");
 
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
