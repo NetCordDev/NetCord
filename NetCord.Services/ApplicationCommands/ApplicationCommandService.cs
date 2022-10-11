@@ -12,6 +12,15 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
     private readonly Dictionary<Snowflake, ApplicationCommandInfo<TContext>> _commands = new();
 
+    public IReadOnlyDictionary<Snowflake, ApplicationCommandInfo<TContext>> Commands
+    {
+        get
+        {
+            lock (_commands)
+                return _commands.ToDictionary(c => c.Key, c => c.Value);
+        }
+    }
+
     public ApplicationCommandService(ApplicationCommandServiceOptions<TContext>? options = null)
     {
         _options = options ?? new();
@@ -65,13 +74,17 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         }
     }
 
-    public async Task CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
-        var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue())).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
+        List<ApplicationCommand> list = new(_globalCommandsToCreate.Count + _guildCommandsToCreate.Count);
+        var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue()), properties).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
         lock (_commands)
         {
             foreach (var (First, Second) in e)
-                _commands.Add(First.Key, Second);
+            {
+                _commands[First.Key] = Second;
+                list.Add(First.Value);
+            }
         }
 
         if (includeGuildCommands)
@@ -80,32 +93,39 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             {
                 var rawGuildCommands = c.Select(v => v.GetRawValue());
 
-                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key.GetValueOrDefault(), rawGuildCommands).ConfigureAwait(false);
+                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key.GetValueOrDefault(), rawGuildCommands, properties).ConfigureAwait(false);
                 lock (_commands)
                 {
                     foreach (var (First, Second) in newCommands.Zip(c))
-                        _commands.Add(First.Key, Second);
+                    {
+                        _commands[First.Key] = Second;
+                        list.Add(First.Value);
+                    }
                 }
             }
         }
+        return list;
     }
 
     public IEnumerable<ApplicationCommandProperties> GetGlobalCommandProperties()
         => _globalCommandsToCreate.Select(c => c.GetRawValue());
+
+    public IEnumerable<IGrouping<Snowflake, ApplicationCommandProperties>> GetGuildCommandProperties()
+        => _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault(), c => c.GetRawValue());
 
     internal void AddCommands(IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
     {
         lock (_commands)
         {
             foreach (var (Command, CommandInfo) in commands)
-                _commands.Add(Command.Id, (ApplicationCommandInfo<TContext>)CommandInfo);
+                _commands[Command.Id] = (ApplicationCommandInfo<TContext>)CommandInfo;
         }
     }
 
     internal void AddCommand((ApplicationCommand Command, IApplicationCommandInfo CommandInfo) command)
     {
         lock (_commands)
-            _commands.Add(command.Command.Id, (ApplicationCommandInfo<TContext>)command.CommandInfo);
+            _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
     }
 
     public async Task ExecuteAsync(TContext context)

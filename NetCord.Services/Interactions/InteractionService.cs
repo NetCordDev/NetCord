@@ -9,6 +9,15 @@ public class InteractionService<TContext> : IService where TContext : Interactio
     private readonly InteractionServiceOptions<TContext> _options;
     private readonly Dictionary<string, InteractionInfo<TContext>> _interactions = new();
 
+    public IReadOnlyDictionary<string, InteractionInfo<TContext>> Interactions
+    {
+        get
+        {
+            lock (_interactions)
+                return _interactions.ToDictionary(p => p.Key, p => p.Value);
+        }
+    }
+
     public InteractionService(InteractionServiceOptions<TContext>? options = null)
     {
         _options = options ?? new();
