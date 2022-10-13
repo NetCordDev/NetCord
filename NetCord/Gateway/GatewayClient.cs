@@ -144,7 +144,7 @@ public partial class GatewayClient : WebSocketClient
     {
         ThrowIfDisposed();
         _tokenSource!.Cancel();
-        return _webSocket.CloseAsync();
+        return _webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure);
     }
 
     private protected override ValueTask HeartbeatAsync()
@@ -209,7 +209,7 @@ public partial class GatewayClient : WebSocketClient
                 InvokeLog(LogMessage.Info("Reconnect request"));
                 try
                 {
-                    await _webSocket.CloseAsync().ConfigureAwait(false);
+                    await _webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.Empty).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

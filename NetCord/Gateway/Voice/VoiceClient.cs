@@ -191,7 +191,7 @@ public class VoiceClient : WebSocketClient
 
     public async Task CloseAsync()
     {
-        await _webSocket.CloseAsync().ConfigureAwait(false);
+        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure).ConfigureAwait(false);
         _udpSocket.Dispose();
     }
 

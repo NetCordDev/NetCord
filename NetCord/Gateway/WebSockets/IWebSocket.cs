@@ -15,6 +15,6 @@ public interface IWebSocket : IDisposable
     public delegate void MessageReceivedEventHandler(ReadOnlySequence<byte> data);
 
     public Task ConnectAsync(Uri uri);
-    public Task CloseAsync();
+    public Task CloseAsync(WebSocketCloseStatus status);
     public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default);
 }

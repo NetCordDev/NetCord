@@ -109,30 +109,17 @@ internal static class Program
     {
         try
         {
-            switch (interaction)
+            await (interaction switch
             {
-                case SlashCommandInteraction slashCommandInteraction:
-                    await _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client));
-                    break;
-                case MessageCommandInteraction messageCommandInteraction:
-                    await _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client));
-                    break;
-                case UserCommandInteraction userCommandInteraction:
-                    await _userCommandService.ExecuteAsync(new(userCommandInteraction, _client));
-                    break;
-                case MenuInteraction menuInteraction:
-                    await _menuInteractionService.ExecuteAsync(new(menuInteraction, _client));
-                    break;
-                case ButtonInteraction buttonInteraction:
-                    await _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client));
-                    break;
-                case ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction:
-                    await _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction);
-                    break;
-                case ModalSubmitInteraction modalSubmitInteraction:
-                    await _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client));
-                    break;
-            }
+                SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client)),
+                MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client)),
+                UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client)),
+                MenuInteraction menuInteraction => _menuInteractionService.ExecuteAsync(new(menuInteraction, _client)),
+                ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client)),
+                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction),
+                ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client)),
+                _ => throw new("Invalid interaction"),
+            });
         }
         catch (Exception ex)
         {

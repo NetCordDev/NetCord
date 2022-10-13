@@ -38,12 +38,12 @@ public class WebSocket : IWebSocket, IDisposable
     /// <summary>
     /// Closes the <see cref="WebSocket"/>
     /// </summary>
-    public async Task CloseAsync()
+    public async Task CloseAsync(WebSocketCloseStatus status)
     {
         ThrowIfInvalid();
         _closed = true;
         IsConnected = false;
-        await _webSocket!.CloseAsync(WebSocketCloseStatus.Empty, null, default).ConfigureAwait(false);
+        await _webSocket!.CloseAsync(status, null, default).ConfigureAwait(false);
         await _readAsync!.ConfigureAwait(false);
     }
 
