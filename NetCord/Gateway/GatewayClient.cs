@@ -6,6 +6,8 @@ using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
 
+using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
+
 namespace NetCord.Gateway;
 
 public partial class GatewayClient : WebSocketClient
@@ -102,17 +104,6 @@ public partial class GatewayClient : WebSocketClient
         Rest = new(token, _config.RestClientConfig);
     }
 
-    /// <summary>
-    /// Connects the <see cref="GatewayClient"/> to gateway
-    /// </summary>
-    /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null)
-    {
-        ThrowIfDisposed();
-        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
-        await SendIdentifyAsync(presence).ConfigureAwait(false);
-    }
-
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
@@ -127,13 +118,15 @@ public partial class GatewayClient : WebSocketClient
         return _webSocket.SendAsync(serializedPayload);
     }
 
-    private protected override async Task ResumeAsync()
+    /// <summary>
+    /// Connects the <see cref="GatewayClient"/> to gateway
+    /// </summary>
+    /// <returns></returns>
+    public async Task StartAsync(PresenceProperties? presence = null)
     {
+        ThrowIfDisposed();
         await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
-
-        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
-        _latencyTimer.Start();
-        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
+        await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -143,8 +136,19 @@ public partial class GatewayClient : WebSocketClient
     public Task CloseAsync()
     {
         ThrowIfDisposed();
-        _tokenSource!.Cancel();
-        return _webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure);
+        return CloseAsync(WebSocketCloseStatus.NormalClosure);
+    }
+
+    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
+        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+
+    private protected override async Task ResumeAsync()
+    {
+        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
+
+        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
+        _latencyTimer.Start();
+        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
     }
 
     private protected override ValueTask HeartbeatAsync()
@@ -152,39 +156,6 @@ public partial class GatewayClient : WebSocketClient
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfInt32SerializerContext.WithOptions.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
-    }
-
-    public override void Dispose()
-    {
-        Guilds = null!;
-        DMChannels = null!;
-        GroupDMChannels = null!;
-        _disposed = true;
-        base.Dispose();
-    }
-
-    private void ThrowIfDisposed()
-    {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(GatewayClient));
-    }
-
-    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
-    {
-        GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
-    }
-
-    public ValueTask UpdatePresenceAsync(PresenceProperties presence)
-    {
-        GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
-    }
-
-    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
-    {
-        GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGuildUsersRequestPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGuildUsersRequestProperties));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -209,25 +180,14 @@ public partial class GatewayClient : WebSocketClient
                 InvokeLog(LogMessage.Info("Reconnect request"));
                 try
                 {
-                    await _webSocket.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.Empty).ConfigureAwait(false);
+                    await CloseAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
                     InvokeLog(LogMessage.Error(ex));
                 }
-                while (true)
-                {
-                    await _reconnectTimer.NextAsync().ConfigureAwait(false);
-                    try
-                    {
-                        await ResumeAsync().ConfigureAwait(false);
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        InvokeLog(LogMessage.Error(ex));
-                    }
-                }
+                await ReconnectAsync().ConfigureAwait(false);
+                break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
                 try
@@ -246,6 +206,24 @@ public partial class GatewayClient : WebSocketClient
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
                 break;
         }
+    }
+
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
+    {
+        GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
+    }
+
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence)
+    {
+        GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
+    }
+
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
+    {
+        GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
+        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGuildUsersRequestPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGuildUsersRequestProperties));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -840,17 +818,32 @@ public partial class GatewayClient : WebSocketClient
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool TryGetGuild(Snowflake guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
+
+        async ValueTask CacheChannelAsync(Snowflake channelId)
+        {
+            if (!DMChannels.ContainsKey(channelId) && !GroupDMChannels.ContainsKey(channelId))
+            {
+                var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
+                if (channel is GroupDMChannel groupDMChannel)
+                    GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
+                else if (channel is DMChannel dMChannel)
+                    DMChannels = DMChannels.SetItem(channelId, dMChannel);
+            }
+        }
     }
 
-    private async ValueTask CacheChannelAsync(Snowflake channelId)
+    private void ThrowIfDisposed()
     {
-        if (!DMChannels.ContainsKey(channelId) && !GroupDMChannels.ContainsKey(channelId))
-        {
-            var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
-            if (channel is GroupDMChannel groupDMChannel)
-                GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
-            else if (channel is DMChannel dMChannel)
-                DMChannels = DMChannels.SetItem(channelId, dMChannel);
-        }
+        if (_disposed)
+            throw new ObjectDisposedException(nameof(GatewayClient));
+    }
+
+    public override void Dispose()
+    {
+        Guilds = null!;
+        DMChannels = null!;
+        GroupDMChannels = null!;
+        _disposed = true;
+        base.Dispose();
     }
 }

@@ -25,8 +25,11 @@ public abstract class WebSocketClient : IDisposable
         {
             _tokenSource!.Cancel();
             InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
-            await InvokeEventAsync(Disconnected).ConfigureAwait(false);
-            await ReconnectAsync(closeStatus, description).ConfigureAwait(false);
+            var reconnect = Reconnect(closeStatus, description);
+            var disconnectedTask = InvokeEventAsync(Disconnected, reconnect);
+            if (reconnect)
+                await ReconnectAsync().ConfigureAwait(false);
+            await disconnectedTask.ConfigureAwait(false);
         };
         _webSocket.Closed += async () =>
         {
@@ -67,15 +70,30 @@ public abstract class WebSocketClient : IDisposable
     public event Func<ValueTask>? Resumed;
     public event Func<ValueTask>? Connecting;
     public event Func<ValueTask>? Connected;
-    public event Func<ValueTask>? Disconnected;
+    public event Func<bool, ValueTask>? Disconnected;
     public event Func<ValueTask>? Closed;
     public event Func<LogMessage, ValueTask>? Log;
 
-    private protected virtual async ValueTask ReconnectAsync(System.Net.WebSockets.WebSocketCloseStatus? status, string? description)
+    private protected Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status)
+    {
+        _tokenSource!.Cancel();
+        return _webSocket.CloseAsync(status);
+    }
+
+    private protected abstract bool Reconnect(System.Net.WebSockets.WebSocketCloseStatus? status, string? description);
+
+    private protected async ValueTask ReconnectAsync()
     {
         while (true)
         {
-            await _reconnectTimer.NextAsync().ConfigureAwait(false);
+            try
+            {
+                await _reconnectTimer.NextAsync(_token).ConfigureAwait(false);
+            }
+            catch
+            {
+                return;
+            }
             try
             {
                 await ResumeAsync().ConfigureAwait(false);
@@ -87,6 +105,8 @@ public abstract class WebSocketClient : IDisposable
             }
         }
     }
+
+    private protected abstract Task ResumeAsync();
 
     private protected async void BeginHeartbeating(double interval)
     {
@@ -106,8 +126,6 @@ public abstract class WebSocketClient : IDisposable
     }
 
     private protected abstract ValueTask HeartbeatAsync();
-
-    private protected abstract Task ResumeAsync();
 
     private protected abstract Task ProcessMessageAsync(JsonPayload payload);
 
@@ -153,6 +171,21 @@ public abstract class WebSocketClient : IDisposable
             try
             {
                 await @event(dataFunc()).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
+        }
+    }
+
+    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
+    {
+        if (@event != null)
+        {
+            try
+            {
+                await @event(data).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

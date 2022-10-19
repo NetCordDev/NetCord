@@ -56,6 +56,43 @@ public class VoiceClient : WebSocketClient
             _udpSocket = new UdpSocket();
     }
 
+    private ValueTask SendIdentifyAsync()
+    {
+        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceIdentifyPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceIdentifyProperties);
+        _latencyTimer.Start();
+        return _webSocket.SendAsync(serializedPayload);
+    }
+
+    public async Task StartAsync()
+    {
+        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
+        await SendIdentifyAsync().ConfigureAwait(false);
+    }
+
+    public async Task CloseAsync()
+    {
+        await CloseAsync(WebSocketCloseStatus.NormalClosure).ConfigureAwait(false);
+        _udpSocket.Dispose();
+    }
+
+    private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
+        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
+
+    private protected override async Task ResumeAsync()
+    {
+        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
+        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceResumeProperties);
+        _latencyTimer.Start();
+        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
+    }
+
+    private protected override ValueTask HeartbeatAsync()
+    {
+        var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfInt32SerializerContext.WithOptions.VoicePayloadPropertiesInt32);
+        _latencyTimer.Start();
+        return _webSocket.SendAsync(serializedPayload);
+    }
+
     private protected override async Task ProcessMessageAsync(JsonPayload jsonPayload)
     {
         switch ((VoiceOpcode)jsonPayload.Opcode)
@@ -162,7 +199,7 @@ public class VoiceClient : WebSocketClient
         {
             try
             {
-                var ssrc = BinaryPrimitives.ReadUInt32BigEndian(((Span<byte>)obj.Buffer)[8..]);
+                var ssrc = BinaryPrimitives.ReadUInt32BigEndian(obj.Buffer.AsSpan(8));
                 if (_inputStreams.TryGetValue(ssrc, out var stream))
                 {
                     _ = stream.WriteStream.WriteAsync(obj.Buffer); //it's sync
@@ -176,36 +213,10 @@ public class VoiceClient : WebSocketClient
         }
     }
 
-    private protected override ValueTask HeartbeatAsync()
-    {
-        var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfInt32SerializerContext.WithOptions.VoicePayloadPropertiesInt32);
-        _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload);
-    }
-
-    public async Task StartAsync()
-    {
-        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
-        await SendIdentifyAsync().ConfigureAwait(false);
-    }
-
-    public async Task CloseAsync()
-    {
-        await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure).ConfigureAwait(false);
-        _udpSocket.Dispose();
-    }
-
     public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Ssrc));
         return _webSocket.SendAsync(payload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesSpeakingProperties));
-    }
-
-    private ValueTask SendIdentifyAsync()
-    {
-        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceIdentifyPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceIdentifyProperties);
-        _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload);
     }
 
     public Stream CreatePCMStream(OpusApplication application)
@@ -233,21 +244,5 @@ public class VoiceClient : WebSocketClient
         foreach (var stream in _inputStreams.Values)
             stream.WriteStream.Dispose();
         base.Dispose();
-    }
-
-    private protected override ValueTask ReconnectAsync(WebSocketCloseStatus? status, string? description)
-    {
-        if (status is (WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014)
-            return default;
-        else
-            return base.ReconnectAsync(status, description);
-    }
-
-    private protected override async Task ResumeAsync()
-    {
-        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
-        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize((System.Text.Json.Serialization.Metadata.JsonTypeInfo<VoicePayloadProperties<VoiceResumeProperties>>)VoicePayloadProperties.VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceResumeProperties);
-        _latencyTimer.Start();
-        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
     }
 }

@@ -2,12 +2,6 @@
 
 public class LogMessage
 {
-    private LogMessage(string message)
-    {
-        Message = message;
-        Severity = LogSeverity.Info;
-    }
-
     private LogMessage(string message, string? description)
     {
         Message = message;
@@ -24,9 +18,7 @@ public class LogMessage
 
     internal static LogMessage Error(Exception exception) => new(exception);
 
-    internal static LogMessage Info(string message) => new(message);
-
-    internal static LogMessage Info(string message, string? description) => new(message, description);
+    internal static LogMessage Info(string message, string? description = null) => new(message, description);
 
     public string Message { get; }
 
