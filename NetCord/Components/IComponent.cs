@@ -7,7 +7,7 @@ public interface IComponent
 
     public static IComponent CreateFromJson(JsonModels.JsonComponent jsonModel)
     {
-        if (jsonModel.Components[0].Type == ComponentType.Menu)
+        if (jsonModel.Components[0].Type == ComponentType.StringMenu)
         {
             return new Menu(jsonModel);
         }

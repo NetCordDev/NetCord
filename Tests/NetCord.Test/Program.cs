@@ -14,7 +14,11 @@ internal static class Program
     private static readonly GatewayClient _client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!), new() { Intents = GatewayIntent.All, ConnectionProperties = ConnectionPropertiesProperties.IOS });
     private static readonly CommandService<CommandContext> _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
-    private static readonly InteractionService<MenuInteractionContext> _menuInteractionService = new();
+    private static readonly InteractionService<StringMenuInteractionContext> _stringMenuInteractionService = new();
+    private static readonly InteractionService<UserMenuInteractionContext> _userMenuInteractionService = new();
+    private static readonly InteractionService<RoleMenuInteractionContext> _roleMenuInteractionService = new();
+    private static readonly InteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
+    private static readonly InteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
     private static readonly InteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
     private static readonly ApplicationCommandService<SlashCommandContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
@@ -39,7 +43,11 @@ internal static class Program
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
-        _menuInteractionService.AddModules(assembly);
+        _stringMenuInteractionService.AddModules(assembly);
+        _userMenuInteractionService.AddModules(assembly);
+        _roleMenuInteractionService.AddModules(assembly);
+        _mentionableMenuInteractionService.AddModules(assembly);
+        _channelMenuInteractionService.AddModules(assembly);
         _modalSubmitInteractionService.AddModules(assembly);
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
@@ -114,7 +122,11 @@ internal static class Program
                 SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client)),
                 MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client)),
                 UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client)),
-                MenuInteraction menuInteraction => _menuInteractionService.ExecuteAsync(new(menuInteraction, _client)),
+                StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client)),
+                UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client)),
+                RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client)),
+                MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client)),
+                ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client)),
                 ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client)),
                 ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction),
                 ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client)),

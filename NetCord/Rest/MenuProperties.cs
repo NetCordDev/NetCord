@@ -2,13 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class MenuProperties : ComponentProperties
+public abstract class MenuProperties : ComponentProperties
 {
     [JsonPropertyName("custom_id")]
     public string CustomId { get; }
-
-    [JsonPropertyName("options")]
-    public IEnumerable<MenuSelectOptionProperties> Options { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("placeholder")]
@@ -26,15 +23,8 @@ public partial class MenuProperties : ComponentProperties
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
-    public MenuProperties(string customId, IEnumerable<MenuSelectOptionProperties> options) : base(ComponentType.Menu)
+    protected MenuProperties(string customId, ComponentType type) : base(type)
     {
         CustomId = customId;
-        Options = options;
-    }
-
-    [JsonSerializable(typeof(MenuProperties))]
-    public partial class MenuPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static MenuPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

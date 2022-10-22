@@ -52,11 +52,11 @@ public class NormalCommands : CommandModule<CommandContext>
     public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<Snowflake> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
-        List<MenuSelectOptionProperties> options = new();
+        List<StringMenuSelectOptionProperties> options = new();
         foreach (var role in roles)
             options.Add(new(role.Name, role.Id.ToString()!) { Default = defaultValues.Contains(role.Id) });
 
-        MenuProperties menu = new("roles", options)
+        StringMenuProperties menu = new("roles", options)
         {
             Placeholder = "Select roles",
             MaxValues = options.Count,

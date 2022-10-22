@@ -306,6 +306,37 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("rate-limit-test2", "test")]
     public Task RateLimitTest2Async()
         => RateLimitTestAsync();
+
+    [SlashCommand("entity-menus", "Entity Menus")]
+    public Task EntityMenusAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues, [SlashCommandParameter(Name = "max_values", MinValue = 0)] int maxValues)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        {
+            Components = new ComponentProperties[]
+            {
+                new UserMenuProperties("users")
+                {
+                    MinValues = minValues,
+                    MaxValues = maxValues,
+                },
+                new RoleMenuProperties("roles")
+                {
+                    MinValues = minValues,
+                    MaxValues = maxValues,
+                },
+                new MentionableMenuProperties("mentionables")
+                {
+                    MinValues = minValues,
+                    MaxValues = maxValues,
+                },
+                new ChannelMenuProperties("channels")
+                {
+                    MinValues = minValues,
+                    MaxValues = maxValues,
+                },
+            }
+        }));
+    }
 }
 
 public enum DeleteMessagesDays

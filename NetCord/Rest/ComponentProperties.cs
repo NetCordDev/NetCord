@@ -21,16 +21,33 @@ public abstract class ComponentProperties
         {
             switch (component.ComponentType)
             {
-                case ComponentType.Menu:
+                case ComponentType.ActionRow:
+                    JsonSerializer.Serialize(writer, (ActionRowProperties)component, ActionRowProperties.ActionRowPropertiesSerializerContext.WithOptions.ActionRowProperties);
+                    break;
+                default:
                     writer.WriteStartObject();
                     writer.WriteNumber("type", 1);
                     writer.WriteStartArray("components");
-                    JsonSerializer.Serialize(writer, (MenuProperties)component, MenuProperties.MenuPropertiesSerializerContext.WithOptions.MenuProperties);
+                    switch (component.ComponentType)
+                    {
+                        case ComponentType.StringMenu:
+                            JsonSerializer.Serialize(writer, (StringMenuProperties)component, StringMenuProperties.StringMenuPropertiesSerializerContext.WithOptions.StringMenuProperties);
+                            break;
+                        case ComponentType.UserMenu:
+                            JsonSerializer.Serialize(writer, (UserMenuProperties)component, UserMenuProperties.UserMenuPropertiesSerializerContext.WithOptions.UserMenuProperties);
+                            break;
+                        case ComponentType.RoleMenu:
+                            JsonSerializer.Serialize(writer, (RoleMenuProperties)component, RoleMenuProperties.RoleMenuPropertiesSerializerContext.WithOptions.RoleMenuProperties);
+                            break;
+                        case ComponentType.MentionableMenu:
+                            JsonSerializer.Serialize(writer, (MentionableMenuProperties)component, MentionableMenuProperties.MentionableMenuPropertiesSerializerContext.WithOptions.MentionableMenuProperties);
+                            break;
+                        case ComponentType.ChannelMenu:
+                            JsonSerializer.Serialize(writer, (ChannelMenuProperties)component, ChannelMenuProperties.ChannelMenuPropertiesSerializerContext.WithOptions.ChannelMenuProperties);
+                            break;
+                    }
                     writer.WriteEndArray();
                     writer.WriteEndObject();
-                    break;
-                case ComponentType.ActionRow:
-                    JsonSerializer.Serialize(writer, (ActionRowProperties)component, ActionRowProperties.ActionRowPropertiesSerializerContext.WithOptions.ActionRowProperties);
                     break;
             }
         }

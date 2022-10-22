@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿namespace NetCord.Services;
 
 public class Mentionable
 {

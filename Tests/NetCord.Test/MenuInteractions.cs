@@ -3,7 +3,7 @@ using NetCord.Services.Interactions;
 
 namespace NetCord.Test;
 
-public class MenuInteractions : BaseInteractionModule<MenuInteractionContext>
+public class MenuInteractions : BaseInteractionModule<StringMenuInteractionContext>
 {
     [Interaction("roles")]
     public async Task Roles()

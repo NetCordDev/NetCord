@@ -175,7 +175,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = "Here is your menu:",
-            Components = new ComponentProperties[] { new MenuProperties("menu", values.Select(v => new MenuSelectOptionProperties(v, v))) { MaxValues = values.Length } },
+            Components = new ComponentProperties[] { new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length } },
             MessageReference = new(Context.Message)
         };
         return SendAsync(message);

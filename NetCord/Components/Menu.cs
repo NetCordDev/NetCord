@@ -6,7 +6,7 @@ public class Menu : IComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private readonly JsonComponent _jsonModel;
-    public ComponentType ComponentType => ComponentType.Menu;
+    public ComponentType ComponentType => ComponentType.StringMenu;
     public string CustomId => _jsonModel.CustomId!;
     public IEnumerable<MenuSelectOption> Options { get; }
     public string? Placeholder => _jsonModel.Placeholder;

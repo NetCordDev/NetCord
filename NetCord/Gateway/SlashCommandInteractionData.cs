@@ -14,5 +14,5 @@ public class SlashCommandInteractionData : ApplicationCommandInteractionData
 
     public IReadOnlyList<ApplicationCommandInteractionDataOption> Options { get; }
 
-    public SlashCommandInteractionResolvedData? ResolvedData { get; }
+    public InteractionResolvedData? ResolvedData { get; }
 }

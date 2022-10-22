@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class SlashCommandInteractionResolvedData
+public class InteractionResolvedData
 {
     public IReadOnlyDictionary<Snowflake, User>? Users { get; }
 
@@ -12,29 +12,30 @@ public class SlashCommandInteractionResolvedData
 
     public IReadOnlyDictionary<Snowflake, Attachment>? Attachments { get; }
 
-    public SlashCommandInteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, Snowflake? guildId, RestClient client)
+    public InteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, Snowflake? guildId, RestClient client)
     {
         if (jsonModel.Users != null)
         {
             if (jsonModel.GuildUsers != null)
             {
-                var enumerator = jsonModel.Users.GetEnumerator();
-                var max = jsonModel.Users.Count - jsonModel.GuildUsers.Count;
                 Dictionary<Snowflake, User> users = new();
-                for (var i = 0; i < max; i++)
+                using (var enumerator = jsonModel.Users.GetEnumerator())
                 {
-                    enumerator.MoveNext();
-                    var current = enumerator.Current;
-                    users.Add(current.Key, new(current.Value, client));
+                    var max = jsonModel.Users.Count - jsonModel.GuildUsers.Count;
+                    for (var i = 0; i < max; i++)
+                    {
+                        enumerator.MoveNext();
+                        var current = enumerator.Current;
+                        users.Add(current.Key, new(current.Value, client));
+                    }
+                    foreach (var guildUser in jsonModel.GuildUsers)
+                    {
+                        enumerator.MoveNext();
+                        var current = enumerator.Current;
+                        guildUser.Value.User = current.Value;
+                        users.Add(current.Key, new GuildInteractionUser(guildUser.Value, guildId.GetValueOrDefault(), client));
+                    }
                 }
-                foreach (var guildUser in jsonModel.GuildUsers)
-                {
-                    enumerator.MoveNext();
-                    var current = enumerator.Current;
-                    guildUser.Value.User = current.Value;
-                    users.Add(current.Key, new GuildInteractionUser(guildUser.Value, guildId.GetValueOrDefault(), client));
-                }
-                enumerator.Dispose();
                 Users = users;
             }
             else

@@ -62,7 +62,11 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
             InteractionType.MessageComponent => jsonModel.Data.ComponentType switch
             {
                 ComponentType.Button => new ButtonInteraction(jsonModel, guild, channel, client),
-                ComponentType.Menu => new MenuInteraction(jsonModel, guild, channel, client),
+                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, channel, client),
+                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, channel, client),
+                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, channel, client),
+                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, channel, client),
+                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, channel, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonModel, guild, channel, client),

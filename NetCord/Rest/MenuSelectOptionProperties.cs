@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class MenuSelectOptionProperties
+public partial class StringMenuSelectOptionProperties
 {
     [JsonPropertyName("label")]
     public string Label { get; }
@@ -22,15 +22,15 @@ public partial class MenuSelectOptionProperties
     [JsonPropertyName("default")]
     public bool Default { get; set; }
 
-    public MenuSelectOptionProperties(string label, string value)
+    public StringMenuSelectOptionProperties(string label, string value)
     {
         Label = label;
         Value = value;
     }
 
-    [JsonSerializable(typeof(MenuSelectOptionProperties))]
-    public partial class MenuSelectOptionPropertiesSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(StringMenuSelectOptionProperties))]
+    public partial class StringMenuSelectOptionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static MenuSelectOptionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static StringMenuSelectOptionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }
