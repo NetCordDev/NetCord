@@ -20,7 +20,9 @@ public class Token
     {
         get
         {
-            if (Utf8Parser.TryParse(Convert.FromBase64String(RawToken[..RawToken.IndexOf('.')]), out ulong id, out _))
+            var idBase64 = RawToken[..RawToken.IndexOf('.')];
+            var idConverted = Convert.FromBase64String(idBase64.PadRight((idBase64.Length + 3) / 4 * 4, '='));
+            if (Utf8Parser.TryParse(idConverted, out ulong id, out int bytesConsumed) && idConverted.Length == bytesConsumed)
                 return id;
             throw new("Invalid token provided.");
         }
