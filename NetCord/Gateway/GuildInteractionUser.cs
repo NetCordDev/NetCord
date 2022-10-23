@@ -5,7 +5,7 @@ namespace NetCord.Gateway;
 
 public class GuildInteractionUser : GuildUser
 {
-    public GuildInteractionUser(JsonGuildUser jsonModel, Snowflake guildId, RestClient client) : base(jsonModel, guildId, client)
+    public GuildInteractionUser(JsonGuildUser jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {
     }
 

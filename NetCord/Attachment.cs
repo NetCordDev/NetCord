@@ -7,7 +7,7 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
     JsonModels.JsonAttachment IJsonModel<JsonModels.JsonAttachment>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonAttachment _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
     public string Filename => _jsonModel.Filename;
     public string? Description => _jsonModel.Description;
     public ContentType? ContentType => _jsonModel.ContentType;

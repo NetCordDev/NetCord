@@ -6,7 +6,7 @@ public partial class GuildUserOptions : CurrentGuildUserOptions
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake>? RoleIds { get; set; }
+    public IEnumerable<ulong>? RoleIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]
@@ -18,7 +18,7 @@ public partial class GuildUserOptions : CurrentGuildUserOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonConverter(typeof(JsonConverters.NullableDateTimeOffsetConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

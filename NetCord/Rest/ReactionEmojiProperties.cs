@@ -3,7 +3,7 @@
 public class ReactionEmojiProperties
 {
     public string Name { get; }
-    public Snowflake? Id { get; }
+    public ulong? Id { get; }
     public ReactionEmojiType EmojiType { get; }
 
     /// <summary>
@@ -11,7 +11,7 @@ public class ReactionEmojiProperties
     /// </summary>
     /// <param name="name"></param>
     /// <param name="id"></param>
-    public ReactionEmojiProperties(string name, Snowflake id)
+    public ReactionEmojiProperties(string name, ulong id)
     {
         Name = name;
         Id = id;

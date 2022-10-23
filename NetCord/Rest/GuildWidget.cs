@@ -6,15 +6,15 @@ public class GuildWidget : Entity
 {
     private readonly JsonModels.JsonGuildWidget _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 
     public string? InstantInvite => _jsonModel.InstantInvite;
 
-    public ImmutableDictionary<Snowflake, GuildWidgetChannel> Channels { get; }
+    public ImmutableDictionary<ulong, GuildWidgetChannel> Channels { get; }
 
-    public ImmutableDictionary<Snowflake, User> Users { get; }
+    public ImmutableDictionary<ulong, User> Users { get; }
 
     public int PresenceCount => _jsonModel.PresenceCount;
 

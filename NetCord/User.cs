@@ -9,7 +9,7 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonUser _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
     public virtual string Username => _jsonModel.Username;
     public virtual ushort Discriminator => _jsonModel.Discriminator;
     public virtual string? AvatarHash => _jsonModel.AvatarHash;

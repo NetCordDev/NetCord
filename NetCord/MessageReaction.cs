@@ -11,7 +11,7 @@ public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 
     public bool Me => _jsonModel.Me;
 
-    public Snowflake? Id => _jsonModel.Emoji.Id;
+    public ulong? Id => _jsonModel.Emoji.Id;
 
     public string? Name => _jsonModel.Emoji.Name;
 

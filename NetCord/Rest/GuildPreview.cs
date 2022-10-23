@@ -7,7 +7,7 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuild _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 
@@ -17,7 +17,7 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 
     public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
 
-    public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
+    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; }
 
     public IReadOnlyList<string> Features => _jsonModel.Features;
 

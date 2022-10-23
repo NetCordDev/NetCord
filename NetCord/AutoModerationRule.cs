@@ -14,13 +14,13 @@ public class AutoModerationRule : Entity, IJsonModel<JsonAutoModerationRule>
         Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a));
     }
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public string Name => _jsonModel.Name;
 
-    public Snowflake CreatorId => _jsonModel.CreatorId;
+    public ulong CreatorId => _jsonModel.CreatorId;
 
     public AutoModerationRuleEventType EventType => _jsonModel.EventType;
 
@@ -32,7 +32,7 @@ public class AutoModerationRule : Entity, IJsonModel<JsonAutoModerationRule>
 
     public bool Enabled => _jsonModel.Enabled;
 
-    public IReadOnlyList<Snowflake> ExemptRoles => _jsonModel.ExemptRoles;
+    public IReadOnlyList<ulong> ExemptRoles => _jsonModel.ExemptRoles;
 
-    public IReadOnlyList<Snowflake> ExemptChannels => _jsonModel.ExemptChannels;
+    public IReadOnlyList<ulong> ExemptChannels => _jsonModel.ExemptChannels;
 }

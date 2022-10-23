@@ -12,7 +12,7 @@ public class GuildRoleDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuil
         _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public Snowflake RoleId => _jsonModel.RoleId;
+    public ulong RoleId => _jsonModel.RoleId;
 }

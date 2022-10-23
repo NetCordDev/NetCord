@@ -5,7 +5,7 @@ namespace NetCord.Gateway;
 public partial class GuildUsersRequestProperties
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
     [JsonPropertyName("query")]
     public string? Query { get; set; }
@@ -17,12 +17,12 @@ public partial class GuildUsersRequestProperties
     public bool? Presences { get; set; }
 
     [JsonPropertyName("user_ids")]
-    public IEnumerable<Snowflake>? UserIds { get; set; }
+    public IEnumerable<ulong>? UserIds { get; set; }
 
     [JsonPropertyName("nonce")]
     public string? Nonce { get; set; }
 
-    public GuildUsersRequestProperties(Snowflake guildId)
+    public GuildUsersRequestProperties(ulong guildId)
     {
         GuildId = guildId;
     }

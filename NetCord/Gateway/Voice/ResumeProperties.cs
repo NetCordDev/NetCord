@@ -4,7 +4,7 @@ namespace NetCord.Gateway.Voice;
 
 internal class VoiceResumeProperties
 {
-    public VoiceResumeProperties(Snowflake guildId, string sessionId, string token)
+    public VoiceResumeProperties(ulong guildId, string sessionId, string token)
     {
         GuildId = guildId;
         SessionId = sessionId;
@@ -12,7 +12,7 @@ internal class VoiceResumeProperties
     }
 
     [JsonPropertyName("server_id")]
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
     [JsonPropertyName("session_id")]
     public string SessionId { get; }

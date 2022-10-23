@@ -27,7 +27,7 @@ public class StrangeCommands : CommandModule<CommandContext>
 
     [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
     [Command("delete", "remove")]
-    public Task Delete(Snowflake id)
+    public Task Delete(ulong id)
     {
         return Context.Client.Rest.DeleteMessageAsync(Context.Message.ChannelId, id);
     }
@@ -45,7 +45,7 @@ public class StrangeCommands : CommandModule<CommandContext>
             var first = span.IndexOf(':');
             var name = span[(last == first ? 1 : first + 1)..last];
             var id = span[(last + 1)..^1];
-            reaction = new(name.ToString(), new(id.ToString()));
+            reaction = new(name.ToString(), ulong.Parse(id));
         }
         return Context.Message.AddReactionAsync(reaction);
     }
@@ -133,7 +133,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("messages")]
-    public async Task Messages(Snowflake? channelId = null)
+    public async Task Messages(ulong? channelId = null)
     {
         channelId ??= Context.Message.ChannelId;
         await foreach (var m in Context.Client.Rest.GetMessagesAsync(channelId.GetValueOrDefault()))
@@ -141,7 +141,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("message")]
-    public async Task Message(Snowflake id)
+    public async Task Message(ulong id)
     {
         var m = await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, id);
         await ReplyAsync($"{m.Author}: {m.Content}");
@@ -151,16 +151,19 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task Id([Remainder] UserId? userId = null)
     {
         var id = userId != null ? userId.Id : Context.User;
-        List<EmbedFieldProperties> fields = new();
+        var fields = new EmbedFieldProperties[]
+        {
+            new() { Title = "Id", Description = id.ToString()! },
+            new() { Title = "Created At", Description = new Timestamp(SnowflakeUtils.CreatedAt(id)).ToString() },
+            new() { Title = "Internal Worker Id", Description = SnowflakeUtils.InternalWorkerId(id).ToString() },
+            new() { Title = "Internal Process Id", Description = SnowflakeUtils.InternalProcessId(id).ToString() },
+            new() { Title = "Increment", Description = SnowflakeUtils.Increment(id).ToString() },
+        };
         EmbedProperties embed = new()
         {
             Title = $"Info about {id}",
             Fields = fields
         };
-        fields.Add(new() { Title = "Id", Description = id.ToString()! });
-        fields.Add(new() { Title = "Created at", Description = new Timestamp(id.CreatedAt).ToString() });
-        fields.Add(new() { Title = "Internal worker id", Description = id.InternalWorkerId.ToString() });
-        fields.Add(new() { Title = "Internal process id", Description = id.InternalProcessId.ToString() });
         MessageProperties message = new()
         {
             Embeds = new EmbedProperties[] { embed }
@@ -227,7 +230,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("quote", Priority = 1)]
-    public async Task Quote(Snowflake messageId)
+    public async Task Quote(ulong messageId)
         => await ReplyAsync(Format.Quote((await Context.Client.Rest.GetMessageAsync(Context.Message.ChannelId, messageId)).Content));
 
     [Command("quote", Priority = 0)]

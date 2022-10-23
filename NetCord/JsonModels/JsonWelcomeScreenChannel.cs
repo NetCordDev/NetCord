@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 public partial class JsonWelcomeScreenChannel
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; }
 
     [JsonPropertyName("emoji_id")]
-    public Snowflake? EmojiId { get; set; }
+    public ulong? EmojiId { get; set; }
 
     [JsonPropertyName("emoji_name")]
     public string? EmojiName { get; set; }

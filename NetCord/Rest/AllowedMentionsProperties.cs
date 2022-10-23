@@ -10,26 +10,29 @@ public partial class AllowedMentionsProperties
     /// <see langword="@everyone"/> and <see langword="@here"/>
     /// </summary>
     public bool Everyone { get; set; } = true;
+
     /// <summary>
     /// <see langword="null"/> for all
     /// </summary>
-    public IEnumerable<Snowflake>? TheOnlyAllowedRoles { get; set; }
+    public IEnumerable<ulong>? AllowedRoles { get; set; }
+
     /// <summary>
     /// <see langword="null"/> for all
     /// </summary>
-    public IEnumerable<Snowflake>? TheOnlyAllowedUsers { get; set; }
+    public IEnumerable<ulong>? AllowedUsers { get; set; }
+
     public bool ReplyMention { get; set; }
 
     public static AllowedMentionsProperties All => new()
     {
-        ReplyMention = true
+        ReplyMention = true,
     };
 
     public static AllowedMentionsProperties None => new()
     {
-        TheOnlyAllowedRoles = Enumerable.Empty<Snowflake>(),
-        TheOnlyAllowedUsers = Enumerable.Empty<Snowflake>(),
         Everyone = false,
+        AllowedRoles = Enumerable.Empty<ulong>(),
+        AllowedUsers = Enumerable.Empty<ulong>(),
     };
 
     internal partial class AllowedMentionsConverter : JsonConverter<AllowedMentionsProperties>
@@ -39,19 +42,19 @@ public partial class AllowedMentionsProperties
         {
             writer.WriteStartObject();
             List<string> list = new(3);
-            if (value.TheOnlyAllowedRoles == null)
+            if (value.AllowedRoles == null)
                 list.Add("roles");
             else
             {
                 writer.WritePropertyName("roles");
-                JsonSerializer.Serialize(writer, value.TheOnlyAllowedRoles, IEnumerableOfSnowflake.WithOptions.IEnumerableSnowflake);
+                JsonSerializer.Serialize(writer, value.AllowedRoles, IEnumerableOfUInt64.WithOptions.IEnumerableUInt64);
             }
-            if (value.TheOnlyAllowedUsers == null)
+            if (value.AllowedUsers == null)
                 list.Add("users");
             else
             {
                 writer.WritePropertyName("users");
-                JsonSerializer.Serialize(writer, value.TheOnlyAllowedUsers, IEnumerableOfSnowflake.WithOptions.IEnumerableSnowflake);
+                JsonSerializer.Serialize(writer, value.AllowedUsers, IEnumerableOfUInt64.WithOptions.IEnumerableUInt64);
             }
             if (value.Everyone)
                 list.Add("everyone");
@@ -61,15 +64,15 @@ public partial class AllowedMentionsProperties
             if (value.ReplyMention == true)
             {
                 writer.WritePropertyName("replied_user");
-                writer.WriteBooleanValue(value.ReplyMention);
+                writer.WriteBooleanValue(true);
             }
             writer.WriteEndObject();
         }
 
-        [JsonSerializable(typeof(IEnumerable<Snowflake>))]
-        public partial class IEnumerableOfSnowflake : JsonSerializerContext
+        [JsonSerializable(typeof(IEnumerable<ulong>))]
+        public partial class IEnumerableOfUInt64 : JsonSerializerContext
         {
-            public static IEnumerableOfSnowflake WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static IEnumerableOfUInt64 WithOptions { get; } = new(new(ToObjectExtensions._options));
         }
 
         [JsonSerializable(typeof(List<string>))]

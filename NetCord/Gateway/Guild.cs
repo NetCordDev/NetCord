@@ -7,13 +7,13 @@ namespace NetCord.Gateway;
 
 public class Guild : RestGuild
 {
-    public ImmutableDictionary<Snowflake, VoiceState> VoiceStates { get; internal set; }
-    public ImmutableDictionary<Snowflake, GuildUser> Users { get; internal set; }
-    public ImmutableDictionary<Snowflake, IGuildChannel> Channels { get; internal set; }
-    public ImmutableDictionary<Snowflake, GuildThread> ActiveThreads { get; internal set; }
-    public ImmutableDictionary<Snowflake, StageInstance> StageInstances { get; internal set; }
-    public ImmutableDictionary<Snowflake, Presence> Presences { get; internal set; }
-    public ImmutableDictionary<Snowflake, GuildScheduledEvent> ScheduledEvents { get; internal set; }
+    public ImmutableDictionary<ulong, VoiceState> VoiceStates { get; internal set; }
+    public ImmutableDictionary<ulong, GuildUser> Users { get; internal set; }
+    public ImmutableDictionary<ulong, IGuildChannel> Channels { get; internal set; }
+    public ImmutableDictionary<ulong, GuildThread> ActiveThreads { get; internal set; }
+    public ImmutableDictionary<ulong, StageInstance> StageInstances { get; internal set; }
+    public ImmutableDictionary<ulong, Presence> Presences { get; internal set; }
+    public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; internal set; }
 
     public string? IconHash => _jsonModel.IconHash;
     public GuildUser Owner => Users[OwnerId];

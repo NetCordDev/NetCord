@@ -2,7 +2,7 @@
 
 public record Route
 {
-    public Route(RouteParameter? sensitiveParameter, Snowflake? sensitiveId = null, bool globalRateLimit = true)
+    public Route(RouteParameter? sensitiveParameter, ulong? sensitiveId = null, bool globalRateLimit = true)
     {
         SensitiveParameter = sensitiveParameter;
         SensitiveId = sensitiveId;
@@ -11,7 +11,7 @@ public record Route
 
     public RouteParameter? SensitiveParameter { get; }
 
-    public Snowflake? SensitiveId { get; }
+    public ulong? SensitiveId { get; }
 
     public bool GlobalRateLimit { get; }
 }

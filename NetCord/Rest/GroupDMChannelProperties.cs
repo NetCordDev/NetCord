@@ -13,7 +13,7 @@ public partial class GroupDMChannelProperties
     public IEnumerable<string> AccessTokens { get; }
 
     [JsonPropertyName("nicks")]
-    public IReadOnlyDictionary<Snowflake, string>? Nicknames { get; set; }
+    public IReadOnlyDictionary<ulong, string>? Nicknames { get; set; }
 
     [JsonSerializable(typeof(GroupDMChannelProperties))]
     public partial class GroupDMChannelPropertiesSerializerContext : JsonSerializerContext

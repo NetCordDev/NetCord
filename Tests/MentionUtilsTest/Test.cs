@@ -31,7 +31,7 @@ public class Test
     [TestMethod]
     public void SlashCommand()
     {
-        Snowflake id = 859359702012788756;
+        ulong id = 859359702012788756;
 
         var result = MentionUtils.ParseSlashCommand($"</name:{id}>");
         Assert.AreEqual(id, result.Id);
@@ -82,9 +82,9 @@ public class Test
             Assert.IsFalse(MentionUtils.TryParseChannel(badMention, out _));
     }
 
-    public static void ParseTest(ParseDelegate del, Func<Snowflake, string> validMentionFunc)
+    public static void ParseTest(ParseDelegate del, Func<ulong, string> validMentionFunc)
     {
-        Snowflake id = 859359702012788756;
+        ulong id = 859359702012788756;
         var mention = validMentionFunc(id);
 
         Assert.AreEqual(id, del(mention));
@@ -100,9 +100,9 @@ public class Test
             Assert.ThrowsException<FormatException>(() => MentionUtils.ParseChannel(badMention));
     }
 
-    public static void TryParseTest(TryParseDelegate del, Func<Snowflake, string> validMentionFunc)
+    public static void TryParseTest(TryParseDelegate del, Func<ulong, string> validMentionFunc)
     {
-        Snowflake id = 859359702012788756;
+        ulong id = 859359702012788756;
         var mention = validMentionFunc(id);
 
         Assert.IsTrue(del(mention, out var result));
@@ -119,6 +119,6 @@ public class Test
             Assert.IsFalse(MentionUtils.TryParseChannel(badMention, out _));
     }
 
-    public delegate Snowflake ParseDelegate(ReadOnlySpan<char> span);
-    public delegate bool TryParseDelegate(ReadOnlySpan<char> span, out Snowflake result);
+    public delegate ulong ParseDelegate(ReadOnlySpan<char> span);
+    public delegate bool TryParseDelegate(ReadOnlySpan<char> span, out ulong result);
 }

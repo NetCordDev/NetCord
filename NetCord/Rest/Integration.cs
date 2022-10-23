@@ -5,7 +5,7 @@ public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
     JsonModels.JsonIntegration IJsonModel<JsonModels.JsonIntegration>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonIntegration _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 
@@ -15,7 +15,7 @@ public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
 
     public bool? Syncing => _jsonModel.Syncing;
 
-    public Snowflake? RoleId => _jsonModel.RoleId;
+    public ulong? RoleId => _jsonModel.RoleId;
 
     public bool? EnableEmoticons => _jsonModel.EnableEmoticons;
 

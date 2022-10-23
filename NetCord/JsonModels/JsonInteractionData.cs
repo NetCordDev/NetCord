@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonInteractionData
 {
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; set; }
+    public ulong? Id { get; set; }
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }
@@ -29,7 +29,7 @@ public partial class JsonInteractionData
     public string[]? SelectedValues { get; set; }
 
     [JsonPropertyName("target_id")]
-    public Snowflake? TargetId { get; set; }
+    public ulong? TargetId { get; set; }
 
     [JsonPropertyName("components")]
     public JsonComponent[]? Components { get; set; }

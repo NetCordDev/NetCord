@@ -9,12 +9,12 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
         var guild = context.Message.Guild;
         if (guild == null)
             goto exception;
-        IReadOnlyDictionary<Snowflake, GuildUser> users = guild.Users;
+        IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
         var span = input.Span;
         var s = span.ToString();
 
         // by id
-        if (Snowflake.TryCreate(s, out Snowflake id))
+        if (ulong.TryParse(s, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
                 return Task.FromResult((object?)user);

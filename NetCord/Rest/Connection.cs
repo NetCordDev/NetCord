@@ -18,7 +18,7 @@ public class Connection : IJsonModel<JsonModels.JsonConnection>
 
     public bool? Revoked => _jsonModel.Revoked;
 
-    public IReadOnlyDictionary<Snowflake, Integration>? Integrations { get; }
+    public IReadOnlyDictionary<ulong, Integration>? Integrations { get; }
 
     public bool Verified => _jsonModel.Verified;
 

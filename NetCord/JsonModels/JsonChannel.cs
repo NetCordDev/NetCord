@@ -9,7 +9,7 @@ public partial class JsonChannel : JsonEntity
     public ChannelType Type { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("position")]
     public int? Position { get; set; }
@@ -27,7 +27,7 @@ public partial class JsonChannel : JsonEntity
     public bool Nsfw { get; set; }
 
     [JsonPropertyName("last_message_id")]
-    public Snowflake? LastMessageId { get; set; }
+    public ulong? LastMessageId { get; set; }
 
     [JsonPropertyName("bitrate")]
     public int? Bitrate { get; set; }
@@ -45,13 +45,13 @@ public partial class JsonChannel : JsonEntity
     public string? IconHash { get; set; }
 
     [JsonPropertyName("owner_id")]
-    public Snowflake? OwnerId { get; set; }
+    public ulong? OwnerId { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("parent_id")]
-    public Snowflake? ParentId { get; set; }
+    public ulong? ParentId { get; set; }
 
     [JsonPropertyName("last_pin_timestamp")]
     public DateTimeOffset? LastPin { get; set; }
@@ -90,7 +90,7 @@ public partial class JsonChannel : JsonEntity
     public JsonForumTag[]? AvailableTags { get; set; }
 
     [JsonPropertyName("applied_tags")]
-    public Snowflake[]? AppliedTags { get; set; }
+    public ulong[]? AppliedTags { get; set; }
 
     [JsonPropertyName("default_reaction_emoji")]
     public JsonForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; set; }

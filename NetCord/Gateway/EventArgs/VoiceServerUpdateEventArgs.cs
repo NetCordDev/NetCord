@@ -12,7 +12,7 @@ public class VoiceServerUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonVo
 
     public string Token => _jsonModel.Token;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public string? Endpoint => _jsonModel.Endpoint;
 }

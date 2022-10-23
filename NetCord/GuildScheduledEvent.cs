@@ -7,13 +7,13 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
     JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? CreatorId => _jsonModel.CreatorId;
+    public ulong? CreatorId => _jsonModel.CreatorId;
 
     public string Name => _jsonModel.Name;
 
@@ -29,7 +29,7 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
 
     public GuildScheduledEventEntityType EntityType => _jsonModel.EntityType;
 
-    public Snowflake? EntityId => _jsonModel.EntityId;
+    public ulong? EntityId => _jsonModel.EntityId;
 
     public string? Location => _jsonModel.EntityMetadata?.Location;
 
@@ -48,7 +48,7 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
     public Task<GuildScheduledEvent> ModifyAsync(Action<GuildScheduledEventOptions> action, RequestProperties? properties = null) => _client.ModifyGuildScheduledEventAsync(GuildId, Id, action, properties);
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildScheduledEventAsync(GuildId, Id, properties);
     public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAsync(bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(GuildId, Id, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAfterAsync(Snowflake userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(GuildId, Id, userId, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersBeforeAsync(Snowflake userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersBeforeAsync(GuildId, Id, userId, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAfterAsync(ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(GuildId, Id, userId, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersBeforeAsync(ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersBeforeAsync(GuildId, Id, userId, guildUsers, properties);
     #endregion
 }

@@ -11,9 +11,9 @@ public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
 
     public MembershipState MembershipState => _jsonTeamModel.MembershipState;
     public IReadOnlyList<string> Permissions => _jsonTeamModel.Permissions;
-    public Snowflake TeamId => _jsonTeamModel.TeamId;
+    public ulong TeamId => _jsonTeamModel.TeamId;
 
-    public override Snowflake Id => _jsonTeamModel.User.Id;
+    public override ulong Id => _jsonTeamModel.User.Id;
     public override string Username => _jsonTeamModel.User.Username;
     public override ushort Discriminator => _jsonTeamModel.User.Discriminator;
     public override string? AvatarHash => _jsonTeamModel.User.AvatarHash;

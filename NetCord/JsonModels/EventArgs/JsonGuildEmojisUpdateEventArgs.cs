@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildEmojisUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("emojis")]
     public JsonEmoji[] Emojis { get; set; }

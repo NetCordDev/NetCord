@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonAutoModerationActionMetadata
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("duration_seconds")]
     public int? DurationSeconds { get; set; }

@@ -10,10 +10,10 @@ public partial class JsonWebhook : JsonEntity
     public WebhookType Type { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser? Creator { get; set; }
@@ -28,7 +28,7 @@ public partial class JsonWebhook : JsonEntity
     public string? Token { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("source_guild")]
     public JsonGuild? Guild { get; set; }

@@ -5,7 +5,7 @@ public class GuildWidgetChannel : Entity, IJsonModel<JsonModels.JsonGuildWidgetC
     JsonModels.JsonGuildWidgetChannel IJsonModel<JsonModels.JsonGuildWidgetChannel>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildWidgetChannel _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 

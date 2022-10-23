@@ -25,7 +25,7 @@ public class GuildTemplate : IJsonModel<JsonGuildTemplate>
 
     public int UsageCount => _jsonModel.UsageCount;
 
-    public Snowflake CreatorId => _jsonModel.CreatorId;
+    public ulong CreatorId => _jsonModel.CreatorId;
 
     public User Creator { get; }
 
@@ -33,7 +33,7 @@ public class GuildTemplate : IJsonModel<JsonGuildTemplate>
 
     public DateTimeOffset UpdatedAt => _jsonModel.UpdatedAt;
 
-    public Snowflake SourceGuildId => _jsonModel.SourceGuildId;
+    public ulong SourceGuildId => _jsonModel.SourceGuildId;
 
     public GuildTemplateSourceGuild SerializedSourceGuild { get; }
 

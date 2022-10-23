@@ -8,7 +8,7 @@ public class AnnouncementGuildChannelTypeReader<TContext> : SlashCommandTypeRead
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
     {
-        return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![new(value)]);
+        return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![ulong.Parse(value)]);
     }
 
     public override IEnumerable<ChannelType>? AllowedChannelTypes

@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 public partial class JsonApplicationCommandGuildPermissions
 {
     [JsonPropertyName("id")]
-    public Snowflake CommandId { get; set; }
+    public ulong CommandId { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("permissions")]
     public JsonApplicationCommandGuildPermission[] Permissions { get; set; }

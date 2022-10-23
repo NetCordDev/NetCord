@@ -37,9 +37,9 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
 
     private readonly string _fullName;
 
-    private readonly Snowflake _parentId;
+    private readonly ulong _parentId;
 
-    public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel, string parentName, Snowflake parentId)
+    public ApplicationCommandOption(JsonModels.JsonApplicationCommandOption jsonModel, string parentName, ulong parentId)
     {
         _jsonModel = jsonModel;
         _fullName = $"{parentName} {jsonModel.Name}";

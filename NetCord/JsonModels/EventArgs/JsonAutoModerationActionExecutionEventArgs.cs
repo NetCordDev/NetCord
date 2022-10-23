@@ -5,28 +5,28 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonAutoModerationActionExecutionEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("action")]
     public JsonAutoModerationAction Action { get; set; }
 
     [JsonPropertyName("rule_id")]
-    public Snowflake RuleId { get; set; }
+    public ulong RuleId { get; set; }
 
     [JsonPropertyName("rule_trigger_type")]
     public AutoModerationRuleTriggerType RuleTriggerType { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("message_id")]
-    public Snowflake? MessageId { get; set; }
+    public ulong? MessageId { get; set; }
 
     [JsonPropertyName("alert_system_message_id")]
-    public Snowflake? AlertSystemMessageId { get; set; }
+    public ulong? AlertSystemMessageId { get; set; }
 
     [JsonPropertyName("content")]
     public string Content { get; set; }

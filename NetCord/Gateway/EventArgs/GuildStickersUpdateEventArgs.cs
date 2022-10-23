@@ -15,7 +15,7 @@ public class GuildStickersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.Json
         Stickers = jsonModel.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public ImmutableDictionary<Snowflake, GuildSticker> Stickers { get; }
+    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; }
 }

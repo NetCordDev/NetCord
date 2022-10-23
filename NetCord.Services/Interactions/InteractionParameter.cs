@@ -41,28 +41,21 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out attributes))
         {
             if (underlyingType != null)
-            {
                 Type = underlyingType;
-            }
             else
-            {
                 Type = type;
-            }
 
             TypeReader = TypeReaderAttributeHelper.GetTypeReader<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>((TypeReaderAttribute)attributes[0]);
         }
         else if (underlyingType != null)
         {
             if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
-            {
                 TypeReader = typeReader;
-            }
             else if (underlyingType.IsEnum)
-            {
                 TypeReader = options.EnumTypeReader;
-            }
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
+
             Type = underlyingType;
         }
         else
@@ -73,6 +66,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
                 TypeReader = options.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
+
             Type = type;
         }
     }

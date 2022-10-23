@@ -2,7 +2,7 @@
 
 public class GuildThreadDeleteEventArgs
 {
-    public GuildThreadDeleteEventArgs(Snowflake threadId, Snowflake guildId, Snowflake threadParentId, ChannelType threadType)
+    public GuildThreadDeleteEventArgs(ulong threadId, ulong guildId, ulong threadParentId, ChannelType threadType)
     {
         ThreadId = threadId;
         GuildId = guildId;
@@ -10,11 +10,11 @@ public class GuildThreadDeleteEventArgs
         ThreadType = threadType;
     }
 
-    public Snowflake ThreadId { get; }
+    public ulong ThreadId { get; }
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
-    public Snowflake ThreadParentId { get; }
+    public ulong ThreadParentId { get; }
 
     public ChannelType ThreadType { get; }
 }

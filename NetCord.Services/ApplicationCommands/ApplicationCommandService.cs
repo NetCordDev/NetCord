@@ -10,9 +10,9 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     private readonly ApplicationCommandServiceOptions<TContext> _options;
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
-    private readonly Dictionary<Snowflake, ApplicationCommandInfo<TContext>> _commands = new();
+    private readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
 
-    public IReadOnlyDictionary<Snowflake, ApplicationCommandInfo<TContext>> Commands
+    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> Commands
     {
         get
         {
@@ -74,7 +74,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         }
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
         List<ApplicationCommand> list = new(_globalCommandsToCreate.Count + _guildCommandsToCreate.Count);
         var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue()), properties).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
@@ -110,7 +110,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     public IEnumerable<ApplicationCommandProperties> GetGlobalCommandProperties()
         => _globalCommandsToCreate.Select(c => c.GetRawValue());
 
-    public IEnumerable<IGrouping<Snowflake, ApplicationCommandProperties>> GetGuildCommandProperties()
+    public IEnumerable<IGrouping<ulong, ApplicationCommandProperties>> GetGuildCommandProperties()
         => _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault(), c => c.GetRawValue());
 
     internal void AddCommands(IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)

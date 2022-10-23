@@ -5,7 +5,7 @@ public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrat
     JsonModels.JsonIntegrationApplication IJsonModel<JsonModels.JsonIntegrationApplication>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonIntegrationApplication _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 

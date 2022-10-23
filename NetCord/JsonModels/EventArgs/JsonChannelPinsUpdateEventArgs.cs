@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonChannelPinsUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("last_pin_timestamp")]
     public DateTimeOffset? LastPinTimestamp { get; set; }

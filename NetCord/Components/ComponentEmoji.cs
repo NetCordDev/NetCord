@@ -5,7 +5,7 @@ public class ComponentEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
     JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonEmoji _jsonModel;
 
-    public override Snowflake Id
+    public override ulong Id
     {
         get
         {

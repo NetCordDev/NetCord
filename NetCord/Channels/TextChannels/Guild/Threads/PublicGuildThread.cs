@@ -8,5 +8,5 @@ public class PublicGuildThread : GuildThread
     {
     }
 
-    public IReadOnlyList<Snowflake>? AppliedTags => _jsonModel.AppliedTags;
+    public IReadOnlyList<ulong>? AppliedTags => _jsonModel.AppliedTags;
 }

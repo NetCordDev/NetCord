@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public partial class JsonFollowedChannel : JsonEntity
 {
     [JsonPropertyName("channel_id")]
-    public override Snowflake Id { get; set; }
+    public override ulong Id { get; set; }
 
     [JsonPropertyName("webhook_id")]
-    public Snowflake WebhookId { get; set; }
+    public ulong WebhookId { get; set; }
 
     [JsonSerializable(typeof(JsonFollowedChannel))]
     public partial class JsonFollowedChannelSerializerContext : JsonSerializerContext

@@ -9,13 +9,13 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public SelfUser User { get; }
 
-    public IEnumerable<Snowflake> GuildIds { get; }
+    public IEnumerable<ulong> GuildIds { get; }
 
     public string SessionId => _jsonModel.SessionId;
 
     public Shard? Shard => _jsonModel.Shard;
 
-    public Snowflake ApplicationId => _jsonModel.Application.Id;
+    public ulong ApplicationId => _jsonModel.Application.Id;
 
     public ApplicationFlags ApplicationFlags => _jsonModel.Application.Flags.GetValueOrDefault();
 

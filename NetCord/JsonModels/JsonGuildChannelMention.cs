@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("type")]
     public ChannelType Type { get; set; }

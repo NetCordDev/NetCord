@@ -5,16 +5,16 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonMessageReactionAddEventArgs
 {
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("message_id")]
-    public Snowflake MessageId { get; set; }
+    public ulong MessageId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? User { get; set; }

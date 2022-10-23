@@ -33,7 +33,7 @@ public partial class GuildProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("afk_channel_id")]
-    public Snowflake? AfkChannelId { get; set; }
+    public ulong? AfkChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("afk_timeout")]
@@ -41,7 +41,7 @@ public partial class GuildProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_id")]
-    public Snowflake? SystemChannelId { get; set; }
+    public ulong? SystemChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_flags")]

@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class ChannelPositionProperties
 {
     [JsonPropertyName("id")]
-    public Snowflake Id { get; }
+    public ulong Id { get; }
 
     [JsonPropertyName("position")]
     public int? Position { get; set; }
@@ -14,9 +14,9 @@ public partial class ChannelPositionProperties
     public bool? LockPermissions { get; set; }
 
     [JsonPropertyName("parent_id")]
-    public Snowflake? ParentId { get; set; }
+    public ulong? ParentId { get; set; }
 
-    public ChannelPositionProperties(Snowflake id)
+    public ChannelPositionProperties(ulong id)
     {
         Id = id;
     }

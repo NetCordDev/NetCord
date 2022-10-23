@@ -12,7 +12,7 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
     public string? Url => _jsonModel.Url;
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public UserActivityTimestamps? Timestamps { get; }
-    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId => _jsonModel.ApplicationId;
     public string? Details => _jsonModel.Details;
     public string? State => _jsonModel.State;
     public Emoji? Emoji { get; }
@@ -25,9 +25,9 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
     public bool? Instance => _jsonModel.Instance;
     public UserActivityFlags? Flags => _jsonModel.Flags;
     public IEnumerable<UserActivityButton> Buttons { get; }
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
-    public UserActivity(JsonModels.JsonUserActivity jsonModel, Snowflake guildId, RestClient client)
+    public UserActivity(JsonModels.JsonUserActivity jsonModel, ulong guildId, RestClient client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.Timestamps != null)

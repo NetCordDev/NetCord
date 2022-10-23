@@ -11,7 +11,7 @@ public partial class ForumTagProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; set; }
+    public ulong? Id { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; }
@@ -22,7 +22,7 @@ public partial class ForumTagProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_id")]
-    public Snowflake? EmojiId { get; set; }
+    public ulong? EmojiId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_name")]

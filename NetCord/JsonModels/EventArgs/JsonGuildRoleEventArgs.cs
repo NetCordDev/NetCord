@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildRoleEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("role")]
     public JsonGuildRole Role { get; set; }

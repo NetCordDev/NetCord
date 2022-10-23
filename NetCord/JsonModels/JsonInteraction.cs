@@ -6,7 +6,7 @@ namespace NetCord.JsonModels;
 public partial class JsonInteraction : JsonEntity
 {
     [JsonPropertyName("application_id")]
-    public Snowflake ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("type")]
     public InteractionType Type { get; set; }
@@ -15,10 +15,10 @@ public partial class JsonInteraction : JsonEntity
     public JsonInteractionData Data { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }

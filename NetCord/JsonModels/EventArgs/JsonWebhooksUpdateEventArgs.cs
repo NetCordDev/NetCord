@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonWebhooksUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonSerializable(typeof(JsonWebhooksUpdateEventArgs))]
     public partial class JsonWebhooksUpdateEventArgsSerializerContext : JsonSerializerContext

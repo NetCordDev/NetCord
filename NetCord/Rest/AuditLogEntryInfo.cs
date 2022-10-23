@@ -12,19 +12,19 @@ public class AuditLogEntryInfo : IJsonModel<JsonAuditLogEntryInfo>
         _jsonModel = jsonModel;
     }
 
-    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId => _jsonModel.ApplicationId;
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
     public int? Count => _jsonModel.Count;
 
     public int? DeleteGuildUserDays => _jsonModel.DeleteGuildUserDays;
 
-    public Snowflake? Id => _jsonModel.Id;
+    public ulong? Id => _jsonModel.Id;
 
     public int? GuildUsersRemoved => _jsonModel.GuildUsersRemoved;
 
-    public Snowflake? MessageId => _jsonModel.MessageId;
+    public ulong? MessageId => _jsonModel.MessageId;
 
     public string? RoleName => _jsonModel.RoleName;
 

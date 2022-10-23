@@ -24,7 +24,7 @@ internal static class Program
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
 
-    private static readonly Dictionary<Snowflake, VoiceState> _voiceData = new();
+    private static readonly Dictionary<ulong, VoiceState> _voiceData = new();
 
     static Program()
     {

@@ -5,13 +5,13 @@ namespace NetCord.Rest;
 public partial class GuildRolePositionProperties
 {
     [JsonPropertyName("id")]
-    public Snowflake Id { get; }
+    public ulong Id { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("position")]
     public int? Position { get; set; }
 
-    public GuildRolePositionProperties(Snowflake id)
+    public GuildRolePositionProperties(ulong id)
     {
         Id = id;
     }

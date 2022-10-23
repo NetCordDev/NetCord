@@ -5,7 +5,7 @@ namespace NetCord.Gateway.Voice.JsonModels;
 public partial class JsonSpeaking
 {
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("ssrc")]
     public uint Ssrc { get; set; }

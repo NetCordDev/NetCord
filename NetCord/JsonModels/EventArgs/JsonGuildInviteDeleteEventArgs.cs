@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake InviteChannelId { get; set; }
+    public ulong InviteChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("code")]
     public string InviteCode { get; set; }

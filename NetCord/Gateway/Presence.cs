@@ -8,12 +8,12 @@ public class Presence : IJsonModel<JsonModels.JsonPresence>
     private readonly JsonModels.JsonPresence _jsonModel;
 
     public User User { get; }
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
     public UserStatusType Status => _jsonModel.Status;
     public IEnumerable<UserActivity> Activities { get; }
     public IReadOnlyDictionary<Platform, UserStatusType> Platform => _jsonModel.Platform;
 
-    public Presence(JsonModels.JsonPresence jsonModel, Snowflake? guildId, RestClient client)
+    public Presence(JsonModels.JsonPresence jsonModel, ulong? guildId, RestClient client)
     {
         _jsonModel = jsonModel;
         User = new(jsonModel.User, client);

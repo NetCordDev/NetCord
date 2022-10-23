@@ -18,7 +18,7 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("roles")]
-    public async Task Roles(params Snowflake[] roles)
+    public async Task Roles(params ulong[] roles)
     {
         if (Context.User is GuildUser guildUser)
         {
@@ -49,7 +49,7 @@ public class NormalCommands : CommandModule<CommandContext>
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<Snowflake> defaultValues)
+    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<ulong> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         List<StringMenuSelectOptionProperties> options = new();

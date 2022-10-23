@@ -13,9 +13,9 @@ public class ForumTag : Entity, IJsonModel<JsonForumTag>
 
     JsonForumTag IJsonModel<JsonForumTag>.JsonModel => _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
     public string Name => _jsonModel.Name;
     public bool Moderated => _jsonModel.Moderated;
-    public Snowflake? EmojiId => _jsonModel.EmojiId;
+    public ulong? EmojiId => _jsonModel.EmojiId;
     public string? EmojiName => _jsonModel.EmojiName;
 }

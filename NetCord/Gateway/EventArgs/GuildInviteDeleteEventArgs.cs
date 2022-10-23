@@ -12,9 +12,9 @@ public class GuildInviteDeleteEventArgs : IJsonModel<JsonGuildInviteDeleteEventA
         _jsonModel = jsonModel;
     }
 
-    public Snowflake InviteChannelId => _jsonModel.InviteChannelId;
+    public ulong InviteChannelId => _jsonModel.InviteChannelId;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
     public string InviteCode => _jsonModel.InviteCode;
 }

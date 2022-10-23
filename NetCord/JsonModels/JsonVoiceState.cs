@@ -4,13 +4,13 @@ namespace NetCord.JsonModels;
 public partial class JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     //[JsonPropertyName("member")]
     //public GuildUser? User { get; set; }

@@ -13,7 +13,7 @@ public partial class GuildUserProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake>? RolesIds { get; set; }
+    public IEnumerable<ulong>? RolesIds { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mute")]

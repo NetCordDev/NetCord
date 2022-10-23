@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
+using NetCord.Utils;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -18,9 +19,9 @@ public partial class GatewayClient : WebSocketClient
 
     private bool _disposed;
 
-    public ImmutableDictionary<Snowflake, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, Guild>();
-    public ImmutableDictionary<Snowflake, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, DMChannel>();
-    public ImmutableDictionary<Snowflake, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<Snowflake, GroupDMChannel>();
+    public ImmutableDictionary<ulong, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
+    public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
+    public ImmutableDictionary<ulong, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -90,7 +91,7 @@ public partial class GatewayClient : WebSocketClient
     public string? SessionId { get; private set; }
     public int SequenceNumber { get; private set; }
     public Shard? Shard { get; private set; }
-    public Snowflake? ApplicationId { get; private set; }
+    public ulong? ApplicationId { get; private set; }
     public ApplicationFlags? ApplicationFlags { get; private set; }
     public Rest.RestClient Rest { get; }
 
@@ -814,12 +815,12 @@ public partial class GatewayClient : WebSocketClient
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        Snowflake GetGuildId() => data.GetProperty("guild_id").ToObject(SnowflakeSerializerContext.WithOptions.Snowflake);
+        ulong GetGuildId() => data.GetProperty("guild_id").ToObject(UInt64Utils.UInt64SerializerContext.WithOptions.UInt64);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool TryGetGuild(Snowflake guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
+        bool TryGetGuild(ulong guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
 
-        async ValueTask CacheChannelAsync(Snowflake channelId)
+        async ValueTask CacheChannelAsync(ulong channelId)
         {
             if (!DMChannels.ContainsKey(channelId) && !GroupDMChannels.ContainsKey(channelId))
             {

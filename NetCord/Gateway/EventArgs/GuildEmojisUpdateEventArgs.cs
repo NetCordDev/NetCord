@@ -15,7 +15,7 @@ public class GuildEmojisUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGu
         Emojis = jsonModel.Emojis.ToImmutableDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, GuildId, client));
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public ImmutableDictionary<Snowflake, GuildEmoji> Emojis { get; }
+    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; }
 }

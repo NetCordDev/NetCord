@@ -17,7 +17,7 @@ public partial class GuildEmojiProperties
     public ImageProperties Image { get; }
 
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake>? AllowedRoles { get; set; }
+    public IEnumerable<ulong>? AllowedRoles { get; set; }
 
     [JsonSerializable(typeof(GuildEmojiProperties))]
     public partial class GuildEmojiPropertiesSerializerContext : JsonSerializerContext

@@ -7,11 +7,11 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonApplicationCommand _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public ApplicationCommandType Type => _jsonModel.Type;
 
-    public Snowflake ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => _jsonModel.ApplicationId;
 
     public string Name => _jsonModel.Name;
 
@@ -29,7 +29,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
 
     public bool DefaultPermission => _jsonModel.DefaultPermission;
 
-    public Snowflake Version => _jsonModel.Version;
+    public ulong Version => _jsonModel.Version;
 
     public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
     {
@@ -42,7 +42,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     #region Interactions.ApplicationCommands
     public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
     public virtual Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGlobalApplicationCommandAsync(ApplicationId, Id, properties);
-    public Task<ApplicationCommandGuildPermissions> GetGuildPermissionsAsync(Snowflake guildId, RequestProperties? properties = null) => _client.GetApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, properties);
-    public Task<ApplicationCommandGuildPermissions> OverwriteGuildPermissionsAsync(Snowflake guildId, IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions, RequestProperties? properties = null) => _client.OverwriteApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, newPermissions, properties);
+    public Task<ApplicationCommandGuildPermissions> GetGuildPermissionsAsync(ulong guildId, RequestProperties? properties = null) => _client.GetApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, properties);
+    public Task<ApplicationCommandGuildPermissions> OverwriteGuildPermissionsAsync(ulong guildId, IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions, RequestProperties? properties = null) => _client.OverwriteApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, newPermissions, properties);
     #endregion
 }

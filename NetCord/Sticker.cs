@@ -5,7 +5,7 @@ public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
     JsonModels.JsonSticker IJsonModel<JsonModels.JsonSticker>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonSticker _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 

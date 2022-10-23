@@ -12,9 +12,9 @@ public class GuildScheduledEventUserEventArgs : IJsonModel<JsonModels.EventArgs.
         _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildScheduledEventId => _jsonModel.GuildScheduledEventId;
+    public ulong GuildScheduledEventId => _jsonModel.GuildScheduledEventId;
 
-    public Snowflake UserId => _jsonModel.UserId;
+    public ulong UserId => _jsonModel.UserId;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 }

@@ -6,13 +6,13 @@ public partial class EmojiProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; }
+    public ulong? Id { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Unicode { get; }
 
-    public EmojiProperties(Snowflake customEmojiId)
+    public EmojiProperties(ulong customEmojiId)
     {
         Id = customEmojiId;
     }

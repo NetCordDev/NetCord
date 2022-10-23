@@ -8,7 +8,7 @@ public partial class JsonVoiceServerUpdateEventArgs
     public string Token { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("endpoint")]
     public string? Endpoint { get; set; }

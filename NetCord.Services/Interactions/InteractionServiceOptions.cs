@@ -108,10 +108,6 @@ public class InteractionServiceOptions<TContext> where TContext : InteractionCon
             new TypeReaders.UriTypeReader<TContext>()
         },
         {
-            typeof(Snowflake),
-            new TypeReaders.SnowflakeTypeReader<TContext>()
-        },
-        {
             typeof(GuildUser),
             new TypeReaders.GuildUserTypeReader<TContext>()
         },

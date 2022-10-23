@@ -11,16 +11,16 @@ public partial class JsonStickerPack : JsonEntity
     public string Name { get; set; }
 
     [JsonPropertyName("sku_id")]
-    public Snowflake SkuId { get; set; }
+    public ulong SkuId { get; set; }
 
     [JsonPropertyName("cover_sticker_id")]
-    public Snowflake? CoverStickerId { get; set; }
+    public ulong? CoverStickerId { get; set; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; }
 
     [JsonPropertyName("banner_asset_id")]
-    public Snowflake? BannerAssetId { get; set; }
+    public ulong? BannerAssetId { get; set; }
 
     [JsonSerializable(typeof(JsonStickerPack))]
     public partial class JsonStickerPackSerializerContext : JsonSerializerContext

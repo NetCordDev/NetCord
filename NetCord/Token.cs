@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Buffers.Text;
+
+namespace NetCord;
 
 public class Token
 {
@@ -14,5 +16,13 @@ public class Token
 
     public string ToHttpHeader() => Type == TokenType.Bot ? $"Bot {RawToken}" : RawToken;
 
-    public Snowflake Id => new(System.Text.Encoding.ASCII.GetString(Convert.FromBase64String(RawToken[..RawToken.IndexOf('.')])));
+    public ulong Id
+    {
+        get
+        {
+            if (Utf8Parser.TryParse(Convert.FromBase64String(RawToken[..RawToken.IndexOf('.')]), out ulong id, out _))
+                return id;
+            throw new("Invalid token provided.");
+        }
+    }
 }

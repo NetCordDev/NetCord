@@ -137,7 +137,7 @@ public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IU
 
     public TextChannel Channel => Interaction.Channel!;
 
-    public IReadOnlyList<Snowflake> SelectedValues => Interaction.Data.SelectedValues;
+    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 
     public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -148,7 +148,7 @@ public class UserMenuInteractionContext : EntityMenuInteractionContext
 {
     public override UserMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<Snowflake, User> SelectedUsers { get; }
+    public IReadOnlyDictionary<ulong, User> SelectedUsers { get; }
 
     public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -156,7 +156,7 @@ public class UserMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedUsers = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Users![v]);
         else
-            SelectedUsers = new Dictionary<Snowflake, User>(0);
+            SelectedUsers = new Dictionary<ulong, User>(0);
     }
 }
 
@@ -164,7 +164,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
 {
     public override RoleMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<Snowflake, GuildRole> SelectedRoles { get; }
+    public IReadOnlyDictionary<ulong, GuildRole> SelectedRoles { get; }
 
     public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -172,7 +172,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedRoles = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Roles![v]);
         else
-            SelectedRoles = new Dictionary<Snowflake, GuildRole>(0);
+            SelectedRoles = new Dictionary<ulong, GuildRole>(0);
     }
 }
 
@@ -180,14 +180,14 @@ public class MentionableMenuInteractionContext : EntityMenuInteractionContext
 {
     public override MentionableMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<Snowflake, Mentionable> SelectedMentionables { get; }
+    public IReadOnlyDictionary<ulong, Mentionable> SelectedMentionables { get; }
 
     public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
         Interaction = interaction;
         if (interaction.Data.ResolvedData != null)
         {
-            Dictionary<Snowflake, Mentionable> selectedMentionables = new(interaction.Data.SelectedValues.Count);
+            Dictionary<ulong, Mentionable> selectedMentionables = new(interaction.Data.SelectedValues.Count);
             var users = interaction.Data.ResolvedData.Users;
             var roles = interaction.Data.ResolvedData.Roles;
             if (users != null)
@@ -202,11 +202,11 @@ public class MentionableMenuInteractionContext : EntityMenuInteractionContext
                 if (roles != null)
                     SelectedMentionables = interaction.Data.SelectedValues.ToDictionary(v => v, v => new Mentionable(roles[v]));
                 else
-                    SelectedMentionables = new Dictionary<Snowflake, Mentionable>(0);
+                    SelectedMentionables = new Dictionary<ulong, Mentionable>(0);
             }
         }
         else
-            SelectedMentionables = new Dictionary<Snowflake, Mentionable>(0);
+            SelectedMentionables = new Dictionary<ulong, Mentionable>(0);
     }
 }
 
@@ -214,7 +214,7 @@ public class ChannelMenuInteractionContext : EntityMenuInteractionContext
 {
     public override ChannelMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<Snowflake, Channel> SelectedChannels { get; }
+    public IReadOnlyDictionary<ulong, Channel> SelectedChannels { get; }
 
     public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -222,7 +222,7 @@ public class ChannelMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedChannels = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Channels![v]);
         else
-            SelectedChannels = new Dictionary<Snowflake, Channel>(0);
+            SelectedChannels = new Dictionary<ulong, Channel>(0);
     }
 }
 

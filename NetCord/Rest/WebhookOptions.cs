@@ -18,7 +18,7 @@ public partial class WebhookOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonSerializable(typeof(WebhookOptions))]
     public partial class WebhookOptionsSerializerContext : JsonSerializerContext

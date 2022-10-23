@@ -16,11 +16,11 @@ public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.Json
         Users = jsonModel.Users.Select(u => new ThreadUser(u, client));
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public IReadOnlyList<Snowflake>? ChannelIds => _jsonModel.ChannelIds;
+    public IReadOnlyList<ulong>? ChannelIds => _jsonModel.ChannelIds;
 
-    public ImmutableDictionary<Snowflake, GuildThread> Threads { get; }
+    public ImmutableDictionary<ulong, GuildThread> Threads { get; }
 
     public IEnumerable<ThreadUser> Users { get; }
 }

@@ -4,64 +4,64 @@ namespace NetCord;
 
 public static class MentionUtils
 {
-    public static bool TryParseUser(ReadOnlySpan<char> mention, out Snowflake id)
+    public static bool TryParseUser(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention.StartsWith("<@") && mention.EndsWith(">"))
         {
             mention = mention[2..^1];
             if (mention.StartsWith("!"))
             {
-                if (Snowflake.TryCreate(mention[1..].ToString(), out id))
+                if (ulong.TryParse(mention[1..].ToString(), out id))
                     return true;
             }
-            else if (Snowflake.TryCreate(mention.ToString(), out id))
+            else if (ulong.TryParse(mention.ToString(), out id))
                 return true;
         }
         id = default;
         return false;
     }
 
-    public static Snowflake ParseUser(ReadOnlySpan<char> mention)
+    public static ulong ParseUser(ReadOnlySpan<char> mention)
     {
-        if (TryParseUser(mention, out Snowflake id))
+        if (TryParseUser(mention, out ulong id))
             return id;
         else
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static bool TryParseChannel(ReadOnlySpan<char> mention, out Snowflake id)
+    public static bool TryParseChannel(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention.StartsWith("<#") && mention.EndsWith(">"))
         {
-            if (Snowflake.TryCreate(mention[2..^1].ToString(), out id))
+            if (ulong.TryParse(mention[2..^1].ToString(), out id))
                 return true;
         }
         id = default;
         return false;
     }
 
-    public static Snowflake ParseChannel(ReadOnlySpan<char> mention)
+    public static ulong ParseChannel(ReadOnlySpan<char> mention)
     {
-        if (TryParseChannel(mention, out Snowflake id))
+        if (TryParseChannel(mention, out ulong id))
             return id;
         else
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static bool TryParseRole(ReadOnlySpan<char> mention, [NotNullWhen(true)] out Snowflake id)
+    public static bool TryParseRole(ReadOnlySpan<char> mention, [NotNullWhen(true)] out ulong id)
     {
         if (mention.StartsWith("<@&") && mention.EndsWith(">"))
         {
-            if (Snowflake.TryCreate(mention[3..^1].ToString(), out id))
+            if (ulong.TryParse(mention[3..^1].ToString(), out id))
                 return true;
         }
         id = default;
         return false;
     }
 
-    public static Snowflake ParseRole(ReadOnlySpan<char> mention)
+    public static ulong ParseRole(ReadOnlySpan<char> mention)
     {
-        if (TryParseRole(mention, out Snowflake id))
+        if (TryParseRole(mention, out ulong id))
             return id;
         else
             throw new FormatException("Cannot parse the mention.");
@@ -100,7 +100,7 @@ public static class MentionUtils
 
             Skip:
 
-            if (!Snowflake.TryCreate(mention[(index + 1)..].ToString(), out var id))
+            if (!ulong.TryParse(mention[(index + 1)..].ToString(), out var id))
                 goto Fail;
 
             result = i switch

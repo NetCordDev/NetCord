@@ -5,13 +5,13 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonMessageDeleteBulkEventArgs
 {
     [JsonPropertyName("ids")]
-    public Snowflake[] MessageIds { get; set; }
+    public ulong[] MessageIds { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonSerializable(typeof(JsonMessageDeleteBulkEventArgs))]
     public partial class JsonMessageDeleteBulkEventArgsSerializerContext : JsonSerializerContext

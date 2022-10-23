@@ -8,7 +8,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
     JsonChannel IJsonModel<JsonChannel>.JsonModel => _jsonModel;
     private protected JsonChannel _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     Permission IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 

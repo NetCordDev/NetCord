@@ -7,7 +7,7 @@ namespace NetCord.JsonModels;
 public partial class JsonGuildInvite
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("code")]
     public string Code { get; set; }
@@ -16,7 +16,7 @@ public partial class JsonGuildInvite
     public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("inviter")]
     public JsonUser? Inviter { get; set; }

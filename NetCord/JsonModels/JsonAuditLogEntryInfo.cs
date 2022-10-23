@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public record JsonAuditLogEntryInfo
 {
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("count")]
@@ -19,14 +19,14 @@ public record JsonAuditLogEntryInfo
     public int? DeleteGuildUserDays { get; set; }
 
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; set; }
+    public ulong? Id { get; set; }
 
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("members_removed")]
     public int? GuildUsersRemoved { get; set; }
 
     [JsonPropertyName("message_id")]
-    public Snowflake? MessageId { get; set; }
+    public ulong? MessageId { get; set; }
 
     [JsonPropertyName("role_name")]
     public string? RoleName { get; set; }

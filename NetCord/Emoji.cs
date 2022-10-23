@@ -20,7 +20,7 @@ public class Emoji : IJsonModel<JsonEmoji>
 
     public override string ToString() => Name;
 
-    public static Emoji CreateFromJson(JsonEmoji jsonModel, Snowflake guildId, RestClient client)
+    public static Emoji CreateFromJson(JsonEmoji jsonModel, ulong guildId, RestClient client)
     {
         if (jsonModel.Id.HasValue)
             return new GuildEmoji(jsonModel, guildId, client);

@@ -4,7 +4,7 @@ namespace NetCord;
 
 public abstract class Entity : IEntity
 {
-    public abstract Snowflake Id { get; }
+    public abstract ulong Id { get; }
 
     public static bool operator ==(Entity? left, Entity? right) => left?.Id == right?.Id;
 
@@ -16,5 +16,5 @@ public abstract class Entity : IEntity
     public override bool Equals(object? obj) => obj is Entity entity && Id == entity.Id;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Snowflake(Entity entity) => entity.Id;
+    public static implicit operator ulong(Entity entity) => entity.Id;
 }

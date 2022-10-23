@@ -26,7 +26,7 @@ public partial class UserActivityProperties
     public UserActivityTimestampsProperties? Timestamps { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("details")]
     public string? Details { get; set; }

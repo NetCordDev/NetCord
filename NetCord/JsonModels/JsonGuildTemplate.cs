@@ -17,7 +17,7 @@ public partial class JsonGuildTemplate
     public int UsageCount { get; set; }
 
     [JsonPropertyName("creator_id")]
-    public Snowflake CreatorId { get; set; }
+    public ulong CreatorId { get; set; }
 
     [JsonPropertyName("creator")]
     public JsonUser Creator { get; set; }
@@ -29,7 +29,7 @@ public partial class JsonGuildTemplate
     public DateTimeOffset UpdatedAt { get; set; }
 
     [JsonPropertyName("source_guild_id")]
-    public Snowflake SourceGuildId { get; set; }
+    public ulong SourceGuildId { get; set; }
 
     [JsonPropertyName("serialized_source_guild")]
     public JsonGuild SerializedSourceGuild { get; set; }

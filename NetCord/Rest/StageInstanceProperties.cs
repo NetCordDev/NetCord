@@ -4,14 +4,14 @@ namespace NetCord.Rest;
 
 public partial class StageInstanceProperties
 {
-    public StageInstanceProperties(Snowflake channelId, string topic)
+    public StageInstanceProperties(ulong channelId, string topic)
     {
         ChannelId = channelId;
         Topic = topic;
     }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; }
+    public ulong ChannelId { get; }
 
     [JsonPropertyName("topic")]
     public string Topic { get; }

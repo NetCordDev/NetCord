@@ -25,7 +25,7 @@ public class Test
             if (g.GuildId == 819892011364122624)
             {
                 if (g.Guild == null)
-                    throw new Exception($"{nameof(g.Guild)} was null");
+                    throw new($"{nameof(g.Guild)} was null");
                 client.Dispose();
                 guild = g.Guild;
                 completionSource.SetResult();

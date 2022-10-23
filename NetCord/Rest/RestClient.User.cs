@@ -5,7 +5,7 @@ public partial class RestClient
     public async Task<SelfUser> GetCurrentUserAsync(RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Get, "/users/@me", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), this);
 
-    public async Task<User> GetUserAsync(Snowflake userId, RequestProperties? properties = null)
+    public async Task<User> GetUserAsync(ulong userId, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", new RateLimits.Route(RateLimits.RouteParameter.GetUser), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), this);
 
     public async Task<SelfUser> ModifyCurrentUserAsync(Action<SelfUserOptions> action, RequestProperties? properties = null)
@@ -34,7 +34,7 @@ public partial class RestClient
         }
     }
 
-    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAfterAsync(Snowflake guildId, RequestProperties? properties = null)
+    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAfterAsync(ulong guildId, RequestProperties? properties = null)
     {
         byte count;
         do
@@ -52,7 +52,7 @@ public partial class RestClient
         while (count == 200);
     }
 
-    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsBeforeAsync(Snowflake guildId, RequestProperties? properties = null)
+    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsBeforeAsync(ulong guildId, RequestProperties? properties = null)
     {
         byte count;
         do
@@ -70,18 +70,18 @@ public partial class RestClient
         while (count == 200);
     }
 
-    public async Task<GuildUser> GetCurrentUserGuildUserAsync(Snowflake guildId, RequestProperties? properties = null)
+    public async Task<GuildUser> GetCurrentUserGuildUserAsync(ulong guildId, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds/{guildId}/member", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser), guildId, this);
 
-    public Task LeaveGuildAsync(Snowflake guildId, RequestProperties? properties = null)
+    public Task LeaveGuildAsync(ulong guildId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", properties);
 
-    public async Task<DMChannel> GetDMChannelAsync(Snowflake userId, RequestProperties? properties = null)
+    public async Task<DMChannel> GetDMChannelAsync(ulong userId, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<DMChannelProperties>(new(userId), DMChannelProperties.DMChannelPropertiesSerializerContext.WithOptions.DMChannelProperties), properties).ConfigureAwait(false))!.ToObject(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel), this);
 
     public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<GroupDMChannelProperties>(groupDMChannelProperties, GroupDMChannelProperties.GroupDMChannelPropertiesSerializerContext.WithOptions.GroupDMChannelProperties), properties).ConfigureAwait(false)).ToObject(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel), this);
 
-    public async Task<IReadOnlyDictionary<Snowflake, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
+    public async Task<IReadOnlyDictionary<ulong, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonConnection.JsonConnectionArraySerializerContext.WithOptions.JsonConnectionArray).ToDictionary(c => c.Id, c => new Connection(c, this));
 }

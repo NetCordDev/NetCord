@@ -4,21 +4,21 @@ namespace NetCord.Gateway;
 
 public class InteractionResolvedData
 {
-    public IReadOnlyDictionary<Snowflake, User>? Users { get; }
+    public IReadOnlyDictionary<ulong, User>? Users { get; }
 
-    public IReadOnlyDictionary<Snowflake, GuildRole>? Roles { get; }
+    public IReadOnlyDictionary<ulong, GuildRole>? Roles { get; }
 
-    public IReadOnlyDictionary<Snowflake, Channel>? Channels { get; }
+    public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
 
-    public IReadOnlyDictionary<Snowflake, Attachment>? Attachments { get; }
+    public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
-    public InteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, Snowflake? guildId, RestClient client)
+    public InteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, ulong? guildId, RestClient client)
     {
         if (jsonModel.Users != null)
         {
             if (jsonModel.GuildUsers != null)
             {
-                Dictionary<Snowflake, User> users = new();
+                Dictionary<ulong, User> users = new();
                 using (var enumerator = jsonModel.Users.GetEnumerator())
                 {
                     var max = jsonModel.Users.Count - jsonModel.GuildUsers.Count;

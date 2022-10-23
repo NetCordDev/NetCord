@@ -6,7 +6,7 @@ namespace NetCord.Rest;
 public partial class GuildWelcomeScreenChannelProperties
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; }
+    public ulong ChannelId { get; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; }
@@ -14,7 +14,7 @@ public partial class GuildWelcomeScreenChannelProperties
     [JsonPropertyName("emoji_id")]
     public GuildWelcomeScreenChannelEmojiProperties? Emoji { get; set; }
 
-    public GuildWelcomeScreenChannelProperties(Snowflake channelId, string description)
+    public GuildWelcomeScreenChannelProperties(ulong channelId, string description)
     {
         ChannelId = channelId;
         Description = description;
@@ -32,14 +32,14 @@ public partial class GuildWelcomeScreenChannelEmojiProperties
 {
     public string? Unicode { get; }
 
-    public Snowflake? EmojiId { get; }
+    public ulong? EmojiId { get; }
 
     public GuildWelcomeScreenChannelEmojiProperties(string unicode)
     {
         Unicode = unicode;
     }
 
-    public GuildWelcomeScreenChannelEmojiProperties(Snowflake emojiId)
+    public GuildWelcomeScreenChannelEmojiProperties(ulong emojiId)
     {
         EmojiId = emojiId;
     }

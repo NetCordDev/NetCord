@@ -11,9 +11,9 @@ public class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
 
     public User User { get; }
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
-    public GuildBan(JsonModels.JsonGuildBan jsonModel, Snowflake guildId, RestClient client)
+    public GuildBan(JsonModels.JsonGuildBan jsonModel, ulong guildId, RestClient client)
     {
         _jsonModel = jsonModel;
         User = new(jsonModel.User, client);

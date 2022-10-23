@@ -4,11 +4,11 @@ public class VoiceState
 {
     internal JsonModels.JsonVoiceState _jsonModel;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake UserId => _jsonModel.UserId;
+    public ulong UserId => _jsonModel.UserId;
 
     //public GuildUser? User => _jsonModel.User;
 

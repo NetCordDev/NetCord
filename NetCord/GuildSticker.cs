@@ -8,7 +8,7 @@ public class GuildSticker : Sticker
 
     public bool? Available => _jsonModel.Available;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public User? Creator { get; }
 

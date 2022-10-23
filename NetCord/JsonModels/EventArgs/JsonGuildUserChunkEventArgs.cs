@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildUserChunkEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("members")]
     public JsonGuildUser[] Users { get; set; }
@@ -17,7 +17,7 @@ public partial class JsonGuildUserChunkEventArgs
     public int ChunkCount { get; set; }
 
     [JsonPropertyName("not_found")]
-    public Snowflake[]? NotFound { get; set; }
+    public ulong[]? NotFound { get; set; }
 
     [JsonPropertyName("presences")]
     public JsonPresence[]? Presences { get; set; }

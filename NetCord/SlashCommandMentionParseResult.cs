@@ -2,7 +2,7 @@
 
 public class SlashCommandMentionParseResult : Entity
 {
-    public override Snowflake Id { get; }
+    public override ulong Id { get; }
 
     public string Name { get; }
 
@@ -10,7 +10,7 @@ public class SlashCommandMentionParseResult : Entity
 
     public string? SubCommandName { get; }
 
-    public SlashCommandMentionParseResult(Snowflake id, string name, string? subCommandGroupName, string? subCommandName)
+    public SlashCommandMentionParseResult(ulong id, string name, string? subCommandGroupName, string? subCommandName)
     {
         Id = id;
         Name = name;

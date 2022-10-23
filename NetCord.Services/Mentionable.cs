@@ -4,6 +4,7 @@ public class Mentionable
 {
     public GuildRole? Role { get; }
     public User? User { get; }
+
     public MentionableType Type { get; }
 
     public Mentionable(GuildRole role)

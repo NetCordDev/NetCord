@@ -26,9 +26,9 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         Webhooks = _data.Webhooks.Select(w => Webhook.CreateFromJson(w, client));
     }
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
-    public Snowflake? TargetId => _jsonModel.TargetId;
+    public ulong? TargetId => _jsonModel.TargetId;
 
     public IEnumerable<AuditLogChange> Changes { get; }
 

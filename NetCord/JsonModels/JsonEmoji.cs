@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonEmoji
 {
     [JsonPropertyName("id")]
-    public Snowflake? Id { get; set; }
+    public ulong? Id { get; set; }
 
     [JsonPropertyName("name")]
     public string? Name { get; set; }

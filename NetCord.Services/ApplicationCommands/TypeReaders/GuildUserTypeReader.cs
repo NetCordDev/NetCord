@@ -8,7 +8,7 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
     {
-        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![new(value)];
+        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value)];
         if (user is GuildUser guildUser)
             return Task.FromResult((object?)guildUser);
         else

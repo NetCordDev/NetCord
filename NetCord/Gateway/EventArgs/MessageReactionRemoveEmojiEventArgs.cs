@@ -11,11 +11,11 @@ public class MessageReactionRemoveEmojiEventArgs : IJsonModel<JsonModels.EventAr
         Emoji = new(jsonModel.Emoji);
     }
 
-    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public ulong ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
-    public Snowflake MessageId => _jsonModel.MessageId;
+    public ulong MessageId => _jsonModel.MessageId;
 
     public MessageReactionEmoji Emoji { get; }
 }

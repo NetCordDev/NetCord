@@ -14,13 +14,13 @@ public class RestMessage : WebhookMessage
 
     public bool MentionEveryone => _jsonModel.MentionEveryone;
 
-    public IReadOnlyDictionary<Snowflake, User> MentionedUsers { get; }
+    public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
 
-    public IEnumerable<Snowflake> MentionedRoleIds { get; }
+    public IEnumerable<ulong> MentionedRoleIds { get; }
 
-    public IReadOnlyDictionary<Snowflake, GuildChannelMention> MentionedChannels { get; }
+    public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
 
-    public IReadOnlyDictionary<Snowflake, Attachment> Attachments { get; }
+    public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
 
     public IEnumerable<Embed> Embeds { get; }
 
@@ -30,7 +30,7 @@ public class RestMessage : WebhookMessage
 
     public bool IsPinned => _jsonModel.IsPinned;
 
-    public Snowflake? WebhookId => _jsonModel.WebhookId;
+    public ulong? WebhookId => _jsonModel.WebhookId;
 
     public MessageType Type => _jsonModel.Type;
 
@@ -46,7 +46,7 @@ public class RestMessage : WebhookMessage
 
     public MessageInteraction? Interaction { get; }
 
-    public IReadOnlyDictionary<Snowflake, MessageSticker> Stickers { get; }
+    public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
 
     public GuildThread? StartedThread { get; }
 

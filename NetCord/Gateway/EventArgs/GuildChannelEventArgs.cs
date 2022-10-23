@@ -2,7 +2,7 @@
 
 public class GuildChannelEventArgs
 {
-    public GuildChannelEventArgs(IGuildChannel channel, Snowflake guildId)
+    public GuildChannelEventArgs(IGuildChannel channel, ulong guildId)
     {
         Channel = channel;
         GuildId = guildId;
@@ -10,5 +10,5 @@ public class GuildChannelEventArgs
 
     public IGuildChannel Channel { get; }
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 }

@@ -13,7 +13,7 @@ public class ApplicationCommandServiceManager
         _guildCommands.Add((service.AddCommand, service._guildCommandsToCreate));
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, Snowflake applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
         List<ApplicationCommand> list = new(_globalCommands.Sum(c => c.CommandInfos.Count) + _guildCommands.Sum(c => c.CommandInfos.Count));
         var result = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommands.Select(c => c.CommandInfos).SelectMany(c => c.Select(x => x.GetRawValue())), properties).ConfigureAwait(false)).Values.Zip(_globalCommands.SelectMany(x => x.CommandInfos)).ToArray();

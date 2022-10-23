@@ -20,10 +20,10 @@ public partial class GuildInviteProperties
     public GuildInviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user_id")]
-    public Snowflake? TargetUserId { get; set; }
+    public ulong? TargetUserId { get; set; }
 
     [JsonPropertyName("target_application_id")]
-    public Snowflake? TargetApplicationId { get; set; }
+    public ulong? TargetApplicationId { get; set; }
 
     [JsonSerializable(typeof(GuildInviteProperties))]
     public partial class GuildInvitePropertiesSerializerContext : JsonSerializerContext

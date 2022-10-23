@@ -7,7 +7,7 @@ public class GuildEmoji : Emoji
 {
     private protected readonly RestClient _client;
 
-    public GuildEmoji(JsonEmoji jsonModel, Snowflake guildId, RestClient client) : base(jsonModel)
+    public GuildEmoji(JsonEmoji jsonModel, ulong guildId, RestClient client) : base(jsonModel)
     {
         _client = client;
         if (jsonModel.Creator != null)
@@ -17,9 +17,9 @@ public class GuildEmoji : Emoji
         GuildId = guildId;
     }
 
-    public Snowflake Id => _jsonModel.Id.GetValueOrDefault();
+    public ulong Id => _jsonModel.Id.GetValueOrDefault();
 
-    public IReadOnlyDictionary<Snowflake, GuildRole>? AllowedRoles { get; }
+    public IReadOnlyDictionary<ulong, GuildRole>? AllowedRoles { get; }
 
     public User? Creator { get; }
 
@@ -29,7 +29,7 @@ public class GuildEmoji : Emoji
 
     public bool? Available => _jsonModel.Available;
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 

@@ -7,8 +7,8 @@ public class ThreadUser : ClientEntity, IJsonModel<JsonModels.JsonThreadUser>
     JsonModels.JsonThreadUser IJsonModel<JsonModels.JsonThreadUser>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonThreadUser _jsonModel;
 
-    public override Snowflake Id => _jsonModel.UserId;
-    public Snowflake ThreadId => _jsonModel.ThreadId;
+    public override ulong Id => _jsonModel.UserId;
+    public ulong ThreadId => _jsonModel.ThreadId;
     public DateTimeOffset JoinTimestamp => _jsonModel.JoinTimestamp;
     public int Flags => _jsonModel.Flags;
 

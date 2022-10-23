@@ -5,13 +5,13 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonTypingStartEventArgs
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonConverter(typeof(JsonConverters.SecondsUnixDateTimeOffsetConverter))]
     [JsonPropertyName("timestamp")]

@@ -4,13 +4,13 @@ namespace NetCord.Rest;
 
 internal partial class FollowAnnouncementGuildChannelProperties
 {
-    public FollowAnnouncementGuildChannelProperties(Snowflake webhookChannelId)
+    public FollowAnnouncementGuildChannelProperties(ulong webhookChannelId)
     {
         WebhookChannelId = webhookChannelId;
     }
 
     [JsonPropertyName("webhook_channel_id")]
-    public Snowflake WebhookChannelId { get; }
+    public ulong WebhookChannelId { get; }
 
     [JsonSerializable(typeof(FollowAnnouncementGuildChannelProperties))]
     public partial class FollowAnnouncementGuildChannelPropertiesSerializerContext : JsonSerializerContext

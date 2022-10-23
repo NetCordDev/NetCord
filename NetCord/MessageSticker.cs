@@ -7,7 +7,7 @@ public class MessageSticker : ClientEntity, IJsonModel<JsonModels.JsonMessageSti
     JsonModels.JsonMessageSticker IJsonModel<JsonModels.JsonMessageSticker>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonMessageSticker _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 

@@ -10,7 +10,7 @@ public class MessageReactionEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
         _jsonModel = jsonModel;
     }
 
-    public override Snowflake Id
+    public override ulong Id
     {
         get
         {

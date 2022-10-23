@@ -8,7 +8,7 @@ public interface IApplicationCommandInfo
     public string Name { get; }
     public string? Description { get; }
     public bool DefaultPermission { get; }
-    public Snowflake? GuildId { get; }
+    public ulong? GuildId { get; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
     public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }
     public ApplicationCommandType Type { get; }

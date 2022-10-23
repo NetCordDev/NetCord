@@ -13,21 +13,21 @@ public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonAutoModerat
         Action = new(_jsonModel.Action);
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public AutoModerationAction Action { get; }
 
-    public Snowflake RuleId => _jsonModel.RuleId;
+    public ulong RuleId => _jsonModel.RuleId;
 
     public AutoModerationRuleTriggerType RuleTriggerType => _jsonModel.RuleTriggerType;
 
-    public Snowflake UserId => _jsonModel.UserId;
+    public ulong UserId => _jsonModel.UserId;
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? MessageId => _jsonModel.MessageId;
+    public ulong? MessageId => _jsonModel.MessageId;
 
-    public Snowflake? AlertSystemMessageId => _jsonModel.AlertSystemMessageId;
+    public ulong? AlertSystemMessageId => _jsonModel.AlertSystemMessageId;
 
     public string Content => _jsonModel.Content;
 

@@ -13,7 +13,7 @@ public class GuildUserRemoveEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuil
         User = new(jsonModel.User, client);
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public User User { get; }
 }

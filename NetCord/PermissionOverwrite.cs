@@ -5,7 +5,7 @@ public class PermissionOverwrite : Entity, IJsonModel<JsonModels.JsonPermissionO
     JsonModels.JsonPermissionOverwrite IJsonModel<JsonModels.JsonPermissionOverwrite>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonPermissionOverwrite _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public PermissionOverwriteType Type => _jsonModel.Type;
 

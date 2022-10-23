@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public partial class JsonMessage : JsonEntity
 {
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("author")]
     public JsonUser Author { get; set; }
@@ -35,7 +35,7 @@ public partial class JsonMessage : JsonEntity
     public JsonUser[]? MentionedUsers { get; set; }
 
     [JsonPropertyName("mention_roles")]
-    public Snowflake[]? MentionedRoleIds { get; set; }
+    public ulong[]? MentionedRoleIds { get; set; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; set; }
@@ -57,7 +57,7 @@ public partial class JsonMessage : JsonEntity
     public bool IsPinned { get; set; }
 
     [JsonPropertyName("webhook_id")]
-    public Snowflake? WebhookId { get; set; }
+    public ulong? WebhookId { get; set; }
 
     [JsonPropertyName("type")]
     public MessageType Type { get; set; }
@@ -69,7 +69,7 @@ public partial class JsonMessage : JsonEntity
     public JsonApplication? Application { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("message_reference")]
     public JsonMessageReference? MessageReference { get; set; }

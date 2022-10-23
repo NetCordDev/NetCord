@@ -4,11 +4,11 @@ namespace NetCord;
 
 public abstract class GuildThread : TextChannel
 {
-    public Snowflake GuildId => _jsonModel.GuildId.GetValueOrDefault();
-    public Snowflake OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
+    public ulong GuildId => _jsonModel.GuildId.GetValueOrDefault();
+    public ulong OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
     public GuildThreadMetadata Metadata { get; }
     public ThreadSelfUser? CurrentUser { get; }
-    public Snowflake ParentId => _jsonModel.ParentId.GetValueOrDefault();
+    public ulong ParentId => _jsonModel.ParentId.GetValueOrDefault();
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
     public string Name => _jsonModel.Name!;
     public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
@@ -27,10 +27,10 @@ public abstract class GuildThread : TextChannel
     #region Channel
     public async Task<GuildThread> ModifyAsync(Action<GuildThreadOptions> action, RequestProperties? properties = null) => (GuildThread)await _client.ModifyGuildThreadAsync(Id, action, properties).ConfigureAwait(false);
     public Task JoinAsync(RequestProperties? properties = null) => _client.JoinGuildThreadAsync(Id, properties);
-    public Task AddUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.AddGuildThreadUserAsync(Id, userId, properties);
+    public Task AddUserAsync(ulong userId, RequestProperties? properties = null) => _client.AddGuildThreadUserAsync(Id, userId, properties);
     public Task LeaveAsync(RequestProperties? properties = null) => _client.LeaveGuildThreadAsync(Id, properties);
-    public Task DeleteUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.DeleteGuildThreadUserAsync(Id, userId, properties);
-    public Task<ThreadUser> GetUserAsync(Snowflake userId, RequestProperties? properties = null) => _client.GetGuildThreadUserAsync(Id, userId, properties);
-    public Task<IReadOnlyDictionary<Snowflake, ThreadUser>> GetGuildThreadUsersAsync(RequestProperties? properties = null) => _client.GetGuildThreadUsersAsync(Id, properties);
+    public Task DeleteUserAsync(ulong userId, RequestProperties? properties = null) => _client.DeleteGuildThreadUserAsync(Id, userId, properties);
+    public Task<ThreadUser> GetUserAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildThreadUserAsync(Id, userId, properties);
+    public Task<IReadOnlyDictionary<ulong, ThreadUser>> GetGuildThreadUsersAsync(RequestProperties? properties = null) => _client.GetGuildThreadUsersAsync(Id, properties);
     #endregion
 }

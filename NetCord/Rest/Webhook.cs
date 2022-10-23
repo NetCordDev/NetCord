@@ -18,13 +18,13 @@ public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
             Channel = Channel.CreateFromJson(_jsonModel.Channel, client);
     }
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public WebhookType Type => _jsonModel.Type;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
     public User? Creator { get; }
 
@@ -32,7 +32,7 @@ public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
 
     public string? AvatarHash => _jsonModel.AvatarHash;
 
-    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId => _jsonModel.ApplicationId;
 
     public RestGuild? Guild { get; }
 

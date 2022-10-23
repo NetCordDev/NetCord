@@ -5,11 +5,11 @@ public class GuildWelcomeScreenChannel : Entity, IJsonModel<JsonModels.JsonWelco
     JsonModels.JsonWelcomeScreenChannel IJsonModel<JsonModels.JsonWelcomeScreenChannel>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonWelcomeScreenChannel _jsonModel;
 
-    public override Snowflake Id => _jsonModel.ChannelId;
+    public override ulong Id => _jsonModel.ChannelId;
 
     public string Description => _jsonModel.Description;
 
-    public Snowflake? EmojiId => _jsonModel.EmojiId;
+    public ulong? EmojiId => _jsonModel.EmojiId;
 
     public string? EmojiName => _jsonModel.EmojiName;
 

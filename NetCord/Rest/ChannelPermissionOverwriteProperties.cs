@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class ChannelPermissionOverwriteProperties
 {
     [JsonPropertyName("id")]
-    public Snowflake Id { get; }
+    public ulong Id { get; }
 
     [JsonPropertyName("type")]
     public PermissionOverwriteType Type { get; }
@@ -18,7 +18,7 @@ public partial class ChannelPermissionOverwriteProperties
     [JsonPropertyName("deny")]
     public Permission? Denied { get; set; }
 
-    public ChannelPermissionOverwriteProperties(Snowflake id, PermissionOverwriteType type)
+    public ChannelPermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
     {
         Id = id;
         Type = type;

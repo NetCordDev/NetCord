@@ -14,7 +14,7 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("applied_tags")]
-    public IEnumerable<Snowflake>? AppliedTags { get; set; }
+    public IEnumerable<ulong>? AppliedTags { get; set; }
 
     internal HttpContent Build()
     {

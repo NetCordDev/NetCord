@@ -18,13 +18,13 @@ public class GuildInvite : IJsonModel<JsonModels.JsonGuildInvite>
             TargetApplication = new(jsonModel.TargetApplication, client);
     }
 
-    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public ulong ChannelId => _jsonModel.ChannelId;
 
     public string Code => _jsonModel.Code;
 
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
     public User? Inviter { get; }
 

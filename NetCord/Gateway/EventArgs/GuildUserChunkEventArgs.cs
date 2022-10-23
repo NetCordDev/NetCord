@@ -15,17 +15,17 @@ public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuild
             Presences = jsonModel.Presences.ToDictionary(p => p.User.Id, p => new Presence(p, jsonModel.GuildId, client));
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public IReadOnlyDictionary<Snowflake, GuildUser> Users { get; }
+    public IReadOnlyDictionary<ulong, GuildUser> Users { get; }
 
     public int ChunkIndex => _jsonModel.ChunkIndex;
 
     public int ChunkCount => _jsonModel.ChunkCount;
 
-    public IReadOnlyList<Snowflake>? NotFound => _jsonModel.NotFound;
+    public IReadOnlyList<ulong>? NotFound => _jsonModel.NotFound;
 
-    public IReadOnlyDictionary<Snowflake, Presence>? Presences { get; }
+    public IReadOnlyDictionary<ulong, Presence>? Presences { get; }
 
     public string? Nonce => _jsonModel.Nonce;
 }

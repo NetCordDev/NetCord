@@ -9,7 +9,7 @@ public class GuildWelcomeScreen : IJsonModel<JsonModels.JsonWelcomeScreen>
 
     public string? Description => _jsonModel.Description;
 
-    public ImmutableDictionary<Snowflake, GuildWelcomeScreenChannel> WelcomeChannels { get; }
+    public ImmutableDictionary<ulong, GuildWelcomeScreenChannel> WelcomeChannels { get; }
 
     public GuildWelcomeScreen(JsonModels.JsonWelcomeScreen jsonModel)
     {

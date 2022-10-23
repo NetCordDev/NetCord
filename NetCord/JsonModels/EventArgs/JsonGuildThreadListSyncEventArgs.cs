@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildThreadListSyncEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_ids")]
-    public Snowflake[]? ChannelIds { get; set; }
+    public ulong[]? ChannelIds { get; set; }
 
     [JsonPropertyName("threads")]
     public JsonChannel[] Threads { get; set; }

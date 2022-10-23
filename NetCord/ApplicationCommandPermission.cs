@@ -5,7 +5,7 @@ public class ApplicationCommandPermission : Entity, IJsonModel<JsonModels.JsonAp
     JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonApplicationCommandGuildPermission _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public ApplicationCommandGuildPermissionType Type => _jsonModel.Type;
 

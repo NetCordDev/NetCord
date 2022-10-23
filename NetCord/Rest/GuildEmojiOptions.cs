@@ -14,7 +14,7 @@ public partial class GuildEmojiOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<Snowflake>? AllowedRoles { get; set; }
+    public IEnumerable<ulong>? AllowedRoles { get; set; }
 
     [JsonSerializable(typeof(GuildEmojiOptions))]
     public partial class GuildEmojiOptionsSerializerContext : JsonSerializerContext

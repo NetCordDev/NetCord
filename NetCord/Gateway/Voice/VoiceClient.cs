@@ -14,16 +14,16 @@ public class VoiceClient : WebSocketClient
 {
     private readonly IUdpSocket _udpSocket;
     public string Endpoint { get; }
-    public Snowflake GuildId { get; }
-    public Snowflake UserId { get; }
+    public ulong GuildId { get; }
+    public ulong UserId { get; }
     public string SessionId { get; }
     public string Token { get; }
 
     public bool RedirectInputStreams { get; }
 
-    public IReadOnlyDictionary<uint, Snowflake> Users => _users;
+    public IReadOnlyDictionary<uint, ulong> Users => _users;
 
-    private readonly Dictionary<uint, Snowflake> _users = new(0);
+    private readonly Dictionary<uint, ulong> _users = new(0);
 
     private readonly Dictionary<uint, InputStream> _inputStreams = new(0);
 
@@ -40,7 +40,7 @@ public class VoiceClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public VoiceClient(Snowflake userId, string sessionId, string endpoint, Snowflake guildId, string token, VoiceClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
     {
         UserId = userId;
         SessionId = sessionId;

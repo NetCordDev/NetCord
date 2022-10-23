@@ -4,12 +4,12 @@ internal class TypingReminder : IDisposable
 {
     private readonly RestClient _client;
 
-    public Snowflake ChannelId { get; }
+    public ulong ChannelId { get; }
 
     private readonly CancellationTokenSource _tokenSource;
     private readonly RequestProperties? _properties;
 
-    public TypingReminder(Snowflake channelId, RestClient client, RequestProperties? properties)
+    public TypingReminder(ulong channelId, RestClient client, RequestProperties? properties)
     {
         ChannelId = channelId;
         _client = client;

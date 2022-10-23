@@ -15,8 +15,8 @@ public class StickerPack : IJsonModel<JsonStickerPack>
 
     public IEnumerable<Sticker> Stickers { get; }
     public string Name => _jsonModel.Name;
-    public Snowflake SkuId => _jsonModel.SkuId;
-    public Snowflake? CoverStickerId => _jsonModel.CoverStickerId;
+    public ulong SkuId => _jsonModel.SkuId;
+    public ulong? CoverStickerId => _jsonModel.CoverStickerId;
     public string Description => _jsonModel.Description;
-    public Snowflake? BannerAssetId => _jsonModel.BannerAssetId;
+    public ulong? BannerAssetId => _jsonModel.BannerAssetId;
 }

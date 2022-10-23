@@ -5,10 +5,10 @@ namespace NetCord.Gateway;
 public partial class VoiceStateProperties
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; }
+    public ulong? ChannelId { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("self_mute")]
@@ -18,7 +18,7 @@ public partial class VoiceStateProperties
     [JsonPropertyName("self_deaf")]
     public bool? SelfDeaf { get; set; }
 
-    public VoiceStateProperties(Snowflake guildId, Snowflake? channelId)
+    public VoiceStateProperties(ulong guildId, ulong? channelId)
     {
         GuildId = guildId;
         ChannelId = channelId;

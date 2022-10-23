@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonGuildScheduledEventUser
 {
     [JsonPropertyName("")]
-    public Snowflake ScheduledEventId { get; set; }
+    public ulong ScheduledEventId { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }

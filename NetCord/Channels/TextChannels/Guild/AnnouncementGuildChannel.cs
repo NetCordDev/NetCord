@@ -9,7 +9,7 @@ public class AnnouncementGuildChannel : TextGuildChannel
     }
 
     #region Channel
-    public Task<RestMessage> CrosspostMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.CrosspostMessageAsync(Id, messageId, properties);
-    public Task<FollowedChannel> FollowAsync(Snowflake targetChannelId, RequestProperties? properties = null) => _client.FollowAnnouncementGuildChannelAsync(Id, targetChannelId, properties);
+    public Task<RestMessage> CrosspostMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.CrosspostMessageAsync(Id, messageId, properties);
+    public Task<FollowedChannel> FollowAsync(ulong targetChannelId, RequestProperties? properties = null) => _client.FollowAnnouncementGuildChannelAsync(Id, targetChannelId, properties);
     #endregion
 }

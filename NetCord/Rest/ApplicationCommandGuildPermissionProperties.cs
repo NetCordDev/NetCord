@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class ApplicationCommandGuildPermissionProperties
 {
     [JsonPropertyName("id")]
-    public Snowflake Id { get; }
+    public ulong Id { get; }
 
     [JsonPropertyName("type")]
     public ApplicationCommandGuildPermissionType Type { get; }
@@ -13,7 +13,7 @@ public partial class ApplicationCommandGuildPermissionProperties
     [JsonPropertyName("permission")]
     public bool Permission { get; }
 
-    public ApplicationCommandGuildPermissionProperties(Snowflake id, ApplicationCommandGuildPermissionType type, bool permission)
+    public ApplicationCommandGuildPermissionProperties(ulong id, ApplicationCommandGuildPermissionType type, bool permission)
     {
         Id = id;
         Type = type;

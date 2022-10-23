@@ -14,7 +14,7 @@ public class GuildBanEventArgs : IJsonModel<JsonGuildBanEventArgs>
         User = new(_jsonModel.User, client);
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public User User { get; }
 }

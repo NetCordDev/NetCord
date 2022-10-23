@@ -14,11 +14,11 @@ public class TypingStartEventArgs : IJsonModel<JsonModels.EventArgs.JsonTypingSt
             User = new(jsonModel.User, _jsonModel.GuildId.GetValueOrDefault(), client);
     }
 
-    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public ulong ChannelId => _jsonModel.ChannelId;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
-    public Snowflake UserId => _jsonModel.UserId;
+    public ulong UserId => _jsonModel.UserId;
 
     public DateTimeOffset Timestamp => _jsonModel.Timestamp;
 

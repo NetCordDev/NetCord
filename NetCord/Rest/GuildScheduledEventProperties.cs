@@ -6,7 +6,7 @@ public partial class GuildScheduledEventProperties
 {
     [JsonPropertyName("channel_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("entity_metadata")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

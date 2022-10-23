@@ -5,13 +5,13 @@ public class ApplicationCommandGuildPermissions : IJsonModel<JsonModels.JsonAppl
     JsonModels.JsonApplicationCommandGuildPermissions IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonApplicationCommandGuildPermissions _jsonModel;
 
-    public Snowflake CommandId => _jsonModel.CommandId;
+    public ulong CommandId => _jsonModel.CommandId;
 
-    public Snowflake ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => _jsonModel.ApplicationId;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public IReadOnlyDictionary<Snowflake, ApplicationCommandPermission> Permissions { get; }
+    public IReadOnlyDictionary<ulong, ApplicationCommandPermission> Permissions { get; }
 
     public ApplicationCommandGuildPermissions(JsonModels.JsonApplicationCommandGuildPermissions jsonModel)
     {

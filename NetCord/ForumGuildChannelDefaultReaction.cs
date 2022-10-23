@@ -12,6 +12,6 @@ public class ForumGuildChannelDefaultReaction : IJsonModel<JsonForumGuildChannel
         _jsonModel = jsonModel;
     }
 
-    public Snowflake? EmojiId => _jsonModel.EmojiId;
+    public ulong? EmojiId => _jsonModel.EmojiId;
     public string? EmojiName => _jsonModel.EmojiName;
 }

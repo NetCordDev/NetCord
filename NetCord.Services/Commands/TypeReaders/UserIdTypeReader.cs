@@ -10,12 +10,12 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
         var guild = context.Message.Guild;
         if (guild != null)
         {
-            IReadOnlyDictionary<Snowflake, GuildUser> users = guild.Users;
+            IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
             var span = input.Span;
             var s = span.ToString();
 
             // by id
-            if (Snowflake.TryCreate(s, out Snowflake id))
+            if (ulong.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));
@@ -62,12 +62,12 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
         }
         else if (context.Message.Channel is DMChannel dm)
         {
-            IReadOnlyDictionary<Snowflake, User> users = dm.Users;
+            IReadOnlyDictionary<ulong, User> users = dm.Users;
             var span = input.Span;
             var s = span.ToString();
 
             // by id
-            if (Snowflake.TryCreate(s, out Snowflake id))
+            if (ulong.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));

@@ -5,27 +5,14 @@ using NetCord.JsonModels;
 
 namespace NetCord.JsonConverters;
 
-//internal class ArrayToDictionaryConverter<TValue> : JsonConverter<Dictionary<Snowflake, TValue>> where TValue : JsonModels.JsonEntity
-//{
-//    public override Dictionary<Snowflake, TValue>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-//    {
-//        return reader.ToObject<TValue[]>().ToDictionary(v => v.Id);
-//    }
-
-//    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, TValue> value, JsonSerializerOptions options)
-//    {
-//        JsonSerializer.Serialize(writer, value.Values, options);
-//    }
-//}
-
-internal partial class JsonGuildRoleArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonGuildRole>>
+internal partial class JsonGuildRoleArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonGuildRole>>
 {
-    public override Dictionary<Snowflake, JsonGuildRole>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonGuildRole>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonGuildRole.JsonGuildRoleArraySerializerContext.WithOptions.JsonGuildRoleArray).ToDictionary(v => v.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonGuildRole> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonGuildRole> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonGuildRoleSerializerContext.WithOptions.IReadOnlyCollectionJsonGuildRole);
     }
@@ -37,14 +24,14 @@ internal partial class JsonGuildRoleArrayToDictionaryConverter : JsonConverter<D
     }
 }
 
-internal partial class JsonChannelArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonChannel>>
+internal partial class JsonChannelArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonChannel>>
 {
-    public override Dictionary<Snowflake, JsonChannel>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonChannel>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonChannel.JsonChannelArraySerializerContext.WithOptions.JsonChannelArray).ToDictionary(v => v.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonChannel> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonChannel> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonChannelSerializerContext.WithOptions.IReadOnlyCollectionJsonChannel);
     }
@@ -56,14 +43,14 @@ internal partial class JsonChannelArrayToDictionaryConverter : JsonConverter<Dic
     }
 }
 
-internal partial class JsonStageInstanceArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonStageInstance>>
+internal partial class JsonStageInstanceArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonStageInstance>>
 {
-    public override Dictionary<Snowflake, JsonStageInstance>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonStageInstance>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonStageInstanceArraySerializerContext.WithOptions.JsonStageInstanceArray).ToDictionary(v => v.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonStageInstance> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonStageInstance> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonStageInstanceSerializerContext.WithOptions.IReadOnlyCollectionJsonStageInstance);
     }
@@ -81,14 +68,14 @@ internal partial class JsonStageInstanceArrayToDictionaryConverter : JsonConvert
     }
 }
 
-internal partial class JsonGuildScheduledEventArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonGuildScheduledEvent>>
+internal partial class JsonGuildScheduledEventArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonGuildScheduledEvent>>
 {
-    public override Dictionary<Snowflake, JsonGuildScheduledEvent>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonGuildScheduledEvent>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventArraySerializerContext.WithOptions.JsonGuildScheduledEventArray).ToDictionary(v => v.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonGuildScheduledEvent> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonGuildScheduledEvent> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonGuildScheduledEventSerializerContext.WithOptions.IReadOnlyCollectionJsonGuildScheduledEvent);
     }
@@ -100,14 +87,14 @@ internal partial class JsonGuildScheduledEventArrayToDictionaryConverter : JsonC
     }
 }
 
-internal partial class JsonVoiceStateArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonVoiceState>>
+internal partial class JsonVoiceStateArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonVoiceState>>
 {
-    public override Dictionary<Snowflake, JsonVoiceState>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonVoiceState>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonVoiceStateArraySerializerContext.WithOptions.JsonVoiceStateArray).ToDictionary(v => v.UserId);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonVoiceState> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonVoiceState> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonVoiceStateSerializerContext.WithOptions.IReadOnlyCollectionJsonVoiceState);
     }
@@ -125,14 +112,14 @@ internal partial class JsonVoiceStateArrayToDictionaryConverter : JsonConverter<
     }
 }
 
-internal partial class JsonGuildUserArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonGuildUser>>
+internal partial class JsonGuildUserArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonGuildUser>>
 {
-    public override Dictionary<Snowflake, JsonGuildUser>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonGuildUser>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonGuildUser.JsonGuildUserArraySerializerContext.WithOptions.JsonGuildUserArray).DistinctBy(u => u.User.Id).ToDictionary(v => v.User.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonGuildUser> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonGuildUser> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonGuildUserSerializerContext.WithOptions.IReadOnlyCollectionJsonGuildUser);
     }
@@ -144,14 +131,14 @@ internal partial class JsonGuildUserArrayToDictionaryConverter : JsonConverter<D
     }
 }
 
-internal partial class JsonPresenceArrayToDictionaryConverter : JsonConverter<Dictionary<Snowflake, JsonPresence>>
+internal partial class JsonPresenceArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonPresence>>
 {
-    public override Dictionary<Snowflake, JsonPresence>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonPresence>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         return reader.ToObject(JsonPresenceArraySerializerContext.WithOptions.JsonPresenceArray).ToDictionary(v => v.User.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<Snowflake, JsonPresence> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonPresence> value, JsonSerializerOptions options)
     {
         JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonPresenceSerializerContext.WithOptions.IReadOnlyCollectionJsonPresence);
     }

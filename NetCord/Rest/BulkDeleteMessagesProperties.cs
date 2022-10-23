@@ -4,13 +4,13 @@ namespace NetCord.Rest;
 
 internal partial class BulkDeleteMessagesProperties
 {
-    public BulkDeleteMessagesProperties(Snowflake[] messageIds)
+    public BulkDeleteMessagesProperties(ulong[] messageIds)
     {
         MessageIds = messageIds;
     }
 
     [JsonPropertyName("messages")]
-    public Snowflake[] MessageIds { get; }
+    public ulong[] MessageIds { get; }
 
     [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
     public partial class BulkDeleteMessagesPropertiesSerializerContext : JsonSerializerContext

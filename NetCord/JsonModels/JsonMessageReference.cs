@@ -6,13 +6,13 @@ namespace NetCord.JsonModels;
 public partial class JsonMessageReference
 {
     [JsonPropertyName("message_id")]
-    public Snowflake? MessageId { get; set; }
+    public ulong? MessageId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("fail_if_not_exists")]
     public bool? FailIfNotExists { get; set; }

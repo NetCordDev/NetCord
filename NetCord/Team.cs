@@ -7,7 +7,7 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
     JsonModels.JsonTeam IJsonModel<JsonModels.JsonTeam>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonTeam _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string? Icon => _jsonModel.Icon;
 
@@ -15,7 +15,7 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
 
     public string Name => _jsonModel.Name;
 
-    public Snowflake OwnerId => _jsonModel.OwnerId;
+    public ulong OwnerId => _jsonModel.OwnerId;
 
     public Team(JsonModels.JsonTeam jsonModel, RestClient client)
     {

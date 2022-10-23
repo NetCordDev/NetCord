@@ -11,7 +11,7 @@ public class MenuInteractions : BaseInteractionModule<StringMenuInteractionConte
         var user = Context.User;
         if (user is GuildUser guildUser)
         {
-            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => new Snowflake(s));
+            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => ulong.Parse(s));
             await guildUser.ModifyAsync(x => x.RoleIds = selectedValues);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = "Roles updated" }));
         }

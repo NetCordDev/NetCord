@@ -50,10 +50,10 @@ public partial class JsonGuildRole : JsonEntity
 public partial class JsonTags
 {
     [JsonPropertyName("bot_id")]
-    public Snowflake? BotId { get; set; }
+    public ulong? BotId { get; set; }
 
     [JsonPropertyName("integration_id")]
-    public Snowflake? IntegrationId { get; set; }
+    public ulong? IntegrationId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(JsonConverters.NullConverter))]

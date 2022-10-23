@@ -9,10 +9,10 @@ public partial class JsonApplicationCommand : JsonEntity
     public ApplicationCommandType Type { get; set; } = ApplicationCommandType.ChatInput;
 
     [JsonPropertyName("application_id")]
-    public Snowflake ApplicationId { get; set; }
+    public ulong ApplicationId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -39,7 +39,7 @@ public partial class JsonApplicationCommand : JsonEntity
     public bool DefaultPermission { get; set; } = true;
 
     [JsonPropertyName("version")]
-    public Snowflake Version { get; set; }
+    public ulong Version { get; set; }
 
     [JsonSerializable(typeof(JsonApplicationCommand))]
     public partial class JsonApplicationCommandSerializerContext : JsonSerializerContext

@@ -12,9 +12,9 @@ public class IntegrationDeleteEventArgs : IJsonModel<JsonIntegrationDeleteEventA
         _jsonModel = jsonModel;
     }
 
-    public Snowflake IntegrationId => _jsonModel.IntegrationId;
+    public ulong IntegrationId => _jsonModel.IntegrationId;
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public Snowflake? ApplicationId => _jsonModel.ApplicationId;
+    public ulong? ApplicationId => _jsonModel.ApplicationId;
 }

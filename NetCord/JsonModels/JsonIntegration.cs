@@ -19,7 +19,7 @@ public partial class JsonIntegration : JsonEntity
     public bool? Syncing { get; set; }
 
     [JsonPropertyName("role_id")]
-    public Snowflake? RoleId { get; set; }
+    public ulong? RoleId { get; set; }
 
     [JsonPropertyName("enable_emoticons")]
     public bool? EnableEmoticons { get; set; }

@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public partial class JsonThreadUser : JsonThreadSelfUser
 {
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("id")]
-    public Snowflake ThreadId { get; set; }
+    public ulong ThreadId { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }

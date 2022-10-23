@@ -46,7 +46,7 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("parent_id")]
-    public Snowflake? ParentId { get; set; }
+    public ulong? ParentId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("rtc_region")]

@@ -5,7 +5,7 @@ namespace NetCord;
 public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 {
     public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();
-    public Snowflake? ParentId => _jsonModel.ParentId;
+    public ulong? ParentId => _jsonModel.ParentId;
     public bool Nsfw => _jsonModel.Nsfw;
     public int? UserLimit => _jsonModel.UserLimit;
     public string? RtcRegion => _jsonModel.RtcRegion;
@@ -15,7 +15,7 @@ public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 
     public int Position => _jsonModel.Position.GetValueOrDefault();
 
-    public IReadOnlyDictionary<Snowflake, PermissionOverwrite> PermissionOverwrites { get; }
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
 
     public VoiceGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
@@ -27,6 +27,6 @@ public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
     public Task ModifyPermissionsAsync(ChannelPermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null) => _client.ModifyGuildChannelPermissionsAsync(Id, permissionOverwrite, properties);
     public Task<IEnumerable<RestGuildInvite>> GetInvitesAsync(RequestProperties? properties = null) => _client.GetGuildChannelInvitesAsync(Id, properties);
     public Task<RestGuildInvite> CreateInviteAsync(GuildInviteProperties? guildInviteProperties = null, RequestProperties? properties = null) => _client.CreateGuildChannelInviteAsync(Id, guildInviteProperties, properties);
-    public Task DeletePermissionAsync(Snowflake overwriteId, RequestProperties? properties = null) => _client.DeleteGuildChannelPermissionAsync(Id, overwriteId, properties);
+    public Task DeletePermissionAsync(ulong overwriteId, RequestProperties? properties = null) => _client.DeleteGuildChannelPermissionAsync(Id, overwriteId, properties);
     #endregion
 }

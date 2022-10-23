@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 public partial class JsonAutoModerationRule : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
     [JsonPropertyName("creator_id")]
-    public Snowflake CreatorId { get; set; }
+    public ulong CreatorId { get; set; }
 
     [JsonPropertyName("event_type")]
     public AutoModerationRuleEventType EventType { get; set; }
@@ -29,10 +29,10 @@ public partial class JsonAutoModerationRule : JsonEntity
     public bool Enabled { get; set; }
 
     [JsonPropertyName("exempt_roles")]
-    public Snowflake[] ExemptRoles { get; set; }
+    public ulong[] ExemptRoles { get; set; }
 
     [JsonPropertyName("exempt_channels")]
-    public Snowflake[] ExemptChannels { get; set; }
+    public ulong[] ExemptChannels { get; set; }
 
     [JsonSerializable(typeof(JsonAutoModerationRule))]
     public partial class JsonAutoModerationRuleSerializerContext : JsonSerializerContext

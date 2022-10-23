@@ -5,7 +5,7 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildIntegrationsUpdateEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonSerializable(typeof(JsonGuildIntegrationsUpdateEventArgs))]
     public partial class JsonGuildIntegrationsUpdateEventArgsSerializerContext : JsonSerializerContext

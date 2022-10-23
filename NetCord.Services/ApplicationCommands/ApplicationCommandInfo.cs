@@ -14,7 +14,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public Permission? DefaultGuildUserPermissions { get; }
     public bool DMPermission { get; }
     public bool DefaultPermission { get; }
-    public Snowflake? GuildId { get; }
+    public ulong? GuildId { get; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>>? Parameters { get; }
     public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }

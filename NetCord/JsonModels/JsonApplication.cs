@@ -38,10 +38,10 @@ public partial class JsonApplication : JsonEntity
     public JsonTeam? Team { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("primary_sku_id")]
-    public Snowflake? PrimarySkuId { get; set; }
+    public ulong? PrimarySkuId { get; set; }
 
     [JsonPropertyName("slug")]
     public string? Slug { get; set; }

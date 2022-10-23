@@ -10,5 +10,5 @@ public class GuildIntegrationsUpdateEventArgs : IJsonModel<JsonModels.EventArgs.
         _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 }

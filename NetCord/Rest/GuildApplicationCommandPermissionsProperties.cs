@@ -5,12 +5,12 @@ namespace NetCord.Rest;
 public partial class GuildApplicationCommandPermissionsProperties
 {
     [JsonPropertyName("id")]
-    public Snowflake CommandId { get; }
+    public ulong CommandId { get; }
 
     [JsonPropertyName("permissions")]
     public IEnumerable<ApplicationCommandGuildPermissionProperties> Permissions { get; }
 
-    public GuildApplicationCommandPermissionsProperties(Snowflake commandId, IEnumerable<ApplicationCommandGuildPermissionProperties> permissions)
+    public GuildApplicationCommandPermissionsProperties(ulong commandId, IEnumerable<ApplicationCommandGuildPermissionProperties> permissions)
     {
         CommandId = commandId;
         Permissions = permissions;

@@ -7,9 +7,9 @@ public class MessageReference : IJsonModel<JsonMessageReference>
     JsonMessageReference IJsonModel<JsonMessageReference>.JsonModel => _jsonModel;
     private readonly JsonMessageReference _jsonModel;
 
-    public Snowflake MessageId => _jsonModel.MessageId.GetValueOrDefault();
-    public Snowflake ChannelId => _jsonModel.ChannelId.GetValueOrDefault();
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong MessageId => _jsonModel.MessageId.GetValueOrDefault();
+    public ulong ChannelId => _jsonModel.ChannelId.GetValueOrDefault();
+    public ulong? GuildId => _jsonModel.GuildId;
     public bool? FailIfNotExists => _jsonModel.FailIfNotExists;
 
 

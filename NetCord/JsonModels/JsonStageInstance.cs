@@ -5,10 +5,10 @@ namespace NetCord.JsonModels;
 public partial class JsonStageInstance : JsonEntity
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; set; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("topic")]
     public string Topic { get; set; }

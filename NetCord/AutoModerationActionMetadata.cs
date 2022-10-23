@@ -12,7 +12,7 @@ public class AutoModerationActionMetadata : IJsonModel<JsonAutoModerationActionM
         _jsonModel = jsonModel;
     }
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
     public int? DurationSeconds => _jsonModel.DurationSeconds;
 }

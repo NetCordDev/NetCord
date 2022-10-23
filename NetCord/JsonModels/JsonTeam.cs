@@ -14,7 +14,7 @@ public partial class JsonTeam : JsonEntity
     public string Name { get; set; }
 
     [JsonPropertyName("owner_user_id")]
-    public Snowflake OwnerId { get; set; }
+    public ulong OwnerId { get; set; }
 
     [JsonSerializable(typeof(JsonTeam))]
     public partial class JsonTeamSerializerContext : JsonSerializerContext
@@ -32,7 +32,7 @@ public partial class JsonTeamUser
     public string[] Permissions { get; set; }
 
     [JsonPropertyName("team_id")]
-    public Snowflake TeamId { get; set; }
+    public ulong TeamId { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }

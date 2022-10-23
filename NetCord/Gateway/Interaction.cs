@@ -10,17 +10,17 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
     JsonInteraction IJsonModel<JsonInteraction>.JsonModel => _jsonModel;
     private readonly JsonInteraction _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
-    public Snowflake ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => _jsonModel.ApplicationId;
 
     public InteractionType Type => _jsonModel.Type;
 
-    public Snowflake? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => _jsonModel.GuildId;
 
     public Guild? Guild { get; }
 
-    public Snowflake? ChannelId => _jsonModel.ChannelId;
+    public ulong? ChannelId => _jsonModel.ChannelId;
 
     public TextChannel? Channel { get; }
 
@@ -138,9 +138,9 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestProperties? properties = null) => _client.SendInteractionFollowupMessageAsync(ApplicationId, Token, message, properties);
 
-    public Task<RestMessage> GetFollowupMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
+    public Task<RestMessage> GetFollowupMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
 
-    public Task<RestMessage> ModifyFollowupMessageAsync(Snowflake messageId, Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, properties);
+    public Task<RestMessage> ModifyFollowupMessageAsync(ulong messageId, Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, properties);
 
-    public Task DeleteFollowupMessageAsync(Snowflake messageId, RequestProperties? properties = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
+    public Task DeleteFollowupMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
 }

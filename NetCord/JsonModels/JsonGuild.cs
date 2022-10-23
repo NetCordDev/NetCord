@@ -25,13 +25,13 @@ public partial class JsonGuild : JsonEntity
     public bool? IsOwner { get; set; }
 
     [JsonPropertyName("owner_id")]
-    public Snowflake OwnerId { get; set; }
+    public ulong OwnerId { get; set; }
 
     [JsonPropertyName("permissions")]
     public Permission? Permissions { get; set; }
 
     [JsonPropertyName("afk_channel_id")]
-    public Snowflake? AfkChannelId { get; set; }
+    public ulong? AfkChannelId { get; set; }
 
     [JsonPropertyName("afk_timeout")]
     public int AfkTimeout { get; set; }
@@ -40,7 +40,7 @@ public partial class JsonGuild : JsonEntity
     public bool? WidgetEnabled { get; set; }
 
     [JsonPropertyName("widget_channel_id")]
-    public Snowflake? WidgetChannelId { get; set; }
+    public ulong? WidgetChannelId { get; set; }
 
     [JsonPropertyName("verification_level")]
     public VerificationLevel VerificationLevel { get; set; }
@@ -53,7 +53,7 @@ public partial class JsonGuild : JsonEntity
 
     [JsonConverter(typeof(JsonConverters.JsonGuildRoleArrayToDictionaryConverter))]
     [JsonPropertyName("roles")]
-    public Dictionary<Snowflake, JsonGuildRole> Roles { get; set; }
+    public Dictionary<ulong, JsonGuildRole> Roles { get; set; }
 
     [JsonPropertyName("emojis")]
     public List<JsonEmoji> Emojis { get; set; }
@@ -65,16 +65,16 @@ public partial class JsonGuild : JsonEntity
     public MfaLevel MfaLevel { get; set; }
 
     [JsonPropertyName("application_id")]
-    public Snowflake? ApplicationId { get; set; }
+    public ulong? ApplicationId { get; set; }
 
     [JsonPropertyName("system_channel_id")]
-    public Snowflake? SystemChannelId { get; set; }
+    public ulong? SystemChannelId { get; set; }
 
     [JsonPropertyName("system_channel_flags")]
     public SystemChannelFlags SystemChannelFlags { get; set; }
 
     [JsonPropertyName("rules_channel_id")]
-    public Snowflake? RulesChannelId { get; set; }
+    public ulong? RulesChannelId { get; set; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset CreatedAt { get; set; }
@@ -90,23 +90,23 @@ public partial class JsonGuild : JsonEntity
 
     [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToDictionaryConverter))]
     [JsonPropertyName("voice_states")]
-    public Dictionary<Snowflake, JsonVoiceState> VoiceStates { get; set; }
+    public Dictionary<ulong, JsonVoiceState> VoiceStates { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonGuildUserArrayToDictionaryConverter))]
     [JsonPropertyName("members")]
-    public Dictionary<Snowflake, JsonGuildUser> Users { get; set; }
+    public Dictionary<ulong, JsonGuildUser> Users { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonChannelArrayToDictionaryConverter))]
     [JsonPropertyName("channels")]
-    public Dictionary<Snowflake, JsonChannel> Channels { get; set; }
+    public Dictionary<ulong, JsonChannel> Channels { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonChannelArrayToDictionaryConverter))]
     [JsonPropertyName("threads")]
-    public Dictionary<Snowflake, JsonChannel> ActiveThreads { get; set; }
+    public Dictionary<ulong, JsonChannel> ActiveThreads { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonPresenceArrayToDictionaryConverter))]
     [JsonPropertyName("presences")]
-    public Dictionary<Snowflake, JsonPresence> Presences { get; set; }
+    public Dictionary<ulong, JsonPresence> Presences { get; set; }
 
     [JsonPropertyName("max_presences")]
     public int? MaxPresences { get; set; }
@@ -133,7 +133,7 @@ public partial class JsonGuild : JsonEntity
     public System.Globalization.CultureInfo PreferredLocale { get; set; }
 
     [JsonPropertyName("public_updates_channel_id")]
-    public Snowflake? PublicUpdatesChannelId { get; set; }
+    public ulong? PublicUpdatesChannelId { get; set; }
 
     [JsonPropertyName("max_video_channel_users")]
     public int? MaxVideoChannelUsers { get; set; }
@@ -152,14 +152,14 @@ public partial class JsonGuild : JsonEntity
 
     [JsonConverter(typeof(JsonConverters.JsonStageInstanceArrayToDictionaryConverter))]
     [JsonPropertyName("stage_instances")]
-    public Dictionary<Snowflake, JsonStageInstance> StageInstances { get; set; }
+    public Dictionary<ulong, JsonStageInstance> StageInstances { get; set; }
 
     [JsonPropertyName("stickers")]
     public List<JsonSticker> Stickers { get; set; }
 
     [JsonConverter(typeof(JsonConverters.JsonGuildScheduledEventArrayToDictionaryConverter))]
     [JsonPropertyName("guild_scheduled_events")]
-    public Dictionary<Snowflake, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
+    public Dictionary<ulong, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumPropressBarEnabled { get; set; }

@@ -5,13 +5,13 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildScheduledEventUserEventArgs
 {
     [JsonPropertyName("guild_scheduled_event_id")]
-    public Snowflake GuildScheduledEventId { get; set; }
+    public ulong GuildScheduledEventId { get; set; }
 
     [JsonPropertyName("user_id")]
-    public Snowflake UserId { get; set; }
+    public ulong UserId { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonSerializable(typeof(JsonGuildScheduledEventUserEventArgs))]
     public partial class JsonGuildScheduledEventUserEventArgsSerializerContext : JsonSerializerContext

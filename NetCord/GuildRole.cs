@@ -10,7 +10,7 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
     JsonGuildRole IJsonModel<JsonGuildRole>.JsonModel => _jsonModel;
     private readonly JsonGuildRole _jsonModel;
 
-    public override Snowflake Id => _jsonModel.Id;
+    public override ulong Id => _jsonModel.Id;
 
     public string Name => _jsonModel.Name;
 
@@ -32,9 +32,9 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public GuildRoleTags? Tags { get; }
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 
-    public GuildRole(JsonGuildRole jsonModel, Snowflake guildId, RestClient client) : base(client)
+    public GuildRole(JsonGuildRole jsonModel, ulong guildId, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.Tags != null)
@@ -67,9 +67,9 @@ public class GuildRoleTags : IJsonModel<JsonTags>
     JsonTags IJsonModel<JsonTags>.JsonModel => _jsonModel;
     private readonly JsonTags _jsonModel;
 
-    public Snowflake? BotId => _jsonModel.BotId;
+    public ulong? BotId => _jsonModel.BotId;
 
-    public Snowflake? IntegrationId => _jsonModel.IntegrationId;
+    public ulong? IntegrationId => _jsonModel.IntegrationId;
 
     public bool IsPremiumSubscriber => _jsonModel.IsPremiumSubscriber;
 

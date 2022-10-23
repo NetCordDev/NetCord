@@ -2,7 +2,7 @@
 
 public partial class RestClient
 {
-    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogAsync(Snowflake guildId, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
+    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogAsync(ulong guildId, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
         Task<Stream> task;
         if (userId.HasValue)
@@ -28,7 +28,7 @@ public partial class RestClient
             yield return auditLogEntry;
     }
 
-    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogBeforeAsync(Snowflake guildId, Snowflake before, Snowflake? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
+    public async IAsyncEnumerable<AuditLogEntry> GetGuildAuditLogBeforeAsync(ulong guildId, ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
         if (userId.HasValue)
         {

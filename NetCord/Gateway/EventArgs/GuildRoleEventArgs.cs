@@ -13,7 +13,7 @@ public class GuildRoleEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildRoleE
         Role = new(jsonModel.Role, jsonModel.GuildId, client);
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
     public GuildRole Role { get; }
 }

@@ -14,10 +14,10 @@ public partial class JsonGuildUser
     public string? GuildAvatarHash { get; set; }
 
     [JsonPropertyName("roles")]
-    public Snowflake[] RoleIds { get; set; }
+    public ulong[] RoleIds { get; set; }
 
     [JsonPropertyName("hoisted_role")]
-    public Snowflake? HoistedRoleId { get; set; }
+    public ulong? HoistedRoleId { get; set; }
 
     [JsonPropertyName("joined_at")]
     public DateTimeOffset JoinedAt { get; set; }

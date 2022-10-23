@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public partial class JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
-    public Snowflake? PackId { get; set; }
+    public ulong? PackId { get; set; }
 
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -26,7 +26,7 @@ public partial class JsonSticker : JsonEntity
     public bool? Available { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser? Creator { get; set; }

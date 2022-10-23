@@ -2,13 +2,13 @@
 
 internal class GuildThreadGenerator
 {
-    public static Dictionary<Snowflake, GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
+    public static Dictionary<ulong, GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
     {
         var threads = jsonThreads.Threads;
         var users = jsonThreads.Users;
         var threadsLength = threads.Length;
         var length = users.Length;
-        Dictionary<Snowflake, GuildThread> result = new(threadsLength);
+        Dictionary<ulong, GuildThread> result = new(threadsLength);
         int threadIndex = 0, userIndex = 0;
         while (userIndex < length)
         {

@@ -8,6 +8,6 @@ public class GuildRoleTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
     {
-        return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![new(value)]);
+        return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![ulong.Parse(value)]);
     }
 }

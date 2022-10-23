@@ -10,7 +10,7 @@ public class WebhooksUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonWebho
         _jsonModel = jsonModel;
     }
 
-    public Snowflake GuildId => _jsonModel.GuildId;
+    public ulong GuildId => _jsonModel.GuildId;
 
-    public Snowflake ChannelId => _jsonModel.ChannelId;
+    public ulong ChannelId => _jsonModel.ChannelId;
 }

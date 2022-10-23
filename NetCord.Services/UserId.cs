@@ -2,15 +2,15 @@
 
 public class UserId : Entity
 {
-    public override Snowflake Id { get; }
+    public override ulong Id { get; }
     public User? User { get; }
 
-    public UserId(Snowflake id, User? user) : this(id)
+    public UserId(ulong id, User? user) : this(id)
     {
         User = user;
     }
 
-    public UserId(Snowflake id)
+    public UserId(ulong id)
     {
         Id = id;
     }

@@ -10,7 +10,7 @@ public partial class JsonPresence
     public JsonUser User { get; set; }
 
     [JsonPropertyName("guild_id")]
-    public Snowflake? GuildId { get; set; }
+    public ulong? GuildId { get; set; }
 
     [JsonPropertyName("status")]
     public UserStatusType Status { get; set; }

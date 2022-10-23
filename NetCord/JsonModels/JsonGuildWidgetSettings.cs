@@ -8,7 +8,7 @@ public partial class JsonGuildWidgetSettings
     public bool Enabled { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; }
 
     [JsonSerializable(typeof(JsonGuildWidgetSettings))]
     public partial class JsonGuildWidgetSettingsSerializerContext : JsonSerializerContext

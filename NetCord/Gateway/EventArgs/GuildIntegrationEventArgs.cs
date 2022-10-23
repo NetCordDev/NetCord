@@ -4,7 +4,7 @@ namespace NetCord.Gateway;
 
 public class GuildIntegrationEventArgs
 {
-    public GuildIntegrationEventArgs(Integration integration, Snowflake guildId)
+    public GuildIntegrationEventArgs(Integration integration, ulong guildId)
     {
         Integration = integration;
         GuildId = guildId;
@@ -12,5 +12,5 @@ public class GuildIntegrationEventArgs
 
     public Integration Integration { get; }
 
-    public Snowflake GuildId { get; }
+    public ulong GuildId { get; }
 }

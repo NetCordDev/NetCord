@@ -5,10 +5,10 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonGuildRoleDeleteEventArgs
 {
     [JsonPropertyName("guild_id")]
-    public Snowflake GuildId { get; set; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("role_id")]
-    public Snowflake RoleId { get; set; }
+    public ulong RoleId { get; set; }
 
     [JsonSerializable(typeof(JsonGuildRoleDeleteEventArgs))]
     public partial class JsonGuildRoleDeleteEventArgsSerializerContext : JsonSerializerContext

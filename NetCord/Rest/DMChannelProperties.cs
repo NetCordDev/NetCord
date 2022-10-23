@@ -4,13 +4,13 @@ namespace NetCord.Rest;
 
 internal partial class DMChannelProperties
 {
-    public DMChannelProperties(Snowflake userId)
+    public DMChannelProperties(ulong userId)
     {
         UserId = userId;
     }
 
     [JsonPropertyName("recipient_id")]
-    public Snowflake UserId { get; }
+    public ulong UserId { get; }
 
     [JsonSerializable(typeof(DMChannelProperties))]
     public partial class DMChannelPropertiesSerializerContext : JsonSerializerContext

@@ -108,10 +108,6 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
             new TypeReaders.UriTypeReader<TContext>()
         },
         {
-            typeof(Snowflake),
-            new TypeReaders.SnowflakeTypeReader<TContext>()
-        },
-        {
             typeof(GuildUser),
             new TypeReaders.GuildUserTypeReader<TContext>()
         },

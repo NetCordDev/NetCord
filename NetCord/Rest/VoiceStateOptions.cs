@@ -4,13 +4,13 @@ namespace NetCord.Rest;
 
 public partial class VoiceStateOptions
 {
-    internal VoiceStateOptions(Snowflake channelId)
+    internal VoiceStateOptions(ulong channelId)
     {
         ChannelId = channelId;
     }
 
     [JsonPropertyName("channel_id")]
-    public Snowflake ChannelId { get; }
+    public ulong ChannelId { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("suppress")]

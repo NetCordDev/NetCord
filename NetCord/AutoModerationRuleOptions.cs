@@ -30,11 +30,11 @@ public partial class AutoModerationRuleOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("exempt_roles")]
-    public IEnumerable<Snowflake>? ExemptRoles { get; set; }
+    public IEnumerable<ulong>? ExemptRoles { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("exempt_channels")]
-    public IEnumerable<Snowflake>? ExemptChannels { get; set; }
+    public IEnumerable<ulong>? ExemptChannels { get; set; }
 
     [JsonSerializable(typeof(AutoModerationRuleOptions))]
     public partial class AutoModerationRuleOptionsSerializerContext : JsonSerializerContext
