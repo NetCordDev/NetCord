@@ -9,7 +9,7 @@ namespace MyBot;
 
 public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 {
-    private static async Task<VoiceClient> JoinAsync(GatewayClient client, Snowflake guildId, Snowflake channelId)
+    private static async Task<VoiceClient> JoinAsync(GatewayClient client, ulong guildId, ulong channelId)
     {
         TaskCompletionSource<VoiceState> stateTaskCompletionSource = new();
         TaskCompletionSource<VoiceServerUpdateEventArgs> serverTaskCompletionSource = new();
