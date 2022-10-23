@@ -6,7 +6,9 @@ public class Token
 {
     public Token(TokenType type, string token)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        if (string.IsNullOrEmpty(token))
+            throw new ArgumentException($"'{nameof(token)}' cannot be null or empty.", nameof(token));
+
         Type = type;
         RawToken = token;
     }
@@ -20,11 +22,17 @@ public class Token
     {
         get
         {
-            var idBase64 = RawToken[..RawToken.IndexOf('.')];
+            var index = RawToken.IndexOf('.');
+            if (index == -1)
+                goto Invalid;
+
+            var idBase64 = RawToken[..index];
             var idConverted = Convert.FromBase64String(idBase64.PadRight((idBase64.Length + 3) / 4 * 4, '='));
             if (Utf8Parser.TryParse(idConverted, out ulong id, out int bytesConsumed) && idConverted.Length == bytesConsumed)
                 return id;
-            throw new("Invalid token provided.");
+
+            Invalid:
+            throw new InvalidOperationException("Invalid token provided.");
         }
     }
 }
