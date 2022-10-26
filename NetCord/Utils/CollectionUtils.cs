@@ -49,7 +49,7 @@ internal static class CollectionsUtils
         if (source == null)
             return CreateImmutableDictionary<TKey, TElement>();
         else
-            return source.ToImmutableDictionary(keySelector, elementSelector, null, new ReferenceEqualityComparer<TElement>());
+            return source.ToImmutableDictionary(keySelector, elementSelector);
     }
 
     public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
@@ -59,7 +59,7 @@ internal static class CollectionsUtils
 
     public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
-        return source.ToImmutableDictionary(keySelector, elementSelector, null, new ReferenceEqualityComparer<TElement>());
+        return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(s => new KeyValuePair<TKey, TElement>(keySelector(s), elementSelector(s))));
     }
 
     public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>> source, Func<TSource, TElement> elementSelector) where TKey : notnull
