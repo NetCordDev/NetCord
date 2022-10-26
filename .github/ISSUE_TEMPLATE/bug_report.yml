@@ -14,10 +14,8 @@ body:
     attributes:
       label: Steps to Reproduce
       description: A short code sample that causes the bug.
-      placeholder: |
-        ```cs
-        Console.Write("Hello, World!");
-        ```
+      placeholder: Console.Write("Hello, World!");
+      render: c#
     validations:
       required: true
   - type: textarea
