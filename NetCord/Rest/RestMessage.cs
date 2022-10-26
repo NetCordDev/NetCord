@@ -16,7 +16,7 @@ public class RestMessage : WebhookMessage
 
     public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
 
-    public IEnumerable<ulong> MentionedRoleIds { get; }
+    public IReadOnlyList<ulong> MentionedRoleIds { get; }
 
     public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
 
