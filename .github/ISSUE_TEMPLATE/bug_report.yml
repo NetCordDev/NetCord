@@ -15,7 +15,7 @@ body:
       label: Steps to Reproduce
       description: A short code sample that causes the bug.
       placeholder: Console.Write("Hello, World!");
-      render: cs
+      render: csharp
     validations:
       required: true
   - type: textarea
