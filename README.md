@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/KubaZ2/NetCord/alpha/Resources/Logo/png/BigOutline.png" alt="Logo">
+    <img src="Resources/Logo/png/BigOutline.png" alt="Logo">
 </p>
 <b>A lightweight and asynchronous Discord API wrapper.</b>
 <h1>NuGet Packages</h1>
