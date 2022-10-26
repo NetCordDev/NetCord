@@ -6,6 +6,6 @@ body:
     id: description
     attributes:
       label: Description
-      description: A detailed description with possible examples or links to Discord API documentation.
+      description: A detailed description with possible examples and links to Discord API documentation.
     validations:
       required: true
