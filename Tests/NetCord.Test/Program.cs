@@ -170,7 +170,13 @@ internal static class Program
                 }
                 catch (Exception ex)
                 {
-                    await message.ReplyAsync(ex.Message, failIfNotExists: false);
+                    try
+                    {
+                        await message.ReplyAsync(ex.Message, failIfNotExists: false);
+                    }
+                    catch
+                    {
+                    }
                 }
             }
         }
