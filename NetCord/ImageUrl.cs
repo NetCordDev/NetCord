@@ -98,14 +98,9 @@ public class ImageUrl
         return new($"/app-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
     }
 
-    public static ImageUrl AchievementIcon(ulong stickerPackBannerAssetId, ImageFormat format)
+    public static ImageUrl StickerPackBanner(ulong stickerPackBannerAssetId, ImageFormat format)
     {
         return new($"/app-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
-    }
-
-    public static ImageUrl ApplicationAsset(ulong teamId, string iconHash, ImageFormat format)
-    {
-        return new($"/team-icons/{teamId}/{iconHash}", GetFormat(format));
     }
 
     public static ImageUrl TeamIcon(ulong teamId, string iconHash, ImageFormat format)
@@ -133,7 +128,7 @@ public class ImageUrl
         return new($"/guilds/{guildId}/users/{userId}/banners/{bannerHash}", GetExtension(bannerHash, format));
     }
 
-    public static string GuildWidgetUrl(ulong guildId, GuildWidgetStyle? style = null)
+    public static string GuildWidget(ulong guildId, GuildWidgetStyle? style = null)
     {
         if (!style.HasValue)
             return $"{Discord.RestUrl}/guilds/{guildId}/widget.png";
