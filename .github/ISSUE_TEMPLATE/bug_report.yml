@@ -1,0 +1,28 @@
+name: Bug Report
+description: Create a report
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: A short code sample that causes the bug.
+      placeholder: Console.Write("Hello, World!");
+      render: c#
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Version
+      description: What version(s) are you using?
+      placeholder: 1.0.0-alpha.23
+    validations:
+      required: true

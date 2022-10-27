@@ -1,0 +1,11 @@
+name: Enhancement
+description: Report a missing function
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A detailed description with possible examples and links to Discord API documentation.
+    validations:
+      required: true
