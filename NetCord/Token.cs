@@ -34,5 +34,10 @@ public class Token
         }
     }
 
-    public string ToHttpHeader() => Type == TokenType.Bot ? $"Bot {RawToken}" : RawToken;
+    public string ToHttpHeader() => Type switch
+    {
+        TokenType.Bot => $"Bot {RawToken}",
+        TokenType.Bearer => $"Bearer {RawToken}",
+        _ => RawToken,
+    };
 }
