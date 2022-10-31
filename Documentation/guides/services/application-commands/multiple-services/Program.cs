@@ -31,15 +31,12 @@ client.InteractionCreate += async interaction =>
 {
     try
     {
-        switch (interaction)
+        await (interaction switch
         {
-            case SlashCommandInteraction slashCommandInteraction:
-                await slashCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
-                break;
-            case MessageCommandInteraction messageCommandInteraction:
-                await messageCommandService.ExecuteAsync(new MessageCommandContext(messageCommandInteraction, client));
-                break;
-        }
+            SlashCommandInteraction slashCommandInteraction => slashCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client)),
+            MessageCommandInteraction messageCommandInteraction => messageCommandService.ExecuteAsync(new MessageCommandContext(messageCommandInteraction, client)),
+            _ => throw new("Invalid interaction.")
+        });
     }
     catch (Exception ex)
     {
