@@ -12,10 +12,12 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string? Name { get; }
     public string? Description { get; }
+    public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal InteractionParameter(ParameterInfo parameter, InteractionServiceOptions<TContext> options)
+    internal InteractionParameter(ParameterInfo parameter, MethodInfo method, InteractionServiceOptions<TContext> options)
     {
-        Attributes = parameter.GetCustomAttributes().ToRankedDictionary(a => a.GetType());
+        var attributesIEnumerable = parameter.GetCustomAttributes();
+        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
         Type type;
 
@@ -69,5 +71,13 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
 
             Type = type;
         }
+
+        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+    }
+
+    internal async Task EnsureCanExecuteAsync(object? value, TContext context)
+    {
+        foreach (var preconditionAttribute in Preconditions)
+            await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
     }
 }

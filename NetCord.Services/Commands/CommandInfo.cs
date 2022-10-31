@@ -14,15 +14,15 @@ public record CommandInfo<TContext> where TContext : ICommandContext
     public Func<object, object[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    public CommandInfo(MethodInfo methodInfo, CommandAttribute attribute, CommandServiceOptions<TContext> options)
+    public CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
-        if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", methodInfo);
+        if (method.ReturnType != typeof(Task))
+            throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", method);
 
         Priority = attribute.Priority;
-        DeclaringType = methodInfo.DeclaringType!;
+        DeclaringType = method.DeclaringType!;
 
-        var parameters = methodInfo.GetParameters();
+        var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
         var p = new CommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
@@ -32,14 +32,14 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", methodInfo);
-            p[i] = new(parameter, options);
+                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
+            p[i] = new(parameter, method, options);
         }
         Parameters = p;
 
-        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
+        InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

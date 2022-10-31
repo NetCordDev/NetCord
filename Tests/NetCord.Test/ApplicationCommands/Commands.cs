@@ -72,7 +72,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
-    public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, string reason = "no reason")
+    public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, [MustContain("wzium")] string reason = "no reason")
     {
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is available only in guild");

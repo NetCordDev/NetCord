@@ -157,7 +157,9 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     {
                         try
                         {
-                            parametersToPass[commandParamIndex] = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                            parametersToPass[commandParamIndex] = value;
                             arguments = arguments[currentArgLength..].TrimStart(separators);
                             isLastArgGood = false;
                         }
@@ -166,7 +168,9 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                             // is not last parameter
                             if (commandParamIndex != maxCommandParamIndex && parameter.HasDefaultValue)
                             {
-                                parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                                var value = parameter.DefaultValue;
+                                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                                parametersToPass[commandParamIndex] = value;
                                 isLastArgGood = true;
                             }
                             else if (lastCommand)
@@ -177,7 +181,9 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     }
                     else if (parameter.HasDefaultValue)
                     {
-                        parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                        var value = parameter.DefaultValue;
+                        await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                        parametersToPass[commandParamIndex] = value;
                         isLastArgGood = true;
                     }
                     else if (lastCommand)
@@ -201,7 +207,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     }
                 }
                 else if (parameter.HasDefaultValue)
-                    parametersToPass[commandParamIndex] = parameter.DefaultValue;
+                {
+                    var value = parameter.DefaultValue;
+                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    parametersToPass[commandParamIndex] = value;
+                }
                 else if (lastCommand)
                     throw new ParameterCountException("Too few parameters.");
                 else
@@ -215,8 +225,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     continue;
             Break:
             break;
-            Continue:
-            ;
+            Continue:;
         }
 
         var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo!.DeclaringType)!;
@@ -243,7 +252,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         var o = Array.CreateInstance(parameter.Type, len);
 
         for (var a = 0; a < len; a++)
-            o.SetValue(await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false), a);
+        {
+            var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false);
+            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+            o.SetValue(value, a);
+        }
 
         parametersToPass[commandParamIndex] = o;
     }

@@ -8,7 +8,7 @@ namespace NetCord.Test.Commands.Administrative;
 public class MuteCommands : CommandModule<CommandContext>
 {
     [Command("mute")]
-    public async Task Mute(GuildUser user, TimeSpan time, [Remainder] string? reason = null)
+    public async Task Mute([CanManage] GuildUser user, TimeSpan time, [Remainder] string? reason = null)
     {
         await user.TimeOutAsync(DateTimeOffset.UtcNow.Add(time), new() { AuditLogReason = reason });
 
@@ -30,7 +30,7 @@ public class MuteCommands : CommandModule<CommandContext>
     }
 
     [Command("unmute")]
-    public async Task Unmute(GuildUser user, [Remainder] string? reason = null)
+    public async Task Unmute([CanManage] GuildUser user, [Remainder] string? reason = null)
     {
         await user.TimeOutAsync(default, new() { AuditLogReason = reason });
         await ReplyAsync($"{user} got unmuted");

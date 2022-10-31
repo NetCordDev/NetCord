@@ -15,12 +15,14 @@ public record CommandParameter<TContext> where TContext : ICommandContext
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string? Name { get; }
     public string? Description { get; }
+    public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal CommandParameter(ParameterInfo parameter, CommandServiceOptions<TContext> options)
+    internal CommandParameter(ParameterInfo parameter, MethodInfo method, CommandServiceOptions<TContext> options)
     {
         HasDefaultValue = parameter.HasDefaultValue;
 
-        Attributes = parameter.GetCustomAttributes().ToRankedDictionary(a => a.GetType());
+        var attributesIEnumerable = parameter.GetCustomAttributes();
+        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
         Remainder = Attributes.ContainsKey(typeof(RemainderAttribute));
 
         if (Attributes.TryGetValue(typeof(ParameterAttribute), out IReadOnlyList<Attribute>? attributes))
@@ -109,5 +111,13 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;
         }
+
+        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+    }
+
+    internal async Task EnsureCanExecuteAsync(object? value, TContext context)
+    {
+        foreach (var preconditionAttribute in Preconditions)
+            await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
     }
 }

@@ -9,23 +9,23 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
     public Func<object, object[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    public InteractionInfo(MethodInfo methodInfo, InteractionServiceOptions<TContext> options)
+    public InteractionInfo(MethodInfo method, InteractionServiceOptions<TContext> options)
     {
-        if (methodInfo.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task).FullName}'.", methodInfo);
+        if (method.ReturnType != typeof(Task))
+            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task).FullName}'.", method);
 
-        DeclaringType = methodInfo.DeclaringType!;
+        DeclaringType = method.DeclaringType!;
 
-        var parameters = methodInfo.GetParameters();
+        var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
         var p = new InteractionParameter<TContext>[parametersLength];
         for (var i = 0; i < parametersLength; i++)
-            p[i] = new(parameters[i], options);
+            p[i] = new(parameters[i], method, options);
         Parameters = p;
 
-        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
+        InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
 
-        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

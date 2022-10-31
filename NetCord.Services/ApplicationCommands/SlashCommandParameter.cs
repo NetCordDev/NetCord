@@ -23,11 +23,13 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public int? MaxLength { get; }
     public int? MinLength { get; }
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
+    public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, ApplicationCommandServiceOptions<TContext> options)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceOptions<TContext> options)
     {
         HasDefaultValue = parameter.HasDefaultValue;
-        Attributes = parameter.GetCustomAttributes().ToRankedDictionary(a => a.GetType());
+        var attributesIEnumerable = parameter.GetCustomAttributes();
+        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
         var type = parameter.ParameterType;
         var underlyingType = Nullable.GetUnderlyingType(type);
@@ -159,6 +161,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             AutocompleteProvider = TypeReader.AutocompleteProvider;
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
         }
+
+        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
     }
 
     public ApplicationCommandOptionProperties GetRawValue()
@@ -177,5 +181,11 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             Choices = ChoicesProvider?.GetChoices(this),
             ChannelTypes = AllowedChannelTypes,
         };
+    }
+
+    internal async Task EnsureCanExecuteAsync(object? value, TContext context)
+    {
+        foreach (var preconditionAttribute in Preconditions)
+            await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
     }
 }

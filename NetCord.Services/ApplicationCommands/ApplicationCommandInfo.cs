@@ -21,7 +21,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
-    internal ApplicationCommandInfo(MethodInfo methodInfo, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(methodInfo, attribute: slashCommandAttribute)
+    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: slashCommandAttribute)
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
@@ -30,7 +30,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 
         Autocompletes = new();
 
-        var parameters = methodInfo.GetParameters();
+        var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
         var p = new SlashCommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
@@ -40,8 +40,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", methodInfo);
-            SlashCommandParameter<TContext> newP = new(parameter, options);
+                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
+            SlashCommandParameter<TContext> newP = new(parameter, method, options);
             p[i] = newP;
             var autocompleteProvider = newP.AutocompleteProvider;
             if (autocompleteProvider != null)
@@ -50,12 +50,12 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Parameters = p;
     }
 
-    internal ApplicationCommandInfo(MethodInfo methodInfo, UserCommandAttribute userCommandAttribute) : this(methodInfo, attribute: userCommandAttribute)
+    internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute) : this(method, attribute: userCommandAttribute)
     {
         Type = ApplicationCommandType.User;
 
-        if (methodInfo.GetParameters().Length > 0)
-            throw new InvalidDefinitionException($"User commands must be parameterless.", methodInfo);
+        if (method.GetParameters().Length > 0)
+            throw new InvalidDefinitionException($"User commands must be parameterless.", method);
     }
 
     internal ApplicationCommandInfo(MethodInfo methodInfo, MessageCommandAttribute messageCommandAttribute) : this(methodInfo, attribute: messageCommandAttribute)
@@ -66,9 +66,9 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             throw new InvalidDefinitionException($"Message commands must be parameterless.", methodInfo);
     }
 
-    private ApplicationCommandInfo(MethodInfo methodInfo, ApplicationCommandAttribute attribute)
+    private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute)
     {
-        DeclaringType = methodInfo.DeclaringType!;
+        DeclaringType = method.DeclaringType!;
         Name = attribute.Name;
         if (attribute.NameTranslationsProviderType != null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
@@ -79,8 +79,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 #pragma warning restore CS0618 // Type or member is obsolete
         if (attribute.GuildId != default)
             GuildId = attribute.GuildId;
-        InvokeAsync = (obj, parameters) => (Task)methodInfo.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
-        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(methodInfo, DeclaringType);
+        InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }
 
     public ApplicationCommandProperties GetRawValue()

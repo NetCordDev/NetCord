@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 using NetCord.Gateway;
 
@@ -102,7 +103,9 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                     currentArg = index == -1 ? arguments : arguments[..index];
                     arguments = arguments[(currentArg.Length + 1)..];
                 }
-                parametersToPass[commandParamIndex] = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                parametersToPass[commandParamIndex] = value;
             }
             else
             {
@@ -111,7 +114,11 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                 var o = Array.CreateInstance(parameter.Type, len);
 
                 for (var a = 0; a < len; a++)
-                    o.SetValue(await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false), a);
+                {
+                    var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false);
+                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    o.SetValue(value, a);
+                }
 
                 parametersToPass[commandParamIndex] = o;
             }

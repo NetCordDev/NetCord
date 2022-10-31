@@ -153,17 +153,26 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
                 var parameter = parameters[parameterIndex];
                 var option = options[optionIndex];
                 if (parameter.Name != option.Name)
-                    values[parameterIndex] = parameter.DefaultValue!;
+                {
+                    var value = parameter.DefaultValue!;
+                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    values[parameterIndex] = value;
+                }
                 else
                 {
-                    values[parameterIndex] = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, _options).ConfigureAwait(false);
+                    var value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, _options).ConfigureAwait(false);
+                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    values[parameterIndex] = value;
                     optionIndex++;
                 }
             }
             int parametersCount = parameters.Count;
             while (parameterIndex < parametersCount)
             {
-                values[parameterIndex] = parameters[parameterIndex].DefaultValue!;
+                var parameter = parameters[parameterIndex];
+                var value = parameter.DefaultValue!;
+                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                values[parameterIndex] = value;
                 parameterIndex++;
             }
         }
