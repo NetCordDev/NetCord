@@ -131,16 +131,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
     /// <summary>
     /// Default = ' ', '\n'
     /// </summary>
-    public IReadOnlyList<char> ParamSeparators
-    {
-        get => _paramSeparators;
-        init
-        {
-            _paramSeparators = (char[])value;
-        }
-    }
-
-    internal char[] _paramSeparators = new[] { ' ', '\n' };
+    public IEnumerable<char> ParamSeparators { get; init; } = new char[] { ' ', '\n' };
 
     /// <summary>
     /// Default = <see langword="true"/>

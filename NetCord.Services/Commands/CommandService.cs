@@ -5,6 +5,7 @@ namespace NetCord.Services.Commands;
 public partial class CommandService<TContext> : IService where TContext : ICommandContext
 {
     private readonly CommandServiceOptions<TContext> _options;
+    private readonly char[] _paramSeparators;
     private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
     public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> Commands
@@ -18,16 +19,9 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
     public CommandService(CommandServiceOptions<TContext>? options = null)
     {
-        if (options == null)
-        {
-            _options = new();
-            _commands = new(StringComparer.InvariantCultureIgnoreCase);
-        }
-        else
-        {
-            _options = options;
-            _commands = new(_options.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
-        }
+        _options = options ?? new();
+        _paramSeparators = _options.ParamSeparators.ToArray();
+        _commands = new(_options.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
     }
 
     public void AddModules(Assembly assembly)
@@ -62,7 +56,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
             foreach (var alias in commandAttribute.Aliases)
             {
-                if (alias.ContainsAny(_options._paramSeparators))
+                if (alias.ContainsAny(_paramSeparators))
                     throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_options.ParamSeparators)}'.", method);
                 if (!_commands.TryGetValue(alias, out var list))
                 {
@@ -93,8 +87,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     public async Task ExecuteAsync(int prefixLength, TContext context)
     {
         var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
-        var ignoreCase = _options.IgnoreCase;
-        var separators = _options._paramSeparators;
+        var separators = _paramSeparators;
 
         SortedList<CommandInfo<TContext>> commandInfos;
         ReadOnlyMemory<char> baseArguments;
