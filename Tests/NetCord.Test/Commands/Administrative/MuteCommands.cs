@@ -23,7 +23,7 @@ public class MuteCommands : CommandModule<CommandContext>
             {
                 actionRow
             },
-            MessageReference = new(Context.Message),
+            MessageReference = new(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None,
         };
         await SendAsync(message);

@@ -12,7 +12,7 @@ public class BanCommands : CommandModule<CommandContext>
     [Command("ban")]
     public async Task Ban(UserId userId, TimeSpan deleteMessagesTime = default, [Remainder] string? reason = null)
     {
-        await Context.Guild!.BanUserAsync(userId, (int)deleteMessagesTime.TotalSeconds, new() { AuditLogReason = reason });
+        await Context.Guild!.BanUserAsync(userId.Id, (int)deleteMessagesTime.TotalSeconds, new() { AuditLogReason = reason });
 
         ActionRowProperties actionRow = new(new ButtonProperties[]
             {
@@ -25,7 +25,7 @@ public class BanCommands : CommandModule<CommandContext>
                 {
                     actionRow
                 },
-            MessageReference = new(Context.Message),
+            MessageReference = new(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None,
         };
         await SendAsync(message);
@@ -34,7 +34,7 @@ public class BanCommands : CommandModule<CommandContext>
     [Command("unban")]
     public async Task Unban(UserId userId, [Remainder] string? reason = null)
     {
-        await Context.Guild!.UnbanUserAsync(userId, new() { AuditLogReason = reason });
+        await Context.Guild!.UnbanUserAsync(userId.Id, new() { AuditLogReason = reason });
         await ReplyAsync(Format.Bold($"{userId} got unbanned").ToString());
     }
 }

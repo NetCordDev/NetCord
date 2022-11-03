@@ -18,7 +18,7 @@ public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractio
     [Interaction("unmute")]
     public async Task UnmuteAsync(ulong userId)
     {
-        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild!, userId, u => u.TimeOutUntil = default(DateTimeOffset));
+        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild!.Id, userId, u => u.TimeOutUntil = default(DateTimeOffset));
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**Mute cancelled by {Context.User}**", AllowedMentions = AllowedMentionsProperties.None, Components = Enumerable.Empty<ComponentProperties>() }));
     }
 }

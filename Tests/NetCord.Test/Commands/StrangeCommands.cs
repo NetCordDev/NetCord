@@ -18,7 +18,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
     public async Task SayDM(UserId userId, [Remainder] string text)
     {
-        var channel = await Context.Client.Rest.GetDMChannelAsync(userId);
+        var channel = await Context.Client.Rest.GetDMChannelAsync(userId.Id);
         await channel.SendMessageAsync(text);
     }
 
@@ -83,7 +83,7 @@ public class StrangeCommands : CommandModule<CommandContext>
                 actionRow
             },
             Content = "This is the message with the link",
-            MessageReference = new(Context.Message),
+            MessageReference = new(Context.Message.Id),
             AllowedMentions = new()
             {
                 ReplyMention = false
@@ -108,7 +108,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Attachments = new AttachmentProperties[] { file },
-            MessageReference = new(Context.Message),
+            MessageReference = new(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None
         };
         return SendAsync(message);
@@ -150,7 +150,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("id")]
     public Task Id([Remainder] UserId? userId = null)
     {
-        var id = userId != null ? userId.Id : Context.User;
+        var id = userId != null ? userId.Id : Context.User.Id;
         var fields = new EmbedFieldProperties[]
         {
             new() { Title = "Id", Description = id.ToString()! },
@@ -179,7 +179,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         {
             Content = "Here is your menu:",
             Components = new ComponentProperties[] { new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length } },
-            MessageReference = new(Context.Message)
+            MessageReference = new(Context.Message.Id)
         };
         return SendAsync(message);
     }

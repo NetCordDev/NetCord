@@ -9,7 +9,7 @@ public abstract class CommandModule<TContext> : BaseCommandModule<TContext> wher
         MessageProperties message = new()
         {
             Content = content,
-            MessageReference = new(Context.Message, failIfNotExists),
+            MessageReference = new(Context.Message.Id, failIfNotExists),
             AllowedMentions = new()
             {
                 ReplyMention = replyMention

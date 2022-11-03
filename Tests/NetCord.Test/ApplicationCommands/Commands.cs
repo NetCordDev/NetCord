@@ -77,7 +77,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         if (Context.Guild == null)
             throw new InvalidOperationException("This command is available only in guild");
 
-        await Context.Guild.BanUserAsync(user, (int)deleteMessages, new() { AuditLogReason = reason });
+        await Context.Guild.BanUserAsync(user.Id, (int)deleteMessages, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
@@ -89,7 +89,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             throw new InvalidOperationException("This command is available only in guild");
 
         var until = DateTimeOffset.UtcNow.AddDays(days);
-        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild, user, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });
+        await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild.Id, user.Id, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got muted until {new Timestamp(until, TimestampStyle.LongDateTime)}**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
@@ -118,8 +118,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
             var roleId = mentionable.Role!.Id;
-            foreach (var user in Context.Client.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd)))
-                await user.AddRoleAsync(roleToAdd);
+            foreach (var user in Context.Client.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
+                await user.AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
                 x.Content = $"Role {roleToAdd} was given to users with {mentionable.Role} role";
@@ -128,7 +128,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         }
         else
         {
-            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd);
+            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
@@ -296,10 +296,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource("wz"));
         await Context.Interaction.ModifyResponseAsync(m => m.Content = "wz2");
         var message = await Context.Interaction.SendFollowupMessageAsync("xd");
-        await Context.Interaction.ModifyFollowupMessageAsync(message, m => m.Content = "xd2");
-        await Context.Interaction.GetFollowupMessageAsync(message);
+        await Context.Interaction.ModifyFollowupMessageAsync(message.Id, m => m.Content = "xd2");
+        await Context.Interaction.GetFollowupMessageAsync(message.Id);
         await Context.Interaction.GetResponseAsync();
-        await Context.Interaction.DeleteFollowupMessageAsync(message);
+        await Context.Interaction.DeleteFollowupMessageAsync(message.Id);
         await Context.Interaction.DeleteResponseAsync();
     }
 

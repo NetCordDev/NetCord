@@ -32,7 +32,7 @@ public class OtherCommands : CommandModule<CommandContext>
             {
                 if (i == count || (DateTimeOffset.UtcNow - message.CreatedAt).TotalDays > 14)
                     break;
-                yield return message;
+                yield return message.Id;
                 i++;
             }
             count = i;

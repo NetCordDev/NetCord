@@ -281,7 +281,7 @@ public partial class RestClient
         }
         if (messagesCount == 100)
         {
-            await foreach (var message in GetMessagesBeforeAsync(channelId, lastMessage!, properties))
+            await foreach (var message in GetMessagesBeforeAsync(channelId, lastMessage!.Id, properties))
                 yield return message;
         }
     }

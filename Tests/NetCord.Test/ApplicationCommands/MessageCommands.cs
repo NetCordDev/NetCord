@@ -15,7 +15,7 @@ public class MessageCommands : ApplicationCommandModule<MessageCommandContext>
 
         await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource());
         int i = 0;
-        var messages = Context.Channel!.GetMessagesAfterAsync(Context.Target).TakeWhile(m => m.CreatedAt < now).Select(m => { i++; return m.Id; });
+        var messages = Context.Channel!.GetMessagesAfterAsync(Context.Target.Id).TakeWhile(m => m.CreatedAt < now).Select(m => { i++; return m.Id; });
         await Context.Client.Rest.DeleteMessagesAsync(Context.Channel.Id, messages);
         await Context.Interaction.ModifyResponseAsync(r => r.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
     }
