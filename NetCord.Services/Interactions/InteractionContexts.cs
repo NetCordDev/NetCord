@@ -103,7 +103,7 @@ public class ButtonInteractionContext : BaseButtonInteractionContext, IUserConte
 
     public Guild? Guild => Interaction.Guild;
 
-    public TextChannel Channel => Interaction.Channel!;
+    public TextChannel? Channel => Interaction.Channel;
 
     public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -118,7 +118,7 @@ public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IU
 
     public Guild? Guild => Interaction.Guild;
 
-    public TextChannel Channel => Interaction.Channel!;
+    public TextChannel? Channel => Interaction.Channel;
 
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 
@@ -135,7 +135,7 @@ public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IU
 
     public Guild? Guild => Interaction.Guild;
 
-    public TextChannel Channel => Interaction.Channel!;
+    public TextChannel? Channel => Interaction.Channel;
 
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 
@@ -156,7 +156,7 @@ public class UserMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedUsers = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Users![v]);
         else
-            SelectedUsers = new Dictionary<ulong, User>(0);
+            SelectedUsers = new Dictionary<ulong, User>();
     }
 }
 
@@ -172,7 +172,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedRoles = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Roles![v]);
         else
-            SelectedRoles = new Dictionary<ulong, GuildRole>(0);
+            SelectedRoles = new Dictionary<ulong, GuildRole>();
     }
 }
 
@@ -202,11 +202,11 @@ public class MentionableMenuInteractionContext : EntityMenuInteractionContext
                 if (roles != null)
                     SelectedMentionables = interaction.Data.SelectedValues.ToDictionary(v => v, v => new Mentionable(roles[v]));
                 else
-                    SelectedMentionables = new Dictionary<ulong, Mentionable>(0);
+                    SelectedMentionables = new Dictionary<ulong, Mentionable>();
             }
         }
         else
-            SelectedMentionables = new Dictionary<ulong, Mentionable>(0);
+            SelectedMentionables = new Dictionary<ulong, Mentionable>();
     }
 }
 
@@ -222,7 +222,7 @@ public class ChannelMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedChannels = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Channels![v]);
         else
-            SelectedChannels = new Dictionary<ulong, Channel>(0);
+            SelectedChannels = new Dictionary<ulong, Channel>();
     }
 }
 
@@ -232,7 +232,7 @@ public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, 
 
     public Guild? Guild => Interaction.Guild;
 
-    public TextChannel Channel => Interaction.Channel!;
+    public TextChannel? Channel => Interaction.Channel;
 
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 

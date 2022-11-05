@@ -8,7 +8,7 @@ public abstract class ApplicationCommandContext : InteractionContext, IApplicati
 {
     public override abstract ApplicationCommandInteraction Interaction { get; }
     public Guild? Guild => Interaction.Guild;
-    public TextChannel Channel => Interaction.Channel!;
+    public TextChannel? Channel => Interaction.Channel;
     public User User => Interaction.User;
 
     public ApplicationCommandContext(GatewayClient client) : base(client)
