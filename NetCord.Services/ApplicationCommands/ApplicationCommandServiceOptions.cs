@@ -153,4 +153,6 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
     #endregion
 
     public SlashCommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
+
+    public bool DefaultDMPermission { get; init; } = true;
 }

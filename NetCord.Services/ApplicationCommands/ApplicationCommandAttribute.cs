@@ -9,11 +9,33 @@ public abstract class ApplicationCommandAttribute : Attribute
     }
 
     public string Name { get; }
+
     public Type? NameTranslationsProviderType { get; init; }
-    public Permission DefaultGuildUserPermissions { get; init; } = (Permission)((ulong)1 << 63);
-    public bool DMPermission { get; init; } = true;
+
+    public Permission DefaultGuildUserPermissions
+    {
+        get => _defaultGuildUserPermissions.GetValueOrDefault();
+        init
+        {
+            _defaultGuildUserPermissions = value;
+        }
+    }
+
+    internal readonly Permission? _defaultGuildUserPermissions;
+
+    public bool DMPermission
+    {
+        get => _dMPermission.GetValueOrDefault();
+        init
+        {
+            _dMPermission = value;
+        }
+    }
+
+    internal readonly bool? _dMPermission;
 
     [Obsolete("Replaced by `default_member_permissions`")]
     public bool DefaultPermission { get; init; } = true;
+
     public ulong GuildId { get; init; }
 }

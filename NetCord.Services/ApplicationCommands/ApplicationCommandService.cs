@@ -58,11 +58,11 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 
             UserCommandAttribute? userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
             if (userCommandAttribute != null)
-                AddCommandInfo(new(method, userCommandAttribute));
+                AddCommandInfo(new(method, userCommandAttribute, _options));
 
             MessageCommandAttribute? messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
             if (messageCommandAttribute != null)
-                AddCommandInfo(new(method, messageCommandAttribute));
+                AddCommandInfo(new(method, messageCommandAttribute, _options));
         }
 
         void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)

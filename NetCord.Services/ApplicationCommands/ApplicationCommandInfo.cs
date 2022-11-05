@@ -21,7 +21,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
-    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: slashCommandAttribute)
+    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: slashCommandAttribute, options)
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
@@ -50,7 +50,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Parameters = p;
     }
 
-    internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute) : this(method, attribute: userCommandAttribute)
+    internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: userCommandAttribute, options)
     {
         Type = ApplicationCommandType.User;
 
@@ -58,7 +58,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             throw new InvalidDefinitionException($"User commands must be parameterless.", method);
     }
 
-    internal ApplicationCommandInfo(MethodInfo methodInfo, MessageCommandAttribute messageCommandAttribute) : this(methodInfo, attribute: messageCommandAttribute)
+    internal ApplicationCommandInfo(MethodInfo methodInfo, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(methodInfo, attribute: messageCommandAttribute, options)
     {
         Type = ApplicationCommandType.Message;
 
@@ -66,14 +66,14 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             throw new InvalidDefinitionException($"Message commands must be parameterless.", methodInfo);
     }
 
-    private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute)
+    private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute, ApplicationCommandServiceOptions<TContext> options)
     {
         DeclaringType = method.DeclaringType!;
         Name = attribute.Name;
         if (attribute.NameTranslationsProviderType != null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
-        DefaultGuildUserPermissions = attribute.DefaultGuildUserPermissions == (Permission)((ulong)1 << 63) ? null : attribute.DefaultGuildUserPermissions;
-        DMPermission = attribute.DMPermission;
+        DefaultGuildUserPermissions = attribute._defaultGuildUserPermissions;
+        DMPermission = attribute._dMPermission.HasValue ? attribute._dMPermission.GetValueOrDefault() : options.DefaultDMPermission;
 #pragma warning disable CS0618 // Type or member is obsolete
         DefaultPermission = attribute.DefaultPermission;
 #pragma warning restore CS0618 // Type or member is obsolete
