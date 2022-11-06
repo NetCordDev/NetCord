@@ -84,11 +84,13 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         {
             if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
             {
-                if (jsonModel.ChannelId.HasValue)
+                var channelId = jsonModel.ChannelId;
+                if (channelId.HasValue)
                 {
-                    if (guild.Channels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var guildChannel))
+                    var channelIdValue = channelId.GetValueOrDefault();
+                    if (guild.Channels.TryGetValue(channelIdValue, out var guildChannel))
                         channel = (TextChannel)guildChannel;
-                    else if (guild.ActiveThreads.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var thread))
+                    else if (guild.ActiveThreads.TryGetValue(channelIdValue, out var thread))
                         channel = thread;
                     else
                         channel = null;
@@ -96,32 +98,23 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
                 else
                     channel = null;
             }
-            else if (jsonModel.ChannelId.HasValue)
-            {
-                guild = null;
-                if (client.DMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var dMChannel))
-                    channel = dMChannel;
-                else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var groupDMChannel))
-                    channel = groupDMChannel;
-                else
-                    channel = null;
-            }
             else
-            {
-                guild = null;
                 channel = null;
-            }
         }
         else
         {
             guild = null;
-            if (jsonModel.ChannelId.HasValue)
-                if (client.DMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var dMChannel))
+            var channelId = jsonModel.ChannelId;
+            if (channelId.HasValue)
+            {
+                var channelIdValue = channelId.GetValueOrDefault();
+                if (client.DMChannels.TryGetValue(channelIdValue, out var dMChannel))
                     channel = dMChannel;
-                else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId.GetValueOrDefault(), out var groupDMChannel))
+                else if (client.GroupDMChannels.TryGetValue(channelIdValue, out var groupDMChannel))
                     channel = groupDMChannel;
                 else
                     channel = null;
+            }
             else
                 channel = null;
         }

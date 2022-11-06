@@ -18,28 +18,26 @@ public class Message : RestMessage
         var guildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
         if (guildId.HasValue)
         {
-            if (client.Guilds.TryGetValue(jsonModel.GuildId.GetValueOrDefault(), out guild))
+            if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
             {
-                if (guild.Channels.TryGetValue(jsonModel.ChannelId, out var guildChannel))
+                var channelId = jsonModel.ChannelId;
+                if (guild.Channels.TryGetValue(channelId, out var guildChannel))
                     channel = (TextChannel)guildChannel;
-                else if (guild.ActiveThreads.TryGetValue(jsonModel.ChannelId, out var thread))
+                else if (guild.ActiveThreads.TryGetValue(channelId, out var thread))
                     channel = thread;
                 else
                     channel = null;
             }
-            else if (client.DMChannels.TryGetValue(jsonModel.ChannelId, out var dMChannel))
-                channel = dMChannel;
-            else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId, out var groupDMChannel))
-                channel = groupDMChannel;
             else
                 channel = null;
         }
         else
         {
             guild = null;
-            if (client.DMChannels.TryGetValue(jsonModel.ChannelId, out var dMChannel))
+            var channelId = jsonModel.ChannelId;
+            if (client.DMChannels.TryGetValue(channelId, out var dMChannel))
                 channel = dMChannel;
-            else if (client.GroupDMChannels.TryGetValue(jsonModel.ChannelId, out var groupDMChannel))
+            else if (client.GroupDMChannels.TryGetValue(channelId, out var groupDMChannel))
                 channel = groupDMChannel;
             else
                 channel = null;
