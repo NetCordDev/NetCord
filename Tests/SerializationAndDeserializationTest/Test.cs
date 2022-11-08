@@ -35,12 +35,13 @@ public class Test
         await client.StartAsync().ConfigureAwait(false);
         await completionSource.Task.ConfigureAwait(false);
         var model = ((IJsonModel<JsonGuild>)guild!).JsonModel;
-        Console.WriteLine($"old: {model}");
         var json = JsonSerializer.Serialize(model, Serialization.Options);
         var deserialized = JsonSerializer.Deserialize<JsonGuild>(json, Serialization.Options)!;
-        Console.WriteLine($"new: {deserialized}");
         Guild newGuild = new(deserialized, client.Rest);
 
-        Assert.IsTrue(model.IsDeepEqual(deserialized));
+        model
+            .WithDeepEqual(deserialized)
+            .IgnoreProperty(r => r.DeclaringType == typeof(JsonForumTag) && r.Name == "EmojiId") // https://github.com/discord/discord-api-docs/issues/5603
+            .Assert();
     }
 }
