@@ -9,14 +9,12 @@ public class PermissionOverwrite : Entity, IJsonModel<JsonModels.JsonPermissionO
 
     public PermissionOverwriteType Type => _jsonModel.Type;
 
-    public Permission Allowed { get; }
+    public Permission Allowed => _jsonModel.Allowed;
 
-    public Permission Denied { get; }
+    public Permission Denied => _jsonModel.Denied;
 
     public PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel)
     {
         _jsonModel = jsonModel;
-        Allowed = (Permission)ulong.Parse(jsonModel.Allowed);
-        Denied = (Permission)ulong.Parse(jsonModel.Denied);
     }
 }

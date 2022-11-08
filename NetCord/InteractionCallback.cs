@@ -51,6 +51,11 @@ public partial class InteractionCallback
     public static InteractionCallback<InteractionCallbackChoicesDataProperties> ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
         => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new InteractionCallbackChoicesDataProperties(choices));
 
+    /// <summary>
+    /// Respond to an interaction with a popup <paramref name="modal"/>.
+    /// </summary>
+    /// <param name="modal"></param>
+    /// <returns></returns>
     public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
         => new(InteractionCallbackType.Modal, modal);
 

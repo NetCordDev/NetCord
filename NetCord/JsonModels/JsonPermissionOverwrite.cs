@@ -8,10 +8,10 @@ public partial class JsonPermissionOverwrite : JsonEntity
     public PermissionOverwriteType Type { get; set; }
 
     [JsonPropertyName("allow")]
-    public string Allowed { get; set; }
+    public Permission Allowed { get; set; }
 
     [JsonPropertyName("deny")]
-    public string Denied { get; set; }
+    public Permission Denied { get; set; }
 
     [JsonSerializable(typeof(JsonPermissionOverwrite))]
     public partial class JsonPermissionOverwriteSerializerContext : JsonSerializerContext

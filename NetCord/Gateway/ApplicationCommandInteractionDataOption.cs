@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace NetCord.Gateway;
+﻿namespace NetCord.Gateway;
 
 public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>
 {
@@ -11,7 +9,7 @@ public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.Jso
 
     public ApplicationCommandOptionType Type => _jsonModel.Type;
 
-    public string? Value { get; }
+    public string? Value => _jsonModel.Value;
 
     public IEnumerable<ApplicationCommandInteractionDataOption>? Options { get; }
 
@@ -20,11 +18,6 @@ public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.Jso
     public ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonModel)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Value.HasValue)
-        {
-            var value = jsonModel.Value.GetValueOrDefault();
-            Value = value.ValueKind == JsonValueKind.String ? value.GetString() : value.GetRawText();
-        }
         Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o));
     }
 }

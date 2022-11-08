@@ -249,19 +249,19 @@ public partial class RestClient
     private Task BulkDeleteMessagesAsync(ulong channelId, ulong[] messageIds, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/bulk-delete", new Route(RouteParameter.BulkDeleteMessages), new JsonContent<BulkDeleteMessagesProperties>(new(messageIds), BulkDeleteMessagesProperties.BulkDeleteMessagesPropertiesSerializerContext.WithOptions.BulkDeleteMessagesProperties), properties);
 
-    public Task ModifyGuildChannelPermissionsAsync(ulong channelId, ChannelPermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), new JsonContent<ChannelPermissionOverwriteProperties>(permissionOverwrite, ChannelPermissionOverwriteProperties.ChannelPermissionOverwritePropertiesSerializerContext.WithOptions.ChannelPermissionOverwriteProperties), properties);
+    public Task ModifyGuildChannelPermissionsAsync(ulong channelId, PermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RouteParameter.ModifyDeleteGuildChannelPermissions), new JsonContent<PermissionOverwriteProperties>(permissionOverwrite, PermissionOverwriteProperties.PermissionOverwritePropertiesSerializerContext.WithOptions.PermissionOverwriteProperties), properties);
 
     public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(ulong channelId, RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", properties).ConfigureAwait(false)).ToObject(JsonRestGuildInvite.JsonRestGuildInviteArraySerializerContext.WithOptions.JsonRestGuildInviteArray).Select(r => new RestGuildInvite(r, this));
 
     public async Task<RestGuildInvite> CreateGuildChannelInviteAsync(ulong channelId, GuildInviteProperties? guildInviteProperties = null, RequestProperties? properties = null)
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
-        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", new(RateLimits.RouteParameter.CreateGuildChannelInvite), new JsonContent<GuildInviteProperties?>(guildInviteProperties, GuildInviteProperties.GuildInvitePropertiesSerializerContext.WithOptions.GuildInviteProperties), properties).ConfigureAwait(false))!.ToObject(JsonRestGuildInvite.JsonRestGuildInviteSerializerContext.WithOptions.JsonRestGuildInvite), this);
+        => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", new(RouteParameter.CreateGuildChannelInvite), new JsonContent<GuildInviteProperties?>(guildInviteProperties, GuildInviteProperties.GuildInvitePropertiesSerializerContext.WithOptions.GuildInviteProperties), properties).ConfigureAwait(false))!.ToObject(JsonRestGuildInvite.JsonRestGuildInviteSerializerContext.WithOptions.JsonRestGuildInvite), this);
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
     public Task DeleteGuildChannelPermissionAsync(ulong channelId, ulong overwriteId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/permissions/{overwriteId}", new RateLimits.Route(RateLimits.RouteParameter.ModifyDeleteGuildChannelPermissions), properties);
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/permissions/{overwriteId}", new Route(RouteParameter.ModifyDeleteGuildChannelPermissions), properties);
 
     public async Task<FollowedChannel> FollowAnnouncementGuildChannelAsync(ulong channelId, ulong webhookChannelId, RequestProperties? properties = null)
         => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/followers", new JsonContent<FollowAnnouncementGuildChannelProperties>(new(webhookChannelId), FollowAnnouncementGuildChannelProperties.FollowAnnouncementGuildChannelPropertiesSerializerContext.WithOptions.FollowAnnouncementGuildChannelProperties), properties).ConfigureAwait(false))!.ToObject(JsonFollowedChannel.JsonFollowedChannelSerializerContext.WithOptions.JsonFollowedChannel), this);

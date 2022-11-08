@@ -49,7 +49,7 @@ public partial class JsonMessage : JsonEntity
     [JsonPropertyName("reactions")]
     public JsonMessageReaction[]? Reactions { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.NonceConverter))]
+    [JsonConverter(typeof(JsonConverters.AnyValueToStringConverter))]
     [JsonPropertyName("nonce")]
     public string? Nonce { get; set; }
 

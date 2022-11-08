@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class ChannelPermissionOverwriteProperties
+public partial class PermissionOverwriteProperties
 {
     [JsonPropertyName("id")]
     public ulong Id { get; }
@@ -18,15 +18,15 @@ public partial class ChannelPermissionOverwriteProperties
     [JsonPropertyName("deny")]
     public Permission? Denied { get; set; }
 
-    public ChannelPermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
+    public PermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
     {
         Id = id;
         Type = type;
     }
 
-    [JsonSerializable(typeof(ChannelPermissionOverwriteProperties))]
-    public partial class ChannelPermissionOverwritePropertiesSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(PermissionOverwriteProperties))]
+    public partial class PermissionOverwritePropertiesSerializerContext : JsonSerializerContext
     {
-        public static ChannelPermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static PermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
     }
 }

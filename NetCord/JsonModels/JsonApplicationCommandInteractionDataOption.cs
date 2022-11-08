@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -11,8 +10,9 @@ public partial class JsonApplicationCommandInteractionDataOption
     [JsonPropertyName("type")]
     public ApplicationCommandOptionType Type { get; set; }
 
+    [JsonConverter(typeof(JsonConverters.AnyValueToStringConverter))]
     [JsonPropertyName("value")]
-    public JsonElement? Value { get; set; }
+    public string? Value { get; set; }
 
     [JsonPropertyName("options")]
     public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }
