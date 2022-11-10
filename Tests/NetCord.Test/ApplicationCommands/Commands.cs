@@ -205,8 +205,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     //    await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
     //}
 
-    [RequireNsfw<SlashCommandContext>()]
-    [SlashCommand("nsfw", "You can use this command in nsfw channel")]
+    //[RequireNsfw<SlashCommandContext>()]
+    [SlashCommand("nsfw", "You can use this command in nsfw channel", Nsfw = true)]
     public Task NsfwAsync()
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource("You used nsfw command!"));
@@ -224,7 +224,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
         {
             Content = "You sent it:",
-            Attachments = new List<AttachmentProperties>
+            Attachments = new AttachmentProperties[]
             {
                 new(attachment.Filename, await new HttpClient().GetStreamAsync(attachment.Url))
             }

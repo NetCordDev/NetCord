@@ -38,6 +38,9 @@ public partial class JsonApplicationCommand : JsonEntity
     [JsonPropertyName("default_permission")]
     public bool DefaultPermission { get; set; } = true;
 
+    [JsonPropertyName("nsfw")]
+    public bool Nsfw { get; set; }
+
     [JsonPropertyName("version")]
     public ulong Version { get; set; }
 

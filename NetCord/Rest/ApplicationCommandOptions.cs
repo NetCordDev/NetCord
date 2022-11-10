@@ -37,10 +37,14 @@ public partial class ApplicationCommandOptions
     [JsonPropertyName("dm_permission")]
     public bool? DMPermission { get; set; }
 
-    [Obsolete("Replaced by `default_member_permissions`")]
+    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("nsfw")]
+    public bool? Nsfw { get; set; }
 
     [JsonSerializable(typeof(ApplicationCommandOptions))]
     public partial class ApplicationCommandOptionsSerializerContext : JsonSerializerContext

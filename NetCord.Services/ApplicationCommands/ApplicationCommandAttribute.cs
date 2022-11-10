@@ -34,8 +34,10 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     internal readonly bool? _dMPermission;
 
-    [Obsolete("Replaced by `default_member_permissions`")]
+    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
     public bool DefaultPermission { get; init; } = true;
+
+    public bool Nsfw { get; init; }
 
     public ulong GuildId { get; init; }
 }

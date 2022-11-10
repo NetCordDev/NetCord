@@ -14,6 +14,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public Permission? DefaultGuildUserPermissions { get; }
     public bool DMPermission { get; }
     public bool DefaultPermission { get; }
+    public bool Nsfw { get; }
     public ulong? GuildId { get; }
     public Func<object, object?[]?, Task> InvokeAsync { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>>? Parameters { get; }
@@ -77,6 +78,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 #pragma warning disable CS0618 // Type or member is obsolete
         DefaultPermission = attribute.DefaultPermission;
 #pragma warning restore CS0618 // Type or member is obsolete
+        Nsfw = attribute.Nsfw;
         if (attribute.GuildId != default)
             GuildId = attribute.GuildId;
         InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
@@ -95,6 +97,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
                 DefaultGuildUserPermissions = DefaultGuildUserPermissions,
                 DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
+                Nsfw = Nsfw,
                 Options = Parameters!.Select(p => p.GetRawValue()),
             },
             ApplicationCommandType.User => new UserCommandProperties(Name)
@@ -103,6 +106,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
                 DefaultGuildUserPermissions = DefaultGuildUserPermissions,
                 DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
+                Nsfw = Nsfw,
             },
             ApplicationCommandType.Message => new MessageCommandProperties(Name)
             {
@@ -110,6 +114,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
                 DefaultGuildUserPermissions = DefaultGuildUserPermissions,
                 DMPermission = DMPermission,
                 DefaultPermission = DefaultPermission,
+                Nsfw = Nsfw,
             },
             _ => throw new InvalidOperationException(),
         };

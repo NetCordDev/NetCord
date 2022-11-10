@@ -17,7 +17,7 @@ public partial class SlashCommandProperties : ApplicationCommandProperties
     [JsonPropertyName("options")]
     public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
 
-    public SlashCommandProperties(string name, string description) : base(name)
+    public SlashCommandProperties(string name, string description) : base(name, ApplicationCommandType.ChatInput)
     {
         Description = description;
     }
@@ -31,10 +31,7 @@ public partial class SlashCommandProperties : ApplicationCommandProperties
 
 public partial class UserCommandProperties : ApplicationCommandProperties
 {
-    [JsonPropertyName("type")]
-    public ApplicationCommandType Type => ApplicationCommandType.User;
-
-    public UserCommandProperties(string name) : base(name)
+    public UserCommandProperties(string name) : base(name, ApplicationCommandType.User)
     {
     }
 
@@ -47,10 +44,7 @@ public partial class UserCommandProperties : ApplicationCommandProperties
 
 public partial class MessageCommandProperties : ApplicationCommandProperties
 {
-    [JsonPropertyName("type")]
-    public ApplicationCommandType Type => ApplicationCommandType.Message;
-
-    public MessageCommandProperties(string name) : base(name)
+    public MessageCommandProperties(string name) : base(name, ApplicationCommandType.Message)
     {
     }
 
@@ -64,13 +58,17 @@ public partial class MessageCommandProperties : ApplicationCommandProperties
 [JsonConverter(typeof(ApplicationCommandPropertiesConverter))]
 public abstract partial class ApplicationCommandProperties
 {
-    private protected ApplicationCommandProperties(string name)
+    private protected ApplicationCommandProperties(string name, ApplicationCommandType type)
     {
         Name = name;
+        Type = type;
     }
 
     [JsonPropertyName("name")]
     public string Name { get; }
+
+    [JsonPropertyName("type")]
+    public ApplicationCommandType Type { get; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
@@ -84,10 +82,14 @@ public abstract partial class ApplicationCommandProperties
     [JsonPropertyName("dm_permission")]
     public bool? DMPermission { get; set; }
 
-    [Obsolete("Replaced by `default_member_permissions`")]
+    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("nsfw")]
+    public bool Nsfw { get; set; }
 
     internal class ApplicationCommandPropertiesConverter : JsonConverter<ApplicationCommandProperties>
     {

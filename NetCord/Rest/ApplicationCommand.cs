@@ -29,6 +29,8 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
 
     public bool DefaultPermission => _jsonModel.DefaultPermission;
 
+    public bool Nsfw => _jsonModel.Nsfw;
+
     public ulong Version => _jsonModel.Version;
 
     public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
