@@ -1,4 +1,4 @@
-﻿using System.IO.Pipelines;
+﻿using System.Buffers;
 using System.Net.WebSockets;
 
 namespace NetCord.Gateway.WebSockets;
@@ -12,9 +12,9 @@ public class WebSocket : IWebSocket, IDisposable
 
     public event Action? Connecting;
     public event Action? Connected;
-    public event IWebSocket.DisconnectedEventHandler? Disconnected;
+    public event Action<WebSocketCloseStatus?, string?>? Disconnected;
     public event Action? Closed;
-    public event IWebSocket.MessageReceivedEventHandler? MessageReceived;
+    public event Action<ReadOnlyMemory<byte>>? MessageReceived;
 
     public bool IsConnected { get; private set; }
 
@@ -59,37 +59,56 @@ public class WebSocket : IWebSocket, IDisposable
     private async Task ReadAsync()
     {
         var webSocket = _webSocket!;
+        var owner = MemoryPool<byte>.Shared.Rent(4096);
         try
         {
-            Pipe pipe = new();
+            var buffer = owner.Memory;
+            int position = 0;
             while (true)
             {
-                var writeBuffer = pipe.Writer.GetMemory(128);
-                var r = await webSocket.ReceiveAsync(writeBuffer, default).ConfigureAwait(false);
-                if (r.EndOfMessage)
+                var result = await webSocket.ReceiveAsync(buffer[position..], default).ConfigureAwait(false);
+                if (result.EndOfMessage)
                 {
-                    if (r.MessageType != WebSocketMessageType.Close)
+                    if (result.MessageType != WebSocketMessageType.Close)
                     {
-                        pipe.Writer.Advance(r.Count);
-                        _ = pipe.Writer.FlushAsync();
-                        var readResult = await pipe.Reader.ReadAsync().ConfigureAwait(false);
-                        var buffer = readResult.Buffer;
-
-                        MessageReceived?.Invoke(buffer);
-                        pipe.Reader.AdvanceTo(buffer.End);
+                        MessageReceived?.Invoke(buffer[..(position + result.Count)]);
+                        position = 0;
                     }
                 }
                 else
-                    pipe.Writer.Advance(r.Count);
+                {
+                    position += result.Count;
+
+                    int length = buffer.Length;
+                    if (length == position)
+                    {
+                        var newOwner = MemoryPool<byte>.Shared.Rent(length * 2);
+                        var newBuffer = newOwner.Memory;
+                        buffer.CopyTo(newBuffer);
+                        owner.Dispose();
+                        owner = newOwner;
+                        buffer = newBuffer;
+                    }
+                }
             }
         }
         catch
         {
             IsConnected = false;
-            if (_closed)
-                Closed?.Invoke();
-            else
-                Disconnected?.Invoke(webSocket.CloseStatus, webSocket.CloseStatusDescription);
+            try
+            {
+                if (_closed)
+                    Closed?.Invoke();
+                else
+                    Disconnected?.Invoke(webSocket.CloseStatus, webSocket.CloseStatusDescription);
+            }
+            catch
+            {
+            }
+        }
+        finally
+        {
+            owner.Dispose();
         }
     }
 
@@ -110,6 +129,6 @@ public class WebSocket : IWebSocket, IDisposable
         if (_disposed)
             throw new ObjectDisposedException(nameof(WebSocket));
         else if (!IsConnected)
-            throw new WebSocketException("WebSocket wasn't connected.");
+            throw new WebSocketException("WebSocket was not connected.");
     }
 }

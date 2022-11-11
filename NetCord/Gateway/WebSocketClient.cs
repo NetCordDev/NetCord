@@ -41,13 +41,7 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                await ProcessMessageAsync(Deserialize()).ConfigureAwait(false);
-
-                JsonPayload Deserialize()
-                {
-                    Utf8JsonReader reader = new(data);
-                    return JsonSerializer.Deserialize(ref reader, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
-                }
+                await ProcessMessageAsync(JsonSerializer.Deserialize(data.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
