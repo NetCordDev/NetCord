@@ -1,16 +1,14 @@
-﻿using System.Text.Json;
-
-using NetCord.Rest.HttpClients;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Rest.RateLimits;
 
-internal class NoRateLimitBucket : IBucket
+internal partial class NoRateLimitBucket : IBucket
 {
     private protected readonly RestClient _client;
 
-    public virtual async Task<HttpResponseMessage> SendAsync(IHttpClient client, Func<HttpRequestMessage> message, RequestProperties? properties)
+    public virtual async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> message, RequestProperties? properties)
     {
-        var response = await client.SendAsync(message()).ConfigureAwait(false);
+        var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
             return response;
@@ -18,24 +16,42 @@ internal class NoRateLimitBucket : IBucket
             throw new RestException(response);
     }
 
-    private protected static long GetNewGlobalReset(HttpResponseMessage response) => DateTimeOffset.UtcNow.AddSeconds(JsonDocument.Parse(response.Content.ReadAsStream()).RootElement.GetProperty("retry_after").GetDouble()).ToUnixTimeMilliseconds();
-
-    private protected static long ParseReset(string reset)
+    private protected static async Task<int> GetNewGlobalResetAsync(HttpResponseMessage response)
     {
-        long result = 0;
-        int point = reset.Length - 4;
+        var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        var retryAfter = (int)(stream.ToObject(JsonGlobalRateLimit.JsonGlobalRateLimitSerializerContext.WithOptions.JsonGlobalRateLimit).RetryAfter * 1000);
+        return Environment.TickCount + retryAfter;
+    }
+
+    private partial class JsonGlobalRateLimit
+    {
+        [JsonPropertyName("retry_after")]
+        public float RetryAfter { get; set; }
+
+        [JsonSerializable(typeof(JsonGlobalRateLimit))]
+        public partial class JsonGlobalRateLimitSerializerContext : JsonSerializerContext
+        {
+            public static JsonGlobalRateLimitSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        }
+    }
+
+    private protected static int GetReset(string resetAfter)
+    {
+        int result = 0;
+        int point = resetAfter.Length - 4;
         for (int i = 0; i < point; i++)
         {
             result *= 10;
-            result += reset[i] - '0';
+            result += resetAfter[i] - '0';
         }
+
         result *= 10;
-        result += reset[^3] - '0';
+        result += resetAfter[^3] - '0';
         result *= 10;
-        result += reset[^2] - '0';
+        result += resetAfter[^2] - '0';
         result *= 10;
-        result += reset[^1] - '0';
-        return result;
+        result += resetAfter[^1] - '0';
+        return Environment.TickCount + result;
     }
 
     public NoRateLimitBucket(RestClient client)

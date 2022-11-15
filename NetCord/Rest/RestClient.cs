@@ -4,14 +4,12 @@ namespace NetCord.Rest;
 
 public partial class RestClient : IDisposable
 {
-    private readonly IHttpClient _httpClient;
-
     private readonly Dictionary<RateLimits.Route, RateLimits.IBucket> _buckets = new();
-
-    internal long _globalRateLimitReset;
-
     private readonly RateLimits.GlobalBucket _globalBucket;
     private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
+
+    internal readonly IHttpClient _httpClient;
+    internal int _globalRateLimitReset;
 
     public RestClient(RestClientConfig? config = null)
     {
@@ -37,7 +35,7 @@ public partial class RestClient : IDisposable
         HttpResponseMessage response;
         var bucket = GetBucket(route);
 
-        response = await bucket.SendAsync(_httpClient, () =>
+        response = await bucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url);
             properties?.AddHeaders(requestMessage.Headers);
@@ -55,7 +53,7 @@ public partial class RestClient : IDisposable
         HttpResponseMessage response;
         var bucket = GetBucket(route);
 
-        response = await bucket.SendAsync(_httpClient, () =>
+        response = await bucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url)
             {
@@ -75,7 +73,7 @@ public partial class RestClient : IDisposable
         string url = $"{Discord.RestUrl}{partialUrl}";
         HttpResponseMessage response;
 
-        response = await _globalBucket.SendAsync(_httpClient, () =>
+        response = await _globalBucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url);
             properties?.AddHeaders(requestMessage.Headers);
@@ -92,7 +90,7 @@ public partial class RestClient : IDisposable
         string url = $"{Discord.RestUrl}{partialUrl}";
         HttpResponseMessage response;
 
-        response = await _globalBucket.SendAsync(_httpClient, () =>
+        response = await _globalBucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url)
             {
@@ -112,7 +110,7 @@ public partial class RestClient : IDisposable
         string url = $"{Discord.RestUrl}{partialUrl}";
         HttpResponseMessage response;
 
-        response = await _noRateLimitBucket.SendAsync(_httpClient, () =>
+        response = await _noRateLimitBucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url);
             properties?.AddHeaders(requestMessage.Headers);
@@ -129,7 +127,7 @@ public partial class RestClient : IDisposable
         string url = $"{Discord.RestUrl}{partialUrl}";
         HttpResponseMessage response;
 
-        response = await _noRateLimitBucket.SendAsync(_httpClient, () =>
+        response = await _noRateLimitBucket.SendAsync(() =>
         {
             HttpRequestMessage requestMessage = new(method, url)
             {

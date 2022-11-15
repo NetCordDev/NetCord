@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class StageGuildChannel : TextChannel, IVoiceGuildChannel
+public class StageGuildChannel : Channel, IVoiceGuildChannel
 {
     public int Bitrate => (int)_jsonModel.Bitrate!;
     public ulong? ParentId => _jsonModel.ParentId;
