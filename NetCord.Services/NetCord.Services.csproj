@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetCord\NetCord.csproj" />
+    <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

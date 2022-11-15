@@ -27,4 +27,8 @@
     <NoWarn>1591;1701;1702</NoWarn>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
 </Project>
