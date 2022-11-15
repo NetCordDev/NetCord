@@ -27,11 +27,4 @@
     <NoWarn>1591;1701;1702</NoWarn>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Resource Include="..\Resources\Logo\png\SmallSquare.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </Resource>
-  </ItemGroup>
-
 </Project>
