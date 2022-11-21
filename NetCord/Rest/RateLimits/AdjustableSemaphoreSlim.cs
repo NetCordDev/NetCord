@@ -4,50 +4,50 @@ internal class AdjustableSemaphoreSlim
 {
     private readonly object _lock = new();
     private readonly LinkedList<TaskCompletionSource> _sources = new();
-    private int _count;
+    private int _maxCount;
+    private int _available;
 
-    public AdjustableSemaphoreSlim(int initialCount)
+    public int MaxCount
     {
-        _count = initialCount;
+        get => _maxCount;
+        set
+        {
+            lock (_lock)
+            {
+                int diff = value - _maxCount;
+                for (int i = Math.Min(diff, _sources.Count); i > 0; i--)
+                {
+                    _sources.First!.Value.SetResult();
+                    _sources.RemoveFirst();
+                }
+                _available += diff;
+                _maxCount = value;
+            }
+        }
+    }
+
+    public AdjustableSemaphoreSlim(int maxCount)
+    {
+        _available = _maxCount = maxCount;
     }
 
     public void Release()
     {
         lock (_lock)
         {
-            _count++;
-            if (_sources.Count != 0)
+            if (_available++ >= -_sources.Count && _sources.Count != 0)
             {
                 _sources.First!.Value.SetResult();
                 _sources.RemoveFirst();
             }
         }
-    }
-
-    public void Release(int count)
-    {
-        lock (_lock)
-        {
-            _count += count;
-            for (int i = Math.Min(_sources.Count, count); i > 0; i--)
-            {
-                _sources.First!.Value.SetResult();
-                _sources.RemoveFirst();
-            }
-        }
-    }
-
-    public void Enter(int count)
-    {
-        lock (_lock)
-            _count -= count;
     }
 
     public Task WaitAsync()
     {
         lock (_lock)
         {
-            if (--_count >= 0)
+            if (_available-- > 0)
                 return Task.CompletedTask;
             else
             {

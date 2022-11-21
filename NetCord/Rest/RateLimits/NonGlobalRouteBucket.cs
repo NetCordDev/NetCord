@@ -1,32 +1,30 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
 
 namespace NetCord.Rest.RateLimits;
 
 internal class NonGlobalRouteBucket : NoRateLimitBucket
 {
-    private protected readonly object _semaphoreLock = new();
-
     private protected readonly AdjustableSemaphoreSlim _semaphore;
-
-    private protected int _limit;
+    private readonly object _lock = new();
 
     public int Remaining { get; protected set; }
-
-    public int Reset { get; protected set; }
+    public long Reset { get; protected set; }
 
     public override async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> message, RequestProperties? properties)
     {
-        await _semaphore.WaitAsync().ConfigureAwait(false);
-        try
+        if (properties != null && properties.RateLimitHandling == RateLimitHandling.NoRetry)
         {
-            if (properties != null && properties.RateLimitHandling == RateLimitHandling.NoRetry)
+            await _semaphore.WaitAsync().ConfigureAwait(false);
+            try
             {
-                int now = Environment.TickCount;
-                EnsureNoRateLimit(now);
+                var now = Environment.TickCount64;
+                var reset = GetRouteReset();
+                if (Remaining == 0 && HasRateLimit(now, reset, out _))
+                    throw new RateLimitedException(reset, false);
 
                 var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
-                UpdateData(response.Headers);
+                UpdateBucket(response);
 
                 if (response.IsSuccessStatusCode)
                     return response;
@@ -35,95 +33,105 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
                 else
                     throw new RestException(response);
             }
-            else
+            finally
             {
-                while (true)
+                _semaphore.Release();
+            }
+        }
+        else
+        {
+            while (true)
+            {
+                await _semaphore.WaitAsync().ConfigureAwait(false);
+                try
                 {
-                    int now = Environment.TickCount;
-                    if (HasRateLimit(now, out int diff))
-                        await WaitForRateLimitEndAsync(diff).ConfigureAwait(false);
+                    var now = Environment.TickCount64;
+                    var reset = GetRouteReset();
+                    if (Remaining == 0 && HasRateLimit(now, reset, out int diff))
+                        await Task.Delay(diff).ConfigureAwait(false);
 
                     var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
-                    UpdateData(response.Headers);
+                    UpdateBucket(response);
 
                     if (response.IsSuccessStatusCode)
                         return response;
                     else if (response.StatusCode != System.Net.HttpStatusCode.TooManyRequests)
                         throw new RestException(response);
                 }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
-        }
-        finally
-        {
-            _semaphore.Release();
         }
     }
 
     public NonGlobalRouteBucket(RestClient client) : base(client)
     {
-        _semaphore = new(_limit = Remaining = int.MaxValue);
+        _semaphore = new(Remaining = int.MaxValue);
     }
 
     protected NonGlobalRouteBucket(int startLimit, RestClient client) : base(client)
     {
         Remaining = int.MaxValue;
-        _semaphore = new(_limit = startLimit);
+        _semaphore = new(startLimit);
     }
 
-    internal void EnsureNoRateLimit(int now)
+    protected long GetRouteReset()
     {
-        if (Remaining == 0)
-        {
-            var reset = Reset;
-            var diff = reset - now;
-            if (diff > 0)
-                throw new RateLimitedException(reset, false);
-        }
+        lock (_lock)
+            return Reset;
     }
 
-    internal bool HasRateLimit(int now, out int diff)
+    protected static bool HasRateLimit(long now, long reset, out int diff)
     {
-        if (Remaining == 0)
-        {
-            var reset = Reset;
-            diff = reset - now;
-            return diff > 0;
-        }
-        else
-        {
-            diff = 0;
-            return false;
-        }
+        diff = (int)(reset - now);
+        return diff > 0;
     }
 
-    internal static Task WaitForRateLimitEndAsync(int diff) => Task.Delay(diff);
-
-    internal void UpdateData(HttpResponseHeaders headers)
+    protected void UpdateBucket(HttpResponseMessage response)
     {
-        if (headers.TryGetValues("x-ratelimit-remaining", out var values))
-            Remaining = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
-        if (headers.TryGetValues("x-ratelimit-reset-after", out values))
-            Reset = GetReset(values.First());
-        if (headers.TryGetValues("x-ratelimit-limit", out values))
+        var headers = response.Headers;
+        lock (_lock)
         {
-            int newLimit = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
-            lock (_semaphoreLock)
+            var now = Environment.TickCount64;
+            if (headers.TryGetValues("x-ratelimit-remaining", out var values))
             {
-                int diff = _limit - newLimit;
-                switch (diff)
+                var newRemaining = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
+                if (headers.TryGetValues("x-ratelimit-reset-after", out values))
                 {
-                    case 0:
-                        break;
-                    case > 0:
-                        _limit = newLimit;
-                        _semaphore.Enter(diff);
-                        break;
-                    default:
-                        _limit = newLimit;
-                        _semaphore.Release(-diff);
-                        break;
+                    var newReset = now + (long)(float.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture) * 1000);
+                    long diff = newReset - Reset;
+                    if (diff is >= -50 and <= 50)
+                    {
+                        if (Remaining > newRemaining)
+                            Remaining = newRemaining;
+                    }
+                    else if (diff > 0)
+                    {
+                        Reset = newReset;
+                        Remaining = newRemaining;
+                    }
                 }
+                else if (Reset < now)
+                {
+                    if (Remaining > newRemaining)
+                        Remaining = newRemaining;
+                }
+            }
+            else if (headers.TryGetValues("x-ratelimit-reset-after", out values))
+            {
+                var newReset = now + (long)(float.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture) * 1000);
+                if (newReset > Reset)
+                    Reset = newReset;
+            }
+
+            if (headers.TryGetValues("x-ratelimit-limit", out values))
+            {
+                int newLimit = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
+                if (_semaphore.MaxCount != newLimit)
+                    _semaphore.MaxCount = newLimit;
             }
         }
     }

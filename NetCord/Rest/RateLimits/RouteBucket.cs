@@ -4,27 +4,37 @@ internal class RouteBucket : NonGlobalRouteBucket
 {
     public override async Task<HttpResponseMessage> SendAsync(Func<HttpRequestMessage> message, RequestProperties? properties)
     {
-        await _semaphore.WaitAsync().ConfigureAwait(false);
-        try
+        if (properties != null && properties.RateLimitHandling == RateLimitHandling.NoRetry)
         {
-            if (properties != null && properties.RateLimitHandling == RateLimitHandling.NoRetry)
+            await _semaphore.WaitAsync().ConfigureAwait(false);
+            try
             {
-                int now = Environment.TickCount;
-                GlobalBucket.EnsureNoGlobalRateLimit(now, _client);
-                EnsureNoRateLimit(now);
+                var now = Environment.TickCount64;
+                var reset = GetGlobalReset();
+                if (HasRateLimit(now, reset, out _))
+                    throw new RateLimitedException(reset, true);
+                reset = GetRouteReset();
+                if (Remaining == 0 && HasRateLimit(now, reset, out _))
+                    throw new RateLimitedException(reset, false);
 
                 var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
-                UpdateData(response.Headers);
+                UpdateBucket(response);
 
                 if (response.IsSuccessStatusCode)
                     return response;
                 else if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                 {
-                    if (GlobalBucket.HasGlobalRateLimit(response.Headers))
+                    if (response.Headers.Contains("x-ratelimit-global"))
                     {
-                        await GlobalBucket.UpdateGlobalRateLimitDataAndThrowAsync(response, _client).ConfigureAwait(false);
-                        throw null;
+                        var newReset = await GetNewGlobalResetAsync(response).ConfigureAwait(false);
+                        lock (_client._globalRateLimitLock)
+                        {
+                            reset = _client._globalRateLimitReset;
+                            if (newReset > reset)
+                                reset = _client._globalRateLimitReset = newReset;
+                        }
+                        throw new RateLimitedException(reset, true);
                     }
                     else
                         throw new RateLimitedException(Reset, false);
@@ -32,47 +42,67 @@ internal class RouteBucket : NonGlobalRouteBucket
                 else
                     throw new RestException(response);
             }
-            else
+            finally
             {
-                while (true)
+                _semaphore.Release();
+            }
+        }
+        else
+        {
+            while (true)
+            {
+                await _semaphore.WaitAsync().ConfigureAwait(false);
+                try
                 {
-                    int now = Environment.TickCount;
-                    int globalReset = _client._globalRateLimitReset;
-                    if (GlobalBucket.HasGlobalRateLimit(now, globalReset, out int diff))
+                    var now = Environment.TickCount64;
+                    var reset = GetGlobalReset();
+                    if (HasRateLimit(now, reset, out int diff))
                     {
-                        await GlobalBucket.WaitForGlobalRateLimitEndAsync(diff).ConfigureAwait(false);
-                        if (HasRateLimit(globalReset, out diff))
-                            await WaitForRateLimitEndAsync(diff).ConfigureAwait(false);
+                        await Task.Delay(diff).ConfigureAwait(false);
+                        now = reset;
                     }
-                    else
-                    {
-                        if (HasRateLimit(now, out diff))
-                            await WaitForRateLimitEndAsync(diff).ConfigureAwait(false);
-                    }
+
+                    reset = GetRouteReset();
+                    if (Remaining == 0 && HasRateLimit(now, reset, out diff))
+                        await Task.Delay(diff).ConfigureAwait(false);
 
                     var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
-                    UpdateData(response.Headers);
+                    UpdateBucket(response);
 
                     if (response.IsSuccessStatusCode)
                         return response;
                     else if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                     {
-                        if (GlobalBucket.HasGlobalRateLimit(response.Headers))
-                            await GlobalBucket.UpdateGlobalRateLimitDataAsync(response, _client).ConfigureAwait(false);
+                        if (response.Headers.Contains("x-ratelimit-global"))
+                        {
+                            var newReset = await GetNewGlobalResetAsync(response).ConfigureAwait(false);
+                            lock (_client._globalRateLimitLock)
+                            {
+                                reset = _client._globalRateLimitReset;
+                                if (newReset > reset)
+                                    _client._globalRateLimitReset = newReset;
+                            }
+                        }
                     }
                     else
                         throw new RestException(response);
                 }
+                finally
+                {
+                    _semaphore.Release();
+                }
             }
-        }
-        finally
-        {
-            _semaphore.Release();
         }
     }
 
     public RouteBucket(RestClient client) : base(50, client)
     {
+    }
+
+    private long GetGlobalReset()
+    {
+        lock (_client._globalRateLimitLock)
+            return _client._globalRateLimitReset;
     }
 }

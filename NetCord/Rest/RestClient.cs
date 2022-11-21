@@ -9,7 +9,9 @@ public partial class RestClient : IDisposable
     private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
 
     internal readonly IHttpClient _httpClient;
-    internal int _globalRateLimitReset;
+
+    internal readonly object _globalRateLimitLock = new();
+    internal long _globalRateLimitReset;
 
     public RestClient(RestClientConfig? config = null)
     {
