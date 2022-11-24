@@ -276,17 +276,17 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "AUTO_MODERATION_RULE_CREATE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleCreate, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
+                    await InvokeEventAsync(AutoModerationRuleCreate, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_UPDATE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleUpdate, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
+                    await InvokeEventAsync(AutoModerationRuleUpdate, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_DELETE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleDelete, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule))).ConfigureAwait(false);
+                    await InvokeEventAsync(AutoModerationRuleDelete, () => new(data.ToObject(JsonAutoModerationRule.JsonAutoModerationRuleSerializerContext.WithOptions.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_ACTION_EXECUTION":

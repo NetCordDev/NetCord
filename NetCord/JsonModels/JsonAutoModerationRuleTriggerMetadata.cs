@@ -7,6 +7,9 @@ public partial class JsonAutoModerationRuleTriggerMetadata
     [JsonPropertyName("keyword_filter")]
     public string[]? KeywordFilter { get; set; }
 
+    [JsonPropertyName("regex_patterns")]
+    public string[] RegexPatterns { get; set; }
+
     [JsonPropertyName("presets")]
     public AutoModerationRuleKeywordPresetType[]? Presets { get; set; }
 

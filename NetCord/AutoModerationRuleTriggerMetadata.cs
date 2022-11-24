@@ -14,6 +14,8 @@ public class AutoModerationRuleTriggerMetadata : IJsonModel<JsonAutoModerationRu
 
     public IReadOnlyList<string>? KeywordFilter => _jsonModel.KeywordFilter;
 
+    public IReadOnlyList<string>? RegexPatterns => _jsonModel.RegexPatterns;
+
     public IReadOnlyList<AutoModerationRuleKeywordPresetType>? Presets => _jsonModel.Presets;
 
     public IReadOnlyList<string>? AllowList => _jsonModel.AllowList;
