@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway.Voice.Streams;
+﻿using System.Buffers;
+
+namespace NetCord.Gateway.Voice.Streams;
 
 internal class OpusEncodeStream : RewritingStream
 {
@@ -11,31 +13,29 @@ internal class OpusEncodeStream : RewritingStream
             throw new OpusException(error);
     }
 
-    public override unsafe ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         var len = buffer.Length;
-        Memory<byte> data = new byte[len];
-
-        int count;
-        fixed (byte* pcmPtr = buffer.Span, dataPtr = data.Span)
-            count = OpusEncode(len, pcmPtr, dataPtr);
-
-        return _next.WriteAsync(data[..count], cancellationToken);
+        using var owner = MemoryPool<byte>.Shared.Rent(len);
+        var data = owner.Memory;
+        int count = Encode(buffer.Span, data.Span, len);
+        await _next.WriteAsync(data[..count], cancellationToken).ConfigureAwait(false);
     }
 
-    public override unsafe void Write(ReadOnlySpan<byte> buffer)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
         var len = buffer.Length;
-        Span<byte> data = new byte[len];
-
-        int count;
-        fixed (byte* pcmPtr = buffer, dataPtr = data)
-            count = OpusEncode(len, pcmPtr, dataPtr);
-
+        using var owner = MemoryPool<byte>.Shared.Rent(len);
+        var data = owner.Memory.Span;
+        int count = Encode(buffer, data, len);
         _next.Write(data[..count]);
     }
 
-    private unsafe int OpusEncode(int len, byte* pcmPtr, byte* dataPtr) => Opus.OpusEncode(_encoder, (short*)pcmPtr, Opus.FrameSamplesPerChannel, dataPtr, len);
+    private unsafe int Encode(ReadOnlySpan<byte> pcm, Span<byte> data, int len)
+    {
+        fixed (byte* pcmPtr = pcm, dataPtr = data)
+            return Opus.OpusEncode(_encoder, (short*)pcmPtr, Opus.FrameSamplesPerChannel, dataPtr, len);
+    }
 
     protected override void Dispose(bool disposing)
     {

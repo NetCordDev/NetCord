@@ -2,6 +2,8 @@
 
 internal class ToMemoryStream : Stream
 {
+    private TaskCompletionSource? _source;
+
     public ReadOnlyMemory<byte> Data { get; private set; }
 
     public override bool CanRead => false;
@@ -16,6 +18,7 @@ internal class ToMemoryStream : Stream
 
     public override void Flush()
     {
+        _source!.SetResult();
     }
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
@@ -29,6 +32,6 @@ internal class ToMemoryStream : Stream
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         Data = buffer;
-        return default;
+        return new((_source = new()).Task);
     }
 }

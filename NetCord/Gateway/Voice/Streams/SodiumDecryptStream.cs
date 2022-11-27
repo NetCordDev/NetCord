@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway.Voice.Streams;
+﻿using System.Buffers;
+
+namespace NetCord.Gateway.Voice.Streams;
 
 internal class SodiumDecryptStream : RewritingStream
 {
@@ -9,36 +11,33 @@ internal class SodiumDecryptStream : RewritingStream
         _client = client;
     }
 
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        int bufferLen = buffer.Length - 12;
+        int resultLen = bufferLen - 16;
+        using var owner = MemoryPool<byte>.Shared.Rent(resultLen);
+        var result = owner.Memory[..resultLen];
+        Decrypt(result.Span, buffer.Span, bufferLen);
+        await _next.WriteAsync(result[8..], cancellationToken).ConfigureAwait(false);
+    }
+
     public override unsafe void Write(ReadOnlySpan<byte> buffer)
     {
-        Span<byte> nonce = new byte[24];
-
-        const int headerSize = 12;
-        buffer[..headerSize].CopyTo(nonce);
-
-        var bufferLen = buffer.Length - headerSize;
-        Span<byte> result = new byte[bufferLen - 16];
-
-        fixed (byte* resultPtr = result, bufferPtr = buffer, noncePtr = nonce)
-            _ = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
-
+        int bufferLen = buffer.Length - 12;
+        int resultLen = bufferLen - 16;
+        using var owner = MemoryPool<byte>.Shared.Rent(resultLen);
+        var result = owner.Memory.Span[..resultLen];
+        Decrypt(result, buffer, bufferLen);
         _next.Write(result[8..]);
     }
 
-    public override unsafe ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    private unsafe void Decrypt(Span<byte> result, ReadOnlySpan<byte> buffer, int bufferLen)
     {
-        var bufferSpan = buffer.Span;
-        Span<byte> nonce = new byte[24];
+        var noncePtr = stackalloc byte[24];
+        Span<byte> nonce = new(noncePtr, 24);
+        buffer[..12].CopyTo(nonce);
 
-        const int headerSize = 12;
-        bufferSpan[..headerSize].CopyTo(nonce);
-
-        var bufferLen = bufferSpan.Length - headerSize;
-        Memory<byte> result = new(new byte[bufferLen - 16]);
-
-        fixed (byte* resultPtr = result.Span, bufferPtr = bufferSpan, noncePtr = nonce)
-            _ = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + headerSize, (ulong)bufferLen, noncePtr, _client._secretKey!);
-
-        return _next.WriteAsync(result[8..], cancellationToken);
+        fixed (byte* resultPtr = result, bufferPtr = buffer)
+            _ = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + 12, (ulong)bufferLen, noncePtr, _client._secretKey!);
     }
 }

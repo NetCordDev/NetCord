@@ -10,6 +10,7 @@ public class UdpSocket : IUdpSocket
 
     public void Connect(string hostname, int port)
     {
+        _udpClient?.Dispose();
         _udpClient = new(hostname, port);
         _ = ReadAsync();
     }
@@ -23,17 +24,17 @@ public class UdpSocket : IUdpSocket
 
     public void Dispose()
     {
-        _udpClient!.Dispose();
+        _udpClient?.Dispose();
     }
 
     public async Task ReadAsync()
     {
-        var client = _udpClient;
+        var client = _udpClient!;
         while (true)
         {
             try
             {
-                var datagram = await client!.ReceiveAsync().ConfigureAwait(false);
+                var datagram = await client.ReceiveAsync().ConfigureAwait(false);
                 try
                 {
                     DatagramReceive?.Invoke(datagram);

@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway.Voice.Streams;
+﻿using System.Buffers;
+
+namespace NetCord.Gateway.Voice.Streams;
 
 internal class OpusDecodeStream : RewritingStream
 {
@@ -11,22 +13,26 @@ internal class OpusDecodeStream : RewritingStream
             throw new OpusException(error);
     }
 
-    public override unsafe void Write(ReadOnlySpan<byte> buffer)
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        Span<byte> bytes = new(new byte[Opus.FrameSize]);
-        fixed (byte* data = buffer, pcm = bytes)
-            _ = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
-
-        _next.Write(bytes);
+        using var owner = MemoryPool<byte>.Shared.Rent(Opus.FrameSize);
+        var pcm = owner.Memory[..Opus.FrameSize];
+        Decode(buffer.Span, pcm.Span);
+        await _next.WriteAsync(pcm, cancellationToken).ConfigureAwait(false);
     }
 
-    public override unsafe ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
-        Memory<byte> bytes = new(new byte[Opus.FrameSize]);
-        fixed (byte* data = buffer.Span, pcm = bytes.Span)
-            _ = Opus.OpusDecode(_decoder, data, buffer.Length, (short*)pcm, Opus.FrameSamplesPerChannel, 0);
+        using var owner = MemoryPool<byte>.Shared.Rent(Opus.FrameSize);
+        var pcm = owner.Memory.Span[..Opus.FrameSize];
+        Decode(buffer, pcm);
+        _next.Write(pcm);
+    }
 
-        return _next.WriteAsync(bytes, cancellationToken);
+    private unsafe void Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
+    {
+        fixed (byte* dataPtr = data, pcmPtr = pcm)
+            _ = Opus.OpusDecode(_decoder, dataPtr, data.Length, (short*)pcmPtr, Opus.FrameSamplesPerChannel, 0);
     }
 
     protected override void Dispose(bool disposing)

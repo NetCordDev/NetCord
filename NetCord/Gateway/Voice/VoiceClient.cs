@@ -203,7 +203,9 @@ public class VoiceClient : WebSocketClient
                 if (_inputStreams.TryGetValue(ssrc, out var stream))
                 {
                     _ = stream.WriteStream.WriteAsync(obj.Buffer); //it's sync
-                    await VoiceReceive(ssrc, stream.Stream.Data).ConfigureAwait(false);
+                    var t = VoiceReceive(ssrc, stream.Stream.Data);
+                    stream.Stream.Flush();
+                    await t.ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
