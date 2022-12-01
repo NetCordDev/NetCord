@@ -23,7 +23,7 @@ internal class SpeedNormalizingStream : RewritingStream
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
         }
         await _next.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-        _startTick += Opus.FrameMillis;
+        _startTick += Opus.FrameDuration;
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
@@ -40,7 +40,7 @@ internal class SpeedNormalizingStream : RewritingStream
                 Thread.Sleep(delay);
         }
         _next.Write(buffer);
-        _startTick += Opus.FrameMillis;
+        _startTick += Opus.FrameDuration;
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken)

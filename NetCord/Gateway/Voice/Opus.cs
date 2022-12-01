@@ -6,8 +6,8 @@ internal static class Opus
 {
     public const int SamplingRate = 48_000;
     public const int Channels = 2;
-    public const int FrameMillis = 20;
-    public const int FrameSamplesPerChannel = SamplingRate / 1000 * FrameMillis;
+    public const int FrameDuration = 20;
+    public const int FrameSamplesPerChannel = SamplingRate / 1000 * FrameDuration;
     public const int SampleBytes = sizeof(short) * Channels;
     public const int FrameSize = FrameSamplesPerChannel * SampleBytes;
 

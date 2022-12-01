@@ -6,10 +6,14 @@ namespace NetCord.Gateway.Voice.Streams;
 internal class SodiumEncryptStream : RewritingStream
 {
     private readonly VoiceClient _client;
+    private ushort _sequenceNumber;
+    private uint _timestamp;
 
     public SodiumEncryptStream(Stream next, VoiceClient client) : base(next)
     {
         _client = client;
+        _sequenceNumber = (ushort)Random.Shared.Next(ushort.MaxValue);
+        _timestamp = (uint)Random.Shared.Next(int.MinValue, int.MaxValue);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -38,9 +42,8 @@ internal class SodiumEncryptStream : RewritingStream
         Span<byte> nonce = new(noncePtr, 24);
         nonce[0] = 0x80;
         nonce[1] = 0x78;
-        BinaryPrimitives.WriteUInt16BigEndian(nonce[2..], _client._sequenceNumber++);
-        BinaryPrimitives.WriteUInt32BigEndian(nonce[4..], _client._timestamp);
-        _client._timestamp += Opus.FrameSamplesPerChannel;
+        BinaryPrimitives.WriteUInt16BigEndian(nonce[2..], ++_sequenceNumber);
+        BinaryPrimitives.WriteUInt32BigEndian(nonce[4..], _timestamp += Opus.FrameSamplesPerChannel);
         BinaryPrimitives.WriteUInt32BigEndian(nonce[8..], _client.Ssrc);
 
         nonce[..12].CopyTo(result);

@@ -31,9 +31,6 @@ public class VoiceClient : WebSocketClient
 
     internal byte[]? _secretKey;
 
-    internal ushort _sequenceNumber;
-    internal uint _timestamp;
-
     public event Func<uint, ReadOnlyMemory<byte>, ValueTask>? VoiceReceive;
     public event Func<ValueTask>? Ready;
 
