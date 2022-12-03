@@ -1,26 +1,33 @@
 ﻿namespace NetCord.Services;
 
-public class Mentionable
+public class Mentionable : Entity
 {
-    public GuildRole? Role { get; }
+    public override ulong Id { get; }
     public User? User { get; }
-
+    public GuildRole? Role { get; }
     public MentionableType Type { get; }
+
+    private readonly bool _user;
+
+    public Mentionable(User user)
+    {
+        Id = user.Id;
+        User = user;
+        Type = MentionableType.User;
+        _user = true;
+    }
 
     public Mentionable(GuildRole role)
     {
+        Id = role.Id;
         Role = role;
         Type = MentionableType.Role;
     }
 
-    public Mentionable(User user)
-    {
-        User = user;
-        Type = MentionableType.User;
-    }
+    public override string ToString() => _user ? User!.ToString() : Role!.ToString();
 }
 
-public enum MentionableType
+public enum MentionableType : byte
 {
     Role,
     User,
