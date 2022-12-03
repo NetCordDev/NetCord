@@ -3,7 +3,7 @@ using NetCord.Services.Interactions;
 
 namespace MyBot;
 
-public class InteractionModule : InteractionModule<MenuInteractionContext>
+public class InteractionModule : InteractionModule<StringMenuInteractionContext>
 {
     [Interaction("menu")]
     public Task MenuAsync()

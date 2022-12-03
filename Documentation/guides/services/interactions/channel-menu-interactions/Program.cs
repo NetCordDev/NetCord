@@ -7,16 +7,16 @@ GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Develope
     Intents = default,
 });
 
-InteractionService<MenuInteractionContext> interactionService = new();
+InteractionService<ChannelMenuInteractionContext> interactionService = new();
 interactionService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
 
 client.InteractionCreate += async interaction =>
 {
-    if (interaction is MenuInteraction menuInteraction)
+    if (interaction is ChannelMenuInteraction menuInteraction)
     {
         try
         {
-            await interactionService.ExecuteAsync(new MenuInteractionContext(menuInteraction, client));
+            await interactionService.ExecuteAsync(new ChannelMenuInteractionContext(menuInteraction, client));
         }
         catch (Exception ex)
         {
