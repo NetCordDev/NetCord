@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NetCord.Rest.RateLimits;
+﻿namespace NetCord.Rest.RateLimits;
 
 internal class NonGlobalRouteBucket : NoRateLimitBucket
 {
