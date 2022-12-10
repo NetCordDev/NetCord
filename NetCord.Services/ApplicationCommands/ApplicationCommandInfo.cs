@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using NetCord.Rest;
 
@@ -7,6 +9,7 @@ namespace NetCord.Services.ApplicationCommands;
 public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TContext : IApplicationCommandContext
 {
     public Type DeclaringType { get; }
+    public bool Static { get; }
     public string Name { get; }
     public ITranslationsProvider? NameTranslationsProvider { get; }
     public string? Description { get; }
@@ -16,9 +19,9 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public bool DefaultPermission { get; }
     public bool Nsfw { get; }
     public ulong? GuildId { get; }
-    public Func<object, object?[]?, Task> InvokeAsync { get; }
+    public Func<object?[], Task> InvokeAsync { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>>? Parameters { get; }
-    public Dictionary<string, IAutocompleteProvider>? Autocompletes { get; }
+    public IReadOnlyDictionary<string, IAutocompleteProvider>? Autocompletes { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
@@ -29,11 +32,26 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         if (slashCommandAttribute.DescriptionTranslationsProviderType != null)
             DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandAttribute.DescriptionTranslationsProviderType)!;
 
-        Autocompletes = new();
-
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
+
+        Type[] types;
+        int start;
+        if (Static)
+        {
+            types = new Type[parametersLength + 1];
+            start = 0;
+        }
+        else
+        {
+            types = new Type[parametersLength + 2];
+            types[0] = DeclaringType;
+            start = 1;
+        }
+        types[^1] = typeof(Task);
+
         var p = new SlashCommandParameter<TContext>[parametersLength];
+        Dictionary<string, IAutocompleteProvider> autocompletes = new();
         var hasDefaultValue = false;
         for (var i = 0; i < parametersLength; i++)
         {
@@ -46,9 +64,15 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             p[i] = newP;
             var autocompleteProvider = newP.AutocompleteProvider;
             if (autocompleteProvider != null)
-                Autocompletes.Add(newP.Name, autocompleteProvider);
+                autocompletes.Add(newP.Name, autocompleteProvider);
+
+            types[start++] = parameter.ParameterType;
         }
         Parameters = p;
+        Autocompletes = autocompletes;
+#pragma warning disable CS8974 // Converting method group to non-delegate type
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
+#pragma warning restore CS8974 // Converting method group to non-delegate type
     }
 
     internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: userCommandAttribute, options)
@@ -57,19 +81,49 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 
         if (method.GetParameters().Length > 0)
             throw new InvalidDefinitionException($"User commands must be parameterless.", method);
+        Type[] types;
+        if (Static)
+            types = new Type[1];
+        else
+        {
+            types = new Type[2];
+            types[0] = DeclaringType;
+        }
+        types[^1] = typeof(Task);
+#pragma warning disable CS8974 // Converting method group to non-delegate type
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
+#pragma warning restore CS8974 // Converting method group to non-delegate type
     }
 
-    internal ApplicationCommandInfo(MethodInfo methodInfo, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(methodInfo, attribute: messageCommandAttribute, options)
+    internal ApplicationCommandInfo(MethodInfo method, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: messageCommandAttribute, options)
     {
         Type = ApplicationCommandType.Message;
 
-        if (methodInfo.GetParameters().Length > 0)
-            throw new InvalidDefinitionException($"Message commands must be parameterless.", methodInfo);
+        if (method.GetParameters().Length > 0)
+            throw new InvalidDefinitionException($"Message commands must be parameterless.", method);
+        Type[] types;
+        if (Static)
+            types = new Type[1];
+        else
+        {
+            types = new Type[2];
+            types[0] = DeclaringType;
+        }
+        types[^1] = typeof(Task);
+#pragma warning disable CS8974 // Converting method group to non-delegate type
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
+#pragma warning restore CS8974 // Converting method group to non-delegate type
     }
 
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute, ApplicationCommandServiceOptions<TContext> options)
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
+        if (method.ReturnType != typeof(Task))
+            throw new InvalidDefinitionException($"Application commands must return '{typeof(Task).FullName}'.", method);
+
         DeclaringType = method.DeclaringType!;
+        Static = method.IsStatic;
         Name = attribute.Name;
         if (attribute.NameTranslationsProviderType != null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
@@ -81,7 +135,6 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Nsfw = attribute.Nsfw;
         if (attribute.GuildId != default)
             GuildId = attribute.GuildId;
-        InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }
 

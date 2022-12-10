@@ -84,17 +84,30 @@ public class InteractionService<TContext> : IService where TContext : Interactio
         await interactionInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
         var interactionParameters = interactionInfo.Parameters;
-        int commandParametersLength = interactionParameters.Count;
-        object?[] parametersToPass = new object?[commandParametersLength];
+        int interactionParametersLength = interactionParameters.Count;
 
-        var maxCommandParamIndex = commandParametersLength - 1;
-        for (int commandParamIndex = 0; commandParamIndex <= maxCommandParamIndex; commandParamIndex++)
+        bool isStatic = interactionInfo.Static;
+        object?[] values;
+        ArraySegment<object?> parametersToPass;
+        if (isStatic)
         {
-            InteractionParameter<TContext> parameter = interactionParameters[commandParamIndex];
+            values = new object?[interactionParametersLength];
+            parametersToPass = values;
+        }
+        else
+        {
+            values = new object?[interactionParametersLength + 1];
+            parametersToPass = new(values, 1, interactionParametersLength);
+        }
+
+        var maxCommandParamIndex = interactionParametersLength - 1;
+        for (int paramIndex = 0; paramIndex <= maxCommandParamIndex; paramIndex++)
+        {
+            InteractionParameter<TContext> parameter = interactionParameters[paramIndex];
             if (!parameter.Params)
             {
                 ReadOnlyMemory<char> currentArg;
-                if (commandParamIndex == maxCommandParamIndex)
+                if (paramIndex == maxCommandParamIndex)
                     currentArg = arguments;
                 else
                 {
@@ -104,7 +117,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                 }
                 var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
                 await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                parametersToPass[commandParamIndex] = value;
+                parametersToPass[paramIndex] = value;
             }
             else
             {
@@ -119,12 +132,16 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                     o.SetValue(value, a);
                 }
 
-                parametersToPass[commandParamIndex] = o;
+                parametersToPass[paramIndex] = o;
             }
         }
 
-        var methodClass = (BaseInteractionModule<TContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
-        methodClass.Context = context;
-        await interactionInfo.InvokeAsync(methodClass, parametersToPass!).ConfigureAwait(false);
+        if (!isStatic)
+        {
+            var methodClass = (BaseInteractionModule<TContext>)Activator.CreateInstance(interactionInfo.DeclaringType)!;
+            methodClass.Context = context;
+            values[0] = methodClass;
+        }
+        await interactionInfo.InvokeAsync(values).ConfigureAwait(false);
     }
 }

@@ -1,20 +1,19 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Commands;
 
-public record CommandInfo<TContext> where TContext : ICommandContext
+public class CommandInfo<TContext> where TContext : ICommandContext
 {
     public Type DeclaringType { get; }
+    public bool Static { get; }
     public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
     public int Priority { get; }
-    public Permission RequiredBotPermissions { get; }
-    public Permission RequiredBotChannelPermissions { get; }
-    public Permission RequiredUserPermissions { get; }
-    public Permission RequiredUserChannelPermissions { get; }
-    public Func<object, object[], Task> InvokeAsync { get; }
+    public Func<object?[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    public CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceOptions<TContext> options)
+    internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceOptions<TContext> options)
     {
         if (method.ReturnType != typeof(Task))
             throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", method);
@@ -24,6 +23,23 @@ public record CommandInfo<TContext> where TContext : ICommandContext
 
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
+
+        Type[] types;
+        int start;
+        if (method.IsStatic)
+        {
+            Static = true;
+            types = new Type[parametersLength + 1];
+            start = 0;
+        }
+        else
+        {
+            types = new Type[parametersLength + 2];
+            types[0] = DeclaringType;
+            start = 1;
+        }
+        types[^1] = typeof(Task);
+
         var p = new CommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
         for (var i = 0; i < parametersLength; i++)
@@ -34,10 +50,13 @@ public record CommandInfo<TContext> where TContext : ICommandContext
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
             p[i] = new(parameter, method, options);
+            types[start++] = parameter.ParameterType;
         }
         Parameters = p;
 
-        InvokeAsync = (obj, parameters) => (Task)method.Invoke(obj, BindingFlags.DoNotWrapExceptions, null, parameters, null)!;
+#pragma warning disable CS8974 // Converting method group to non-delegate type
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
+#pragma warning restore CS8974 // Converting method group to non-delegate type
 
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }

@@ -268,6 +268,27 @@ public class StrangeCommands : CommandModule<CommandContext>
             Embeds = new EmbedProperties[] { new() { Image = attachment } }
         });
     }
+
+    [Command("static")]
+    public static Task StaticAsync()
+    {
+        Console.WriteLine("Used static command!");
+        return Task.CompletedTask;
+    }
+
+    [Command("static")]
+    public static Task StaticAsync(string s)
+    {
+        Console.WriteLine($"Used static command with {nameof(s)}: {s}");
+        return Task.CompletedTask;
+    }
+
+    [Command("static")]
+    public static Task StaticAsync(string x, params string[] s)
+    {
+        Console.WriteLine($"Used static command with {nameof(x)}: {x} and {nameof(s)}: {string.Join(", ", s)}");
+        return Task.CompletedTask;
+    }
 }
 
 public enum Wzium
