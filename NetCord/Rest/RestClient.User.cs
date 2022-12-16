@@ -84,4 +84,10 @@ public partial class RestClient
 
     public async Task<IReadOnlyDictionary<ulong, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
         => (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonConnection.JsonConnectionArraySerializerContext.WithOptions.JsonConnectionArray).ToDictionary(c => c.Id, c => new Connection(c, this));
+
+    public async Task<ApplicationRoleConnection> GetCurrentUserApplicationRoleConnectionAsync(ulong applicationId, RequestProperties? properties = null)
+        => new((await SendRequestAsync(HttpMethod.Get, $"/users/@me/applications/{applicationId}/role-connection", properties).ConfigureAwait(false)).ToObject(JsonModels.JsonApplicationRoleConnection.JsonApplicationRoleConnectionSerializerContext.WithOptions.JsonApplicationRoleConnection));
+
+    public async Task<ApplicationRoleConnection> UpdateCurrentUserApplicationRoleConnectionAsync(ulong applicationId, ApplicationRoleConnectionProperties applicationRoleConnectionProperties, RequestProperties? properties = null)
+        => new((await SendRequestAsync(HttpMethod.Put, $"/users/@me/applications/{applicationId}/role-connection", new JsonContent<ApplicationRoleConnectionProperties>(applicationRoleConnectionProperties, ApplicationRoleConnectionProperties.ApplicationRoleConnectionPropertiesSerializerContext.WithOptions.ApplicationRoleConnectionProperties), properties).ConfigureAwait(false)).ToObject(JsonModels.JsonApplicationRoleConnection.JsonApplicationRoleConnectionSerializerContext.WithOptions.JsonApplicationRoleConnection));
 }

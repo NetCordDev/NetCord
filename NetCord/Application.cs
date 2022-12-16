@@ -19,19 +19,15 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public User? Owner { get; }
     public string VerifyKey => _jsonModel.VerifyKey;
     public Team? Team { get; }
-    /// <summary>
-    /// If this application is a game sold on Discord, this field will be the guild to which it has been linked.
-    /// </summary>
     public ulong? GuildId => _jsonModel.GuildId;
     public ulong? PrimarySkuId => _jsonModel.PrimarySkuId;
     public string? Slug => _jsonModel.Slug;
     public string? CoverImageHash => _jsonModel.CoverImageHash;
     public ApplicationFlags? Flags => _jsonModel.Flags;
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
-
     public ApplicationInstallParams? InstallParams { get; }
-
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
+    public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
 
     public Application(JsonModels.JsonApplication jsonModel, RestClient client)
     {

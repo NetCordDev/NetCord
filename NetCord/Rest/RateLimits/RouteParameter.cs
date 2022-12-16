@@ -78,4 +78,6 @@ public enum RouteParameter
     CreateGuildScheduledEvent,
     ModifyGuildScheduledEvent,
     GetGatewayBot,
+    GetApplicationRoleConnectionMetadataRecords,
+    UpdateApplicationRoleConnectionMetadataRecords,
 }

@@ -61,6 +61,9 @@ public partial class JsonApplication : JsonEntity
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
 
+    [JsonPropertyName("role_connections_verification_url")]
+    public string? RoleConnectionsVerificationUrl { get; set; }
+
     [JsonSerializable(typeof(JsonApplication))]
     public partial class JsonApplicationSerializerContext : JsonSerializerContext
     {
