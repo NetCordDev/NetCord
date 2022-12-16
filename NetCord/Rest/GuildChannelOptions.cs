@@ -80,6 +80,10 @@ public partial class GuildChannelOptions
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_forum_layout")]
+    public ForumLayoutType? DefaultForumLayout { get; set; }
+
     [JsonSerializable(typeof(GuildChannelOptions))]
     public partial class GuildChannelOptionsSerializerContext : JsonSerializerContext
     {

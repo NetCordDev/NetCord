@@ -67,6 +67,10 @@ public partial class GuildChannelProperties
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_forum_layout")]
+    public ForumLayoutType? DefaultForumLayout { get; set; }
+
     public GuildChannelProperties(string name)
     {
         Name = name;

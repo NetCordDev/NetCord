@@ -101,6 +101,9 @@ public partial class JsonChannel : JsonEntity
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }
 
+    [JsonPropertyName("default_forum_layout")]
+    public ForumLayoutType? DefaultForumLayout { get; set; }
+
     [JsonPropertyName("message")]
     public JsonMessage? Message { get; set; }
 
