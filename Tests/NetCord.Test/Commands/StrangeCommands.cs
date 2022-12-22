@@ -104,7 +104,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("dżejuś", "dzejus", "jjay31")]
     public Task Dzejus()
     {
-        AttachmentProperties file = new("dżejuś.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        AttachmentProperties file = new("dżejuś.gif", File.OpenRead("C:/Users/Kuba/Downloads/dżejuś.gif")) { Description = "Dżejuś" };
         MessageProperties message = new()
         {
             Attachments = new AttachmentProperties[] { file },
@@ -261,7 +261,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("attachment")]
     public Task AttachmentAsync()
     {
-        AttachmentProperties attachment = new("dzejus.gif", "C:/Users/Kuba/Downloads/dżejuś.gif") { Description = "Dżejuś" };
+        AttachmentProperties attachment = new("dzejus.gif", File.OpenRead("C:/Users/Kuba/Downloads/dżejuś.gif")) { Description = "Dżejuś" };
         return SendAsync(new()
         {
             Attachments = new AttachmentProperties[] { attachment },

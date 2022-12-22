@@ -1,13 +1,22 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class AttachmentProperties
 {
+    public AttachmentProperties(string fileName, Stream stream) : this(fileName)
+    {
+        _stream = stream;
+    }
+
+    private protected AttachmentProperties(string fileName)
+    {
+        FileName = fileName;
+    }
+
     public string FileName { get; }
+
     public string? Description { get; set; }
 
-    internal Stream Stream
+    internal Stream? Stream
     {
         get
         {
@@ -19,22 +28,6 @@ public partial class AttachmentProperties
         }
     }
 
-    private readonly Stream _stream;
+    private readonly Stream? _stream;
     private bool _read;
-
-    public AttachmentProperties(string name, string filePath) : this(name, new StreamReader(filePath).BaseStream)
-    {
-    }
-
-    public AttachmentProperties(string name, Stream stream)
-    {
-        FileName = name;
-        _stream = stream;
-    }
-
-    [JsonSerializable(typeof(AttachmentProperties))]
-    public partial class AttachmentPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static AttachmentPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
-    }
 }

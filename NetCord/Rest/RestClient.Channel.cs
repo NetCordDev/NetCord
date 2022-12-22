@@ -267,7 +267,7 @@ public partial class RestClient
         => new((await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/followers", new JsonContent<FollowAnnouncementGuildChannelProperties>(new(webhookChannelId), FollowAnnouncementGuildChannelProperties.FollowAnnouncementGuildChannelPropertiesSerializerContext.WithOptions.FollowAnnouncementGuildChannelProperties), properties).ConfigureAwait(false))!.ToObject(JsonFollowedChannel.JsonFollowedChannelSerializerContext.WithOptions.JsonFollowedChannel), this);
 
     public async Task<RestMessage> GetMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
-    => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", new Route(RouteParameter.GetMessage), properties).ConfigureAwait(false))!.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage), this);
+        => new((await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", new Route(RouteParameter.GetMessage), properties).ConfigureAwait(false))!.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage), this);
 
     public async IAsyncEnumerable<RestMessage> GetMessagesAsync(ulong channelId, RequestProperties? properties = null)
     {
@@ -343,7 +343,7 @@ public partial class RestClient
     }
 
     public Task AddMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
-    => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", new Route(RouteParameter.AddRemoveMessageReaction, channelId), properties);
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", new Route(RouteParameter.AddRemoveMessageReaction, channelId), properties);
 
     public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/{userId}", new Route(RouteParameter.AddRemoveMessageReaction, channelId), properties);

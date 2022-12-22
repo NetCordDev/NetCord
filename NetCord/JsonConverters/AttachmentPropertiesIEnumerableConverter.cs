@@ -14,14 +14,14 @@ internal class AttachmentPropertiesIEnumerableConverter : JsonConverter<IEnumera
         int i = 0;
         foreach (var attachment in value)
         {
+            writer.WriteStartObject();
+            writer.WriteNumber("id", i);
+            writer.WriteString("filename", attachment.FileName);
             if (attachment.Description != null)
-            {
-                writer.WriteStartObject();
-                writer.WriteNumber("id", i);
                 writer.WriteString("description", attachment.Description);
-                writer.WriteString("filename", attachment.FileName);
-                writer.WriteEndObject();
-            }
+            if (attachment is GoogleCloudPlatformAttachmentProperties googleCloudPlatformAttachment)
+                writer.WriteString("uploaded_filename", googleCloudPlatformAttachment.UploadedFileName);
+            writer.WriteEndObject();
             i++;
         }
         writer.WriteEndArray();

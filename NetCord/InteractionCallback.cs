@@ -77,7 +77,8 @@ public partial class InteractionCallback
                     int i = 0;
                     foreach (var attachment in attachments)
                     {
-                        content.Add(new StreamContent(attachment.Stream), $"files[{i}]", attachment.FileName);
+                        if (attachment is not GoogleCloudPlatformAttachmentProperties)
+                            content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
                         i++;
                     }
                 }

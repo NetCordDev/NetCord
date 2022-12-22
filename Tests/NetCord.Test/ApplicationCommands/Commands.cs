@@ -226,7 +226,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             Content = "You sent it:",
             Attachments = new AttachmentProperties[]
             {
-                new(attachment.Filename, await new HttpClient().GetStreamAsync(attachment.Url))
+                new(attachment.FileName, await new HttpClient().GetStreamAsync(attachment.Url))
             }
         }));
     }

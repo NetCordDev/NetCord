@@ -6,7 +6,7 @@ namespace NetCord.JsonModels;
 public partial class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
-    public string Filename { get; set; }
+    public string FileName { get; set; }
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
