@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -10,19 +8,6 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
     JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
     private protected new readonly JsonGuildUser _jsonModel;
 
-    public override ulong Id => _jsonModel.User.Id;
-    public override string Username => _jsonModel.User.Username;
-    public override ushort Discriminator => _jsonModel.User.Discriminator;
-    public override string? AvatarHash => _jsonModel.User.AvatarHash;
-    public override bool IsBot => _jsonModel.User.IsBot;
-    public override bool? IsSystemUser => _jsonModel.User.IsSystemUser;
-    public override bool? MfaEnabled => _jsonModel.User.MfaEnabled;
-    public override CultureInfo? Locale => _jsonModel.User.Locale;
-    public override bool? Verified => _jsonModel.User.Verified;
-    public override string? Email => _jsonModel.User.Email;
-    public override UserFlags? Flags => _jsonModel.User.Flags;
-    public override PremiumType? PremiumType => _jsonModel.User.PremiumType;
-    public override UserFlags? PublicFlags => _jsonModel.User.PublicFlags;
     public string? Nickname => _jsonModel.Nickname;
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
