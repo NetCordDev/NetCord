@@ -9,6 +9,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
     private protected JsonChannel _jsonModel;
 
     public override ulong Id => _jsonModel.Id;
+    public ChannelFlags Flags => _jsonModel.Flags.GetValueOrDefault();
 
     Permission IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 
@@ -27,7 +28,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
             ChannelType.DMChannel => new DMChannel(jsonChannel, client),
             ChannelType.VoiceGuildChannel => new VoiceGuildChannel(jsonChannel, client),
             ChannelType.GroupDMChannel => new GroupDMChannel(jsonChannel, client),
-            ChannelType.CategoryChannel => new CategoryChannel(jsonChannel, client),
+            ChannelType.CategoryChannel => new CategoryGuildChannel(jsonChannel, client),
             ChannelType.AnnouncementGuildChannel => new AnnouncementGuildChannel(jsonChannel, client),
             ChannelType.AnnouncementGuildThread => new AnnouncementGuildThread(jsonChannel, client),
             ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),

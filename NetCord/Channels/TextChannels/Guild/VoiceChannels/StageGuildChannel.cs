@@ -2,16 +2,17 @@
 
 namespace NetCord;
 
-public class StageGuildChannel : Channel, IVoiceGuildChannel
+public class StageGuildChannel : TextChannel, IVoiceGuildChannel
 {
-    public int Bitrate => (int)_jsonModel.Bitrate!;
-    public ulong? ParentId => _jsonModel.ParentId;
-    public string? Topic => _jsonModel.Topic;
-    public string? RtcRegion => _jsonModel.RtcRegion;
-    public VideoQualityMode VideoQualityMode => VideoQualityMode.None;
-    public string Name => _jsonModel.Name!;
+    public ulong? GuildId => _jsonModel.GuildId;
     public int Position => _jsonModel.Position.GetValueOrDefault();
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public string Name => _jsonModel.Name!;
+    public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();
+    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public ulong? ParentId => _jsonModel.ParentId;
+    public string? RtcRegion => _jsonModel.RtcRegion;
+    public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
 
     public StageGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {

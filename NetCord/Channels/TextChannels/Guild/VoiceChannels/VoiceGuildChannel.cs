@@ -4,18 +4,17 @@ namespace NetCord;
 
 public class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
 {
+    public ulong? GuildId => _jsonModel.GuildId;
+    public int Position => _jsonModel.Position.GetValueOrDefault();
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public string Name => _jsonModel.Name!;
+    public bool Nsfw => _jsonModel.Nsfw.GetValueOrDefault();
     public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();
-    public ulong? ParentId => _jsonModel.ParentId;
-    public bool Nsfw => _jsonModel.Nsfw;
     public int? UserLimit => _jsonModel.UserLimit;
+    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public ulong? ParentId => _jsonModel.ParentId;
     public string? RtcRegion => _jsonModel.RtcRegion;
     public VideoQualityMode VideoQualityMode => _jsonModel.VideoQualityMode.GetValueOrDefault(VideoQualityMode.Auto);
-
-    public string Name => _jsonModel.Name!;
-
-    public int Position => _jsonModel.Position.GetValueOrDefault();
-
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
 
     public VoiceGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {

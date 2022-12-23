@@ -2,7 +2,6 @@
 
 namespace NetCord.JsonModels;
 
-[JsonSourceGenerationOptions(IncludeFields = true)]
 public partial class JsonChannel : JsonEntity
 {
     [JsonPropertyName("type")]
@@ -24,7 +23,7 @@ public partial class JsonChannel : JsonEntity
     public string? Topic { get; set; }
 
     [JsonPropertyName("nsfw")]
-    public bool Nsfw { get; set; }
+    public bool? Nsfw { get; set; }
 
     [JsonPropertyName("last_message_id")]
     public ulong? LastMessageId { get; set; }
@@ -96,7 +95,7 @@ public partial class JsonChannel : JsonEntity
     public JsonForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; set; }
 
     [JsonPropertyName("default_thread_rate_limit_per_user")]
-    public int? DefaultThreadRateLimitPerUser { get; set; }
+    public int? DefaultThreadSlowmode { get; set; }
 
     [JsonPropertyName("default_sort_order")]
     public SortOrderType? DefaultSortOrder { get; set; }

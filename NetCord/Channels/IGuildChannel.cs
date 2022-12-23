@@ -4,6 +4,7 @@ namespace NetCord;
 
 public interface IGuildChannel : IEntity
 {
+    public ulong? GuildId { get; }
     public string Name { get; }
     public int Position { get; }
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }

@@ -3,18 +3,17 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class DirectoryGuildChannel : Channel, IGuildChannel
+public class DirectoryGuildChannel : TextChannel, IGuildChannel
 {
     public DirectoryGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
-    public string Name => _jsonModel.Name!;
-
+    public ulong? GuildId => _jsonModel.GuildId;
     public int Position => _jsonModel.Position.GetValueOrDefault();
-
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public string Name => _jsonModel.Name!;
 
     #region Channel
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);

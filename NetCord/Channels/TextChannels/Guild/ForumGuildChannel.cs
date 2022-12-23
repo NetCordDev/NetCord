@@ -13,12 +13,19 @@ public class ForumGuildChannel : Channel, IGuildChannel
             DefaultReactionEmoji = new(jsonModel.DefaultReactionEmoji);
     }
 
-    public string Name => _jsonModel.Name!;
+    public ulong? GuildId => _jsonModel.GuildId;
     public int Position => _jsonModel.Position.GetValueOrDefault();
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public string Name => _jsonModel.Name!;
+    public string? Topic => _jsonModel.Topic;
+    public bool Nsfw => _jsonModel.Nsfw.GetValueOrDefault();
+    public ulong? LastMessageId => _jsonModel.LastMessageId;
+    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public ulong? ParentId => _jsonModel.ParentId;
+    public DateTimeOffset? LastPin => _jsonModel.LastPin;
     public IEnumerable<ForumTag> AvailableTags { get; }
     public ForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; }
-    public int? DefaultThreadRateLimitPerUser => _jsonModel.DefaultThreadRateLimitPerUser;
+    public int DefaultThreadSlowmode => _jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
     public SortOrderType? DefaultSortOrder => _jsonModel.DefaultSortOrder;
     public ForumLayoutType DefaultForumLayout => _jsonModel.DefaultForumLayout.GetValueOrDefault();
 

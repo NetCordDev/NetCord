@@ -70,7 +70,7 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_thread_rate_limit_per_user")]
-    public int? DefaultThreadRateLimitPerUser { get; set; }
+    public int? DefaultThreadSlowmode { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]

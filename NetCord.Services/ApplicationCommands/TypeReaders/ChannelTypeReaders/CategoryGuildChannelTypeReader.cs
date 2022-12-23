@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.ApplicationCommands.TypeReaders.ChannelTypeReaders;
 
-public class CategoryChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
+public class CategoryGuildChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 

@@ -2,16 +2,17 @@
 
 namespace NetCord;
 
-public class CategoryChannel : Channel, IGuildChannel
+public class CategoryGuildChannel : Channel, IGuildChannel
 {
-    public CategoryChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    public CategoryGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
-    public string Name => _jsonModel.Name!;
+    public ulong? GuildId => _jsonModel.GuildId;
     public int Position => _jsonModel.Position.GetValueOrDefault();
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public string Name => _jsonModel.Name!;
 
     #region Channel
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);

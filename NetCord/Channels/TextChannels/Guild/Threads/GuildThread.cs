@@ -5,16 +5,15 @@ namespace NetCord;
 public abstract class GuildThread : TextChannel
 {
     public ulong GuildId => _jsonModel.GuildId.GetValueOrDefault();
-    public ulong OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
-    public GuildThreadMetadata Metadata { get; }
-    public ThreadSelfUser? CurrentUser { get; }
-    public ulong ParentId => _jsonModel.ParentId.GetValueOrDefault();
-    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
     public string Name => _jsonModel.Name!;
+    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
+    public ulong OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
+    public ulong ParentId => _jsonModel.ParentId.GetValueOrDefault();
     public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
     public int UserCount => _jsonModel.UserCount.GetValueOrDefault();
-    public int DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration.GetValueOrDefault();
-    public ChannelFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+    public GuildThreadMetadata Metadata { get; }
+    public ThreadSelfUser? CurrentUser { get; }
     public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
 
     public GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
@@ -22,6 +21,7 @@ public abstract class GuildThread : TextChannel
         Metadata = new(jsonModel.Metadata!);
         if (jsonModel.CurrentUser != null)
             CurrentUser = new(jsonModel.CurrentUser);
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 
     #region Channel

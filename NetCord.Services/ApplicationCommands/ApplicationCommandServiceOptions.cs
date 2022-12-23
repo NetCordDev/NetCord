@@ -86,8 +86,8 @@ public class ApplicationCommandServiceOptions<TContext> where TContext : IApplic
             new TypeReaders.GuildRoleTypeReader<TContext>()
         },
         {
-            typeof(CategoryChannel),
-            new TypeReaders.ChannelTypeReaders.CategoryChannelTypeReader<TContext>()
+            typeof(CategoryGuildChannel),
+            new TypeReaders.ChannelTypeReaders.CategoryGuildChannelTypeReader<TContext>()
         },
         {
             typeof(Channel),
