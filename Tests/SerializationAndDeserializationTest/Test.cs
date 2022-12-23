@@ -39,9 +39,6 @@ public class Test
         var deserialized = JsonSerializer.Deserialize<JsonGuild>(json, Serialization.Options)!;
         Guild newGuild = new(deserialized, client.Rest);
 
-        model
-            .WithDeepEqual(deserialized)
-            .IgnoreProperty(r => r.DeclaringType == typeof(JsonForumTag) && r.Name == "EmojiId") // https://github.com/discord/discord-api-docs/issues/5603
-            .Assert();
+        model.WithDeepEqual(deserialized).Assert();
     }
 }
