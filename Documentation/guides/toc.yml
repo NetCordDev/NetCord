@@ -50,3 +50,7 @@
       href: services/custom-module-bases-and-contexts.md
 - name: Voice
   href: voice.md
+- name: Advanced Concepts
+  items:
+    - name: Google Cloud Platform Attachments
+      href: advanced/google-cloud-platform-attachments.md
