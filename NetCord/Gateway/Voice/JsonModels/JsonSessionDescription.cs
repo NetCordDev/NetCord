@@ -29,6 +29,6 @@ public partial class JsonSessionDescription
     [JsonSerializable(typeof(JsonSessionDescription))]
     public partial class JsonSessionDescriptionSerializerContext : JsonSerializerContext
     {
-        public static JsonSessionDescriptionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonSessionDescriptionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

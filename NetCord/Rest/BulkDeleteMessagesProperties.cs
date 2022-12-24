@@ -15,6 +15,6 @@ internal partial class BulkDeleteMessagesProperties
     [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
     public partial class BulkDeleteMessagesPropertiesSerializerContext : JsonSerializerContext
     {
-        public static BulkDeleteMessagesPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static BulkDeleteMessagesPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

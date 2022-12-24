@@ -19,6 +19,6 @@ public partial class AutoModerationActionProperties
     [JsonSerializable(typeof(AutoModerationActionProperties))]
     public partial class AutoModerationActionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static AutoModerationActionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static AutoModerationActionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

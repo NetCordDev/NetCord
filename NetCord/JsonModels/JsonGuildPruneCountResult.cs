@@ -10,6 +10,6 @@ internal partial class JsonGuildPruneCountResult
     [JsonSerializable(typeof(JsonGuildPruneCountResult))]
     public partial class JsonGuildPruneCountResultSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildPruneCountResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildPruneCountResultSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

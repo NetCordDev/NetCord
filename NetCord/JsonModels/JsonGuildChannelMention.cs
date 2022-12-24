@@ -16,6 +16,6 @@ public partial class JsonGuildChannelMention : JsonEntity
     [JsonSerializable(typeof(JsonGuildChannelMention))]
     public partial class JsonGuildChannelMentionSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildChannelMentionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildChannelMentionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

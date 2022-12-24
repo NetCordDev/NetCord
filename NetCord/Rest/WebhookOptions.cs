@@ -23,6 +23,6 @@ public partial class WebhookOptions
     [JsonSerializable(typeof(WebhookOptions))]
     public partial class WebhookOptionsSerializerContext : JsonSerializerContext
     {
-        public static WebhookOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static WebhookOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

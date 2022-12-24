@@ -27,6 +27,6 @@ public partial class JsonAuditLogEntry : JsonEntity
     [JsonSerializable(typeof(JsonAuditLogEntry))]
     public partial class JsonAuditLogEntrySerializerContext : JsonSerializerContext
     {
-        public static JsonAuditLogEntrySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAuditLogEntrySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

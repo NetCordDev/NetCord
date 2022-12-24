@@ -13,12 +13,12 @@ public partial class JsonGuildBan
     [JsonSerializable(typeof(JsonGuildBan))]
     public partial class JsonGuildBanSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildBanSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildBanSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildBan[]))]
     public partial class JsonGuildBanArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildBanArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildBanArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

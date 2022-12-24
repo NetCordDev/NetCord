@@ -25,6 +25,6 @@ public partial class LinkButtonProperties : ButtonProperties
     [JsonSerializable(typeof(LinkButtonProperties))]
     public partial class LinkButtonPropertiesSerializerContext : JsonSerializerContext
     {
-        public static LinkButtonPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static LinkButtonPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

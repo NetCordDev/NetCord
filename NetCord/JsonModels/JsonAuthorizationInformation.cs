@@ -19,6 +19,6 @@ public partial class JsonAuthorizationInformation
     [JsonSerializable(typeof(JsonAuthorizationInformation))]
     public partial class JsonAuthorizationInformationSerializerContext : JsonSerializerContext
     {
-        public static JsonAuthorizationInformationSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAuthorizationInformationSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

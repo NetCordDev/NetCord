@@ -15,6 +15,6 @@ public partial class GuildScheduledEventMetadataProperties
     [JsonSerializable(typeof(GuildScheduledEventMetadataProperties))]
     public partial class GuildScheduledEventMetadataPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildScheduledEventMetadataPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildScheduledEventMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

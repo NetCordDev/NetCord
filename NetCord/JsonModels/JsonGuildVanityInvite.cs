@@ -13,6 +13,6 @@ public partial class JsonGuildVanityInvite
     [JsonSerializable(typeof(JsonGuildVanityInvite))]
     public partial class JsonGuildVanityInviteSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildVanityInviteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildVanityInviteSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

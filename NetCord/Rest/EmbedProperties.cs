@@ -47,7 +47,7 @@ public partial class EmbedProperties
     [JsonSerializable(typeof(EmbedProperties))]
     public partial class EmbedPropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmbedPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmbedPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -64,7 +64,7 @@ public partial class EmbedFooterProperties
     [JsonSerializable(typeof(EmbedFooterProperties))]
     public partial class EmbedFooterPropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmbedFooterPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmbedFooterPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -115,7 +115,7 @@ public partial class EmbedProviderProperties
     [JsonSerializable(typeof(EmbedImageProperties))]
     public partial class EmbedImagePropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmbedImagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmbedImagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -136,7 +136,7 @@ public partial class EmbedAuthorProperties
     [JsonSerializable(typeof(EmbedAuthorProperties))]
     public partial class EmbedAuthorPropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmbedAuthorPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmbedAuthorPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -181,6 +181,6 @@ public partial class EmbedFieldProperties
     [JsonSerializable(typeof(EmbedFieldProperties))]
     public partial class EmbedFieldPropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmbedFieldPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmbedFieldPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -40,6 +40,6 @@ public partial class JsonAutoModerationActionExecutionEventArgs
     [JsonSerializable(typeof(JsonAutoModerationActionExecutionEventArgs))]
     public partial class JsonAutoModerationActionExecutionEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonAutoModerationActionExecutionEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAutoModerationActionExecutionEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

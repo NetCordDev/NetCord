@@ -23,6 +23,6 @@ public partial class JsonApplicationCommandInteractionDataOption
     [JsonSerializable(typeof(JsonApplicationCommandInteractionDataOption))]
     public partial class JsonApplicationCommandInteractionDataOptionSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandInteractionDataOptionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandInteractionDataOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

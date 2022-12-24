@@ -22,6 +22,6 @@ public partial class JsonStageInstance : JsonEntity
     [JsonSerializable(typeof(JsonStageInstance))]
     public partial class JsonStageInstanceSerializerContext : JsonSerializerContext
     {
-        public static JsonStageInstanceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonStageInstanceSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

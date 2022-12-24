@@ -16,6 +16,6 @@ public partial class JsonGuildScheduledEventUserEventArgs
     [JsonSerializable(typeof(JsonGuildScheduledEventUserEventArgs))]
     public partial class JsonGuildScheduledEventUserEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventUserEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventUserEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

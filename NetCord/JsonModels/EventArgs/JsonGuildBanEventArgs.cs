@@ -13,6 +13,6 @@ public partial class JsonGuildBanEventArgs
     [JsonSerializable(typeof(JsonGuildBanEventArgs))]
     public partial class JsonGuildBanEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildBanEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildBanEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

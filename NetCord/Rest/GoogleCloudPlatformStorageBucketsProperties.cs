@@ -15,6 +15,6 @@ internal partial class GoogleCloudPlatformStorageBucketsProperties
     [JsonSerializable(typeof(GoogleCloudPlatformStorageBucketsProperties))]
     public partial class GoogleCloudPlatformStorageBucketsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GoogleCloudPlatformStorageBucketsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GoogleCloudPlatformStorageBucketsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

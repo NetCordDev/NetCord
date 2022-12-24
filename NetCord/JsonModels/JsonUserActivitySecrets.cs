@@ -15,6 +15,6 @@ public partial class JsonUserActivitySecrets
     [JsonSerializable(typeof(JsonUserActivitySecrets))]
     public partial class JsonUserActivitySecretsSerializerContext : JsonSerializerContext
     {
-        public static JsonUserActivitySecretsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonUserActivitySecretsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

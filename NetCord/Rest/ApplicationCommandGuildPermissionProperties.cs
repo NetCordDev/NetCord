@@ -23,6 +23,6 @@ public partial class ApplicationCommandGuildPermissionProperties
     [JsonSerializable(typeof(ApplicationCommandGuildPermissionProperties))]
     public partial class ApplicationCommandGuildPermissionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ApplicationCommandGuildPermissionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ApplicationCommandGuildPermissionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

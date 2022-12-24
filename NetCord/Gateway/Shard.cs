@@ -29,7 +29,7 @@ public partial class Shard
         [JsonSerializable(typeof(int[]))]
         internal partial class Int32ArraySerializerContext : JsonSerializerContext
         {
-            public static Int32ArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static Int32ArraySerializerContext WithOptions { get; } = new(Serialization.Options);
         }
     }
 }

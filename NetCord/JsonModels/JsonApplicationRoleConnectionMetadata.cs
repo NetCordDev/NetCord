@@ -28,12 +28,12 @@ public partial class JsonApplicationRoleConnectionMetadata
     [JsonSerializable(typeof(JsonApplicationRoleConnectionMetadata))]
     public partial class JsonApplicationRoleConnectionMetadataSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IEnumerable<JsonApplicationRoleConnectionMetadata>))]
     public partial class IEnumerableOfJsonApplicationRoleConnectionMetadataSerializerContext : JsonSerializerContext
     {
-        public static IEnumerableOfJsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IEnumerableOfJsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

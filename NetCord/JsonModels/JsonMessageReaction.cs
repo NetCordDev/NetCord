@@ -16,6 +16,6 @@ public partial class JsonMessageReaction
     [JsonSerializable(typeof(JsonMessageReaction))]
     public partial class JsonMessageReactionSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageReactionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageReactionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

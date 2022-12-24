@@ -25,6 +25,6 @@ public partial class EmojiProperties
     [JsonSerializable(typeof(EmojiProperties))]
     public partial class EmojiPropertiesSerializerContext : JsonSerializerContext
     {
-        public static EmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static EmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

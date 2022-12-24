@@ -72,6 +72,6 @@ public partial class MessageProperties
     [JsonSerializable(typeof(MessageProperties))]
     public partial class MessagePropertiesSerializerContext : JsonSerializerContext
     {
-        public static MessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static MessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

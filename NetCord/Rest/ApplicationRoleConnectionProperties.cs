@@ -16,6 +16,6 @@ public partial class ApplicationRoleConnectionProperties
     [JsonSerializable(typeof(ApplicationRoleConnectionProperties))]
     public partial class ApplicationRoleConnectionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ApplicationRoleConnectionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ApplicationRoleConnectionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -23,7 +23,7 @@ public partial class GuildWelcomeScreenChannelProperties
     [JsonSerializable(typeof(GuildWelcomeScreenChannelProperties))]
     public partial class GuildWelcomeScreenChannelPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -62,6 +62,6 @@ public partial class GuildWelcomeScreenChannelEmojiProperties
     [JsonSerializable(typeof(GuildWelcomeScreenChannelEmojiProperties))]
     public partial class GuildWelcomeScreenChannelEmojiPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildWelcomeScreenChannelEmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildWelcomeScreenChannelEmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

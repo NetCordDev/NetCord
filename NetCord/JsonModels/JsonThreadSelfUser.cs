@@ -13,6 +13,6 @@ public partial class JsonThreadSelfUser
     [JsonSerializable(typeof(JsonThreadSelfUser))]
     public partial class JsonThreadSelfUserSerializerContext : JsonSerializerContext
     {
-        public static JsonThreadSelfUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonThreadSelfUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

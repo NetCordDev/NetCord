@@ -19,6 +19,6 @@ public partial class GroupDMChannelOptions
     [JsonSerializable(typeof(GroupDMChannelOptions))]
     public partial class GroupDMChannelOptionsSerializerContext : JsonSerializerContext
     {
-        public static GroupDMChannelOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GroupDMChannelOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

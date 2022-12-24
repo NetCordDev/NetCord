@@ -67,6 +67,6 @@ public partial class JsonApplication : JsonEntity
     [JsonSerializable(typeof(JsonApplication))]
     public partial class JsonApplicationSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

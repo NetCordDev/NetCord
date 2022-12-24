@@ -16,6 +16,6 @@ internal partial class GuildBanProperties
     [JsonSerializable(typeof(GuildBanProperties))]
     public partial class GuildBanPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildBanPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildBanPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

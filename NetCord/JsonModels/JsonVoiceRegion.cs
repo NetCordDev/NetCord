@@ -22,12 +22,12 @@ public partial class JsonVoiceRegion
     [JsonSerializable(typeof(JsonVoiceRegion))]
     public partial class JsonVoiceRegionSerializerContext : JsonSerializerContext
     {
-        public static JsonVoiceRegionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonVoiceRegionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonVoiceRegion[]))]
     public partial class JsonVoiceRegionArraySerializerContext : JsonSerializerContext
     {
-        public static JsonVoiceRegionArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonVoiceRegionArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

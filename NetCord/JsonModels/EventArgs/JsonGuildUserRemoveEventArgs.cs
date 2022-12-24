@@ -13,6 +13,6 @@ public partial class JsonGuildUserRemoveEventArgs
     [JsonSerializable(typeof(JsonGuildUserRemoveEventArgs))]
     public partial class JsonGuildUserRemoveEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildUserRemoveEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildUserRemoveEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

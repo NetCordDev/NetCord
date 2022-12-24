@@ -34,7 +34,7 @@ public partial class JsonEmbed
     [JsonSerializable(typeof(JsonEmbed))]
     public partial class JsonEmbedSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -50,7 +50,7 @@ public partial class JsonEmbedFooter
     [JsonSerializable(typeof(JsonEmbedFooter))]
     public partial class JsonEmbedFooterSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedFooterSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedFooterSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -71,7 +71,7 @@ public partial class JsonEmbedPartBase
     [JsonSerializable(typeof(JsonEmbedPartBase))]
     public partial class JsonEmbedPartBaseSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedPartBaseSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedPartBaseSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -85,7 +85,7 @@ public partial class JsonEmbedProvider
     [JsonSerializable(typeof(JsonEmbedProvider))]
     public partial class JsonEmbedProviderSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedProviderSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedProviderSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -106,7 +106,7 @@ public partial class JsonEmbedAuthor
     [JsonSerializable(typeof(JsonEmbedAuthor))]
     public partial class JsonEmbedAuthorSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedAuthorSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedAuthorSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -124,6 +124,6 @@ public partial class JsonEmbedField
     [JsonSerializable(typeof(JsonEmbedField))]
     public partial class JsonEmbedFieldSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedFieldSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmbedFieldSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

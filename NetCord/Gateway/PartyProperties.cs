@@ -13,6 +13,6 @@ public partial class PartyProperties
     [JsonSerializable(typeof(PartyProperties))]
     public partial class PartyPropertiesSerializerContext : JsonSerializerContext
     {
-        public static PartyPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static PartyPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

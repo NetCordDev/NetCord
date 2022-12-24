@@ -112,12 +112,12 @@ public partial class JsonChannel : JsonEntity
     [JsonSerializable(typeof(JsonChannel))]
     public partial class JsonChannelSerializerContext : JsonSerializerContext
     {
-        public static JsonChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonChannel[]))]
     public partial class JsonChannelArraySerializerContext : JsonSerializerContext
     {
-        public static JsonChannelArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonChannelArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

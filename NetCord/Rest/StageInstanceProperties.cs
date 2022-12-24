@@ -25,6 +25,6 @@ public partial class StageInstanceProperties
     [JsonSerializable(typeof(StageInstanceProperties))]
     public partial class StageInstancePropertiesSerializerContext : JsonSerializerContext
     {
-        public static StageInstancePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static StageInstancePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

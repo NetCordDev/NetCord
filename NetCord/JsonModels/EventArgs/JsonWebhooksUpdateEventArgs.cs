@@ -13,6 +13,6 @@ public partial class JsonWebhooksUpdateEventArgs
     [JsonSerializable(typeof(JsonWebhooksUpdateEventArgs))]
     public partial class JsonWebhooksUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonWebhooksUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonWebhooksUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

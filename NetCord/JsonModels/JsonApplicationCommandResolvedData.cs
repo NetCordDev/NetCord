@@ -25,6 +25,6 @@ public partial class JsonApplicationCommandResolvedData
     [JsonSerializable(typeof(JsonApplicationCommandResolvedData))]
     public partial class JsonApplicationCommandResolvedDataSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandResolvedDataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandResolvedDataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

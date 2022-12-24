@@ -23,6 +23,6 @@ public partial class GuildThreadFromMessageProperties
     [JsonSerializable(typeof(GuildThreadFromMessageProperties))]
     public partial class GuildThreadFromMessagePropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildThreadFromMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildThreadFromMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

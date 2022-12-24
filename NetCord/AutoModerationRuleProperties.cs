@@ -43,6 +43,6 @@ public partial class AutoModerationRuleProperties
     [JsonSerializable(typeof(AutoModerationRuleProperties))]
     public partial class AutoModerationRulePropertiesSerializerContext : JsonSerializerContext
     {
-        public static AutoModerationRulePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static AutoModerationRulePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

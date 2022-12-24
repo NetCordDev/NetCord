@@ -16,6 +16,6 @@ public partial class JsonGatewayBot
     [JsonSerializable(typeof(JsonGatewayBot))]
     public partial class JsonGatewayBotSerializerContext : JsonSerializerContext
     {
-        public static JsonGatewayBotSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGatewayBotSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

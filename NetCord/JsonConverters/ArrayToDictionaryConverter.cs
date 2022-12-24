@@ -20,7 +20,7 @@ internal partial class JsonGuildRoleArrayToDictionaryConverter : JsonConverter<D
     [JsonSerializable(typeof(IReadOnlyCollection<JsonGuildRole>))]
     public partial class IReadOnlyCollectionOfJsonGuildRoleSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonGuildRoleSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonGuildRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -39,7 +39,7 @@ internal partial class JsonChannelArrayToDictionaryConverter : JsonConverter<Dic
     [JsonSerializable(typeof(IReadOnlyCollection<JsonChannel>))]
     public partial class IReadOnlyCollectionOfJsonChannelSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -58,13 +58,13 @@ internal partial class JsonStageInstanceArrayToDictionaryConverter : JsonConvert
     [JsonSerializable(typeof(JsonStageInstance[]))]
     public partial class JsonStageInstanceArraySerializerContext : JsonSerializerContext
     {
-        public static JsonStageInstanceArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonStageInstanceArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IReadOnlyCollection<JsonStageInstance>))]
     public partial class IReadOnlyCollectionOfJsonStageInstanceSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonStageInstanceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonStageInstanceSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -83,7 +83,7 @@ internal partial class JsonGuildScheduledEventArrayToDictionaryConverter : JsonC
     [JsonSerializable(typeof(IReadOnlyCollection<JsonGuildScheduledEvent>))]
     public partial class IReadOnlyCollectionOfJsonGuildScheduledEventSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonGuildScheduledEventSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonGuildScheduledEventSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -102,13 +102,13 @@ internal partial class JsonVoiceStateArrayToDictionaryConverter : JsonConverter<
     [JsonSerializable(typeof(JsonVoiceState[]))]
     public partial class JsonVoiceStateArraySerializerContext : JsonSerializerContext
     {
-        public static JsonVoiceStateArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonVoiceStateArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IReadOnlyCollection<JsonVoiceState>))]
     public partial class IReadOnlyCollectionOfJsonVoiceStateSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonVoiceStateSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonVoiceStateSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -127,7 +127,7 @@ internal partial class JsonGuildUserArrayToDictionaryConverter : JsonConverter<D
     [JsonSerializable(typeof(IReadOnlyCollection<JsonGuildUser>))]
     public partial class IReadOnlyCollectionOfJsonGuildUserSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonGuildUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonGuildUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -146,12 +146,12 @@ internal partial class JsonPresenceArrayToDictionaryConverter : JsonConverter<Di
     [JsonSerializable(typeof(JsonPresence[]))]
     public partial class JsonPresenceArraySerializerContext : JsonSerializerContext
     {
-        public static JsonPresenceArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonPresenceArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IReadOnlyCollection<JsonPresence>))]
     public partial class IReadOnlyCollectionOfJsonPresenceSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonPresenceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IReadOnlyCollectionOfJsonPresenceSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

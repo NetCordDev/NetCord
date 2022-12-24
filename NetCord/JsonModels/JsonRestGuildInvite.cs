@@ -48,12 +48,12 @@ public partial class JsonRestGuildInvite
     [JsonSerializable(typeof(JsonRestGuildInvite))]
     public partial class JsonRestGuildInviteSerializerContext : JsonSerializerContext
     {
-        public static JsonRestGuildInviteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonRestGuildInviteSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonRestGuildInvite[]))]
     public partial class JsonRestGuildInviteArraySerializerContext : JsonSerializerContext
     {
-        public static JsonRestGuildInviteArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonRestGuildInviteArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

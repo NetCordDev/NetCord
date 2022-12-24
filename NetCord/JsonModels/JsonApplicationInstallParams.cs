@@ -13,6 +13,6 @@ public partial class JsonApplicationInstallParams
     [JsonSerializable(typeof(JsonApplicationInstallParams))]
     public partial class JsonApplicationInstallParamsSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationInstallParamsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationInstallParamsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

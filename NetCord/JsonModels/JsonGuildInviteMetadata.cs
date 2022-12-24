@@ -22,6 +22,6 @@ public partial class JsonGuildInviteMetadata
     [JsonSerializable(typeof(JsonGuildInviteMetadata))]
     public partial class JsonGuildInviteMetadataSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildInviteMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildInviteMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

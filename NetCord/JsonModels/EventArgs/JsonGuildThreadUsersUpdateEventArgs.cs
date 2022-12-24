@@ -22,6 +22,6 @@ public partial class JsonGuildThreadUsersUpdateEventArgs
     [JsonSerializable(typeof(JsonGuildThreadUsersUpdateEventArgs))]
     public partial class JsonGuildThreadUsersUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildThreadUsersUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildThreadUsersUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

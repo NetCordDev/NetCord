@@ -28,6 +28,6 @@ public partial class GuildInviteProperties
     [JsonSerializable(typeof(GuildInviteProperties))]
     public partial class GuildInvitePropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildInvitePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildInvitePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

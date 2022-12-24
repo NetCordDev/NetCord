@@ -10,6 +10,6 @@ public partial class JsonGuildIntegrationsUpdateEventArgs
     [JsonSerializable(typeof(JsonGuildIntegrationsUpdateEventArgs))]
     public partial class JsonGuildIntegrationsUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildIntegrationsUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildIntegrationsUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

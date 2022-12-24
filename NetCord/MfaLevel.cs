@@ -11,5 +11,5 @@ public enum MfaLevel
 [JsonSerializable(typeof(MfaLevel))]
 internal partial class MfaLevelSerializerContext : JsonSerializerContext
 {
-    public static MfaLevelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+    public static MfaLevelSerializerContext WithOptions { get; } = new(Serialization.Options);
 }

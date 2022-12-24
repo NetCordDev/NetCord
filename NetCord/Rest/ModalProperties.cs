@@ -24,6 +24,6 @@ public partial class ModalProperties
     [JsonSerializable(typeof(ModalProperties))]
     public partial class ModalPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ModalPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ModalPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

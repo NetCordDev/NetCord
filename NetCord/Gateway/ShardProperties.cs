@@ -31,6 +31,6 @@ public partial class ShardProperties
     [JsonSerializable(typeof(ShardProperties))]
     public partial class ShardPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ShardPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ShardPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

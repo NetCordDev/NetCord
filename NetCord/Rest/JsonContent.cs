@@ -1,19 +1,22 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 
 namespace NetCord.Rest;
 
-internal class JsonContent<T> : HttpContent
+public class JsonContent<T> : HttpContent
 {
+    private static readonly MediaTypeHeaderValue _contentType = new("application/json");
+
     private readonly T _objToSerialize;
     private readonly JsonTypeInfo<T> _jsonTypeInfo;
 
     public JsonContent(T objToSerialize, JsonTypeInfo<T> jsonTypeInfo)
     {
+        Headers.ContentType = (MediaTypeHeaderValue)((ICloneable)_contentType).Clone();
         _objToSerialize = objToSerialize;
         _jsonTypeInfo = jsonTypeInfo;
-        Headers.ContentType = new("application/json");
     }
 
     protected override Task SerializeToStreamAsync(Stream stream, TransportContext? context) => JsonSerializer.SerializeAsync(stream, _objToSerialize, _jsonTypeInfo);

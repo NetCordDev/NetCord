@@ -16,6 +16,6 @@ public partial class JsonSpeaking
     [JsonSerializable(typeof(JsonSpeaking))]
     public partial class JsonSpeakingSerializerContext : JsonSerializerContext
     {
-        public static JsonSpeakingSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonSpeakingSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

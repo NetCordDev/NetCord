@@ -11,6 +11,6 @@ public partial class MentionableMenuProperties : MenuProperties
     [JsonSerializable(typeof(MentionableMenuProperties))]
     public partial class MentionableMenuPropertiesSerializerContext : JsonSerializerContext
     {
-        public static MentionableMenuPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static MentionableMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

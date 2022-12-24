@@ -10,6 +10,6 @@ internal partial class JsonGuildMfaLevel
     [JsonSerializable(typeof(JsonGuildMfaLevel))]
     public partial class JsonGuildMfaLevelSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildMfaLevelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildMfaLevelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

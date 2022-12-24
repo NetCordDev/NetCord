@@ -10,6 +10,6 @@ internal partial class JsonCreateGoogleCloudPlatformStorageBucketResult
     [JsonSerializable(typeof(JsonCreateGoogleCloudPlatformStorageBucketResult))]
     public partial class JsonCreateGoogleCloudPlatformStorageBucketResultSerializerContext : JsonSerializerContext
     {
-        public static JsonCreateGoogleCloudPlatformStorageBucketResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonCreateGoogleCloudPlatformStorageBucketResultSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

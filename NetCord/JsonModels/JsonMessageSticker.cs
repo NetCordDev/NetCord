@@ -13,6 +13,6 @@ public partial class JsonMessageSticker : JsonEntity
     [JsonSerializable(typeof(JsonMessageSticker))]
     public partial class JsonMessageStickerSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageStickerSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageStickerSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

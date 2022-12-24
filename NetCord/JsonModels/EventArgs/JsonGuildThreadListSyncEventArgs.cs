@@ -19,6 +19,6 @@ public partial class JsonGuildThreadListSyncEventArgs
     [JsonSerializable(typeof(JsonGuildThreadListSyncEventArgs))]
     public partial class JsonGuildThreadListSyncEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildThreadListSyncEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildThreadListSyncEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

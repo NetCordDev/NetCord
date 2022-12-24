@@ -19,6 +19,6 @@ public partial class UserActivityAssetsProperties
     [JsonSerializable(typeof(UserActivityAssetsProperties))]
     public partial class UserActivityAssetsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static UserActivityAssetsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static UserActivityAssetsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

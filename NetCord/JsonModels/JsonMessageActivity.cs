@@ -13,6 +13,6 @@ public partial class JsonMessageActivity
     [JsonSerializable(typeof(JsonMessageActivity))]
     public partial class JsonMessageActivitySerializerContext : JsonSerializerContext
     {
-        public static JsonMessageActivitySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageActivitySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -39,6 +39,6 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
     [JsonSerializable(typeof(ForumGuildThreadProperties))]
     public partial class ForumGuildThreadPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ForumGuildThreadPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ForumGuildThreadPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

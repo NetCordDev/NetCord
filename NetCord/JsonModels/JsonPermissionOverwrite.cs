@@ -16,6 +16,6 @@ public partial class JsonPermissionOverwrite : JsonEntity
     [JsonSerializable(typeof(JsonPermissionOverwrite))]
     public partial class JsonPermissionOverwriteSerializerContext : JsonSerializerContext
     {
-        public static JsonPermissionOverwriteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonPermissionOverwriteSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

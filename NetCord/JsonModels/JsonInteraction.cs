@@ -44,6 +44,6 @@ public partial class JsonInteraction : JsonEntity
     [JsonSerializable(typeof(JsonInteraction))]
     public partial class JsonInteractionSerializerContext : JsonSerializerContext
     {
-        public static JsonInteractionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonInteractionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

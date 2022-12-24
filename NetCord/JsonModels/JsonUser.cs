@@ -54,12 +54,12 @@ public partial class JsonUser : JsonEntity
     [JsonSerializable(typeof(JsonUser))]
     public partial class JsonUserSerializerContext : JsonSerializerContext
     {
-        public static JsonUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonUser[]))]
     public partial class JsonUserArraySerializerContext : JsonSerializerContext
     {
-        public static JsonUserArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

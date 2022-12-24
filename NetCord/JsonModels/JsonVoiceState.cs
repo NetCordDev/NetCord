@@ -45,6 +45,6 @@ public partial class JsonVoiceState
     [JsonSerializable(typeof(JsonVoiceState))]
     public partial class JsonVoiceStateSerializerContext : JsonSerializerContext
     {
-        public static JsonVoiceStateSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonVoiceStateSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

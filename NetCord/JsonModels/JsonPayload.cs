@@ -20,6 +20,6 @@ public partial class JsonPayload
     [JsonSerializable(typeof(JsonPayload))]
     public partial class JsonPayloadSerializerContext : JsonSerializerContext
     {
-        public static JsonPayloadSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonPayloadSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

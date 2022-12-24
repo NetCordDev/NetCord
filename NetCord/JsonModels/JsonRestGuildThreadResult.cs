@@ -13,7 +13,7 @@ public partial class JsonRestGuildThreadResult
     [JsonSerializable(typeof(JsonRestGuildThreadResult))]
     public partial class JsonRestGuildThreadResultSerializerContext : JsonSerializerContext
     {
-        public static JsonRestGuildThreadResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonRestGuildThreadResultSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -25,6 +25,6 @@ public partial class JsonRestGuildThreadPartialResult : JsonRestGuildThreadResul
     [JsonSerializable(typeof(JsonRestGuildThreadPartialResult))]
     public partial class JsonRestGuildThreadPartialResultSerializerContext : JsonSerializerContext
     {
-        public static JsonRestGuildThreadPartialResultSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonRestGuildThreadPartialResultSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

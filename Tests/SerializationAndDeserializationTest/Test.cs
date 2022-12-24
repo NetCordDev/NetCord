@@ -35,8 +35,8 @@ public class Test
         await client.StartAsync().ConfigureAwait(false);
         await completionSource.Task.ConfigureAwait(false);
         var model = ((IJsonModel<JsonGuild>)guild!).JsonModel;
-        var json = JsonSerializer.Serialize(model, Serialization.Options);
-        var deserialized = JsonSerializer.Deserialize<JsonGuild>(json, Serialization.Options)!;
+        var json = JsonSerializer.Serialize(model, JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild);
+        var deserialized = JsonSerializer.Deserialize(json, JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild)!;
         Guild newGuild = new(deserialized, client.Rest);
 
         model.WithDeepEqual(deserialized).Assert();

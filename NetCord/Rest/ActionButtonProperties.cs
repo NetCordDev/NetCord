@@ -26,6 +26,6 @@ public partial class ActionButtonProperties : ButtonProperties
     [JsonSerializable(typeof(ActionButtonProperties))]
     public partial class ActionButtonPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ActionButtonPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ActionButtonPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

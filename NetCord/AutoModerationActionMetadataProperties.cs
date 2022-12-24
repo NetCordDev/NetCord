@@ -13,6 +13,6 @@ public partial class AutoModerationActionMetadataProperties
     [JsonSerializable(typeof(AutoModerationActionMetadataProperties))]
     public partial class AutoModerationActionMetadataPropertiesSerializerContext : JsonSerializerContext
     {
-        public static AutoModerationActionMetadataPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static AutoModerationActionMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -33,12 +33,12 @@ public partial class JsonConnection : JsonEntity
     [JsonSerializable(typeof(JsonConnection))]
     public partial class JsonConnectionSerializerContext : JsonSerializerContext
     {
-        public static JsonConnectionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonConnectionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonConnection[]))]
     public partial class JsonConnectionArraySerializerContext : JsonSerializerContext
     {
-        public static JsonConnectionArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonConnectionArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

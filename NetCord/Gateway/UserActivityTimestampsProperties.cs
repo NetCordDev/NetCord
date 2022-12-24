@@ -13,6 +13,6 @@ public partial class UserActivityTimestampsProperties
     [JsonSerializable(typeof(UserActivityTimestampsProperties))]
     public partial class UserActivityTimestampsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static UserActivityTimestampsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static UserActivityTimestampsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

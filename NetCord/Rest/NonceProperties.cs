@@ -39,6 +39,6 @@ public partial class NonceProperties
     [JsonSerializable(typeof(NonceProperties))]
     public partial class NoncePropertiesSerializerContext : JsonSerializerContext
     {
-        public static NoncePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static NoncePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

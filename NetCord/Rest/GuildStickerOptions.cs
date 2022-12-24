@@ -23,6 +23,6 @@ public partial class GuildStickerOptions
     [JsonSerializable(typeof(GuildStickerOptions))]
     public partial class GuildStickerOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildStickerOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildStickerOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

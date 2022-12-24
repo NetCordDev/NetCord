@@ -22,6 +22,6 @@ public partial class JsonIntegrationApplication : JsonEntity
     [JsonSerializable(typeof(JsonIntegrationApplication))]
     public partial class JsonIntegrationApplicationSerializerContext : JsonSerializerContext
     {
-        public static JsonIntegrationApplicationSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonIntegrationApplicationSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

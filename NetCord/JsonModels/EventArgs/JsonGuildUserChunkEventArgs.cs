@@ -28,6 +28,6 @@ public partial class JsonGuildUserChunkEventArgs
     [JsonSerializable(typeof(JsonGuildUserChunkEventArgs))]
     public partial class JsonGuildUserChunkEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildUserChunkEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildUserChunkEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

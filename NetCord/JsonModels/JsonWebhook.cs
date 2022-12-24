@@ -42,12 +42,12 @@ public partial class JsonWebhook : JsonEntity
     [JsonSerializable(typeof(JsonWebhook))]
     public partial class JsonWebhookSerializerContext : JsonSerializerContext
     {
-        public static JsonWebhookSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonWebhookSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonWebhook[]))]
     public partial class JsonWebhookArraySerializerContext : JsonSerializerContext
     {
-        public static JsonWebhookArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonWebhookArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

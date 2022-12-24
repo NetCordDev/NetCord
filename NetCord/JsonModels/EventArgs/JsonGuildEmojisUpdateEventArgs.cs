@@ -13,6 +13,6 @@ public partial class JsonGuildEmojisUpdateEventArgs
     [JsonSerializable(typeof(JsonGuildEmojisUpdateEventArgs))]
     public partial class JsonGuildEmojisUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildEmojisUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildEmojisUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

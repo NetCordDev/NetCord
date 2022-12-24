@@ -13,6 +13,6 @@ public partial class JsonGuildRoleEventArgs
     [JsonSerializable(typeof(JsonGuildRoleEventArgs))]
     public partial class JsonGuildRoleEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildRoleEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

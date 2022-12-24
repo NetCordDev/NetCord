@@ -36,8 +36,8 @@ internal static class Program
     private static async Task Main()
     {
         _client.Log += Client_Log;
-        _client.MessageCreate += Client_MessageReceived;
-        _client.InteractionCreate += Client_InteractionCreated;
+        _client.MessageCreate += Client_MessageCreate;
+        _client.InteractionCreate += Client_InteractionCreate;
         _client.VoiceStateUpdate += Client_VoiceStateUpdate;
         _client.VoiceServerUpdate += Client_VoiceServerUpdate;
         var assembly = Assembly.GetEntryAssembly()!;
@@ -113,7 +113,7 @@ internal static class Program
         await Task.Delay(-1);
     }
 
-    private static async ValueTask Client_InteractionCreated(Interaction interaction)
+    private static async ValueTask Client_InteractionCreate(Interaction interaction)
     {
         try
         {
@@ -157,7 +157,7 @@ internal static class Program
         }
     }
 
-    private static async ValueTask Client_MessageReceived(Message message)
+    private static async ValueTask Client_MessageCreate(Message message)
     {
         if (!message.Author.IsBot)
         {

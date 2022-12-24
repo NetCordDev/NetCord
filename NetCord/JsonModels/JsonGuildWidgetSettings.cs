@@ -13,6 +13,6 @@ public partial class JsonGuildWidgetSettings
     [JsonSerializable(typeof(JsonGuildWidgetSettings))]
     public partial class JsonGuildWidgetSettingsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildWidgetSettingsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildWidgetSettingsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

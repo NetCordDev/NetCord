@@ -37,12 +37,12 @@ public partial class JsonAutoModerationRule : JsonEntity
     [JsonSerializable(typeof(JsonAutoModerationRule))]
     public partial class JsonAutoModerationRuleSerializerContext : JsonSerializerContext
     {
-        public static JsonAutoModerationRuleSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAutoModerationRuleSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonAutoModerationRule[]))]
     public partial class JsonAutoModerationRuleArraySerializerContext : JsonSerializerContext
     {
-        public static JsonAutoModerationRuleArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAutoModerationRuleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -19,6 +19,6 @@ public partial class WebhookProperties
     [JsonSerializable(typeof(WebhookProperties))]
     public partial class WebhookPropertiesSerializerContext : JsonSerializerContext
     {
-        public static WebhookPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static WebhookPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

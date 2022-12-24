@@ -50,6 +50,6 @@ public partial class JsonApplicationCommandOption
     [JsonSerializable(typeof(JsonApplicationCommandOption))]
     public partial class JsonApplicationCommandOptionSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandOptionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

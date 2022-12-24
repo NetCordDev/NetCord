@@ -46,6 +46,6 @@ public partial class TextInputProperties
     [JsonSerializable(typeof(TextInputProperties))]
     public partial class TextInputPropertiesSerializerContext : JsonSerializerContext
     {
-        public static TextInputPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static TextInputPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -20,6 +20,6 @@ public partial class GuildWelcomeScreenOptions
     [JsonSerializable(typeof(GuildWelcomeScreenOptions))]
     public partial class GuildWelcomeScreenOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildWelcomeScreenOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildWelcomeScreenOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

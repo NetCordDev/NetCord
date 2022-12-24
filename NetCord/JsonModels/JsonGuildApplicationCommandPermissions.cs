@@ -19,12 +19,12 @@ public partial class JsonApplicationCommandGuildPermissions
     [JsonSerializable(typeof(JsonApplicationCommandGuildPermissions))]
     public partial class JsonApplicationCommandGuildPermissionsSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandGuildPermissionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandGuildPermissionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonApplicationCommandGuildPermissions[]))]
     public partial class JsonApplicationCommandGuildPermissionsArraySerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandGuildPermissionsArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandGuildPermissionsArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

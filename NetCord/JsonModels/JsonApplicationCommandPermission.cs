@@ -13,6 +13,6 @@ public partial class JsonApplicationCommandGuildPermission : JsonEntity
     [JsonSerializable(typeof(JsonApplicationCommandGuildPermission))]
     public partial class JsonApplicationCommandGuildPermissionSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandGuildPermissionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandGuildPermissionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

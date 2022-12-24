@@ -10,6 +10,6 @@ public partial class JsonAccount : JsonEntity
     [JsonSerializable(typeof(JsonAccount))]
     public partial class JsonAccountSerializerContext : JsonSerializerContext
     {
-        public static JsonAccountSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAccountSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

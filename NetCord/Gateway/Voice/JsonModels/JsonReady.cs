@@ -19,6 +19,6 @@ public partial class JsonReady
     [JsonSerializable(typeof(JsonReady))]
     public partial class JsonReadySerializerContext : JsonSerializerContext
     {
-        public static JsonReadySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonReadySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

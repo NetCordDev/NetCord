@@ -19,7 +19,7 @@ public partial class JsonTeam : JsonEntity
     [JsonSerializable(typeof(JsonTeam))]
     public partial class JsonTeamSerializerContext : JsonSerializerContext
     {
-        public static JsonTeamSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonTeamSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -40,6 +40,6 @@ public partial class JsonTeamUser
     [JsonSerializable(typeof(JsonTeamUser))]
     public partial class JsonTeamUserSerializerContext : JsonSerializerContext
     {
-        public static JsonTeamUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonTeamUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

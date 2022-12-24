@@ -10,6 +10,6 @@ internal partial class JsonNitroStickerPacks
     [JsonSerializable(typeof(JsonNitroStickerPacks))]
     public partial class JsonNitroStickerPacksSerializerContext : JsonSerializerContext
     {
-        public static JsonNitroStickerPacksSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonNitroStickerPacksSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

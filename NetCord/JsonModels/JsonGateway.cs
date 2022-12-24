@@ -10,6 +10,6 @@ internal partial class JsonGateway
     [JsonSerializable(typeof(JsonGateway))]
     public partial class JsonGatewaySerializerContext : JsonSerializerContext
     {
-        public static JsonGatewaySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGatewaySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

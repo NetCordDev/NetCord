@@ -18,6 +18,6 @@ public partial class GroupDMUserAddProperties
     [JsonSerializable(typeof(GroupDMUserAddProperties))]
     public partial class GroupDMUserAddPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GroupDMUserAddPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GroupDMUserAddPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

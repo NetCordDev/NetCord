@@ -72,19 +72,19 @@ public partial class AllowedMentionsProperties
         [JsonSerializable(typeof(IEnumerable<ulong>))]
         public partial class IEnumerableOfUInt64 : JsonSerializerContext
         {
-            public static IEnumerableOfUInt64 WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static IEnumerableOfUInt64 WithOptions { get; } = new(Serialization.Options);
         }
 
         [JsonSerializable(typeof(List<string>))]
         public partial class ListOfString : JsonSerializerContext
         {
-            public static ListOfString WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static ListOfString WithOptions { get; } = new(Serialization.Options);
         }
     }
 
     [JsonSerializable(typeof(AllowedMentionsProperties))]
     public partial class AllowedMentionsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static AllowedMentionsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static AllowedMentionsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

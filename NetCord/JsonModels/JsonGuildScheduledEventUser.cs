@@ -16,12 +16,12 @@ public partial class JsonGuildScheduledEventUser
     [JsonSerializable(typeof(JsonGuildScheduledEventUser))]
     public partial class JsonGuildScheduledEventUserSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildScheduledEventUser[]))]
     public partial class JsonGuildScheduledEventUserArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventUserArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

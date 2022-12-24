@@ -15,6 +15,6 @@ internal partial class ApplicationCommandGuildPermissionsProperties
     [JsonSerializable(typeof(ApplicationCommandGuildPermissionsProperties))]
     public partial class ApplicationCommandGuildPermissionsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ApplicationCommandGuildPermissionsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ApplicationCommandGuildPermissionsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

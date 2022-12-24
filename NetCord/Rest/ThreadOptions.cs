@@ -43,6 +43,6 @@ public partial class GuildThreadOptions
     [JsonSerializable(typeof(GuildThreadOptions))]
     public partial class GuildThreadOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildThreadOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildThreadOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

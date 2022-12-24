@@ -15,6 +15,6 @@ internal partial class DMChannelProperties
     [JsonSerializable(typeof(DMChannelProperties))]
     public partial class DMChannelPropertiesSerializerContext : JsonSerializerContext
     {
-        public static DMChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static DMChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

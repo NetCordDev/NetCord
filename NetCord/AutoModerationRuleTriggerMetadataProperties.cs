@@ -22,6 +22,6 @@ public partial class AutoModerationRuleTriggerMetadataProperties
     [JsonSerializable(typeof(AutoModerationRuleTriggerMetadataProperties))]
     public partial class AutoModerationRuleTriggerMetadataPropertiesSerializerContext : JsonSerializerContext
     {
-        public static AutoModerationRuleTriggerMetadataPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static AutoModerationRuleTriggerMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

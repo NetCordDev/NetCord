@@ -30,6 +30,6 @@ public partial class JsonReadyEventArgs
     [JsonSerializable(typeof(JsonReadyEventArgs))]
     public partial class JsonReadyEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonReadyEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonReadyEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

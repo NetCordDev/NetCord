@@ -24,12 +24,12 @@ public partial class ChannelPositionProperties
     [JsonSerializable(typeof(ChannelPositionProperties))]
     public partial class ChannelPositionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ChannelPositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ChannelPositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IEnumerable<ChannelPositionProperties>))]
     public partial class IEnumerableOfChannelPositionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static IEnumerableOfChannelPositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IEnumerableOfChannelPositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

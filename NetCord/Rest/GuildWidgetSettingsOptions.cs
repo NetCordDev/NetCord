@@ -17,6 +17,6 @@ public partial class GuildWidgetSettingsOptions
     [JsonSerializable(typeof(GuildWidgetSettingsOptions))]
     public partial class GuildWidgetSettingsOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildWidgetSettingsOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildWidgetSettingsOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -27,12 +27,12 @@ public partial class GoogleCloudPlatformStorageBucketProperties
     [JsonSerializable(typeof(GoogleCloudPlatformStorageBucketProperties))]
     public partial class GoogleCloudPlatformStorageBucketPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GoogleCloudPlatformStorageBucketPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GoogleCloudPlatformStorageBucketPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IEnumerable<GoogleCloudPlatformStorageBucketProperties>))]
     public partial class IEnumerableOfGoogleCloudPlatformStorageBucketPropertiesSerializerContext : JsonSerializerContext
     {
-        public static IEnumerableOfGoogleCloudPlatformStorageBucketPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IEnumerableOfGoogleCloudPlatformStorageBucketPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

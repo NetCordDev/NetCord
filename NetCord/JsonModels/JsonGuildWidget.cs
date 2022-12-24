@@ -22,6 +22,6 @@ public partial class JsonGuildWidget : JsonEntity
     [JsonSerializable(typeof(JsonGuildWidget))]
     public partial class JsonGuildWidgetSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildWidgetSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildWidgetSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

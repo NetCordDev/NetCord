@@ -19,6 +19,6 @@ public partial class JsonForumTag : JsonEntity
     [JsonSerializable(typeof(JsonForumTag))]
     public partial class JsonForumTagSerializerContext : JsonSerializerContext
     {
-        public static JsonForumTagSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonForumTagSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

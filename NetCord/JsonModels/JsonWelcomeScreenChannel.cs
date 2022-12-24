@@ -19,6 +19,6 @@ public partial class JsonWelcomeScreenChannel
     [JsonSerializable(typeof(JsonWelcomeScreenChannel))]
     public partial class JsonWelcomeScreenChannelSerializerContext : JsonSerializerContext
     {
-        public static JsonWelcomeScreenChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonWelcomeScreenChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

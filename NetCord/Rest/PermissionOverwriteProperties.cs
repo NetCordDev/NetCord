@@ -27,6 +27,6 @@ public partial class PermissionOverwriteProperties
     [JsonSerializable(typeof(PermissionOverwriteProperties))]
     public partial class PermissionOverwritePropertiesSerializerContext : JsonSerializerContext
     {
-        public static PermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static PermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

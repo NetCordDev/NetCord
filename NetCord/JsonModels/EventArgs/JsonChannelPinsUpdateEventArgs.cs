@@ -16,6 +16,6 @@ public partial class JsonChannelPinsUpdateEventArgs
     [JsonSerializable(typeof(JsonChannelPinsUpdateEventArgs))]
     public partial class JsonChannelPinsUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonChannelPinsUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonChannelPinsUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

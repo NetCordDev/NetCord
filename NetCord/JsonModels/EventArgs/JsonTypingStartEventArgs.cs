@@ -23,6 +23,6 @@ public partial class JsonTypingStartEventArgs
     [JsonSerializable(typeof(JsonTypingStartEventArgs))]
     public partial class JsonTypingStartEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonTypingStartEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonTypingStartEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

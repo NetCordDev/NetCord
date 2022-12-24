@@ -24,6 +24,6 @@ public partial class CurrentUserVoiceStateOptions
     [JsonSerializable(typeof(CurrentUserVoiceStateOptions))]
     public partial class CurrentUserVoiceStateOptionsSerializerContext : JsonSerializerContext
     {
-        public static CurrentUserVoiceStateOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static CurrentUserVoiceStateOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

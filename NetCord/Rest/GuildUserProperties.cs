@@ -31,6 +31,6 @@ public partial class GuildUserProperties
     [JsonSerializable(typeof(GuildUserProperties))]
     public partial class GuildUserPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildUserPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildUserPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

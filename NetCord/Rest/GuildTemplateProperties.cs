@@ -19,6 +19,6 @@ public partial class GuildTemplateProperties
     [JsonSerializable(typeof(GuildTemplateProperties))]
     public partial class GuildTemplatePropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildTemplatePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildTemplatePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

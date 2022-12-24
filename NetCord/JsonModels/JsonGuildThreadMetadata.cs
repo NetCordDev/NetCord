@@ -22,6 +22,6 @@ public partial class JsonGuildThreadMetadata
     [JsonSerializable(typeof(JsonGuildThreadMetadata))]
     public partial class JsonGuildThreadMetadataSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildThreadMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildThreadMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -51,6 +51,6 @@ public partial class GuildScheduledEventOptions
     [JsonSerializable(typeof(GuildScheduledEventOptions))]
     public partial class GuildScheduledEventOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildScheduledEventOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildScheduledEventOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

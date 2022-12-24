@@ -58,6 +58,6 @@ public partial class UserActivityProperties
     [JsonSerializable(typeof(UserActivityProperties))]
     public partial class UserActivityPropertiesSerializerContext : JsonSerializerContext
     {
-        public static UserActivityPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static UserActivityPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

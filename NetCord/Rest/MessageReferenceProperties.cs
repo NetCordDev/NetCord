@@ -19,6 +19,6 @@ public partial class MessageReferenceProperties : Entity
     [JsonSerializable(typeof(MessageReferenceProperties))]
     public partial class MessageReferencePropertiesSerializerContext : JsonSerializerContext
     {
-        public static MessageReferencePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static MessageReferencePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

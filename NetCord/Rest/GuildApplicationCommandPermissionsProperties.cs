@@ -19,6 +19,6 @@ public partial class GuildApplicationCommandPermissionsProperties
     [JsonSerializable(typeof(GuildApplicationCommandPermissionsProperties))]
     public partial class GuildApplicationCommandPermissionsPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildApplicationCommandPermissionsPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildApplicationCommandPermissionsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

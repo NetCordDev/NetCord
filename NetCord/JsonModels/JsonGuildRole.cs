@@ -37,13 +37,13 @@ public partial class JsonGuildRole : JsonEntity
     [JsonSerializable(typeof(JsonGuildRole))]
     public partial class JsonGuildRoleSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildRole[]))]
     public partial class JsonGuildRoleArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildRoleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -63,6 +63,6 @@ public partial class JsonTags
     [JsonSerializable(typeof(JsonTags))]
     public partial class JsonTagsSerializerContext : JsonSerializerContext
     {
-        public static JsonTagsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonTagsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

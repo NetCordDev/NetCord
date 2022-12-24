@@ -31,6 +31,6 @@ public partial class ForumTagProperties
     [JsonSerializable(typeof(ForumTagProperties))]
     public partial class ForumTagPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ForumTagPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ForumTagPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

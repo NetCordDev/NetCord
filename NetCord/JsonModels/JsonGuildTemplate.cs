@@ -40,12 +40,12 @@ public partial class JsonGuildTemplate
     [JsonSerializable(typeof(JsonGuildTemplate))]
     public partial class JsonGuildTemplateSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildTemplateSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildTemplateSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildTemplate[]))]
     public partial class JsonGuildTemplateArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildTemplateArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildTemplateArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

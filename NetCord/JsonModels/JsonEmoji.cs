@@ -31,12 +31,12 @@ public partial class JsonEmoji
     [JsonSerializable(typeof(JsonEmoji))]
     public partial class JsonEmojiSerializerContext : JsonSerializerContext
     {
-        public static JsonEmojiSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmojiSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonEmoji[]))]
     public partial class JsonEmojiArraySerializerContext : JsonSerializerContext
     {
-        public static JsonEmojiArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonEmojiArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

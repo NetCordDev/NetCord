@@ -37,13 +37,13 @@ public partial class JsonSticker : JsonEntity
     [JsonSerializable(typeof(JsonSticker))]
     public partial class JsonStickerSerializerContext : JsonSerializerContext
     {
-        public static JsonStickerSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonStickerSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonSticker[]))]
     public partial class JsonStickerArraySerializerContext : JsonSerializerContext
     {
-        public static JsonStickerArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonStickerArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 

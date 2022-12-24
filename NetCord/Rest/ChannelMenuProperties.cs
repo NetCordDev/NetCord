@@ -15,6 +15,6 @@ public partial class ChannelMenuProperties : MenuProperties
     [JsonSerializable(typeof(ChannelMenuProperties))]
     public partial class ChannelMenuPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ChannelMenuPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ChannelMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

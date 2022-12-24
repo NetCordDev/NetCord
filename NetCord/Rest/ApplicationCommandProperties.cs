@@ -25,7 +25,7 @@ public partial class SlashCommandProperties : ApplicationCommandProperties
     [JsonSerializable(typeof(SlashCommandProperties))]
     public partial class SlashCommandPropertiesSerializerContext : JsonSerializerContext
     {
-        public static SlashCommandPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static SlashCommandPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -38,7 +38,7 @@ public partial class UserCommandProperties : ApplicationCommandProperties
     [JsonSerializable(typeof(UserCommandProperties))]
     public partial class UserCommandPropertiesSerializerContext : JsonSerializerContext
     {
-        public static UserCommandPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static UserCommandPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -51,7 +51,7 @@ public partial class MessageCommandProperties : ApplicationCommandProperties
     [JsonSerializable(typeof(MessageCommandProperties))]
     public partial class MessageCommandPropertiesSerializerContext : JsonSerializerContext
     {
-        public static MessageCommandPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static MessageCommandPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -114,12 +114,12 @@ public abstract partial class ApplicationCommandProperties
     [JsonSerializable(typeof(ApplicationCommandProperties))]
     public partial class ApplicationCommandPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ApplicationCommandPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ApplicationCommandPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IEnumerable<ApplicationCommandProperties>))]
     public partial class IEnumerableOfApplicationCommandPropertiesSerializerContext : JsonSerializerContext
     {
-        public static IEnumerableOfApplicationCommandPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IEnumerableOfApplicationCommandPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -51,12 +51,12 @@ public partial class JsonIntegration : JsonEntity
     [JsonSerializable(typeof(JsonIntegration))]
     public partial class JsonIntegrationSerializerContext : JsonSerializerContext
     {
-        public static JsonIntegrationSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonIntegrationSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonIntegration[]))]
     public partial class JsonIntegrationArraySerializerContext : JsonSerializerContext
     {
-        public static JsonIntegrationArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonIntegrationArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -22,6 +22,6 @@ public partial class GuildPruneProperties
     [JsonSerializable(typeof(GuildPruneProperties))]
     public partial class GuildPrunePropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildPrunePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildPrunePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

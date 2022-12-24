@@ -5,16 +5,6 @@ namespace NetCord;
 
 internal static class ToObjectExtensions
 {
-    internal static readonly JsonSerializerOptions _options;
-
-    static ToObjectExtensions()
-    {
-        _options = new();
-        _options.Converters.Add(new JsonConverters.UInt64Converter());
-        _options.Converters.Add(new JsonConverters.CultureInfoConverter());
-        _options.Converters.Add(new JsonConverters.PermissionConverter());
-    }
-
     internal static T ToObject<T>(this JsonElement element, JsonTypeInfo<T> jsonTypeInfo)
     {
         return JsonSerializer.Deserialize(element, jsonTypeInfo)!;

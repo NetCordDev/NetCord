@@ -28,6 +28,6 @@ public partial class GuildUserOptions : CurrentGuildUserOptions
     [JsonSerializable(typeof(GuildUserOptions))]
     public partial class GuildUserOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildUserOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildUserOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -60,6 +60,6 @@ public partial class InteractionMessageProperties
     [JsonSerializable(typeof(InteractionMessageProperties))]
     public partial class InteractionMessagePropertiesSerializerContext : JsonSerializerContext
     {
-        public static InteractionMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static InteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

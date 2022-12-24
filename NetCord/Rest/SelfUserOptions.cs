@@ -15,6 +15,6 @@ public partial class SelfUserOptions
     [JsonSerializable(typeof(SelfUserOptions))]
     public partial class SelfUserOptionsSerializerContext : JsonSerializerContext
     {
-        public static SelfUserOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static SelfUserOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

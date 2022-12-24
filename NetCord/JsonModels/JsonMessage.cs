@@ -95,12 +95,12 @@ public partial class JsonMessage : JsonEntity
     [JsonSerializable(typeof(JsonMessage))]
     public partial class JsonMessageSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonMessage[]))]
     public partial class JsonMessageArraySerializerContext : JsonSerializerContext
     {
-        public static JsonMessageArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

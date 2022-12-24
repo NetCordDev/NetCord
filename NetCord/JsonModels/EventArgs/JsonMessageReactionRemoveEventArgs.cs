@@ -22,6 +22,6 @@ public partial class JsonMessageReactionRemoveEventArgs
     [JsonSerializable(typeof(JsonMessageReactionRemoveEventArgs))]
     public partial class JsonMessageReactionRemoveEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageReactionRemoveEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageReactionRemoveEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -16,6 +16,6 @@ public partial class JsonMessageDeleteEventArgs
     [JsonSerializable(typeof(JsonMessageDeleteEventArgs))]
     public partial class JsonMessageDeleteEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageDeleteEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

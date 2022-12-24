@@ -37,6 +37,6 @@ public partial class JsonInteractionData
     [JsonSerializable(typeof(JsonInteractionData))]
     public partial class JsonInteractionDataSerializerContext : JsonSerializerContext
     {
-        public static JsonInteractionDataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonInteractionDataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

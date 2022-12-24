@@ -15,6 +15,6 @@ internal partial class FollowAnnouncementGuildChannelProperties
     [JsonSerializable(typeof(FollowAnnouncementGuildChannelProperties))]
     public partial class FollowAnnouncementGuildChannelPropertiesSerializerContext : JsonSerializerContext
     {
-        public static FollowAnnouncementGuildChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static FollowAnnouncementGuildChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

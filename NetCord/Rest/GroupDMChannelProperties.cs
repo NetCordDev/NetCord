@@ -18,6 +18,6 @@ public partial class GroupDMChannelProperties
     [JsonSerializable(typeof(GroupDMChannelProperties))]
     public partial class GroupDMChannelPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GroupDMChannelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GroupDMChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

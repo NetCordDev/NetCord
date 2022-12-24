@@ -13,6 +13,6 @@ public partial class JsonFollowedChannel : JsonEntity
     [JsonSerializable(typeof(JsonFollowedChannel))]
     public partial class JsonFollowedChannelSerializerContext : JsonSerializerContext
     {
-        public static JsonFollowedChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonFollowedChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

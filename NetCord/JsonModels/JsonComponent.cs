@@ -55,6 +55,6 @@ public partial class JsonComponent
     [JsonSerializable(typeof(JsonComponent))]
     public partial class JsonComponentSerializerContext : JsonSerializerContext
     {
-        public static JsonComponentSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonComponentSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

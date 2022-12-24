@@ -40,6 +40,6 @@ public partial class ConnectionPropertiesProperties
     [JsonSerializable(typeof(ConnectionPropertiesProperties))]
     public partial class ConnectionPropertiesPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ConnectionPropertiesPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ConnectionPropertiesPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

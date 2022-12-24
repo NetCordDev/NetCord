@@ -20,6 +20,6 @@ public partial class JsonMessageReference
     [JsonSerializable(typeof(JsonMessageReference))]
     public partial class JsonMessageReferenceSerializerContext : JsonSerializerContext
     {
-        public static JsonMessageReferenceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMessageReferenceSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

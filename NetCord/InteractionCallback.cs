@@ -97,25 +97,25 @@ public partial class InteractionCallback
     [JsonSerializable(typeof(InteractionCallback<InteractionMessageProperties>))]
     internal partial class InteractionCallbackOfInteractionMessagePropertiesSerializerContext : JsonSerializerContext
     {
-        public static InteractionCallbackOfInteractionMessagePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static InteractionCallbackOfInteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(InteractionCallback))]
     internal partial class InteractionCallbackSerializerContext : JsonSerializerContext
     {
-        public static InteractionCallbackSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static InteractionCallbackSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(InteractionCallback<InteractionCallbackChoicesDataProperties>))]
     internal partial class InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
     {
-        public static InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(InteractionCallback<ModalProperties>))]
     internal partial class InteractionCallbackOfModalPropertiesSerializerContext : JsonSerializerContext
     {
-        public static InteractionCallbackOfModalPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static InteractionCallbackOfModalPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 

@@ -17,6 +17,6 @@ public partial class JsonAuditLogChange
     [JsonSerializable(typeof(JsonAuditLogChange))]
     public partial class JsonAuditLogChangeSerializerContext : JsonSerializerContext
     {
-        public static JsonAuditLogChangeSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAuditLogChangeSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

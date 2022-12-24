@@ -13,6 +13,6 @@ public partial class JsonGuildWidgetChannel : JsonEntity
     [JsonSerializable(typeof(JsonGuildWidgetChannel))]
     public partial class JsonGuildWidgetChannelSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildWidgetChannelSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildWidgetChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

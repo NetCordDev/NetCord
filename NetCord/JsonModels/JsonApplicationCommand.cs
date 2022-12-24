@@ -47,12 +47,12 @@ public partial class JsonApplicationCommand : JsonEntity
     [JsonSerializable(typeof(JsonApplicationCommand))]
     public partial class JsonApplicationCommandSerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonApplicationCommand[]))]
     public partial class JsonApplicationCommandArraySerializerContext : JsonSerializerContext
     {
-        public static JsonApplicationCommandArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonApplicationCommandArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

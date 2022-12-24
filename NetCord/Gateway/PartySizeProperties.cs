@@ -31,6 +31,6 @@ public partial class PartySizeProperties
     [JsonSerializable(typeof(PartySizeProperties))]
     public partial class PartySizePropertiesSerializerContext : JsonSerializerContext
     {
-        public static PartySizePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static PartySizePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

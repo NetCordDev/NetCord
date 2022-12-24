@@ -49,12 +49,12 @@ public partial class JsonGuildScheduledEvent : JsonEntity
     [JsonSerializable(typeof(JsonGuildScheduledEvent))]
     public partial class JsonGuildScheduledEventSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildScheduledEvent[]))]
     public partial class JsonGuildScheduledEventArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

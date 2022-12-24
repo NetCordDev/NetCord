@@ -16,6 +16,6 @@ public partial class JsonVoiceServerUpdateEventArgs
     [JsonSerializable(typeof(JsonVoiceServerUpdateEventArgs))]
     public partial class JsonVoiceServerUpdateEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonVoiceServerUpdateEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonVoiceServerUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -35,6 +35,6 @@ public partial class GuildRoleProperties
     [JsonSerializable(typeof(GuildRoleProperties))]
     public partial class GuildRolePropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildRolePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildRolePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

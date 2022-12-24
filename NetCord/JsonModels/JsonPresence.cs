@@ -24,6 +24,6 @@ public partial class JsonPresence
     [JsonSerializable(typeof(JsonPresence))]
     public partial class JsonPresenceSerializerContext : JsonSerializerContext
     {
-        public static JsonPresenceSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonPresenceSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -13,6 +13,6 @@ public partial class JsonGuildRoleDeleteEventArgs
     [JsonSerializable(typeof(JsonGuildRoleDeleteEventArgs))]
     public partial class JsonGuildRoleDeleteEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleDeleteEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildRoleDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

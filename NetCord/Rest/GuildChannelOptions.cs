@@ -87,6 +87,6 @@ public partial class GuildChannelOptions
     [JsonSerializable(typeof(GuildChannelOptions))]
     public partial class GuildChannelOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildChannelOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildChannelOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

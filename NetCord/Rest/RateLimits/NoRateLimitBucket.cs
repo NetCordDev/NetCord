@@ -31,7 +31,7 @@ internal partial class NoRateLimitBucket : IBucket
         [JsonSerializable(typeof(JsonGlobalRateLimit))]
         public partial class JsonGlobalRateLimitSerializerContext : JsonSerializerContext
         {
-            public static JsonGlobalRateLimitSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static JsonGlobalRateLimitSerializerContext WithOptions { get; } = new(Serialization.Options);
         }
     }
 

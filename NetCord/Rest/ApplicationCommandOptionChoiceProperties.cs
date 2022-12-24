@@ -58,13 +58,13 @@ public partial class ApplicationCommandOptionChoiceProperties
         [JsonSerializable(typeof(IReadOnlyDictionary<CultureInfo, string>))]
         public partial class IReadOnlyDictionaryOfCultureInfoStringSerializerContext : JsonSerializerContext
         {
-            public static IReadOnlyDictionaryOfCultureInfoStringSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+            public static IReadOnlyDictionaryOfCultureInfoStringSerializerContext WithOptions { get; } = new(Serialization.Options);
         }
     }
 
     [JsonSerializable(typeof(ApplicationCommandOptionChoiceProperties))]
     public partial class ApplicationCommandOptionChoicePropertiesSerializerContext : JsonSerializerContext
     {
-        public static ApplicationCommandOptionChoicePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ApplicationCommandOptionChoicePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

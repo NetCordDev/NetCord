@@ -12,6 +12,6 @@ public partial class JsonParty
     [JsonSerializable(typeof(JsonParty))]
     public partial class JsonPartySerializerContext : JsonSerializerContext
     {
-        public static JsonPartySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonPartySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

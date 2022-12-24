@@ -88,6 +88,6 @@ public partial class GuildOptions
     [JsonSerializable(typeof(GuildOptions))]
     public partial class GuildOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

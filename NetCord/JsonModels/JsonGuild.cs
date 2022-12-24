@@ -167,12 +167,12 @@ public partial class JsonGuild : JsonEntity
     [JsonSerializable(typeof(JsonGuild))]
     public partial class JsonGuildSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuild[]))]
     public partial class JsonGuildArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -19,12 +19,12 @@ public partial class JsonThreadUser : JsonThreadSelfUser
     [JsonSerializable(typeof(JsonThreadUser))]
     public partial class JsonThreadUserSerializerContext : JsonSerializerContext
     {
-        public static JsonThreadUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonThreadUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonThreadUser[]))]
     public partial class JsonThreadUserArraySerializerContext : JsonSerializerContext
     {
-        public static JsonThreadUserArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonThreadUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

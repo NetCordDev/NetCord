@@ -22,6 +22,6 @@ public partial class GuildEmojiProperties
     [JsonSerializable(typeof(GuildEmojiProperties))]
     public partial class GuildEmojiPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildEmojiPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildEmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

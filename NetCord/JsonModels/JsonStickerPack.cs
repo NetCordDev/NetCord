@@ -25,6 +25,6 @@ public partial class JsonStickerPack : JsonEntity
     [JsonSerializable(typeof(JsonStickerPack))]
     public partial class JsonStickerPackSerializerContext : JsonSerializerContext
     {
-        public static JsonStickerPackSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonStickerPackSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

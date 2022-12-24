@@ -19,12 +19,12 @@ public partial class GuildRolePositionProperties
     [JsonSerializable(typeof(GuildRolePositionProperties))]
     public partial class GuildRolePositionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(IEnumerable<GuildRolePositionProperties>))]
     public partial class IEnumerableOfGuildRolePositionPropertiesSerializerContext : JsonSerializerContext
     {
-        public static IEnumerableOfGuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static IEnumerableOfGuildRolePositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

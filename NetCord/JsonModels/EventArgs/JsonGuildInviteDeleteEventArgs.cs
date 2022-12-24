@@ -16,6 +16,6 @@ public partial class JsonGuildInviteDeleteEventArgs
     [JsonSerializable(typeof(JsonGuildInviteDeleteEventArgs))]
     public partial class JsonGuildInviteDeleteEventArgsSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildInviteDeleteEventArgsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildInviteDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

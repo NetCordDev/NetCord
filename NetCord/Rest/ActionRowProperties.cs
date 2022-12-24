@@ -15,6 +15,6 @@ public partial class ActionRowProperties : ComponentProperties
     [JsonSerializable(typeof(ActionRowProperties))]
     public partial class ActionRowPropertiesSerializerContext : JsonSerializerContext
     {
-        public static ActionRowPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static ActionRowPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

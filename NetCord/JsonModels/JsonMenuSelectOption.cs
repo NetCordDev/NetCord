@@ -22,6 +22,6 @@ public partial class JsonMenuSelectOption
     [JsonSerializable(typeof(JsonMenuSelectOption))]
     public partial class JsonMenuSelectOptionSerializerContext : JsonSerializerContext
     {
-        public static JsonMenuSelectOptionSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonMenuSelectOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

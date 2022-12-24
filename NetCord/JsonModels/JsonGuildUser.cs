@@ -43,12 +43,12 @@ public partial class JsonGuildUser
     [JsonSerializable(typeof(JsonGuildUser))]
     public partial class JsonGuildUserSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildUserSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildUserSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(JsonGuildUser[]))]
     public partial class JsonGuildUserArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildUserArraySerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

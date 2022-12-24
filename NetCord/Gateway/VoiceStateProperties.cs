@@ -27,6 +27,6 @@ public partial class VoiceStateProperties
     [JsonSerializable(typeof(VoiceStateProperties))]
     public partial class VoiceStatePropertiesSerializerContext : JsonSerializerContext
     {
-        public static VoiceStatePropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static VoiceStatePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -36,6 +36,6 @@ public partial class JsonAttachment : JsonEntity
     [JsonSerializable(typeof(JsonAttachment))]
     public partial class JsonAttachmentSerializerContext : JsonSerializerContext
     {
-        public static JsonAttachmentSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonAttachmentSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

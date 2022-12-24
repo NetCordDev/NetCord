@@ -15,6 +15,6 @@ internal partial class GuildMfaLevelProperties
     [JsonSerializable(typeof(GuildMfaLevelProperties))]
     public partial class GuildMfaLevelPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildMfaLevelPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildMfaLevelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

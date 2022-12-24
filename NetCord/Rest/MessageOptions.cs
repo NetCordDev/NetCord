@@ -55,6 +55,6 @@ public partial class MessageOptions
     [JsonSerializable(typeof(MessageOptions))]
     public partial class MessageOptionsSerializerContext : JsonSerializerContext
     {
-        public static MessageOptionsSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static MessageOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

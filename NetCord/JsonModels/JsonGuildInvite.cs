@@ -45,6 +45,6 @@ public partial class JsonGuildInvite
     [JsonSerializable(typeof(JsonGuildInvite))]
     public partial class JsonGuildInviteSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildInviteSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildInviteSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

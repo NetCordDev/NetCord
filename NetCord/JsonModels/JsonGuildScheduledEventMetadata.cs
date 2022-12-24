@@ -10,6 +10,6 @@ public partial class JsonGuildScheduledEventMetadata
     [JsonSerializable(typeof(JsonGuildScheduledEventMetadata))]
     public partial class JsonGuildScheduledEventMetadataSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildScheduledEventMetadataSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static JsonGuildScheduledEventMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

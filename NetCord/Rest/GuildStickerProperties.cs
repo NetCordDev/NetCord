@@ -58,6 +58,6 @@ public partial class GuildStickerProperties
     [JsonSerializable(typeof(GuildStickerProperties))]
     public partial class GuildStickerPropertiesSerializerContext : JsonSerializerContext
     {
-        public static GuildStickerPropertiesSerializerContext WithOptions { get; } = new(new(ToObjectExtensions._options));
+        public static GuildStickerPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
