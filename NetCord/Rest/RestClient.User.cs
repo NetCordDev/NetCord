@@ -12,7 +12,8 @@ public partial class RestClient
     {
         SelfUserOptions selfUserOptions = new();
         action(selfUserOptions);
-        return new(await (await SendRequestAsync(HttpMethod.Patch, $"/users/@me", new(RateLimits.RouteParameter.ModifyCurrentUser), new JsonContent<SelfUserOptions>(selfUserOptions, SelfUserOptions.SelfUserOptionsSerializerContext.WithOptions.SelfUserOptions), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<SelfUserOptions>(selfUserOptions, SelfUserOptions.SelfUserOptionsSerializerContext.WithOptions.SelfUserOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/users/@me", new(RateLimits.RouteParameter.ModifyCurrentUser), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
     }
 
     public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(RequestProperties? properties = null)
@@ -76,10 +77,16 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", properties);
 
     public async Task<DMChannel> GetDMChannelAsync(ulong userId, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<DMChannelProperties>(new(userId), DMChannelProperties.DMChannelPropertiesSerializerContext.WithOptions.DMChannelProperties), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    {
+        using (HttpContent content = new JsonContent<DMChannelProperties>(new(userId), DMChannelProperties.DMChannelPropertiesSerializerContext.WithOptions.DMChannelProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    }
 
     public async Task<GroupDMChannel> CreateGroupDMChannelAsync(GroupDMChannelProperties groupDMChannelProperties, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", new JsonContent<GroupDMChannelProperties>(groupDMChannelProperties, GroupDMChannelProperties.GroupDMChannelPropertiesSerializerContext.WithOptions.GroupDMChannelProperties), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    {
+        using (HttpContent content = new JsonContent<GroupDMChannelProperties>(groupDMChannelProperties, GroupDMChannelProperties.GroupDMChannelPropertiesSerializerContext.WithOptions.GroupDMChannelProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, "/users/@me/channels", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    }
 
     public async Task<IReadOnlyDictionary<ulong, Connection>> GetCurrentUserConnectionsAsync(RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, "/users/@me/connections", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonConnection.JsonConnectionArraySerializerContext.WithOptions.JsonConnectionArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new Connection(c, this));
@@ -88,5 +95,8 @@ public partial class RestClient
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/applications/{applicationId}/role-connection", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonApplicationRoleConnection.JsonApplicationRoleConnectionSerializerContext.WithOptions.JsonApplicationRoleConnection).ConfigureAwait(false));
 
     public async Task<ApplicationRoleConnection> UpdateCurrentUserApplicationRoleConnectionAsync(ulong applicationId, ApplicationRoleConnectionProperties applicationRoleConnectionProperties, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Put, $"/users/@me/applications/{applicationId}/role-connection", new JsonContent<ApplicationRoleConnectionProperties>(applicationRoleConnectionProperties, ApplicationRoleConnectionProperties.ApplicationRoleConnectionPropertiesSerializerContext.WithOptions.ApplicationRoleConnectionProperties), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonApplicationRoleConnection.JsonApplicationRoleConnectionSerializerContext.WithOptions.JsonApplicationRoleConnection).ConfigureAwait(false));
+    {
+        using (HttpContent content = new JsonContent<ApplicationRoleConnectionProperties>(applicationRoleConnectionProperties, ApplicationRoleConnectionProperties.ApplicationRoleConnectionPropertiesSerializerContext.WithOptions.ApplicationRoleConnectionProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Put, $"/users/@me/applications/{applicationId}/role-connection", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonApplicationRoleConnection.JsonApplicationRoleConnectionSerializerContext.WithOptions.JsonApplicationRoleConnection).ConfigureAwait(false));
+    }
 }

@@ -3,7 +3,10 @@
 public partial class RestClient
 {
     public Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RequestProperties? properties = null)
-        => SendRequestWithoutRateLimitAsync(HttpMethod.Post, $"/interactions/{interactionId}/{interactionToken}/callback", callback.Build(), properties);
+    {
+        using (HttpContent content = callback.Build())
+            return SendRequestWithoutRateLimitAsync(HttpMethod.Post, $"/interactions/{interactionId}/{interactionToken}/callback", content, properties);
+    }
 
     public async Task<RestMessage> GetInteractionResponseAsync(ulong applicationId, string interactionToken, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", new RateLimits.Route(RateLimits.RouteParameter.Interaction, globalRateLimit: false), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
@@ -12,14 +15,18 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        return new(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), messageOptions.Build(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+        using (HttpContent content = messageOptions.Build())
+            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
     public Task DeleteInteractionResponseAsync(ulong applicationId, string interactionToken, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", new RateLimits.Route(RateLimits.RouteParameter.Interaction, globalRateLimit: false), properties);
 
     public async Task<RestMessage> SendInteractionFollowupMessageAsync(ulong applicationId, string interactionToken, InteractionMessageProperties message, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, $"/webhooks/{applicationId}/{interactionToken}", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), message.Build(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+    {
+        using (HttpContent content = message.Build())
+            return new(await (await SendRequestAsync(HttpMethod.Post, $"/webhooks/{applicationId}/{interactionToken}", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+    }
 
     public async Task<RestMessage> GetInteractionFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", new RateLimits.Route(RateLimits.RouteParameter.Interaction, globalRateLimit: false), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
@@ -28,7 +35,8 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        return new(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), messageOptions.Build(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+        using (HttpContent content = messageOptions.Build())
+            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", new(RateLimits.RouteParameter.Interaction, globalRateLimit: false), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
     public Task DeleteInteractionFollowupMessageAsync(ulong applicationId, string interactionToken, ulong messageId, RequestProperties? properties = null)

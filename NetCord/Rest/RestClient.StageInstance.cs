@@ -3,7 +3,10 @@
 public partial class RestClient
 {
     public async Task<StageInstance> CreateStageInstanceAsync(StageInstanceProperties stageInstanceProperties, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, "/stage-instances", new(RateLimits.RouteParameter.CreateStageInstance), new JsonContent<StageInstanceProperties>(stageInstanceProperties, StageInstanceProperties.StageInstancePropertiesSerializerContext.WithOptions.StageInstanceProperties), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance).ConfigureAwait(false), this);
+    {
+        using (HttpContent content = new JsonContent<StageInstanceProperties>(stageInstanceProperties, StageInstanceProperties.StageInstancePropertiesSerializerContext.WithOptions.StageInstanceProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, "/stage-instances", new(RateLimits.RouteParameter.CreateStageInstance), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance).ConfigureAwait(false), this);
+    }
 
     public async Task<StageInstance> GetStageInstanceAsync(ulong channelId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/stage-instances/{channelId}", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance).ConfigureAwait(false), this);
@@ -12,7 +15,8 @@ public partial class RestClient
     {
         StageInstanceOptions stageInstanceOptions = new();
         action(stageInstanceOptions);
-        return new(await (await SendRequestAsync(HttpMethod.Patch, $"/stage-instances/{channelId}", new(RateLimits.RouteParameter.ModifyStageInstance), new JsonContent<StageInstanceOptions>(stageInstanceOptions, StageInstanceOptions.StageInstanceOptionsSerializerContext.WithOptions.StageInstanceOptions), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<StageInstanceOptions>(stageInstanceOptions, StageInstanceOptions.StageInstanceOptionsSerializerContext.WithOptions.StageInstanceOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/stage-instances/{channelId}", new(RateLimits.RouteParameter.ModifyStageInstance), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance).ConfigureAwait(false), this);
     }
 
     public Task DeleteStageInstanceAsync(ulong channelId, RequestProperties? properties = null)

@@ -3,7 +3,10 @@
 public partial class RestClient
 {
     public async Task<Webhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RequestProperties? properties = null)
-        => Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/webhooks", new JsonContent<WebhookProperties>(webhookProperties, WebhookProperties.WebhookPropertiesSerializerContext.WithOptions.WebhookProperties), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
+    {
+        using (HttpContent content = new JsonContent<WebhookProperties>(webhookProperties, WebhookProperties.WebhookPropertiesSerializerContext.WithOptions.WebhookProperties))
+            return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/webhooks", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
+    }
 
     public async Task<IReadOnlyDictionary<ulong, Webhook>> GetChannelWebhooksAsync(ulong channelId, RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookArraySerializerContext.WithOptions.JsonWebhookArray).ConfigureAwait(false)).ToDictionary(w => w.Id, w => Webhook.CreateFromJson(w, this));
@@ -21,14 +24,16 @@ public partial class RestClient
     {
         WebhookOptions webhookOptions = new();
         action(webhookOptions);
-        return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}", new JsonContent<WebhookOptions>(webhookOptions, WebhookOptions.WebhookOptionsSerializerContext.WithOptions.WebhookOptions), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<WebhookOptions>(webhookOptions, WebhookOptions.WebhookOptionsSerializerContext.WithOptions.WebhookOptions))
+            return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
     }
 
     public async Task<Webhook> ModifyWebhookWithTokenAsync(ulong webhookId, string webhookToken, Action<WebhookOptions> action, RequestProperties? properties = null)
     {
         WebhookOptions webhookOptions = new();
         action(webhookOptions);
-        return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}/{webhookToken}", new JsonContent<WebhookOptions>(webhookOptions, WebhookOptions.WebhookOptionsSerializerContext.WithOptions.WebhookOptions), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<WebhookOptions>(webhookOptions, WebhookOptions.WebhookOptionsSerializerContext.WithOptions.WebhookOptions))
+            return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, $"/webhooks/{webhookId}/{webhookToken}", content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonWebhook.JsonWebhookSerializerContext.WithOptions.JsonWebhook).ConfigureAwait(false), this);
     }
 
     public Task DeleteWebhookAsync(ulong webhookId, RequestProperties? properties = null)
@@ -37,14 +42,17 @@ public partial class RestClient
     public Task DeleteWebhookWithTokenAsync(ulong webhookId, string webhookToken, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/webhooks/{webhookId}/{webhookToken}", properties);
 
-    public async Task<RestMessage?> ExecuteWebhookAsync(ulong webhookId, string webhookToken, WebhookMessageProperties messageProperties, bool wait = false, ulong? threadId = null, RequestProperties? properties = null)
+    public async Task<RestMessage?> ExecuteWebhookAsync(ulong webhookId, string webhookToken, WebhookMessageProperties message, bool wait = false, ulong? threadId = null, RequestProperties? properties = null)
     {
-        if (wait)
-            return new(await (await SendRequestAsync(HttpMethod.Post, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}?wait=True&thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}?wait=True", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), messageProperties.Build(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
-        else
+        using (HttpContent content = message.Build())
         {
-            await SendRequestAsync(HttpMethod.Post, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}?wait=False&thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}?wait=False", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), messageProperties.Build(), properties).ConfigureAwait(false);
-            return null;
+            if (wait)
+                return new(await (await SendRequestAsync(HttpMethod.Post, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}?wait=True&thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}?wait=True", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+            else
+            {
+                await SendRequestAsync(HttpMethod.Post, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}?wait=False&thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}?wait=False", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), content, properties).ConfigureAwait(false);
+                return null;
+            }
         }
     }
 
@@ -55,7 +63,8 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        return new(await (await SendRequestAsync(HttpMethod.Patch, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}?thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), messageOptions.Build(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+        using (HttpContent content = messageOptions.Build())
+            return new(await (await SendRequestAsync(HttpMethod.Patch, threadId.HasValue ? $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}?thread_id={threadId.GetValueOrDefault()}" : $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}", new(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
     public Task DeleteWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, ulong? threadId = null, RequestProperties? properties = null)

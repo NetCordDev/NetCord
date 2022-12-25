@@ -17,8 +17,13 @@ internal static class ToObjectExtensions
 
     internal static async ValueTask<T> ToObjectAsync<T>(this Stream stream, JsonTypeInfo<T> jsonTypeInfo)
     {
-        var result = (await JsonSerializer.DeserializeAsync(stream, jsonTypeInfo).ConfigureAwait(false))!;
-        await stream.DisposeAsync().ConfigureAwait(false);
-        return result;
+        try
+        {
+            return (await JsonSerializer.DeserializeAsync(stream, jsonTypeInfo).ConfigureAwait(false))!;
+        }
+        finally
+        {
+            await stream.DisposeAsync().ConfigureAwait(false);
+        }
     }
 }
