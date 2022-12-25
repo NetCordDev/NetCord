@@ -19,7 +19,7 @@ internal partial class NoRateLimitBucket : IBucket
     private protected static async Task<long> GetNewGlobalResetAsync(HttpResponseMessage response)
     {
         var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        var retryAfter = (long)(stream.ToObject(JsonGlobalRateLimit.JsonGlobalRateLimitSerializerContext.WithOptions.JsonGlobalRateLimit).RetryAfter * 1000);
+        var retryAfter = (long)((await stream.ToObjectAsync(JsonGlobalRateLimit.JsonGlobalRateLimitSerializerContext.WithOptions.JsonGlobalRateLimit).ConfigureAwait(false)).RetryAfter * 1000);
         return Environment.TickCount64 + retryAfter;
     }
 

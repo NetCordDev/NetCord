@@ -15,13 +15,10 @@ internal static class ToObjectExtensions
         return JsonSerializer.Deserialize(ref reader, jsonTypeInfo)!;
     }
 
-    internal static T ToObject<T>(this JsonDocument document, JsonTypeInfo<T> jsonTypeInfo)
+    internal static async ValueTask<T> ToObjectAsync<T>(this Stream stream, JsonTypeInfo<T> jsonTypeInfo)
     {
-        return JsonSerializer.Deserialize(document, jsonTypeInfo)!;
-    }
-
-    internal static T ToObject<T>(this Stream stream, JsonTypeInfo<T> jsonTypeInfo)
-    {
-        return JsonSerializer.Deserialize(stream, jsonTypeInfo)!;
+        var result = (await JsonSerializer.DeserializeAsync(stream, jsonTypeInfo).ConfigureAwait(false))!;
+        await stream.DisposeAsync().ConfigureAwait(false);
+        return result;
     }
 }
