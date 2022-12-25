@@ -13,7 +13,7 @@ var buckets = await client.CreateGoogleCloudPlatformStorageBucketAsync(channelId
 });
 var bucket = buckets.First();
 
-HttpContent fileContent = new StringContent("File content");
+using (HttpContent fileContent = new StringContent("File content"))
 using (HttpClient httpClient = new())
 {
     // Uploading file content
