@@ -1,7 +1,7 @@
 # First Events
 
 > [!WARNING]
-> You need to enable `MessageContentIntent` to receive @NetCord.Rest.RestMessage.Content of message. If you don't know how, go to @"Intents".
+> You need to enable `MessageContent` intent to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages. If you don't know how, go to @"Intents".
 
 ## MessageCreate Event
 @NetCord.Gateway.GatewayClient.MessageCreate event fires when a message is sent. To detect it, add the following lines before `client.StartAsync()`.

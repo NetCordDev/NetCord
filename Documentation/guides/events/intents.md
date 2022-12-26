@@ -12,19 +12,19 @@ Privileged intents are intents that you need to enable in [Discord Developer Por
 ![](../../images/intents_Privileged.png)
 
 ## How to specify intents in NetCord?
-Intents in NetCord are handled by @NetCord.Gateway.GatewayIntent.
+Intents in NetCord are handled by @NetCord.Gateway.GatewayIntents.
 You specify them like this:
 ```cs
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfig()
 {
-    Intents = GatewayIntent.GuildMessages | GatewayIntent.DirectMessages | GatewayIntent.MessageContent
+    Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent
 });
 ```
 
 > [!WARNING]
-> `GatewayIntent.MessageContent` is a privileged intent.
+> `MessageContent` intent is privileged.
 
 If you made this, you receive guild and direct messages.
 
 > [!NOTE]
-> `GatewayIntent.MessageContent` is a special intent that allows you to get @NetCord.Rest.RestMessage.Content of message on events. Otherwise it is empty.
+> `MessageContent` is a special intent that allows you to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages on events. Otherwise they are empty.
