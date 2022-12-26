@@ -51,6 +51,9 @@ public partial class JsonUser : JsonEntity
     [JsonPropertyName("avatar_decoration")]
     public string? AvatarDecorationHash { get; set; }
 
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; set; }
+
     [JsonSerializable(typeof(JsonUser))]
     public partial class JsonUserSerializerContext : JsonSerializerContext
     {

@@ -56,10 +56,10 @@ public partial class RestClient
         }
     }
 
-    public async Task<WebhookMessage> GetWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, RequestProperties? properties = null)
+    public async Task<RestMessage> GetWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}", new RateLimits.Route(RateLimits.RouteParameter.ExecuteWebhookModifyDeleteWebhookMessage), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
 
-    public async Task<WebhookMessage> ModifyWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, Action<MessageOptions> action, ulong? threadId = null, RequestProperties? properties = null)
+    public async Task<RestMessage> ModifyWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, Action<MessageOptions> action, ulong? threadId = null, RequestProperties? properties = null)
     {
         MessageOptions messageOptions = new();
         action(messageOptions);

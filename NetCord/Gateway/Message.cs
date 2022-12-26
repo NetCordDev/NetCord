@@ -15,7 +15,7 @@ public class Message : RestMessage
     {
         Guild? guild;
         TextChannel? channel;
-        var guildId = jsonModel.GuildId ?? jsonModel.MessageReference?.GuildId;
+        var guildId = jsonModel.GuildId;
         if (guildId.HasValue)
         {
             if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
@@ -45,6 +45,7 @@ public class Message : RestMessage
         return new(jsonModel, guild, channel, client.Rest);
     }
 
+    public ulong? GuildId => _jsonModel.GuildId;
     public Guild? Guild { get; }
     public TextChannel? Channel { get; }
 }

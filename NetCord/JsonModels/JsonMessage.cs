@@ -7,14 +7,8 @@ public partial class JsonMessage : JsonEntity
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
 
-    [JsonPropertyName("guild_id")]
-    public ulong? GuildId { get; set; }
-
     [JsonPropertyName("author")]
     public JsonUser Author { get; set; }
-
-    [JsonPropertyName("member")]
-    public JsonGuildUser? GuildUser { get; set; }
 
     [JsonPropertyName("content")]
     public string Content { get; set; }
@@ -32,10 +26,10 @@ public partial class JsonMessage : JsonEntity
     public bool MentionEveryone { get; set; }
 
     [JsonPropertyName("mentions")]
-    public JsonUser[]? MentionedUsers { get; set; }
+    public JsonUser[] MentionedUsers { get; set; }
 
     [JsonPropertyName("mention_roles")]
-    public ulong[]? MentionedRoleIds { get; set; }
+    public ulong[] MentionedRoleIds { get; set; }
 
     [JsonPropertyName("mention_channels")]
     public JsonGuildChannelMention[]? MentionedChannels { get; set; }
@@ -91,6 +85,15 @@ public partial class JsonMessage : JsonEntity
 
     [JsonPropertyName("sticker_items")]
     public JsonMessageSticker[]? Stickers { get; set; }
+
+    [JsonPropertyName("position")]
+    public int? Position { get; set; }
+
+    [JsonPropertyName("guild_id")]
+    public ulong? GuildId { get; set; }
+
+    [JsonPropertyName("member")]
+    public JsonGuildUser? GuildUser { get; set; }
 
     [JsonSerializable(typeof(JsonMessage))]
     public partial class JsonMessageSerializerContext : JsonSerializerContext
