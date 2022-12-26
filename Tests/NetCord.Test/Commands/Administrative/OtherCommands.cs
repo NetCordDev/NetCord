@@ -5,13 +5,13 @@ namespace NetCord.Test.Commands.Administrative;
 
 public class OtherCommands : CommandModule<CommandContext>
 {
-    [RequireUserPermission<CommandContext>(Permission.KickUsers), RequireBotPermission<CommandContext>(Permission.KickUsers)]
+    [RequireUserPermissions<CommandContext>(Permissions.KickUsers), RequireBotPermissions<CommandContext>(Permissions.KickUsers)]
     public static Task Kick(GuildUser user, [Remainder] string? reason = null)
     {
         return user.KickAsync(new() { AuditLogReason = reason });
     }
 
-    [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
+    [RequireUserPermissions<CommandContext>(default, Permissions.ManageMessages), RequireBotPermissions<CommandContext>(default, Permissions.ManageMessages)]
     public async Task Clear(int count)
     {
         if (count < 1)

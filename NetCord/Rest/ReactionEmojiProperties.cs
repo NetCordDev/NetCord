@@ -30,9 +30,3 @@ public class ReactionEmojiProperties
 
     public static implicit operator ReactionEmojiProperties(string unicode) => new(unicode);
 }
-
-public enum ReactionEmojiType
-{
-    Guild,
-    Standard,
-}

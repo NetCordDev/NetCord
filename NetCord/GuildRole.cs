@@ -24,7 +24,7 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public int Position => _jsonModel.Position;
 
-    public Permission Permissions => _jsonModel.Permissions;
+    public Permissions Permissions => _jsonModel.Permissions;
 
     public bool Managed => _jsonModel.Managed;
 

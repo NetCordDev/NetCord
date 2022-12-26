@@ -17,7 +17,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public string? Splash => _jsonModel.SplashHash;
     public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
     public ulong OwnerId => _jsonModel.OwnerId;
-    public Permission? Permissions => _jsonModel.Permissions;
+    public Permissions? Permissions => _jsonModel.Permissions;
     public ulong? AfkChannelId => _jsonModel.AfkChannelId;
     public int AfkTimeout => _jsonModel.AfkTimeout;
     public bool? WidgetEnabled => _jsonModel.WidgetEnabled;

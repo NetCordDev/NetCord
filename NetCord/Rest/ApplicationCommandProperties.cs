@@ -76,7 +76,7 @@ public abstract partial class ApplicationCommandProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_member_permissions")]
-    public Permission? DefaultGuildUserPermissions { get; set; }
+    public Permissions? DefaultGuildUserPermissions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("dm_permission")]

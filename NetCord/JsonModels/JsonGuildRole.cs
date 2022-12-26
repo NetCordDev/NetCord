@@ -23,7 +23,7 @@ public partial class JsonGuildRole : JsonEntity
     public int Position { get; set; }
 
     [JsonPropertyName("permissions")]
-    public Permission Permissions { get; set; }
+    public Permissions Permissions { get; set; }
 
     [JsonPropertyName("managed")]
     public bool Managed { get; set; }

@@ -16,7 +16,7 @@ public class Test
     {
         GatewayClient client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("OriginalTurboBoat")!), new()
         {
-            Intents = GatewayIntent.All,
+            Intents = GatewayIntents.All,
         });
         Guild? guild = null;
         TaskCompletionSource completionSource = new();

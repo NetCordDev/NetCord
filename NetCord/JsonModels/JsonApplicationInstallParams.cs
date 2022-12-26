@@ -8,7 +8,7 @@ public partial class JsonApplicationInstallParams
     public string[] Scopes { get; set; }
 
     [JsonPropertyName("permissions")]
-    public Permission Permissions { get; set; }
+    public Permissions Permissions { get; set; }
 
     [JsonSerializable(typeof(JsonApplicationInstallParams))]
     public partial class JsonApplicationInstallParamsSerializerContext : JsonSerializerContext

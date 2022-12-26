@@ -18,6 +18,6 @@ public static class Serialization
         _options = new();
         _options.Converters.Add(new JsonConverters.UInt64Converter());
         _options.Converters.Add(new JsonConverters.CultureInfoConverter());
-        _options.Converters.Add(new JsonConverters.PermissionConverter());
+        _options.Converters.Add(new JsonConverters.PermissionsConverter());
     }
 }

@@ -69,14 +69,3 @@ public readonly struct Timestamp
     /// <returns>discord formatted timestamap with specified <paramref name="style"/></returns>
     public string ToString(TimestampStyle style) => $"<t:{DateTime.ToUnixTimeSeconds()}:{(char)style}>";
 }
-
-public enum TimestampStyle
-{
-    ShortTime = 't',
-    LongTime = 'T',
-    ShortDate = 'd',
-    LongDate = 'D',
-    ShortDateTime = 'f',
-    LongDateTime = 'F',
-    RelativeTime = 'R'
-}

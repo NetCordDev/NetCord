@@ -12,7 +12,7 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     public Type? NameTranslationsProviderType { get; init; }
 
-    public Permission DefaultGuildUserPermissions
+    public Permissions DefaultGuildUserPermissions
     {
         get => _defaultGuildUserPermissions.GetValueOrDefault();
         init
@@ -21,7 +21,7 @@ public abstract class ApplicationCommandAttribute : Attribute
         }
     }
 
-    internal readonly Permission? _defaultGuildUserPermissions;
+    internal readonly Permissions? _defaultGuildUserPermissions;
 
     public bool DMPermission
     {

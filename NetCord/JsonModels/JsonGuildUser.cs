@@ -35,7 +35,7 @@ public partial class JsonGuildUser
     public bool? IsPending { get; set; }
 
     [JsonPropertyName("permissions")]
-    public Permission? Permissions { get; set; }
+    public Permissions? Permissions { get; set; }
 
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }

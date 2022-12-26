@@ -33,7 +33,7 @@ public partial class JsonInteraction : JsonEntity
     public JsonMessage Message { get; set; }
 
     [JsonPropertyName("app_permissions")]
-    public Permission? AppPermissions { get; set; }
+    public Permissions? AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
     public CultureInfo UserLocale { get; set; }

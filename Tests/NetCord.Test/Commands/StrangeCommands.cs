@@ -25,7 +25,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("delete", "remove")]
     public Task Delete() => Context.Message.DeleteAsync();
 
-    [RequireUserPermission<CommandContext>(default, Permission.ManageMessages), RequireBotPermission<CommandContext>(default, Permission.ManageMessages)]
+    [RequireUserPermissions<CommandContext>(default, Permissions.ManageMessages), RequireBotPermissions<CommandContext>(default, Permissions.ManageMessages)]
     [Command("delete", "remove")]
     public Task Delete(ulong id)
     {

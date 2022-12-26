@@ -12,11 +12,11 @@ public partial class PermissionOverwriteProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("allow")]
-    public Permission? Allowed { get; set; }
+    public Permissions? Allowed { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("deny")]
-    public Permission? Denied { get; set; }
+    public Permissions? Denied { get; set; }
 
     public PermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
     {

@@ -10,7 +10,7 @@ public partial class GuildRoleProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("permissions")]
-    public Permission? Permissions { get; set; }
+    public Permissions? Permissions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("color")]

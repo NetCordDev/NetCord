@@ -9,5 +9,5 @@ public class GuildInteractionUser : GuildUser
     {
     }
 
-    public Permission Permissions => _jsonModel.Permissions.GetValueOrDefault();
+    public Permissions Permissions => _jsonModel.Permissions.GetValueOrDefault();
 }

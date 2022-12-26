@@ -31,5 +31,5 @@ internal class GatewayIdentifyProperties
     public PresenceProperties? Presence { get; set; }
 
     [JsonPropertyName("intents")]
-    public GatewayIntent Intents { get; set; }
+    public GatewayIntents Intents { get; set; }
 }

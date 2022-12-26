@@ -77,7 +77,7 @@ public partial class JsonChannel : JsonEntity
     public int? DefaultAutoArchiveDuration { get; set; }
 
     [JsonPropertyName("permissions")]
-    public Permission? Permissions { get; set; }
+    public Permissions? Permissions { get; set; }
 
     [JsonPropertyName("flags")]
     public ChannelFlags? Flags { get; set; }

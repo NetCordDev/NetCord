@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[Flags]
 public enum SystemChannelFlags
 {
     SuppressJoinNotifications = 1 << 0,

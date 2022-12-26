@@ -16,8 +16,8 @@ public partial class JsonSticker : JsonEntity
     [JsonPropertyName("tags")]
     public string Tags { get; set; }
 
-    [JsonPropertyName("type")]
-    public JsonStickerType Type { get; set; }
+    //[JsonPropertyName("type")]
+    //public StickerType Type { get; set; }
 
     [JsonPropertyName("format_type")]
     public StickerFormat Format { get; set; }
@@ -45,10 +45,4 @@ public partial class JsonSticker : JsonEntity
     {
         public static JsonStickerArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
-}
-
-public enum JsonStickerType
-{
-    Standard = 1,
-    Guild = 2,
 }

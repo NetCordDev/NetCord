@@ -2,5 +2,5 @@
 
 public interface IInteractionChannel
 {
-    Permission Permissions { get; }
+    Permissions Permissions { get; }
 }

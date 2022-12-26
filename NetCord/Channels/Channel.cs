@@ -11,7 +11,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
     public override ulong Id => _jsonModel.Id;
     public ChannelFlags Flags => _jsonModel.Flags.GetValueOrDefault();
 
-    Permission IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
+    Permissions IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 
     private protected Channel(JsonChannel jsonModel, RestClient client) : base(client)
     {

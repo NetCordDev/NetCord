@@ -21,7 +21,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
 
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
-    public Permission? DefaultGuildUserPermissions => _jsonModel.DefaultGuildUserPermissions;
+    public Permissions? DefaultGuildUserPermissions => _jsonModel.DefaultGuildUserPermissions;
 
     public bool DMPermission => _jsonModel.DMPermission.GetValueOrDefault();
 

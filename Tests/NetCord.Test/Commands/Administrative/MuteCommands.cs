@@ -4,7 +4,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
-[RequireUserPermission<CommandContext>(Permission.ModerateUsers), RequireBotPermission<CommandContext>(Permission.ModerateUsers)]
+[RequireUserPermissions<CommandContext>(Permissions.ModerateUsers), RequireBotPermissions<CommandContext>(Permissions.ModerateUsers)]
 public class MuteCommands : CommandModule<CommandContext>
 {
     [Command("mute")]

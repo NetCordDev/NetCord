@@ -11,7 +11,7 @@ namespace NetCord.Test;
 
 internal static class Program
 {
-    private static readonly GatewayClient _client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!), new() { Intents = GatewayIntent.All, ConnectionProperties = ConnectionPropertiesProperties.IOS });
+    private static readonly GatewayClient _client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!), new() { Intents = GatewayIntents.All, ConnectionProperties = ConnectionPropertiesProperties.IOS });
     private static readonly CommandService<CommandContext> _commandService = new();
     private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
     private static readonly InteractionService<StringMenuInteractionContext> _stringMenuInteractionService = new();
@@ -29,7 +29,7 @@ internal static class Program
     static Program()
     {
         ApplicationCommandServiceOptions<SlashCommandContext> options = new();
-        options.TypeReaders.Add(typeof(Permission), new SlashCommands.PermissionTypeReader());
+        options.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader());
         _slashCommandService = new(options);
     }
 

@@ -8,7 +8,7 @@ namespace NetCord.Test.SlashCommands;
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
-    [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permission.AddReactions)]
+    [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permissions.AddReactions)]
     public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
@@ -70,7 +70,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
     }
 
-    [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.BanUsers), RequireBotPermission<SlashCommandContext>(Permission.BanUsers)]
+    [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.BanUsers), RequireBotPermissions<SlashCommandContext>(Permissions.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
     public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, [MustContain("wzium")] string reason = "no reason")
     {
@@ -81,7 +81,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
-    [InteractionRequireUserChannelPermission<SlashCommandContext>(Permission.ModerateUsers), RequireBotPermission<SlashCommandContext>(Permission.ModerateUsers)]
+    [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.ModerateUsers), RequireBotPermissions<SlashCommandContext>(Permissions.ModerateUsers)]
     [SlashCommand("mute", "Mutes a user")]
     public async Task MuteAsync([SlashCommandParameter(Description = "User to mute")] User user, double days, string reason = "no reason")
     {
@@ -146,13 +146,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("permission", "Shows permission value")]
-    public Task PermissionAsync(Permission permission)
+    public Task PermissionAsync(Permissions permission)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(((ulong)permission).ToString()));
     }
 
     ////[RequireContext<SlashCommandContext>(RequiredContext.Guild)]
-    ////[RequireUserPermission<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
+    ////[RequireUserPermissions<SlashCommandContext>(default, Permission.ManageMessages), RequireBotPermission<SlashCommandContext>(default, Permission.ManageMessages)]
     //[SlashCommand("clear", "Clears channel")]
     //public async Task ClearAsync([MinValue(1)] int count, TextChannel? channel = null)
     //{

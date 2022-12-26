@@ -30,7 +30,7 @@ public partial class JsonApplicationCommand : JsonEntity
     public JsonApplicationCommandOption[]? Options { get; set; }
 
     [JsonPropertyName("default_member_permissions")]
-    public Permission? DefaultGuildUserPermissions { get; set; }
+    public Permissions? DefaultGuildUserPermissions { get; set; }
 
     [JsonPropertyName("dm_permission")]
     public bool? DMPermission { get; set; }

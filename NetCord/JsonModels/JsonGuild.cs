@@ -28,7 +28,7 @@ public partial class JsonGuild : JsonEntity
     public ulong OwnerId { get; set; }
 
     [JsonPropertyName("permissions")]
-    public Permission? Permissions { get; set; }
+    public Permissions? Permissions { get; set; }
 
     [JsonPropertyName("afk_channel_id")]
     public ulong? AfkChannelId { get; set; }

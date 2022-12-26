@@ -28,7 +28,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public string Token => _jsonModel.Token;
 
-    public Permission? AppPermissions => _jsonModel.AppPermissions;
+    public Permissions? AppPermissions => _jsonModel.AppPermissions;
 
     public CultureInfo UserLocale => _jsonModel.UserLocale;
 

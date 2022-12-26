@@ -10,7 +10,7 @@ public interface IApplicationCommandInfo
     public ITranslationsProvider? NameTranslationsProvider { get; }
     public string? Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
-    public Permission? DefaultGuildUserPermissions { get; }
+    public Permissions? DefaultGuildUserPermissions { get; }
     public bool DMPermission { get; }
     public bool DefaultPermission { get; }
     public bool Nsfw { get; }
