@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Globalization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord;
 
@@ -11,10 +12,10 @@ public static class MentionUtils
             mention = mention[2..^1];
             if (mention.StartsWith("!"))
             {
-                if (ulong.TryParse(mention[1..].ToString(), out id))
+                if (ulong.TryParse(mention[1..], NumberStyles.None, CultureInfo.InvariantCulture, out id))
                     return true;
             }
-            else if (ulong.TryParse(mention.ToString(), out id))
+            else if (ulong.TryParse(mention, NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
         id = default;
@@ -33,7 +34,7 @@ public static class MentionUtils
     {
         if (mention.StartsWith("<#") && mention.EndsWith(">"))
         {
-            if (ulong.TryParse(mention[2..^1].ToString(), out id))
+            if (ulong.TryParse(mention[2..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
         id = default;
@@ -52,7 +53,7 @@ public static class MentionUtils
     {
         if (mention.StartsWith("<@&") && mention.EndsWith(">"))
         {
-            if (ulong.TryParse(mention[3..^1].ToString(), out id))
+            if (ulong.TryParse(mention[3..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
         id = default;
@@ -99,8 +100,7 @@ public static class MentionUtils
                 goto Fail;
 
             Skip:
-
-            if (!ulong.TryParse(mention[(index + 1)..].ToString(), out var id))
+            if (!ulong.TryParse(mention[(index + 1)..], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
                 goto Fail;
 
             result = i switch

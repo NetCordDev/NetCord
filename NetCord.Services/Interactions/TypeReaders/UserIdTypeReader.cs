@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 
 namespace NetCord.Services.Interactions.TypeReaders;
 
@@ -14,7 +15,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             var s = span.ToString();
 
             // by id
-            if (ulong.TryParse(s, out ulong id))
+            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));
@@ -31,7 +32,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             if (span.Length is >= 7 and <= 37 && span[^5] == '#')
             {
                 var username = span[..^5].ToString();
-                if (ushort.TryParse(span[^4..], out var discriminator))
+                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
@@ -65,7 +66,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             var s = span.ToString();
 
             // by id
-            if (ulong.TryParse(s, out ulong id))
+            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return Task.FromResult((object?)new UserId(id, user));
@@ -82,7 +83,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             if (span.Length is >= 7 and <= 37 && span[^5] == '#')
             {
                 var username = span[..^5].ToString();
-                if (ushort.TryParse(span[^4..], out var discriminator))
+                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)

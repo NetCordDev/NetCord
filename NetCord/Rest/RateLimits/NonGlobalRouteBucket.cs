@@ -1,4 +1,6 @@
-﻿namespace NetCord.Rest.RateLimits;
+﻿using System.Globalization;
+
+namespace NetCord.Rest.RateLimits;
 
 internal class NonGlobalRouteBucket : NoRateLimitBucket
 {
@@ -96,10 +98,10 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
             var now = Environment.TickCount64;
             if (headers.TryGetValues("x-ratelimit-remaining", out var values))
             {
-                var newRemaining = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
+                var newRemaining = int.Parse(values.First(), NumberStyles.None, CultureInfo.InvariantCulture);
                 if (headers.TryGetValues("x-ratelimit-reset-after", out values))
                 {
-                    var newReset = now + (long)(float.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture) * 1000);
+                    var newReset = now + (long)(float.Parse(values.First(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture) * 1000);
                     long diff = newReset - Reset;
                     if (diff is >= -50 and <= 50)
                     {
@@ -120,14 +122,14 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
             }
             else if (headers.TryGetValues("x-ratelimit-reset-after", out values))
             {
-                var newReset = now + (long)(float.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture) * 1000);
+                var newReset = now + (long)(float.Parse(values.First(), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture) * 1000);
                 if (newReset > Reset)
                     Reset = newReset;
             }
 
             if (headers.TryGetValues("x-ratelimit-limit", out values))
             {
-                int newLimit = int.Parse(values.First(), System.Globalization.CultureInfo.InvariantCulture);
+                int newLimit = int.Parse(values.First(), NumberStyles.None, CultureInfo.InvariantCulture);
                 if (_semaphore.MaxCount != newLimit)
                     _semaphore.MaxCount = newLimit;
             }

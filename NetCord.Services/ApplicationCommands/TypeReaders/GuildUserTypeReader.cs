@@ -1,4 +1,6 @@
-﻿using NetCord.Gateway;
+﻿using System.Globalization;
+
+using NetCord.Gateway;
 
 namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
@@ -8,7 +10,7 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
     {
-        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value)];
+        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)];
         if (user is GuildUser guildUser)
             return Task.FromResult((object?)guildUser);
         else

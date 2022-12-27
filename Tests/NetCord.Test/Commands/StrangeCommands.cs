@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Globalization;
+using System.Runtime.InteropServices;
 
 using NetCord.Rest;
 using NetCord.Services;
@@ -45,7 +46,7 @@ public class StrangeCommands : CommandModule<CommandContext>
             var first = span.IndexOf(':');
             var name = span[(last == first ? 1 : first + 1)..last];
             var id = span[(last + 1)..^1];
-            reaction = new(name.ToString(), ulong.Parse(id));
+            reaction = new(name.ToString(), ulong.Parse(id, NumberStyles.None, CultureInfo.InvariantCulture));
         }
         return Context.Message.AddReactionAsync(reaction);
     }

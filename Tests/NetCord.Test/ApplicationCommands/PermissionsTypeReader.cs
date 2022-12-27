@@ -1,4 +1,6 @@
-﻿using NetCord.Gateway;
+﻿using System.Globalization;
+
+using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
@@ -10,7 +12,7 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
 
     public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceOptions<SlashCommandContext> options)
     {
-        return Task.FromResult((object?)(Permissions)ulong.Parse(value));
+        return Task.FromResult((object?)(Permissions)ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
     }
 
     public override IAutocompleteProvider AutocompleteProvider => new PermissionsAutocompleteProvider();

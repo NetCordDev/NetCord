@@ -1,20 +1,15 @@
-﻿namespace NetCord;
+﻿using System.Globalization;
+
+namespace NetCord;
 
 public readonly struct Timestamp
 {
     public DateTimeOffset DateTime { get; }
     public TimestampStyle? Style { get; }
 
-    public Timestamp()
-    {
-        DateTime = DateTimeOffset.UnixEpoch;
-        Style = null;
-    }
-
     public Timestamp(DateTimeOffset dateTime)
     {
         DateTime = dateTime;
-        Style = null;
     }
 
     public Timestamp(DateTimeOffset dateTime, TimestampStyle? style)
@@ -27,9 +22,9 @@ public readonly struct Timestamp
     {
         if (value.StartsWith("<t:") && value.EndsWith(">"))
         {
-            if (value[^3] == ':')
+            if (value.Length > 5 && value[^3] == ':')
             {
-                if (long.TryParse(value[3..^3], out var result))
+                if (long.TryParse(value[3..^3], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
                 {
                     timestamp = new(DateTimeOffset.FromUnixTimeSeconds(result), (TimestampStyle)value[^2]);
                     return true;
@@ -37,7 +32,7 @@ public readonly struct Timestamp
             }
             else
             {
-                if (long.TryParse(value[3..^3], out var result))
+                if (long.TryParse(value[3..^1], NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var result))
                 {
                     timestamp = new(DateTimeOffset.FromUnixTimeSeconds(result));
                     return true;
@@ -60,7 +55,7 @@ public readonly struct Timestamp
     /// 
     /// </summary>
     /// <returns>discord formatted timestamap with a default style</returns>
-    public override string ToString() => Style == null ? $"<t:{DateTime.ToUnixTimeSeconds()}>" : $"<t:{DateTime.ToUnixTimeSeconds()}:{(char)Style}>";
+    public override string ToString() => Style.HasValue ? $"<t:{DateTime.ToUnixTimeSeconds()}:{(char)Style.GetValueOrDefault()}>" : $"<t:{DateTime.ToUnixTimeSeconds()}>";
 
     /// <summary>
     /// 

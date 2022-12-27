@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Globalization;
+using System.Reflection;
 
 namespace NetCord.Services.Commands.TypeReaders;
 
@@ -14,7 +15,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
         var s = span.ToString();
 
         // by id
-        if (ulong.TryParse(s, out ulong id))
+        if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
                 return Task.FromResult((object?)user);
@@ -33,7 +34,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
             if (span.Length is >= 7 and <= 37 && span[^5] == '#')
             {
                 var username = span[..^5].ToString();
-                if (ushort.TryParse(span[^4..], out var discriminator))
+                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace NetCord.Services.Interactions.TypeReaders;
 
@@ -17,8 +18,11 @@ public class TimeSpanTypeReader<TContext> : InteractionTypeReader<TContext> wher
             var h = timeSpan.Groups["h"];
             var m = timeSpan.Groups["m"];
             var s = timeSpan.Groups["s"];
-            int days = checked((y.Success ? int.Parse(y.Value) * 365 : 0) + (d.Success ? int.Parse(d.Value) : 0));
-            return Task.FromResult((object?)new TimeSpan(days, h.Success ? int.Parse(h.Value) : 0, m.Success ? int.Parse(m.Value) : 0, s.Success ? int.Parse(s.Value) : 0));
+            return Task.FromResult((object?)new TimeSpan(
+                checked((y.Success ? int.Parse(y.Value, NumberStyles.None, options.CultureInfo) * 365 : 0) + (d.Success ? int.Parse(d.Value, NumberStyles.None, options.CultureInfo) : 0)),
+                h.Success ? int.Parse(h.Value, NumberStyles.None, options.CultureInfo) : 0,
+                m.Success ? int.Parse(m.Value, NumberStyles.None, options.CultureInfo) : 0,
+                s.Success ? int.Parse(s.Value, NumberStyles.None, options.CultureInfo) : 0));
         }
         else
             throw new FormatException($"Invalid {nameof(TimeSpan)}.");

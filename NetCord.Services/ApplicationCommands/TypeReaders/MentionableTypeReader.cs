@@ -1,4 +1,6 @@
-﻿using NetCord.Gateway;
+﻿using System.Globalization;
+
+using NetCord.Gateway;
 
 namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
@@ -10,7 +12,7 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
     {
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
         var roles = slashInteraction.Data.ResolvedData!.Roles;
-        var id = ulong.Parse(value);
+        var id = ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
         if (roles != null && roles.TryGetValue(id, out var role))
             return Task.FromResult((object?)new Mentionable(role));
         else

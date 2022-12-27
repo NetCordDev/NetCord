@@ -1,4 +1,6 @@
-﻿using NetCord.Rest;
+﻿using System.Globalization;
+
+using NetCord.Rest;
 using NetCord.Services.Interactions;
 
 namespace NetCord.Test;
@@ -11,7 +13,7 @@ public class MenuInteractions : BaseInteractionModule<StringMenuInteractionConte
         var user = Context.User;
         if (user is GuildUser guildUser)
         {
-            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => ulong.Parse(s));
+            var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => ulong.Parse(s, NumberStyles.None, CultureInfo.InvariantCulture));
             await guildUser.ModifyAsync(x => x.RoleIds = selectedValues);
             await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = "Roles updated" }));
         }
