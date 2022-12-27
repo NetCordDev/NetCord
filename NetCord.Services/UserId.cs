@@ -15,5 +15,5 @@ public class UserId : Entity
         Id = id;
     }
 
-    public override string? ToString() => $"<@{Id}>";
+    public override string ToString() => $"<@{Id}>";
 }

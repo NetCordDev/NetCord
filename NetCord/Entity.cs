@@ -21,7 +21,7 @@ public abstract class Entity : IEntity
 
     public static bool operator !=(Entity? left, Entity? right) => !(left == right);
 
-    public override string? ToString() => Id.ToString();
+    public override string ToString() => Id.ToString();
     public override int GetHashCode() => Id.GetHashCode();
 
     public override bool Equals([NotNullWhen(true)] object? obj)
