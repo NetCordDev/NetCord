@@ -12,7 +12,7 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
     {
         var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)];
         if (user is GuildUser guildUser)
-            return Task.FromResult((object?)guildUser);
+            return Task.FromResult<object?>(guildUser);
         else
             throw new InvalidOperationException("The user must be in a guild.");
     }

@@ -10,6 +10,6 @@ public class AttachmentTypeReader<TContext> : SlashCommandTypeReader<TContext> w
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
     {
-        return Task.FromResult((object?)((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Attachments![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
+        return Task.FromResult<object?>(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Attachments![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
     }
 }

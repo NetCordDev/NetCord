@@ -19,7 +19,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object?)new UserId(id, user));
+                return Task.FromResult<object?>(new UserId(id, user));
             }
 
 
@@ -27,7 +27,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object?)new UserId(id, user));
+                return Task.FromResult<object?>(new UserId(id, user));
             }
 
             // by name and tag
@@ -38,7 +38,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object?)new UserId(user.Id, user));
+                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
             // by name or nickname
@@ -57,7 +57,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                         throw new AmbiguousMatchException("Too many users found.");
                     }
                     if (user != null)
-                        return Task.FromResult((object?)new UserId(user.Id, user));
+                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
         }
@@ -71,7 +71,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object?)new UserId(id, user));
+                return Task.FromResult<object?>(new UserId(id, user));
             }
 
 
@@ -79,7 +79,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult((object?)new UserId(id, user));
+                return Task.FromResult<object?>(new UserId(id, user));
             }
 
             // by name and tag
@@ -90,7 +90,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object?)new UserId(user.Id, user));
+                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
             // by name
@@ -108,7 +108,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                         throw new AmbiguousMatchException("Too many users found.");
                     }
                     if (user != null)
-                        return Task.FromResult((object?)new UserId(user.Id, user));
+                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
         }

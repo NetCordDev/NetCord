@@ -18,7 +18,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
         if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
-                return Task.FromResult((object?)user);
+                return Task.FromResult<object?>(user);
         }
         else
         {
@@ -26,7 +26,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
             if (MentionUtils.TryParseUser(span, out id))
             {
                 if (users.TryGetValue(id, out var user))
-                    return Task.FromResult((object?)user);
+                    return Task.FromResult<object?>(user);
                 goto exception;
             }
 
@@ -38,7 +38,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user != null)
-                        return Task.FromResult((object?)user);
+                        return Task.FromResult<object?>(user);
                 }
                 goto exception;
             }
@@ -59,7 +59,7 @@ public class GuildUserTypeReader<TContext> : CommandTypeReader<TContext> where T
                     throw new AmbiguousMatchException("Too many users found.");
                 }
                 if (user != null)
-                    return Task.FromResult((object?)user);
+                    return Task.FromResult<object?>(user);
             }
         }
         exception:

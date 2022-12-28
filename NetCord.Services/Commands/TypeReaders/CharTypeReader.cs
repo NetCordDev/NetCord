@@ -7,6 +7,6 @@ public class CharTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         if (input.Length != 1)
             throw new FormatException("Input must be exactly one character long.");
 
-        return Task.FromResult((object?)input.Span[0]);
+        return Task.FromResult<object?>(input.Span[0]);
     }
 }

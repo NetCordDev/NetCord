@@ -18,7 +18,7 @@ public class TimeSpanTypeReader<TContext> : CommandTypeReader<TContext> where TC
             var h = timeSpan.Groups["h"];
             var m = timeSpan.Groups["m"];
             var s = timeSpan.Groups["s"];
-            return Task.FromResult((object?)new TimeSpan(
+            return Task.FromResult<object?>(new TimeSpan(
                 checked((y.Success ? int.Parse(y.Value, NumberStyles.None, options.CultureInfo) * 365 : 0) + (d.Success ? int.Parse(d.Value, NumberStyles.None, options.CultureInfo) : 0)),
                 h.Success ? int.Parse(h.Value, NumberStyles.None, options.CultureInfo) : 0,
                 m.Success ? int.Parse(m.Value, NumberStyles.None, options.CultureInfo) : 0,
