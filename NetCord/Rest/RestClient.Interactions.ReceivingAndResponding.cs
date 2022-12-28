@@ -2,10 +2,10 @@
 
 public partial class RestClient
 {
-    public Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RequestProperties? properties = null)
+    public async Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RequestProperties? properties = null)
     {
         using (HttpContent content = callback.Build())
-            return SendRequestWithoutRateLimitAsync(HttpMethod.Post, $"/interactions/{interactionId}/{interactionToken}/callback", content, properties);
+            await SendRequestWithoutRateLimitAsync(HttpMethod.Post, $"/interactions/{interactionId}/{interactionToken}/callback", content, properties).ConfigureAwait(false);
     }
 
     public async Task<RestMessage> GetInteractionResponseAsync(ulong applicationId, string interactionToken, RequestProperties? properties = null)

@@ -54,10 +54,10 @@ public partial class RestClient
     public Task UnpinMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", new Route(RouteParameter.PinUnpinMessage), properties);
 
-    public Task GroupDMChannelAddUserAsync(ulong channelId, ulong userId, GroupDMUserAddProperties groupDMUserAddProperties, RequestProperties? properties = null)
+    public async Task GroupDMChannelAddUserAsync(ulong channelId, ulong userId, GroupDMUserAddProperties groupDMUserAddProperties, RequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<GroupDMUserAddProperties>(groupDMUserAddProperties, GroupDMUserAddProperties.GroupDMUserAddPropertiesSerializerContext.WithOptions.GroupDMUserAddProperties))
-            return SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/recipients/{userId}", new Route(RouteParameter.Recipients, channelId), content, properties);
+            await SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/recipients/{userId}", new Route(RouteParameter.Recipients, channelId), content, properties).ConfigureAwait(false);
     }
 
     public Task GroupDMChannelDeleteUserAsync(ulong channelId, ulong userId, RequestProperties? properties = null)
@@ -259,16 +259,16 @@ public partial class RestClient
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
-    private Task BulkDeleteMessagesAsync(ulong channelId, ulong[] messageIds, RequestProperties? properties = null)
+    private async Task BulkDeleteMessagesAsync(ulong channelId, ulong[] messageIds, RequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<BulkDeleteMessagesProperties>(new(messageIds), BulkDeleteMessagesProperties.BulkDeleteMessagesPropertiesSerializerContext.WithOptions.BulkDeleteMessagesProperties))
-            return SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/bulk-delete", new Route(RouteParameter.BulkDeleteMessages), content, properties);
+            await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/bulk-delete", new Route(RouteParameter.BulkDeleteMessages), content, properties).ConfigureAwait(false);
     }
 
-    public Task ModifyGuildChannelPermissionsAsync(ulong channelId, PermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null)
+    public async Task ModifyGuildChannelPermissionsAsync(ulong channelId, PermissionOverwriteProperties permissionOverwrite, RequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<PermissionOverwriteProperties>(permissionOverwrite, PermissionOverwriteProperties.PermissionOverwritePropertiesSerializerContext.WithOptions.PermissionOverwriteProperties))
-            return SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RouteParameter.ModifyDeleteGuildChannelPermissions), content, properties);
+            await SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/permissions/{permissionOverwrite.Id}", new(RouteParameter.ModifyDeleteGuildChannelPermissions), content, properties).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(ulong channelId, RequestProperties? properties = null)
