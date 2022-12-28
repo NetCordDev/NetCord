@@ -13,6 +13,10 @@ public class InteractionServiceOptions<TContext> where TContext : InteractionCon
             new TypeReaders.StringTypeReader<TContext>()
         },
         {
+            typeof(ReadOnlyMemory<char>),
+            new TypeReaders.ReadOnlyMemoryOfCharTypeReader<TContext>()
+        },
+        {
             typeof(char),
             new TypeReaders.CharTypeReader<TContext>()
         },

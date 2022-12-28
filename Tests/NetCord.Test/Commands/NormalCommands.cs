@@ -6,9 +6,9 @@ namespace NetCord.Test.Commands;
 public class NormalCommands : CommandModule<CommandContext>
 {
     [Command("say")]
-    public Task Say([Remainder] string text)
+    public Task Say([Remainder] ReadOnlyMemory<char> text)
     {
-        return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None });
+        return SendAsync(new MessageProperties() { Content = text.ToString(), AllowedMentions = AllowedMentionsProperties.None });
     }
 
     [Command("reply")]
