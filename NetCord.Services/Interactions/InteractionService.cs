@@ -59,7 +59,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
 
     public async Task ExecuteAsync(TContext context)
     {
-        var separator = _configuration.ParamSeparator;
+        var separator = _configuration.ParameterSeparator;
         var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId;
         var index = content.IndexOf(separator);
         string? customId;

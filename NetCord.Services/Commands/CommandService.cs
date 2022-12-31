@@ -5,7 +5,7 @@ namespace NetCord.Services.Commands;
 public partial class CommandService<TContext> : IService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration;
-    private readonly char[] _paramSeparators;
+    private readonly char[] _parameterSeparators;
     private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
     public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> Commands
@@ -20,7 +20,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
         _configuration = configuration ?? new();
-        _paramSeparators = _configuration.ParamSeparators.ToArray();
+        _parameterSeparators = _configuration.ParameterSeparators.ToArray();
         _commands = new(_configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
     }
 
@@ -56,8 +56,8 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             CommandInfo<TContext> commandInfo = new(method, commandAttribute, _configuration);
             foreach (var alias in commandAttribute.Aliases)
             {
-                if (alias.ContainsAny(_paramSeparators))
-                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParamSeparators)}'.", method);
+                if (alias.ContainsAny(_parameterSeparators))
+                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParameterSeparators)}'.", method);
                 if (!_commands.TryGetValue(alias, out var list))
                 {
                     list = new((ci1, ci2) =>
@@ -87,7 +87,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     public async Task ExecuteAsync(int prefixLength, TContext context)
     {
         var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
-        var separators = _paramSeparators;
+        var separators = _parameterSeparators;
 
         SortedList<CommandInfo<TContext>> commandInfos;
         ReadOnlyMemory<char> baseArguments;

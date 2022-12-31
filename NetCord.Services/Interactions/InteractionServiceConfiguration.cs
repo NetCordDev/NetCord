@@ -137,7 +137,7 @@ public class InteractionServiceConfiguration<TContext> where TContext : Interact
     /// </summary>
     public bool IgnoreCase { get; init; }
 
-    public char ParamSeparator { get; init; } = ':';
+    public char ParameterSeparator { get; init; } = ':';
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
 }

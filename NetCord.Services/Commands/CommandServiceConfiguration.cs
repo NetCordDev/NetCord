@@ -135,7 +135,7 @@ public class CommandServiceConfiguration<TContext> where TContext : ICommandCont
     /// <summary>
     /// Default = ' ', '\n'
     /// </summary>
-    public IEnumerable<char> ParamSeparators { get; init; } = new char[] { ' ', '\n' };
+    public IEnumerable<char> ParameterSeparators { get; init; } = new char[] { ' ', '\n' };
 
     /// <summary>
     /// Default = <see langword="true"/>
