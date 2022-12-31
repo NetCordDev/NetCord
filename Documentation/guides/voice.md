@@ -21,7 +21,7 @@ You can join a voice channel using @NetCord.Gateway.GatewayClient.UpdateVoiceSta
 
 ### Receiving Voice
 > [!NOTE]
-> To receive voice, you need to set `RedirectInputStreams` to `true` in config, add `new VoiceClientConfig() { RedirectInputStreams = true }` as a last parameter when creating @NetCord.Gateway.Voice.VoiceClient instance.
+> To receive voice, you need to set `RedirectInputStreams` to `true` in configuration, add `new VoiceClientConfiguration() { RedirectInputStreams = true }` as a last parameter when creating @NetCord.Gateway.Voice.VoiceClient instance.
 
 [!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L103-L115)]
 

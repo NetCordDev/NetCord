@@ -15,9 +15,9 @@ Privileged intents are intents that you need to enable in [Discord Developer Por
 Intents in NetCord are handled by @NetCord.Gateway.GatewayIntents.
 You specify them like this:
 ```cs
-GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfig()
+GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
 {
-    Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent
+    Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent,
 });
 ```
 
