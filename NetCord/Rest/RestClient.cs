@@ -13,10 +13,10 @@ public partial class RestClient : IDisposable
     internal readonly object _globalRateLimitLock = new();
     internal long _globalRateLimitReset;
 
-    public RestClient(RestClientConfig? config = null)
+    public RestClient(RestClientConfiguration? configuration = null)
     {
-        if (config != null)
-            _httpClient = config.HttpClient ?? new HttpClients.HttpClient();
+        if (configuration != null)
+            _httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
         else
             _httpClient = new HttpClients.HttpClient();
 
@@ -26,7 +26,7 @@ public partial class RestClient : IDisposable
         _httpClient.AddDefaultRequestHeader("User-Agent", "NetCord");
     }
 
-    public RestClient(Token token, RestClientConfig? config = null) : this(config)
+    public RestClient(Token token, RestClientConfiguration? configuration = null) : this(configuration)
     {
         _httpClient.AddDefaultRequestHeader("Authorization", token.ToHttpHeader());
     }

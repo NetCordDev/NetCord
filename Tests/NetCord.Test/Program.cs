@@ -28,7 +28,7 @@ internal static class Program
 
     static Program()
     {
-        ApplicationCommandServiceOptions<SlashCommandContext> options = new();
+        ApplicationCommandServiceConfiguration<SlashCommandContext> options = new();
         options.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader());
         _slashCommandService = new(options);
     }

@@ -25,7 +25,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceOptions<TContext> options)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
@@ -34,7 +34,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var type = parameter.ParameterType;
         var underlyingType = Nullable.GetUnderlyingType(type);
 
-        var typeReaders = options.TypeReaders;
+        var typeReaders = configuration.TypeReaders;
 
         if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out var attributes))
         {
@@ -83,7 +83,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
                     else
                         DefaultValue = d;
                 }
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             }
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
@@ -97,7 +97,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (typeReaders.TryGetValue(type, out var typeReader))
                 TypeReader = typeReader;
             else if (type.IsEnum)
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;

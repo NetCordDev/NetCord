@@ -8,7 +8,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         var type = parameter.Type;
         if (Enum.TryParse(type, value, out var result) && Enum.IsDefined(type, result!))

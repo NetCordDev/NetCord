@@ -25,7 +25,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
-    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: slashCommandAttribute, options)
+    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: slashCommandAttribute, configuration)
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
@@ -60,7 +60,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
-            SlashCommandParameter<TContext> newP = new(parameter, method, options);
+            SlashCommandParameter<TContext> newP = new(parameter, method, configuration);
             p[i] = newP;
             var autocompleteProvider = newP.AutocompleteProvider;
             if (autocompleteProvider != null)
@@ -75,7 +75,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 #pragma warning restore CS8974 // Converting method group to non-delegate type
     }
 
-    internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: userCommandAttribute, options)
+    internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: userCommandAttribute, configuration)
     {
         Type = ApplicationCommandType.User;
 
@@ -95,7 +95,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 #pragma warning restore CS8974 // Converting method group to non-delegate type
     }
 
-    internal ApplicationCommandInfo(MethodInfo method, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceOptions<TContext> options) : this(method, attribute: messageCommandAttribute, options)
+    internal ApplicationCommandInfo(MethodInfo method, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: messageCommandAttribute, configuration)
     {
         Type = ApplicationCommandType.Message;
 
@@ -116,7 +116,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
-    private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute, ApplicationCommandServiceOptions<TContext> options)
+    private ApplicationCommandInfo(MethodInfo method, ApplicationCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         if (method.ReturnType != typeof(Task))
@@ -128,7 +128,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         if (attribute.NameTranslationsProviderType != null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
         DefaultGuildUserPermissions = attribute._defaultGuildUserPermissions;
-        DMPermission = attribute._dMPermission.HasValue ? attribute._dMPermission.GetValueOrDefault() : options.DefaultDMPermission;
+        DMPermission = attribute._dMPermission.HasValue ? attribute._dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
 #pragma warning disable CS0618 // Type or member is obsolete
         DefaultPermission = attribute.DefaultPermission;
 #pragma warning restore CS0618 // Type or member is obsolete

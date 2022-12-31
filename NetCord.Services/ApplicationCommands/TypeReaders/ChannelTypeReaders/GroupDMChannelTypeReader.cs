@@ -8,7 +8,7 @@ public class GroupDMChannelTypeReader<TContext> : SlashCommandTypeReader<TContex
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Channel;
 
-    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         return Task.FromResult<object?>(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
     }

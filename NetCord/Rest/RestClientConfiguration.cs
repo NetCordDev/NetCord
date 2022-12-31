@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class RestClientConfig
+public class RestClientConfiguration
 {
     public IHttpClient? HttpClient { get; init; }
 }

@@ -4,7 +4,7 @@ namespace NetCord.Services.Commands;
 
 public partial class CommandService<TContext> : IService where TContext : ICommandContext
 {
-    private readonly CommandServiceOptions<TContext> _options;
+    private readonly CommandServiceConfiguration<TContext> _configuration;
     private readonly char[] _paramSeparators;
     private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
@@ -17,11 +17,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    public CommandService(CommandServiceOptions<TContext>? options = null)
+    public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
-        _options = options ?? new();
-        _paramSeparators = _options.ParamSeparators.ToArray();
-        _commands = new(_options.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
+        _configuration = configuration ?? new();
+        _paramSeparators = _configuration.ParamSeparators.ToArray();
+        _commands = new(_configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
     }
 
     public void AddModules(Assembly assembly)
@@ -53,11 +53,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
             if (commandAttribute == null)
                 continue;
-            CommandInfo<TContext> commandInfo = new(method, commandAttribute, _options);
+            CommandInfo<TContext> commandInfo = new(method, commandAttribute, _configuration);
             foreach (var alias in commandAttribute.Aliases)
             {
                 if (alias.ContainsAny(_paramSeparators))
-                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_options.ParamSeparators)}'.", method);
+                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParamSeparators)}'.", method);
                 if (!_commands.TryGetValue(alias, out var list))
                 {
                     list = new((ci1, ci2) =>
@@ -161,7 +161,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     {
                         try
                         {
-                            var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                            var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _configuration).ConfigureAwait(false);
                             await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                             parametersToPass[paramIndex] = value;
                             arguments = arguments[currentArgLength..].TrimStart(separators);
@@ -259,7 +259,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
         for (var a = 0; a < len; a++)
         {
-            var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false);
+            var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _configuration).ConfigureAwait(false);
             await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
             o.SetValue(value, a);
         }

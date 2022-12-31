@@ -13,7 +13,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
     public Func<object?[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceOptions<TContext> options)
+    internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
     {
         if (method.ReturnType != typeof(Task))
             throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", method);
@@ -49,7 +49,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
-            p[i] = new(parameter, method, options);
+            p[i] = new(parameter, method, configuration);
             types[start++] = parameter.ParameterType;
         }
         Parameters = p;

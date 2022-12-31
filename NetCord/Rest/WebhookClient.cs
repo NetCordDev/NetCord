@@ -8,17 +8,17 @@ public class WebhookClient : IDisposable
     private readonly RestClient _client;
     private bool _dispose;
 
-    public WebhookClient(ulong webhookId, string webhookToken, WebhookClientConfig? config = null)
+    public WebhookClient(ulong webhookId, string webhookToken, WebhookClientConfiguration? configuration = null)
     {
         Id = webhookId;
         _token = webhookToken;
-        if (config == null || config.Client == null)
+        if (configuration == null || configuration.Client == null)
         {
             _dispose = true;
             _client = new();
         }
         else
-            _client = config.Client;
+            _client = configuration.Client;
     }
 
     public Task<Webhook> GetAsync(RequestProperties? properties = null) => _client.GetWebhookWithTokenAsync(Id, _token, properties);

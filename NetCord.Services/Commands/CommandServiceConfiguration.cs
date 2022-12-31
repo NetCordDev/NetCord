@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.Commands;
 
-public class CommandServiceOptions<TContext> where TContext : ICommandContext
+public class CommandServiceConfiguration<TContext> where TContext : ICommandContext
 {
     public Dictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; } = new()
     #region TypeReaders

@@ -12,7 +12,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
     public Func<object?[], Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal InteractionInfo(MethodInfo method, InteractionServiceOptions<TContext> options)
+    internal InteractionInfo(MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
     {
         if (method.ReturnType != typeof(Task))
             throw new InvalidDefinitionException($"Interactions must return '{typeof(Task).FullName}'.", method);
@@ -42,7 +42,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         for (var i = 0; i < parametersLength; i++)
         {
             var parameter = parameters[i];
-            p[i] = new(parameter, method, options);
+            p[i] = new(parameter, method, configuration);
             types[start++] = parameter.ParameterType;
         }
         Parameters = p;

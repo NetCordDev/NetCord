@@ -3,7 +3,7 @@ using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway.Voice;
 
-public class VoiceClientConfig
+public class VoiceClientConfiguration
 {
     public IWebSocket? WebSocket { get; init; }
     public IUdpSocket? UdpSocket { get; init; }

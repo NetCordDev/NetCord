@@ -10,7 +10,7 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceOptions<SlashCommandContext> options)
+    public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration)
     {
         return Task.FromResult((object?)(Permissions)ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
     }

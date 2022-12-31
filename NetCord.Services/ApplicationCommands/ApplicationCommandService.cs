@@ -7,7 +7,7 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandService<TContext> : IService where TContext : IApplicationCommandContext
 {
-    private readonly ApplicationCommandServiceOptions<TContext> _options;
+    private readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
     private readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
@@ -21,9 +21,9 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         }
     }
 
-    public ApplicationCommandService(ApplicationCommandServiceOptions<TContext>? options = null)
+    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
-        _options = options ?? new();
+        _configuration = configuration ?? new();
     }
 
     public void AddModules(Assembly assembly)
@@ -54,15 +54,15 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         {
             SlashCommandAttribute? slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
             if (slashCommandAttribute != null)
-                AddCommandInfo(new(method, slashCommandAttribute, _options));
+                AddCommandInfo(new(method, slashCommandAttribute, _configuration));
 
             UserCommandAttribute? userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
             if (userCommandAttribute != null)
-                AddCommandInfo(new(method, userCommandAttribute, _options));
+                AddCommandInfo(new(method, userCommandAttribute, _configuration));
 
             MessageCommandAttribute? messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
             if (messageCommandAttribute != null)
-                AddCommandInfo(new(method, messageCommandAttribute, _options));
+                AddCommandInfo(new(method, messageCommandAttribute, _configuration));
         }
 
         void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
@@ -170,7 +170,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
                     value = parameter.DefaultValue;
                 else
                 {
-                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, _options).ConfigureAwait(false);
+                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, _configuration).ConfigureAwait(false);
                     optionIndex++;
                 }
                 await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);

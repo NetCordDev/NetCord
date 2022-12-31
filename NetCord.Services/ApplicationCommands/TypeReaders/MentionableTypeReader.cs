@@ -8,7 +8,7 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Mentionable;
 
-    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceOptions<TContext> options)
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
         var roles = slashInteraction.Data.ResolvedData!.Roles;

@@ -15,7 +15,7 @@ public partial class GatewayClient : WebSocketClient
 {
     private readonly string _botToken;
 
-    private readonly GatewayClientConfig _config;
+    private readonly GatewayClientConfiguration _configuration;
 
     private bool _disposed;
 
@@ -98,22 +98,22 @@ public partial class GatewayClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public GatewayClient(Token token, GatewayClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base(configuration?.WebSocket ?? new WebSocket())
     {
         _botToken = token.RawToken;
-        _config = config ?? new();
-        Rest = new(token, _config.RestClientConfig);
+        _configuration = configuration ?? new();
+        Rest = new(token, _configuration.RestClientConfiguration);
     }
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
         {
-            ConnectionProperties = _config.ConnectionProperties ?? ConnectionPropertiesProperties.Default,
-            LargeThreshold = _config.LargeThreshold,
-            Shard = _config.Shard,
-            Presence = presence ?? _config.Presence,
-            Intents = _config.Intents,
+            ConnectionProperties = _configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default,
+            LargeThreshold = _configuration.LargeThreshold,
+            Shard = _configuration.Shard,
+            Presence = presence ?? _configuration.Presence,
+            Intents = _configuration.Intents,
         }).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayIdentifyPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
         return _webSocket.SendAsync(serializedPayload);
@@ -126,7 +126,7 @@ public partial class GatewayClient : WebSocketClient
     public async Task StartAsync(PresenceProperties? presence = null)
     {
         ThrowIfDisposed();
-        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_configuration.Version}&encoding=json")).ConfigureAwait(false);
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
@@ -145,7 +145,7 @@ public partial class GatewayClient : WebSocketClient
 
     private protected override async Task ResumeAsync()
     {
-        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_config.Version}&encoding=json")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_configuration.Version}&encoding=json")).ConfigureAwait(false);
 
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();

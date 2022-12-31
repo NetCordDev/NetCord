@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class WebhookClientConfig
+public class WebhookClientConfiguration
 {
     public RestClient? Client { get; set; }
 }

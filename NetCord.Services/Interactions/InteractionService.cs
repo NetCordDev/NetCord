@@ -6,7 +6,7 @@ namespace NetCord.Services.Interactions;
 
 public class InteractionService<TContext> : IService where TContext : InteractionContext
 {
-    private readonly InteractionServiceOptions<TContext> _options;
+    private readonly InteractionServiceConfiguration<TContext> _configuration;
     private readonly Dictionary<string, InteractionInfo<TContext>> _interactions = new();
 
     public IReadOnlyDictionary<string, InteractionInfo<TContext>> Interactions
@@ -18,9 +18,9 @@ public class InteractionService<TContext> : IService where TContext : Interactio
         }
     }
 
-    public InteractionService(InteractionServiceOptions<TContext>? options = null)
+    public InteractionService(InteractionServiceConfiguration<TContext>? configuration = null)
     {
-        _options = options ?? new();
+        _configuration = configuration ?? new();
     }
 
     public void AddModules(Assembly assembly)
@@ -52,14 +52,14 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
             if (interactionAttribute == null)
                 continue;
-            InteractionInfo<TContext> interactionInfo = new(method, _options);
+            InteractionInfo<TContext> interactionInfo = new(method, _configuration);
             _interactions.Add(interactionAttribute.CustomId, interactionInfo);
         }
     }
 
     public async Task ExecuteAsync(TContext context)
     {
-        var separator = _options.ParamSeparator;
+        var separator = _configuration.ParamSeparator;
         var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId;
         var index = content.IndexOf(separator);
         string? customId;
@@ -115,7 +115,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                     currentArg = index == -1 ? arguments : arguments[..index];
                     arguments = arguments[(currentArg.Length + 1)..];
                 }
-                var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _options).ConfigureAwait(false);
+                var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _configuration).ConfigureAwait(false);
                 await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                 parametersToPass[paramIndex] = value;
             }
@@ -127,7 +127,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
 
                 for (var a = 0; a < len; a++)
                 {
-                    var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _options).ConfigureAwait(false);
+                    var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _configuration).ConfigureAwait(false);
                     await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                     o.SetValue(value, a);
                 }

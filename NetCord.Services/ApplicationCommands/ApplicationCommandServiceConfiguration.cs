@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.ApplicationCommands;
 
-public class ApplicationCommandServiceOptions<TContext> where TContext : IApplicationCommandContext
+public class ApplicationCommandServiceConfiguration<TContext> where TContext : IApplicationCommandContext
 {
     public Dictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; } = new()
     #region TypeReaders

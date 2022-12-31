@@ -37,17 +37,17 @@ public class VoiceClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfig? config = null) : base(config?.WebSocket ?? new WebSocket())
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base(configuration?.WebSocket ?? new WebSocket())
     {
         UserId = userId;
         SessionId = sessionId;
         Endpoint = endpoint;
         GuildId = guildId;
         Token = token;
-        if (config != null)
+        if (configuration != null)
         {
-            _udpSocket = config.UdpSocket ?? new UdpSocket();
-            RedirectInputStreams = config.RedirectInputStreams;
+            _udpSocket = configuration.UdpSocket ?? new UdpSocket();
+            RedirectInputStreams = configuration.RedirectInputStreams;
         }
         else
             _udpSocket = new UdpSocket();

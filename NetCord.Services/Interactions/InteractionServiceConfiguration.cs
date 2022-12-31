@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionServiceOptions<TContext> where TContext : InteractionContext
+public class InteractionServiceConfiguration<TContext> where TContext : InteractionContext
 {
     public Dictionary<Type, InteractionTypeReader<TContext>> TypeReaders { get; } = new()
     #region TypeReaders

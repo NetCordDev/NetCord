@@ -14,7 +14,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
     public string? Description { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal InteractionParameter(ParameterInfo parameter, MethodInfo method, InteractionServiceOptions<TContext> options)
+    internal InteractionParameter(ParameterInfo parameter, MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
     {
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
@@ -38,7 +38,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
 
         var underlyingType = Nullable.GetUnderlyingType(type);
 
-        var typeReaders = options.TypeReaders;
+        var typeReaders = configuration.TypeReaders;
 
         if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out attributes))
         {
@@ -54,7 +54,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
             if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
                 TypeReader = typeReader;
             else if (underlyingType.IsEnum)
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
 
@@ -65,7 +65,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
             if (typeReaders.TryGetValue(type, out var typeReader))
                 TypeReader = typeReader;
             else if (type.IsEnum)
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
 

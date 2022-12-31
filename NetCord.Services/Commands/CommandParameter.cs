@@ -17,7 +17,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
     public string? Description { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal CommandParameter(ParameterInfo parameter, MethodInfo method, CommandServiceOptions<TContext> options)
+    internal CommandParameter(ParameterInfo parameter, MethodInfo method, CommandServiceConfiguration<TContext> configuration)
     {
         HasDefaultValue = parameter.HasDefaultValue;
 
@@ -43,7 +43,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
 
         var underlyingType = Nullable.GetUnderlyingType(type);
 
-        var typeReaders = options.TypeReaders;
+        var typeReaders = configuration.TypeReaders;
 
         if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out attributes))
         {
@@ -92,7 +92,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                     else
                         DefaultValue = d;
                 }
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             }
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
@@ -106,7 +106,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             if (typeReaders.TryGetValue(type, out var typeReader))
                 TypeReader = typeReader;
             else if (type.IsEnum)
-                TypeReader = options.EnumTypeReader;
+                TypeReader = configuration.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
             Type = type;

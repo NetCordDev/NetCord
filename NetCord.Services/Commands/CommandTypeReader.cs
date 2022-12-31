@@ -2,7 +2,7 @@
 
 public abstract class CommandTypeReader<TContext> : ICommandTypeReader where TContext : ICommandContext
 {
-    public abstract Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceOptions<TContext> options);
+    public abstract Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration);
 }
 
 internal interface ICommandTypeReader
