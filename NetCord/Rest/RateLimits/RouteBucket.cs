@@ -56,15 +56,15 @@ internal class RouteBucket : NonGlobalRouteBucket
                 {
                     var now = Environment.TickCount64;
                     var reset = GetGlobalReset();
-                    if (HasRateLimit(now, reset, out int diff))
+                    if (HasRateLimit(now, reset, out long diff))
                     {
-                        await Task.Delay(diff).ConfigureAwait(false);
+                        await WaitForRateLimitAsync(diff).ConfigureAwait(false);
                         now = reset;
                     }
 
                     reset = GetRouteReset();
                     if (Remaining == 0 && HasRateLimit(now, reset, out diff))
-                        await Task.Delay(diff).ConfigureAwait(false);
+                        await WaitForRateLimitAsync(diff).ConfigureAwait(false);
 
                     var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 

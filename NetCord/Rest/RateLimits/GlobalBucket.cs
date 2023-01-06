@@ -48,8 +48,8 @@ internal class GlobalBucket : NoRateLimitBucket
                 {
                     var now = Environment.TickCount64;
                     var reset = GetGlobalReset();
-                    if (HasRateLimit(now, reset, out int diff))
-                        await Task.Delay(diff).ConfigureAwait(false);
+                    if (HasRateLimit(now, reset, out long diff))
+                        await WaitForRateLimitAsync(diff).ConfigureAwait(false);
 
                     var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
@@ -88,11 +88,5 @@ internal class GlobalBucket : NoRateLimitBucket
     {
         lock (_client._globalRateLimitLock)
             return _client._globalRateLimitReset;
-    }
-
-    private static bool HasRateLimit(long now, long reset, out int diff)
-    {
-        diff = (int)(reset - now);
-        return diff > 0;
     }
 }

@@ -35,6 +35,10 @@ internal partial class NoRateLimitBucket : IBucket
         }
     }
 
+    private protected static bool HasRateLimit(long now, long reset, out long diff) => (diff = reset - now) > 0;
+
+    private protected static Task WaitForRateLimitAsync(long diff) => Task.Delay(new TimeSpan(diff * TimeSpan.TicksPerMillisecond));
+
     public NoRateLimitBucket(RestClient client)
     {
         _client = client;

@@ -47,8 +47,8 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
                 {
                     var now = Environment.TickCount64;
                     var reset = GetRouteReset();
-                    if (Remaining == 0 && HasRateLimit(now, reset, out int diff))
-                        await Task.Delay(diff).ConfigureAwait(false);
+                    if (Remaining == 0 && HasRateLimit(now, reset, out long diff))
+                        await WaitForRateLimitAsync(diff).ConfigureAwait(false);
 
                     var response = await _client._httpClient.SendAsync(message()).ConfigureAwait(false);
 
@@ -82,12 +82,6 @@ internal class NonGlobalRouteBucket : NoRateLimitBucket
     {
         lock (_lock)
             return Reset;
-    }
-
-    protected static bool HasRateLimit(long now, long reset, out int diff)
-    {
-        diff = (int)(reset - now);
-        return diff > 0;
     }
 
     protected void UpdateBucket(HttpResponseMessage response)
