@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels.EventArgs;
 
-public partial class JsonIntegrationDeleteEventArgs
+public partial class JsonGuildIntegrationDeleteEventArgs
 {
     [JsonPropertyName("id")]
     public ulong IntegrationId { get; set; }
@@ -13,7 +13,7 @@ public partial class JsonIntegrationDeleteEventArgs
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
 
-    [JsonSerializable(typeof(JsonIntegrationDeleteEventArgs))]
+    [JsonSerializable(typeof(JsonGuildIntegrationDeleteEventArgs))]
     public partial class JsonIntegrationDeleteEventArgsSerializerContext : JsonSerializerContext
     {
         public static JsonIntegrationDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);

@@ -61,7 +61,7 @@ public partial class GatewayClient : WebSocketClient
     public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserRemove;
     public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationCreate;
     public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationUpdate;
-    public event Func<IntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
+    public event Func<GuildIntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
     public event Func<GuildInvite, ValueTask>? GuildInviteCreate;
     public event Func<GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete;
     public event Func<Message, ValueTask>? MessageCreate;
@@ -649,7 +649,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "INTEGRATION_DELETE":
                 {
-                    await InvokeEventAsync(GuildIntegrationDelete, () => new(data.ToObject(JsonIntegrationDeleteEventArgs.JsonIntegrationDeleteEventArgsSerializerContext.WithOptions.JsonIntegrationDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildIntegrationDelete, () => new(data.ToObject(JsonGuildIntegrationDeleteEventArgs.JsonIntegrationDeleteEventArgsSerializerContext.WithOptions.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "INTERACTION_CREATE":
