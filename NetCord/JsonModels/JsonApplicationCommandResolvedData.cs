@@ -11,7 +11,7 @@ public partial class JsonApplicationCommandResolvedData
     public IReadOnlyDictionary<ulong, JsonGuildUser>? GuildUsers { get; set; }
 
     [JsonPropertyName("roles")]
-    public IReadOnlyDictionary<ulong, JsonGuildRole>? Roles { get; set; }
+    public IReadOnlyDictionary<ulong, JsonRole>? Roles { get; set; }
 
     [JsonPropertyName("channels")]
     public IReadOnlyDictionary<ulong, JsonChannel>? Channels { get; set; }

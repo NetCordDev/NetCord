@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuildRole : JsonEntity
+public partial class JsonRole : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -32,22 +32,22 @@ public partial class JsonGuildRole : JsonEntity
     public bool Mentionable { get; set; }
 
     [JsonPropertyName("tags")]
-    public JsonGuildRoleTags? Tags { get; set; }
+    public JsonRoleTags? Tags { get; set; }
 
-    [JsonSerializable(typeof(JsonGuildRole))]
-    public partial class JsonGuildRoleSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(JsonRole))]
+    public partial class JsonRoleSerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static JsonRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
-    [JsonSerializable(typeof(JsonGuildRole[]))]
-    public partial class JsonGuildRoleArraySerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(JsonRole[]))]
+    public partial class JsonRoleArraySerializerContext : JsonSerializerContext
     {
-        public static JsonGuildRoleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static JsonRoleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
-public partial class JsonGuildRoleTags
+public partial class JsonRoleTags
 {
     [JsonPropertyName("bot_id")]
     public ulong? BotId { get; set; }
@@ -68,7 +68,7 @@ public partial class JsonGuildRoleTags
     [JsonPropertyName("available_for_purchase")]
     public bool IsAvailableForPurchase { get; set; }
 
-    [JsonSerializable(typeof(JsonGuildRoleTags))]
+    [JsonSerializable(typeof(JsonRoleTags))]
     public partial class JsonTagsSerializerContext : JsonSerializerContext
     {
         public static JsonTagsSerializerContext WithOptions { get; } = new(Serialization.Options);

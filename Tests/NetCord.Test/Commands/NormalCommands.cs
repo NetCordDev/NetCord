@@ -49,7 +49,7 @@ public class NormalCommands : CommandModule<CommandContext>
             await ReplyAsync("Required context: Guild");
     }
 
-    public static MenuProperties CreateRolesMenu(IEnumerable<GuildRole> guildRoles, IEnumerable<ulong> defaultValues)
+    public static MenuProperties CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<ulong> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
         List<StringMenuSelectOptionProperties> options = new();

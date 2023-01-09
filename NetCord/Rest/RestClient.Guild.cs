@@ -86,30 +86,30 @@ public partial class RestClient
     public async Task<GuildBan> GetGuildBanAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonGuildBan.JsonGuildBanSerializerContext.WithOptions.JsonGuildBan).ConfigureAwait(false), guildId, this);
 
-    public async Task<IReadOnlyDictionary<ulong, GuildRole>> GetGuildRolesAsync(ulong guildId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonGuildRole.JsonGuildRoleArraySerializerContext.WithOptions.JsonGuildRoleArray).ConfigureAwait(false)).ToDictionary(r => r.Id, r => new GuildRole(r, guildId, this));
+    public async Task<IReadOnlyDictionary<ulong, Role>> GetRolesAsync(ulong guildId, RequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonRole.JsonRoleArraySerializerContext.WithOptions.JsonRoleArray).ConfigureAwait(false)).ToDictionary(r => r.Id, r => new Role(r, guildId, this));
 
-    public async Task<GuildRole> CreateGuildRoleAsync(ulong guildId, GuildRoleProperties guildRoleProperties, RequestProperties? properties = null)
+    public async Task<Role> CreateRoleAsync(ulong guildId, RoleProperties guildRoleProperties, RequestProperties? properties = null)
     {
-        using (HttpContent content = new JsonContent<GuildRoleProperties>(guildRoleProperties, GuildRoleProperties.GuildRolePropertiesSerializerContext.WithOptions.GuildRoleProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.CreateGuildRole), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonGuildRole.JsonGuildRoleSerializerContext.WithOptions.JsonGuildRole).ConfigureAwait(false), guildId, this);
+        using (HttpContent content = new JsonContent<RoleProperties>(guildRoleProperties, RoleProperties.RolePropertiesSerializerContext.WithOptions.RoleProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.CreateRole), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonRole.JsonRoleSerializerContext.WithOptions.JsonRole).ConfigureAwait(false), guildId, this);
     }
 
-    public async Task<IReadOnlyDictionary<ulong, GuildRole>> ModifyGuildRolePositionsAsync(ulong guildId, IEnumerable<GuildRolePositionProperties> positions, RequestProperties? properties = null)
+    public async Task<IReadOnlyDictionary<ulong, Role>> ModifyRolePositionsAsync(ulong guildId, IEnumerable<RolePositionProperties> positions, RequestProperties? properties = null)
     {
-        using (HttpContent content = new JsonContent<IEnumerable<GuildRolePositionProperties>>(positions, GuildRolePositionProperties.IEnumerableOfGuildRolePositionPropertiesSerializerContext.WithOptions.IEnumerableGuildRolePositionProperties))
-            return (await (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.ModifyGuildRolePositions), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonGuildRole.JsonGuildRoleArraySerializerContext.WithOptions.JsonGuildRoleArray).ConfigureAwait(false)).ToDictionary(r => r.Id, r => new GuildRole(r, guildId, this));
+        using (HttpContent content = new JsonContent<IEnumerable<RolePositionProperties>>(positions, RolePositionProperties.IEnumerableOfRolePositionPropertiesSerializerContext.WithOptions.IEnumerableRolePositionProperties))
+            return (await (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles", new(RateLimits.RouteParameter.ModifyRolePositions), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonRole.JsonRoleArraySerializerContext.WithOptions.JsonRoleArray).ConfigureAwait(false)).ToDictionary(r => r.Id, r => new Role(r, guildId, this));
     }
 
-    public async Task<GuildRole> ModifyGuildRoleAsync(ulong guildId, ulong roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null)
+    public async Task<Role> ModifyRoleAsync(ulong guildId, ulong roleId, Action<RoleOptions> action, RequestProperties? properties = null)
     {
-        GuildRoleOptions obj = new();
+        RoleOptions obj = new();
         action(obj);
-        using (HttpContent content = new JsonContent<GuildRoleOptions>(obj, GuildRoleOptions.GuildRoleOptionsSerializerContext.WithOptions.GuildRoleOptions))
-            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles/{roleId}", new(RateLimits.RouteParameter.ModifyGuildRole), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonGuildRole.JsonGuildRoleSerializerContext.WithOptions.JsonGuildRole).ConfigureAwait(false), guildId, this);
+        using (HttpContent content = new JsonContent<RoleOptions>(obj, RoleOptions.RoleOptionsSerializerContext.WithOptions.RoleOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Patch, $"/guilds/{guildId}/roles/{roleId}", new(RateLimits.RouteParameter.ModifyRole), content, properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonRole.JsonRoleSerializerContext.WithOptions.JsonRole).ConfigureAwait(false), guildId, this);
     }
 
-    public Task DeleteGuildRoleAsync(ulong guildId, ulong roleId, RequestProperties? properties = null)
+    public Task DeleteRoleAsync(ulong guildId, ulong roleId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", properties);
 
     public async Task<MfaLevel> ModifyGuildMfaLevelAsync(ulong guildId, MfaLevel mfaLevel, RequestProperties? properties = null)

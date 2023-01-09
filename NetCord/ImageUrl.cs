@@ -118,7 +118,7 @@ public class ImageUrl
         return new($"/stickers/{stickerId}", GetFormat(format));
     }
 
-    public static ImageUrl GuildRoleIcon(ulong roleId, ImageFormat format)
+    public static ImageUrl RoleIcon(ulong roleId, ImageFormat format)
     {
         return new($"/role-icons/{roleId}/role_icon", GetFormat(format));
     }

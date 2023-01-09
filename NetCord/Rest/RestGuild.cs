@@ -7,7 +7,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
     internal readonly JsonModels.JsonGuild _jsonModel;
 
-    public ImmutableDictionary<ulong, GuildRole> Roles { get; internal set; }
+    public ImmutableDictionary<ulong, Role> Roles { get; internal set; }
     public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; internal set; }
     public ImmutableDictionary<ulong, GuildSticker> Stickers { get; internal set; }
 
@@ -25,7 +25,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public VerificationLevel VerificationLevel => _jsonModel.VerificationLevel;
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => _jsonModel.DefaultMessageNotificationLevel;
     public ContentFilter ContentFilter => _jsonModel.ContentFilter;
-    public GuildRole EveryoneRole => Roles[Id];
+    public Role EveryoneRole => Roles[Id];
     public IReadOnlyList<string> Features => _jsonModel.Features;
     public MfaLevel MfaLevel => _jsonModel.MfaLevel;
     public ulong? ApplicationId => _jsonModel.ApplicationId;
@@ -51,7 +51,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, Id, client));
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
         // guild emojis always have Id
         Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
@@ -67,11 +67,11 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public IAsyncEnumerable<GuildBan> GetBansBeforeAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBansBeforeAsync(Id, userId, properties);
     public IAsyncEnumerable<GuildBan> GetBansAfterAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBansAfterAsync(Id, userId, properties);
     public Task<GuildBan> GetBanAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBanAsync(Id, userId, properties);
-    public Task<IReadOnlyDictionary<ulong, GuildRole>> GetRolesAsync(RequestProperties? properties = null) => _client.GetGuildRolesAsync(Id, properties);
-    public Task<GuildRole> CreateRoleAsync(GuildRoleProperties guildRoleProperties, RequestProperties? properties = null) => _client.CreateGuildRoleAsync(Id, guildRoleProperties, properties);
-    public Task<IReadOnlyDictionary<ulong, GuildRole>> ModifyRolePositionsAsync(GuildRolePositionProperties[] positions, RequestProperties? properties = null) => _client.ModifyGuildRolePositionsAsync(Id, positions, properties);
-    public Task<GuildRole> ModifyRoleAsync(ulong roleId, Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(Id, roleId, action, properties);
-    public Task DeleteRoleAsync(ulong roleId, RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(Id, roleId, properties);
+    public Task<IReadOnlyDictionary<ulong, Role>> GetRolesAsync(RequestProperties? properties = null) => _client.GetRolesAsync(Id, properties);
+    public Task<Role> CreateRoleAsync(RoleProperties guildRoleProperties, RequestProperties? properties = null) => _client.CreateRoleAsync(Id, guildRoleProperties, properties);
+    public Task<IReadOnlyDictionary<ulong, Role>> ModifyRolePositionsAsync(RolePositionProperties[] positions, RequestProperties? properties = null) => _client.ModifyRolePositionsAsync(Id, positions, properties);
+    public Task<Role> ModifyRoleAsync(ulong roleId, Action<RoleOptions> action, RequestProperties? properties = null) => _client.ModifyRoleAsync(Id, roleId, action, properties);
+    public Task DeleteRoleAsync(ulong roleId, RequestProperties? properties = null) => _client.DeleteRoleAsync(Id, roleId, properties);
     public Task<MfaLevel> ModifyMfaLevelAsync(MfaLevel mfaLevel, RequestProperties? properties = null) => _client.ModifyGuildMfaLevelAsync(Id, mfaLevel, properties);
     public Task<int> GetPruneCountAsync(int days, ulong[]? roles = null, RequestProperties? properties = null) => _client.GetGuildPruneCountAsync(Id, days, roles, properties);
     public Task<int?> PruneAsync(GuildPruneProperties pruneProperties, RequestProperties? properties = null) => _client.GuildPruneAsync(Id, pruneProperties, properties);

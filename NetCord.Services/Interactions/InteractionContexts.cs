@@ -164,7 +164,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
 {
     public override RoleMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<ulong, GuildRole> SelectedRoles { get; }
+    public IReadOnlyDictionary<ulong, Role> SelectedRoles { get; }
 
     public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
@@ -172,7 +172,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
         if (interaction.Data.ResolvedData != null)
             SelectedRoles = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Roles![v]);
         else
-            SelectedRoles = new Dictionary<ulong, GuildRole>();
+            SelectedRoles = new Dictionary<ulong, Role>();
     }
 }
 

@@ -26,7 +26,7 @@ public class GuildUser : User, IJsonModel<JsonGuildUser>
         GuildId = guildId;
     }
 
-    public IEnumerable<GuildRole> GetRoles(RestGuild guild)
+    public IEnumerable<Role> GetRoles(RestGuild guild)
     {
         var roles = guild.Roles;
         return RoleIds.Select(r => roles[r]);

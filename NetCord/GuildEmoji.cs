@@ -13,13 +13,13 @@ public class GuildEmoji : Emoji
         if (jsonModel.Creator != null)
             Creator = new(jsonModel.Creator, client);
         if (jsonModel.AllowedRoles != null)
-            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new GuildRole(r, guildId, client));
+            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new Role(r, guildId, client));
         GuildId = guildId;
     }
 
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 
-    public IReadOnlyDictionary<ulong, GuildRole>? AllowedRoles { get; }
+    public IReadOnlyDictionary<ulong, Role>? AllowedRoles { get; }
 
     public User? Creator { get; }
 

@@ -94,7 +94,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("permissions", "Shows role permissions")]
-    public Task PermissionsAsync(GuildRole role)
+    public Task PermissionsAsync(Role role)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(role.Permissions.ToString()));
     }
@@ -112,7 +112,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("add-role", "Adds role to user or users")]
-    public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] GuildRole roleToAdd)
+    public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] Role roleToAdd)
     {
         if (mentionable.Type == MentionableType.Role)
         {

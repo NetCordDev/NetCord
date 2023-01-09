@@ -5,10 +5,10 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
+public class Role : ClientEntity, IJsonModel<JsonRole>
 {
-    JsonGuildRole IJsonModel<JsonGuildRole>.JsonModel => _jsonModel;
-    private readonly JsonGuildRole _jsonModel;
+    JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
+    private readonly JsonRole _jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 
@@ -30,11 +30,11 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
 
     public bool Mentionable => _jsonModel.Mentionable;
 
-    public GuildRoleTags? Tags { get; }
+    public RoleTags? Tags { get; }
 
     public ulong GuildId { get; }
 
-    public GuildRole(JsonGuildRole jsonModel, ulong guildId, RestClient client) : base(client)
+    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.Tags != null)
@@ -45,27 +45,27 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
     public override string ToString() => $"<@&{Id}>";
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(GuildRole left, GuildRole right) => left.Position > right.Position;
+    public static bool operator >(Role left, Role right) => left.Position > right.Position;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(GuildRole left, GuildRole right) => left.Position < right.Position;
+    public static bool operator <(Role left, Role right) => left.Position < right.Position;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(GuildRole left, GuildRole right) => left.Position >= right.Position;
+    public static bool operator >=(Role left, Role right) => left.Position >= right.Position;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(GuildRole left, GuildRole right) => left.Position <= right.Position;
+    public static bool operator <=(Role left, Role right) => left.Position <= right.Position;
 
     #region Guild
-    public Task<GuildRole> ModifyAsync(Action<GuildRoleOptions> action, RequestProperties? properties = null) => _client.ModifyGuildRoleAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildRoleAsync(GuildId, Id, properties);
+    public Task<Role> ModifyAsync(Action<RoleOptions> action, RequestProperties? properties = null) => _client.ModifyRoleAsync(GuildId, Id, action, properties);
+    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteRoleAsync(GuildId, Id, properties);
     #endregion
 }
 
-public class GuildRoleTags : IJsonModel<JsonGuildRoleTags>
+public class RoleTags : IJsonModel<JsonRoleTags>
 {
-    JsonGuildRoleTags IJsonModel<JsonGuildRoleTags>.JsonModel => _jsonModel;
-    private readonly JsonGuildRoleTags _jsonModel;
+    JsonRoleTags IJsonModel<JsonRoleTags>.JsonModel => _jsonModel;
+    private readonly JsonRoleTags _jsonModel;
 
     public ulong? BotId => _jsonModel.BotId;
 
@@ -77,7 +77,7 @@ public class GuildRoleTags : IJsonModel<JsonGuildRoleTags>
 
     public bool IsAvailableForPurchase => _jsonModel.IsAvailableForPurchase;
 
-    public GuildRoleTags(JsonGuildRoleTags jsonModel)
+    public RoleTags(JsonRoleTags jsonModel)
     {
         _jsonModel = jsonModel;
     }

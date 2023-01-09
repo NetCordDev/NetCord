@@ -6,7 +6,7 @@ public class InteractionResolvedData
 {
     public IReadOnlyDictionary<ulong, User>? Users { get; }
 
-    public IReadOnlyDictionary<ulong, GuildRole>? Roles { get; }
+    public IReadOnlyDictionary<ulong, Role>? Roles { get; }
 
     public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
 
@@ -43,7 +43,7 @@ public class InteractionResolvedData
         }
 
         if (jsonModel.Roles != null)
-            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new GuildRole(r.Value, guildId.GetValueOrDefault(), client));
+            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new Role(r.Value, guildId.GetValueOrDefault(), client));
         if (jsonModel.Channels != null)
             Channels = jsonModel.Channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
         if (jsonModel.Attachments != null)

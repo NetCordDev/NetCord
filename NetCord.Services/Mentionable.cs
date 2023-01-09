@@ -4,7 +4,7 @@ public class Mentionable : Entity
 {
     public override ulong Id { get; }
     public User? User { get; }
-    public GuildRole? Role { get; }
+    public Role? Role { get; }
     public MentionableType Type { get; }
 
     private readonly bool _user;
@@ -17,7 +17,7 @@ public class Mentionable : Entity
         _user = true;
     }
 
-    public Mentionable(GuildRole role)
+    public Mentionable(Role role)
     {
         Id = role.Id;
         Role = role;

@@ -2,8 +2,12 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildRoleProperties
+public partial class RoleOptions
 {
+    internal RoleOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }
@@ -32,9 +36,9 @@ public partial class GuildRoleProperties
     [JsonPropertyName("mentionable")]
     public bool? Mentionable { get; set; }
 
-    [JsonSerializable(typeof(GuildRoleProperties))]
-    public partial class GuildRolePropertiesSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(RoleOptions))]
+    public partial class RoleOptionsSerializerContext : JsonSerializerContext
     {
-        public static GuildRolePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static RoleOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

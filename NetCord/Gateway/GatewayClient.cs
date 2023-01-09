@@ -51,9 +51,9 @@ public partial class GatewayClient : WebSocketClient
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
     public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
     public event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
-    public event Func<GuildRoleEventArgs, ValueTask>? GuildRoleCreate;
-    public event Func<GuildRoleEventArgs, ValueTask>? GuildRoleUpdate;
-    public event Func<GuildRoleDeleteEventArgs, ValueTask>? GuildRoleDelete;
+    public event Func<RoleEventArgs, ValueTask>? RoleCreate;
+    public event Func<RoleEventArgs, ValueTask>? RoleUpdate;
+    public event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
     public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
     public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
     public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventDelete;
@@ -551,8 +551,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_CREATE":
                 {
-                    var json = data.ToObject(JsonGuildRoleEventArgs.JsonGuildRoleEventArgsSerializerContext.WithOptions.JsonGuildRoleEventArgs);
-                    await InvokeEventAsync(GuildRoleCreate, new(json, Rest), args =>
+                    var json = data.ToObject(JsonRoleEventArgs.JsonRoleEventArgsSerializerContext.WithOptions.JsonRoleEventArgs);
+                    await InvokeEventAsync(RoleCreate, new(json, Rest), args =>
                     {
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
@@ -564,8 +564,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
-                    var json = data.ToObject(JsonGuildRoleEventArgs.JsonGuildRoleEventArgsSerializerContext.WithOptions.JsonGuildRoleEventArgs);
-                    await InvokeEventAsync(GuildRoleUpdate, new(json, Rest), args =>
+                    var json = data.ToObject(JsonRoleEventArgs.JsonRoleEventArgsSerializerContext.WithOptions.JsonRoleEventArgs);
+                    await InvokeEventAsync(RoleUpdate, new(json, Rest), args =>
                     {
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
@@ -577,8 +577,8 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "GUILD_ROLE_DELETE":
                 {
-                    var json = data.ToObject(JsonGuildRoleDeleteEventArgs.JsonGuildRoleDeleteEventArgsSerializerContext.WithOptions.JsonGuildRoleDeleteEventArgs);
-                    await InvokeEventAsync(GuildRoleDelete, new(json), args =>
+                    var json = data.ToObject(JsonRoleDeleteEventArgs.JsonRoleDeleteEventArgsSerializerContext.WithOptions.JsonRoleDeleteEventArgs);
+                    await InvokeEventAsync(RoleDelete, new(json), args =>
                     {
                         if (TryGetGuild(args.GuildId, out var guild))
                         {

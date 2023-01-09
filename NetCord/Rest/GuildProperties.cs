@@ -25,7 +25,7 @@ public partial class GuildProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
-    public IEnumerable<GuildRoleProperties>? Roles { get; set; }
+    public IEnumerable<RoleProperties>? Roles { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channels")]

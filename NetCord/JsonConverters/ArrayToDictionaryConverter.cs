@@ -5,22 +5,22 @@ using NetCord.JsonModels;
 
 namespace NetCord.JsonConverters;
 
-internal partial class JsonGuildRoleArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonGuildRole>>
+internal partial class JsonRoleArrayToDictionaryConverter : JsonConverter<Dictionary<ulong, JsonRole>>
 {
-    public override Dictionary<ulong, JsonGuildRole>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override Dictionary<ulong, JsonRole>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return reader.ToObject(JsonGuildRole.JsonGuildRoleArraySerializerContext.WithOptions.JsonGuildRoleArray).ToDictionary(v => v.Id);
+        return reader.ToObject(JsonRole.JsonRoleArraySerializerContext.WithOptions.JsonRoleArray).ToDictionary(v => v.Id);
     }
 
-    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonGuildRole> value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, Dictionary<ulong, JsonRole> value, JsonSerializerOptions options)
     {
-        JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonGuildRoleSerializerContext.WithOptions.IReadOnlyCollectionJsonGuildRole);
+        JsonSerializer.Serialize(writer, value.Values, IReadOnlyCollectionOfJsonRoleSerializerContext.WithOptions.IReadOnlyCollectionJsonRole);
     }
 
-    [JsonSerializable(typeof(IReadOnlyCollection<JsonGuildRole>))]
-    public partial class IReadOnlyCollectionOfJsonGuildRoleSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(IReadOnlyCollection<JsonRole>))]
+    public partial class IReadOnlyCollectionOfJsonRoleSerializerContext : JsonSerializerContext
     {
-        public static IReadOnlyCollectionOfJsonGuildRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static IReadOnlyCollectionOfJsonRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 

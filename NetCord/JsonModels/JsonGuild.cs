@@ -51,9 +51,9 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("explicit_content_filter")]
     public ContentFilter ContentFilter { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonGuildRoleArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonRoleArrayToDictionaryConverter))]
     [JsonPropertyName("roles")]
-    public Dictionary<ulong, JsonGuildRole> Roles { get; set; }
+    public Dictionary<ulong, JsonRole> Roles { get; set; }
 
     [JsonPropertyName("emojis")]
     public List<JsonEmoji> Emojis { get; set; }

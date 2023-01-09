@@ -12,7 +12,7 @@ public class GuildTemplateSourceGuild : Entity, IJsonModel<JsonGuild>
     public GuildTemplateSourceGuild(JsonGuild jsonModel, ulong id, RestClient client)
     {
         _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new GuildRole(r, id, client));
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, id, client));
         Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
         Id = id;
     }
@@ -31,7 +31,7 @@ public class GuildTemplateSourceGuild : Entity, IJsonModel<JsonGuild>
 
     public ContentFilter ContentFilter => _jsonModel.ContentFilter;
 
-    public ImmutableDictionary<ulong, GuildRole> Roles { get; internal set; }
+    public ImmutableDictionary<ulong, Role> Roles { get; internal set; }
 
     public ulong? SystemChannelId => _jsonModel.SystemChannelId;
 
