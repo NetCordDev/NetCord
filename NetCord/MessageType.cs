@@ -33,4 +33,11 @@ public enum MessageType
     ContextMenuCommand = 23,
     AutoModerationAction = 24,
     RoleSubscriptionPurchase = 25,
+    InteractionPremiumUpsell = 26,
+    StageStart = 27,
+    StageEnd = 28,
+    StageSpeaker = 29,
+    StageRaiseHand = 30,
+    StageTopic = 31,
+    GuildApplicationPremiumSubscription = 32,
 }
