@@ -77,6 +77,8 @@ public class RoleTags : IJsonModel<JsonRoleTags>
 
     public bool IsAvailableForPurchase => _jsonModel.IsAvailableForPurchase;
 
+    public bool GuildConnections => _jsonModel.GuildConnections;
+
     public RoleTags(JsonRoleTags jsonModel)
     {
         _jsonModel = jsonModel;

@@ -68,6 +68,11 @@ public partial class JsonRoleTags
     [JsonPropertyName("available_for_purchase")]
     public bool IsAvailableForPurchase { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(JsonConverters.NullConverter))]
+    [JsonPropertyName("guild_connections")]
+    public bool GuildConnections { get; set; }
+
     [JsonSerializable(typeof(JsonRoleTags))]
     public partial class JsonTagsSerializerContext : JsonSerializerContext
     {
