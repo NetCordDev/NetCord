@@ -62,10 +62,10 @@ public class GuildRole : ClientEntity, IJsonModel<JsonGuildRole>
     #endregion
 }
 
-public class GuildRoleTags : IJsonModel<JsonTags>
+public class GuildRoleTags : IJsonModel<JsonGuildRoleTags>
 {
-    JsonTags IJsonModel<JsonTags>.JsonModel => _jsonModel;
-    private readonly JsonTags _jsonModel;
+    JsonGuildRoleTags IJsonModel<JsonGuildRoleTags>.JsonModel => _jsonModel;
+    private readonly JsonGuildRoleTags _jsonModel;
 
     public ulong? BotId => _jsonModel.BotId;
 
@@ -73,7 +73,11 @@ public class GuildRoleTags : IJsonModel<JsonTags>
 
     public bool IsPremiumSubscriber => _jsonModel.IsPremiumSubscriber;
 
-    public GuildRoleTags(JsonTags jsonModel)
+    public ulong? SubscriptionListingId => _jsonModel.SubscriptionListingId;
+
+    public bool IsAvailableForPurchase => _jsonModel.IsAvailableForPurchase;
+
+    public GuildRoleTags(JsonGuildRoleTags jsonModel)
     {
         _jsonModel = jsonModel;
     }

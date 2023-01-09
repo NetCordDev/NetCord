@@ -2,10 +2,11 @@
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<IntegrationType>))]
+[JsonConverter(typeof(JsonConverters.IntegrationTypeConverter))]
 public enum IntegrationType
 {
     Twitch,
     YouTube,
-    Discord
+    Discord,
+    GuildSubscription,
 }

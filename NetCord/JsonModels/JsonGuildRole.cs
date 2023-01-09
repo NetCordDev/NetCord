@@ -32,7 +32,7 @@ public partial class JsonGuildRole : JsonEntity
     public bool Mentionable { get; set; }
 
     [JsonPropertyName("tags")]
-    public JsonTags? Tags { get; set; }
+    public JsonGuildRoleTags? Tags { get; set; }
 
     [JsonSerializable(typeof(JsonGuildRole))]
     public partial class JsonGuildRoleSerializerContext : JsonSerializerContext
@@ -47,7 +47,7 @@ public partial class JsonGuildRole : JsonEntity
     }
 }
 
-public partial class JsonTags
+public partial class JsonGuildRoleTags
 {
     [JsonPropertyName("bot_id")]
     public ulong? BotId { get; set; }
@@ -60,7 +60,15 @@ public partial class JsonTags
     [JsonPropertyName("premium_subscriber")]
     public bool IsPremiumSubscriber { get; set; }
 
-    [JsonSerializable(typeof(JsonTags))]
+    [JsonPropertyName("subscription_listing_id")]
+    public ulong? SubscriptionListingId { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonConverter(typeof(JsonConverters.NullConverter))]
+    [JsonPropertyName("available_for_purchase")]
+    public bool IsAvailableForPurchase { get; set; }
+
+    [JsonSerializable(typeof(JsonGuildRoleTags))]
     public partial class JsonTagsSerializerContext : JsonSerializerContext
     {
         public static JsonTagsSerializerContext WithOptions { get; } = new(Serialization.Options);

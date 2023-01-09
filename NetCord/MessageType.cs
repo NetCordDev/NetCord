@@ -32,4 +32,5 @@ public enum MessageType
     GuildInviteReminder = 22,
     ContextMenuCommand = 23,
     AutoModerationAction = 24,
+    RoleSubscriptionPurchase = 25,
 }
