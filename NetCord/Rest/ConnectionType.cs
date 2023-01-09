@@ -5,6 +5,22 @@ namespace NetCord.Rest;
 [JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<ConnectionType>))]
 public enum ConnectionType
 {
+    BattleNet,
+    Ebay,
+    EpicGames,
+    Facebook,
+    GitHub,
+    LeagueOfLegends,
+    PayPal,
+    PlayStation,
+    Reddit,
+    RiotGames,
+    Spotify,
+    Skype,
+    Steam,
+    TikTok,
     Twitch,
-    Youtube,
+    Twitter,
+    Xbox,
+    YouTube,
 }

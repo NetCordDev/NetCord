@@ -7,17 +7,32 @@ namespace NetCord.Rest;
 [JsonConverter(typeof(ApplicationCommandOptionChoicePropertiesConverter))]
 public partial class ApplicationCommandOptionChoiceProperties
 {
+    /// <summary>
+    /// Name of the choice (1-100 characters).
+    /// </summary>
     [JsonPropertyName("name")]
     public string Name { get; }
 
+    /// <summary>
+    /// Translations of <see cref="Name"/> (1-100 characters each).
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
 
+    /// <summary>
+    /// String value for the choice (max 100 characters).
+    /// </summary>
     public string? ValueString { get; }
 
+    /// <summary>
+    /// Numeric value for the choice (max 100 characters).
+    /// </summary>
     public double? ValueNumeric { get; }
 
+    /// <summary>
+    /// Type of value.
+    /// </summary>
     public ApplicationCommandOptionChoiceValueType ValueType { get; }
 
     public ApplicationCommandOptionChoiceProperties(string name, string stringValue)

@@ -7,20 +7,23 @@ namespace NetCord.Rest;
 public partial class AllowedMentionsProperties
 {
     /// <summary>
-    /// <see langword="@everyone"/> and <see langword="@here"/>
+    /// Allow <see langword="@everyone"/> and <see langword="@here"/>.
     /// </summary>
     public bool Everyone { get; set; } = true;
 
     /// <summary>
-    /// <see langword="null"/> for all
+    /// Allowed roles, <see langword="null"/> for all.
     /// </summary>
     public IEnumerable<ulong>? AllowedRoles { get; set; }
 
     /// <summary>
-    /// <see langword="null"/> for all
+    /// Allowed users, <see langword="null"/> for all.
     /// </summary>
     public IEnumerable<ulong>? AllowedUsers { get; set; }
 
+    /// <summary>
+    /// Allow reply mention.
+    /// </summary>
     public bool ReplyMention { get; set; }
 
     public static AllowedMentionsProperties All => new()
@@ -47,19 +50,19 @@ public partial class AllowedMentionsProperties
             else
             {
                 writer.WritePropertyName("roles");
-                JsonSerializer.Serialize(writer, value.AllowedRoles, IEnumerableOfUInt64.WithOptions.IEnumerableUInt64);
+                JsonSerializer.Serialize(writer, value.AllowedRoles, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
             }
             if (value.AllowedUsers == null)
                 list.Add("users");
             else
             {
                 writer.WritePropertyName("users");
-                JsonSerializer.Serialize(writer, value.AllowedUsers, IEnumerableOfUInt64.WithOptions.IEnumerableUInt64);
+                JsonSerializer.Serialize(writer, value.AllowedUsers, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
             }
             if (value.Everyone)
                 list.Add("everyone");
             writer.WritePropertyName("parse");
-            JsonSerializer.Serialize(writer, list, ListOfString.WithOptions.ListString);
+            JsonSerializer.Serialize(writer, list, ListOfStringSerializerContext.WithOptions.ListString);
 
             if (value.ReplyMention == true)
             {
@@ -70,15 +73,15 @@ public partial class AllowedMentionsProperties
         }
 
         [JsonSerializable(typeof(IEnumerable<ulong>))]
-        public partial class IEnumerableOfUInt64 : JsonSerializerContext
+        public partial class IEnumerableOfUInt64SerializerContext : JsonSerializerContext
         {
-            public static IEnumerableOfUInt64 WithOptions { get; } = new(Serialization.Options);
+            public static IEnumerableOfUInt64SerializerContext WithOptions { get; } = new(new(Serialization.Options));
         }
 
         [JsonSerializable(typeof(List<string>))]
-        public partial class ListOfString : JsonSerializerContext
+        public partial class ListOfStringSerializerContext : JsonSerializerContext
         {
-            public static ListOfString WithOptions { get; } = new(Serialization.Options);
+            public static ListOfStringSerializerContext WithOptions { get; } = new(new(Serialization.Options));
         }
     }
 

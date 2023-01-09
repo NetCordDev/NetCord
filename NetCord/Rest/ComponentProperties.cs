@@ -6,9 +6,16 @@ namespace NetCord.Rest;
 [JsonConverter(typeof(ComponentConverter))]
 public abstract class ComponentProperties
 {
+    /// <summary>
+    /// Type of the component.
+    /// </summary>
     [JsonPropertyName("type")]
     public ComponentType ComponentType { get; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="type">Type of the component.</param>
     protected ComponentProperties(ComponentType type)
     {
         ComponentType = type;

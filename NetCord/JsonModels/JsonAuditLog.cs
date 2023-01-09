@@ -4,8 +4,14 @@ namespace NetCord.JsonModels;
 
 public partial class JsonAuditLog
 {
+    [JsonPropertyName("application_commands")]
+    public JsonApplicationCommand[] ApplicationCommands { get; set; }
+
     [JsonPropertyName("audit_log_entries")]
     public JsonAuditLogEntry[] AuditLogEntries { get; set; }
+
+    [JsonPropertyName("auto_moderation_rules")]
+    public JsonAutoModerationRule[] AutoModerationRules { get; set; }
 
     [JsonPropertyName("guild_scheduled_events")]
     public JsonGuildScheduledEvent[] GuildScheduledEvents { get; set; }

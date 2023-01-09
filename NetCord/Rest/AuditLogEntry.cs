@@ -19,6 +19,8 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         Changes = _jsonModel.Changes.SelectOrEmpty(c => new AuditLogChange(c));
         if (_jsonModel.Options != null)
             Options = new(_jsonModel.Options);
+        ApplicationCommands = _data.ApplicationCommands.Select(c => new ApplicationCommand(c, client));
+        AutoModerationRules = _data.AutoModerationRules.Select(r => new AutoModerationRule(r, client));
         GuildScheduledEvents = _data.GuildScheduledEvents.Select(e => new GuildScheduledEvent(e, _client));
         Integrations = _data.Integrations.Select(e => new Integration(e, _client));
         Threads = _data.Threads.Select(t => (GuildThread)Channel.CreateFromJson(t, _client));
@@ -28,10 +30,25 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
 
     public override ulong Id => _jsonModel.Id;
 
+    /// <summary>
+    /// Id of the affected entity.
+    /// </summary>
     public ulong? TargetId => _jsonModel.TargetId;
 
+    /// <summary>
+    /// Changes made to the <see cref="TargetId"/>.
+    /// </summary>
     public IEnumerable<AuditLogChange> Changes { get; }
 
+    /// <summary>
+    /// Finds specified change based on <paramref name="expression"/>.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
+    /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
+    /// <returns></returns>
+    /// <exception cref="EntityNotFoundException"></exception>
     public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue>> expression, JsonTypeInfo<TValue> jsonTypeInfo) where TObject : JsonEntity
     {
         if (_jsonModel.Changes == null)
@@ -47,6 +64,9 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         return new(result, jsonTypeInfo);
     }
 
+    /// <summary>
+    /// User that made the changes.
+    /// </summary>
     public User? User
     {
         get
@@ -61,20 +81,54 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
         }
     }
 
+    /// <summary>
+    /// Type of action that occurred.
+    /// </summary>
     public AuditLogEvent ActionType => _jsonModel.ActionType.GetValueOrDefault();
 
+    /// <summary>
+    /// Additional info for certain event types.
+    /// </summary>
     public AuditLogEntryInfo? Options { get; }
 
+    /// <summary>
+    /// Reason for the change (1-512 characters).
+    /// </summary>
     public string? Reason => _jsonModel.Reason;
 
+    /// <summary>
+    /// List of application commands referenced in the audit log.
+    /// </summary>
+    public IEnumerable<ApplicationCommand> ApplicationCommands { get; }
+
+    /// <summary>
+    /// List of auto moderation rules referenced in the audit log.
+    /// </summary>
+    public IEnumerable<AutoModerationRule> AutoModerationRules { get; }
+
+    /// <summary>
+    /// List of guild scheduled events referenced in the audit log.
+    /// </summary>
     public IEnumerable<GuildScheduledEvent> GuildScheduledEvents { get; }
 
+    /// <summary>
+    /// List of integration objects.
+    /// </summary>
     public IEnumerable<Integration> Integrations { get; }
 
+    /// <summary>
+    /// List of threads referenced in the audit log
+    /// </summary>
     public IEnumerable<GuildThread> Threads { get; }
 
+    /// <summary>
+    /// List of users referenced in the audit log.
+    /// </summary>
     public IEnumerable<User> Users { get; }
 
+    /// <summary>
+    /// List of webhooks referenced in the audit log.
+    /// </summary>
     public IEnumerable<Webhook> Webhooks { get; }
 
     #region From https://github.com/dotnet/efcore/blob/27a83b9ad5f6ce7e13c6fbdec8f50a4aa63fb811/src/EFCore/Infrastructure/ExpressionExtensions.cs

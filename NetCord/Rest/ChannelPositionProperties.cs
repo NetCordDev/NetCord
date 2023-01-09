@@ -4,18 +4,34 @@ namespace NetCord.Rest;
 
 public partial class ChannelPositionProperties
 {
+    /// <summary>
+    /// Channel id.
+    /// </summary>
     [JsonPropertyName("id")]
     public ulong Id { get; }
 
+    /// <summary>
+    /// Sorting position of the channel.
+    /// </summary>
     [JsonPropertyName("position")]
     public int? Position { get; set; }
 
+    /// <summary>
+    /// Syncs the permission overwrites with the new parent, if moving to a new category.
+    /// </summary>
     [JsonPropertyName("lock_permissions")]
-    public bool? LockPermissions { get; set; }
+    public bool LockPermissions { get; set; }
 
+    /// <summary>
+    /// The new parent id for the channel that is moved.
+    /// </summary>
     [JsonPropertyName("parent_id")]
     public ulong? ParentId { get; set; }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id">Channel id.</param>
     public ChannelPositionProperties(ulong id)
     {
         Id = id;

@@ -6,18 +6,32 @@ namespace NetCord.Rest;
 
 public partial class SlashCommandProperties : ApplicationCommandProperties
 {
+    /// <summary>
+    /// Description of the command (1-100 characters).
+    /// </summary>
     [JsonPropertyName("description")]
     public string Description { get; }
 
+    /// <summary>
+    /// Translations of <see cref="Description"/> (1-100 characters each).
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
 
+    /// <summary>
+    /// Parameters for the command (max 25).
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
     public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
 
-    public SlashCommandProperties(string name, string description) : base(name, ApplicationCommandType.ChatInput)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name">Name of the command (1-32 characters).</param>
+    /// <param name="description">Description of the command (1-100 characters).</param>
+    public SlashCommandProperties(string name, string description) : base(ApplicationCommandType.ChatInput, name)
     {
         Description = description;
     }
@@ -31,7 +45,11 @@ public partial class SlashCommandProperties : ApplicationCommandProperties
 
 public partial class UserCommandProperties : ApplicationCommandProperties
 {
-    public UserCommandProperties(string name) : base(name, ApplicationCommandType.User)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name">Name of the command (1-32 characters).</param>
+    public UserCommandProperties(string name) : base(ApplicationCommandType.User, name)
     {
     }
 
@@ -44,7 +62,11 @@ public partial class UserCommandProperties : ApplicationCommandProperties
 
 public partial class MessageCommandProperties : ApplicationCommandProperties
 {
-    public MessageCommandProperties(string name) : base(name, ApplicationCommandType.Message)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name">Name of the command (1-32 characters).</param>
+    public MessageCommandProperties(string name) : base(ApplicationCommandType.Message, name)
     {
     }
 
@@ -58,35 +80,56 @@ public partial class MessageCommandProperties : ApplicationCommandProperties
 [JsonConverter(typeof(ApplicationCommandPropertiesConverter))]
 public abstract partial class ApplicationCommandProperties
 {
-    private protected ApplicationCommandProperties(string name, ApplicationCommandType type)
+    private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {
         Name = name;
         Type = type;
     }
 
-    [JsonPropertyName("name")]
-    public string Name { get; }
-
+    /// <summary>
+    /// Type of the command.
+    /// </summary>
     [JsonPropertyName("type")]
     public ApplicationCommandType Type { get; }
 
+    /// <summary>
+    /// Name of the command (1-32 characters).
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string Name { get; }
+
+    /// <summary>
+    /// Translations of <see cref="Name"/> (1-32 characters each).
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
 
+    /// <summary>
+    /// Default required permissions to use the command.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_member_permissions")]
     public Permissions? DefaultGuildUserPermissions { get; set; }
 
+    /// <summary>
+    /// Indicates whether the command is available in DMs with the app.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("dm_permission")]
     public bool? DMPermission { get; set; }
 
+    /// <summary>
+    /// Indicates whether the command is enabled by default when the app is added to a guild.
+    /// </summary>
     [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
 
+    /// <summary>
+    /// Indicates whether the command is age-restricted.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }

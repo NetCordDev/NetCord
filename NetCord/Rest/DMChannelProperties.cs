@@ -9,6 +9,9 @@ internal partial class DMChannelProperties
         UserId = userId;
     }
 
+    /// <summary>
+    /// The recipient to open a DM channel with.
+    /// </summary>
     [JsonPropertyName("recipient_id")]
     public ulong UserId { get; }
 

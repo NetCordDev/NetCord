@@ -10,6 +10,13 @@ public record JsonAuditLogEntryInfo
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
 
+    [JsonPropertyName("auto_moderation_rule_name")]
+    public string? AutoModerationRuleName { get; set; }
+
+    [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+    [JsonPropertyName("auto_moderation_rule_trigger_type")]
+    public int? AutoModerationRuleTriggerType { get; set; } //AutoModerationRuleTriggerType
+
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("count")]
     public int? Count { get; set; }

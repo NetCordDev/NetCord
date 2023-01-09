@@ -4,42 +4,72 @@ namespace NetCord.Rest;
 
 public partial class EmbedProperties
 {
+    /// <summary>
+    /// Title of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("title")]
     public string? Title { get; set; }
 
+    /// <summary>
+    /// Description of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
+    /// <summary>
+    /// Url of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    /// <summary>
+    /// Timestamp of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("timestamp")]
     public DateTimeOffset? Timestamp { get; set; }
 
+    /// <summary>
+    /// Color of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("color")]
     public Color Color { get; set; }
 
+    /// <summary>
+    /// Footer of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("footer")]
     public EmbedFooterProperties? Footer { get; set; }
 
+    /// <summary>
+    /// Image of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("image")]
     public EmbedImageProperties? Image { get; set; }
 
+    /// <summary>
+    /// Thumbnail of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("thumbnail")]
     public EmbedThumbnailProperties? Thumbnail { get; set; }
 
+    /// <summary>
+    /// Author of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("author")]
     public EmbedAuthorProperties? Author { get; set; }
 
+    /// <summary>
+    /// Fields of the embed.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("fields")]
     public IEnumerable<EmbedFieldProperties>? Fields { get; set; }
@@ -53,10 +83,16 @@ public partial class EmbedProperties
 
 public partial class EmbedFooterProperties
 {
+    /// <summary>
+    /// Text of the footer.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("text")]
     public string? Text { get; set; }
 
+    /// <summary>
+    /// Url of the footer icon.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
@@ -68,49 +104,34 @@ public partial class EmbedFooterProperties
     }
 }
 
-public abstract class EmbedPartBaseProperties
+public partial class EmbedImageProperties
 {
+    /// <summary>
+    /// Url of the image.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; }
 
-    private protected EmbedPartBaseProperties(string? url)
+    /// <summary>
+    /// Url of the image.
+    /// </summary>
+    /// <param name="url"></param>
+    public EmbedImageProperties(string? url)
     {
         Url = url;
-    }
-}
-
-public partial class EmbedImageProperties : EmbedPartBaseProperties
-{
-    public EmbedImageProperties(string? url) : base(url)
-    {
     }
 
     public static implicit operator EmbedImageProperties(string? url) => new(url);
 
     public static implicit operator EmbedImageProperties(AttachmentProperties attachment) => FromAttachment(attachment.FileName);
 
+    /// <summary>
+    /// Creates new <see cref="EmbedImageProperties"/> based on <paramref name="attachmentFileName"/>.
+    /// </summary>
+    /// <param name="attachmentFileName">Attachment file name.</param>
+    /// <returns></returns>
     public static EmbedImageProperties FromAttachment(string attachmentFileName) => new($"attachment://{attachmentFileName}");
-}
-
-public class EmbedThumbnailProperties : EmbedPartBaseProperties
-{
-    public EmbedThumbnailProperties(string? url) : base(url)
-    {
-    }
-
-    public static implicit operator EmbedThumbnailProperties(string? url) => new(url);
-}
-
-public partial class EmbedProviderProperties
-{
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("name")]
-    public string? Name { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    [JsonPropertyName("url")]
-    public string? Url { get; set; }
 
     [JsonSerializable(typeof(EmbedImageProperties))]
     public partial class EmbedImagePropertiesSerializerContext : JsonSerializerContext
@@ -119,16 +140,52 @@ public partial class EmbedProviderProperties
     }
 }
 
+public partial class EmbedThumbnailProperties
+{
+    /// <summary>
+    /// Url of the thumbnail.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("url")]
+    public string? Url { get; }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="url">Url of the thumbnail.</param>
+    public EmbedThumbnailProperties(string? url)
+    {
+        Url = url;
+    }
+
+    public static implicit operator EmbedThumbnailProperties(string? url) => new(url);
+
+    [JsonSerializable(typeof(EmbedThumbnailProperties))]
+    public partial class EmbedThumbnailPropertiesSerializerContext : JsonSerializerContext
+    {
+        public static EmbedThumbnailPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
+    }
+}
+
 public partial class EmbedAuthorProperties
 {
+    /// <summary>
+    /// Name of the author.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("name")]
     public string? Name { get; set; }
 
+    /// <summary>
+    /// Url of the author.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    /// <summary>
+    /// Url of the author icon.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
@@ -144,6 +201,9 @@ public partial class EmbedFieldProperties
 {
     private const string Default = "\u00AD";
 
+    /// <summary>
+    /// Title of the field.
+    /// </summary>
     [JsonPropertyName("name")]
     public string Title
     {
@@ -159,6 +219,9 @@ public partial class EmbedFieldProperties
 
     private string _title = Default;
 
+    /// <summary>
+    /// Description of the field.
+    /// </summary>
     [JsonPropertyName("value")]
     public string Description
     {
@@ -174,6 +237,9 @@ public partial class EmbedFieldProperties
 
     private string _description = Default;
 
+    /// <summary>
+    /// Whether or not the field should display inline.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]
     public bool Inline { get; set; }

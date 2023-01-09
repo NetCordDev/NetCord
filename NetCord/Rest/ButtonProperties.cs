@@ -6,37 +6,68 @@ namespace NetCord.Rest;
 [JsonConverter(typeof(MessageButtonConverter))]
 public abstract class ButtonProperties
 {
+    /// <summary>
+    /// Style of the button.
+    /// </summary>
     [JsonPropertyName("style")]
     public ButtonStyle Style { get; }
 
+    /// <summary>
+    /// Type of the component.
+    /// </summary>
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.Button;
 
+    /// <summary>
+    /// Text that appears on the button (max 80 characters).
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("label")]
     public string? Label { get; }
 
+    /// <summary>
+    /// Emoji that appears on the button.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji")]
     public EmojiProperties? Emoji { get; }
 
+    /// <summary>
+    /// Whether the button is disabled.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
-    protected ButtonProperties(ButtonStyle style, string label)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="label">Text that appears on the button (max 80 characters).</param>
+    /// <param name="style">Style of the button.</param>
+    protected ButtonProperties(string label, ButtonStyle style)
     {
         Style = style;
         Label = label;
     }
 
-    protected ButtonProperties(ButtonStyle style, EmojiProperties emoji)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="emoji">Emoji that appears on the button.</param>
+    /// <param name="style">Style of the button.</param>
+    protected ButtonProperties(EmojiProperties emoji, ButtonStyle style)
     {
         Style = style;
         Emoji = emoji;
     }
 
-    protected ButtonProperties(ButtonStyle style, string label, EmojiProperties emoji)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="label">Text that appears on the button (max 80 characters).</param>
+    /// <param name="emoji">Emoji that appears on the button.</param>
+    /// <param name="style">Style of the button.</param>
+    protected ButtonProperties(string label, EmojiProperties emoji, ButtonStyle style)
     {
         Style = style;
         Label = label;

@@ -7,6 +7,9 @@ public class Account : Entity, IJsonModel<JsonModels.JsonAccount>
 
     public override ulong Id => _jsonModel.Id;
 
+    /// <summary>
+    /// Name of the account.
+    /// </summary>
     public string Name => _jsonModel.Name;
 
     public Account(JsonModels.JsonAccount jsonModel)

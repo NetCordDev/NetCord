@@ -5,20 +5,42 @@ namespace NetCord.Rest;
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class ActionButtonProperties : ButtonProperties
 {
+    /// <summary>
+    /// Developer-defined identifier for the button (max 100 characters).
+    /// </summary>
     [JsonPropertyName("custom_id")]
     public string CustomId { get; }
 
-    public ActionButtonProperties(string customId, string label, ButtonStyle style) : base(style, label)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="customId">Developer-defined identifier for the button (max 100 characters).</param>
+    /// <param name="label">Text that appears on the button (max 80 characters).</param>
+    /// <param name="style">Style of the button.</param>
+    public ActionButtonProperties(string customId, string label, ButtonStyle style) : base(label, style)
     {
         CustomId = customId;
     }
 
-    public ActionButtonProperties(string customId, EmojiProperties emoji, ButtonStyle style) : base(style, emoji)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="customId">Developer-defined identifier for the button (max 100 characters).</param>
+    /// <param name="emoji">Emoji that appears on the button.</param>
+    /// <param name="style">Style of the button.</param>
+    public ActionButtonProperties(string customId, EmojiProperties emoji, ButtonStyle style) : base(emoji, style)
     {
         CustomId = customId;
     }
 
-    public ActionButtonProperties(string customId, string label, EmojiProperties emoji, ButtonStyle style) : base(style, label, emoji)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="customId">Developer-defined identifier for the button (max 100 characters).</param>
+    /// <param name="label">Text that appears on the button (max 80 characters).</param>
+    /// <param name="emoji">Emoji that appears on the button.</param>
+    /// <param name="style">Style of the button.</param>
+    public ActionButtonProperties(string customId, string label, EmojiProperties emoji, ButtonStyle style) : base(label, emoji, style)
     {
         CustomId = customId;
     }

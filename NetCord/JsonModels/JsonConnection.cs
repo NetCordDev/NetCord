@@ -27,6 +27,9 @@ public partial class JsonConnection : JsonEntity
     [JsonPropertyName("show_activity")]
     public bool ShowActivity { get; set; }
 
+    [JsonPropertyName("show_activity")]
+    public bool TwoWayLink { get; set; }
+
     [JsonPropertyName("visibility")]
     public ConnectionVisibility Visibility { get; set; }
 

@@ -8,14 +8,23 @@ public partial class CurrentUserVoiceStateOptions
     {
     }
 
+    /// <summary>
+    /// The id of the channel the user is currently in.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
 
+    /// <summary>
+    /// Toggles the user's suppress state.
+    /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("suppress")]
     public bool? Suppress { get; set; }
 
+    /// <summary>
+    /// Sets the user's request to speak.
+    /// </summary>
     [JsonConverter(typeof(JsonConverters.NullableDateTimeOffsetConverter))]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("request_to_speak_timestamp")]
