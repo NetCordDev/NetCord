@@ -7,6 +7,8 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
     JsonModels.EventArgs.JsonReadyEventArgs IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs>.JsonModel => _jsonModel;
     private readonly JsonModels.EventArgs.JsonReadyEventArgs _jsonModel;
 
+    public ApiVersion Version => _jsonModel.Version;
+
     public SelfUser User { get; }
 
     public IEnumerable<ulong> GuildIds { get; }
