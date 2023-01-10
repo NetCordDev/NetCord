@@ -412,9 +412,7 @@ public partial class GatewayClient : WebSocketClient
                     var jsonGuild = data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild);
                     var id = jsonGuild.Id;
                     if (jsonGuild.IsUnavailable)
-                    {
                         await InvokeEventAsync(GuildCreate, () => new(id, null)).ConfigureAwait(false);
-                    }
                     else
                     {
                         Guild guild = new(jsonGuild, Rest);
