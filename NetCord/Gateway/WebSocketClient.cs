@@ -125,11 +125,12 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async void InvokeLog(LogMessage logMessage)
     {
-        if (Log != null)
+        var log = Log;
+        if (log != null)
         {
             try
             {
-                await Log(logMessage).ConfigureAwait(false);
+                await log(logMessage).ConfigureAwait(false);
             }
             catch
             {
