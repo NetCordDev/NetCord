@@ -11,7 +11,7 @@ internal partial class GuildBanProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("delete_message_seconds")]
-    public int DeleteMessageSeconds { get; }
+    public int DeleteMessageSeconds { get; set; }
 
     [JsonSerializable(typeof(GuildBanProperties))]
     public partial class GuildBanPropertiesSerializerContext : JsonSerializerContext

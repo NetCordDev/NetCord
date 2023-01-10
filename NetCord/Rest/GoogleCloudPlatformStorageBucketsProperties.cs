@@ -10,7 +10,7 @@ internal partial class GoogleCloudPlatformStorageBucketsProperties
     }
 
     [JsonPropertyName("files")]
-    public IEnumerable<GoogleCloudPlatformStorageBucketProperties> Buckets { get; }
+    public IEnumerable<GoogleCloudPlatformStorageBucketProperties> Buckets { get; set; }
 
     [JsonSerializable(typeof(GoogleCloudPlatformStorageBucketsProperties))]
     public partial class GoogleCloudPlatformStorageBucketsPropertiesSerializerContext : JsonSerializerContext

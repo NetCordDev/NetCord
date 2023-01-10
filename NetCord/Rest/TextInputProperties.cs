@@ -8,13 +8,13 @@ public partial class TextInputProperties
     public ComponentType ComponentType => ComponentType.TextInput;
 
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; }
+    public string CustomId { get; set; }
 
     [JsonPropertyName("style")]
-    public TextInputStyle Style { get; }
+    public TextInputStyle Style { get; set; }
 
     [JsonPropertyName("label")]
-    public string Label { get; }
+    public string Label { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_length")]

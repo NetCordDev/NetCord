@@ -8,7 +8,7 @@ public abstract class MenuProperties : ComponentProperties
     /// Id for the menu (max 100 characters).
     /// </summary>
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; }
+    public string CustomId { get; set; }
 
     /// <summary>
     /// Placeholder text if nothing is selected (max 150 characters).

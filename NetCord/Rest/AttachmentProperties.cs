@@ -24,7 +24,7 @@ public partial class AttachmentProperties
     /// <summary>
     /// Name of the file.
     /// </summary>
-    public string FileName { get; }
+    public string FileName { get; set; }
 
     /// <summary>
     /// Description for the file (max 1024 characters).

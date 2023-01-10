@@ -17,7 +17,7 @@ internal partial class FollowAnnouncementGuildChannelProperties
     /// Id of target channel.
     /// </summary>
     [JsonPropertyName("webhook_channel_id")]
-    public ulong WebhookChannelId { get; }
+    public ulong WebhookChannelId { get; set; }
 
     [JsonSerializable(typeof(FollowAnnouncementGuildChannelProperties))]
     public partial class FollowAnnouncementGuildChannelPropertiesSerializerContext : JsonSerializerContext

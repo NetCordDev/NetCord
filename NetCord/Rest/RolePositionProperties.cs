@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class RolePositionProperties
 {
     [JsonPropertyName("id")]
-    public ulong Id { get; }
+    public ulong Id { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("position")]

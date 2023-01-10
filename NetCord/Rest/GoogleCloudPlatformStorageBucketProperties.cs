@@ -15,10 +15,10 @@ public partial class GoogleCloudPlatformStorageBucketProperties
     }
 
     [JsonPropertyName("filename")]
-    public string FileName { get; }
+    public string FileName { get; set; }
 
     [JsonPropertyName("file_size")]
-    public long FileSize { get; }
+    public long FileSize { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("id")]

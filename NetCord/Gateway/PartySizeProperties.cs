@@ -12,9 +12,9 @@ public partial class PartySizeProperties
         MaxSize = maxSize;
     }
 
-    public int CurrentSize { get; }
+    public int CurrentSize { get; set; }
 
-    public int MaxSize { get; }
+    public int MaxSize { get; set; }
 
     internal class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
     {

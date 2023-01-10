@@ -8,7 +8,7 @@ public partial class ActionRowProperties : ComponentProperties
     /// Buttons of the action row (max 5).
     /// </summary>
     [JsonPropertyName("components")]
-    public IEnumerable<ButtonProperties> Buttons { get; }
+    public IEnumerable<ButtonProperties> Buttons { get; set; }
 
     /// <summary>
     /// 

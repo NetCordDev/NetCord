@@ -10,7 +10,7 @@ internal partial class BulkDeleteMessagesProperties
     }
 
     [JsonPropertyName("messages")]
-    public ulong[] MessageIds { get; }
+    public ulong[] MessageIds { get; set; }
 
     [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
     public partial class BulkDeleteMessagesPropertiesSerializerContext : JsonSerializerContext

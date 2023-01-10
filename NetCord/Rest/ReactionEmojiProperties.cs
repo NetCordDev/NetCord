@@ -2,9 +2,9 @@
 
 public class ReactionEmojiProperties
 {
-    public string Name { get; }
-    public ulong? Id { get; }
-    public ReactionEmojiType EmojiType { get; }
+    public string Name { get; set; }
+    public ulong? Id { get; set; }
+    public ReactionEmojiType EmojiType { get; set; }
 
     /// <summary>
     /// Creates <see cref="ReactionEmojiProperties"/> from guild emoji

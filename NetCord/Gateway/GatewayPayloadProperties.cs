@@ -7,10 +7,10 @@ namespace NetCord.Gateway;
 internal class GatewayPayloadProperties<T>
 {
     [JsonPropertyName("op")]
-    public GatewayOpcode Opcode { get; }
+    public GatewayOpcode Opcode { get; set; }
 
     [JsonPropertyName("d")]
-    public T D { get; }
+    public T D { get; set; }
 
     public GatewayPayloadProperties(GatewayOpcode opcode, T d)
     {

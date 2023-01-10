@@ -11,10 +11,10 @@ public partial class UserActivityButtonProperties
     }
 
     [JsonPropertyName("label")]
-    public string Label { get; }
+    public string Label { get; set; }
 
     [JsonPropertyName("url")]
-    public string Url { get; }
+    public string Url { get; set; }
 
     [JsonSerializable(typeof(UserActivityButtonProperties))]
     public partial class UserActivityButtonPropertiesSerializerContext : JsonSerializerContext

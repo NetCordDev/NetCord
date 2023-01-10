@@ -111,7 +111,7 @@ public partial class EmbedImageProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
-    public string? Url { get; }
+    public string? Url { get; set; }
 
     /// <summary>
     /// Url of the image.
@@ -147,7 +147,7 @@ public partial class EmbedThumbnailProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
-    public string? Url { get; }
+    public string? Url { get; set; }
 
     /// <summary>
     /// 

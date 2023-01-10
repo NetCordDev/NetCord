@@ -6,10 +6,10 @@ namespace NetCord.Gateway.Voice;
 internal class VoicePayloadProperties<T>
 {
     [JsonPropertyName("op")]
-    public VoiceOpcode Opcode { get; }
+    public VoiceOpcode Opcode { get; set; }
 
     [JsonPropertyName("d")]
-    public T D { get; }
+    public T D { get; set; }
 
     public VoicePayloadProperties(VoiceOpcode opcode, T d)
     {

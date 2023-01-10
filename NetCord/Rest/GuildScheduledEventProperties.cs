@@ -13,13 +13,13 @@ public partial class GuildScheduledEventProperties
     public GuildScheduledEventMetadataProperties? Metadata { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonPropertyName("privacy_level")]
-    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; }
+    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; }
 
     [JsonPropertyName("scheduled_start_time")]
-    public DateTimeOffset ScheduledStartTime { get; }
+    public DateTimeOffset ScheduledStartTime { get; set; }
 
     [JsonPropertyName("scheduled_end_time")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -30,7 +30,7 @@ public partial class GuildScheduledEventProperties
     public string? Description { get; set; }
 
     [JsonPropertyName("entity_type")]
-    public GuildScheduledEventEntityType EntityType { get; }
+    public GuildScheduledEventEntityType EntityType { get; set; }
 
     [JsonPropertyName("image")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

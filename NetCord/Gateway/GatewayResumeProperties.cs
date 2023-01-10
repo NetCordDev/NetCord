@@ -12,11 +12,11 @@ internal class GatewayResumeProperties
     }
 
     [JsonPropertyName("token")]
-    public string Token { get; }
+    public string Token { get; set; }
 
     [JsonPropertyName("session_id")]
-    public string SessionId { get; }
+    public string SessionId { get; set; }
 
     [JsonPropertyName("seq")]
-    public int SequenceNumber { get; }
+    public int SequenceNumber { get; set; }
 }

@@ -11,10 +11,10 @@ public partial class GuildEmojiProperties
     }
 
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonPropertyName("image")]
-    public ImageProperties Image { get; }
+    public ImageProperties Image { get; set; }
 
     [JsonPropertyName("roles")]
     public IEnumerable<ulong>? AllowedRoles { get; set; }

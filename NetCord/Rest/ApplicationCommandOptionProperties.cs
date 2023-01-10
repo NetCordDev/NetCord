@@ -9,13 +9,13 @@ public partial class ApplicationCommandOptionProperties
     /// Type of the option.
     /// </summary>
     [JsonPropertyName("type")]
-    public ApplicationCommandOptionType Type { get; }
+    public ApplicationCommandOptionType Type { get; set; }
 
     /// <summary>
     /// Name of the option (1-32 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Translations of <see cref="Name"/> (1-32 characters each).
@@ -28,7 +28,7 @@ public partial class ApplicationCommandOptionProperties
     /// Description of the option (1-100 characters).
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; }
+    public string Description { get; set; }
 
     /// <summary>
     /// Translations of <see cref="Description"/> (1-100 characters each).

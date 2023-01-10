@@ -11,10 +11,10 @@ public partial class UserActivityProperties
     }
 
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonPropertyName("type")]
-    public UserActivityType Type { get; }
+    public UserActivityType Type { get; set; }
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }

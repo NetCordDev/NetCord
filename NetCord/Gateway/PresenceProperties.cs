@@ -17,10 +17,10 @@ public partial class PresenceProperties
     public IEnumerable<UserActivityProperties>? Activities { get; set; }
 
     [JsonPropertyName("status")]
-    public UserStatusType StatusType { get; }
+    public UserStatusType StatusType { get; set; }
 
     [JsonPropertyName("afk")]
-    public bool Afk { get; }
+    public bool Afk { get; set; }
 
     [JsonSerializable(typeof(PresenceProperties))]
     public partial class PresencePropertiesSerializerContext : JsonSerializerContext

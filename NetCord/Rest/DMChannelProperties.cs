@@ -13,7 +13,7 @@ internal partial class DMChannelProperties
     /// The recipient to open a DM channel with.
     /// </summary>
     [JsonPropertyName("recipient_id")]
-    public ulong UserId { get; }
+    public ulong UserId { get; set; }
 
     [JsonSerializable(typeof(DMChannelProperties))]
     public partial class DMChannelPropertiesSerializerContext : JsonSerializerContext

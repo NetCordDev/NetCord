@@ -10,7 +10,7 @@ public partial class GroupDMChannelProperties
     }
 
     [JsonPropertyName("access_tokens")]
-    public IEnumerable<string> AccessTokens { get; }
+    public IEnumerable<string> AccessTokens { get; set; }
 
     [JsonPropertyName("nicks")]
     public IReadOnlyDictionary<ulong, string>? Nicknames { get; set; }

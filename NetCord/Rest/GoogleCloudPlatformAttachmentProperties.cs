@@ -15,5 +15,5 @@ public partial class GoogleCloudPlatformAttachmentProperties : AttachmentPropert
     /// <summary>
     /// Name of the upload.
     /// </summary>
-    public string UploadedFileName { get; }
+    public string UploadedFileName { get; set; }
 }

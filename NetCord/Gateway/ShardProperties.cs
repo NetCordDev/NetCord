@@ -12,9 +12,9 @@ public partial class ShardProperties
         ShardsCount = shardsCount;
     }
 
-    public int ShardId { get; }
+    public int ShardId { get; set; }
 
-    public int ShardsCount { get; }
+    public int ShardsCount { get; set; }
 
     internal class ShardPropertiesConverter : JsonConverter<ShardProperties>
     {

@@ -8,7 +8,7 @@ public partial class LinkButtonProperties : ButtonProperties
     /// Url of the button.
     /// </summary>
     [JsonPropertyName("url")]
-    public string Url { get; }
+    public string Url { get; set; }
 
     /// <summary>
     /// 

@@ -10,13 +10,13 @@ internal class GatewayIdentifyProperties
     }
 
     [JsonPropertyName("token")]
-    public string Token { get; }
+    public string Token { get; set; }
 
     [JsonPropertyName("properties")]
     public ConnectionPropertiesProperties? ConnectionProperties { get; set; }
 
     //[JsonPropertyName("compress")]
-    //public bool? Compress { get; }
+    //public bool? Compress { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("large_threshold")]

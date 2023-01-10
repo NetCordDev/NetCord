@@ -7,7 +7,7 @@ namespace NetCord;
 public partial class InteractionCallbackChoicesDataProperties
 {
     [JsonPropertyName("choices")]
-    public IEnumerable<ApplicationCommandOptionChoiceProperties>? Choices { get; }
+    public IEnumerable<ApplicationCommandOptionChoiceProperties>? Choices { get; set; }
 
     public InteractionCallbackChoicesDataProperties(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
     {

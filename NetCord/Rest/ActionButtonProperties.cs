@@ -9,7 +9,7 @@ public partial class ActionButtonProperties : ButtonProperties
     /// Developer-defined identifier for the button (max 100 characters).
     /// </summary>
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; }
+    public string CustomId { get; set; }
 
     /// <summary>
     /// 

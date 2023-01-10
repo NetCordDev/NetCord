@@ -14,19 +14,19 @@ public partial class ApplicationRoleConnectionMetadataProperties
     }
 
     [JsonPropertyName("type")]
-    public ApplicationRoleConnectionMetadataType Type { get; }
+    public ApplicationRoleConnectionMetadataType Type { get; set; }
 
     [JsonPropertyName("key")]
-    public string Key { get; }
+    public string Key { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; }
+    public string Description { get; set; }
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }

@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class GroupDMUserAddProperties
 {
     [JsonPropertyName("access_token")]
-    public string AccessToken { get; }
+    public string AccessToken { get; set; }
 
     [JsonPropertyName("nick")]
     public string? Nickname { get; set; }

@@ -10,7 +10,7 @@ public abstract class ButtonProperties
     /// Style of the button.
     /// </summary>
     [JsonPropertyName("style")]
-    public ButtonStyle Style { get; }
+    public ButtonStyle Style { get; set; }
 
     /// <summary>
     /// Type of the component.
@@ -23,14 +23,14 @@ public abstract class ButtonProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("label")]
-    public string? Label { get; }
+    public string? Label { get; set; }
 
     /// <summary>
     /// Emoji that appears on the button.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji")]
-    public EmojiProperties? Emoji { get; }
+    public EmojiProperties? Emoji { get; set; }
 
     /// <summary>
     /// Whether the button is disabled.

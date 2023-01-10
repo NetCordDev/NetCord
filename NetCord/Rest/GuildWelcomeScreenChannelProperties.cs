@@ -6,7 +6,7 @@ namespace NetCord.Rest;
 public partial class GuildWelcomeScreenChannelProperties
 {
     [JsonPropertyName("channel_id")]
-    public ulong ChannelId { get; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("description")]
     public string Description { get; set; }
@@ -30,9 +30,9 @@ public partial class GuildWelcomeScreenChannelProperties
 [JsonConverter(typeof(GuildWelcomeScreenChannelEmojiPropertiesConverter))]
 public partial class GuildWelcomeScreenChannelEmojiProperties
 {
-    public string? Unicode { get; }
+    public string? Unicode { get; set; }
 
-    public ulong? EmojiId { get; }
+    public ulong? EmojiId { get; set; }
 
     public GuildWelcomeScreenChannelEmojiProperties(string unicode)
     {

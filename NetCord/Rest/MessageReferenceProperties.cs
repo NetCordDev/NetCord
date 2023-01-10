@@ -2,13 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class MessageReferenceProperties : Entity
+public partial class MessageReferenceProperties
 {
     [JsonPropertyName("message_id")]
-    public override ulong Id { get; }
+    public ulong Id { get; set; }
 
     [JsonPropertyName("fail_if_not_exists")]
-    public bool FailIfNotExists { get; }
+    public bool FailIfNotExists { get; set; }
 
     public MessageReferenceProperties(ulong messageId, bool failIfNotExists = true)
     {

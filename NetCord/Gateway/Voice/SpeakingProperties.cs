@@ -12,11 +12,11 @@ internal class SpeakingProperties
     }
 
     [JsonPropertyName("speaking")]
-    public SpeakingFlags Speaking { get; }
+    public SpeakingFlags Speaking { get; set; }
 
     [JsonPropertyName("delay")]
-    public int Delay { get; }
+    public int Delay { get; set; }
 
     [JsonPropertyName("ssrc")]
-    public uint Ssrc { get; }
+    public uint Ssrc { get; set; }
 }

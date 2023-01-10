@@ -11,10 +11,10 @@ public partial class StageInstanceProperties
     }
 
     [JsonPropertyName("channel_id")]
-    public ulong ChannelId { get; }
+    public ulong ChannelId { get; set; }
 
     [JsonPropertyName("topic")]
-    public string Topic { get; }
+    public string Topic { get; set; }
 
     [JsonPropertyName("privacy_level")]
     public StageInstancePrivacyLevel? PrivacyLevel { get; set; }

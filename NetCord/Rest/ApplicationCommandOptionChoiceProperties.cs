@@ -11,7 +11,7 @@ public partial class ApplicationCommandOptionChoiceProperties
     /// Name of the choice (1-100 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Translations of <see cref="Name"/> (1-100 characters each).
@@ -23,17 +23,17 @@ public partial class ApplicationCommandOptionChoiceProperties
     /// <summary>
     /// String value for the choice (max 100 characters).
     /// </summary>
-    public string? ValueString { get; }
+    public string? ValueString { get; set; }
 
     /// <summary>
     /// Numeric value for the choice (max 100 characters).
     /// </summary>
-    public double? ValueNumeric { get; }
+    public double? ValueNumeric { get; set; }
 
     /// <summary>
     /// Type of value.
     /// </summary>
-    public ApplicationCommandOptionChoiceValueType ValueType { get; }
+    public ApplicationCommandOptionChoiceValueType ValueType { get; set; }
 
     public ApplicationCommandOptionChoiceProperties(string name, string stringValue)
     {

@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 internal partial class ApplicationCommandGuildPermissionsProperties
 {
     [JsonPropertyName("permissions")]
-    public IEnumerable<ApplicationCommandGuildPermissionProperties> NewPermissions { get; }
+    public IEnumerable<ApplicationCommandGuildPermissionProperties> NewPermissions { get; set; }
 
     public ApplicationCommandGuildPermissionsProperties(IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions)
     {

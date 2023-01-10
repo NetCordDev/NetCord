@@ -8,19 +8,19 @@ public partial class ApplicationCommandGuildPermissionProperties
     /// Id of the role, user, or channel the permission is for. 'GuildId - 1' for all channels.
     /// </summary>
     [JsonPropertyName("id")]
-    public ulong Id { get; }
+    public ulong Id { get; set; }
 
     /// <summary>
     /// Type of the permission.
     /// </summary>
     [JsonPropertyName("type")]
-    public ApplicationCommandGuildPermissionType Type { get; }
+    public ApplicationCommandGuildPermissionType Type { get; set; }
 
     /// <summary>
     /// <see langword="true"/> to allow, <see langword="false"/>, to disallow.
     /// </summary>
     [JsonPropertyName("permission")]
-    public bool Permission { get; }
+    public bool Permission { get; set; }
 
     /// <summary>
     /// 

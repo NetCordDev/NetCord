@@ -11,10 +11,10 @@ internal class ProtocolProperties
     }
 
     [JsonPropertyName("protocol")]
-    public string Protocol { get; }
+    public string Protocol { get; set; }
 
     [JsonPropertyName("data")]
-    public ProtocolDataProperties Data { get; }
+    public ProtocolDataProperties Data { get; set; }
 }
 
 internal class ProtocolDataProperties
@@ -27,11 +27,11 @@ internal class ProtocolDataProperties
     }
 
     [JsonPropertyName("address")]
-    public string Address { get; }
+    public string Address { get; set; }
 
     [JsonPropertyName("port")]
-    public ushort Port { get; }
+    public ushort Port { get; set; }
 
     [JsonPropertyName("mode")]
-    public string Mode { get; }
+    public string Mode { get; set; }
 }

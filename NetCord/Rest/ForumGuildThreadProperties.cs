@@ -10,7 +10,7 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
     }
 
     [JsonPropertyName("message")]
-    public ForumGuildThreadMessageProperties Message { get; }
+    public ForumGuildThreadMessageProperties Message { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("applied_tags")]

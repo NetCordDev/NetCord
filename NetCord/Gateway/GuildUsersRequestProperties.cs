@@ -5,7 +5,7 @@ namespace NetCord.Gateway;
 public partial class GuildUsersRequestProperties
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("query")]
     public string? Query { get; set; }

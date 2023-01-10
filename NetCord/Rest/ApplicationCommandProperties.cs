@@ -10,7 +10,7 @@ public partial class SlashCommandProperties : ApplicationCommandProperties
     /// Description of the command (1-100 characters).
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; }
+    public string Description { get; set; }
 
     /// <summary>
     /// Translations of <see cref="Description"/> (1-100 characters each).
@@ -90,13 +90,13 @@ public abstract partial class ApplicationCommandProperties
     /// Type of the command.
     /// </summary>
     [JsonPropertyName("type")]
-    public ApplicationCommandType Type { get; }
+    public ApplicationCommandType Type { get; set; }
 
     /// <summary>
     /// Name of the command (1-32 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Translations of <see cref="Name"/> (1-32 characters each).

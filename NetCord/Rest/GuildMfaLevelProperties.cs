@@ -10,7 +10,7 @@ internal partial class GuildMfaLevelProperties
     }
 
     [JsonPropertyName("level")]
-    public MfaLevel Level { get; }
+    public MfaLevel Level { get; set; }
 
     [JsonSerializable(typeof(GuildMfaLevelProperties))]
     public partial class GuildMfaLevelPropertiesSerializerContext : JsonSerializerContext

@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class GuildThreadFromMessageProperties
 {
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("auto_archive_duration")]

@@ -5,10 +5,10 @@ namespace NetCord.Rest;
 public partial class StringMenuSelectOptionProperties
 {
     [JsonPropertyName("label")]
-    public string Label { get; }
+    public string Label { get; set; }
 
     [JsonPropertyName("value")]
-    public string Value { get; }
+    public string Value { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]

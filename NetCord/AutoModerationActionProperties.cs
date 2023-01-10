@@ -10,7 +10,7 @@ public partial class AutoModerationActionProperties
     }
 
     [JsonPropertyName("type")]
-    public AutoModerationActionType Type { get; }
+    public AutoModerationActionType Type { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("metadata")]

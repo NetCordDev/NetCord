@@ -13,20 +13,20 @@ public partial class AutoModerationRuleProperties
     }
 
     [JsonPropertyName("name")]
-    public string Name { get; }
+    public string Name { get; set; }
 
     [JsonPropertyName("event_type")]
-    public AutoModerationRuleEventType EventType { get; }
+    public AutoModerationRuleEventType EventType { get; set; }
 
     [JsonPropertyName("trigger_type")]
-    public AutoModerationRuleTriggerType TriggerType { get; }
+    public AutoModerationRuleTriggerType TriggerType { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("trigger_metadata")]
     public AutoModerationRuleTriggerMetadataProperties? TriggerMetadata { get; set; }
 
     [JsonPropertyName("actions")]
-    public IEnumerable<AutoModerationActionProperties> Actions { get; }
+    public IEnumerable<AutoModerationActionProperties> Actions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("enabled")]

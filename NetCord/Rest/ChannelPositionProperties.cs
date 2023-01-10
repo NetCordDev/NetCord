@@ -8,7 +8,7 @@ public partial class ChannelPositionProperties
     /// Channel id.
     /// </summary>
     [JsonPropertyName("id")]
-    public ulong Id { get; }
+    public ulong Id { get; set; }
 
     /// <summary>
     /// Sorting position of the channel.

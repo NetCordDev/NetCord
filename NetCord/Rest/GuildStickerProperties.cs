@@ -13,13 +13,13 @@ public partial class GuildStickerProperties
         Format = format;
     }
 
-    public string Name { get; }
+    public string Name { get; set; }
 
-    public string Description { get; }
+    public string Description { get; set; }
 
-    public IEnumerable<string> Tags { get; }
+    public IEnumerable<string> Tags { get; set; }
 
-    public StickerFormat Format { get; }
+    public StickerFormat Format { get; set; }
 
     internal Stream Stream
     {

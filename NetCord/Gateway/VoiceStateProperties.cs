@@ -5,10 +5,10 @@ namespace NetCord.Gateway;
 public partial class VoiceStateProperties
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; }
+    public ulong GuildId { get; set; }
 
     [JsonPropertyName("channel_id")]
-    public ulong? ChannelId { get; }
+    public ulong? ChannelId { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("self_mute")]

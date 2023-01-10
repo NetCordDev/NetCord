@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class GuildUserProperties
 {
     [JsonPropertyName("access_token")]
-    public string AccessToken { get; }
+    public string AccessToken { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("nick")]

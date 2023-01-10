@@ -10,7 +10,7 @@ public abstract class ComponentProperties
     /// Type of the component.
     /// </summary>
     [JsonPropertyName("type")]
-    public ComponentType ComponentType { get; }
+    public ComponentType ComponentType { get; set; }
 
     /// <summary>
     /// 
