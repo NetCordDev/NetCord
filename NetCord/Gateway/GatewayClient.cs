@@ -102,7 +102,7 @@ public partial class GatewayClient : WebSocketClient
         _botToken = token.RawToken;
 
         _configuration = configuration;
-        _url = new($"wss://{configuration.Hostname ?? $"gateway.discord.gg"}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
+        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
         Rest = new(token, configuration.RestClientConfiguration);
     }
 

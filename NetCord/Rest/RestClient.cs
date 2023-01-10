@@ -18,7 +18,7 @@ public partial class RestClient : IDisposable
     {
         configuration ??= new();
         _httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
-        _baseUrl = $"https://{configuration.Hostname ?? "discord.com"}/api/v{(int)configuration.Version}";
+        _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
 
         _globalBucket = new(this);
         _noRateLimitBucket = new(this);

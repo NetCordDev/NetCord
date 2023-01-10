@@ -133,12 +133,12 @@ public class ImageUrl
         return new($"/guilds/{guildId}/users/{userId}/banners/{bannerHash}", GetExtension(bannerHash, format));
     }
 
-    public static string GuildWidget(ulong guildId, GuildWidgetStyle? style = null)
+    public static string GuildWidget(ulong guildId, GuildWidgetStyle? style = null, string? hostname = null, ApiVersion version = ApiVersion.V10)
     {
         if (!style.HasValue)
-            return $"{Discord.RestUrl}/guilds/{guildId}/widget.png";
+            return $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version}/guilds/{guildId}/widget.png";
         else
-            return $"{Discord.RestUrl}/guilds/{guildId}/widget.png?style={style switch
+            return $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version}/guilds/{guildId}/widget.png?style={style switch
             {
                 GuildWidgetStyle.Shield => "shield",
                 GuildWidgetStyle.Banner1 => "banner1",
