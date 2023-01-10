@@ -4,8 +4,9 @@ namespace NetCord.Gateway;
 
 public class GatewayClientConfiguration
 {
+    public string? Hostname { get; init; }
     public ConnectionPropertiesProperties? ConnectionProperties { get; init; }
-    public GatewayVersion Version { get; init; } = GatewayVersion.V10;
+    public ApiVersion Version { get; init; } = ApiVersion.V10;
     public GatewayIntents Intents { get; init; } = GatewayIntents.AllNonPrivileged;
     public int? LargeThreshold { get; init; }
     public PresenceProperties? Presence { get; init; }

@@ -1,6 +1,6 @@
-﻿namespace NetCord.Gateway;
+﻿namespace NetCord;
 
-public enum GatewayVersion
+public enum ApiVersion
 {
     [Obsolete("Discontinued")]
     V3 = 3,

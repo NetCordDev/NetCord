@@ -13,6 +13,8 @@ namespace NetCord.Gateway.Voice;
 public class VoiceClient : WebSocketClient
 {
     private readonly IUdpSocket _udpSocket;
+    private readonly Uri _url;
+
     public string Endpoint { get; }
     public ulong GuildId { get; }
     public ulong UserId { get; }
@@ -37,20 +39,16 @@ public class VoiceClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base(configuration?.WebSocket ?? new WebSocket())
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
     {
         UserId = userId;
         SessionId = sessionId;
-        Endpoint = endpoint;
+        _url = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version}", UriKind.Absolute);
         GuildId = guildId;
         Token = token;
-        if (configuration != null)
-        {
-            _udpSocket = configuration.UdpSocket ?? new UdpSocket();
-            RedirectInputStreams = configuration.RedirectInputStreams;
-        }
-        else
-            _udpSocket = new UdpSocket();
+
+        _udpSocket = configuration.UdpSocket ?? new UdpSocket();
+        RedirectInputStreams = configuration.RedirectInputStreams;
     }
 
     private ValueTask SendIdentifyAsync()
@@ -62,7 +60,7 @@ public class VoiceClient : WebSocketClient
 
     public async Task StartAsync()
     {
-        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync().ConfigureAwait(false);
     }
 
@@ -77,7 +75,7 @@ public class VoiceClient : WebSocketClient
 
     private protected override async Task ResumeAsync()
     {
-        await _webSocket.ConnectAsync(new Uri($"wss://{Endpoint}?v=4")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
         await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);

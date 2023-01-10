@@ -14,14 +14,9 @@ namespace NetCord.Gateway;
 public partial class GatewayClient : WebSocketClient
 {
     private readonly string _botToken;
-
     private readonly GatewayClientConfiguration _configuration;
-
+    private readonly Uri _url;
     private bool _disposed;
-
-    public ImmutableDictionary<ulong, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
-    public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
-    public ImmutableDictionary<ulong, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -83,8 +78,12 @@ public partial class GatewayClient : WebSocketClient
     public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
     public event Func<StageInstance, ValueTask>? StageInstanceDelete;
 
+    public ImmutableDictionary<ulong, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
+    public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
+    public ImmutableDictionary<ulong, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
+
     /// <summary>
-    /// Is <see langword="null"/> before <see cref="Ready"/> event
+    /// Is <see langword="null"/> before <see cref="Ready"/> event.
     /// </summary>
     public SelfUser? User => _user;
     private SelfUser? _user;
@@ -98,11 +97,13 @@ public partial class GatewayClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource!.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base(configuration?.WebSocket ?? new WebSocket())
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
     {
         _botToken = token.RawToken;
-        _configuration = configuration ?? new();
-        Rest = new(token, _configuration.RestClientConfiguration);
+
+        _configuration = configuration;
+        _url = new($"wss://{configuration.Hostname ?? $"gateway.discord.gg"}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
+        Rest = new(token, configuration.RestClientConfiguration);
     }
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
@@ -120,18 +121,18 @@ public partial class GatewayClient : WebSocketClient
     }
 
     /// <summary>
-    /// Connects the <see cref="GatewayClient"/> to gateway
+    /// Connects the <see cref="GatewayClient"/> to the gateway.
     /// </summary>
     /// <returns></returns>
     public async Task StartAsync(PresenceProperties? presence = null)
     {
         ThrowIfDisposed();
-        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_configuration.Version}&encoding=json")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Disconnects the <see cref="GatewayClient"/> from gateway
+    /// Disconnects the <see cref="GatewayClient"/> from the gateway.
     /// </summary>
     /// <returns></returns>
     public Task CloseAsync()
@@ -145,7 +146,7 @@ public partial class GatewayClient : WebSocketClient
 
     private protected override async Task ResumeAsync()
     {
-        await _webSocket.ConnectAsync(new($"wss://gateway.discord.gg?v={(int)_configuration.Version}&encoding=json")).ConfigureAwait(false);
+        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
 
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();

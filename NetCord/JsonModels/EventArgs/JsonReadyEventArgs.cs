@@ -7,7 +7,7 @@ namespace NetCord.JsonModels.EventArgs;
 public partial class JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
-    public GatewayVersion Version { get; set; }
+    public ApiVersion Version { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }

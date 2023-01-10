@@ -7,6 +7,7 @@ public partial class RestClient : IDisposable
     private readonly Dictionary<RateLimits.Route, RateLimits.IBucket> _buckets = new();
     private readonly RateLimits.GlobalBucket _globalBucket;
     private readonly RateLimits.NoRateLimitBucket _noRateLimitBucket;
+    private readonly string _baseUrl;
 
     internal readonly IHttpClient _httpClient;
 
@@ -15,10 +16,9 @@ public partial class RestClient : IDisposable
 
     public RestClient(RestClientConfiguration? configuration = null)
     {
-        if (configuration != null)
-            _httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
-        else
-            _httpClient = new HttpClients.HttpClient();
+        configuration ??= new();
+        _httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
+        _baseUrl = $"https://{configuration.Hostname ?? "discord.com"}/api/v{(int)configuration.Version}";
 
         _globalBucket = new(this);
         _noRateLimitBucket = new(this);
@@ -33,7 +33,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
         var bucket = GetBucket(route);
 
@@ -51,7 +51,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RateLimits.Route route, HttpContent content, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
         var bucket = GetBucket(route);
 
@@ -72,7 +72,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
 
         response = await _globalBucket.SendAsync(() =>
@@ -89,7 +89,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, string partialUrl, HttpContent content, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
 
         response = await _globalBucket.SendAsync(() =>
@@ -109,7 +109,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestWithoutRateLimitAsync(HttpMethod method, string partialUrl, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
 
         response = await _noRateLimitBucket.SendAsync(() =>
@@ -126,7 +126,7 @@ public partial class RestClient : IDisposable
 
     public async Task<Stream> SendRequestWithoutRateLimitAsync(HttpMethod method, string partialUrl, HttpContent content, RequestProperties? properties)
     {
-        string url = $"{Discord.RestUrl}{partialUrl}";
+        string url = $"{_baseUrl}{partialUrl}";
         HttpResponseMessage response;
 
         response = await _noRateLimitBucket.SendAsync(() =>
