@@ -160,6 +160,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             ChoicesProvider = TypeReader.ChoicesProvider;
             AutocompleteProvider = TypeReader.AutocompleteProvider;
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
+            MaxValue = TypeReader.GetMaxValue(this);
+            MinValue = TypeReader.GetMinValue(this);
+            MaxLength = TypeReader.GetMaxLength(this);
+            MinLength = TypeReader.GetMinLength(this);
         }
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
@@ -167,7 +171,6 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
     public ApplicationCommandOptionProperties GetRawValue()
     {
-        var autocomplete = AutocompleteProvider != null;
         return new(TypeReader.Type, Name, Description)
         {
             NameLocalizations = NameTranslationsProvider?.Translations,
@@ -177,7 +180,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MaxLength = MaxLength,
             MinLength = MinLength,
             Required = !HasDefaultValue,
-            Autocomplete = autocomplete,
+            Autocomplete = AutocompleteProvider != null,
             Choices = ChoicesProvider?.GetChoices(this),
             ChannelTypes = AllowedChannelTypes,
         };
