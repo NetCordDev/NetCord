@@ -43,16 +43,16 @@ public partial class GuildStickerProperties
         {
             StickerFormat.Png or StickerFormat.Apng => "image/png",
             StickerFormat.Lottie => "application/json",
+            StickerFormat.Gif => "image/gif",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException(null, (int)Format, typeof(StickerFormat)),
         });
-        MultipartFormDataContent content = new()
+        return new MultipartFormDataContent()
         {
             { new StringContent(Name), "name" },
             { new StringContent(Description), "description" },
             { new StringContent(string.Join(',', Tags)), "tags" },
             { file, "file", "f" },
         };
-        return content;
     }
 
     [JsonSerializable(typeof(GuildStickerProperties))]
