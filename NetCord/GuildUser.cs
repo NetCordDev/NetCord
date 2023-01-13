@@ -3,36 +3,14 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class GuildUser : User, IJsonModel<JsonGuildUser>
+public class GuildUser : PartialGuildUser
 {
-    JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
-    private protected new readonly JsonGuildUser _jsonModel;
-
-    public string? Nickname => _jsonModel.Nickname;
-    public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
-    public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
-    public ulong? HoistedRoleId => _jsonModel.HoistedRoleId;
-    public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
-    public DateTimeOffset? GuildBoostStart => _jsonModel.GuildBoostStart;
-    public bool Deafened => _jsonModel.Deafened;
-    public bool Muted => _jsonModel.Muted;
-    public bool? IsPending => _jsonModel.IsPending;
-    public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
     public ulong GuildId { get; }
 
-    public GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClient client) : base(jsonModel.User, client)
+    public GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
     {
-        _jsonModel = jsonModel;
         GuildId = guildId;
     }
-
-    public IEnumerable<Role> GetRoles(RestGuild guild)
-    {
-        var roles = guild.Roles;
-        return RoleIds.Select(r => roles[r]);
-    }
-
-    public bool HasGuildAvatar => GuildAvatarHash != null;
 
     public ImageUrl GetGuildAvatarUrl(ImageFormat? format = null) => ImageUrl.GuildUserAvatar(GuildId, Id, GuildAvatarHash!, format);
 

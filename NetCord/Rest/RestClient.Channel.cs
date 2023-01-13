@@ -93,11 +93,45 @@ public partial class RestClient
     public Task DeleteGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/{userId}", properties);
 
-    public async Task<ThreadUser> GetGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", new Route(RouteParameter.GetGuildThreadUser), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserSerializerContext.WithOptions.JsonThreadUser).ConfigureAwait(false), this);
+    public async Task<ThreadUser> GetGuildThreadUserAsync(ulong threadId, ulong userId, bool withGuildUser = false, RequestProperties? properties = null)
+    {
+        var user = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}?with_member={withGuildUser}", new Route(RouteParameter.GetGuildThreadUser), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserSerializerContext.WithOptions.JsonThreadUser).ConfigureAwait(false);
+        return withGuildUser ? new GuildThreadUser(user, this) : new ThreadUser(user, this);
+    }
 
-    public async Task<IReadOnlyDictionary<ulong, ThreadUser>> GetGuildThreadUsersAsync(ulong threadId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", new Route(RouteParameter.GetGuildThreadUsers), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false)).ToDictionary(u => u.UserId, u => new ThreadUser(u, this));
+    public async IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, bool withGuildUsers = false, RequestProperties? properties = null)
+    {
+        Func<JsonThreadUser, ThreadUser> func = withGuildUsers ? u => new GuildThreadUser(u, this) : u => new ThreadUser(u, this);
+        ulong after = 0;
+        var users = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members?with_member={withGuildUsers}&limit=100", new Route(RouteParameter.GetGuildThreadUsers), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false);
+        foreach (var user in users)
+        {
+            after = user.UserId;
+            yield return func(user);
+        }
+        if (users.Length == 100)
+        {
+            await foreach (var user in GetGuildThreadUsersAfterAsync(threadId, after, withGuildUsers, properties))
+                yield return user;
+        }
+    }
+
+    public async IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAfterAsync(ulong threadId, ulong after, bool withGuildUsers = false, RequestProperties? properties = null)
+    {
+        Func<JsonThreadUser, ThreadUser> func = withGuildUsers ? u => new GuildThreadUser(u, this) : u => new ThreadUser(u, this);
+        int length;
+        do
+        {
+            var users = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members?with_member={withGuildUsers}&after={after}&limit=100", new Route(RouteParameter.GetGuildThreadUsers), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false);
+            foreach (var user in users)
+            {
+                after = user.UserId;
+                yield return func(user);
+            }
+            length = users.Length;
+        }
+        while (length == 100);
+    }
 
     public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, RequestProperties? properties = null)
     {
