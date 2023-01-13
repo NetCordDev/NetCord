@@ -34,6 +34,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
     public IEnumerable<IComponent> Components { get; }
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
     public int? Position => _jsonModel.Position;
+    public RoleSubscriptionData? RoleSubscriptionData { get; }
 
     public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(client)
     {
@@ -76,6 +77,8 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
             StartedThread = (GuildThread)Channel.CreateFromJson(jsonModel.StartedThread, client);
         Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson);
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
+        if (jsonModel.RoleSubscriptionData != null)
+            RoleSubscriptionData = new(jsonModel.RoleSubscriptionData);
     }
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)

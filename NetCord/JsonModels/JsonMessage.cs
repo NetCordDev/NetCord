@@ -89,6 +89,9 @@ public partial class JsonMessage : JsonEntity
     [JsonPropertyName("position")]
     public int? Position { get; set; }
 
+    [JsonPropertyName("role_subscription_data")]
+    public JsonRoleSubscriptionData RoleSubscriptionData { get; set; }
+
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
