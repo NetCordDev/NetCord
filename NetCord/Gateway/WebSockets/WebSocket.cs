@@ -19,9 +19,8 @@ public class WebSocket : IWebSocket, IDisposable
     public bool IsConnected { get; private set; }
 
     /// <summary>
-    /// Connects to a WebSocket server
+    /// Connects to a WebSocket server.
     /// </summary>
-    /// <returns></returns>
     public async Task ConnectAsync(Uri uri)
     {
         if (_disposed)
@@ -36,19 +35,19 @@ public class WebSocket : IWebSocket, IDisposable
     }
 
     /// <summary>
-    /// Closes the <see cref="WebSocket"/>
+    /// Closes the <see cref="WebSocket"/>.
     /// </summary>
     public async Task CloseAsync(WebSocketCloseStatus status)
     {
         ThrowIfInvalid();
         _closed = true;
         IsConnected = false;
-        await _webSocket!.CloseAsync(status, null, default).ConfigureAwait(false);
+        await _webSocket!.CloseOutputAsync(status, null, default).ConfigureAwait(false);
         await _readAsync!.ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Sends a message
+    /// Sends a message.
     /// </summary>
     public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
     {
