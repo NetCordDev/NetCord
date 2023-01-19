@@ -28,6 +28,7 @@ public class FollowedChannel : ClientEntity, IJsonModel<JsonModels.JsonFollowedC
     public IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(ulong messageId, RequestProperties? properties = null) => _client.GetMessagesBeforeAsync(Id, messageId, properties);
     public IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(ulong messageId, RequestProperties? properties = null) => _client.GetMessagesAfterAsync(Id, messageId, properties);
     public Task AddMessageReactionAsync(ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.AddMessageReactionAsync(Id, messageId, emoji, properties);
+    public Task DeleteMessageReactionAsync(ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(Id, messageId, emoji, properties);
     public Task DeleteMessageReactionAsync(ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(Id, messageId, emoji, userId, properties);
     public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.GetMessageReactionsAsync(Id, messageId, emoji, properties);
     public IAsyncEnumerable<User> GetMessageReactionsAfterAsync(ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null) => _client.GetMessageReactionsAfterAsync(Id, messageId, emoji, userId, properties);

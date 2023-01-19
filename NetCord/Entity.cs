@@ -13,6 +13,6 @@ public abstract class Entity : IEntity
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Entity entity && Id == entity.Id;
 
     public override int GetHashCode() => Id.GetHashCode();
-    
+
     public override string ToString() => Id.ToString();
 }

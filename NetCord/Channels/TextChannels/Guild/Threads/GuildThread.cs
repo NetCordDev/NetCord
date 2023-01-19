@@ -31,7 +31,7 @@ public abstract class GuildThread : TextChannel
     public Task LeaveAsync(RequestProperties? properties = null) => _client.LeaveGuildThreadAsync(Id, properties);
     public Task DeleteUserAsync(ulong userId, RequestProperties? properties = null) => _client.DeleteGuildThreadUserAsync(Id, userId, properties);
     public Task<ThreadUser> GetUserAsync(ulong userId, bool withGuildUser = false, RequestProperties? properties = null) => _client.GetGuildThreadUserAsync(Id, userId, withGuildUser, properties);
-    public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(bool withGuildUsers = false, RequestProperties ? properties = null) => _client.GetGuildThreadUsersAsync(Id, withGuildUsers, properties);
+    public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(bool withGuildUsers = false, RequestProperties? properties = null) => _client.GetGuildThreadUsersAsync(Id, withGuildUsers, properties);
     public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAfterAsync(ulong after, bool withGuildUsers = false, RequestProperties? properties = null) => _client.GetGuildThreadUsersAfterAsync(Id, after, withGuildUsers, properties);
     #endregion
 }

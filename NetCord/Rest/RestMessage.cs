@@ -100,6 +100,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
     public Task<RestMessage> ModifyAsync(Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyMessageAsync(ChannelId, Id, action, properties);
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteMessageAsync(ChannelId, Id, properties);
     public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, properties);
+    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, properties);
     public Task DeleteReactionAsync(ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, properties);
     public IAsyncEnumerable<User> GetReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.GetMessageReactionsAsync(ChannelId, Id, emoji, properties);
     public IAsyncEnumerable<User> GetReactionsAfterAsync(ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null) => _client.GetMessageReactionsAfterAsync(ChannelId, Id, emoji, userId, properties);
