@@ -47,9 +47,18 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         }
         Parameters = p;
 
-#pragma warning disable CS8974 // Converting method group to non-delegate type
-        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
-#pragma warning restore CS8974 // Converting method group to non-delegate type
+        var invoke = method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke;
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>((object?[] p) =>
+        {
+            try
+            {
+                return invoke(p);
+            }
+            catch (Exception ex)
+            {
+                throw ex.InnerException!;
+            }
+        });
 
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }

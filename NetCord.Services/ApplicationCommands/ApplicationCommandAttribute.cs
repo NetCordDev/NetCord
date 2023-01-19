@@ -39,5 +39,14 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     public bool Nsfw { get; init; }
 
-    public ulong GuildId { get; init; }
+    public ulong GuildId
+    {
+        get => _guildId.GetValueOrDefault();
+        init
+        {
+            _guildId = value;
+        }
+    }
+
+    internal readonly ulong? _guildId;
 }

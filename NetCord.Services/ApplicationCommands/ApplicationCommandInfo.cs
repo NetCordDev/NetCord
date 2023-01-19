@@ -70,9 +70,19 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         }
         Parameters = p;
         Autocompletes = autocompletes;
-#pragma warning disable CS8974 // Converting method group to non-delegate type
-        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
-#pragma warning restore CS8974 // Converting method group to non-delegate type
+
+        var invoke = method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke;
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>((object?[] p) =>
+        {
+            try
+            {
+                return invoke(p);
+            }
+            catch (Exception ex)
+            {
+                throw ex.InnerException!;
+            }
+        });
     }
 
     internal ApplicationCommandInfo(MethodInfo method, UserCommandAttribute userCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: userCommandAttribute, configuration)
@@ -90,9 +100,19 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             types[0] = DeclaringType;
         }
         types[^1] = typeof(Task);
-#pragma warning disable CS8974 // Converting method group to non-delegate type
-        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
-#pragma warning restore CS8974 // Converting method group to non-delegate type
+
+        var invoke = method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke;
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>((object?[] p) =>
+        {
+            try
+            {
+                return invoke(p);
+            }
+            catch (Exception ex)
+            {
+                throw ex.InnerException!;
+            }
+        });
     }
 
     internal ApplicationCommandInfo(MethodInfo method, MessageCommandAttribute messageCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: messageCommandAttribute, configuration)
@@ -110,9 +130,19 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             types[0] = DeclaringType;
         }
         types[^1] = typeof(Task);
-#pragma warning disable CS8974 // Converting method group to non-delegate type
-        InvokeAsync = Unsafe.As<Func<object?[], Task>>(method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke);
-#pragma warning restore CS8974 // Converting method group to non-delegate type
+
+        var invoke = method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke;
+        InvokeAsync = Unsafe.As<Func<object?[], Task>>((object?[] p) =>
+        {
+            try
+            {
+                return invoke(p);
+            }
+            catch (Exception ex)
+            {
+                throw ex.InnerException!;
+            }
+        });
     }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -133,8 +163,8 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         DefaultPermission = attribute.DefaultPermission;
 #pragma warning restore CS0618 // Type or member is obsolete
         Nsfw = attribute.Nsfw;
-        if (attribute.GuildId != default)
-            GuildId = attribute.GuildId;
+        if (attribute._guildId.HasValue)
+            GuildId = attribute._guildId.GetValueOrDefault();
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
     }
 
