@@ -78,6 +78,7 @@ public partial class GatewayClient : WebSocketClient
     public event Func<StageInstance, ValueTask>? StageInstanceCreate;
     public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
     public event Func<StageInstance, ValueTask>? StageInstanceDelete;
+    public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     public ImmutableDictionary<ulong, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
@@ -233,7 +234,8 @@ public partial class GatewayClient : WebSocketClient
     private async Task ProcessEvent(JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
-        switch (payload.Event)
+        var name = payload.Event!;
+        switch (name)
         {
             case "READY":
                 {
@@ -815,6 +817,11 @@ public partial class GatewayClient : WebSocketClient
             case "WEBHOOKS_UPDATE":
                 {
                     await InvokeEventAsync(WebhooksUpdate, () => new(data.ToObject(JsonWebhooksUpdateEventArgs.JsonWebhooksUpdateEventArgsSerializerContext.WithOptions.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            default:
+                {
+                    await InvokeEventAsync(UnknownEvent, () => new(name, data)).ConfigureAwait(false);
                 }
                 break;
         }
