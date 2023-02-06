@@ -37,6 +37,7 @@ public partial class GatewayClient : WebSocketClient
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
     public event Func<Guild, ValueTask>? GuildUpdate;
     public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
+    public event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
     public event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
     public event Func<GuildBanEventArgs, ValueTask>? GuildBanRemove;
     public event Func<GuildEmojisUpdateEventArgs, ValueTask>? GuildEmojisUpdate;
@@ -443,6 +444,11 @@ public partial class GatewayClient : WebSocketClient
                     {
                         Guilds = Guilds.Remove(jsonGuild.Id);
                     }).ConfigureAwait(false);
+                }
+                break;
+            case "GUILD_AUDIT_LOG_ENTRY_CREATE":
+                {
+                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(JsonAuditLogEntry.JsonAuditLogEntrySerializerContext.WithOptions.JsonAuditLogEntry))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_ADD":

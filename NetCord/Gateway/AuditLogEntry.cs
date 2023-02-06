@@ -4,28 +4,19 @@ using System.Text.Json.Serialization.Metadata;
 
 using NetCord.JsonModels;
 
-namespace NetCord.Rest;
+namespace NetCord.Gateway;
 
-public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
+public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
 {
     JsonAuditLogEntry IJsonModel<JsonAuditLogEntry>.JsonModel => _jsonModel;
-    private readonly JsonAuditLogEntry _jsonModel;
-    private readonly JsonAuditLog _data;
+    private protected readonly JsonAuditLogEntry _jsonModel;
 
-    public AuditLogEntry(JsonAuditLogEntry jsonModel, JsonAuditLog data, RestClient client) : base(client)
+    public AuditLogEntry(JsonAuditLogEntry jsonModel)
     {
         _jsonModel = jsonModel;
-        _data = data;
         Changes = _jsonModel.Changes.SelectOrEmpty(c => new AuditLogChange(c));
         if (_jsonModel.Options != null)
             Options = new(_jsonModel.Options);
-        ApplicationCommands = _data.ApplicationCommands.Select(c => new ApplicationCommand(c, client));
-        AutoModerationRules = _data.AutoModerationRules.Select(r => new AutoModerationRule(r, client));
-        GuildScheduledEvents = _data.GuildScheduledEvents.Select(e => new GuildScheduledEvent(e, _client));
-        Integrations = _data.Integrations.Select(e => new Integration(e, _client));
-        Threads = _data.Threads.Select(t => (GuildThread)Channel.CreateFromJson(t, _client));
-        Users = _data.Users.Select(u => new User(u, _client));
-        Webhooks = _data.Webhooks.Select(w => Webhook.CreateFromJson(w, client));
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -65,21 +56,9 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
     }
 
     /// <summary>
-    /// User that made the changes.
+    /// Id of user that made the changes.
     /// </summary>
-    public User? User
-    {
-        get
-        {
-            if (_jsonModel.UserId == null)
-                return null;
-            else
-            {
-                var id = _jsonModel.UserId.GetValueOrDefault();
-                return new(_data.Users.First(u => u.Id == id), _client);
-            }
-        }
-    }
+    public ulong? UserId => _jsonModel.UserId;
 
     /// <summary>
     /// Type of action that occurred.
@@ -95,41 +74,6 @@ public class AuditLogEntry : ClientEntity, IJsonModel<JsonAuditLogEntry>
     /// Reason for the change (1-512 characters).
     /// </summary>
     public string? Reason => _jsonModel.Reason;
-
-    /// <summary>
-    /// List of application commands referenced in the audit log.
-    /// </summary>
-    public IEnumerable<ApplicationCommand> ApplicationCommands { get; }
-
-    /// <summary>
-    /// List of auto moderation rules referenced in the audit log.
-    /// </summary>
-    public IEnumerable<AutoModerationRule> AutoModerationRules { get; }
-
-    /// <summary>
-    /// List of guild scheduled events referenced in the audit log.
-    /// </summary>
-    public IEnumerable<GuildScheduledEvent> GuildScheduledEvents { get; }
-
-    /// <summary>
-    /// List of integration objects.
-    /// </summary>
-    public IEnumerable<Integration> Integrations { get; }
-
-    /// <summary>
-    /// List of threads referenced in the audit log
-    /// </summary>
-    public IEnumerable<GuildThread> Threads { get; }
-
-    /// <summary>
-    /// List of users referenced in the audit log.
-    /// </summary>
-    public IEnumerable<User> Users { get; }
-
-    /// <summary>
-    /// List of webhooks referenced in the audit log.
-    /// </summary>
-    public IEnumerable<Webhook> Webhooks { get; }
 
     #region From https://github.com/dotnet/efcore/blob/27a83b9ad5f6ce7e13c6fbdec8f50a4aa63fb811/src/EFCore/Infrastructure/ExpressionExtensions.cs
     private static MemberInfo GetMemberAccess(LambdaExpression memberAccessExpression)
