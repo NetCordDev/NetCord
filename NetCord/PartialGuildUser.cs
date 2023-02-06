@@ -16,6 +16,7 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     public DateTimeOffset? GuildBoostStart => _jsonModel.GuildBoostStart;
     public bool Deafened => _jsonModel.Deafened;
     public bool Muted => _jsonModel.Muted;
+    public GuildUserFlags GuildFlags => _jsonModel.GuildFlags;
     public bool? IsPending => _jsonModel.IsPending;
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
 

@@ -25,6 +25,10 @@ public partial class GuildUserOptions : CurrentGuildUserOptions
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("flags")]
+    public GuildUserFlags? GuildFlags { get; set; }
+
     [JsonSerializable(typeof(GuildUserOptions))]
     public partial class GuildUserOptionsSerializerContext : JsonSerializerContext
     {

@@ -31,6 +31,9 @@ public partial class JsonGuildUser
     [JsonPropertyName("mute")]
     public bool Muted { get; set; }
 
+    [JsonPropertyName("flags")]
+    public GuildUserFlags GuildFlags { get; set; }
+
     [JsonPropertyName("pending")]
     public bool? IsPending { get; set; }
 
