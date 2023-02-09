@@ -43,4 +43,8 @@ public enum MessageFlags : uint
     /// This message contains a abusive website link, pops up a warning when clicked.
     /// </summary>
     ShouldShowLinkNotDiscordWarning = 1 << 10,
+    /// <summary>
+    /// This message will not trigger push and desktop notifications.
+    /// </summary>
+    SuppressNotifications = 1 << 12,
 }
