@@ -8,7 +8,7 @@ public enum GatewayIntents : uint
     /// Privileged
     /// </summary>
     GuildUsers = 1 << 1,
-    GuildBans = 1 << 2,
+    GuildModeration = 1 << 2,
     GuildEmojisAndStickers = 1 << 3,
     GuildIntegrations = 1 << 4,
     GuildWebhooks = 1 << 5,
@@ -33,7 +33,7 @@ public enum GatewayIntents : uint
     AutoModerationExecution = 1 << 21,
     All = Guilds
         | GuildUsers
-        | GuildBans
+        | GuildModeration
         | GuildEmojisAndStickers
         | GuildIntegrations
         | GuildWebhooks
@@ -51,7 +51,7 @@ public enum GatewayIntents : uint
         | AutoModerationConfiguration
         | AutoModerationExecution,
     AllNonPrivileged = Guilds
-        | GuildBans
+        | GuildModeration
         | GuildEmojisAndStickers
         | GuildIntegrations
         | GuildWebhooks
