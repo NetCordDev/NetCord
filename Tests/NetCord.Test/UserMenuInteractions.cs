@@ -7,6 +7,6 @@ public class UserMenuInteractions : InteractionModule<UserMenuInteractionContext
     [Interaction("users")]
     public Task UsersAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedUsers.Values)}"));
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedUsers)}"));
     }
 }

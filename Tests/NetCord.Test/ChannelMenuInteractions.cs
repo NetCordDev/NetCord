@@ -7,6 +7,6 @@ public class ChannelMenuInteractions : InteractionModule<ChannelMenuInteractionC
     [Interaction("channels")]
     public Task ChannelsAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedChannels.Values)}"));
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedChannels)}"));
     }
 }

@@ -148,15 +148,20 @@ public class UserMenuInteractionContext : EntityMenuInteractionContext
 {
     public override UserMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<ulong, User> SelectedUsers { get; }
+    public IReadOnlyList<User> SelectedUsers { get; }
 
     public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
         Interaction = interaction;
-        if (interaction.Data.ResolvedData != null)
-            SelectedUsers = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Users![v]);
+        var data = interaction.Data;
+        var resolvedData = data.ResolvedData;
+        if (resolvedData != null)
+        {
+            var users = resolvedData.Users!;
+            SelectedUsers = data.SelectedValues.Select(v => users[v]).ToArray();
+        }
         else
-            SelectedUsers = new Dictionary<ulong, User>();
+            SelectedUsers = Array.Empty<User>();
     }
 }
 
@@ -164,15 +169,20 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
 {
     public override RoleMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<ulong, Role> SelectedRoles { get; }
+    public IReadOnlyList<Role> SelectedRoles { get; }
 
     public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
         Interaction = interaction;
-        if (interaction.Data.ResolvedData != null)
-            SelectedRoles = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Roles![v]);
+        var data = interaction.Data;
+        var resolvedData = data.ResolvedData;
+        if (resolvedData != null)
+        {
+            var roles = resolvedData.Roles!;
+            SelectedRoles = data.SelectedValues.Select(v => roles[v]).ToArray();
+        }
         else
-            SelectedRoles = new Dictionary<ulong, Role>();
+            SelectedRoles = Array.Empty<Role>();
     }
 }
 
@@ -180,33 +190,34 @@ public class MentionableMenuInteractionContext : EntityMenuInteractionContext
 {
     public override MentionableMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<ulong, Mentionable> SelectedMentionables { get; }
+    public IReadOnlyList<Mentionable> SelectedMentionables { get; }
 
     public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
         Interaction = interaction;
-        if (interaction.Data.ResolvedData != null)
+        var data = Interaction.Data;
+        if (data.ResolvedData != null)
         {
-            Dictionary<ulong, Mentionable> selectedMentionables = new(interaction.Data.SelectedValues.Count);
-            var users = interaction.Data.ResolvedData.Users;
-            var roles = interaction.Data.ResolvedData.Roles;
+            var resolvedData = data.ResolvedData;
+            var users = resolvedData.Users;
+            var roles = resolvedData.Roles;
             if (users != null)
             {
                 if (roles != null)
-                    SelectedMentionables = interaction.Data.SelectedValues.ToDictionary(v => v, v => users.TryGetValue(v, out var user) ? new Mentionable(user) : new Mentionable(roles[v]));
+                    SelectedMentionables = data.SelectedValues.Select(v => users.TryGetValue(v, out var user) ? new Mentionable(user) : new Mentionable(roles[v])).ToArray();
                 else
-                    SelectedMentionables = interaction.Data.SelectedValues.ToDictionary(v => v, v => new Mentionable(users[v]));
+                    SelectedMentionables = data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray();
             }
             else
             {
                 if (roles != null)
-                    SelectedMentionables = interaction.Data.SelectedValues.ToDictionary(v => v, v => new Mentionable(roles[v]));
+                    SelectedMentionables = data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray();
                 else
-                    SelectedMentionables = new Dictionary<ulong, Mentionable>();
+                    SelectedMentionables = Array.Empty<Mentionable>();
             }
         }
         else
-            SelectedMentionables = new Dictionary<ulong, Mentionable>();
+            SelectedMentionables = Array.Empty<Mentionable>();
     }
 }
 
@@ -214,15 +225,20 @@ public class ChannelMenuInteractionContext : EntityMenuInteractionContext
 {
     public override ChannelMenuInteraction Interaction { get; }
 
-    public IReadOnlyDictionary<ulong, Channel> SelectedChannels { get; }
+    public IReadOnlyList<Channel> SelectedChannels { get; }
 
     public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
     {
         Interaction = interaction;
-        if (interaction.Data.ResolvedData != null)
-            SelectedChannels = interaction.Data.SelectedValues.ToDictionary(v => v, v => interaction.Data.ResolvedData.Channels![v]);
+        var data = interaction.Data;
+        var resolvedData = data.ResolvedData;
+        if (resolvedData != null)
+        {
+            var channels = resolvedData.Channels!;
+            SelectedChannels = data.SelectedValues.Select(v => channels[v]).ToArray();
+        }
         else
-            SelectedChannels = new Dictionary<ulong, Channel>();
+            SelectedChannels = Array.Empty<Channel>();
     }
 }
 

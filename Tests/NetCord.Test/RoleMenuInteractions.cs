@@ -7,6 +7,6 @@ public class RoleMenuInteractions : InteractionModule<RoleMenuInteractionContext
     [Interaction("roles")]
     public Task RolesAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedRoles.Values)}"));
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedRoles)}"));
     }
 }
