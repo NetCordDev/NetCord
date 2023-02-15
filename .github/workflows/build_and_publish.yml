@@ -40,7 +40,7 @@ jobs:
       - name: Build Documentation
         if: env.PUSHED == 1
         run: |
-          dotnet tool install -g docfx
+          dotnet tool install docfx -g --version 2.61
           cd Documentation
           docfx
 
