@@ -49,6 +49,9 @@ public partial class JsonChannel : JsonEntity
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
 
+    [JsonPropertyName("managed")]
+    public bool? Managed { get; set; }
+
     [JsonPropertyName("parent_id")]
     public ulong? ParentId { get; set; }
 
