@@ -10,6 +10,7 @@ public enum ConnectionType
     EpicGames,
     Facebook,
     GitHub,
+    Instagram,
     LeagueOfLegends,
     PayPal,
     PlayStation,
