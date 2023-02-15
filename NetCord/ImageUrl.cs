@@ -103,6 +103,11 @@ public class ImageUrl
         return new($"/app-assets/{applicationId}/achievements/{achievementId}/icons/{iconHash}", GetFormat(format));
     }
 
+    public static ImageUrl StorePageAsset(ulong applicationId, ulong assetId, ImageFormat format)
+    {
+        return new($"/app-assets/{applicationId}/store/{assetId}", GetFormat(format));
+    }
+
     public static ImageUrl StickerPackBanner(ulong stickerPackBannerAssetId, ImageFormat format)
     {
         return new($"/app-assets/710982414301790216/store/{stickerPackBannerAssetId}", GetFormat(format));
