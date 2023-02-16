@@ -179,7 +179,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             while (parameterIndex < parametersCount)
             {
                 var parameter = parameters[parameterIndex];
-                var value = parameter.DefaultValue!;
+                var value = parameter.DefaultValue;
                 await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                 parametersToPass[parameterIndex] = value;
                 parameterIndex++;

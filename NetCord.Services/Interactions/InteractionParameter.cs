@@ -77,7 +77,11 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
 
     internal async Task EnsureCanExecuteAsync(object? value, TContext context)
     {
-        foreach (var preconditionAttribute in Preconditions)
+        var count = Preconditions.Count;
+        for (var i = 0; i < count; i++)
+        {
+            ParameterPreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
     }
+}
 }

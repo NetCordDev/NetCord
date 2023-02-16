@@ -72,7 +72,11 @@ public class CommandInfo<TContext> where TContext : ICommandContext
 
     internal async Task EnsureCanExecuteAsync(TContext context)
     {
-        foreach (var preconditionAttribute in Preconditions)
+        var count = Preconditions.Count;
+        for (var i = 0; i < count; i++)
+        {
+            PreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
     }
+}
 }
