@@ -45,12 +45,12 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         for (var i = 0; i < parametersLength; i++)
         {
             var parameter = parameters[i];
-            
+
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
-            
+
             p[i] = new(parameter, method, configuration);
             types[start++] = parameter.ParameterType;
         }
