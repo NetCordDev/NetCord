@@ -7,7 +7,10 @@ namespace NetCord.Services.Interactions;
 public class InteractionParameter<TContext> where TContext : InteractionContext
 {
     public InteractionTypeReader<TContext> TypeReader { get; }
+    public Type NullableType { get; }
     public Type Type { get; }
+    public bool HasDefaultValue { get; }
+    public object? DefaultValue { get; }
     public bool Params { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string? Name { get; }
@@ -16,10 +19,10 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
 
     internal InteractionParameter(ParameterInfo parameter, MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
     {
+        HasDefaultValue = parameter.HasDefaultValue;
+
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
-
-        Type type;
 
         if (Attributes.TryGetValue(typeof(ParameterAttribute), out IReadOnlyList<Attribute>? attributes))
         {
@@ -28,6 +31,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
             Description = commandParameterAttribute.Description;
         }
 
+        Type type;
         if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
         {
             Params = true;
@@ -36,6 +40,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         else
             type = parameter.ParameterType;
 
+        NullableType = type;
         var underlyingType = Nullable.GetUnderlyingType(type);
 
         var typeReaders = configuration.TypeReaders;
@@ -43,18 +48,53 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out attributes))
         {
             if (underlyingType != null)
+            {
+                if (HasDefaultValue)
+                {
+                    var d = parameter.DefaultValue;
+                    if (underlyingType.IsEnum && d != null)
+                        DefaultValue = Enum.ToObject(underlyingType, d);
+                    else
+                        DefaultValue = d;
+                }
                 Type = underlyingType;
+            }
             else
+            {
+                if (HasDefaultValue)
+                    DefaultValue = parameter.DefaultValue;
+
                 Type = type;
+            }
 
             TypeReader = TypeReaderAttributeHelper.GetTypeReader<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>((TypeReaderAttribute)attributes[0]);
         }
         else if (underlyingType != null)
         {
             if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
+            {
+                if (HasDefaultValue)
+                {
+                    var d = parameter.DefaultValue;
+                    if (underlyingType.IsEnum && d != null)
+                        DefaultValue = Enum.ToObject(underlyingType, d);
+                    else
+                        DefaultValue = d;
+                }
                 TypeReader = typeReader;
+            }
             else if (underlyingType.IsEnum)
+            {
+                if (HasDefaultValue)
+                {
+                    var d = parameter.DefaultValue;
+                    if (d != null)
+                        DefaultValue = Enum.ToObject(underlyingType, d);
+                    else
+                        DefaultValue = d;
+                }
                 TypeReader = configuration.EnumTypeReader;
+            }
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
 
@@ -62,6 +102,9 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         }
         else
         {
+            if (HasDefaultValue)
+                DefaultValue = parameter.DefaultValue;
+
             if (typeReaders.TryGetValue(type, out var typeReader))
                 TypeReader = typeReader;
             else if (type.IsEnum)
@@ -82,6 +125,6 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         {
             ParameterPreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+        }
     }
-}
 }

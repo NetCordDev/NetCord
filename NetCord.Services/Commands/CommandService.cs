@@ -195,7 +195,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     else
                         goto Continue;
                 }
-                else if (arguments.Length != 0)
+                else if (!arguments.IsEmpty)
                 {
                     try
                     {
@@ -255,7 +255,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     {
         var args = new string(arguments.Span).Split(separators, StringSplitOptions.RemoveEmptyEntries);
         var len = args.Length;
-        var o = Array.CreateInstance(parameter.Type, len);
+        var o = Array.CreateInstance(parameter.NullableType, len);
 
         for (var a = 0; a < len; a++)
         {

@@ -100,14 +100,14 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             parametersToPass = new(values, 1, interactionParametersLength);
         }
 
-        var maxCommandParamIndex = interactionParametersLength - 1;
-        for (int paramIndex = 0; paramIndex <= maxCommandParamIndex; paramIndex++)
+        var maxParamIndex = interactionParametersLength - 1;
+        for (int paramIndex = 0; paramIndex <= maxParamIndex; paramIndex++)
         {
             InteractionParameter<TContext> parameter = interactionParameters[paramIndex];
             if (!parameter.Params)
             {
                 ReadOnlyMemory<char> currentArg;
-                if (paramIndex == maxCommandParamIndex)
+                if (paramIndex == maxParamIndex)
                     currentArg = arguments;
                 else
                 {
@@ -115,24 +115,34 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                     currentArg = index == -1 ? arguments : arguments[..index];
                     arguments = arguments[(currentArg.Length + 1)..];
                 }
-                var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _configuration).ConfigureAwait(false);
+                object? value;
+                if (parameter.HasDefaultValue && currentArg.IsEmpty)
+                    value = parameter.DefaultValue;
+                else
+                    value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _configuration).ConfigureAwait(false);
+
                 await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                 parametersToPass[paramIndex] = value;
             }
             else
             {
-                var args = new string(arguments.Span).Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                var len = args.Length;
-                var o = Array.CreateInstance(parameter.Type, len);
-
-                for (var a = 0; a < len; a++)
+                if (parameter.HasDefaultValue && arguments.IsEmpty)
+                    parametersToPass[paramIndex] = parameter.DefaultValue;
+                else
                 {
-                    var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _configuration).ConfigureAwait(false);
-                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                    o.SetValue(value, a);
-                }
+                    var args = new string(arguments.Span).Split(separator);
+                    var len = args.Length;
+                    var o = Array.CreateInstance(parameter.NullableType, len);
 
-                parametersToPass[paramIndex] = o;
+                    for (var a = 0; a < len; a++)
+                    {
+                        var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _configuration).ConfigureAwait(false);
+                        await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                        o.SetValue(value, a);
+                    }
+
+                    parametersToPass[paramIndex] = o;
+                }
             }
         }
 

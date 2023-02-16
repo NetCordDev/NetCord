@@ -39,6 +39,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         types[^1] = typeof(Task);
 
         var p = new InteractionParameter<TContext>[parametersLength];
+        // We allow required parameters to follow optional parameters.
         for (var i = 0; i < parametersLength; i++)
         {
             var parameter = parameters[i];
@@ -70,6 +71,6 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         {
             PreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+        }
     }
-}
 }

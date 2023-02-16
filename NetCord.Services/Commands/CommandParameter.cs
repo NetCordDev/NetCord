@@ -7,6 +7,7 @@ namespace NetCord.Services.Commands;
 public record CommandParameter<TContext> where TContext : ICommandContext
 {
     public CommandTypeReader<TContext> TypeReader { get; }
+    public Type NullableType { get; }
     public Type Type { get; }
     public bool HasDefaultValue { get; }
     public object? DefaultValue { get; }
@@ -41,6 +42,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
         else
             type = parameter.ParameterType;
 
+        NullableType = type;
         var underlyingType = Nullable.GetUnderlyingType(type);
 
         var typeReaders = configuration.TypeReaders;
@@ -63,6 +65,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             {
                 if (HasDefaultValue)
                     DefaultValue = parameter.DefaultValue;
+
                 Type = type;
             }
 
@@ -96,6 +99,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
             }
             else
                 throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
+
             Type = underlyingType;
         }
         else
@@ -109,6 +113,7 @@ public record CommandParameter<TContext> where TContext : ICommandContext
                 TypeReader = configuration.EnumTypeReader;
             else
                 throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
+
             Type = type;
         }
 
@@ -122,6 +127,6 @@ public record CommandParameter<TContext> where TContext : ICommandContext
         {
             ParameterPreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+        }
     }
-}
 }

@@ -290,6 +290,21 @@ public class StrangeCommands : CommandModule<CommandContext>
         Console.WriteLine($"Used static command with {nameof(x)}: {x} and {nameof(s)}: {string.Join(", ", s)}");
         return Task.CompletedTask;
     }
+
+    [Command("button")]
+    public Task ButtonAsync(string customId)
+    {
+        return SendAsync(new()
+        {
+            Components = new ComponentProperties[]
+            {
+                new ActionRowProperties(new ButtonProperties[]
+                {
+                    new ActionButtonProperties(customId, "Button", ButtonStyle.Success),
+                }),
+            },
+        });
+    }
 }
 
 public enum Wzium
