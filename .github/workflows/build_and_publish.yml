@@ -30,22 +30,23 @@ jobs:
       - name: Pack
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         run: |
-          dotnet pack NetCord -c Release --no-restore --no-build
-          dotnet pack NetCord.Services -c Release --no-restore --no-build
+          dotnet pack NetCord -c Release --no-build
+          dotnet pack NetCord.Services -c Release --no-build
 
       - name: Publish
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        run: dotnet nuget push NetCord/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols && (dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols; echo 'PUSHED=1' >> $GITHUB_ENV || true) || (dotnet nuget push NetCord.Services/**.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --no-symbols && echo 'PUSHED=1' >> $GITHUB_ENV || true)
+        run: |
+          dotnet nuget push NetCord/**.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Services/**.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Build Documentation
-        if: env.PUSHED == 1
+        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         run: |
           dotnet tool install docfx -g --version 2.61
-          cd Documentation
-          docfx
+          docfx Documentation/docfx.json
 
       - name: Stop Apache2
-        if: env.PUSHED == 1
+        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         uses: appleboy/ssh-action@v0.1.7
         with:
           username: ${{ secrets.SSH_USERNAME }}
@@ -55,7 +56,7 @@ jobs:
           script: sudo systemctl stop apache2
 
       - name: Deploy Documentation
-        if: env.PUSHED == 1
+        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         uses: appleboy/scp-action@v0.1.3
         with:
           username: ${{ secrets.SSH_USERNAME }}
@@ -68,7 +69,7 @@ jobs:
           target: ~/NetCord/html
 
       - name: Start Apache2
-        if: env.PUSHED == 1
+        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         uses: appleboy/ssh-action@v0.1.7
         with:
           username: ${{ secrets.SSH_USERNAME }}
