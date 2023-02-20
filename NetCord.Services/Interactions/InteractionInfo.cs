@@ -55,7 +55,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
             {
                 return invoke(p);
             }
-            catch (Exception ex)
+            catch (TargetInvocationException ex)
             {
                 throw ex.InnerException!;
             }

@@ -63,7 +63,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
             {
                 return invoke(p);
             }
-            catch (Exception ex)
+            catch (TargetInvocationException ex)
             {
                 throw ex.InnerException!;
             }

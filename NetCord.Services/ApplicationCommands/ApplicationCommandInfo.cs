@@ -78,7 +78,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             {
                 return invoke(p);
             }
-            catch (Exception ex)
+            catch (TargetInvocationException ex)
             {
                 throw ex.InnerException!;
             }
