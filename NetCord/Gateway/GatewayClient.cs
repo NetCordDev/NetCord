@@ -791,7 +791,7 @@ public partial class GatewayClient : WebSocketClient
             case "VOICE_STATE_UPDATE":
                 {
                     var json = data.ToObject(JsonVoiceState.JsonVoiceStateSerializerContext.WithOptions.JsonVoiceState);
-                    await InvokeEventAsync(VoiceStateUpdate, new(json), voiceState =>
+                    await InvokeEventAsync(VoiceStateUpdate, new(json, Rest), voiceState =>
                     {
                         if (TryGetGuild(voiceState.GuildId.GetValueOrDefault(), out var guild))
                         {

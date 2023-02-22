@@ -5,7 +5,7 @@ namespace NetCord.Services.Interactions;
 
 public abstract class InteractionContext : IContext
 {
-    public InteractionContext(GatewayClient client)
+    protected InteractionContext(GatewayClient client)
     {
         Client = client;
     }

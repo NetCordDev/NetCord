@@ -88,16 +88,16 @@ public class VoiceClient : WebSocketClient
         return _webSocket.SendAsync(serializedPayload);
     }
 
-    private protected override async Task ProcessMessageAsync(JsonPayload jsonPayload)
+    private protected override async Task ProcessMessageAsync(JsonPayload payload)
     {
-        switch ((VoiceOpcode)jsonPayload.Opcode)
+        switch ((VoiceOpcode)payload.Opcode)
         {
             case VoiceOpcode.Ready:
                 {
                     var latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
-                    var ready = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
+                    var ready = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
                     Ssrc = ready.Ssrc;
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
@@ -141,7 +141,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.SessionDescription:
                 {
-                    var sessionDescription = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
+                    var sessionDescription = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
                     _secretKey = sessionDescription.SecretKey;
                     InvokeLog(LogMessage.Info("Ready"));
                     var updateLatencyTask = InvokeEventAsync(Ready);
@@ -154,7 +154,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Speaking:
                 {
-                    var speaking = jsonPayload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
+                    var speaking = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
                     _users[speaking.Ssrc] = speaking.UserId;
 
                     ToMemoryStream toMemoryStream = new();
@@ -170,7 +170,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    BeginHeartbeating(jsonPayload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
+                    BeginHeartbeating(payload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
                 }
                 break;
             case VoiceOpcode.Resumed:
@@ -190,7 +190,8 @@ public class VoiceClient : WebSocketClient
 
     private async void UdpSocket_DatagramReceive(UdpReceiveResult obj)
     {
-        if (VoiceReceive != null)
+        var @event = VoiceReceive;
+        if (@event != null)
         {
             try
             {
@@ -198,7 +199,7 @@ public class VoiceClient : WebSocketClient
                 if (_inputStreams.TryGetValue(ssrc, out var stream))
                 {
                     _ = stream.WriteStream.WriteAsync(obj.Buffer); //it's sync
-                    var t = VoiceReceive(ssrc, stream.Stream.Data);
+                    var t = @event(ssrc, stream.Stream.Data);
                     stream.Stream.Flush();
                     await t.ConfigureAwait(false);
                 }

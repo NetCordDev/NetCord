@@ -3,7 +3,6 @@
 internal class ReconnectTimer
 {
     public int Delay { get; private set; }
-    private CancellationTokenSource? _linkedTokenSource;
     private CancellationTokenSource? _internalTokenSource;
 
     public Task NextAsync(CancellationToken token = default)
@@ -13,12 +12,12 @@ internal class ReconnectTimer
             Delay = 10_000;
             return Task.CompletedTask;
         }
-        else if (Delay < 320_000) //5 minutes 20 seconds
+        else if (Delay < 320_000) // 5 minutes 20 seconds
         {
             var delay = Delay;
             Delay *= 2;
-            _linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, (_internalTokenSource = new()).Token);
-            return Task.Delay(delay, _linkedTokenSource.Token);
+            var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, (_internalTokenSource = new()).Token);
+            return Task.Delay(delay, linkedTokenSource.Token);
         }
         else
             return Task.Delay(Delay, token);

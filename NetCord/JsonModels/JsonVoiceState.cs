@@ -12,8 +12,8 @@ public partial class JsonVoiceState
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
 
-    //[JsonPropertyName("member")]
-    //public GuildUser? User { get; set; }
+    [JsonPropertyName("member")]
+    public JsonGuildUser? User { get; set; }
 
     [JsonPropertyName("session_id")]
     public string SessionId { get; set; }

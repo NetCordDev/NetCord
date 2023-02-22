@@ -289,9 +289,7 @@ public abstract class WebSocketClient : IDisposable
             }
         }
         else
-        {
             updateData(data);
-        }
     }
 
     private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)

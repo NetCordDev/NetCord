@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Runtime.Serialization;
 
 namespace NetCord.Rest;
 
+[Serializable]
 [DebuggerDisplay("{GetDiscordErrorMessageAsync().Result}")]
 public class RestException : Exception
 {
@@ -13,8 +16,25 @@ public class RestException : Exception
         ResponseContent = httpResponseMessage.Content;
     }
 
+    protected RestException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
+    {
+        StatusCode = (HttpStatusCode)serializationInfo.GetInt32(nameof(StatusCode));
+        ReasonPhrase = serializationInfo.GetString(nameof(ReasonPhrase))!;
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        base.GetObjectData(info, context);
+        info.AddValue(nameof(StatusCode), (int)StatusCode);
+        info.AddValue(nameof(ReasonPhrase), ReasonPhrase);
+    }
+
     public HttpStatusCode StatusCode { get; }
+
     public string ReasonPhrase { get; }
+
+    [AllowNull]
+    [field: NonSerialized]
     public HttpContent ResponseContent { get; }
 
     public Task<string> GetDiscordErrorMessageAsync() => ResponseContent.ReadAsStringAsync();

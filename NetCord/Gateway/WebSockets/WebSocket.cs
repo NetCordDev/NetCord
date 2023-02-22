@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 
 namespace NetCord.Gateway.WebSockets;
 
-public class WebSocket : IWebSocket, IDisposable
+public class WebSocket : IWebSocket
 {
     private ClientWebSocket? _webSocket;
     private bool _closed;

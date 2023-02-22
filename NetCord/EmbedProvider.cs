@@ -1,15 +1,15 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public class EmbedProvider : IJsonModel<JsonModels.JsonEmbedProvider>
 {
-    public class EmbedProvider
+    JsonModels.JsonEmbedProvider IJsonModel<JsonModels.JsonEmbedProvider>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmbedProvider _jsonModel;
+
+    public EmbedProvider(JsonModels.JsonEmbedProvider jsonModel)
     {
-        private readonly JsonModels.JsonEmbedProvider _jsonModel;
-
-        public string? Name => _jsonModel.Name;
-        public string? Url => _jsonModel.Url;
-
-        public EmbedProvider(JsonModels.JsonEmbedProvider jsonModel)
-        {
-            _jsonModel = jsonModel;
-        }
+        _jsonModel = jsonModel;
     }
+
+    public string? Name => _jsonModel.Name;
+    public string? Url => _jsonModel.Url;
 }

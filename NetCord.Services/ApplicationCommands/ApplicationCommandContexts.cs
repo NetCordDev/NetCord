@@ -11,7 +11,7 @@ public abstract class ApplicationCommandContext : InteractionContext, IApplicati
     public TextChannel? Channel => Interaction.Channel;
     public User User => Interaction.User;
 
-    public ApplicationCommandContext(GatewayClient client) : base(client)
+    protected ApplicationCommandContext(GatewayClient client) : base(client)
     {
     }
 }

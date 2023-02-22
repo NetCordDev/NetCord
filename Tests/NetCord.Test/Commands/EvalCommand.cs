@@ -22,16 +22,15 @@ public class EvalCommand : CommandModule<CommandContext>
         object? value;
         try
         {
-            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).AddImports(new[]
-            {
+            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).AddImports(
                 "NetCord",
                 "NetCord.Rest",
                 "NetCord.Gateway",
                 "System",
                 "System.Linq",
                 "System.Threading",
-                "System.Threading.Tasks",
-            }), this, typeof(CommandModule<CommandContext>));
+                "System.Threading.Tasks"
+            ), this, typeof(CommandModule<CommandContext>));
         }
         catch (RestException ex)
         {

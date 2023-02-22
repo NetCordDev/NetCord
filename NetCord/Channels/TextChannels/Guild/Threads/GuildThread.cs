@@ -16,7 +16,7 @@ public abstract class GuildThread : TextChannel
     public ThreadSelfUser? CurrentUser { get; }
     public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
 
-    public GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         Metadata = new(jsonModel.Metadata!);
         if (jsonModel.CurrentUser != null)

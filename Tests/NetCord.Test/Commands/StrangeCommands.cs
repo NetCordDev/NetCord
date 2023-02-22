@@ -118,7 +118,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("exception", "e")]
     public static Task Exception()
     {
-        throw new Exception("Exception was thrown");
+        throw new("Exception was thrown");
     }
 
     [Command("wzium")]
@@ -196,7 +196,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
         if (newAvatar == null)
-            throw new Exception("Give an url or attachment");
+            throw new("Give an url or attachment");
         return BotAvatar(new(newAvatar.Url));
     }
 

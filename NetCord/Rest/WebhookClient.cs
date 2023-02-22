@@ -6,7 +6,7 @@ public class WebhookClient : IDisposable
 
     private readonly string _token;
     private readonly RestClient _client;
-    private bool _dispose;
+    private readonly bool _dispose;
 
     public WebhookClient(ulong webhookId, string webhookToken, WebhookClientConfiguration? configuration = null)
     {

@@ -64,7 +64,7 @@ public partial class AllowedMentionsProperties
             writer.WritePropertyName("parse");
             JsonSerializer.Serialize(writer, list, ListOfStringSerializerContext.WithOptions.ListString);
 
-            if (value.ReplyMention == true)
+            if (value.ReplyMention)
             {
                 writer.WritePropertyName("replied_user");
                 writer.WriteBooleanValue(true);

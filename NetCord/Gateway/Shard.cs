@@ -6,7 +6,7 @@ namespace NetCord.Gateway;
 [JsonConverter(typeof(JsonShardConverter))]
 public partial class Shard
 {
-    private Shard(int shardId, int shardsCount)
+    public Shard(int shardId, int shardsCount)
     {
         ShardId = shardId;
         ShardsCount = shardsCount;
@@ -24,7 +24,13 @@ public partial class Shard
             return new(a[0], a[1]);
         }
 
-        public override void Write(Utf8JsonWriter writer, Shard value, JsonSerializerOptions options) => throw new NotImplementedException();
+        public override void Write(Utf8JsonWriter writer, Shard value, JsonSerializerOptions options)
+        {
+            writer.WriteStartArray();
+            writer.WriteNumberValue(value.ShardId);
+            writer.WriteNumberValue(value.ShardsCount);
+            writer.WriteEndArray();
+        }
 
         [JsonSerializable(typeof(int[]))]
         internal partial class Int32ArraySerializerContext : JsonSerializerContext

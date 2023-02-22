@@ -35,7 +35,7 @@ public partial class AttachmentProperties
     {
         get
         {
-            if (_read == true)
+            if (_read)
                 throw new InvalidOperationException("The attachment was already sent.");
             else
                 _read = true;

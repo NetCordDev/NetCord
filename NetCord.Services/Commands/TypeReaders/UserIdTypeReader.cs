@@ -7,7 +7,6 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
 {
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
     {
-        var channel = context.Message.Channel;
         var guild = context.Message.Guild;
         if (guild != null)
         {
@@ -21,7 +20,6 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 users.TryGetValue(id, out var user);
                 return Task.FromResult<object?>(new UserId(id, user));
             }
-
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
@@ -73,7 +71,6 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 users.TryGetValue(id, out var user);
                 return Task.FromResult<object?>(new UserId(id, user));
             }
-
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))

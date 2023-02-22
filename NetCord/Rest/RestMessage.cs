@@ -61,7 +61,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, Attachment.CreateFromJson);
         Embeds = jsonModel.Embeds.Select(e => new Embed(e));
-        Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r, client));
+        Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r));
 
         if (jsonModel.Activity != null)
             Activity = new(jsonModel.Activity);

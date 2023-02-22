@@ -20,13 +20,10 @@ public class InteractionRequireUserChannelPermissionsAttribute<TContext> : Preco
 
     public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
-        if (context.User is GuildInteractionUser guildUser)
+        if (context.User is GuildInteractionUser guildUser && !guildUser.Permissions.HasFlag(ChannelPermissions))
         {
-            if (!guildUser.Permissions.HasFlag(ChannelPermissions))
-            {
-                var missingPermissions = ChannelPermissions & ~guildUser.Permissions;
-                throw new PermissionsException(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel);
-            }
+            var missingPermissions = ChannelPermissions & ~guildUser.Permissions;
+            throw new PermissionsException(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel);
         }
         return default;
     }

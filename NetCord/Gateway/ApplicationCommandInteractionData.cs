@@ -1,6 +1,4 @@
-﻿using NetCord.Rest;
-
-namespace NetCord.Gateway;
+﻿namespace NetCord.Gateway;
 
 public class ApplicationCommandInteractionData : InteractionData, IEntity
 {
@@ -10,7 +8,7 @@ public class ApplicationCommandInteractionData : InteractionData, IEntity
 
     public ApplicationCommandType Type => _jsonModel.Type.GetValueOrDefault();
 
-    public ApplicationCommandInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
+    public ApplicationCommandInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
     {
     }
 }

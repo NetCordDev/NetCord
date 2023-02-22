@@ -1,23 +1,17 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public class EmbedImage : IJsonModel<JsonModels.JsonEmbedImage>
 {
-    public class EmbedImage : EmbedPartBase
+    JsonModels.JsonEmbedImage IJsonModel<JsonModels.JsonEmbedImage>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmbedImage _jsonModel;
+
+    public EmbedImage(JsonModels.JsonEmbedImage jsonModel)
     {
-        public EmbedImage(JsonModels.JsonEmbedPartBase jsonModel) : base(jsonModel)
-        {
-        }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="url">Use attachment://attachedFileName to use attachment in embed :)</param>
-        //public EmbedImage(string url)
-        //{
-        //    Url = url;
-        //}
-
-        //public EmbedImage()
-        //{
-
-        //}
+        _jsonModel = jsonModel;
     }
+
+    public string? Url => _jsonModel.Url;
+    public string? ProxyUrl => _jsonModel.ProxyUrl;
+    public int? Height => _jsonModel.Height;
+    public int? Width => _jsonModel.Width;
 }

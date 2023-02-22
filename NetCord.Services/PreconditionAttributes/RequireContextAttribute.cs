@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using System.Runtime.Serialization;
+
+namespace NetCord.Services;
 
 public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
@@ -40,12 +42,24 @@ public enum RequiredContext
     DM,
 }
 
+[Serializable]
 public class InvalidContextException : Exception
 {
     public RequiredContext MissingContext { get; }
 
-    internal InvalidContextException(string message, RequiredContext missingContext) : base(message)
+    public InvalidContextException(string message, RequiredContext missingContext) : base(message)
     {
         MissingContext = missingContext;
+    }
+
+    protected InvalidContextException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
+    {
+        MissingContext = (RequiredContext)serializationInfo.GetInt32(nameof(MissingContext));
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+        base.GetObjectData(info, context);
+        info.AddValue(nameof(MissingContext), (int)MissingContext);
     }
 }

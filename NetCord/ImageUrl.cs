@@ -2,7 +2,7 @@
 
 public class ImageUrl
 {
-    private string _url;
+    private readonly string _url;
 
     private ImageUrl(string partialUrl, string extension)
     {
@@ -17,7 +17,7 @@ public class ImageUrl
     {
         return format.HasValue
             ? GetFormat(format.GetValueOrDefault())
-            : hash.StartsWith("a_") ? "gif" : "png";
+            : (hash.StartsWith("a_") ? "gif" : "png");
     }
 
     internal static string GetFormat(ImageFormat format)

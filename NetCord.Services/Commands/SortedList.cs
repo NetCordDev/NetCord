@@ -6,6 +6,7 @@ namespace NetCord.Services.Commands;
 internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 {
     private const int DefaultCapacity = 4;
+
     private T[] _items;
     private readonly Comparison<T> _comparison;
     private int _size;
@@ -20,6 +21,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
             if (value < _size)
                 throw new ArgumentOutOfRangeException(nameof(value));
             if (value != _items.Length)
+            {
                 if (value > 0)
                 {
                     var newItems = new T[value];
@@ -29,6 +31,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
                 }
                 else
                     _items = Array.Empty<T>();
+            }
         }
     }
 
@@ -40,7 +43,9 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
     }
 
     public int Count => _size;
+
     public bool IsReadOnly => false;
+
     public void Add(T item)
     {
         if (_size == _items.Length)
@@ -53,6 +58,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         else
         {
             for (var i = 0; i < _size; i++)
+            {
                 if (_comparison(item, _items[i]) < 0)
                 {
                     Array.Copy(_items, i, _items, i + 1, _size - i);
@@ -60,6 +66,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
                     _size++;
                     return;
                 }
+            }
             _items[_size++] = item;
         }
     }
@@ -82,11 +89,14 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         _items = Array.Empty<T>();
         _size = 0;
     }
+
     public bool Contains(T item) => IndexOf(item) != -1;
+
     public void CopyTo(T[] array, int arrayIndex)
     {
         _items.CopyTo(array, arrayIndex);
     }
+
     public bool Remove(T item)
     {
         var index = IndexOf(item);
@@ -97,6 +107,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         }
         return false;
     }
+
     public void RemoveAt(int index)
     {
         if (index >= _size)
@@ -107,7 +118,9 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             _items[index] = default!;
     }
+
     public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)_items[.._size].GetEnumerator();
+
     IEnumerator IEnumerable.GetEnumerator() => _items[.._size].GetEnumerator();
 
     public int IndexOf(T item) => Array.IndexOf(_items, item);

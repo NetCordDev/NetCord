@@ -16,7 +16,6 @@ public class Guild : RestGuild
     public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; internal set; }
 
     public string? IconHash => _jsonModel.IconHash;
-    public GuildUser Owner => Users[OwnerId];
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public bool IsLarge => _jsonModel.IsLarge;
     public bool IsUnavailable => _jsonModel.IsUnavailable;
@@ -24,7 +23,7 @@ public class Guild : RestGuild
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
-        VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionary(s => new VoiceState(s));
+        VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionary(s => new VoiceState(s, client));
         Users = _jsonModel.Users.ToImmutableDictionary(u => new GuildUser(u, Id, client));
         Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
         ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionary(t => (GuildThread)Channel.CreateFromJson(t, client));

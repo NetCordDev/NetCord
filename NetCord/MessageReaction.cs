@@ -1,6 +1,4 @@
-﻿using NetCord.Rest;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 {
@@ -19,7 +17,7 @@ public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 
     public bool IsStandard => !_jsonModel.Emoji.Id.HasValue;
 
-    public MessageReaction(JsonModels.JsonMessageReaction jsonModel, RestClient client)
+    public MessageReaction(JsonModels.JsonMessageReaction jsonModel)
     {
         _jsonModel = jsonModel;
     }

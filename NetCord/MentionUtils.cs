@@ -18,7 +18,9 @@ public static class MentionUtils
             else if (ulong.TryParse(mention, NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
-        id = default;
+        else
+            id = default;
+
         return false;
     }
 
@@ -37,7 +39,9 @@ public static class MentionUtils
             if (ulong.TryParse(mention[2..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
-        id = default;
+        else
+            id = default;
+
         return false;
     }
 
@@ -49,14 +53,16 @@ public static class MentionUtils
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static bool TryParseRole(ReadOnlySpan<char> mention, [NotNullWhen(true)] out ulong id)
+    public static bool TryParseRole(ReadOnlySpan<char> mention, out ulong id)
     {
         if (mention.StartsWith("<@&") && mention.EndsWith(">"))
         {
             if (ulong.TryParse(mention[3..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
-        id = default;
+        else
+            id = default;
+
         return false;
     }
 

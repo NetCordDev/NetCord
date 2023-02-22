@@ -6,28 +6,40 @@ public partial class JsonEmbed
 {
     [JsonPropertyName("title")]
     public string? Title { get; set; }
+
     [JsonPropertyName("type")]
     public EmbedType? Type { get; set; }
+
     [JsonPropertyName("description")]
     public string? Description { get; set; }
+
     [JsonPropertyName("url")]
     public string? Url { get; set; }
+
     [JsonPropertyName("timestamp")]
     public DateTimeOffset? Timestamp { get; set; }
+
     [JsonPropertyName("color")]
     public Color? Color { get; set; }
+
     [JsonPropertyName("footer")]
     public JsonEmbedFooter? Footer { get; set; }
+
     [JsonPropertyName("image")]
-    public JsonEmbedPartBase? Image { get; set; }
+    public JsonEmbedImage? Image { get; set; }
+
     [JsonPropertyName("thumbnail")]
-    public JsonEmbedPartBase? Thumbnail { get; set; }
+    public JsonEmbedThumbnail? Thumbnail { get; set; }
+
     [JsonPropertyName("video")]
-    public JsonEmbedPartBase? Video { get; set; }
+    public JsonEmbedVideo? Video { get; set; }
+
     [JsonPropertyName("provider")]
     public JsonEmbedProvider? Provider { get; set; }
+
     [JsonPropertyName("author")]
     public JsonEmbedAuthor? Author { get; set; }
+
     [JsonPropertyName("fields")]
     public JsonEmbedField[] Fields { get; set; }
 
@@ -42,8 +54,10 @@ public partial class JsonEmbedFooter
 {
     [JsonPropertyName("text")]
     public string Text { get; set; }
+
     [JsonPropertyName("icon_url")]
     public string? IconUrl { get; set; }
+
     [JsonPropertyName("proxy_icon_url")]
     public string? ProxyIconUrl { get; set; }
 
@@ -54,7 +68,7 @@ public partial class JsonEmbedFooter
     }
 }
 
-public partial class JsonEmbedPartBase
+public partial class JsonEmbedImage
 {
     [JsonPropertyName("url")]
     public string? Url { get; set; }
@@ -68,10 +82,52 @@ public partial class JsonEmbedPartBase
     [JsonPropertyName("width")]
     public int? Width { get; set; }
 
-    [JsonSerializable(typeof(JsonEmbedPartBase))]
-    public partial class JsonEmbedPartBaseSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(JsonEmbedImage))]
+    public partial class JsonEmbedImageSerializerContext : JsonSerializerContext
     {
-        public static JsonEmbedPartBaseSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static JsonEmbedImageSerializerContext WithOptions { get; } = new(Serialization.Options);
+    }
+}
+
+public partial class JsonEmbedThumbnail
+{
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("proxy_url")]
+    public string? ProxyUrl { get; set; }
+
+    [JsonPropertyName("height")]
+    public int? Height { get; set; }
+
+    [JsonPropertyName("width")]
+    public int? Width { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedThumbnail))]
+    public partial class JsonEmbedThumbnailSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedThumbnailSerializerContext WithOptions { get; } = new(Serialization.Options);
+    }
+}
+
+public partial class JsonEmbedVideo
+{
+    [JsonPropertyName("url")]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("proxy_url")]
+    public string? ProxyUrl { get; set; }
+
+    [JsonPropertyName("height")]
+    public int? Height { get; set; }
+
+    [JsonPropertyName("width")]
+    public int? Width { get; set; }
+
+    [JsonSerializable(typeof(JsonEmbedVideo))]
+    public partial class JsonEmbedVideoSerializerContext : JsonSerializerContext
+    {
+        public static JsonEmbedVideoSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 
@@ -79,6 +135,7 @@ public partial class JsonEmbedProvider
 {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
+
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 

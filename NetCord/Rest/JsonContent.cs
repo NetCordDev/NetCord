@@ -7,14 +7,12 @@ namespace NetCord.Rest;
 
 public class JsonContent<T> : HttpContent
 {
-    private static readonly MediaTypeHeaderValue _contentType = new("application/json");
-
     private readonly T _objToSerialize;
     private readonly JsonTypeInfo<T> _jsonTypeInfo;
 
     public JsonContent(T objToSerialize, JsonTypeInfo<T> jsonTypeInfo)
     {
-        Headers.ContentType = (MediaTypeHeaderValue)((ICloneable)_contentType).Clone();
+        Headers.ContentType = (MediaTypeHeaderValue)((ICloneable)JsonContent._contentType).Clone();
         _objToSerialize = objToSerialize;
         _jsonTypeInfo = jsonTypeInfo;
     }
@@ -26,4 +24,9 @@ public class JsonContent<T> : HttpContent
         length = 0;
         return false;
     }
+}
+
+file static class JsonContent
+{
+    internal static readonly MediaTypeHeaderValue _contentType = new("application/json");
 }

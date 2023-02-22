@@ -1,16 +1,16 @@
-﻿namespace NetCord
+﻿namespace NetCord;
+
+public class EmbedField : IJsonModel<JsonModels.JsonEmbedField>
 {
-    public class EmbedField
+    JsonModels.JsonEmbedField IJsonModel<JsonModels.JsonEmbedField>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonEmbedField _jsonModel;
+
+    public EmbedField(JsonModels.JsonEmbedField jsonModel)
     {
-        private readonly JsonModels.JsonEmbedField _jsonModel;
-
-        public string Title => _jsonModel.Title;
-        public string Description => _jsonModel.Description;
-        public bool? Inline => _jsonModel.Inline;
-
-        public EmbedField(JsonModels.JsonEmbedField jsonModel)
-        {
-            _jsonModel = jsonModel;
-        }
+        _jsonModel = jsonModel;
     }
+
+    public string Title => _jsonModel.Title;
+    public string Description => _jsonModel.Description;
+    public bool? Inline => _jsonModel.Inline;
 }

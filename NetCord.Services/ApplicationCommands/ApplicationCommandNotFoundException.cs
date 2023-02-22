@@ -1,8 +1,15 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Runtime.Serialization;
 
+namespace NetCord.Services.ApplicationCommands;
+
+[Serializable]
 public class ApplicationCommandNotFoundException : Exception
 {
-    internal ApplicationCommandNotFoundException() : base("Command not found.")
+    public ApplicationCommandNotFoundException() : base("Command not found.")
+    {
+    }
+
+    protected ApplicationCommandNotFoundException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
     {
     }
 }

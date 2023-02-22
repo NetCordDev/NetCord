@@ -1,8 +1,15 @@
-﻿namespace NetCord.Services;
+﻿using System.Runtime.Serialization;
 
+namespace NetCord.Services;
+
+[Serializable]
 public class TypeReaderNotFoundException : Exception
 {
-    internal TypeReaderNotFoundException(string typeName) : base(typeName)
+    public TypeReaderNotFoundException(string typeName) : base(typeName)
+    {
+    }
+
+    protected TypeReaderNotFoundException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
     {
     }
 }

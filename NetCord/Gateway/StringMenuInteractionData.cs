@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway;
 
-public class StringMenuInteractionData : ButtonInteractionData, ICustomIdInteractionData
+public class StringMenuInteractionData : ButtonInteractionData
 {
     public IReadOnlyList<string> SelectedValues => _jsonModel.SelectedValues!;
 

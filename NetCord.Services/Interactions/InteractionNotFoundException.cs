@@ -1,8 +1,15 @@
-﻿namespace NetCord.Services.Interactions;
+﻿using System.Runtime.Serialization;
 
+namespace NetCord.Services.Interactions;
+
+[Serializable]
 public class InteractionNotFoundException : Exception
 {
-    internal InteractionNotFoundException() : base("Interaction not found.")
+    public InteractionNotFoundException() : base("Interaction not found.")
+    {
+    }
+
+    protected InteractionNotFoundException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
     {
     }
 }

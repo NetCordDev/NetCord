@@ -3,7 +3,7 @@
 public partial class RestClient
 {
     public async Task<StandardSticker> GetStickerAsync(ulong stickerId, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Get, $"/stickers/{stickerId}", new RateLimits.Route(RateLimits.RouteParameter.GetSticker), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonSticker.JsonStickerSerializerContext.WithOptions.JsonSticker).ConfigureAwait(false)); //
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/stickers/{stickerId}", new RateLimits.Route(RateLimits.RouteParameter.GetSticker), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonSticker.JsonStickerSerializerContext.WithOptions.JsonSticker).ConfigureAwait(false));
 
     public async Task<IReadOnlyDictionary<ulong, StickerPack>> GetNitroStickerPacksAsync(RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/sticker-packs", properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonNitroStickerPacks.JsonNitroStickerPacksSerializerContext.WithOptions.JsonNitroStickerPacks).ConfigureAwait(false)).StickerPacks.ToDictionary(s => s.Id, s => new StickerPack(s));

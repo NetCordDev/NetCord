@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-internal class GuildThreadGenerator
+internal static class GuildThreadGenerator
 {
     public static Dictionary<ulong, GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
     {

@@ -244,7 +244,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     {
         if (remainder)
             currentArg = arguments;
-        else if (isLastArgGood == false)
+        else if (!isLastArgGood)
         {
             var index = arguments.Span.IndexOfAny(separators);
             currentArg = index == -1 ? arguments : arguments[..index];
