@@ -10,6 +10,9 @@ public partial class AutoModerationActionMetadataProperties
     [JsonPropertyName("duration_seconds")]
     public int? DurationSeconds { get; set; }
 
+    [JsonPropertyName("custom_message")]
+    public string? CustomMessage { get; set; }
+
     [JsonSerializable(typeof(AutoModerationActionMetadataProperties))]
     public partial class AutoModerationActionMetadataPropertiesSerializerContext : JsonSerializerContext
     {

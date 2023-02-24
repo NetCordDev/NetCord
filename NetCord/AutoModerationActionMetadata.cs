@@ -13,6 +13,6 @@ public class AutoModerationActionMetadata : IJsonModel<JsonAutoModerationActionM
     }
 
     public ulong? ChannelId => _jsonModel.ChannelId;
-
     public int? DurationSeconds => _jsonModel.DurationSeconds;
+    public string? CustomMessage => _jsonModel.CustomMessage;
 }
