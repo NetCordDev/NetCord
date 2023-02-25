@@ -6,8 +6,14 @@
   <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}</title>
   <meta name="viewport" content="width=device-width">
   <meta name="title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
+  <meta name="description" content="{{#description}}{{description}}{{/description}}{{^description}}{{#_appDescription}}{{_appDescription}}{{/_appDescription}}{{/description}}">
+  <meta property="og:title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}} {{#_appTitle}}| {{_appTitle}} {{/_appTitle}}">
+  <meta property="og:description" content="{{#description}}{{description}}{{/description}}{{^description}}{{#_appDescription}}{{_appDescription}}{{/_appDescription}}{{/description}}">
+  <meta property="og:type" content="website">
+  {{#_appTitle}}<meta property="og:site_name" content="{{_appTitle}}">{{/_appTitle}}
+  <meta property="og:image" content="https://netcord.dev/images/SmallSquare.png">
+  <meta property="og:image:alt" content="NetCord Logo">
   <meta name="generator" content="docfx {{_docfxVersion}}">
-  {{#_description}}<meta name="description" content="{{_description}}">{{/_description}}
   <link rel="shortcut icon" href="{{_rel}}{{{_appFaviconPath}}}{{^_appFaviconPath}}favicon.ico{{/_appFaviconPath}}">
   <link rel="stylesheet" href="{{_rel}}styles/docfx.vendor.css">
   <link rel="stylesheet" href="{{_rel}}styles/docfx.css">
