@@ -4,7 +4,7 @@ using NetCord.Services.Utils;
 
 namespace NetCord.Services.Commands;
 
-public record CommandParameter<TContext> where TContext : ICommandContext
+public class CommandParameter<TContext> where TContext : ICommandContext
 {
     public CommandTypeReader<TContext> TypeReader { get; }
     public Type NullableType { get; }

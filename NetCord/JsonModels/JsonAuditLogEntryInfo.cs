@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public record JsonAuditLogEntryInfo
+public class JsonAuditLogEntryInfo
 {
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
