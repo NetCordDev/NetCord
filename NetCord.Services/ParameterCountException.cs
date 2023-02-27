@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NetCord.Services.Commands;
+namespace NetCord.Services;
 
 [Serializable]
 public class ParameterCountException : Exception

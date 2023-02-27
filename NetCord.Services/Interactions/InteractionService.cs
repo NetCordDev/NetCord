@@ -113,7 +113,11 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                 {
                     index = arguments.Span.IndexOf(separator);
                     currentArg = index == -1 ? arguments : arguments[..index];
-                    arguments = arguments[(currentArg.Length + 1)..];
+                    var start = currentArg.Length + 1;
+                    if (start > arguments.Length)
+                        throw new ParameterCountException("Too few parameters.");
+
+                    arguments = arguments[start..];
                 }
                 object? value;
                 if (parameter.HasDefaultValue && currentArg.IsEmpty)

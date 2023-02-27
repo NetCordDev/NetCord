@@ -19,8 +19,8 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
     }
 
     [Interaction("test")]
-    public Task TestAsync([DefaultParameterValue(null)] params string[]? s)
+    public Task TestAsync(string s, string s2)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"values: {(s != null ? string.Join('\n', s) : "null")}"));
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{s}\n{s2}"));
     }
 }
