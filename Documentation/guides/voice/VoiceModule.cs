@@ -107,7 +107,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         {
             var voiceClient = await JoinAsync(Context.Client, Context.Guild.Id, voiceState.ChannelId.GetValueOrDefault());
             var stream = voiceClient.CreateDirectPCMStream(OpusApplication.Audio);
-            voiceClient.VoiceReceive += (ssrc, data) => stream.WriteAsync(data);
+            voiceClient.VoiceReceive += args => stream.WriteAsync(args.Frame);
             await RespondAsync(InteractionCallback.ChannelMessageWithSource("Echo!"));
         }
         else

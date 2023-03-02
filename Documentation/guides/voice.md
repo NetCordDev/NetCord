@@ -25,8 +25,5 @@ You can join a voice channel using @NetCord.Gateway.GatewayClient.UpdateVoiceSta
 
 [!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L103-L115)]
 
-#### Detecting Voice Author
-You can use @NetCord.Gateway.Voice.VoiceClient.Users to get user id using ssrc from @NetCord.Gateway.Voice.VoiceClient.VoiceReceive event.
-
 ## Different Types of Streams
 A difference between a stream from @NetCord.Gateway.Voice.VoiceClient.CreatePCMStream(NetCord.Gateway.Voice.OpusApplication) and a stream from @NetCord.Gateway.Voice.VoiceClient.CreateDirectPCMStream(NetCord.Gateway.Voice.OpusApplication) is that the first will automatically normalize voice sending speed.
