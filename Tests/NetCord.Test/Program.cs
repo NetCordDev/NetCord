@@ -106,15 +106,11 @@ internal static class Program
             Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
             RedirectStandardOutput = true,
         })!;
-
-        //client.VoiceReceive += (ssrc, frame) =>
-        //{
-        //    stream.Write(frame.Span);
-        //    return default;
-        //};
         await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
         await stream.FlushAsync();
-        //await _client.UpdateVoiceStateAsync(new VoiceStateProperties(arg.GuildId, null));
+        await _client.UpdateVoiceStateAsync(new VoiceStateProperties(arg.GuildId, null));
+
+        //client.VoiceReceive += args => stream.WriteAsync(args.Frame);
         await Task.Delay(-1);
     }
 

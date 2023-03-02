@@ -1,14 +1,16 @@
-﻿using NetCord.Gateway.Voice.UdpSockets;
+﻿namespace NetCord.Gateway.Voice.Streams;
 
-namespace NetCord.Gateway.Voice.Streams;
-
-internal class VoiceStream : Stream
+internal class VoiceInStream : Stream
 {
-    private readonly IUdpSocket _udpSocket;
+    private readonly VoiceClient _client;
+    private readonly uint _ssrc;
+    private readonly ulong _userId;
 
-    public VoiceStream(IUdpSocket udpSocket)
+    public VoiceInStream(VoiceClient client, uint ssrc, ulong userId)
     {
-        _udpSocket = udpSocket;
+        _client = client;
+        _ssrc = ssrc;
+        _userId = userId;
     }
 
     public override bool CanRead => false;
@@ -28,12 +30,10 @@ internal class VoiceStream : Stream
     public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         => WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).AsTask();
 
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => new(_udpSocket.SendAsync(buffer, cancellationToken));
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        => _client.InvokeVoiceReceiveAsync(new(_ssrc, _userId, buffer));
 
-    public override void Write(byte[] buffer, int offset, int count) => Write(new ReadOnlySpan<byte>(buffer, offset, count));
+    public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
 
-    public override void Write(ReadOnlySpan<byte> buffer)
-    {
-        _udpSocket.Send(buffer);
-    }
+    public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException();
 }
