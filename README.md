@@ -11,3 +11,7 @@
 ## 📄 Documentation
 
 - **[netcord.dev](https://netcord.dev)**
+
+## 🩹 Support
+
+<a href="https://discord.gg/meaSHTGyUH"><img src="https://discord.com/api/guilds/988888771187581010/widget.png?style=banner2" alt="Discord"></a>
