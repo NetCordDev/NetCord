@@ -1042,3 +1042,12 @@ div.embeddedvideo iframe {
     font-weight: bold;
     margin-top: 2em;
 }
+
+article img {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    box-shadow: 3px 3px 6px #111;
+    background-color: #111;
+    display: grid;
+}
