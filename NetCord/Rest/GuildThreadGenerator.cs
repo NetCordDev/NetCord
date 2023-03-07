@@ -4,53 +4,25 @@ internal static class GuildThreadGenerator
 {
     public static Dictionary<ulong, GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadResult jsonThreads, RestClient client)
     {
-        var threads = jsonThreads.Threads;
-        var users = jsonThreads.Users;
-        var threadsLength = threads.Length;
-        var length = users.Length;
-        Dictionary<ulong, GuildThread> result = new(threadsLength);
-        int threadIndex = 0, userIndex = 0;
-        while (userIndex < length)
+        var users = jsonThreads.Users.ToDictionary(u => u.ThreadId);
+        return jsonThreads.Threads.ToDictionary(t => t.Id, t =>
         {
-            var thread = threads[threadIndex++];
-            var user = users[userIndex];
-            if (thread.Id == user.ThreadId)
-            {
-                thread.CurrentUser = user;
-                userIndex++;
-            }
-            result.Add(thread.Id, (GuildThread)Channel.CreateFromJson(thread, client));
-        }
-        while (threadIndex < threadsLength)
-        {
-            var thread = threads[threadIndex++];
-            result.Add(thread.Id, (GuildThread)Channel.CreateFromJson(thread, client));
-        }
-        return result;
+            if (users.TryGetValue(t.Id, out var user))
+                t.CurrentUser = user;
+
+            return (GuildThread)Channel.CreateFromJson(t, client);
+        });
     }
 
     public static IEnumerable<GuildThread> CreateThreads(JsonModels.JsonRestGuildThreadPartialResult jsonThreads, RestClient client)
     {
-        var threads = jsonThreads.Threads;
-        var users = jsonThreads.Users;
-        var length = users.Length;
-        int threadIndex = 0, userIndex = 0;
-        while (userIndex < length)
+        var users = jsonThreads.Users.ToDictionary(u => u.ThreadId);
+        foreach (var t in jsonThreads.Threads)
         {
-            var thread = threads[threadIndex++];
-            var user = users[userIndex];
-            if (thread.Id == user.ThreadId)
-            {
-                thread.CurrentUser = user;
-                userIndex++;
-            }
-            yield return (GuildThread)Channel.CreateFromJson(thread, client);
-        }
-        length = threads.Length;
-        while (threadIndex < length)
-        {
-            var thread = threads[threadIndex++];
-            yield return (GuildThread)Channel.CreateFromJson(thread, client);
+            if (users.TryGetValue(t.Id, out var user))
+                t.CurrentUser = user;
+
+            yield return (GuildThread)Channel.CreateFromJson(t, client);
         }
     }
 }
