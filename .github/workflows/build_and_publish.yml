@@ -24,8 +24,6 @@ jobs:
 
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
-        env:
-          OriginalTurboBoat: ${{ secrets.ORIGINALTURBOBOAT }}
 
       - name: Pack
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'

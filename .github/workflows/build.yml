@@ -24,5 +24,3 @@ jobs:
 
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
-        env:
-          OriginalTurboBoat: ${{ secrets.ORIGINALTURBOBOAT }}

@@ -14,8 +14,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Services", "NetCord.Services\NetCord.Services.csproj", "{495D537B-2E05-44F0-9993-2600311A15B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializationAndDeserializationTest", "Tests\SerializationAndDeserializationTest\SerializationAndDeserializationTest.csproj", "{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5E156987-5CC6-4873-B774-F41CBD7D3F3D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeUtilsTest", "Tests\SnowflakeUtilsTest\SnowflakeUtilsTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
@@ -26,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenTest", "Tests\TokenTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColorTest", "Tests\ColorTest\ColorTest.csproj", "{7471B70A-AF62-4E74-8B6D-4FEE93E873F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimestampTest", "Tests\TimestampTest\TimestampTest.csproj", "{B4AB1DD3-2016-4099-AD41-3248627069CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimestampTest", "Tests\TimestampTest\TimestampTest.csproj", "{B4AB1DD3-2016-4099-AD41-3248627069CE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,10 +44,6 @@ Global
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{495D537B-2E05-44F0-9993-2600311A15B0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -76,7 +70,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6E0A8D63-E00E-4744-BB4D-8B71B228C9CA} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
-		{E4F7AC24-D5A6-4A66-88C1-8E1AAE5FBE2B} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{621D2994-DCBF-4A8D-91FB-9B264C462FE7} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{B6698DB7-5FCF-47C9-BAE0-5206D7E9D9AF} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
