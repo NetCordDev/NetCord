@@ -889,6 +889,7 @@ footer {
 code {
   color: #717374;
   background-color: #f1f2f3;
+  font-family: 'Cascadia Mono';
 }
 
 a code {
