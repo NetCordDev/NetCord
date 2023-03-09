@@ -40,14 +40,10 @@ GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Develope
     Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent,
 });
 
-// Create an instance of CommandService and add command modules from the current assembly
-CommandService<CommandContext> commandService = new();
-commandService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
-
 // Subscribe to the MessageCreate event of the GatewayClient
 client.MessageCreate += async message =>
 {
-    if (message.Content.Contains("hello"))
+    if (message.Content.Contains("!hello"))
     {
         try
         {
