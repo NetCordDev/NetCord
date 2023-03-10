@@ -11,7 +11,7 @@ public class CommandContext : ICommandContext, IUserContext, IGuildContext, ICha
     public GatewayClient Client { get; }
     public IServiceProvider? Services { get; }
 
-    public CommandContext(Message message, GatewayClient client, IServiceProvider? services)
+    public CommandContext(Message message, GatewayClient client, IServiceProvider? services = null)
     {
         Services = services;
         Message = message;
