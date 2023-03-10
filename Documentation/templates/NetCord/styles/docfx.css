@@ -885,6 +885,11 @@ footer {
   }
 }
 
+@font-face {
+    font-family: 'Cascadia Mono';
+    src: local("Cascadia Mono Regular"), url("../fonts/cascadia-mono.woff2") format('woff2');
+}
+
 /* Code snippet */
 code {
   color: #717374;
