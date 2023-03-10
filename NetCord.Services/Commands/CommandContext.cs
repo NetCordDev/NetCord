@@ -9,9 +9,11 @@ public class CommandContext : ICommandContext, IUserContext, IGuildContext, ICha
     public User User => Message.Author;
     public Guild? Guild => Message.Guild;
     public GatewayClient Client { get; }
+    public IServiceProvider? Services { get; }
 
-    public CommandContext(Message message, GatewayClient client)
+    public CommandContext(Message message, GatewayClient client, IServiceProvider? services)
     {
+        Services = services;
         Message = message;
         Client = client;
     }

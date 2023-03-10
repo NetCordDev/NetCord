@@ -11,14 +11,14 @@ public abstract class ApplicationCommandContext : InteractionContext, IApplicati
     public TextChannel? Channel => Interaction.Channel;
     public User User => Interaction.User;
 
-    protected ApplicationCommandContext(GatewayClient client) : base(client)
+    protected ApplicationCommandContext(GatewayClient client, IServiceProvider? services = null) : base(client, services)
     {
     }
 }
 
 public class SlashCommandContext : ApplicationCommandContext
 {
-    public SlashCommandContext(SlashCommandInteraction interaction, GatewayClient client) : base(client)
+    public SlashCommandContext(SlashCommandInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -28,7 +28,7 @@ public class SlashCommandContext : ApplicationCommandContext
 
 public class UserCommandContext : ApplicationCommandContext
 {
-    public UserCommandContext(UserCommandInteraction interaction, GatewayClient client) : base(client)
+    public UserCommandContext(UserCommandInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -39,7 +39,7 @@ public class UserCommandContext : ApplicationCommandContext
 
 public class MessageCommandContext : ApplicationCommandContext
 {
-    public MessageCommandContext(MessageCommandInteraction interaction, GatewayClient client) : base(client)
+    public MessageCommandContext(MessageCommandInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(client, services)
     {
         Interaction = interaction;
     }

@@ -5,12 +5,15 @@ namespace NetCord.Services.Interactions;
 
 public abstract class InteractionContext : IContext
 {
-    protected InteractionContext(GatewayClient client)
+    protected InteractionContext(GatewayClient client, IServiceProvider? services)
     {
         Client = client;
+        Services = services;
     }
 
     public abstract Interaction Interaction { get; }
+
+    public IServiceProvider? Services { get; }
 
     public GatewayClient Client { get; }
 }
@@ -19,7 +22,7 @@ public class BaseButtonInteractionContext : InteractionContext
 {
     public override ButtonInteraction Interaction { get; }
 
-    public BaseButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(client)
+    public BaseButtonInteractionContext(ButtonInteraction interaction, GatewayClient client, IServiceProvider? services) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -29,7 +32,7 @@ public class BaseStringMenuInteractionContext : InteractionContext
 {
     public override StringMenuInteraction Interaction { get; }
 
-    public BaseStringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(client)
+    public BaseStringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -39,7 +42,7 @@ public class BaseEntityMenuInteractionContext : InteractionContext
 {
     public override EntityMenuInteraction Interaction { get; }
 
-    public BaseEntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(client)
+    public BaseEntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -49,7 +52,7 @@ public class BaseUserMenuInteractionContext : BaseEntityMenuInteractionContext
 {
     public override UserMenuInteraction Interaction { get; }
 
-    public BaseUserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseUserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(interaction, client, services)
     {
         Interaction = interaction;
     }
@@ -59,7 +62,7 @@ public class BaseRoleMenuInteractionContext : BaseEntityMenuInteractionContext
 {
     public override RoleMenuInteraction Interaction { get; }
 
-    public BaseRoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseRoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(interaction, client, services)
     {
         Interaction = interaction;
     }
@@ -69,7 +72,7 @@ public class BaseMentionableMenuInteractionContext : BaseEntityMenuInteractionCo
 {
     public override MentionableMenuInteraction Interaction { get; }
 
-    public BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(interaction, client, services)
     {
         Interaction = interaction;
     }
@@ -79,7 +82,7 @@ public class BaseChannelMenuInteractionContext : BaseEntityMenuInteractionContex
 {
     public override ChannelMenuInteraction Interaction { get; }
 
-    public BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client, IServiceProvider? services) : base(interaction, client, services)
     {
         Interaction = interaction;
     }
@@ -89,7 +92,7 @@ public class BaseModalSubmitInteractionContext : InteractionContext
 {
     public override ModalSubmitInteraction Interaction { get; }
 
-    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(client)
+    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client, IServiceProvider? services) : base(client, services)
     {
         Interaction = interaction;
     }
@@ -105,7 +108,7 @@ public class ButtonInteractionContext : BaseButtonInteractionContext, IUserConte
 
     public TextChannel? Channel => Interaction.Channel;
 
-    public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction, client)
+    public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
     }
 }
@@ -122,7 +125,7 @@ public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IU
 
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 
-    public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
     }
 }
@@ -139,7 +142,7 @@ public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IU
 
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 
-    public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
     }
 }
@@ -150,7 +153,7 @@ public class UserMenuInteractionContext : EntityMenuInteractionContext
 
     public IReadOnlyList<User> SelectedUsers { get; }
 
-    public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
         Interaction = interaction;
         var data = interaction.Data;
@@ -171,7 +174,7 @@ public class RoleMenuInteractionContext : EntityMenuInteractionContext
 
     public IReadOnlyList<Role> SelectedRoles { get; }
 
-    public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
         Interaction = interaction;
         var data = interaction.Data;
@@ -192,7 +195,7 @@ public class MentionableMenuInteractionContext : EntityMenuInteractionContext
 
     public IReadOnlyList<Mentionable> SelectedMentionables { get; }
 
-    public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
         Interaction = interaction;
         var data = Interaction.Data;
@@ -227,7 +230,7 @@ public class ChannelMenuInteractionContext : EntityMenuInteractionContext
 
     public IReadOnlyList<Channel> SelectedChannels { get; }
 
-    public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
         Interaction = interaction;
         var data = interaction.Data;
@@ -252,7 +255,7 @@ public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, 
 
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 
-    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction, client)
+    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client, IServiceProvider? services = null) : base(interaction, client, services)
     {
     }
 }
