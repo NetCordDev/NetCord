@@ -22,7 +22,7 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
 
 internal class PermissionsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(AutocompleteInteractionContext context, ApplicationCommandInteractionDataOption option)
+    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
     {
         return Task.FromResult<IEnumerable<ApplicationCommandOptionChoiceProperties>?>(Enum.GetNames<Permissions>().Where(p => p.Contains(option.Value!)).Select(p => new ApplicationCommandOptionChoiceProperties(p, (double)Enum.Parse<Permissions>(p))).Take(25));
     }

@@ -27,7 +27,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
         var option = interaction.Data.Options.First(o => o.Focused); ;
         if (!autocompletes.TryGetValue(option.Name, out var autocompleteProvider))
             throw new AutocompleteNotFoundException();
-        var choices = await Unsafe.As<IAutocompleteProvider<TAutocompleteContext>>(autocompleteProvider).GetChoicesAsync(context, option).ConfigureAwait(false);
+        var choices = await Unsafe.As<IAutocompleteProvider<TAutocompleteContext>>(autocompleteProvider).GetChoicesAsync(option, context).ConfigureAwait(false);
         await interaction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
     }
 }
