@@ -1,16 +1,46 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
 
+public class ApplicationCommandService<TContext, TAutocompleteContext> : ApplicationCommandService<TContext> where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
+{
+    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(configuration)
+    {
+        _supportsAutocomplete = true;
+        _autocompleteBase = typeof(IAutocompleteProvider<TAutocompleteContext>);
+    }
+
+    public async Task ExecuteAutocompleteAsync(TAutocompleteContext context)
+    {
+        var interaction = context.Interaction;
+        ApplicationCommandInfo<TContext> command;
+        lock (_commands)
+        {
+            if (!_commands.TryGetValue(interaction.Data.Id, out command!))
+                throw new ApplicationCommandNotFoundException();
+        }
+        var autocompletes = command.Autocompletes!;
+        var option = interaction.Data.Options.First(o => o.Focused); ;
+        if (!autocompletes.TryGetValue(option.Name, out var autocompleteProvider))
+            throw new AutocompleteNotFoundException();
+        var choices = await Unsafe.As<IAutocompleteProvider<TAutocompleteContext>>(autocompleteProvider).GetChoicesAsync(context, option).ConfigureAwait(false);
+        await interaction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
+    }
+}
+
 public class ApplicationCommandService<TContext> : IService where TContext : IApplicationCommandContext
 {
-    private readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
+    private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
+    private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
+    private protected bool _supportsAutocomplete;
+    private protected Type? _autocompleteBase;
+
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
-    private readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> Commands
     {
@@ -54,7 +84,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         {
             SlashCommandAttribute? slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
             if (slashCommandAttribute != null)
-                AddCommandInfo(new(method, slashCommandAttribute, _configuration));
+                AddCommandInfo(new(method, slashCommandAttribute, _configuration, _supportsAutocomplete, _autocompleteBase));
 
             UserCommandAttribute? userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
             if (userCommandAttribute != null)
@@ -207,21 +237,5 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             }
         }
         await command.InvokeAsync(values).ConfigureAwait(false);
-    }
-
-    public async Task ExecuteAutocompleteAsync(ApplicationCommandAutocompleteInteraction autocompleteInteraction)
-    {
-        var parameter = autocompleteInteraction.Data.Options.First(o => o.Focused);
-        ApplicationCommandInfo<TContext> command;
-        lock (_commands)
-        {
-            if (!_commands.TryGetValue(autocompleteInteraction.Data.Id, out command!))
-                throw new ApplicationCommandNotFoundException();
-        }
-        var autocompletes = command.Autocompletes!;
-        if (!autocompletes.TryGetValue(parameter.Name, out var autocompleteProvider))
-            throw new AutocompleteNotFoundException();
-        var choices = await autocompleteProvider.GetChoicesAsync(parameter, autocompleteInteraction).ConfigureAwait(false);
-        await autocompleteInteraction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
     }
 }

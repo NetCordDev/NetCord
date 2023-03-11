@@ -20,9 +20,9 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
     public override double? GetMinValue(SlashCommandParameter<SlashCommandContext> parameter) => 0;
 }
 
-internal class PermissionsAutocompleteProvider : IAutocompleteProvider
+internal class PermissionsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, ApplicationCommandAutocompleteInteraction interaction)
+    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(AutocompleteInteractionContext context, ApplicationCommandInteractionDataOption option)
     {
         return Task.FromResult<IEnumerable<ApplicationCommandOptionChoiceProperties>?>(Enum.GetNames<Permissions>().Where(p => p.Contains(option.Value!)).Select(p => new ApplicationCommandOptionChoiceProperties(p, (double)Enum.Parse<Permissions>(p))).Take(25));
     }

@@ -25,7 +25,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteBase)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
@@ -138,12 +138,18 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
             if (slashCommandParameterAttribute.AutocompleteProviderType != null)
             {
-                if (!slashCommandParameterAttribute.AutocompleteProviderType.IsAssignableTo(typeof(IAutocompleteProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.AutocompleteProviderType}' is not assignable to '{nameof(IAutocompleteProvider)}'.");
+                EnsureAutocompleteProviderValid(slashCommandParameterAttribute.AutocompleteProviderType);
                 AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(slashCommandParameterAttribute.AutocompleteProviderType)!;
             }
             else
-                AutocompleteProvider = TypeReader.AutocompleteProvider;
+            {
+                var autocompleteProvider = TypeReader.AutocompleteProvider;
+                if (autocompleteProvider != null)
+                {
+                    EnsureAutocompleteProviderValid(autocompleteProvider.GetType());
+                    AutocompleteProvider = autocompleteProvider;
+                }
+            }
 
             AllowedChannelTypes = slashCommandParameterAttribute.AllowedChannelTypes ?? TypeReader.AllowedChannelTypes;
             MaxValue = slashCommandParameterAttribute._maxValue ?? TypeReader.GetMaxValue(this);
@@ -158,7 +164,12 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             Description = $"Parameter of name {Name}";
             DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
             ChoicesProvider = TypeReader.ChoicesProvider;
-            AutocompleteProvider = TypeReader.AutocompleteProvider;
+            var autocompleteProvider = TypeReader.AutocompleteProvider;
+            if (autocompleteProvider != null)
+            {
+                EnsureAutocompleteProviderValid(autocompleteProvider.GetType());
+                AutocompleteProvider = autocompleteProvider;
+            }
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
             MaxValue = TypeReader.GetMaxValue(this);
             MinValue = TypeReader.GetMinValue(this);
@@ -167,6 +178,15 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+
+        void EnsureAutocompleteProviderValid(Type type)
+        {
+            if (!supportsAutocomplete)
+                throw new InvalidOperationException($"Autocomplete is not supported by this service. Use {typeof(ApplicationCommandService<,>)} instead.");
+
+            if (!type.IsAssignableTo(autocompleteBase))
+                throw new InvalidOperationException($"'{type}' is not assignable to '{autocompleteBase}'.");
+        }
     }
 
     public ApplicationCommandOptionProperties GetRawValue()

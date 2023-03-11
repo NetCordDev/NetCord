@@ -25,7 +25,7 @@ internal static class Program
     private static readonly InteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
     private static readonly InteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
     private static readonly InteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
-    private static readonly ApplicationCommandService<SlashCommandContext> _slashCommandService;
+    private static readonly ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
 
@@ -129,7 +129,7 @@ internal static class Program
                 MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client)),
                 ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client)),
                 ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client)),
-                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(applicationCommandAutocompleteInteraction),
+                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(applicationCommandAutocompleteInteraction, _client)),
                 ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client)),
                 _ => throw new("Invalid interaction"),
             });

@@ -25,7 +25,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public ApplicationCommandType Type { get; }
 
-    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(method, attribute: slashCommandAttribute, configuration)
+    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteBase) : this(method, attribute: slashCommandAttribute, configuration)
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
@@ -60,7 +60,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
                 hasDefaultValue = true;
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
-            SlashCommandParameter<TContext> newP = new(parameter, method, configuration);
+            SlashCommandParameter<TContext> newP = new(parameter, method, configuration, supportsAutocomplete, autocompleteBase);
             p[i] = newP;
             var autocompleteProvider = newP.AutocompleteProvider;
             if (autocompleteProvider != null)
