@@ -25,7 +25,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
         {
             var array = Enum.GetValues(parameter.Type);
             if (array.Length > 25)
-                throw new InvalidOperationException($"'{parameter.Type.FullName}' has too many values, max choices count is 25.");
+                throw new InvalidOperationException($"'{parameter.Type}' has too many values, max choices count is 25.");
             foreach (Enum e in array)
             {
                 var eString = e.ToString();

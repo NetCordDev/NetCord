@@ -11,7 +11,7 @@ public class InvalidDefinitionException : Exception
     [field: NonSerialized]
     public MethodInfo Method { get; }
 
-    public InvalidDefinitionException(string? message, MethodInfo method) : base(message + $" | {method.DeclaringType!.FullName}.{method.Name}")
+    public InvalidDefinitionException(string? message, MethodInfo method) : base(message + $" | {method.DeclaringType}.{method.Name}")
     {
         Method = method;
     }

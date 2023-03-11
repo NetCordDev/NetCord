@@ -31,81 +31,11 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
-        var type = parameter.ParameterType;
-        var underlyingType = Nullable.GetUnderlyingType(type);
-
-        var typeReaders = configuration.TypeReaders;
-
-        if (Attributes.TryGetValue(typeof(TypeReaderAttribute), out var attributes))
-        {
-            if (underlyingType != null)
-            {
-                if (HasDefaultValue)
-                {
-                    var d = parameter.DefaultValue;
-                    if (underlyingType.IsEnum && d != null)
-                        DefaultValue = Enum.ToObject(underlyingType, d);
-                    else
-                        DefaultValue = d;
-                }
-                Type = underlyingType;
-            }
-            else
-            {
-                if (HasDefaultValue)
-                    DefaultValue = parameter.DefaultValue;
-                Type = type;
-            }
-
-            TypeReader = TypeReaderAttributeHelper.GetTypeReader<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>((TypeReaderAttribute)attributes[0]);
-        }
-        else if (underlyingType != null)
-        {
-            if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
-            {
-                if (HasDefaultValue)
-                {
-                    var d = parameter.DefaultValue;
-                    if (underlyingType.IsEnum && d != null)
-                        DefaultValue = Enum.ToObject(underlyingType, d);
-                    else
-                        DefaultValue = d;
-                }
-                TypeReader = typeReader;
-            }
-            else if (underlyingType.IsEnum)
-            {
-                if (HasDefaultValue)
-                {
-                    var d = parameter.DefaultValue;
-                    if (d != null)
-                        DefaultValue = Enum.ToObject(underlyingType, d);
-                    else
-                        DefaultValue = d;
-                }
-                TypeReader = configuration.EnumTypeReader;
-            }
-            else
-                throw new TypeReaderNotFoundException($"Type name: '{underlyingType.FullName}' or '{type.FullName}'.");
-            Type = underlyingType;
-        }
-        else
-        {
-            if (HasDefaultValue)
-                DefaultValue = parameter.DefaultValue;
-
-            if (typeReaders.TryGetValue(type, out var typeReader))
-                TypeReader = typeReader;
-            else if (type.IsEnum)
-                TypeReader = configuration.EnumTypeReader;
-            else
-                throw new TypeReaderNotFoundException($"Type name: '{type.FullName}'.");
-            Type = type;
-        }
-
-        if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out attributes))
+        if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
         {
             var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
+            (TypeReader, Type, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(parameter.ParameterType, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+
             Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
             Description = slashCommandParameterAttribute.Description ?? $"Parameter of name {Name}";
 
@@ -159,6 +89,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
         else
         {
+            (TypeReader, Type, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(parameter.ParameterType, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
+
             Name = parameter.Name!;
             NameTranslationsProvider = TypeReader.NameTranslationsProvider;
             Description = $"Parameter of name {Name}";

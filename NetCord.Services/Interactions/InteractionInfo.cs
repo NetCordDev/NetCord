@@ -15,7 +15,7 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
     internal InteractionInfo(MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
     {
         if (method.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task).FullName}'.", method);
+            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task)}'.", method);
 
         DeclaringType = method.DeclaringType!;
 

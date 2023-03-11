@@ -57,6 +57,8 @@ public class SlashCommandParameterAttribute : Attribute
 
     public ChannelType[]? AllowedChannelTypes { get; init; }
 
+    public Type? TypeReaderType { get; init; }
+
     public Type? ChoicesProviderType { get; init; }
 
     public Type? AutocompleteProviderType { get; init; }

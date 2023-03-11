@@ -16,7 +16,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
     internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
     {
         if (method.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Commands must return '{typeof(Task).FullName}'.", method);
+            throw new InvalidDefinitionException($"Commands must return '{typeof(Task)}'.", method);
 
         Priority = attribute.Priority;
         DeclaringType = method.DeclaringType!;

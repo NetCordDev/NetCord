@@ -6,13 +6,13 @@ namespace NetCord.Test.Commands;
 public class NormalCommands : CommandModule<CommandContext>
 {
     [Command("say")]
-    public Task Say([Remainder] ReadOnlyMemory<char> text)
+    public Task Say([CommandParameter(Remainder = true)] ReadOnlyMemory<char> text)
     {
         return SendAsync(new MessageProperties() { Content = text.ToString(), AllowedMentions = AllowedMentionsProperties.None });
     }
 
     [Command("reply")]
-    public Task Reply([Remainder] string text)
+    public Task Reply([CommandParameter(Remainder = true)] string text)
     {
         return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None, MessageReference = new(Context.Message.Id) });
     }
@@ -80,14 +80,14 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("user")]
-    public async Task User([Remainder] GuildUser? user = null)
+    public async Task User([CommandParameter(Remainder = true)] GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
         await ReplyAsync(user.Username);
     }
 
     [Command("avatar")]
-    public Task Avatar([Remainder] GuildUser? user = null)
+    public Task Avatar([CommandParameter(Remainder = true)] GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
         EmbedProperties embed = new()
@@ -112,7 +112,7 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("nick", "nickname")]
-    public async Task Nickname(GuildUser user, [Remainder] string nickname)
+    public async Task Nickname(GuildUser user, [CommandParameter(Remainder = true)] string nickname)
     {
         await user.ModifyAsync(x => x.Nickname = nickname);
         await ReplyAsync(Format.Bold($"{user} updated!").ToString());

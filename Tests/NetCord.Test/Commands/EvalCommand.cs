@@ -11,7 +11,7 @@ namespace NetCord.Test.Commands;
 public class EvalCommand : CommandModule<CommandContext>
 {
     [Command("eval", Priority = 0)]
-    public async Task Eval([Remainder] string code)
+    public async Task Eval([CommandParameter(Remainder = true)] string code)
     {
         if (Context.User.Id != 484036895391875093)
         {
@@ -74,6 +74,6 @@ public class EvalCommand : CommandModule<CommandContext>
     }
 
     [Command("eval", Priority = 1)]
-    public Task Eval([Remainder] CodeBlock codeBlock)
+    public Task Eval([CommandParameter(Remainder = true)] CodeBlock codeBlock)
         => Eval(codeBlock.Code);
 }

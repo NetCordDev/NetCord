@@ -10,7 +10,7 @@ public class BanCommands : CommandModule<CommandContext>
 {
     [RequireContext<CommandContext>(Services.RequiredContext.Guild)]
     [Command("ban")]
-    public async Task Ban(UserId userId, TimeSpan deleteMessagesTime = default, [Remainder] string? reason = null)
+    public async Task Ban(UserId userId, TimeSpan deleteMessagesTime = default, [CommandParameter(Remainder = true)] string? reason = null)
     {
         await Context.Guild!.BanUserAsync(userId.Id, (int)deleteMessagesTime.TotalSeconds, new() { AuditLogReason = reason });
 
@@ -32,7 +32,7 @@ public class BanCommands : CommandModule<CommandContext>
     }
 
     [Command("unban")]
-    public async Task Unban(UserId userId, [Remainder] string? reason = null)
+    public async Task Unban(UserId userId, [CommandParameter(Remainder = true)] string? reason = null)
     {
         await Context.Guild!.UnbanUserAsync(userId.Id, new() { AuditLogReason = reason });
         await ReplyAsync(Format.Bold($"{userId} got unbanned").ToString());

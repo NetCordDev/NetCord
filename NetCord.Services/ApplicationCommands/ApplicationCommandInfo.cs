@@ -150,7 +150,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
         if (method.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Application commands must return '{typeof(Task).FullName}'.", method);
+            throw new InvalidDefinitionException($"Application commands must return '{typeof(Task)}'.", method);
 
         DeclaringType = method.DeclaringType!;
         Static = method.IsStatic;

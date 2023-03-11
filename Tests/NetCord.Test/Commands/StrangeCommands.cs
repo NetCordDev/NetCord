@@ -10,14 +10,14 @@ namespace NetCord.Test.Commands;
 public class StrangeCommands : CommandModule<CommandContext>
 {
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
-    public async Task SayDM([Remainder] string text)
+    public async Task SayDM([CommandParameter(Remainder = true)] string text)
     {
         var channel = await Context.User.GetDMChannelAsync();
         await channel.SendMessageAsync(text);
     }
 
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
-    public async Task SayDM(UserId userId, [Remainder] string text)
+    public async Task SayDM(UserId userId, [CommandParameter(Remainder = true)] string text)
     {
         var channel = await Context.Client.Rest.GetDMChannelAsync(userId.Id);
         await channel.SendMessageAsync(text);
@@ -71,7 +71,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("link")]
-    public Task Link([Remainder] Uri url)
+    public Task Link([CommandParameter(Remainder = true)] Uri url)
     {
         ActionRowProperties actionRow = new(new ButtonProperties[]
         {
@@ -122,7 +122,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("wzium")]
-    public Task Wzium([Remainder] Wzium wzium = Commands.Wzium.Wzium)
+    public Task Wzium([CommandParameter(Remainder = true)] Wzium wzium = Commands.Wzium.Wzium)
     {
         return ReplyAsync(wzium.ToString());
     }
@@ -149,7 +149,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("id")]
-    public Task Id([Remainder] UserId? userId = null)
+    public Task Id([CommandParameter(Remainder = true)] UserId? userId = null)
     {
         var id = userId != null ? userId.Id : Context.User.Id;
         var fields = new EmbedFieldProperties[]
@@ -186,7 +186,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("timestamp")]
-    public Task Timestamp([Remainder] DateTime time)
+    public Task Timestamp([CommandParameter(Remainder = true)] DateTime time)
     {
         return ReplyAsync($"\\{new Timestamp(time)}");
     }
@@ -225,7 +225,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("escape")]
-    public Task Escape([Remainder] string text)
+    public Task Escape([CommandParameter(Remainder = true)] string text)
     {
         return ReplyAsync(Format.Escape(text).ToString());
     }
@@ -238,7 +238,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task Quote(string text) => ReplyAsync(Format.Quote(text).ToString());
 
     [Command("codeblock")]
-    public Task CodeBlock([Remainder] CodeBlock codeBlock)
+    public Task CodeBlock([CommandParameter(Remainder = true)] CodeBlock codeBlock)
     {
         return ReplyAsync(codeBlock.ToString());
     }
@@ -254,7 +254,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("reverse")]
-    public Task Reverse([Remainder][TypeReader(typeof(ReverseStringTypeReader))] string s)
+    public Task Reverse([CommandParameter(Remainder = true, TypeReaderType = typeof(ReverseStringTypeReader))] string s)
     {
         return ReplyAsync(s);
     }

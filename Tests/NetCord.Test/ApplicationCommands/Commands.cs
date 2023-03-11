@@ -65,7 +65,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("percentage", "Show formatted percentage")]
-    public Task PercentageAsync([TypeReader(typeof(PercentageTypeReader))] byte percentage)
+    public Task PercentageAsync([SlashCommandParameter(TypeReaderType = typeof(PercentageTypeReader))] byte percentage)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
     }
