@@ -20,14 +20,24 @@ public class UdpSocket : IUdpSocket
         _udpClient!.Send(datagram);
     }
 
-    public Task SendAsync(ReadOnlyMemory<byte> datagram, CancellationToken cancellationToken = default) => _udpClient!.SendAsync(datagram, cancellationToken).AsTask();
+    public ValueTask SendAsync(ReadOnlyMemory<byte> datagram, CancellationToken cancellationToken = default)
+    {
+        var task = _udpClient!.SendAsync(datagram, cancellationToken);
+        if (task.IsCompletedSuccessfully)
+        {
+            _ = task.Result;
+            return default;
+        }
+
+        return new(task.AsTask());
+    }
 
     public void Dispose()
     {
         _udpClient?.Dispose();
     }
 
-    public async Task ReadAsync()
+    private async Task ReadAsync()
     {
         var client = _udpClient!;
         while (true)

@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 using NetCord.Services.Interactions;
 
 namespace NetCord.Test;

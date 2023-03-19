@@ -1,7 +1,8 @@
 ﻿using System.Buffers.Binary;
+using System.Collections.Immutable;
 using System.Net.Sockets;
 
-using NetCord.Gateway.Voice.Streams;
+using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
@@ -12,32 +13,28 @@ namespace NetCord.Gateway.Voice;
 
 public class VoiceClient : WebSocketClient
 {
-    private readonly IUdpSocket _udpSocket;
-    private readonly Uri _url;
+    public event Func<VoiceReceiveEventArgs, ValueTask>? VoiceReceive;
+    public event Func<ValueTask>? Ready;
+    public event Func<ulong, ValueTask>? UserDisconnect;
 
     public string Endpoint { get; }
     public ulong GuildId { get; }
     public ulong UserId { get; }
     public string SessionId { get; }
     public string Token { get; }
-
     public bool RedirectInputStreams { get; }
-
-    public IReadOnlyDictionary<uint, ulong> Users => _users;
-
-    private readonly Dictionary<uint, ulong> _users = new(0);
-
-    private readonly Dictionary<uint, Stream> _inputStreams = new(0);
-
     public uint Ssrc { get; private set; }
-
-    internal byte[]? _secretKey;
-
-    public event Func<VoiceReceiveEventArgs, ValueTask>? VoiceReceive;
-    public event Func<ValueTask>? Ready;
+    public ImmutableDictionary<ulong, uint> Ssrcs { get; private set; } = ImmutableDictionary<ulong, uint>.Empty;
+    public ImmutableDictionary<uint, ulong> Users { get; private set; } = ImmutableDictionary<uint, ulong>.Empty;
 
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
+
+    internal byte[]? _secretKey;
+
+    private readonly Dictionary<uint, Stream> _inputStreams = new();
+    private readonly IUdpSocket _udpSocket;
+    private readonly Uri _url;
 
     public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
     {
@@ -97,20 +94,20 @@ public class VoiceClient : WebSocketClient
                     var latency = _latencyTimer.Elapsed;
                     _reconnectTimer.Reset();
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
-                    var ready = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
+                    var ready = payload.Data.GetValueOrDefault().ToObject(JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
                     Ssrc = ready.Ssrc;
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
                     if (RedirectInputStreams)
                     {
                         TaskCompletionSource<byte[]> result = new();
-                        _udpSocket.DatagramReceive += UdpSocket_DatagramReceiveOnce;
+                        _udpSocket.DatagramReceive += HandleDatagramReceiveOnce;
                         await _udpSocket.SendAsync(CreateDatagram()).ConfigureAwait(false);
 
                         var datagram = await result.Task.ConfigureAwait(false);
                         GetIpAndPort(out var ip, out var port);
 
-                        _udpSocket.DatagramReceive += UdpSocket_DatagramReceive;
+                        _udpSocket.DatagramReceive += HandleDatagramReceive;
 
                         VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
                         await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
@@ -125,9 +122,9 @@ public class VoiceClient : WebSocketClient
                             return bytes;
                         }
 
-                        void UdpSocket_DatagramReceiveOnce(UdpReceiveResult datagram)
+                        void HandleDatagramReceiveOnce(UdpReceiveResult datagram)
                         {
-                            _udpSocket.DatagramReceive -= UdpSocket_DatagramReceiveOnce;
+                            _udpSocket.DatagramReceive -= HandleDatagramReceiveOnce;
                             result.SetResult(datagram.Buffer);
                         }
 
@@ -147,7 +144,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.SessionDescription:
                 {
-                    var sessionDescription = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
+                    var sessionDescription = payload.Data.GetValueOrDefault().ToObject(JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
                     _secretKey = sessionDescription.SecretKey;
                     InvokeLog(LogMessage.Info("Ready"));
                     var updateLatencyTask = InvokeEventAsync(Ready);
@@ -160,14 +157,16 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Speaking:
                 {
-                    var speaking = payload.Data.GetValueOrDefault().ToObject(JsonModels.JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
-                    var ssrc = speaking.Ssrc;
-                    var userId = speaking.UserId;
-                    _users[ssrc] = userId;
+                    var json = payload.Data.GetValueOrDefault().ToObject(JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
+                    var ssrc = json.Ssrc;
+                    var userId = json.UserId;
+                    Ssrcs = Ssrcs.SetItem(userId, ssrc);
+                    Users = Users.SetItem(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    OpusDecodeStream opusDecodeStream = new(voiceInStream);
-                    SodiumDecryptStream sodiumDecryptStream = new(opusDecodeStream, this);
+                    SodiumDecryptStream sodiumDecryptStream = new(voiceInStream, this);
+                    if (_inputStreams.Remove(ssrc, out var stream))
+                        stream.Dispose();
                     _inputStreams[ssrc] = sodiumDecryptStream;
                 }
                 break;
@@ -178,7 +177,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    BeginHeartbeating(payload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
+                    BeginHeartbeating(payload.Data.GetValueOrDefault().ToObject(JsonHello.JsonHelloSerializerContext.WithOptions.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:
@@ -192,13 +191,27 @@ public class VoiceClient : WebSocketClient
                 }
                 break;
             case VoiceOpcode.ClientDisconnect:
+                {
+                    var json = payload.Data.GetValueOrDefault().ToObject(JsonClientDisconnect.JsonClientDisconnectSerializerContext.WithOptions.JsonClientDisconnect);
+                    await InvokeEventAsync(UserDisconnect, json.UserId, userId =>
+                    {
+                        var oldSsrcs = Ssrcs;
+                        if (oldSsrcs.TryGetValue(userId, out var ssrc))
+                        {
+                            Ssrcs = oldSsrcs.Remove(userId);
+                            Users = Users.Remove(ssrc);
+                            if (_inputStreams.Remove(ssrc, out var stream))
+                                stream.Dispose();
+                        }
+                    }).ConfigureAwait(false);
+                }
                 break;
         }
     }
 
     internal ValueTask InvokeVoiceReceiveAsync(VoiceReceiveEventArgs data) => InvokeEventAsync(VoiceReceive, data);
 
-    private async void UdpSocket_DatagramReceive(UdpReceiveResult obj)
+    private async void HandleDatagramReceive(UdpReceiveResult obj)
     {
         var @event = VoiceReceive;
         if (@event != null)
@@ -223,30 +236,29 @@ public class VoiceClient : WebSocketClient
         return _webSocket.SendAsync(payload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesSpeakingProperties));
     }
 
-    public Stream CreatePCMStream(OpusApplication application)
+    /// <summary>
+    /// Creates a stream that you can write to to send voice. Each write must be exactly one Opus frame.
+    /// </summary>
+    /// <param name="normalizeSpeed">Whether to normalize the voice sending speed.</param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">Used before <see cref="Ready"/> event.</exception>
+    public Stream CreateOutputStream(bool normalizeSpeed = true)
     {
-        VoiceOutStream voiceOutStream = new(_udpSocket);
-        SodiumEncryptStream sodiumEncryptStream = new(voiceOutStream, this);
-        OpusEncodeStream opusEncodeStream = new(sodiumEncryptStream, application);
-        SpeedNormalizingStream speedNormalizingStream = new(opusEncodeStream);
-        SegmentingStream segmentingStream = new(speedNormalizingStream);
-        return segmentingStream;
-    }
+        if (_secretKey == null)
+            throw new InvalidOperationException($"'{nameof(VoiceClient)}' must be ready before creating an output stream.");
 
-    public Stream CreateDirectPCMStream(OpusApplication application)
-    {
-        VoiceOutStream voiceOutStream = new(_udpSocket);
-        SodiumEncryptStream sodiumEncryptStream = new(voiceOutStream, this);
-        OpusEncodeStream opusEncodeStream = new(sodiumEncryptStream, application);
-        SegmentingStream segmentingStream = new(opusEncodeStream);
-        return segmentingStream;
+        Stream stream = new VoiceOutStream(_udpSocket);
+        if (normalizeSpeed)
+            stream = new SpeedNormalizingStream(stream);
+        stream = new SodiumEncryptStream(stream, this);
+        return stream;
     }
 
     public override void Dispose()
     {
+        base.Dispose();
         _udpSocket.Dispose();
         foreach (var stream in _inputStreams.Values)
             stream.Dispose();
-        base.Dispose();
     }
 }

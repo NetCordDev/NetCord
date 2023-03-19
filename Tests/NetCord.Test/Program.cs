@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using NetCord.Gateway;
+using NetCord.Gateway.Voice;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
@@ -84,10 +85,11 @@ internal static class Program
     private static async ValueTask Client_VoiceServerUpdate(VoiceServerUpdateEventArgs arg)
     {
         var state = _voiceData[arg.GuildId];
-        Gateway.Voice.VoiceClient client = new(state.UserId, state.SessionId, arg.Endpoint!, arg.GuildId, arg.Token, new()
+        VoiceClient client = new(state.UserId, state.SessionId, arg.Endpoint!, arg.GuildId, arg.Token, new()
         {
             RedirectInputStreams = true,
         });
+
         client.Log += (message) =>
         {
             Console.ForegroundColor = ConsoleColor.Green;
@@ -95,22 +97,28 @@ internal static class Program
             Console.ResetColor();
             return default;
         };
+
         await client.StartAsync();
-        var stream = client.CreatePCMStream(Gateway.Voice.OpusApplication.Audio);
         await client.ReadyAsync;
-        await client.EnterSpeakingStateAsync(Gateway.Voice.SpeakingFlags.Microphone);
-        var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; //00:12:08
+
+        var opusStream = client.CreateOutputStream(/*false*/);
+        var stream = new OpusEncodeStream(opusStream, VoiceChannels.Stereo, OpusApplication.Audio);
+
+        await client.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
+        var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; // 00:12:08
+        //var url = "https://file-examples.com/storage/fef1706276640fa2f99a5a4/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
             Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
             RedirectStandardOutput = true,
         })!;
+
         await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
         await stream.FlushAsync();
-        await _client.UpdateVoiceStateAsync(new VoiceStateProperties(arg.GuildId, null));
 
-        //client.VoiceReceive += args => stream.WriteAsync(args.Frame);
+        //client.VoiceReceive += args => opusStream.WriteAsync(args.Frame);
         await Task.Delay(-1);
     }
 

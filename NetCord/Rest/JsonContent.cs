@@ -26,7 +26,7 @@ public class JsonContent<T> : HttpContent
     }
 }
 
-file static class JsonContent
+static file class JsonContent
 {
     internal static readonly MediaTypeHeaderValue _contentType = new("application/json");
 }

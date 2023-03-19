@@ -10,6 +10,11 @@ public class VoiceReceiveEventArgs
     }
 
     public uint Ssrc { get; }
+
     public ulong UserId { get; }
+
+    /// <summary>
+    /// Opus frame.
+    /// </summary>
     public ReadOnlyMemory<byte> Frame { get; }
 }

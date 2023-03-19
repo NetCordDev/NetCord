@@ -1,18 +1,7 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public abstract class RewritingStream : Stream
+internal abstract class VoiceStream : Stream
 {
-    private protected readonly Stream _next;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="next">The stream that this stream is writing to.</param>
-    private protected RewritingStream(Stream next)
-    {
-        _next = next;
-    }
-
     public override bool CanRead => false;
     public override bool CanSeek => false;
     public override bool CanWrite => true;
@@ -21,11 +10,9 @@ public abstract class RewritingStream : Stream
 
     public override void Flush()
     {
-        _next.Flush();
     }
 
-    public override Task FlushAsync(CancellationToken cancellationToken)
-        => _next.FlushAsync(cancellationToken);
+    public override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
     public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
@@ -42,9 +29,4 @@ public abstract class RewritingStream : Stream
         => WriteAsync(new ReadOnlyMemory<byte>(buffer, offset, count), cancellationToken).AsTask();
 
     public abstract override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default);
-
-    protected override void Dispose(bool disposing)
-    {
-        _next.Dispose();
-    }
 }

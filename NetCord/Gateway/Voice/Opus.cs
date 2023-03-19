@@ -2,41 +2,35 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal static class Opus
+public static class Opus
 {
     public const int SamplingRate = 48_000;
-    public const int Channels = 2;
     public const int FrameDuration = 20;
-    public const int FrameSamplesPerChannel = SamplingRate / 1000 * FrameDuration;
-    public const int SampleBytes = sizeof(short) * Channels;
-    public const int FrameSize = FrameSamplesPerChannel * SampleBytes;
+    public const int SamplesPerChannel = SamplingRate / 1000 * FrameDuration;
+    public const int MaxOpusFrameLength = (255 * 4) + 255; // https://www.rfc-editor.org/rfc/rfc6716#section-3.2.1
 
-    /// <param name="Fs">Sampling rate of input signal (Hz) This must be one of 8000, 12000, 16000, 24000, or 48000.</param>
-    /// <param name="channels">Number of channels (1 or 2) in input signal.</param>
-    /// <param name="application">Coding mode.</param>
-    /// <param name="error"></param>
-    /// <returns>Pointer to OpusEncoder.</returns>
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="channels">Number of channels.</param>
+    /// <returns></returns>
+    public static int GetFrameSize(VoiceChannels channels) => SamplesPerChannel * sizeof(short) * (int)channels;
+
     [DllImport("opus", EntryPoint = "opus_encoder_create", CallingConvention = CallingConvention.Cdecl)]
-    public static extern OpusEncoderHandle OpusEncoderCreate(int Fs, int channels, OpusApplication application, out OpusError error);
+    internal static extern OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
 
     [DllImport("opus", EntryPoint = "opus_encoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void OpusEncoderDestroy(nint st);
+    internal static extern void OpusEncoderDestroy(nint st);
 
-    /// <param name="st">Encoder state.</param>
-    /// <param name="pcm">Input signal (interleaved if 2 channels). Length is <paramref name="frame_size"/>*channels*<see langword="sizeof"/>(<see langword="short"/>).</param>
-    /// <param name="frame_size">Number of samples per channel in the input signal. This must be an Opus frame size for the encoder's sampling rate. For example, at 48 kHz the permitted values are 120, 240, 480, 960, 1920, and 2880. Passing in a duration of less than 10 ms (480 samples at 48 kHz) will prevent the encoder from using the LPC or hybrid modes.</param>
-    /// <param name="data">Output payload. This must contain storage for at least <paramref name="max_data_bytes"/>.</param>
-    /// <param name="max_data_bytes">Size of the allocated memory for the output payload. This may be used to impose an upper limit on the instant bitrate, but should not be used as the only bitrate control.</param>
-    /// <returns>The length of the encoded packet (in bytes) on success or a negative error code (see Error codes) on failure.</returns>
     [DllImport("opus", EntryPoint = "opus_encode", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int OpusEncode(OpusEncoderHandle st, short* pcm, int frame_size, byte* data, int max_data_bytes);
+    internal static extern unsafe int OpusEncode(OpusEncoderHandle st, short* pcm, int frame_size, byte* data, int max_data_bytes);
 
     [DllImport("opus", EntryPoint = "opus_decoder_create", CallingConvention = CallingConvention.Cdecl)]
-    public static extern OpusDecoderHandle OpusDecoderCreate(int Fs, int channels, out OpusError error);
+    internal static extern OpusDecoderHandle OpusDecoderCreate(int Fs, VoiceChannels channels, out OpusError error);
 
     [DllImport("opus", EntryPoint = "opus_decoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    public static extern void OpusDecoderDestroy(nint st);
+    internal static extern void OpusDecoderDestroy(nint st);
 
     [DllImport("opus", EntryPoint = "opus_decode", CallingConvention = CallingConvention.Cdecl)]
-    public static extern unsafe int OpusDecode(OpusDecoderHandle st, byte* data, int len, short* pcm, int frame_size, int decode_fec);
+    internal static extern unsafe int OpusDecode(OpusDecoderHandle st, byte* data, int len, short* pcm, int frame_size, int decode_fec);
 }

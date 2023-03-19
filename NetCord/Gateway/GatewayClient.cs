@@ -204,7 +204,7 @@ public partial class GatewayClient : WebSocketClient
                 }
                 break;
             case GatewayOpcode.Hello:
-                BeginHeartbeating(payload.Data.GetValueOrDefault().GetProperty("heartbeat_interval").GetDouble());
+                BeginHeartbeating(payload.Data.GetValueOrDefault().ToObject(JsonHello.JsonHelloSerializerContext.WithOptions.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);

@@ -6,7 +6,7 @@ public interface IUdpSocket : IDisposable
 {
     public event Action<UdpReceiveResult>? DatagramReceive;
 
-    public Task SendAsync(ReadOnlyMemory<byte> datagram, CancellationToken cancellationToken = default);
+    public ValueTask SendAsync(ReadOnlyMemory<byte> datagram, CancellationToken cancellationToken = default);
 
     public void Send(ReadOnlySpan<byte> datagram);
 
