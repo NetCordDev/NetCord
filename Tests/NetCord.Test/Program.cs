@@ -3,6 +3,7 @@ using System.Reflection;
 
 using NetCord.Gateway;
 using NetCord.Gateway.Voice;
+using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
@@ -46,6 +47,7 @@ internal static class Program
         _client.InteractionCreate += Client_InteractionCreate;
         _client.VoiceStateUpdate += Client_VoiceStateUpdate;
         _client.VoiceServerUpdate += Client_VoiceServerUpdate;
+        _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
         _buttonInteractionService.AddModules(assembly);
@@ -74,6 +76,17 @@ internal static class Program
             Console.WriteLine(await ex.GetDiscordErrorMessageAsync());
         }
         await Task.Delay(-1);
+    }
+
+    private static async ValueTask Client_GuildAuditLogEntryCreate(AuditLogEntry entry)
+    {
+        if (entry.ActionType is AuditLogEvent.ChannelUpdate)
+        {
+            if (entry.TryGetChange<JsonChannel, string>(c => c.Name, JsonChannel.JsonChannelSerializerContext.WithOptions.String, out var change))
+                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue} new: {change.NewValue}");
+            else
+                await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");
+        }
     }
 
     private static ValueTask Client_VoiceStateUpdate(VoiceState arg)

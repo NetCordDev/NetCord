@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json.Serialization.Metadata;
 
@@ -14,7 +15,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     public AuditLogEntry(JsonAuditLogEntry jsonModel)
     {
         _jsonModel = jsonModel;
-        Changes = _jsonModel.Changes.SelectOrEmpty(c => new AuditLogChange(c));
+        Changes = _jsonModel.Changes.ToDictionaryOrEmpty(c => c.Key, c => new AuditLogChange(c));
         if (_jsonModel.Options != null)
             Options = new(_jsonModel.Options);
     }
@@ -29,31 +30,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <summary>
     /// Changes made to the <see cref="TargetId"/>.
     /// </summary>
-    public IEnumerable<AuditLogChange> Changes { get; }
-
-    /// <summary>
-    /// Finds specified change based on <paramref name="expression"/>.
-    /// </summary>
-    /// <typeparam name="TObject"></typeparam>
-    /// <typeparam name="TValue"></typeparam>
-    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
-    /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
-    /// <returns></returns>
-    /// <exception cref="EntityNotFoundException"></exception>
-    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue>> expression, JsonTypeInfo<TValue> jsonTypeInfo) where TObject : JsonEntity
-    {
-        if (_jsonModel.Changes == null)
-            throw new EntityNotFoundException();
-
-        var member = GetMemberAccess(expression);
-        var name = member.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()!.Name;
-
-        var result = _jsonModel.Changes.FirstOrDefault(c => c.Key == name);
-        if (result == null)
-            throw new EntityNotFoundException();
-
-        return new(result, jsonTypeInfo);
-    }
+    public IReadOnlyDictionary<string, AuditLogChange> Changes { get; }
 
     /// <summary>
     /// Id of user that made the changes.
@@ -74,6 +51,97 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// Reason for the change (1-512 characters).
     /// </summary>
     public string? Reason => _jsonModel.Reason;
+
+    private bool TryGetChangeModel<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out JsonAuditLogChange model)
+    {
+        var member = GetMemberAccess(expression);
+        var name = member.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()!.Name;
+
+        if (Changes.TryGetValue(name, out var result))
+        {
+            model = ((IJsonModel<JsonAuditLogChange>)result).JsonModel;
+            return true;
+        }
+
+        model = null!;
+        return false;
+    }
+
+    /// <summary>
+    /// Tries to find specified change based on <paramref name="expression"/>.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
+    /// <param name="change">The result.</param>
+    /// <returns></returns>
+    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out AuditLogChange<TValue> change) where TObject : JsonEntity
+    {
+        if (TryGetChangeModel(expression, out var model))
+        {
+            change = new(model);
+            return true;
+        }
+
+        change = null!;
+        return false;
+    }
+
+    /// <summary>
+    /// Finds specified change based on <paramref name="expression"/>.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
+    /// <returns></returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression) where TObject : JsonEntity
+    {
+        if (TryGetChange(expression, out var value))
+            return value;
+
+        throw new EntityNotFoundException();
+    }
+
+    /// <summary>
+    /// Tries to find specified change based on <paramref name="expression"/>.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
+    /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
+    /// <param name="change">The result.</param>
+    /// <returns></returns>
+    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo, [NotNullWhen(true)] out AuditLogChange<TValue> change) where TObject : JsonEntity
+    {
+        if (TryGetChangeModel(expression, out var model))
+        {
+            change = new(model, jsonTypeInfo);
+            return true;
+        }
+
+        change = null!;
+        return false;
+    }
+
+    /// <summary>
+    /// Finds specified change based on <paramref name="expression"/>.
+    /// </summary>
+    /// <typeparam name="TObject"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
+    /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
+    /// <returns></returns>
+    /// <exception cref="EntityNotFoundException"></exception>
+    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo) where TObject : JsonEntity
+    {
+        if (TryGetChange(expression, jsonTypeInfo, out var value))
+            return value;
+
+        throw new EntityNotFoundException();
+    }
 
     #region From https://github.com/dotnet/efcore/blob/27a83b9ad5f6ce7e13c6fbdec8f50a4aa63fb811/src/EFCore/Infrastructure/ExpressionExtensions.cs
     private static MemberInfo GetMemberAccess(LambdaExpression memberAccessExpression)

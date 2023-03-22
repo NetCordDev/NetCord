@@ -11,13 +11,16 @@ public static class Serialization
         get => new(_options);
     }
 
+    internal static JsonSerializerOptions OriginalOptions => _options;
+
     private static readonly JsonSerializerOptions _options;
 
     static Serialization()
     {
-        _options = new();
-        _options.Converters.Add(new JsonConverters.UInt64Converter());
-        _options.Converters.Add(new JsonConverters.CultureInfoConverter());
-        _options.Converters.Add(new JsonConverters.PermissionsConverter());
+        JsonSerializerOptions options = new();
+        options.Converters.Add(new JsonConverters.UInt64Converter());
+        options.Converters.Add(new JsonConverters.CultureInfoConverter());
+        options.Converters.Add(new JsonConverters.PermissionsConverter());
+        _options = options;
     }
 }

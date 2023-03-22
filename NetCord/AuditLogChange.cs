@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization.Metadata;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization.Metadata;
 
 using NetCord.JsonModels;
 
@@ -29,25 +30,45 @@ public class AuditLogChange : IJsonModel<JsonAuditLogChange>
     /// </summary>
     public bool HasOldValue => _jsonModel.OldValue.HasValue;
 
-    public AuditLogChange<TValue> GetWithValues<TValue>(JsonTypeInfo<TValue> jsonTypeInfo) => new(_jsonModel, jsonTypeInfo);
+    /// <summary>
+    /// Gets the change with values associated.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <returns></returns>
+    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    public AuditLogChange<TValue> WithValues<TValue>() => new(_jsonModel);
+
+    /// <summary>
+    /// Gets the change with values associated.
+    /// </summary>
+    /// <typeparam name="TValue"></typeparam>
+    /// <param name="jsonTypeInfo"></param>
+    /// <returns></returns>
+    public AuditLogChange<TValue> WithValues<TValue>(JsonTypeInfo<TValue> jsonTypeInfo) => new(_jsonModel, jsonTypeInfo);
 }
 
 public class AuditLogChange<TValue> : AuditLogChange
 {
-    private readonly JsonTypeInfo<TValue> _jsonTypeInfo;
-
     public AuditLogChange(JsonAuditLogChange jsonModel, JsonTypeInfo<TValue> jsonTypeInfo) : base(jsonModel)
     {
-        _jsonTypeInfo = jsonTypeInfo;
+        NewValue = jsonModel.NewValue!.Value.ToObject(jsonTypeInfo);
+        OldValue = jsonModel.OldValue!.Value.ToObject(jsonTypeInfo);
+    }
+
+    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    public AuditLogChange(JsonAuditLogChange jsonModel) : base(jsonModel)
+    {
+        NewValue = jsonModel.NewValue!.Value.ToObject<TValue>();
+        OldValue = jsonModel.OldValue!.Value.ToObject<TValue>();
     }
 
     /// <summary>
     /// New value of the key.
     /// </summary>
-    public TValue? NewValue => _jsonModel.NewValue!.Value.ToObject(_jsonTypeInfo);
+    public TValue? NewValue { get; }
 
     /// <summary>
     /// Old value of the key.
     /// </summary>
-    public TValue? OldValue => _jsonModel.OldValue!.Value.ToObject(_jsonTypeInfo);
+    public TValue? OldValue { get; }
 }
