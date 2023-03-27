@@ -10,7 +10,7 @@ public class GatewayClientConfiguration
     public GatewayIntents Intents { get; init; } = GatewayIntents.AllNonPrivileged;
     public int? LargeThreshold { get; init; }
     public PresenceProperties? Presence { get; init; }
-    public ShardProperties? Shard { get; init; }
+    public Shard? Shard { get; init; }
     public IWebSocket? WebSocket { get; init; }
     public bool CacheDMChannels { get; init; } = true;
     public Rest.RestClientConfiguration? RestClientConfiguration { get; init; }

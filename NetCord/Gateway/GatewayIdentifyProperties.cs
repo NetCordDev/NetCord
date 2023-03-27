@@ -24,7 +24,7 @@ internal class GatewayIdentifyProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("shard")]
-    public ShardProperties? Shard { get; set; }
+    public Shard? Shard { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("presence")]
