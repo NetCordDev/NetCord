@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 using NetCord.Rest;
 
@@ -51,12 +52,12 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("explicit_content_filter")]
     public ContentFilter ContentFilter { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonRoleArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonRoleArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("roles")]
-    public Dictionary<ulong, JsonRole> Roles { get; set; }
+    public ImmutableDictionary<ulong, JsonRole> Roles { get; set; }
 
     [JsonPropertyName("emojis")]
-    public List<JsonEmoji> Emojis { get; set; }
+    public ImmutableArray<JsonEmoji> Emojis { get; set; }
 
     [JsonPropertyName("features")]
     public string[] Features { get; set; }
@@ -88,25 +89,25 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("member_count")]
     public int UserCount { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("voice_states")]
-    public Dictionary<ulong, JsonVoiceState> VoiceStates { get; set; }
+    public ImmutableDictionary<ulong, JsonVoiceState> VoiceStates { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonGuildUserArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonGuildUserArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("members")]
-    public Dictionary<ulong, JsonGuildUser> Users { get; set; }
+    public ImmutableDictionary<ulong, JsonGuildUser> Users { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("channels")]
-    public Dictionary<ulong, JsonChannel> Channels { get; set; }
+    public ImmutableDictionary<ulong, JsonChannel> Channels { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("threads")]
-    public Dictionary<ulong, JsonChannel> ActiveThreads { get; set; }
+    public ImmutableDictionary<ulong, JsonChannel> ActiveThreads { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonPresenceArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonPresenceArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("presences")]
-    public Dictionary<ulong, JsonPresence> Presences { get; set; }
+    public ImmutableDictionary<ulong, JsonPresence> Presences { get; set; }
 
     [JsonPropertyName("max_presences")]
     public int? MaxPresences { get; set; }
@@ -150,16 +151,16 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("nsfw_level")]
     public NsfwLevel NsfwLevel { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonStageInstanceArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonStageInstanceArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("stage_instances")]
-    public Dictionary<ulong, JsonStageInstance> StageInstances { get; set; }
+    public ImmutableDictionary<ulong, JsonStageInstance> StageInstances { get; set; }
 
     [JsonPropertyName("stickers")]
-    public List<JsonSticker> Stickers { get; set; }
+    public ImmutableArray<JsonSticker> Stickers { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonGuildScheduledEventArrayToDictionaryConverter))]
+    [JsonConverter(typeof(JsonConverters.JsonGuildScheduledEventArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("guild_scheduled_events")]
-    public Dictionary<ulong, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
+    public ImmutableDictionary<ulong, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumPropressBarEnabled { get; set; }

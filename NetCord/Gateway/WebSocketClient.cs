@@ -53,6 +53,7 @@ public abstract class WebSocketClient : IDisposable
     private protected readonly IWebSocket _webSocket;
     private protected readonly LatencyTimer _latencyTimer = new();
     private protected readonly ReconnectTimer _reconnectTimer = new();
+    private protected readonly object _eventsLock = new();
 
     private protected CancellationTokenSource? _tokenSource;
     private protected CancellationToken _token;
@@ -130,6 +131,24 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
+                ValueTask task;
+                lock (_eventsLock)
+                    task = log(logMessage);
+                await task.ConfigureAwait(false);
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    private async void InvokeLogWithoutLock(LogMessage logMessage)
+    {
+        var log = Log;
+        if (log != null)
+        {
+            try
+            {
                 await log(logMessage).ConfigureAwait(false);
             }
             catch
@@ -144,84 +163,105 @@ public abstract class WebSocketClient : IDisposable
     private protected ValueTask InvokeResumedEventAsync()
         => InvokeEventAsync(Resumed);
 
-    private protected async ValueTask InvokeEventAsync(Func<ValueTask>? @event)
-    {
-        if (@event != null)
-        {
-            try
-            {
-                await @event().ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
-        }
-    }
-
-    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
-    {
-        if (@event != null)
-        {
-            try
-            {
-                await @event(dataFunc()).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
-        }
-    }
-
-    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
-    {
-        if (@event != null)
-        {
-            try
-            {
-                await @event(data).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
-        }
-    }
-
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T dataField)
+    private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
     {
         if (@event != null)
         {
             ValueTask task;
-            try
-            {
-                task = @event(data);
-                dataField = data;
-            }
-            catch (Exception ex)
-            {
-                dataField = data;
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
-            return AwaitEventAsync();
-
-            async ValueTask AwaitEventAsync()
+            lock (_eventsLock)
             {
                 try
                 {
-                    await task.ConfigureAwait(false);
+                    task = @event();
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
                 }
             }
+
+            return AwaitEventAsync(task);
+        }
+        else
+            return default;
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            var data = dataFunc();
+            lock (_eventsLock)
+            {
+                try
+                {
+                    task = @event(data);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
+                }
+            }
+
+            return AwaitEventAsync(task);
+        }
+        else
+            return default;
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            lock (_eventsLock)
+            {
+                try
+                {
+                    task = @event(data);
+                }
+                catch (Exception ex)
+                {
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
+                }
+            }
+
+            return AwaitEventAsync(task);
+        }
+        else
+            return default;
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T dataField) where T : class
+    {
+        if (@event != null)
+        {
+            ValueTask task;
+            lock (_eventsLock)
+            {
+                try
+                {
+                    task = @event(data);
+                    dataField = data;
+                }
+                catch (Exception ex)
+                {
+                    dataField = data;
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
+                }
+            }
+
+            return AwaitEventAsync(task);
         }
         else
         {
-            dataField = data;
+            lock (_eventsLock)
+                dataField = data;
             return default;
         }
     }
@@ -231,94 +271,155 @@ public abstract class WebSocketClient : IDisposable
         if (@event != null)
         {
             ValueTask task;
-            try
-            {
-                task = @event(data);
-                dataField = data;
-            }
-            catch (Exception ex)
-            {
-                dataField = data;
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
-            return AwaitEventAsync();
-
-            async ValueTask AwaitEventAsync()
+            lock (_eventsLock)
             {
                 try
                 {
-                    await task.ConfigureAwait(false);
+                    task = @event(data);
+                    dataField = data;
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    dataField = data;
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
                 }
             }
+
+            return AwaitEventAsync(task);
         }
         else
         {
-            dataField = data;
+            lock (_eventsLock)
+                dataField = data;
             return default;
         }
     }
 
-    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
     {
         if (@event != null)
         {
             ValueTask task;
-            try
+            lock (_eventsLock)
             {
-                task = @event(data);
-                updateData(data);
+                try
+                {
+                    task = @event(data);
+                    updateData(data);
+                }
+                catch (Exception ex)
+                {
+                    updateData(data);
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
+                }
             }
-            catch (Exception ex)
-            {
-                updateData(data);
-                InvokeLog(LogMessage.Error(ex));
-                return;
-            }
-            try
-            {
-                await task.ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+
+            return AwaitEventAsync(task);
         }
         else
-            updateData(data);
+        {
+            lock (_eventsLock)
+                updateData(data);
+            return default;
+        }
     }
 
-    private protected async ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
     {
         if (@event != null)
         {
             ValueTask task;
-            try
+            var data = dataFunc();
+            lock (_eventsLock)
             {
-                task = @event(dataFunc());
-                updateData();
+                try
+                {
+                    task = @event(data);
+                    updateData();
+                }
+                catch (Exception ex)
+                {
+                    updateData();
+                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    return default;
+                }
             }
-            catch (Exception ex)
-            {
-                updateData();
-                InvokeLog(LogMessage.Error(ex));
-                return;
-            }
-            try
-            {
-                await task.ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
+
+            return AwaitEventAsync(task);
         }
         else
-            updateData();
+        {
+            lock (_eventsLock)
+                updateData();
+            return default;
+        }
+    }
+
+    private protected async ValueTask InvokeEventAsync<TPartial, T>(Func<T, ValueTask>? @event, Func<TPartial> partialDataFunc, Func<TPartial, T> dataFunc, Func<TPartial, bool> cacheFunc, Func<TPartial, SemaphoreSlim> semaphoreFunc, Func<TPartial, ValueTask> cacheAsyncFunc)
+    {
+        if (@event != null)
+        {
+            var partialData = partialDataFunc();
+            ValueTask task;
+            if (cacheFunc(partialData))
+            {
+                var semaphore = semaphoreFunc(partialData);
+                await semaphore.WaitAsync().ConfigureAwait(false);
+                try
+                {
+                    await cacheAsyncFunc(partialData).ConfigureAwait(false);
+                    var data = dataFunc(partialData);
+                    lock (_eventsLock)
+                    {
+                        try
+                        {
+                            task = @event(data);
+                        }
+                        catch (Exception ex)
+                        {
+                            InvokeLogWithoutLock(LogMessage.Error(ex));
+                            return;
+                        }
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+            else
+            {
+                var data = dataFunc(partialData);
+                lock (_eventsLock)
+                {
+                    try
+                    {
+                        task = @event(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        InvokeLogWithoutLock(LogMessage.Error(ex));
+                        return;
+                    }
+                }
+            }
+
+            await AwaitEventAsync(task).ConfigureAwait(false);
+        }
+    }
+
+    private async ValueTask AwaitEventAsync(ValueTask task)
+    {
+        try
+        {
+            await task.ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
+        }
     }
 
     public virtual void Dispose()

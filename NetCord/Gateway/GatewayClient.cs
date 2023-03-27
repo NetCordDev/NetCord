@@ -84,6 +84,9 @@ public partial class GatewayClient : WebSocketClient
     public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
     public ImmutableDictionary<ulong, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
 
+    private readonly object? _dmsLock;
+    private readonly Dictionary<ulong, SemaphoreSlim>? _dmSemaphores;
+
     /// <summary>
     /// Is <see langword="null"/> before <see cref="Ready"/> event.
     /// </summary>
@@ -106,6 +109,11 @@ public partial class GatewayClient : WebSocketClient
         _configuration = configuration;
         _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
         Rest = new(token, configuration.RestClientConfiguration);
+        if (configuration.CacheDMChannels)
+        {
+            _dmsLock = new();
+            _dmSemaphores = new();
+        }
     }
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
@@ -247,11 +255,19 @@ public partial class GatewayClient : WebSocketClient
                     await InvokeEventAsync(Ready, args, data =>
                     {
                         _user = args.User;
-                        foreach (var channel in args.DMChannels)
-                            if (channel is GroupDMChannel groupDm)
-                                GroupDMChannels = GroupDMChannels.Add(groupDm.Id, groupDm);
-                            else if (channel is DMChannel dm)
-                                DMChannels = DMChannels.Add(dm.Id, dm);
+                        if (_configuration.CacheDMChannels)
+                        {
+                            lock (_dmsLock!)
+                            {
+                                foreach (var channel in args.DMChannels)
+                                {
+                                    if (channel is GroupDMChannel groupDm)
+                                        GroupDMChannels = GroupDMChannels.SetItem(groupDm.Id, groupDm);
+                                    else if (channel is DMChannel dm)
+                                        DMChannels = DMChannels.SetItem(dm.Id, dm);
+                                }
+                            }
+                        }
                         SessionId = args.SessionId;
                         Shard = args.Shard;
                         ApplicationId = args.ApplicationId;
@@ -308,7 +324,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(guildId, out var guild))
                         {
                             guild.Channels = guild.Channels.SetItem(channel.Id, channel);
-                            guild._jsonModel.Channels[json.Id] = json;
+                            guild._jsonModel.Channels = guild._jsonModel.Channels.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -323,7 +339,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(guildId, out var guild))
                         {
                             guild.Channels = guild.Channels.SetItem(channel.Id, channel);
-                            guild._jsonModel.Channels[json.Id] = json;
+                            guild._jsonModel.Channels = guild._jsonModel.Channels.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -338,7 +354,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(guildId, out var guild))
                         {
                             guild.Channels = guild.Channels.Remove(channel.Id);
-                            guild._jsonModel.Channels.Remove(json.Id);
+                            guild._jsonModel.Channels = guild._jsonModel.Channels.Remove(json.Id);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -357,7 +373,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(thread.GuildId, out var guild))
                         {
                             guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
-                            guild._jsonModel.ActiveThreads[json.Id] = json;
+                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -371,7 +387,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(thread.GuildId, out var guild))
                         {
                             guild.ActiveThreads = guild.ActiveThreads.SetItem(t.Id, t);
-                            guild._jsonModel.ActiveThreads[json.Id] = json;
+                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -385,19 +401,23 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(guildId, out var guild))
                         {
                             guild.ActiveThreads = guild.ActiveThreads.Remove(json.Id);
-                            guild._jsonModel.ActiveThreads.Remove(json.Id);
+                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.Remove(json.Id);
                         }
                     }).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_LIST_SYNC":
                 {
-                    GuildThreadListSyncEventArgs args = new(data.ToObject(JsonGuildThreadListSyncEventArgs.JsonGuildThreadListSyncEventArgsSerializerContext.WithOptions.JsonGuildThreadListSyncEventArgs), Rest);
+                    var json = data.ToObject(JsonGuildThreadListSyncEventArgs.JsonGuildThreadListSyncEventArgsSerializerContext.WithOptions.JsonGuildThreadListSyncEventArgs);
+                    GuildThreadListSyncEventArgs args = new(json, Rest);
                     var guildId = args.GuildId;
                     await InvokeEventAsync(GuildThreadListSync, args, args =>
                     {
                         if (TryGetGuild(guildId, out var guild))
+                        {
                             guild.ActiveThreads = args.Threads;
+                            guild._jsonModel.ActiveThreads = json.Threads.ToImmutableDictionary(t => t.Id);
+                        }
                     }).ConfigureAwait(false);
                 }
                 break;
@@ -471,8 +491,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Emojis = args.Emojis;
-                            guild._jsonModel.Emojis.Clear();
-                            guild._jsonModel.Emojis.AddRange(json.Emojis);
+                            guild._jsonModel.Emojis = json.Emojis;
                         }
                     }).ConfigureAwait(false);
                 }
@@ -485,8 +504,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Stickers = args.Stickers;
-                            guild._jsonModel.Stickers.Clear();
-                            guild._jsonModel.Stickers.AddRange(json.Stickers);
+                            guild._jsonModel.Stickers = json.Stickers;
                         }
                     }).ConfigureAwait(false);
                 }
@@ -504,7 +522,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(user.GuildId, out var guild))
                         {
                             guild.Users = guild.Users.SetItem(user.Id, user);
-                            guild._jsonModel.Users[json.User.Id] = json;
+                            guild._jsonModel.Users = guild._jsonModel.Users.SetItem(json.User.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -517,7 +535,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(user.GuildId, out var guild))
                         {
                             guild.Users = guild.Users.SetItem(user.Id, user);
-                            guild._jsonModel.Users[json.User.Id] = json;
+                            guild._jsonModel.Users = guild._jsonModel.Users.SetItem(json.User.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -530,7 +548,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Users = guild.Users.Remove(args.User.Id);
-                            guild._jsonModel.Users.Remove(json.User.Id);
+                            guild._jsonModel.Users = guild._jsonModel.Users.Remove(json.User.Id);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -543,14 +561,12 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Users = guild.Users.SetItems(args.Users);
-                            foreach (var user in json.Users)
-                                guild._jsonModel.Users[user.User.Id] = user;
+                            guild._jsonModel.Users = guild._jsonModel.Users.SetItems(json.Users.Select(u => new KeyValuePair<ulong, JsonGuildUser>(u.User.Id, u)));
 
                             if (args.Presences != null)
                             {
                                 guild.Presences = guild.Presences.SetItems(args.Presences);
-                                foreach (var presence in json.Presences!)
-                                    guild._jsonModel.Presences[presence.User.Id] = presence;
+                                guild._jsonModel.Presences = guild._jsonModel.Presences.SetItems(json.Presences!.Select(p => new KeyValuePair<ulong, JsonPresence>(p.User.Id, p)));
                             }
                         }
                     }).ConfigureAwait(false);
@@ -564,7 +580,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
-                            guild._jsonModel.Roles[json.Role.Id] = json.Role;
+                            guild._jsonModel.Roles = guild._jsonModel.Roles.SetItem(json.Role.Id, json.Role);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -577,7 +593,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
-                            guild._jsonModel.Roles[json.Role.Id] = json.Role;
+                            guild._jsonModel.Roles = guild._jsonModel.Roles.SetItem(json.Role.Id, json.Role);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -590,7 +606,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(args.GuildId, out var guild))
                         {
                             guild.Roles = guild.Roles.Remove(args.RoleId);
-                            guild._jsonModel.Roles.Remove(json.RoleId);
+                            guild._jsonModel.Roles = guild._jsonModel.Roles.Remove(json.RoleId);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -603,7 +619,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(scheduledEvent.GuildId, out var guild))
                         {
                             guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
-                            guild._jsonModel.ScheduledEvents[json.Id] = json;
+                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -616,7 +632,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(scheduledEvent.GuildId, out var guild))
                         {
                             guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
-                            guild._jsonModel.ScheduledEvents[json.Id] = json;
+                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -629,7 +645,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(scheduledEvent.GuildId, out var guild))
                         {
                             guild.ScheduledEvents = guild.ScheduledEvents.Remove(scheduledEvent.Id);
-                            guild._jsonModel.ScheduledEvents.Remove(json.Id);
+                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.Remove(json.Id);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -661,11 +677,19 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "INTERACTION_CREATE":
                 {
-                    JsonInteraction json = data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction);
-                    if (!json.GuildId.HasValue && json.ChannelId.HasValue)
-                        await CacheChannelAsync(json.ChannelId.GetValueOrDefault()).ConfigureAwait(false);
-
-                    await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(json, this)).ConfigureAwait(false);
+                    await InvokeEventAsync(
+                        InteractionCreate,
+                        () => data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction),
+                        json => Interaction.CreateFromJson(json, this),
+                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && json.ChannelId.HasValue,
+                        json =>
+                        {
+                            var channelIdValue = json.ChannelId.GetValueOrDefault();
+                            if (!_dmSemaphores!.TryGetValue(channelIdValue, out var semaphore))
+                                _dmSemaphores.Add(channelIdValue, semaphore = new(1, 1));
+                            return semaphore;
+                        },
+                        json => CacheChannelAsync(json.ChannelId.GetValueOrDefault())).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":
@@ -680,20 +704,36 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "MESSAGE_CREATE":
                 {
-                    var jsonMessage = data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage);
-                    if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
-                        await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
-
-                    await InvokeEventAsync(MessageCreate, () => Message.CreateFromJson(jsonMessage, this)).ConfigureAwait(false);
+                    await InvokeEventAsync(
+                        MessageCreate,
+                        () => data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage),
+                        json => Message.CreateFromJson(json, this),
+                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
+                        json =>
+                        {
+                            var channelId = json.ChannelId;
+                            if (!_dmSemaphores!.TryGetValue(channelId, out var semaphore))
+                                _dmSemaphores.Add(channelId, semaphore = new(1, 1));
+                            return semaphore;
+                        },
+                        json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    var jsonMessage = data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage);
-                    if (!jsonMessage.GuildId.HasValue && !jsonMessage.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral))
-                        await CacheChannelAsync(jsonMessage.ChannelId).ConfigureAwait(false);
-
-                    await InvokeEventAsync(MessageUpdate, () => Message.CreateFromJson(jsonMessage, this)).ConfigureAwait(false);
+                    await InvokeEventAsync(
+                        MessageUpdate,
+                        () => data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage),
+                        json => Message.CreateFromJson(json, this),
+                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
+                        json =>
+                        {
+                            var channelId = json.ChannelId;
+                            if (!_dmSemaphores!.TryGetValue(channelId, out var semaphore))
+                                _dmSemaphores.Add(channelId, semaphore = new(1, 1));
+                            return semaphore;
+                        },
+                        json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE":
@@ -734,7 +774,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(presence.GuildId, out var guild))
                         {
                             guild.Presences = guild.Presences.SetItem(presence.User.Id, presence);
-                            guild._jsonModel.Presences[json.User.Id] = json;
+                            guild._jsonModel.Presences = guild._jsonModel.Presences.SetItem(json.User.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -747,7 +787,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(stageInstance.GuildId, out var guild))
                         {
                             guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
-                            guild._jsonModel.StageInstances[json.Id] = json;
+                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -760,7 +800,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(stageInstance.GuildId, out var guild))
                         {
                             guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
-                            guild._jsonModel.StageInstances[json.Id] = json;
+                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.SetItem(json.Id, json);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -773,7 +813,7 @@ public partial class GatewayClient : WebSocketClient
                         if (TryGetGuild(stageInstance.GuildId, out var guild))
                         {
                             guild.StageInstances = guild.StageInstances.Remove(stageInstance.Id);
-                            guild._jsonModel.StageInstances.Remove(json.Id);
+                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.Remove(json.Id);
                         }
                     }).ConfigureAwait(false);
                 }
@@ -798,12 +838,12 @@ public partial class GatewayClient : WebSocketClient
                             if (voiceState.ChannelId.HasValue)
                             {
                                 guild.VoiceStates = guild.VoiceStates.SetItem(voiceState.UserId, voiceState);
-                                guild._jsonModel.VoiceStates[json.UserId] = json;
+                                guild._jsonModel.VoiceStates = guild._jsonModel.VoiceStates.SetItem(json.UserId, json);
                             }
                             else
                             {
                                 guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
-                                guild._jsonModel.VoiceStates.Remove(json.UserId);
+                                guild._jsonModel.VoiceStates = guild._jsonModel.VoiceStates.Remove(json.UserId);
                             }
                         }
                     }).ConfigureAwait(false);
@@ -834,13 +874,19 @@ public partial class GatewayClient : WebSocketClient
 
         async ValueTask CacheChannelAsync(ulong channelId)
         {
-            if (!DMChannels.ContainsKey(channelId) && !GroupDMChannels.ContainsKey(channelId))
+            if (!(DMChannels.ContainsKey(channelId) || GroupDMChannels.ContainsKey(channelId)))
             {
                 var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
                 if (channel is GroupDMChannel groupDMChannel)
-                    GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
+                {
+                    lock (_dmsLock!)
+                        GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
+                }
                 else if (channel is DMChannel dMChannel)
-                    DMChannels = DMChannels.SetItem(channelId, dMChannel);
+                {
+                    lock (_dmsLock!)
+                        DMChannels = DMChannels.SetItem(channelId, dMChannel);
+                }
             }
         }
     }
@@ -853,10 +899,15 @@ public partial class GatewayClient : WebSocketClient
 
     public override void Dispose()
     {
+        _disposed = true;
         Guilds = null!;
         DMChannels = null!;
         GroupDMChannels = null!;
-        _disposed = true;
+        if (_configuration.CacheDMChannels)
+        {
+            foreach (var semaphore in _dmSemaphores!.Values)
+                semaphore.Dispose();
+        }
         base.Dispose();
     }
 }

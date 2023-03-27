@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels.EventArgs;
 
@@ -8,7 +9,7 @@ public partial class JsonGuildEmojisUpdateEventArgs
     public ulong GuildId { get; set; }
 
     [JsonPropertyName("emojis")]
-    public JsonEmoji[] Emojis { get; set; }
+    public ImmutableArray<JsonEmoji> Emojis { get; set; }
 
     [JsonSerializable(typeof(JsonGuildEmojisUpdateEventArgs))]
     public partial class JsonGuildEmojisUpdateEventArgsSerializerContext : JsonSerializerContext
