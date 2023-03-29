@@ -17,7 +17,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedVideo? Video { get; }
     public EmbedProvider? Provider { get; }
     public EmbedAuthor? Author { get; }
-    public IEnumerable<EmbedField> Fields { get; }
+    public IReadOnlyList<EmbedField> Fields { get; }
 
     public Embed(JsonModels.JsonEmbed jsonModel)
     {
@@ -34,6 +34,6 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
             Provider = new(jsonModel.Provider);
         if (jsonModel.Author != null)
             Author = new(jsonModel.Author);
-        Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f));
+        Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f)).ToArray();
     }
 }

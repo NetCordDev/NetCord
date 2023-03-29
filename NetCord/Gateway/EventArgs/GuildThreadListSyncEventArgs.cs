@@ -13,7 +13,7 @@ public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.Json
     {
         _jsonModel = jsonModel;
         Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));
-        Users = jsonModel.Users.Select(u => new ThreadUser(u, client));
+        Users = jsonModel.Users.Select(u => new ThreadUser(u, client)).ToArray();
     }
 
     public ulong GuildId => _jsonModel.GuildId;
@@ -22,5 +22,5 @@ public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.Json
 
     public ImmutableDictionary<ulong, GuildThread> Threads { get; }
 
-    public IEnumerable<ThreadUser> Users { get; }
+    public IReadOnlyList<ThreadUser> Users { get; }
 }

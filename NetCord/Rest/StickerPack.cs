@@ -10,10 +10,10 @@ public class StickerPack : IJsonModel<JsonStickerPack>
     public StickerPack(JsonStickerPack jsonModel)
     {
         _jsonModel = jsonModel;
-        Stickers = jsonModel.Stickers.Select(s => new StandardSticker(s));
+        Stickers = jsonModel.Stickers.Select(s => new StandardSticker(s)).ToArray();
     }
 
-    public IEnumerable<Sticker> Stickers { get; }
+    public IReadOnlyList<Sticker> Stickers { get; }
     public string Name => _jsonModel.Name;
     public ulong SkuId => _jsonModel.SkuId;
     public ulong? CoverStickerId => _jsonModel.CoverStickerId;

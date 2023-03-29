@@ -52,7 +52,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     /// <summary>
     /// Parameters for the command (max 25).
     /// </summary>
-    public IEnumerable<ApplicationCommandOption> Options { get; }
+    public IReadOnlyList<ApplicationCommandOption> Options { get; }
 
     /// <summary>
     /// Indicates whether the command is enabled by default when the app is added to a guild.
@@ -72,7 +72,7 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
     public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id));
+        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id)).ToArray();
     }
 
     public override string ToString() => $"</{Name}:{Id}>";

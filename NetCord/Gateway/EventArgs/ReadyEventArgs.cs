@@ -11,7 +11,7 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public SelfUser User { get; }
 
-    public IEnumerable<ulong> GuildIds { get; }
+    public IReadOnlyList<ulong> GuildIds { get; }
 
     public string SessionId => _jsonModel.SessionId;
 
@@ -21,13 +21,13 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public ApplicationFlags ApplicationFlags => _jsonModel.Application == null ? default : _jsonModel.Application.Flags.GetValueOrDefault();
 
-    public IEnumerable<DMChannel> DMChannels { get; }
+    public IReadOnlyList<DMChannel> DMChannels { get; }
 
     public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         User = new(jsonModel.User, client);
-        GuildIds = _jsonModel.Guilds.Select(g => g.Id);
-        DMChannels = _jsonModel.DMChannels.Select(c => (DMChannel)Channel.CreateFromJson(c, client));
+        GuildIds = _jsonModel.Guilds.Select(g => g.Id).ToArray();
+        DMChannels = _jsonModel.DMChannels.Select(c => (DMChannel)Channel.CreateFromJson(c, client)).ToArray();
     }
 }

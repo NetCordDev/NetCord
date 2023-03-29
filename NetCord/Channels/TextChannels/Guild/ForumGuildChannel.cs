@@ -8,7 +8,7 @@ public class ForumGuildChannel : Channel, IGuildChannel
     public ForumGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
-        AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t));
+        AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t)).ToArray();
         if (jsonModel.DefaultReactionEmoji != null)
             DefaultReactionEmoji = new(jsonModel.DefaultReactionEmoji);
     }
@@ -23,7 +23,7 @@ public class ForumGuildChannel : Channel, IGuildChannel
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
     public ulong? ParentId => _jsonModel.ParentId;
     public DateTimeOffset? LastPin => _jsonModel.LastPin;
-    public IEnumerable<ForumTag> AvailableTags { get; }
+    public IReadOnlyList<ForumTag> AvailableTags { get; }
     public ForumGuildChannelDefaultReaction? DefaultReactionEmoji { get; }
     public int DefaultThreadSlowmode => _jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
     public SortOrderType? DefaultSortOrder => _jsonModel.DefaultSortOrder;

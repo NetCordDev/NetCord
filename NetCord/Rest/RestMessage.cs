@@ -17,8 +17,8 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
     public IReadOnlyList<ulong> MentionedRoleIds { get; }
     public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
     public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
-    public IEnumerable<Embed> Embeds { get; }
-    public IEnumerable<MessageReaction> Reactions { get; }
+    public IReadOnlyList<Embed> Embeds { get; }
+    public IReadOnlyList<MessageReaction> Reactions { get; }
     public string? Nonce => _jsonModel.Nonce;
     public bool IsPinned => _jsonModel.IsPinned;
     public ulong? WebhookId => _jsonModel.WebhookId;
@@ -31,7 +31,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
     public RestMessage? ReferencedMessage { get; }
     public MessageInteraction? Interaction { get; }
     public GuildThread? StartedThread { get; }
-    public IEnumerable<IComponent> Components { get; }
+    public IReadOnlyList<IComponent> Components { get; }
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
     public int? Position => _jsonModel.Position;
     public RoleSubscriptionData? RoleSubscriptionData { get; }
@@ -60,8 +60,8 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
         MentionedRoleIds = jsonModel.MentionedRoleIds;
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, Attachment.CreateFromJson);
-        Embeds = jsonModel.Embeds.Select(e => new Embed(e));
-        Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r));
+        Embeds = jsonModel.Embeds.Select(e => new Embed(e)).ToArray();
+        Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
         if (jsonModel.Activity != null)
             Activity = new(jsonModel.Activity);
@@ -75,7 +75,7 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
             Interaction = new(jsonModel.Interaction, client);
         if (jsonModel.StartedThread != null)
             StartedThread = (GuildThread)Channel.CreateFromJson(jsonModel.StartedThread, client);
-        Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson);
+        Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
         if (jsonModel.RoleSubscriptionData != null)
             RoleSubscriptionData = new(jsonModel.RoleSubscriptionData);

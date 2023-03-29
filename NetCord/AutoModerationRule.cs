@@ -12,7 +12,7 @@ public class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRul
     {
         _jsonModel = jsonModel;
         TriggerMetadata = new(_jsonModel.TriggerMetadata);
-        Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a));
+        Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a)).ToArray();
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -29,7 +29,7 @@ public class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRul
 
     public AutoModerationRuleTriggerMetadata TriggerMetadata { get; }
 
-    public IEnumerable<AutoModerationAction> Actions { get; }
+    public IReadOnlyList<AutoModerationAction> Actions { get; }
 
     public bool Enabled => _jsonModel.Enabled;
 

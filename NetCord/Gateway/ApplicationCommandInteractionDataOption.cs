@@ -11,13 +11,13 @@ public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.Jso
 
     public string? Value => _jsonModel.Value;
 
-    public IEnumerable<ApplicationCommandInteractionDataOption>? Options { get; }
+    public IReadOnlyList<ApplicationCommandInteractionDataOption>? Options { get; }
 
     public bool Focused => _jsonModel.Focused;
 
     public ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonModel)
     {
         _jsonModel = jsonModel;
-        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o));
+        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToArray();
     }
 }

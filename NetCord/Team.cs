@@ -11,7 +11,7 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
 
     public string? Icon => _jsonModel.Icon;
 
-    public IEnumerable<TeamUser> Users { get; }
+    public IReadOnlyList<TeamUser> Users { get; }
 
     public string Name => _jsonModel.Name;
 
@@ -20,6 +20,6 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
     public Team(JsonModels.JsonTeam jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Users = jsonModel.Users.SelectOrEmpty(m => new TeamUser(m, client));
+        Users = jsonModel.Users.SelectOrEmpty(m => new TeamUser(m, client)).ToArray();
     }
 }

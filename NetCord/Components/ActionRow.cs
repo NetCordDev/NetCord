@@ -9,11 +9,11 @@ public class ActionRow : IComponent, IJsonModel<JsonComponent>
 
     public ComponentType ComponentType => ComponentType.ActionRow;
     public string CustomId => _jsonModel.CustomId!;
-    public IEnumerable<Button> Buttons { get; }
+    public IReadOnlyList<Button> Buttons { get; }
 
     public ActionRow(JsonComponent jsonModel)
     {
         _jsonModel = jsonModel;
-        Buttons = jsonModel.Components.SelectOrEmpty(b => Button.CreateFromJson(b));
+        Buttons = jsonModel.Components.SelectOrEmpty(Button.CreateFromJson).ToArray();
     }
 }

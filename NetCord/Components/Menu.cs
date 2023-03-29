@@ -8,7 +8,7 @@ public class Menu : IComponent, IJsonModel<JsonComponent>
     private readonly JsonComponent _jsonModel;
     public ComponentType ComponentType => ComponentType.StringMenu;
     public string CustomId => _jsonModel.CustomId!;
-    public IEnumerable<MenuSelectOption> Options { get; }
+    public IReadOnlyList<MenuSelectOption> Options { get; }
     public string? Placeholder => _jsonModel.Placeholder;
     public int? MinValues => _jsonModel.MinValues;
     public int? MaxValues => _jsonModel.MaxValues;
@@ -17,6 +17,6 @@ public class Menu : IComponent, IJsonModel<JsonComponent>
     public Menu(JsonComponent jsonModel)
     {
         _jsonModel = jsonModel.Components[0];
-        Options = _jsonModel.Options.Select(o => new MenuSelectOption(o));
+        Options = _jsonModel.Options.Select(o => new MenuSelectOption(o)).ToArray();
     }
 }

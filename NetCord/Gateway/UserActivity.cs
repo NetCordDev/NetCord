@@ -24,7 +24,7 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
     /// </summary>
     public bool? Instance => _jsonModel.Instance;
     public UserActivityFlags? Flags => _jsonModel.Flags;
-    public IEnumerable<UserActivityButton> Buttons { get; }
+    public IReadOnlyList<UserActivityButton> Buttons { get; }
     public ulong GuildId { get; }
 
     public UserActivity(JsonModels.JsonUserActivity jsonModel, ulong guildId, RestClient client)
@@ -40,7 +40,7 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
             Assets = new(jsonModel.Assets);
         if (jsonModel.Secrets != null)
             Secrets = new(jsonModel.Secrets);
-        Buttons = jsonModel.ButtonsLabels.SelectOrEmpty(b => new UserActivityButton(b));
+        Buttons = jsonModel.ButtonsLabels.SelectOrEmpty(b => new UserActivityButton(b)).ToArray();
         GuildId = guildId;
     }
 }

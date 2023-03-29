@@ -40,12 +40,12 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// <summary>
     /// Choices for the user to pick from (max 25).
     /// </summary>
-    public IEnumerable<ApplicationCommandOptionChoice>? Choices { get; }
+    public IReadOnlyList<ApplicationCommandOptionChoice>? Choices { get; }
 
     /// <summary>
     /// Parameters for the option (max 25).
     /// </summary>
-    public IEnumerable<ApplicationCommandOption>? Options { get; }
+    public IReadOnlyList<ApplicationCommandOption>? Options { get; }
 
     /// <summary>
     /// If the option is a channel type, the channels shown will be restricted to these types.
@@ -87,9 +87,9 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
         _fullName = $"{parentName} {jsonModel.Name}";
         _parentId = parentId;
         if (jsonModel.Choices != null)
-            Choices = jsonModel.Choices.Select(c => new ApplicationCommandOptionChoice(c));
+            Choices = jsonModel.Choices.Select(c => new ApplicationCommandOptionChoice(c)).ToArray();
         if (jsonModel.Options != null)
-            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId));
+            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
     }
 
     public override string ToString() => $"</{_fullName}:{_parentId}>";

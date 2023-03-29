@@ -10,7 +10,7 @@ public class Presence : IJsonModel<JsonModels.JsonPresence>
     public User User { get; }
     public ulong GuildId { get; }
     public UserStatusType Status => _jsonModel.Status;
-    public IEnumerable<UserActivity> Activities { get; }
+    public IReadOnlyList<UserActivity> Activities { get; }
     public IReadOnlyDictionary<Platform, UserStatusType> Platform => _jsonModel.Platform;
 
     public Presence(JsonModels.JsonPresence jsonModel, ulong? guildId, RestClient client)
@@ -18,6 +18,6 @@ public class Presence : IJsonModel<JsonModels.JsonPresence>
         _jsonModel = jsonModel;
         User = new(jsonModel.User, client);
         GuildId = guildId.HasValue ? guildId.GetValueOrDefault() : jsonModel.GuildId.GetValueOrDefault();
-        Activities = jsonModel.Activities.SelectOrEmpty(a => new UserActivity(a, GuildId, client));
+        Activities = jsonModel.Activities.SelectOrEmpty(a => new UserActivity(a, GuildId, client)).ToArray();
     }
 }
