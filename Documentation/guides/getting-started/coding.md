@@ -25,7 +25,7 @@ Now it's time to finally... make the bot online! To do it, add the following lin
 Now, when you run the code, your bot should be online!
 ![](../../images/coding_BotOnline.png)
 
-If not, check the console window, you probably have the following message: `Disconnected: Authentication failed`. If yes, check if your token is correct.
+If not, check the console window, you will probably see the following message: `Disconnected: Authentication failed`. If so, check that your token is correct.
 
 ## The Final Product
 [!code-cs[Program.cs](coding/Program.cs)]
