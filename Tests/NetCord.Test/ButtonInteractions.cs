@@ -8,12 +8,22 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
     [Interaction("click it")]
     public Task ClickIt()
     {
-        InteractionMessageProperties interactionMessage = new()
+        //InteractionMessageProperties interactionMessage = new()
+        //{
+        //    Content = "You clicked the button!",
+        //    Flags = MessageFlags.Ephemeral
+        //};
+        //return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
+        return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", "Wzium user", new TextInputProperties[]
         {
-            Content = "You clicked the button!",
-            Flags = MessageFlags.Ephemeral
-        };
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
+            new("reason", TextInputStyle.Paragraph, "Reason")
+            {
+                Placeholder = "Because of not wziumming",
+                Required = false,
+                MinLength = 5,
+                MaxLength = 20,
+            },
+        })));
     }
 
     [Interaction("test")]

@@ -12,7 +12,7 @@ public partial class JsonInteraction : JsonEntity
     public InteractionType Type { get; set; }
 
     [JsonPropertyName("data")]
-    public JsonInteractionData Data { get; set; }
+    public JsonInteractionData? Data { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -30,7 +30,7 @@ public partial class JsonInteraction : JsonEntity
     public string Token { get; set; }
 
     [JsonPropertyName("message")]
-    public JsonMessage Message { get; set; }
+    public JsonMessage? Message { get; set; }
 
     [JsonPropertyName("app_permissions")]
     public Permissions? AppPermissions { get; set; }
@@ -39,7 +39,7 @@ public partial class JsonInteraction : JsonEntity
     public CultureInfo UserLocale { get; set; }
 
     [JsonPropertyName("guild_locale")]
-    public CultureInfo GuildLocale { get; set; }
+    public CultureInfo? GuildLocale { get; set; }
 
     [JsonSerializable(typeof(JsonInteraction))]
     public partial class JsonInteractionSerializerContext : JsonSerializerContext

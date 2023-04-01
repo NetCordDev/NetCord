@@ -52,14 +52,14 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
     {
         return jsonModel.Type switch
         {
-            InteractionType.ApplicationCommand => jsonModel.Data.Type switch
+            InteractionType.ApplicationCommand => jsonModel.Data!.Type switch
             {
                 ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, channel, client),
                 ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, channel, client),
                 ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, channel, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.MessageComponent => jsonModel.Data.ComponentType switch
+            InteractionType.MessageComponent => jsonModel.Data!.ComponentType switch
             {
                 ComponentType.Button => new ButtonInteraction(jsonModel, guild, channel, client),
                 ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, channel, client),
