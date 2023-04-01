@@ -7,7 +7,7 @@ namespace NetCord.Rest;
 public partial class AllowedMentionsProperties
 {
     /// <summary>
-    /// Allow <see langword="@everyone"/> and <see langword="@here"/>.
+    /// Allows <see langword="@everyone"/> and <see langword="@here"/>.
     /// </summary>
     public bool Everyone { get; set; } = true;
 
@@ -22,7 +22,7 @@ public partial class AllowedMentionsProperties
     public IEnumerable<ulong>? AllowedUsers { get; set; }
 
     /// <summary>
-    /// Allow reply mention.
+    /// Allows reply mention.
     /// </summary>
     public bool ReplyMention { get; set; }
 
