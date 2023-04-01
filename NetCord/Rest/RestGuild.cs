@@ -42,6 +42,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public System.Globalization.CultureInfo PreferredLocale => _jsonModel.PreferredLocale;
     public ulong? PublicUpdatesChannelId => _jsonModel.PublicUpdatesChannelId;
     public int? MaxVideoChannelUsers => _jsonModel.MaxVideoChannelUsers;
+    public int? MaxStageVideoChannelUsers => _jsonModel.MaxStageVideoChannelUsers;
     public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
     public GuildWelcomeScreen? WelcomeScreen { get; }

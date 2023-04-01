@@ -53,8 +53,8 @@ public class Guild : RestGuild
         jsonModel.Users = oldJsonModel.Users;
         jsonModel.Channels = oldJsonModel.Channels;
         jsonModel.ActiveThreads = oldJsonModel.ActiveThreads;
-        jsonModel.StageInstances = oldJsonModel.StageInstances;
         jsonModel.Presences = oldJsonModel.Presences;
+        jsonModel.StageInstances = oldJsonModel.StageInstances;
         jsonModel.ScheduledEvents = oldJsonModel.ScheduledEvents;
         return jsonModel;
     }

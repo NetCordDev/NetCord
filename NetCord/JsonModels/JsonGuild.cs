@@ -139,6 +139,9 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("max_video_channel_users")]
     public int? MaxVideoChannelUsers { get; set; }
 
+    [JsonPropertyName("max_stage_video_channel_users")]
+    public int? MaxStageVideoChannelUsers { get; set; }
+
     [JsonPropertyName("approximate_member_count")]
     public int? ApproximateUserCount { get; set; }
 
