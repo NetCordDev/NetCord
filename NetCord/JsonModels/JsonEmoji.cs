@@ -11,7 +11,7 @@ public partial class JsonEmoji
     public string? Name { get; set; }
 
     [JsonPropertyName("roles")]
-    public JsonRole[] AllowedRoles { get; set; }
+    public JsonRole[]? AllowedRoles { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser? Creator { get; set; }

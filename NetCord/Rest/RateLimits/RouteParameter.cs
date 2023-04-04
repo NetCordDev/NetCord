@@ -80,4 +80,5 @@ public enum RouteParameter
     GetGatewayBot,
     GetApplicationRoleConnectionMetadataRecords,
     UpdateApplicationRoleConnectionMetadataRecords,
+    GetGuildOnboarding,
 }
