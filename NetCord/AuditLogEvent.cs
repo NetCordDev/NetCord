@@ -241,4 +241,34 @@ public enum AuditLogEvent
     /// Permissions were updated for a command.
     /// </summary>
     ApplicationCommandPermissionUpdate = 121,
+
+    /// <summary>
+    /// Auto Moderation rule was created.
+    /// </summary>
+    AutoModerationRuleCreate = 140,
+
+    /// <summary>
+    /// Auto Moderation rule was updated.
+    /// </summary>
+    AutoModerationRuleUpdate = 141,
+
+    /// <summary>
+    /// Auto Moderation rule was deleted.
+    /// </summary>
+    AutoModerationRuleDelete = 142,
+
+    /// <summary>
+    /// Message was blocked by Auto Moderation.
+    /// </summary>
+    AutoModerationBlockMessage = 143,
+
+    /// <summary>
+    /// Message was flagged by Auto Moderation.
+    /// </summary>
+    AutoModerationFlagToChannel = 144,
+
+    /// <summary>
+    /// User was timed out by Auto Moderation.
+    /// </summary>
+    AutoModerationUserCommunicationDisabled = 145,
 }
