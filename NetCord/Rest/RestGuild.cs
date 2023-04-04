@@ -109,7 +109,8 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
 
     #region AuditLog
     public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogAsync(ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogAsync(Id, userId, actionType, properties);
-    public IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogBeforeAsync(ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogBeforeAsync(Id, before, userId, actionType, properties);
+    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogBeforeAsync(ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogBeforeAsync(Id, before, userId, actionType, properties);
+    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogAfterAsync(ulong after, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogAfterAsync(Id, after, userId, actionType, properties);
     #endregion
 
     #region AutoModeration
