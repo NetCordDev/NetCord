@@ -8,7 +8,7 @@ public abstract class RewritingStream : Stream
     /// 
     /// </summary>
     /// <param name="next">The stream that this stream is writing to.</param>
-    private protected RewritingStream(Stream next)
+    protected RewritingStream(Stream next)
     {
         _next = next;
     }
