@@ -12,14 +12,14 @@ public class MuteCommands : CommandModule<CommandContext>
     {
         await user.TimeOutAsync(DateTimeOffset.UtcNow.Add(time), new() { AuditLogReason = reason });
 
-        ActionRowProperties actionRow = new(new List<ButtonProperties>
+        ActionRowProperties actionRow = new(new ButtonProperties[]
         {
             new ActionButtonProperties($"unmute:{user.Id}", "Unmute", ButtonStyle.Danger),
         });
         MessageProperties message = new()
         {
             Content = Format.Bold($"{user} got muted").ToString(),
-            Components = new List<ComponentProperties>()
+            Components = new ComponentProperties[]
             {
                 actionRow
             },

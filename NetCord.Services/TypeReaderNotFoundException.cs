@@ -5,7 +5,11 @@ namespace NetCord.Services;
 [Serializable]
 public class TypeReaderNotFoundException : Exception
 {
-    public TypeReaderNotFoundException(string typeName) : base(typeName)
+    public TypeReaderNotFoundException(Type type) : base($"Type name: '{type}'.")
+    {
+    }
+
+    public TypeReaderNotFoundException(Type type, Type type2) : base($"Type name: '{type}' or '{type2}'.")
     {
     }
 

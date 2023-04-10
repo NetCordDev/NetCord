@@ -94,7 +94,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        _items.CopyTo(array, arrayIndex);
+        Array.Copy(_items, 0, array, arrayIndex, _size);
     }
 
     public bool Remove(T item)

@@ -1,16 +1,13 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Commands;
 
 public class CommandInfo<TContext> where TContext : ICommandContext
 {
-    public Type DeclaringType { get; }
-    public bool Static { get; }
-    public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
     public int Priority { get; }
-    public Func<object?[], Task> InvokeAsync { get; }
+    public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
+    public Func<object?[]?, TContext, Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
@@ -19,26 +16,10 @@ public class CommandInfo<TContext> where TContext : ICommandContext
             throw new InvalidDefinitionException($"Commands must return '{typeof(Task)}'.", method);
 
         Priority = attribute.Priority;
-        DeclaringType = method.DeclaringType!;
+        var declaringType = method.DeclaringType!;
 
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
-
-        Type[] types;
-        int start;
-        if (method.IsStatic)
-        {
-            Static = true;
-            types = new Type[parametersLength + 1];
-            start = 0;
-        }
-        else
-        {
-            types = new Type[parametersLength + 2];
-            types[0] = DeclaringType;
-            start = 1;
-        }
-        types[^1] = typeof(Task);
 
         var p = new CommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
@@ -52,24 +33,35 @@ public class CommandInfo<TContext> where TContext : ICommandContext
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
 
             p[i] = new(parameter, method, configuration);
-            types[start++] = parameter.ParameterType;
         }
         Parameters = p;
 
-        var invoke = method.CreateDelegate(Expression.GetDelegateType(types)).DynamicInvoke;
-        InvokeAsync = Unsafe.As<Func<object?[], Task>>((object?[] p) =>
-        {
-            try
-            {
-                return invoke(p);
-            }
-            catch (TargetInvocationException ex)
-            {
-                throw ex.InnerException!;
-            }
-        });
+        InvokeAsync = CreateDelegate(method, declaringType, p);
 
-        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(DeclaringType, method);
+        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(declaringType, method);
+    }
+
+    private static Func<object?[]?, TContext, Task> CreateDelegate(MethodInfo method, Type declaringType, CommandParameter<TContext>[] commandParameters)
+    {
+        var parameters = Expression.Parameter(typeof(object?[]));
+        Type contextType = typeof(TContext);
+        var context = Expression.Parameter(contextType);
+        Expression? instance;
+        if (method.IsStatic)
+            instance = null;
+        else
+        {
+            var module = Expression.Variable(declaringType);
+            instance = Expression.Block(new[] { module },
+                                        Expression.Assign(module, Expression.New(declaringType)),
+                                        Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseCommandModule<TContext>.Context), contextType)!), context),
+                                        module);
+        }
+        var call = Expression.Call(instance,
+                                   method,
+                                   commandParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i)), p.Type)));
+        var lambda = Expression.Lambda(call, parameters, context);
+        return (Func<object?[]?, TContext, Task>)lambda.Compile();
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)
@@ -77,7 +69,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         var count = Preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            PreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
+            var preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
         }
     }

@@ -7,7 +7,8 @@ namespace NetCord.Services.Interactions;
 public class InteractionParameter<TContext> where TContext : InteractionContext
 {
     public InteractionTypeReader<TContext> TypeReader { get; }
-    public Type NullableType { get; }
+    public Type ElementType { get; }
+    public Type NonNullableElementType { get; }
     public Type Type { get; }
     public bool HasDefaultValue { get; }
     public object? DefaultValue { get; }
@@ -31,17 +32,17 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         else
             typeReaderType = null;
 
-        Type type;
+        Type type = Type = parameter.ParameterType;
+        Type elementType;
         if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
         {
             Params = true;
-            type = parameter.ParameterType.GetElementType()!;
+            elementType = ElementType = type.GetElementType()!;
         }
         else
-            type = parameter.ParameterType;
+            elementType = ElementType = type;
 
-        NullableType = type;
-        (TypeReader, Type, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>(type, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+        (TypeReader, NonNullableElementType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
     }
@@ -51,7 +52,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         var count = Preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            ParameterPreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
+            var preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
         }
     }

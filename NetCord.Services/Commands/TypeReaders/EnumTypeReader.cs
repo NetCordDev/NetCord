@@ -11,7 +11,7 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
     {
         var span = input.Span;
-        var type = parameter.Type;
+        var type = parameter.NonNullableElementType;
 
         bool byValue;
         lock (_lock)

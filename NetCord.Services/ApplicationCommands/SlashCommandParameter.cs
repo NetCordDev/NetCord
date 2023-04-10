@@ -9,6 +9,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 {
     public SlashCommandTypeReader<TContext> TypeReader { get; }
     public Type Type { get; }
+    public Type NonNullableType { get; }
     public bool HasDefaultValue { get; }
     public object? DefaultValue { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
@@ -31,10 +32,12 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
+        var type = Type = parameter.ParameterType;
+
         if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
         {
             var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
-            (TypeReader, Type, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(parameter.ParameterType, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
             Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
             Description = slashCommandParameterAttribute.Description ?? $"Parameter of name {Name}";
@@ -89,7 +92,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
         else
         {
-            (TypeReader, Type, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(parameter.ParameterType, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
 
             Name = parameter.Name!;
             NameTranslationsProvider = TypeReader.NameTranslationsProvider;
@@ -143,7 +146,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var count = Preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            ParameterPreconditionAttribute<TContext>? preconditionAttribute = Preconditions[i];
+            var preconditionAttribute = Preconditions[i];
             await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
         }
     }

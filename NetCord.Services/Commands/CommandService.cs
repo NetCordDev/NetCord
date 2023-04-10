@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Buffers;
+using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
@@ -8,20 +9,17 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     private readonly char[] _parameterSeparators;
     private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
 
-    public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> Commands
+    public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
     {
-        get
-        {
-            lock (_commands)
-                return _commands.ToDictionary(v => v.Key, v => (IReadOnlyList<CommandInfo<TContext>>)v.Value);
-        }
+        lock (_commands)
+            return new Dictionary<string, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<string, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
     }
 
     public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
-        _configuration = configuration ?? new();
-        _parameterSeparators = _configuration.ParameterSeparators.ToArray();
-        _commands = new(_configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
+        _configuration = configuration ??= new();
+        _parameterSeparators = configuration.ParameterSeparators.ToArray();
+        _commands = new(configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
     }
 
     public void AddModules(Assembly assembly)
@@ -48,12 +46,13 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
     private void AddModuleCore(Type type)
     {
+        var configuration = _configuration;
         foreach (var method in type.GetMethods())
         {
             CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
             if (commandAttribute == null)
                 continue;
-            CommandInfo<TContext> commandInfo = new(method, commandAttribute, _configuration);
+            CommandInfo<TContext> commandInfo = new(method, commandAttribute, configuration);
             foreach (var alias in commandAttribute.Aliases)
             {
                 if (alias.ContainsAny(_parameterSeparators))
@@ -86,26 +85,24 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
     public async Task ExecuteAsync(int prefixLength, TContext context)
     {
-        var messageContentWithoutPrefix = context.Message.Content[prefixLength..];
+        var content = context.Message.Content;
         var separators = _parameterSeparators;
-
+        var index = content.IndexOfAny(separators, prefixLength);
         SortedList<CommandInfo<TContext>> commandInfos;
         ReadOnlyMemory<char> baseArguments;
-        var index = messageContentWithoutPrefix.IndexOfAny(separators);
         if (index == -1)
         {
-            lock (_commands)
-                if (!_commands.TryGetValue(messageContentWithoutPrefix, out commandInfos!))
-                    throw new CommandNotFoundException();
+            var command = content[prefixLength..];
+            commandInfos = GetCommandInfos(command);
             baseArguments = default;
         }
         else
         {
-            lock (_commands)
-                if (!_commands.TryGetValue(messageContentWithoutPrefix[..index], out commandInfos!))
-                    throw new CommandNotFoundException();
-            baseArguments = messageContentWithoutPrefix.AsMemory(index + 1).TrimStart(separators);
+            var command = content[prefixLength..index];
+            commandInfos = GetCommandInfos(command);
+            baseArguments = content.AsMemory(index + 1);
         }
+        var configuration = _configuration;
 
         var maxIndex = commandInfos.Count - 1;
 
@@ -132,25 +129,13 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             var isLastArgGood = false;
             ReadOnlyMemory<char> currentArg = default;
 
-            bool isStatic = commandInfo.Static;
-            object?[] values;
-            ArraySegment<object?> parametersToPass;
-            if (isStatic)
-            {
-                values = new object?[commandParametersLength];
-                parametersToPass = values;
-            }
-            else
-            {
-                values = new object?[commandParametersLength + 1];
-                parametersToPass = new(values, 1, commandParametersLength);
-            }
+            var parametersToPass = new object?[commandParametersLength];
 
             int paramIndex = 0;
             var maxParamIndex = commandParametersLength - 1;
             while (paramIndex <= maxParamIndex)
             {
-                CommandParameter<TContext> parameter = commandParameters[paramIndex];
+                var parameter = commandParameters[paramIndex];
 
                 if (!parameter.Params)
                 {
@@ -159,85 +144,100 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     var currentArgLength = currentArg.Length;
                     if (currentArgLength != 0)
                     {
+                        object? value;
                         try
                         {
-                            var value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, _configuration).ConfigureAwait(false);
-                            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                            parametersToPass[paramIndex] = value;
-                            arguments = arguments[currentArgLength..].TrimStart(separators);
-                            isLastArgGood = false;
+                            value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration).ConfigureAwait(false);
                         }
                         catch
                         {
-                            // is not last parameter
-                            if (paramIndex != maxParamIndex && parameter.HasDefaultValue)
+                            if (parameter.HasDefaultValue && paramIndex != maxParamIndex)
                             {
-                                var value = parameter.DefaultValue;
-                                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                                parametersToPass[paramIndex] = value;
+                                parametersToPass[paramIndex] = parameter.DefaultValue;
                                 isLastArgGood = true;
+                                goto Skip;
                             }
                             else if (lastCommand)
                                 throw;
                             else
-                                goto Continue;
+                                goto NextCommand;
                         }
+                        try
+                        {
+                            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                        }
+                        catch
+                        {
+                            if (lastCommand)
+                                throw;
+                            else
+                                goto NextCommand;
+                        }
+                        parametersToPass[paramIndex] = value;
+                        arguments = arguments[currentArgLength..].TrimStart(separators);
+                        isLastArgGood = false;
+                        Skip:;
                     }
                     else if (parameter.HasDefaultValue)
                     {
-                        var value = parameter.DefaultValue;
-                        await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                        parametersToPass[paramIndex] = value;
+                        parametersToPass[paramIndex] = parameter.DefaultValue;
                         isLastArgGood = true;
                     }
                     else if (lastCommand)
-                        throw new ParameterCountException("Too few parameters.");
+                        throw new ParameterCountException(ParameterCountExceptionType.TooFew);
                     else
-                        goto Continue;
+                        goto NextCommand;
                 }
                 else if (!arguments.IsEmpty)
                 {
                     try
                     {
-                        await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter).ConfigureAwait(false);
-                        goto Break;
+                        await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter, configuration).ConfigureAwait(false);
                     }
                     catch
                     {
                         if (lastCommand)
                             throw;
                         else
-                            goto Continue;
+                            goto NextCommand;
                     }
+                    goto Break;
                 }
                 else if (parameter.HasDefaultValue)
                 {
-                    var value = parameter.DefaultValue;
-                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                    parametersToPass[paramIndex] = value;
+                    parametersToPass[paramIndex] = parameter.DefaultValue;
+                    goto Break;
                 }
                 else if (lastCommand)
-                    throw new ParameterCountException("Too few parameters.");
+                    throw new ParameterCountException(ParameterCountExceptionType.TooFew);
                 else
-                    goto Continue;
+                    goto NextCommand;
                 paramIndex++;
             }
             if (arguments.Length != 0)
+            {
                 if (lastCommand)
-                    throw new ParameterCountException("Too many parameters.");
+                    throw new ParameterCountException(ParameterCountExceptionType.TooMany);
                 else
                     continue;
-            Break:
-            if (!isStatic)
-            {
-                var methodClass = (BaseCommandModule<TContext>)Activator.CreateInstance(commandInfo.DeclaringType)!;
-                methodClass.Context = context;
-                values[0] = methodClass;
             }
-            await commandInfo.InvokeAsync(values).ConfigureAwait(false);
+            Break:
+            await commandInfo.InvokeAsync(parametersToPass, context).ConfigureAwait(false);
             break;
-            Continue:;
+            NextCommand:;
         }
+    }
+
+    private SortedList<CommandInfo<TContext>> GetCommandInfos(string command)
+    {
+        SortedList<CommandInfo<TContext>>? commandInfos;
+        bool success;
+        lock (_commands)
+            success = _commands.TryGetValue(command, out commandInfos);
+
+        if (success)
+            return commandInfos!;
+        throw new CommandNotFoundException();
     }
 
     private static void UpdateCurrentArg(char[] separators, ReadOnlyMemory<char> arguments, bool isLastArgGood, bool remainder, ref ReadOnlyMemory<char> currentArg)
@@ -251,19 +251,60 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    private async Task ReadParamsAsync(TContext context, char[] separators, ArraySegment<object?> parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter)
+    private static async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
     {
-        var args = new string(arguments.Span).Split(separators, StringSplitOptions.RemoveEmptyEntries);
-        var len = args.Length;
-        var o = Array.CreateInstance(parameter.NullableType, len);
-
-        for (var a = 0; a < len; a++)
+        var ranges = Split(arguments.Span, separators);
+        var count = ranges.Count;
+        var array = Array.CreateInstance(parameter.ElementType, count);
+        for (int i = 0; i < count; i++)
         {
-            var value = await parameter.TypeReader.ReadAsync(args[a].AsMemory(), context, parameter, _configuration).ConfigureAwait(false);
+            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration).ConfigureAwait(false);
             await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-            o.SetValue(value, a);
+            array.SetValue(value, i);
         }
+        parametersToPass[paramIndex] = array;
 
-        parametersToPass[paramIndex] = o;
+        static List<Range> Split(ReadOnlySpan<char> arguments, ReadOnlySpan<char> separators)
+        {
+            List<Range> result = new();
+
+            int startIndex = 0;
+            int index;
+
+            while ((index = arguments.IndexOfAny(separators)) != -1)
+            {
+                result.Add(new(startIndex, startIndex + index));
+                var indexPlusOne = index + 1;
+                var move = indexPlusOne + IndexOfNot(arguments[indexPlusOne..], separators);
+                startIndex += move;
+                arguments = arguments[move..];
+            }
+            if (!arguments.IsEmpty)
+                result.Add(new(startIndex, startIndex + arguments.Length));
+
+            return result;
+
+            static int IndexOfNot(ReadOnlySpan<char> arguments, ReadOnlySpan<char> separators)
+            {
+                var argumentsLength = arguments.Length;
+                var separatorsLength = separators.Length;
+
+                int start = 0;
+                while (start < argumentsLength)
+                {
+                    for (int i = 0; i < separatorsLength; i++)
+                    {
+                        if (arguments[start] == separators[i])
+                            goto Next;
+                    }
+
+                    break;
+                    Next:
+                    start++;
+                }
+
+                return start;
+            }
+        }
     }
 }

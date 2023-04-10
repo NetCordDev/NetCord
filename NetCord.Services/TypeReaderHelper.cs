@@ -4,31 +4,53 @@ namespace NetCord.Services;
 
 internal static class TypeReaderHelper
 {
-    public static (TTypeReader TypeReader, Type Type, object? DefaultValue) GetTypeInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, Type? typeReaderType, Dictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader) where TContext : IContext
+    public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetTypeInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, Type? typeReaderType, Dictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader) where TContext : IContext
     {
         TTypeReader resultTypeReader;
-        Type resultType;
+        Type resultNonNullableType;
         object? resultDefaultValue;
 
         var underlyingType = Nullable.GetUnderlyingType(type);
-        if (typeReaderType != null)
+        if (typeReaderType == null)
         {
-            if (underlyingType != null)
+            if (underlyingType == null)
             {
-                if (parameter.HasDefaultValue)
-                {
-                    var defaultValue = parameter.DefaultValue;
-                    resultDefaultValue = defaultValue != null && underlyingType.IsEnum ? Enum.ToObject(underlyingType, defaultValue) : defaultValue;
-                }
-                else
-                    resultDefaultValue = null;
+                resultDefaultValue = parameter.HasDefaultValue ? GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
 
-                resultType = underlyingType;
+                if (typeReaders.TryGetValue(type, out var typeReader))
+                    resultTypeReader = typeReader;
+                else if (type.IsEnum)
+                    resultTypeReader = enumTypeReader;
+                else
+                    throw new TypeReaderNotFoundException(type);
+
+                resultNonNullableType = type;
             }
             else
             {
-                resultDefaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-                resultType = type;
+                resultDefaultValue = parameter.HasDefaultValue ? GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+
+                if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
+                    resultTypeReader = typeReader;
+                else if (underlyingType.IsEnum)
+                    resultTypeReader = enumTypeReader;
+                else
+                    throw new TypeReaderNotFoundException(type, underlyingType);
+
+                resultNonNullableType = underlyingType;
+            }
+        }
+        else
+        {
+            if (underlyingType == null)
+            {
+                resultDefaultValue = parameter.HasDefaultValue ? GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
+                resultNonNullableType = type;
+            }
+            else
+            {
+                resultDefaultValue = parameter.HasDefaultValue ? GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+                resultNonNullableType = underlyingType;
             }
 
             var typeReader = Activator.CreateInstance(typeReaderType)!;
@@ -41,50 +63,58 @@ internal static class TypeReaderHelper
 
             resultTypeReader = castedTypeReader;
         }
-        else if (underlyingType != null)
-        {
-            if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
-            {
-                if (parameter.HasDefaultValue)
-                {
-                    var defaultValue = parameter.DefaultValue;
-                    resultDefaultValue = defaultValue != null && underlyingType.IsEnum ? Enum.ToObject(underlyingType, defaultValue) : defaultValue;
-                }
-                else
-                    resultDefaultValue = null;
-
-                resultTypeReader = typeReader;
-            }
-            else if (underlyingType.IsEnum)
-            {
-                if (parameter.HasDefaultValue)
-                {
-                    var defaultValue = parameter.DefaultValue;
-                    resultDefaultValue = defaultValue != null ? Enum.ToObject(underlyingType, defaultValue) : defaultValue;
-                }
-                else
-                    resultDefaultValue = null;
-
-                resultTypeReader = enumTypeReader;
-            }
-            else
-                throw new TypeReaderNotFoundException($"Type name: '{underlyingType}' or '{type}'.");
-
-            resultType = underlyingType;
-        }
-        else
-        {
-            resultDefaultValue = parameter.HasDefaultValue ? parameter.DefaultValue : null;
-
-            if (typeReaders.TryGetValue(type, out var typeReader))
-                resultTypeReader = typeReader;
-            else if (type.IsEnum)
-                resultTypeReader = enumTypeReader;
-            else
-                throw new TypeReaderNotFoundException($"Type name: '{type}'.");
-
-            resultType = type;
-        }
-        return (resultTypeReader, resultType, resultDefaultValue);
+        return (resultTypeReader, resultNonNullableType, resultDefaultValue);
     }
+
+    private static object? GetNonUnderlyingTypeDefaultValue(Type type, ParameterInfo parameter)
+    {
+        if (!type.IsValueType)
+            return parameter.DefaultValue;
+        else if (type.IsPrimitive)
+        {
+            var defaultValue = parameter.DefaultValue;
+            if (type == typeof(nint))
+                return (nint)(int)defaultValue!;
+            else if (type == typeof(nuint))
+                return (nuint)(uint)defaultValue!;
+            else
+                return defaultValue;
+        }
+        else if (type == typeof(decimal) || type.IsEnum)
+            return parameter.DefaultValue;
+        else
+            return GetDefaultValue(type);
+    }
+
+    private static object? GetUnderlyingTypeDefaultValue(Type type, ParameterInfo parameter)
+    {
+        if (type.IsPrimitive)
+        {
+            var defaultValue = parameter.DefaultValue;
+            if (type == typeof(nint))
+                return defaultValue is null ? null : (nint)(int)defaultValue;
+            else if (type == typeof(nuint))
+                return defaultValue is null ? null : (nuint)(uint)defaultValue;
+            else
+                return defaultValue;
+        }
+        else if (type == typeof(decimal))
+            return parameter.DefaultValue;
+        else if (type.IsEnum)
+            return GetUnderlyingEnumDefaultValue(type, parameter);
+        else
+            return null;
+    }
+
+    private static object? GetUnderlyingEnumDefaultValue(Type type, ParameterInfo parameter)
+    {
+        var defaultValue = parameter.DefaultValue;
+        return defaultValue is null ? null : Enum.ToObject(type, defaultValue);
+    }
+
+    private static readonly MethodInfo _getDefaultValueMethodInfo = typeof(TypeReaderHelper).GetMethod(nameof(GetDefaultValue), 1, BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!;
+
+    private static object? GetDefaultValue(Type type) => _getDefaultValueMethodInfo.MakeGenericMethod(type).Invoke(null, null);
+
+    private static object? GetDefaultValue<T>() => default(T);
 }

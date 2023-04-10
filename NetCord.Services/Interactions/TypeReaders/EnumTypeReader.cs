@@ -4,7 +4,7 @@ public class EnumTypeReader<TContext> : InteractionTypeReader<TContext> where TC
 {
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration)
     {
-        var type = parameter.Type;
+        var type = parameter.NonNullableElementType;
         if (Enum.TryParse(type, input.Span, configuration.IgnoreCase, out var value) && Enum.IsDefined(type, value!))
             return Task.FromResult(value);
 

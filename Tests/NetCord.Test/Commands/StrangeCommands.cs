@@ -9,6 +9,12 @@ namespace NetCord.Test.Commands;
 
 public class StrangeCommands : CommandModule<CommandContext>
 {
+    [Command("x")]
+    public Task TestXAsync(nint wsz = default)
+    {
+        return ReplyAsync(wsz.ToString());
+    }
+
     [Command("say-dm", "saydm", "dm", "say-pv", "saypv", "pv")]
     public async Task SayDM([CommandParameter(Remainder = true)] string text)
     {

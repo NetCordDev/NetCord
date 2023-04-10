@@ -17,14 +17,9 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
     public async Task ExecuteAutocompleteAsync(TAutocompleteContext context)
     {
         var interaction = context.Interaction;
-        ApplicationCommandInfo<TContext> command;
-        lock (_commands)
-        {
-            if (!_commands.TryGetValue(interaction.Data.Id, out command!))
-                throw new ApplicationCommandNotFoundException();
-        }
+        ApplicationCommandInfo<TContext> command = GetApplicationCommandInfo(interaction.Data.Id);
         var autocompletes = command.Autocompletes!;
-        var option = interaction.Data.Options.First(o => o.Focused); ;
+        var option = interaction.Data.Options.First(o => o.Focused);
         if (!autocompletes.TryGetValue(option.Name, out var autocompleteProvider))
             throw new AutocompleteNotFoundException();
         var choices = await Unsafe.As<IAutocompleteProvider<TAutocompleteContext>>(autocompleteProvider).GetChoicesAsync(option, context).ConfigureAwait(false);
@@ -42,13 +37,10 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
 
-    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> Commands
+    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands()
     {
-        get
-        {
-            lock (_commands)
-                return _commands.ToDictionary(c => c.Key, c => c.Value);
-        }
+        lock (_commands)
+            return new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
     }
 
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
@@ -80,19 +72,20 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 
     private void AddModuleCore(Type type)
     {
+        var configuration = _configuration;
         foreach (var method in type.GetMethods())
         {
             SlashCommandAttribute? slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
             if (slashCommandAttribute != null)
-                AddCommandInfo(new(method, slashCommandAttribute, _configuration, _supportsAutocomplete, _autocompleteBase));
+                AddCommandInfo(new(method, slashCommandAttribute, configuration, _supportsAutocomplete, _autocompleteBase));
 
             UserCommandAttribute? userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
             if (userCommandAttribute != null)
-                AddCommandInfo(new(method, userCommandAttribute, _configuration));
+                AddCommandInfo(new(method, userCommandAttribute, configuration));
 
             MessageCommandAttribute? messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
             if (messageCommandAttribute != null)
-                AddCommandInfo(new(method, messageCommandAttribute, _configuration));
+                AddCommandInfo(new(method, messageCommandAttribute, configuration));
         }
 
         void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
@@ -161,33 +154,18 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     public async Task ExecuteAsync(TContext context)
     {
         var interaction = context.Interaction;
-        ApplicationCommandInfo<TContext>? command;
-        lock (_commands)
-        {
-            if (!_commands.TryGetValue(interaction.Data.Id, out command!))
-                throw new ApplicationCommandNotFoundException();
-        }
+        ApplicationCommandInfo<TContext>? command = GetApplicationCommandInfo(interaction.Data.Id);
 
         await command.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
-        bool isStatic = command.Static;
-        var parameters = command.Parameters;
-        object?[] values;
+        object?[]? parametersToPass;
 
         if (interaction is SlashCommandInteraction slashCommandInteraction)
         {
+            var configuration = _configuration;
+            var parameters = command.Parameters;
             int parametersCount = parameters!.Count;
-            ArraySegment<object?> parametersToPass;
-            if (isStatic)
-            {
-                values = new object?[parametersCount];
-                parametersToPass = values;
-            }
-            else
-            {
-                values = new object?[parametersCount + 1];
-                parametersToPass = new(values, 1, parametersCount);
-            }
+            parametersToPass = new object?[parametersCount];
             var options = slashCommandInteraction.Data.Options;
             int optionsCount = options.Count;
             int parameterIndex = 0;
@@ -196,46 +174,39 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
                 var parameter = parameters[parameterIndex];
                 var option = options[optionIndex];
                 object? value;
-                if (parameter.Name != option.Name)
-                    value = parameter.DefaultValue;
-                else
+                if (parameter.Name == option.Name)
                 {
-                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, _configuration).ConfigureAwait(false);
+                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration).ConfigureAwait(false);
+                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
                     optionIndex++;
                 }
-                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                else
+                    value = parameter.DefaultValue;
+
                 parametersToPass[parameterIndex] = value;
             }
             while (parameterIndex < parametersCount)
             {
                 var parameter = parameters[parameterIndex];
-                var value = parameter.DefaultValue;
-                await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
-                parametersToPass[parameterIndex] = value;
+                parametersToPass[parameterIndex] = parameter.DefaultValue;
                 parameterIndex++;
-            }
-
-            if (!isStatic)
-            {
-                var methodClass = (ApplicationCommandModule<TContext>)Activator.CreateInstance(command.DeclaringType)!;
-                methodClass.Context = context;
-                values[0] = methodClass;
             }
         }
         else
-        {
-            if (isStatic)
-                values = Array.Empty<object?>();
-            else
-            {
-                var methodClass = (ApplicationCommandModule<TContext>)Activator.CreateInstance(command.DeclaringType)!;
-                methodClass.Context = context;
-                values = new object?[]
-                {
-                    methodClass,
-                };
-            }
-        }
-        await command.InvokeAsync(values).ConfigureAwait(false);
+            parametersToPass = null;
+
+        await command.InvokeAsync(parametersToPass, context).ConfigureAwait(false);
+    }
+
+    private protected ApplicationCommandInfo<TContext> GetApplicationCommandInfo(ulong commandId)
+    {
+        ApplicationCommandInfo<TContext>? applicationCommandInfo;
+        bool success;
+        lock (_commands)
+            success = _commands.TryGetValue(commandId, out applicationCommandInfo);
+
+        if (success)
+            return applicationCommandInfo!;
+        throw new ApplicationCommandNotFoundException();
     }
 }

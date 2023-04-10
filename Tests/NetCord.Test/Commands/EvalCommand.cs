@@ -61,10 +61,10 @@ public class EvalCommand : CommandModule<CommandContext>
 
             MessageProperties message = new()
             {
-                Embeds = new List<EmbedProperties>()
+                Embeds = new[]
                 {
-                    embed
-                }
+                    embed,
+                },
             };
             await SendAsync(message);
 

@@ -10,7 +10,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
-        var type = parameter.Type;
+        var type = parameter.NonNullableType;
         if (Enum.TryParse(type, value, out var result) && Enum.IsDefined(type, result!))
             return Task.FromResult(result);
         else
