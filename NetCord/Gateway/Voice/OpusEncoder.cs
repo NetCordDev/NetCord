@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway.Voice;
+﻿using System.Runtime.InteropServices;
+
+namespace NetCord.Gateway.Voice;
 
 public class OpusEncoder : IDisposable
 {
@@ -26,11 +28,9 @@ public class OpusEncoder : IDisposable
     /// <param name="data">Output payload.</param>
     /// <returns>The length of the encoded packet.</returns>
     /// <exception cref="OpusException"></exception>
-    public unsafe int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
+    public int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
     {
-        int result;
-        fixed (byte* pcmPtr = pcm, dataPtr = data)
-            result = Opus.OpusEncode(_encoder, (short*)pcmPtr, Opus.SamplesPerChannel, dataPtr, data.Length);
+        int result = Opus.OpusEncode(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
 
         if (result < 0)
             throw new OpusException((OpusError)result);

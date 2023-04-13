@@ -1,4 +1,6 @@
-﻿namespace NetCord.Gateway.Voice;
+﻿using System.Runtime.InteropServices;
+
+namespace NetCord.Gateway.Voice;
 
 public class OpusDecoder : IDisposable
 {
@@ -24,11 +26,9 @@ public class OpusDecoder : IDisposable
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
     /// <exception cref="OpusException"></exception>
-    public unsafe void Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
+    public void Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
     {
-        int result;
-        fixed (byte* dataPtr = data, pcmPtr = pcm)
-            result = Opus.OpusDecode(_decoder, dataPtr, data.Length, (short*)pcmPtr, Opus.SamplesPerChannel, 0);
+        int result = Opus.OpusDecode(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, 0);
 
         if (result < 0)
             throw new OpusException((OpusError)result);

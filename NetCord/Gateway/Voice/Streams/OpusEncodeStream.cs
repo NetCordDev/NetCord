@@ -12,7 +12,7 @@ public class OpusEncodeStream : RewritingStream
     /// <param name="application">Opus coding mode.</param>
     /// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
     public OpusEncodeStream(Stream next, VoiceChannels channels, OpusApplication application, bool segment = true) : base(segment ? new SegmentingStream(new OpusEncodeStreamInternal(next, channels, application), channels)
-                                                                                                                             : new OpusEncodeStreamInternal(next, channels, application))
+                                                                                                                                  : new OpusEncodeStreamInternal(next, channels, application))
     {
     }
 
@@ -45,7 +45,6 @@ public class OpusEncodeStream : RewritingStream
                 if (buffer.Length > end)
                 {
                     buffer[..end].CopyTo(_buffer[_offset..]);
-                    _offset = 0;
                     await _next.WriteAsync(_buffer, cancellationToken).ConfigureAwait(false);
                     buffer = buffer[end..];
                     await WriteAsyncInternal().ConfigureAwait(false);
@@ -59,20 +58,13 @@ public class OpusEncodeStream : RewritingStream
 
             async ValueTask WriteAsyncInternal()
             {
-                while (true)
+                while (buffer.Length > _frameSize)
                 {
-                    if (buffer.Length > _frameSize)
-                    {
-                        await _next.WriteAsync(buffer[.._frameSize], cancellationToken).ConfigureAwait(false);
-                        buffer = buffer[_frameSize..];
-                    }
-                    else
-                    {
-                        buffer.CopyTo(_buffer);
-                        _offset = buffer.Length;
-                        break;
-                    }
+                    await _next.WriteAsync(buffer[.._frameSize], cancellationToken).ConfigureAwait(false);
+                    buffer = buffer[_frameSize..];
                 }
+                buffer.CopyTo(_buffer);
+                _offset = buffer.Length;
             }
         }
 
@@ -87,7 +79,6 @@ public class OpusEncodeStream : RewritingStream
                 if (buffer.Length > end)
                 {
                     buffer[..end].CopyTo(buf[_offset..]);
-                    _offset = 0;
                     _next.Write(buf);
                     buffer = buffer[end..];
                     WriteInternal(buffer, buf);
@@ -101,20 +92,13 @@ public class OpusEncodeStream : RewritingStream
 
             void WriteInternal(ReadOnlySpan<byte> buffer, Span<byte> buf)
             {
-                while (true)
+                while (buffer.Length > _frameSize)
                 {
-                    if (buffer.Length > _frameSize)
-                    {
-                        _next.Write(buffer[.._frameSize]);
-                        buffer = buffer[_frameSize..];
-                    }
-                    else
-                    {
-                        buffer.CopyTo(buf);
-                        _offset = buffer.Length;
-                        break;
-                    }
+                    _next.Write(buffer[.._frameSize]);
+                    buffer = buffer[_frameSize..];
                 }
+                buffer.CopyTo(buf);
+                _offset = buffer.Length;
             }
         }
 

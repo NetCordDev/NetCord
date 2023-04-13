@@ -8,7 +8,7 @@ internal class OpusDecoderHandle : SafeHandle
     {
     }
 
-    public override bool IsInvalid => handle == (nint)0;
+    public override bool IsInvalid => handle is (nint)0;
 
     protected override bool ReleaseHandle()
     {

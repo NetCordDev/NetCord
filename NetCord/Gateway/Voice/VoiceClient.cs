@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Net.Sockets;
 
+using NetCord.Gateway.Voice.Encryption;
 using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
 using NetCord.Gateway.WebSockets;
@@ -30,11 +31,10 @@ public class VoiceClient : WebSocketClient
     public Task ReadyAsync => _readyCompletionSource.Task;
     private readonly TaskCompletionSource _readyCompletionSource = new();
 
-    internal byte[]? _secretKey;
-
     private readonly Dictionary<uint, Stream> _inputStreams = new();
-    private readonly IUdpSocket _udpSocket;
     private readonly Uri _url;
+    private readonly IUdpSocket _udpSocket;
+    private readonly IVoiceEncryption _encryption;
 
     public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
     {
@@ -46,6 +46,7 @@ public class VoiceClient : WebSocketClient
 
         _udpSocket = configuration.UdpSocket ?? new UdpSocket();
         RedirectInputStreams = configuration.RedirectInputStreams;
+        _encryption = configuration.Encryption ?? new XSalsa20Poly1305Encryption();
     }
 
     private ValueTask SendIdentifyAsync()
@@ -109,7 +110,7 @@ public class VoiceClient : WebSocketClient
 
                         _udpSocket.DatagramReceive += HandleDatagramReceive;
 
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, "xsalsa20_poly1305")));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, _encryption.Name)));
                         await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
 
                         ReadOnlyMemory<byte> CreateDatagram()
@@ -137,7 +138,7 @@ public class VoiceClient : WebSocketClient
                     }
                     else
                     {
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, "xsalsa20_poly1305")));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, _encryption.Name)));
                         await _webSocket.SendAsync(protocolPayload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfProtocolPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesProtocolProperties)).ConfigureAwait(false);
                     }
                 }
@@ -145,7 +146,7 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.SessionDescription:
                 {
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
-                    _secretKey = sessionDescription.SecretKey;
+                    _encryption.SetKey(sessionDescription.SecretKey);
                     InvokeLog(LogMessage.Info("Ready"));
                     var updateLatencyTask = InvokeEventAsync(Ready);
 
@@ -164,7 +165,7 @@ public class VoiceClient : WebSocketClient
                     Users = Users.SetItem(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    SodiumDecryptStream sodiumDecryptStream = new(voiceInStream, this);
+                    DecryptStream sodiumDecryptStream = new(voiceInStream, _encryption, this);
                     if (_inputStreams.Remove(ssrc, out var stream))
                         stream.Dispose();
                     _inputStreams[ssrc] = sodiumDecryptStream;
@@ -244,13 +245,10 @@ public class VoiceClient : WebSocketClient
     /// <exception cref="InvalidOperationException">Used before <see cref="Ready"/> event.</exception>
     public Stream CreateOutputStream(bool normalizeSpeed = true)
     {
-        if (_secretKey == null)
-            throw new InvalidOperationException($"'{nameof(VoiceClient)}' must be ready before creating an output stream.");
-
         Stream stream = new VoiceOutStream(_udpSocket);
         if (normalizeSpeed)
             stream = new SpeedNormalizingStream(stream);
-        stream = new SodiumEncryptStream(stream, this);
+        stream = new EncryptStream(stream, _encryption, this);
         return stream;
     }
 

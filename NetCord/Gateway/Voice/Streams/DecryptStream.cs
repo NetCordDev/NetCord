@@ -1,17 +1,21 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
 
+using NetCord.Gateway.Voice.Encryption;
+
 namespace NetCord.Gateway.Voice;
 
-internal class SodiumDecryptStream : RewritingStream
+internal class DecryptStream : RewritingStream
 {
+    private readonly IVoiceEncryption _encryption;
+    private readonly int _expansion;
     private bool _used;
     private ushort _sequenceNumber;
-    private readonly VoiceClient _client;
 
-    public SodiumDecryptStream(Stream next, VoiceClient client) : base(next)
+    public DecryptStream(Stream next, IVoiceEncryption encryption, VoiceClient client) : base(next)
     {
-        _client = client;
+        _encryption = encryption;
+        _expansion = encryption.Expansion + 12;
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -61,32 +65,24 @@ internal class SodiumDecryptStream : RewritingStream
 
         async ValueTask ActualWriteAsync()
         {
-            int bufferLen = buffer.Length - 12;
-            int resultLen = bufferLen - Libsodium.MacBytes;
-            using var owner = MemoryPool<byte>.Shared.Rent(resultLen);
-            await _next.WriteAsync(GetDecrypted(), cancellationToken).ConfigureAwait(false);
+            int plaintextLen = buffer.Length - _expansion;
+            using var owner = MemoryPool<byte>.Shared.Rent(plaintextLen);
+            var plaintext = owner.Memory[..plaintextLen];
+            await _next.WriteAsync(EncryptAndGetWithoutHeaderExtension(buffer, plaintext), cancellationToken).ConfigureAwait(false);
 
-            Memory<byte> GetDecrypted()
+            Memory<byte> EncryptAndGetWithoutHeaderExtension(ReadOnlyMemory<byte> buffer, Memory<byte> plaintext)
             {
-                var result = owner.Memory;
-                var resultSpan = result.Span;
                 var bufferSpan = buffer.Span;
-                Decrypt(resultSpan, bufferSpan, bufferLen);
+                var plaintextSpan = plaintext.Span;
 
-                if ((bufferSpan[0] & 0b10000) != 0)
-                {
-                    var length = BinaryPrimitives.ReadUInt16BigEndian(resultSpan[2..]);
-                    result = result[(4 * (length + 1))..resultLen];
-                }
-                else
-                    result = result[..resultLen];
-
-                return result;
+                _encryption.Decrypt(bufferSpan, plaintextSpan);
+                return (bufferSpan[0] & 0b10000) == 0 ? plaintext
+                                                      : plaintext[(4 * (BinaryPrimitives.ReadUInt16BigEndian(plaintextSpan[2..]) + 1))..];
             }
         }
     }
 
-    public override unsafe void Write(ReadOnlySpan<byte> buffer)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
         var sequenceNumber = BinaryPrimitives.ReadUInt16BigEndian(buffer[2..]);
         if (_used)
@@ -118,34 +114,11 @@ internal class SodiumDecryptStream : RewritingStream
             _sequenceNumber = sequenceNumber;
         }
 
-        int bufferLen = buffer.Length - 12;
-        int resultLen = bufferLen - Libsodium.MacBytes;
-        using var owner = MemoryPool<byte>.Shared.Rent(resultLen);
-        var result = owner.Memory.Span;
-        Decrypt(result, buffer, bufferLen);
-
-        if ((buffer[0] & 0b10000) != 0)
-        {
-            var length = BinaryPrimitives.ReadUInt16BigEndian(result[2..]);
-            result = result[(4 * (length + 1))..resultLen];
-        }
-        else
-            result = result[..resultLen];
-
-        _next.Write(result);
-    }
-
-    private unsafe void Decrypt(Span<byte> result, ReadOnlySpan<byte> buffer, int bufferLen)
-    {
-        var noncePtr = stackalloc byte[Libsodium.NonceBytes];
-        Span<byte> nonce = new(noncePtr, Libsodium.NonceBytes);
-        buffer[..12].CopyTo(nonce);
-
-        int code;
-        fixed (byte* resultPtr = result, bufferPtr = buffer)
-            code = Libsodium.CryptoSecretboxOpenEasy(resultPtr, bufferPtr + 12, (ulong)bufferLen, noncePtr, _client._secretKey!);
-
-        if (code != 0)
-            throw new LibsodiumException();
+        int plaintextLen = buffer.Length - _expansion;
+        using var owner = MemoryPool<byte>.Shared.Rent(plaintextLen);
+        var plaintext = owner.Memory.Span[..plaintextLen];
+        _encryption.Decrypt(buffer, plaintext);
+        _next.Write((buffer[0] & 0b10000) == 0 ? plaintext
+                                               : plaintext[(4 * (BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1))..]);
     }
 }

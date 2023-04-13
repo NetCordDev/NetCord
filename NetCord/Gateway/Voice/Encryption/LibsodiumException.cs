@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice.Encryption;
 
 [Serializable]
 public class LibsodiumException : Exception

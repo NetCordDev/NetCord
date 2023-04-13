@@ -3,6 +3,7 @@ using System.Reflection;
 
 using NetCord.Gateway;
 using NetCord.Gateway.Voice;
+using NetCord.Gateway.Voice.Encryption;
 using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -101,6 +102,7 @@ internal static class Program
         VoiceClient client = new(state.UserId, state.SessionId, arg.Endpoint!, arg.GuildId, arg.Token, new()
         {
             RedirectInputStreams = true,
+            Encryption = new XSalsa20Poly1305Encryption(),
         });
 
         client.Log += (message) =>
@@ -120,7 +122,7 @@ internal static class Program
         await client.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
         var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; // 00:12:08
-        //var url = "https://file-examples.com/storage/fef1706276640fa2f99a5a4/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
+        //var url = "https://file-examples.com/storage/fe9278ad7f642dbd39ac5c9/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",

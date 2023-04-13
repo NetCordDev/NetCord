@@ -23,7 +23,7 @@ public static class Opus
     internal static extern void OpusEncoderDestroy(nint st);
 
     [DllImport("opus", EntryPoint = "opus_encode", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern unsafe int OpusEncode(OpusEncoderHandle st, short* pcm, int frame_size, byte* data, int max_data_bytes);
+    internal static extern int OpusEncode(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
 
     [DllImport("opus", EntryPoint = "opus_decoder_create", CallingConvention = CallingConvention.Cdecl)]
     internal static extern OpusDecoderHandle OpusDecoderCreate(int Fs, VoiceChannels channels, out OpusError error);
@@ -32,5 +32,5 @@ public static class Opus
     internal static extern void OpusDecoderDestroy(nint st);
 
     [DllImport("opus", EntryPoint = "opus_decode", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern unsafe int OpusDecode(OpusDecoderHandle st, byte* data, int len, short* pcm, int frame_size, int decode_fec);
+    internal static extern int OpusDecode(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
 }
