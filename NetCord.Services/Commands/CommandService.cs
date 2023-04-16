@@ -83,7 +83,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    public async Task ExecuteAsync(int prefixLength, TContext context)
+    public async Task ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
     {
         var content = context.Message.Content;
         var separators = _parameterSeparators;
@@ -222,7 +222,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     continue;
             }
             Break:
-            await commandInfo.InvokeAsync(parametersToPass, context).ConfigureAwait(false);
+            await commandInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
             break;
             NextCommand:;
         }

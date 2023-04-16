@@ -7,7 +7,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
 {
     public int Priority { get; }
     public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
-    public Func<object?[]?, TContext, Task> InvokeAsync { get; }
+    public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
@@ -41,11 +41,12 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(declaringType, method);
     }
 
-    private static Func<object?[]?, TContext, Task> CreateDelegate(MethodInfo method, Type declaringType, CommandParameter<TContext>[] commandParameters)
+    private static Func<object?[]?, TContext, IServiceProvider?, Task> CreateDelegate(MethodInfo method, Type declaringType, CommandParameter<TContext>[] commandParameters)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
-        Type contextType = typeof(TContext);
+        var contextType = typeof(TContext);
         var context = Expression.Parameter(contextType);
+        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
         Expression? instance;
         if (method.IsStatic)
             instance = null;
@@ -53,15 +54,15 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         {
             var module = Expression.Variable(declaringType);
             instance = Expression.Block(new[] { module },
-                                        Expression.Assign(module, Expression.New(declaringType)),
-                                        Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseCommandModule<TContext>.Context), contextType)!), context),
-                                        module);
+                            Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
+                            Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseCommandModule<TContext>.Context), contextType)!), context),
+                            module);
         }
         var call = Expression.Call(instance,
                                    method,
-                                   commandParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i)), p.Type)));
-        var lambda = Expression.Lambda(call, parameters, context);
-        return (Func<object?[]?, TContext, Task>)lambda.Compile();
+                                   commandParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i, typeof(int))), p.Type)));
+        var lambda = Expression.Lambda(call, parameters, context, serviceProvider);
+        return (Func<object?[]?, TContext, IServiceProvider?, Task>)lambda.Compile();
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

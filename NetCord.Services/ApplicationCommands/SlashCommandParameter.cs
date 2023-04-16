@@ -1,5 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
 
+using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.Utils;
 
@@ -17,7 +19,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public ITranslationsProvider? NameTranslationsProvider { get; }
     public string Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
-    public IAutocompleteProvider? AutocompleteProvider { get; }
+    public Delegate? InvokeAutocomplete { get; }
     public IChoicesProvider<TContext>? ChoicesProvider { get; }
     public double? MaxValue { get; }
     public double? MinValue { get; }
@@ -26,7 +28,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteBase)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteContextType, Type? autocompleteBaseType)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
@@ -37,10 +39,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
         {
             var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
-            (TypeReader, NonNullableType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-            Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
-            Description = slashCommandParameterAttribute.Description ?? $"Parameter of name {Name}";
+            var name = Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
+            Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
 
             if (slashCommandParameterAttribute.NameTranslationsProviderType != null)
             {
@@ -69,18 +71,19 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             else
                 ChoicesProvider = TypeReader.ChoicesProvider;
 
-            if (slashCommandParameterAttribute.AutocompleteProviderType != null)
+            var autocompleteProviderType = slashCommandParameterAttribute.AutocompleteProviderType;
+            if (autocompleteProviderType != null)
             {
-                EnsureAutocompleteProviderValid(slashCommandParameterAttribute.AutocompleteProviderType);
-                AutocompleteProvider = (IAutocompleteProvider)Activator.CreateInstance(slashCommandParameterAttribute.AutocompleteProviderType)!;
+                EnsureAutocompleteProviderValid(autocompleteProviderType);
+                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
             }
             else
             {
-                var autocompleteProvider = TypeReader.AutocompleteProvider;
-                if (autocompleteProvider != null)
+                autocompleteProviderType = TypeReader.AutocompleteProviderType;
+                if (autocompleteProviderType != null)
                 {
-                    EnsureAutocompleteProviderValid(autocompleteProvider.GetType());
-                    AutocompleteProvider = autocompleteProvider;
+                    EnsureAutocompleteProviderValid(autocompleteProviderType);
+                    InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
                 }
             }
 
@@ -92,18 +95,18 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
         else
         {
-            (TypeReader, NonNullableType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
 
-            Name = parameter.Name!;
+            var name = Name = parameter.Name!;
             NameTranslationsProvider = TypeReader.NameTranslationsProvider;
-            Description = $"Parameter of name {Name}";
+            Description = string.Format(configuration.DefaultParameterDescriptionFormat, name);
             DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
             ChoicesProvider = TypeReader.ChoicesProvider;
-            var autocompleteProvider = TypeReader.AutocompleteProvider;
-            if (autocompleteProvider != null)
+            var autocompleteProviderType = TypeReader.AutocompleteProviderType;
+            if (autocompleteProviderType != null)
             {
-                EnsureAutocompleteProviderValid(autocompleteProvider.GetType());
-                AutocompleteProvider = autocompleteProvider;
+                EnsureAutocompleteProviderValid(autocompleteProviderType);
+                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
             }
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
             MaxValue = TypeReader.GetMaxValue(this);
@@ -119,9 +122,22 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (!supportsAutocomplete)
                 throw new InvalidOperationException($"Autocomplete is not supported by this service. Use {typeof(ApplicationCommandService<,>)} instead.");
 
-            if (!type.IsAssignableTo(autocompleteBase))
-                throw new InvalidOperationException($"'{type}' is not assignable to '{autocompleteBase}'.");
+            if (!type.IsAssignableTo(autocompleteBaseType))
+                throw new InvalidOperationException($"'{type}' is not assignable to '{autocompleteBaseType}'.");
         }
+    }
+
+    private static Delegate CreateAutocompleteDelegate(Type autocompleteType, Type autocompleteContextType, Type autocompleteBaseType)
+    {
+        var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
+        var context = Expression.Parameter(autocompleteContextType);
+        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
+        var getChoicesAsyncMethod = autocompleteBaseType.GetMethod("GetChoicesAsync", BindingFlags.Instance | BindingFlags.Public)!;
+        var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteType, serviceProvider),
+                                   getChoicesAsyncMethod,
+                                   option, context);
+        var lambda = Expression.Lambda(call, option, context, serviceProvider);
+        return lambda.Compile();
     }
 
     public ApplicationCommandOptionProperties GetRawValue()
@@ -135,7 +151,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MaxLength = MaxLength,
             MinLength = MinLength,
             Required = !HasDefaultValue,
-            Autocomplete = AutocompleteProvider != null,
+            Autocomplete = InvokeAutocomplete != null,
             Choices = ChoicesProvider?.GetChoices(this),
             ChannelTypes = AllowedChannelTypes,
         };

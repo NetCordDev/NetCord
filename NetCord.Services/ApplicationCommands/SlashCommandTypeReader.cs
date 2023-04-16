@@ -16,7 +16,7 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
 
     public virtual IChoicesProvider<TContext>? ChoicesProvider => null;
 
-    public virtual IAutocompleteProvider? AutocompleteProvider => null;
+    public virtual Type? AutocompleteProviderType => null;
 
     public virtual ITranslationsProvider? NameTranslationsProvider => null;
 

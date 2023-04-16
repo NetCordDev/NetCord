@@ -14,7 +14,7 @@ public interface IApplicationCommandInfo
     public ApplicationCommandType Type { get; }
     public string? Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
-    public IReadOnlyDictionary<string, IAutocompleteProvider>? Autocompletes { get; }
+    public IReadOnlyDictionary<string, Delegate>? Autocompletes { get; }
 
     public ApplicationCommandProperties GetRawValue();
 }

@@ -44,7 +44,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         else
             elementType = ElementType = type;
 
-        (TypeReader, NonNullableElementType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+        (TypeReader, NonNullableElementType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
     }

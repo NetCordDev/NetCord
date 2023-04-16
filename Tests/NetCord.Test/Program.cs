@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 
+using Microsoft.Extensions.DependencyInjection;
+
 using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Gateway.Voice.Encryption;
@@ -32,6 +34,8 @@ internal static class Program
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
 
+    private static readonly ServiceProvider _serviceProvider;
+
     private static readonly Dictionary<ulong, VoiceState> _voiceData = new();
 
     static Program()
@@ -39,6 +43,11 @@ internal static class Program
         ApplicationCommandServiceConfiguration<SlashCommandContext> options = new();
         options.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader());
         _slashCommandService = new(options);
+
+        ServiceCollection services = new();
+        services.AddSingleton("wzium");
+        services.AddSingleton(new HttpClient());
+        _serviceProvider = services.BuildServiceProvider();
     }
 
     private static async Task Main()
@@ -105,7 +114,7 @@ internal static class Program
             Encryption = new XSalsa20Poly1305Encryption(),
         });
 
-        client.Log += (message) =>
+        client.Log += message =>
         {
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine(message);
@@ -143,18 +152,18 @@ internal static class Program
         {
             await (interaction switch
             {
-                SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client)),
-                MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client)),
-                UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client)),
-                StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client)),
-                UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client)),
-                RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client)),
-                MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client)),
-                ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client)),
-                ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client)),
-                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(applicationCommandAutocompleteInteraction, _client)),
-                ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client)),
-                _ => throw new("Invalid interaction"),
+                SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client), _serviceProvider),
+                MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client), _serviceProvider),
+                UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client), _serviceProvider),
+                StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client), _serviceProvider),
+                UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client), _serviceProvider),
+                RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client), _serviceProvider),
+                MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client), _serviceProvider),
+                ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
+                ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
+                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(applicationCommandAutocompleteInteraction, _client), _serviceProvider),
+                ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
+                _ => throw new("Invalid interaction."),
             });
         }
         catch (Exception ex)
@@ -190,7 +199,7 @@ internal static class Program
             {
                 try
                 {
-                    await _commandService.ExecuteAsync(prefix.Length, new(message, _client));
+                    await _commandService.ExecuteAsync(prefix.Length, new(message, _client), _serviceProvider);
                 }
                 catch (Exception ex)
                 {

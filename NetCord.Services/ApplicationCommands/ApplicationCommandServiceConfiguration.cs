@@ -155,4 +155,9 @@ public class ApplicationCommandServiceConfiguration<TContext> where TContext : I
     public SlashCommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 
     public bool DefaultDMPermission { get; init; } = true;
+
+    /// <summary>
+    /// {0} - parameter name
+    /// </summary>
+    public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
 }

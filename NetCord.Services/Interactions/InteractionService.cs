@@ -55,7 +55,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
         }
     }
 
-    public async Task ExecuteAsync(TContext context)
+    public async Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         var configuration = _configuration;
         var separator = configuration.ParameterSeparator;
@@ -73,8 +73,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             customId = content[..index];
             arguments = content.AsMemory(index + 1);
         }
-        InteractionInfo<TContext>? interactionInfo;
-        interactionInfo = GetInteractionInfo(customId);
+        var interactionInfo = GetInteractionInfo(customId);
 
         await interactionInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
 
@@ -121,7 +120,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             }
         }
 
-        await interactionInfo.InvokeAsync(parametersToPass, context).ConfigureAwait(false);
+        await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
     }
 
     private static async Task ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration)

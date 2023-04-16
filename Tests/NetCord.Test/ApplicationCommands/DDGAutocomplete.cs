@@ -8,13 +8,18 @@ namespace NetCord.Test.SlashCommands;
 
 public class DDGAutocomplete : IAutocompleteProvider<AutocompleteInteractionContext>
 {
-    private readonly HttpClient _client = new();
+    public DDGAutocomplete(HttpClient client)
+    {
+        _client = client;
+    }
+
+    private readonly HttpClient _client;
 
     public async Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
     {
         return JsonDocument.Parse(await (await _client.GetAsync($"https://duckduckgo.com/ac/?q={Uri.EscapeDataString(option.Value!)}")).Content.ReadAsStreamAsync()).RootElement.EnumerateArray().Select(e =>
         {
-            string s = e.GetProperty("phrase").GetString()!;
+            var s = e.GetProperty("phrase").GetString()!;
             return new ApplicationCommandOptionChoiceProperties(s, s);
         });
     }

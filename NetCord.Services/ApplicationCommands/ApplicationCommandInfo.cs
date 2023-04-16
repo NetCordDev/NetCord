@@ -1,6 +1,8 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
@@ -19,10 +21,10 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     public string? Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>>? Parameters { get; }
-    public Func<object?[]?, TContext, Task> InvokeAsync { get; }
-    public IReadOnlyDictionary<string, IAutocompleteProvider>? Autocompletes { get; }
+    public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
+    public IReadOnlyDictionary<string, Delegate>? Autocompletes { get; }
 
-    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteBase) : this(method, attribute: slashCommandAttribute, configuration, out var declaringType)
+    internal ApplicationCommandInfo(MethodInfo method, SlashCommandAttribute slashCommandAttribute, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteContextType, Type? autocompleteBaseType) : this(method, attribute: slashCommandAttribute, configuration, out var declaringType)
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
@@ -33,7 +35,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         var parametersLength = parameters.Length;
 
         var p = new SlashCommandParameter<TContext>[parametersLength];
-        Dictionary<string, IAutocompleteProvider> autocompletes = new();
+        Dictionary<string, Delegate> autocompletes = new();
         var hasDefaultValue = false;
         for (var i = 0; i < parametersLength; i++)
         {
@@ -43,11 +45,11 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
 
-            SlashCommandParameter<TContext> newP = new(parameter, method, configuration, supportsAutocomplete, autocompleteBase);
+            SlashCommandParameter<TContext> newP = new(parameter, method, configuration, supportsAutocomplete, autocompleteContextType, autocompleteBaseType);
             p[i] = newP;
-            var autocompleteProvider = newP.AutocompleteProvider;
-            if (autocompleteProvider != null)
-                autocompletes.Add(newP.Name, autocompleteProvider);
+            var invokeAutocompleteDelegate = newP.InvokeAutocomplete;
+            if (invokeAutocompleteDelegate != null)
+                autocompletes.Add(newP.Name, invokeAutocompleteDelegate);
         }
 
         Parameters = p;
@@ -96,11 +98,12 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(declaringType = method.DeclaringType!, method);
     }
 
-    private static Func<object?[]?, TContext, Task> CreateDelegate(MethodInfo method, Type declaringType, SlashCommandParameter<TContext>[] commandParameters)
+    private static Func<object?[]?, TContext, IServiceProvider?, Task> CreateDelegate(MethodInfo method, Type declaringType, SlashCommandParameter<TContext>[] commandParameters)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
         Type contextType = typeof(TContext);
         var context = Expression.Parameter(contextType);
+        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
         Expression? instance;
         if (method.IsStatic)
             instance = null;
@@ -108,15 +111,15 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         {
             var module = Expression.Variable(declaringType);
             instance = Expression.Block(new[] { module },
-                                        Expression.Assign(module, Expression.New(declaringType)),
+                                        Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
                                         Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseApplicationCommandModule<TContext>.Context), contextType)!), context),
                                         module);
         }
         var call = Expression.Call(instance,
                                    method,
-                                   commandParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i)), p.Type)));
-        var lambda = Expression.Lambda(call, parameters, context);
-        return (Func<object?[]?, TContext, Task>)lambda.Compile();
+                                   commandParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i, typeof(int))), p.Type)));
+        var lambda = Expression.Lambda(call, parameters, context, serviceProvider);
+        return (Func<object?[]?, TContext, IServiceProvider?, Task>)lambda.Compile();
     }
 
     public ApplicationCommandProperties GetRawValue()
@@ -153,6 +156,14 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             _ => throw new InvalidOperationException(),
         };
 #pragma warning restore CS0618 // Type or member is obsolete
+    }
+
+    internal Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?>> GetAutocompleteDelegate<TAutocompleteContext>(string optionName) where TAutocompleteContext : IAutocompleteInteractionContext
+    {
+        if (Autocompletes!.TryGetValue(optionName, out var autocompleteDelegate))
+            return Unsafe.As<Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?>>>(autocompleteDelegate);
+
+        throw new AutocompleteNotFoundException();
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

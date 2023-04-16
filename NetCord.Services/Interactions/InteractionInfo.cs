@@ -6,7 +6,7 @@ namespace NetCord.Services.Interactions;
 public class InteractionInfo<TContext> where TContext : InteractionContext
 {
     public IReadOnlyList<InteractionParameter<TContext>> Parameters { get; }
-    public Func<object?[]?, TContext, Task> InvokeAsync { get; }
+    public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal InteractionInfo(MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
@@ -34,11 +34,12 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(declaringType, method);
     }
 
-    private static Func<object?[]?, TContext, Task> CreateDelegate(MethodInfo method, Type declaringType, InteractionParameter<TContext>[] interactionParameters)
+    private static Func<object?[]?, TContext, IServiceProvider?, Task> CreateDelegate(MethodInfo method, Type declaringType, InteractionParameter<TContext>[] interactionParameters)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
-        Type contextType = typeof(TContext);
+        var contextType = typeof(TContext);
         var context = Expression.Parameter(contextType);
+        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
         Expression? instance;
         if (method.IsStatic)
             instance = null;
@@ -46,15 +47,15 @@ public class InteractionInfo<TContext> where TContext : InteractionContext
         {
             var module = Expression.Variable(declaringType);
             instance = Expression.Block(new[] { module },
-                                        Expression.Assign(module, Expression.New(declaringType)),
+                                        Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
                                         Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseInteractionModule<TContext>.Context), contextType)!), context),
                                         module);
         }
         var call = Expression.Call(instance,
                                    method,
                                    interactionParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i)), p.Type)));
-        var lambda = Expression.Lambda(call, parameters, context);
-        return (Func<object?[]?, TContext, Task>)lambda.Compile();
+        var lambda = Expression.Lambda(call, parameters, context, serviceProvider);
+        return (Func<object?[]?, TContext, IServiceProvider?, Task>)lambda.Compile();
     }
 
     internal async Task EnsureCanExecuteAsync(TContext context)

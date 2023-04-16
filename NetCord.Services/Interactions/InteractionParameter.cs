@@ -42,7 +42,7 @@ public class InteractionParameter<TContext> where TContext : InteractionContext
         else
             elementType = ElementType = type;
 
-        (TypeReader, NonNullableElementType, DefaultValue) = TypeReaderHelper.GetTypeInfo<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+        (TypeReader, NonNullableElementType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
     }
