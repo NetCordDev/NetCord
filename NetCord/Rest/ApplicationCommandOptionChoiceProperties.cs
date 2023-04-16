@@ -23,12 +23,12 @@ public partial class ApplicationCommandOptionChoiceProperties
     /// <summary>
     /// String value for the choice (max 100 characters).
     /// </summary>
-    public string? ValueString { get; set; }
+    public string? StringValue { get; set; }
 
     /// <summary>
     /// Numeric value for the choice (max 100 characters).
     /// </summary>
-    public double? ValueNumeric { get; set; }
+    public double? NumericValue { get; set; }
 
     /// <summary>
     /// Type of value.
@@ -38,14 +38,14 @@ public partial class ApplicationCommandOptionChoiceProperties
     public ApplicationCommandOptionChoiceProperties(string name, string stringValue)
     {
         Name = name;
-        ValueString = stringValue;
+        StringValue = stringValue;
         ValueType = ApplicationCommandOptionChoiceValueType.String;
     }
 
-    public ApplicationCommandOptionChoiceProperties(string name, double valueNumeric)
+    public ApplicationCommandOptionChoiceProperties(string name, double numericValue)
     {
         Name = name;
-        ValueNumeric = valueNumeric;
+        NumericValue = numericValue;
         ValueType = ApplicationCommandOptionChoiceValueType.Numeric;
     }
 
@@ -64,9 +64,9 @@ public partial class ApplicationCommandOptionChoiceProperties
             }
             writer.WritePropertyName("value");
             if (value.ValueType == ApplicationCommandOptionChoiceValueType.String)
-                writer.WriteStringValue(value.ValueString);
+                writer.WriteStringValue(value.StringValue);
             else
-                writer.WriteNumberValue(value.ValueNumeric.GetValueOrDefault());
+                writer.WriteNumberValue(value.NumericValue.GetValueOrDefault());
             writer.WriteEndObject();
         }
 
