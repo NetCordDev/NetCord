@@ -130,8 +130,8 @@ internal static class Program
 
         await client.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
-        var url = "https://filesamples.com/samples/audio/mp3/Symphony%20No.6%20(1st%20movement).mp3"; // 00:12:08
-        //var url = "https://file-examples.com/storage/fe9278ad7f642dbd39ac5c9/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
+        var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
+        //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",

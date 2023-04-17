@@ -58,7 +58,7 @@ public class OpusEncodeStream : RewritingStream
 
             async ValueTask WriteAsyncInternal()
             {
-                while (buffer.Length > _frameSize)
+                while (buffer.Length >= _frameSize)
                 {
                     await _next.WriteAsync(buffer[.._frameSize], cancellationToken).ConfigureAwait(false);
                     buffer = buffer[_frameSize..];
@@ -92,7 +92,7 @@ public class OpusEncodeStream : RewritingStream
 
             void WriteInternal(ReadOnlySpan<byte> buffer, Span<byte> buf)
             {
-                while (buffer.Length > _frameSize)
+                while (buffer.Length >= _frameSize)
                 {
                     _next.Write(buffer[.._frameSize]);
                     buffer = buffer[_frameSize..];
