@@ -42,6 +42,8 @@
           href: services/interactions/introduction.md
         - name: Parameters
           href: services/interactions/parameters.md
+    - name: Dependency Injection
+      href: services/dependency-injection.md
     - name: Type Readers
       href: services/type-readers.md
     - name: Preconditions
