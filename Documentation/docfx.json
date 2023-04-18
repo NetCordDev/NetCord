@@ -57,8 +57,8 @@
     ],
     "dest": "_site",
     "template": [
-      "templates/NetCord",
-      "templates/darkfx"
+      "default",
+      "templates/NetCord"
     ],
     "markdownEngineName": "markdig",
     "noLangKeyword": false,

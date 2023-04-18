@@ -14,7 +14,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         TaskCompletionSource<VoiceState> stateTaskCompletionSource = new();
         TaskCompletionSource<VoiceServerUpdateEventArgs> serverTaskCompletionSource = new();
 
-        // Subscribe to the events to receive the data needed to create a VoiceClient instance
+        // Subscribe to the events to receive the data needed to create a 'VoiceClient' instance
         client.VoiceStateUpdate += HandleVoiceStateUpdateAsync;
         client.VoiceServerUpdate += HandleVoiceServerUpdateAsync;
 
@@ -36,8 +36,8 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
             throw new($"Failed to join <#{channelId}>!");
         }
 
-        // Create a VoiceClient instance with the data from the events
-        VoiceClient voiceClient = new(state.UserId, state.SessionId, server.Endpoint!, server.GuildId, server.Token, new()
+        // Create a 'VoiceClient' instance with the data from the events
+        VoiceClient voiceClient = new(state.UserId, state.SessionId, server.Endpoint!, server.GuildId, server.Token, new VoiceClientConfiguration()
         {
             RedirectInputStreams = true,
         });
@@ -93,7 +93,8 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         if (!Context.Guild!.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
             throw new("You are not connected to any voice channel!");
 
-        // You should check if the bot is already connected to the voice channel, if yes, you should use an existing VoiceClient instance instead of creating a new one
+        // You should check if the bot is already connected to the voice channel.
+        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one
         var voiceClient = await JoinAsync(Context.Client, Context.Guild.Id, voiceState.ChannelId.GetValueOrDefault());
 
         // Respond to the interaction
@@ -102,8 +103,9 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream();
 
-        // We create this stream to automatically convert the PCM data returned by FFmpeg to Opus data. The Opus data is then written to 'outStream' that sends the data to Discord
-        var stream = new OpusEncodeStream(outStream, VoiceChannels.Stereo, OpusApplication.Audio);
+        // We create this stream to automatically convert the PCM data returned by FFmpeg to Opus data.
+        // The Opus data is then written to 'outStream' that sends the data to Discord
+        OpusEncodeStream stream = new(outStream, VoiceChannels.Stereo, OpusApplication.Audio);
 
         ProcessStartInfo startInfo = new("ffmpeg")
         {
@@ -165,7 +167,8 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         if (!Context.Guild!.VoiceStates.TryGetValue(userId, out var voiceState))
             throw new("You are not connected to any voice channel!");
 
-        // You should check if the bot is already connected to the voice channel, if yes, you should use an existing VoiceClient instance instead of creating a new one
+        // You should check if the bot is already connected to the voice channel.
+        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one
         var voiceClient = await JoinAsync(Context.Client, Context.Guild.Id, voiceState.ChannelId.GetValueOrDefault());
 
         // Create a stream that sends voice to Discord
@@ -174,7 +177,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (args.UserId == userId)
+            if (args.UserId == 803230269111926786)
                 return outStream.WriteAsync(args.Frame);
             return default;
         };

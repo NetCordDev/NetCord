@@ -4,11 +4,13 @@ You can create custom module bases to add methods and properties to your command
 
 ## Example
 ```cs
-public class CustomCommandModule : CommandModule<CommandContext>
+public abstract class CustomCommandModule : CommandModule<CommandContext>
 {
     public Color GetUserColor(GuildUser user)
     {
-        return (user.GetRoles(Context.Guild!).OrderByDescending(r => r.Position).FirstOrDefault(r => r.Color != default)?.Color).GetValueOrDefault();
+        return (user.GetRoles(Context.Guild!)
+                    .OrderByDescending(r => r.Position)
+                    .FirstOrDefault(r => r.Color != default)?.Color).GetValueOrDefault();
     }
 }
 ```

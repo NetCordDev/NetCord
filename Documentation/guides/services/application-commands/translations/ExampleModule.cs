@@ -7,9 +7,14 @@ namespace MyBot;
 
 public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
 {
-    [SlashCommand("animal", "Sends the animal you selected", NameTranslationsProviderType = typeof(NameTranslationsProvider), DescriptionTranslationsProviderType = typeof(DescriptionTranslationsProvider))]
+    [SlashCommand("animal", "Sends the animal you selected",
+        NameTranslationsProviderType = typeof(NameTranslationsProvider),
+        DescriptionTranslationsProviderType = typeof(DescriptionTranslationsProvider))]
     public Task AnimalAsync(
-        [SlashCommandParameter(Description = "Animal to send", NameTranslationsProviderType = typeof(AnimalNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(AnimalDescriptionTranslationsProvider))] Animal animal)
+        [SlashCommandParameter(
+            Description = "Animal to send",
+            NameTranslationsProviderType = typeof(AnimalNameTranslationsProvider),
+            DescriptionTranslationsProviderType = typeof(AnimalDescriptionTranslationsProvider))] Animal animal)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(animal.ToString()));
     }

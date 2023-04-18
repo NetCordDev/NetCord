@@ -21,7 +21,8 @@ using NetCord.Services;
 
 namespace MyBot;
 
-public class RequireDiscriminatorAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IContext, IUserContext // We use generics to make our attribute usable in text commands, application commands and interactions at the same time
+// We use generics to make our attribute usable for text commands, application commands and interactions at the same time
+public class RequireDiscriminatorAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IContext, IUserContext
 {
     private readonly ushort _discriminator;
     
@@ -58,7 +59,8 @@ using NetCord.Services;
 
 namespace MyBot;
 
-public class MustContainAttribute<TContext> : ParameterPreconditionAttribute<TContext> where TContext : IContext // We use generics to make our attribute usable in text commands, application commands and interactions at the same time
+// We use generics to make our attribute usable for text commands, application commands and interactions at the same time
+public class MustContainAttribute<TContext> : ParameterPreconditionAttribute<TContext> where TContext : IContext
 {
     private readonly string _value;
 

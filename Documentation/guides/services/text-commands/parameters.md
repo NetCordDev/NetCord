@@ -20,11 +20,8 @@ public Task PowerAsync(double @base, double power = 2)
 }
 ```
 
-> [!NOTE]
-> C# does not allow you to give a default value to `params` parameters. You need to use @System.Runtime.InteropServices.DefaultParameterValueAttribute to specify it.
-
 ## Remainder
-You can set @"NetCord.Services.Commands.CommandParameterAttribute".@NetCord.Services.Commands.CommandParameterAttribute.Remainder to true to accept rest of an input as a one parameter, example:
+You can set @NetCord.Services.Commands.CommandParameterAttribute.Remainder to true to accept rest of an input as a one parameter, example:
 ```cs
 [Command("reverse")]
 public Task ReverseAsync([CommandParameter(Remainder = true)] string toReverse)

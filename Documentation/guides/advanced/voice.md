@@ -20,7 +20,7 @@ You can join a voice channel using @NetCord.Gateway.GatewayClient.UpdateVoiceSta
 > In the following examples streams and @NetCord.Gateway.Voice.VoiceClient instances are not disposed because they should be stored somewhere and disposed later.
 
 ### Sending Voice
-[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L85-L157)]
+[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L85-L159)]
 
 ### Receiving Voice
-[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L159-L184)]
+[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L161-L187)]
