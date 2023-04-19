@@ -29,7 +29,7 @@ public class XSalsa20Poly1305LiteEncryption : IVoiceEncryption
     public void Encrypt(ReadOnlySpan<byte> plaintext, Span<byte> datagram)
     {
         var noncePart = datagram[^sizeof(int)..];
-        BinaryPrimitives.WriteInt32BigEndian(noncePart, ++_nonce);
+        BinaryPrimitives.WriteInt32BigEndian(noncePart, Interlocked.Increment(ref _nonce));
         Span<byte> nonce = stackalloc byte[Libsodium.NonceBytes];
         noncePart.CopyTo(nonce);
 
