@@ -10,12 +10,7 @@ public static class MentionUtils
         if (mention.StartsWith("<@") && mention.EndsWith(">"))
         {
             mention = mention[2..^1];
-            if (mention.StartsWith("!"))
-            {
-                if (ulong.TryParse(mention[1..], NumberStyles.None, CultureInfo.InvariantCulture, out id))
-                    return true;
-            }
-            else if (ulong.TryParse(mention, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (ulong.TryParse(mention.StartsWith("!") ? mention[1..] : mention, NumberStyles.None, CultureInfo.InvariantCulture, out id))
                 return true;
         }
         else
