@@ -97,7 +97,7 @@ public class Test
         };
 
         foreach (var badMention in badMentions)
-            Assert.ThrowsException<FormatException>(() => MentionUtils.ParseChannel(badMention));
+            Assert.ThrowsException<FormatException>(() => del(badMention));
     }
 
     public static void TryParseTest(TryParseDelegate del, Func<ulong, string> validMentionFunc)
@@ -116,7 +116,7 @@ public class Test
         };
 
         foreach (var badMention in badMentions)
-            Assert.IsFalse(MentionUtils.TryParseChannel(badMention, out _));
+            Assert.IsFalse(del(badMention, out _));
     }
 
     public delegate ulong ParseDelegate(ReadOnlySpan<char> span);
