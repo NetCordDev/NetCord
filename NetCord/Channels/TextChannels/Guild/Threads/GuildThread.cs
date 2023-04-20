@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public abstract class GuildThread : TextChannel
+public abstract class GuildThread : TextChannel, INamedChannel
 {
     public ulong GuildId => _jsonModel.GuildId.GetValueOrDefault();
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }

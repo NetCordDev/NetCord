@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChannel
+public class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChannel
 {
     JsonChannel IJsonModel<JsonChannel>.JsonModel => _jsonModel;
     private protected JsonChannel _jsonModel;
@@ -13,7 +13,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
 
     Permissions IInteractionChannel.Permissions => _jsonModel.Permissions.GetValueOrDefault();
 
-    private protected Channel(JsonChannel jsonModel, RestClient client) : base(client)
+    public Channel(JsonChannel jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
     }
@@ -36,7 +36,7 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, client),
             ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, client),
-            _ => throw new ArgumentException($"Invalid '{nameof(jsonChannel.Type)}'."),
+            _ => new Channel(jsonChannel, client),
         };
     }
 

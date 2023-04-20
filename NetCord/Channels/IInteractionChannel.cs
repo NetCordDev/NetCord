@@ -1,6 +1,8 @@
 ﻿namespace NetCord;
 
-public interface IInteractionChannel
+public interface IInteractionChannel : IEntity
 {
-    Permissions Permissions { get; }
+    public Permissions Permissions { get; }
+
+    public string ToString();
 }

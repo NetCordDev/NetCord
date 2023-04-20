@@ -1,4 +1,5 @@
 ﻿using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
@@ -15,6 +16,12 @@ public class NormalCommands : CommandModule<CommandContext>
     public NormalCommands()
     {
         _wzium = "12";
+    }
+
+    [Command("channel")]
+    public Task ChannelAsync(GroupDMChannel channel)
+    {
+        return ReplyAsync(channel.ToString());
     }
 
     [Command("say")]
@@ -92,10 +99,10 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("user")]
-    public async Task User([CommandParameter(Remainder = true)] GuildUser? user = null)
+    public Task User([CommandParameter(Remainder = true)] UserId? user = null)
     {
-        user ??= (GuildUser)Context.User;
-        await ReplyAsync(user.Username);
+        user ??= new(Context.User.Id, Context.User);
+        return ReplyAsync(user.ToString());
     }
 
     [Command("avatar")]

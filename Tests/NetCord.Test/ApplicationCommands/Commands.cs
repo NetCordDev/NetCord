@@ -12,6 +12,12 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     {
     }
 
+    [SlashCommand("channel", "Channel")]
+    public Task ChannelAsync(TextChannel channel)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(channel.ToString()));
+    }
+
     [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permissions.AddReactions)]
     public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
