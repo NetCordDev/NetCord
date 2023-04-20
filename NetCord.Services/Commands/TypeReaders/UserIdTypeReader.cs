@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Reflection;
 
 namespace NetCord.Services.Commands.TypeReaders;
 
@@ -8,108 +7,129 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
     {
         var guild = context.Message.Guild;
-        if (guild != null)
+        if (guild is null)
         {
-            IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
-            var span = input.Span;
-            var s = span.ToString();
-
-            // by id
-            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
+            if (context.Message.Channel is DMChannel dm)
             {
-                users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
-            }
+                var users = dm.Users;
+                var span = input.Span;
 
-            // by mention
-            if (MentionUtils.TryParseUser(span, out id))
-            {
-                users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
-            }
+                // by mention
+                if (MentionUtils.TryParseUser(span, out var id))
+                    return Task.FromResult<object?>(new UserId(id, users.GetValueOrDefault(id)));
 
-            // by name and tag
-            if (span.Length is >= 7 and <= 37 && span[^5] == '#')
-            {
-                var username = span[..^5].ToString();
-                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
+                // by name and tag
+                if (span.Length is >= 7 and <= 37 && span[^5] == '#')
                 {
-                    GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                    if (user != null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
-                }
-            }
-            // by name or nickname
-            else
-            {
-                var len = input.Length;
-                if (len <= 32)
-                {
-                    GuildUser? user;
-                    try
+                    if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                     {
-                        user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s);
+                        var username = span[..^5];
+                        foreach (var user in users.Values)
+                        {
+                            if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
+                                return Task.FromResult<object?>(new UserId(user.Id, user));
+                        }
                     }
-                    catch
-                    {
-                        throw new AmbiguousMatchException("Too many users found.");
-                    }
-                    if (user != null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
-            }
-        }
-        else if (context.Message.Channel is DMChannel dm)
-        {
-            IReadOnlyDictionary<ulong, User> users = dm.Users;
-            var span = input.Span;
-            var s = span.ToString();
 
-            // by id
-            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
-            {
-                users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
-            }
-
-            // by mention
-            if (MentionUtils.TryParseUser(span, out id))
-            {
-                users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
-            }
-
-            // by name and tag
-            if (span.Length is >= 7 and <= 37 && span[^5] == '#')
-            {
-                var username = span[..^5].ToString();
-                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
-                {
-                    User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                    if (user != null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
-                }
-            }
-            // by name
-            else
-            {
+                // by name
                 if (input.Length is <= 32 and >= 2)
                 {
-                    User? user;
-                    try
+                    using var enumerator = users.Values.GetEnumerator();
+                    while (enumerator.MoveNext())
                     {
-                        user = users.Values.SingleOrDefault(u => u.Username == s);
+                        var current = enumerator.Current;
+                        if (span.SequenceEqual(current.Username))
+                        {
+                            while (enumerator.MoveNext())
+                            {
+                                var current2 = enumerator.Current;
+                                if (span.SequenceEqual(current2.Username))
+                                    goto TooManyFound;
+                            }
+                            return Task.FromResult<object?>(new UserId(current.Id, current));
+                        }
                     }
-                    catch
+                }
+
+                // by id
+                if (ulong.TryParse(span, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+                    return Task.FromResult<object?>(new UserId(id, users.GetValueOrDefault(id)));
+            }
+        }
+        else
+        {
+            var users = guild.Users;
+            var span = input.Span;
+
+            // by mention
+            if (MentionUtils.TryParseUser(span, out var id))
+                return Task.FromResult<object?>(new UserId(id, users.GetValueOrDefault(id)));
+
+            var len = span.Length;
+
+            // by name and tag
+            if (len is >= 7 and <= 37 && span[^5] == '#')
+            {
+                if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
+                {
+                    var username = span[..^5];
+                    foreach (var user in users.Values)
                     {
-                        throw new AmbiguousMatchException("Too many users found.");
+                        if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
+                            return Task.FromResult<object?>(new UserId(user.Id, user));
                     }
-                    if (user != null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
+
+            // by name or nickname
+            if (len <= 32)
+            {
+                using var enumerator = users.Values.GetEnumerator();
+                if (len >= 2)
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        var current = enumerator.Current;
+                        if (span.SequenceEqual(current.Username) || span.SequenceEqual(current.Nickname))
+                        {
+                            while (enumerator.MoveNext())
+                            {
+                                var current2 = enumerator.Current;
+                                if (span.SequenceEqual(current2.Username) || span.SequenceEqual(current2.Nickname))
+                                    goto TooManyFound;
+                            }
+                            return Task.FromResult<object?>(new UserId(current.Id, current));
+                        }
+                    }
+                }
+                else
+                {
+                    while (enumerator.MoveNext())
+                    {
+                        var current = enumerator.Current;
+                        if (span.SequenceEqual(current.Nickname))
+                        {
+                            while (enumerator.MoveNext())
+                            {
+                                var current2 = enumerator.Current;
+                                if (span.SequenceEqual(current2.Nickname))
+                                    goto TooManyFound;
+                            }
+                            return Task.FromResult<object?>(new UserId(current.Id, current));
+                        }
+                    }
+                }
+            }
+
+            // by id
+            if (ulong.TryParse(span, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+                return Task.FromResult<object?>(new UserId(id, users.GetValueOrDefault(id)));
         }
 
         throw new EntityNotFoundException("The user was not found.");
+
+        TooManyFound:
+        throw new InvalidOperationException("Too many users found.");
     }
 }
