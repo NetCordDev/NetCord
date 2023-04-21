@@ -46,6 +46,7 @@ public class OpusEncodeStream : RewritingStream
                 {
                     buffer[..end].CopyTo(_buffer[_offset..]);
                     await _next.WriteAsync(_buffer, cancellationToken).ConfigureAwait(false);
+                    _offset = 0;
                     buffer = buffer[end..];
                     await WriteAsyncInternal().ConfigureAwait(false);
                 }
@@ -80,6 +81,7 @@ public class OpusEncodeStream : RewritingStream
                 {
                     buffer[..end].CopyTo(buf[_offset..]);
                     _next.Write(buf);
+                    _offset = 0;
                     buffer = buffer[end..];
                     WriteInternal(buffer, buf);
                 }
