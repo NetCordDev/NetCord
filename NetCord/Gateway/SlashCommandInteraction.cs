@@ -7,7 +7,7 @@ public class SlashCommandInteraction : ApplicationCommandInteraction
 {
     public override SlashCommandInteractionData Data { get; }
 
-    public SlashCommandInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
+    public SlashCommandInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
         Data = new(jsonModel.Data!, jsonModel.GuildId, client);
     }

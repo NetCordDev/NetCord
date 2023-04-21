@@ -12,13 +12,13 @@ public class ModalSubmitInteraction : Interaction
     /// </summary>
     public Message? Message { get; }
 
-    public ModalSubmitInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
+    public ModalSubmitInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
         Data = new(jsonModel.Data!);
         if (jsonModel.Message != null)
         {
             jsonModel.Message.GuildId = jsonModel.GuildId;
-            Message = new(jsonModel.Message, guild, channel, client);
+            Message = new(jsonModel.Message, guild, Channel, client);
         }
     }
 }

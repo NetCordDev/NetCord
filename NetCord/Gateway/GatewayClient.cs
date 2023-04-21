@@ -677,19 +677,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(
-                        InteractionCreate,
-                        () => data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction),
-                        json => Interaction.CreateFromJson(json, this),
-                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && json.ChannelId.HasValue,
-                        json =>
-                        {
-                            var channelIdValue = json.ChannelId.GetValueOrDefault();
-                            if (!_dmSemaphores!.TryGetValue(channelIdValue, out var semaphore))
-                                _dmSemaphores.Add(channelIdValue, semaphore = new(1, 1));
-                            return semaphore;
-                        },
-                        json => CacheChannelAsync(json.ChannelId.GetValueOrDefault())).ConfigureAwait(false);
+                    await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction), this)).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":

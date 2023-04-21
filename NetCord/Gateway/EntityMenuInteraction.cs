@@ -9,10 +9,10 @@ public abstract class EntityMenuInteraction : Interaction
 
     public Message Message { get; }
 
-    protected EntityMenuInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
+    protected EntityMenuInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
         Data = new(jsonModel.Data!, jsonModel.GuildId, client);
         jsonModel.Message!.GuildId = jsonModel.GuildId;
-        Message = new(jsonModel.Message, guild, channel, client);
+        Message = new(jsonModel.Message, guild, Channel, client);
     }
 }

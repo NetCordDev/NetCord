@@ -12,6 +12,6 @@ public class AutocompleteInteractionContext : InteractionContext, IAutocompleteI
 
     public override ApplicationCommandAutocompleteInteraction Interaction { get; }
     public Guild? Guild => Interaction.Guild;
-    public TextChannel? Channel => Interaction.Channel;
+    public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
 }

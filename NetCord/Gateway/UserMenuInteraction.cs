@@ -5,7 +5,7 @@ namespace NetCord.Gateway;
 
 public class UserMenuInteraction : EntityMenuInteraction
 {
-    public UserMenuInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
+    public UserMenuInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
     }
 }

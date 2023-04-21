@@ -17,8 +17,8 @@ public partial class JsonInteraction : JsonEntity
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
-    [JsonPropertyName("channel_id")]
-    public ulong? ChannelId { get; set; }
+    [JsonPropertyName("channel")]
+    public JsonChannel? Channel { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
@@ -36,7 +36,7 @@ public partial class JsonInteraction : JsonEntity
     public Permissions? AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
-    public CultureInfo UserLocale { get; set; }
+    public CultureInfo? UserLocale { get; set; }
 
     [JsonPropertyName("guild_locale")]
     public CultureInfo? GuildLocale { get; set; }

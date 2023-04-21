@@ -9,10 +9,10 @@ public class ButtonInteraction : Interaction
 
     public Message Message { get; }
 
-    public ButtonInteraction(JsonInteraction jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, guild, channel, client)
+    public ButtonInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
         Data = new(jsonModel.Data!);
         jsonModel.Message!.GuildId = jsonModel.GuildId;
-        Message = new(jsonModel.Message, guild, channel, client);
+        Message = new(jsonModel.Message, guild, Channel, client);
     }
 }
