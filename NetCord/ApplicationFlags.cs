@@ -16,7 +16,7 @@ public enum ApplicationFlags : uint
     GatewayPresence = 1 << 12,
 
     /// <summary>
-    /// Intent required for bots in under 100 servers to receive <see cref="GatewayClient.PresenceUpdate"/> events, found in Bot Settings.
+    /// Intent required for bots in under 100 servers to receive <see cref="GatewayClient.PresenceUpdate"/> events, found on the Bot page in your app's settings.
     /// </summary>
     GatewayPresenceLimited = 1 << 13,
 
@@ -26,7 +26,7 @@ public enum ApplicationFlags : uint
     GatewayGuildUsers = 1 << 14,
 
     /// <summary>
-    /// Intent required for bots in under 100 servers to receive guild user-related events like <see cref="GatewayClient.GuildUserAdd"/>, found in Bot Settings.
+    /// Intent required for bots in under 100 servers to receive guild user-related events like <see cref="GatewayClient.GuildUserAdd"/>, on the Bot page in your app's settings.
     /// </summary>
     GatewayGuildUsersLimited = 1 << 15,
 
@@ -46,7 +46,7 @@ public enum ApplicationFlags : uint
     GatewayMessageContent = 1 << 18,
 
     /// <summary>
-    /// Intent required for bots in under 100 servers to receive message content, found in Bot Settings.
+    /// Intent required for bots in under 100 servers to receive message content, found on the Bot page in your app's settings.
     /// </summary>
     GatewayMessageContentLimited = 1 << 19,
 
