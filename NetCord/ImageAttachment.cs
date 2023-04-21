@@ -2,6 +2,10 @@
 
 public class ImageAttachment : Attachment
 {
+    public ImageAttachment(JsonModels.JsonAttachment jsonModel) : base(jsonModel)
+    {
+    }
+
     /// <summary>
     /// Height of file.
     /// </summary>
@@ -11,8 +15,4 @@ public class ImageAttachment : Attachment
     /// Width of file.
     /// </summary>
     public int Width => _jsonModel.Width.GetValueOrDefault();
-
-    public ImageAttachment(JsonModels.JsonAttachment jsonModel) : base(jsonModel)
-    {
-    }
 }

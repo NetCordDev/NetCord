@@ -7,6 +7,11 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
     JsonModels.JsonAttachment IJsonModel<JsonModels.JsonAttachment>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonAttachment _jsonModel;
 
+    public Attachment(JsonModels.JsonAttachment jsonModel)
+    {
+        _jsonModel = jsonModel;
+    }
+
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
@@ -44,15 +49,12 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
     /// </summary>
     public bool Ephemeral => _jsonModel.Ephemeral;
 
-    private protected Attachment(JsonModels.JsonAttachment jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
     public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
     {
         if (jsonModel.Width.HasValue)
             return new ImageAttachment(jsonModel);
+        else if (jsonModel.DurationSeconds.HasValue)
+            return new VoiceAttachment(jsonModel);
         else
             return new Attachment(jsonModel);
     }

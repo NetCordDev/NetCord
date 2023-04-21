@@ -33,6 +33,12 @@ public partial class JsonAttachment : JsonEntity
     [JsonPropertyName("ephemeral")]
     public bool Ephemeral { get; set; }
 
+    [JsonPropertyName("duration_secs")]
+    public double? DurationSeconds { get; set; }
+
+    [JsonPropertyName("waveform")]
+    public string? Waveform { get; set; }
+
     [JsonSerializable(typeof(JsonAttachment))]
     public partial class JsonAttachmentSerializerContext : JsonSerializerContext
     {

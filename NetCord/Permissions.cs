@@ -222,4 +222,9 @@ public enum Permissions : ulong
     /// Allows the usage of custom soundboard sounds from other servers.
     /// </summary>
     UseExternalSounds = 1uL << 45,
+
+    /// <summary>
+    /// Allows sending voice messages.
+    /// </summary>
+    SendVoiceMessages = 1uL << 46,
 }
