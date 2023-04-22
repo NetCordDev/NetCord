@@ -29,13 +29,20 @@ public abstract class WebSocketClient : IDisposable
             var disconnectedTask = InvokeEventAsync(Disconnected, reconnect);
             if (reconnect)
                 await ReconnectAsync().ConfigureAwait(false);
+            else
+                _readyCompletionSource.TrySetCanceled();
+
             await disconnectedTask.ConfigureAwait(false);
         };
         _webSocket.Closed += async () =>
         {
             _tokenSource!.Cancel();
             InvokeLog(LogMessage.Info("Closed"));
-            await InvokeEventAsync(Closed).ConfigureAwait(false);
+            var closedTask = InvokeEventAsync(Closed).ConfigureAwait(false);
+
+            _readyCompletionSource.TrySetCanceled();
+
+            await closedTask;
         };
         _webSocket.MessageReceived += async data =>
         {
@@ -54,9 +61,12 @@ public abstract class WebSocketClient : IDisposable
     private protected readonly LatencyTimer _latencyTimer = new();
     private protected readonly ReconnectTimer _reconnectTimer = new();
     private protected readonly object _eventsLock = new();
+    private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
     private protected CancellationTokenSource? _tokenSource;
     private protected CancellationToken _token;
+
+    public Task ReadyAsync => _readyCompletionSource.Task;
 
     public TimeSpan? Latency => _latency;
     private TimeSpan? _latency;

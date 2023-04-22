@@ -28,9 +28,6 @@ public class VoiceClient : WebSocketClient
     public ImmutableDictionary<ulong, uint> Ssrcs { get; private set; } = ImmutableDictionary<ulong, uint>.Empty;
     public ImmutableDictionary<uint, ulong> Users { get; private set; } = ImmutableDictionary<uint, ulong>.Empty;
 
-    public Task ReadyAsync => _readyCompletionSource.Task;
-    private readonly TaskCompletionSource _readyCompletionSource = new();
-
     private readonly Dictionary<uint, Stream> _inputStreams = new();
     private readonly Uri _url;
     private readonly IUdpSocket _udpSocket;
@@ -148,12 +145,11 @@ public class VoiceClient : WebSocketClient
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(JsonSessionDescription.JsonSessionDescriptionSerializerContext.WithOptions.JsonSessionDescription);
                     _encryption.SetKey(sessionDescription.SecretKey);
                     InvokeLog(LogMessage.Info("Ready"));
-                    var updateLatencyTask = InvokeEventAsync(Ready);
+                    var readyTask = InvokeEventAsync(Ready);
 
-                    if (!_readyCompletionSource.Task.IsCompleted)
-                        _readyCompletionSource.SetResult();
+                    _readyCompletionSource.TrySetResult();
 
-                    await updateLatencyTask.ConfigureAwait(false);
+                    await readyTask.ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.Speaking:

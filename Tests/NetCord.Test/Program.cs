@@ -1,11 +1,8 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
-using NetCord.Gateway.Voice;
-using NetCord.Gateway.Voice.Encryption;
 using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -36,8 +33,6 @@ internal static class Program
 
     private static readonly ServiceProvider _serviceProvider;
 
-    private static readonly Dictionary<ulong, VoiceState> _voiceData = new();
-
     static Program()
     {
         ApplicationCommandServiceConfiguration<SlashCommandContext> options = new();
@@ -47,6 +42,7 @@ internal static class Program
         ServiceCollection services = new();
         services.AddSingleton("wzium");
         services.AddSingleton(new HttpClient());
+        services.AddSingleton(new Dictionary<ulong, SemaphoreSlim>());
         _serviceProvider = services.BuildServiceProvider();
     }
 
@@ -55,8 +51,6 @@ internal static class Program
         _client.Log += Client_Log;
         _client.MessageCreate += Client_MessageCreate;
         _client.InteractionCreate += Client_InteractionCreate;
-        _client.VoiceStateUpdate += Client_VoiceStateUpdate;
-        _client.VoiceServerUpdate += Client_VoiceServerUpdate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddModules(assembly);
@@ -79,7 +73,7 @@ internal static class Program
         await _client.ReadyAsync;
         try
         {
-            await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId!.Value, true);
+            await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId, true);
         }
         catch (RestException ex)
         {
@@ -97,53 +91,6 @@ internal static class Program
             else
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");
         }
-    }
-
-    private static ValueTask Client_VoiceStateUpdate(VoiceState arg)
-    {
-        _voiceData[arg.GuildId!.Value] = arg;
-        return default;
-    }
-
-    private static async ValueTask Client_VoiceServerUpdate(VoiceServerUpdateEventArgs arg)
-    {
-        var state = _voiceData[arg.GuildId];
-        VoiceClient client = new(state.UserId, state.SessionId, arg.Endpoint!, arg.GuildId, arg.Token, new()
-        {
-            RedirectInputStreams = true,
-            Encryption = new XSalsa20Poly1305Encryption(),
-        });
-
-        client.Log += message =>
-        {
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine(message);
-            Console.ResetColor();
-            return default;
-        };
-
-        await client.StartAsync();
-        await client.ReadyAsync;
-
-        var opusStream = client.CreateOutputStream(/*false*/);
-        var stream = new OpusEncodeStream(opusStream, VoiceChannels.Stereo, OpusApplication.Audio);
-
-        await client.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
-        //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
-        var ffmpeg = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ffmpeg",
-            Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
-            RedirectStandardOutput = true,
-        })!;
-
-        await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
-        await stream.FlushAsync();
-
-        //client.VoiceReceive += args => opusStream.WriteAsync(args.Frame);
-        await Task.Delay(-1);
     }
 
     private static async ValueTask Client_InteractionCreate(Interaction interaction)

@@ -95,12 +95,10 @@ public partial class GatewayClient : WebSocketClient
     public string? SessionId { get; private set; }
     public int SequenceNumber { get; private set; }
     public Shard? Shard { get; private set; }
-    public ulong? ApplicationId { get; private set; }
-    public ApplicationFlags? ApplicationFlags { get; private set; }
+    public ulong ApplicationId => _applicationId;
+    private ulong _applicationId;
+    public ApplicationFlags ApplicationFlags { get; private set; }
     public Rest.RestClient Rest { get; }
-
-    public Task ReadyAsync => _readyCompletionSource!.Task;
-    private readonly TaskCompletionSource _readyCompletionSource = new();
 
     public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
     {
@@ -270,11 +268,10 @@ public partial class GatewayClient : WebSocketClient
                         }
                         SessionId = args.SessionId;
                         Shard = args.Shard;
-                        ApplicationId = args.ApplicationId;
+                        Interlocked.Exchange(ref _applicationId, args.ApplicationId);
                         ApplicationFlags = args.ApplicationFlags;
 
-                        if (!_readyCompletionSource.Task.IsCompleted)
-                            _readyCompletionSource.SetResult();
+                        _readyCompletionSource.TrySetResult();
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
                 }

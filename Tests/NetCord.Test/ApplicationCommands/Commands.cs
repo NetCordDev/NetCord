@@ -1,5 +1,7 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 
+using NetCord.Gateway.Voice;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
@@ -8,8 +10,63 @@ namespace NetCord.Test.SlashCommands;
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
-    public Commands(string wzium)
+    private readonly Dictionary<ulong, SemaphoreSlim> _joinSemaphores;
+
+    public Commands(Dictionary<ulong, SemaphoreSlim> joinSemaphores)
     {
+        _joinSemaphores = joinSemaphores;
+    }
+
+    [SlashCommand("play", "Plays music")]
+    public async Task PlayAsync()
+    {
+        var guild = Context.Guild!;
+        if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
+            throw new("You are not in a voice channel!");
+
+        var client = Context.Client;
+
+        var guildId = guild.Id;
+        var joinSemaphores = _joinSemaphores;
+        SemaphoreSlim? semaphore;
+        lock (joinSemaphores)
+        {
+            if (!joinSemaphores.TryGetValue(guildId, out semaphore))
+                joinSemaphores[guildId] = semaphore = new SemaphoreSlim(1, 1);
+        }
+        VoiceClient voiceClient;
+        await semaphore.WaitAsync();
+        try
+        {
+            voiceClient = await client.JoinVoiceChannelAsync(client.ApplicationId, guild.Id, state.ChannelId.GetValueOrDefault());
+        }
+        finally
+        {
+            semaphore.Release();
+        }
+
+        await voiceClient.StartAsync();
+        await voiceClient.ReadyAsync;
+
+        var outputStream = voiceClient.CreateOutputStream(/*false*/);
+        var opusEncodeStream = new OpusEncodeStream(outputStream, VoiceChannels.Stereo, OpusApplication.Audio);
+
+        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
+        var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
+        //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
+        await RespondAsync(InteractionCallback.ChannelMessageWithSource($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
+        var ffmpeg = Process.Start(new ProcessStartInfo
+        {
+            FileName = "ffmpeg",
+            Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
+            RedirectStandardOutput = true,
+        })!;
+
+        await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream);
+        await opusEncodeStream.FlushAsync();
+
+        //client.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
     }
 
     [SlashCommand("channel", "Channel")]
