@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace NetCord.Rest;
 
 [Serializable]
-[DebuggerDisplay("{GetDiscordErrorMessageAsync().Result}")]
+[DebuggerDisplay("{DebuggerDisplay(),nq}")]
 public class RestException : Exception
 {
     public RestException(HttpResponseMessage httpResponseMessage) : base($"Response status code does not indicate success: {(int)httpResponseMessage.StatusCode} ({httpResponseMessage.ReasonPhrase}).")
@@ -38,4 +38,13 @@ public class RestException : Exception
     public HttpContent ResponseContent { get; }
 
     public Task<string> GetDiscordErrorMessageAsync() => ResponseContent.ReadAsStringAsync();
+
+    private string DebuggerDisplay()
+    {
+        using MemoryStream memoryStream = new();
+        ResponseContent.CopyTo(memoryStream, null, default);
+        memoryStream.Position = 0;
+        using StreamReader streamReader = new(memoryStream);
+        return streamReader.ReadToEnd();
+    }
 }
