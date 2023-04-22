@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 
 using NetCord;
-using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Services.ApplicationCommands;
 
@@ -9,38 +8,28 @@ namespace MyBot;
 
 public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 {
-    private static async Task<VoiceClient> JoinAsync(GatewayClient client, ulong guildId, ulong channelId)
+    [SlashCommand("play", "Plays music", DMPermission = false)]
+    public async Task PlayAsync(string track)
     {
-        TaskCompletionSource<VoiceState> stateTaskCompletionSource = new();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> serverTaskCompletionSource = new();
+        // Check if the specified track is a well formed uri
+        if (!Uri.IsWellFormedUriString(track, UriKind.Absolute))
+            throw new("Invalid track!");
 
-        // Subscribe to the events to receive the data needed to create a 'VoiceClient' instance
-        client.VoiceStateUpdate += HandleVoiceStateUpdateAsync;
-        client.VoiceServerUpdate += HandleVoiceServerUpdateAsync;
+        var guild = Context.Guild!;
 
-        // Join a channel
-        await client.UpdateVoiceStateAsync(new VoiceStateProperties(guildId, channelId));
+        // Get the user voice state
+        if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
+            throw new("You are not connected to any voice channel!");
 
-        var timeout = TimeSpan.FromSeconds(1);
-        VoiceState state;
-        VoiceServerUpdateEventArgs server;
-        try
-        {
-            // Wait for the events with 1 second timeout
-            state = await stateTaskCompletionSource.Task.WaitAsync(timeout);
-            server = await serverTaskCompletionSource.Task.WaitAsync(timeout);
-        }
-        catch (TimeoutException)
-        {
-            // Return an error on timeout
-            throw new($"Failed to join <#{channelId}>!");
-        }
+        var client = Context.Client;
 
-        // Create a 'VoiceClient' instance with the data from the events
-        VoiceClient voiceClient = new(state.UserId, state.SessionId, server.Endpoint!, server.GuildId, server.Token, new VoiceClientConfiguration()
-        {
-            RedirectInputStreams = true,
-        });
+        // You should check if the bot is already connected to the voice channel.
+        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one.
+        // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
+        var voiceClient = await client.JoinVoiceChannelAsync(
+            client.ApplicationId,
+            guild.Id,
+            voiceState.ChannelId.GetValueOrDefault());
 
         // Connect
         await voiceClient.StartAsync();
@@ -50,52 +39,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 
         // Enter speaking state, to be able to send voice
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        return voiceClient;
-
-        ValueTask HandleVoiceStateUpdateAsync(VoiceState arg)
-        {
-            // Filter received events
-            if (arg.UserId == client.User!.Id && arg.GuildId == guildId)
-            {
-                // Unsubscribe from the event
-                client.VoiceStateUpdate -= HandleVoiceStateUpdateAsync;
-
-                // Pass the event data to 'stateTaskCompletionSource'
-                stateTaskCompletionSource.SetResult(arg);
-            }
-            return default;
-        }
-
-        ValueTask HandleVoiceServerUpdateAsync(VoiceServerUpdateEventArgs arg)
-        {
-            // Filter received events
-            if (arg.GuildId == guildId)
-            {
-                // Unsubscribe from the event
-                client.VoiceServerUpdate -= HandleVoiceServerUpdateAsync;
-
-                // Pass the event data to 'serverTaskCompletionSource'
-                serverTaskCompletionSource.SetResult(arg);
-            }
-            return default;
-        }
-    }
-
-    [SlashCommand("play", "Plays music", DMPermission = false)]
-    public async Task PlayAsync(string track)
-    {
-        // Check if the specified track is a well formed uri
-        if (!Uri.IsWellFormedUriString(track, UriKind.Absolute))
-            throw new("Invalid track!");
-
-        // Get the user voice state
-        if (!Context.Guild!.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
-            throw new("You are not connected to any voice channel!");
-
-        // You should check if the bot is already connected to the voice channel.
-        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one
-        var voiceClient = await JoinAsync(Context.Client, Context.Guild.Id, voiceState.ChannelId.GetValueOrDefault());
 
         // Respond to the interaction
         await RespondAsync(InteractionCallback.ChannelMessageWithSource($"Playing {Path.GetFileName(track)}!"));
@@ -161,15 +104,32 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("echo", "Creates echo", DMPermission = false)]
     public async Task EchoAsync()
     {
+        var guild = Context.Guild!;
         var userId = Context.User.Id;
 
         // Get the user voice state
-        if (!Context.Guild!.VoiceStates.TryGetValue(userId, out var voiceState))
+        if (!guild.VoiceStates.TryGetValue(userId, out var voiceState))
             throw new("You are not connected to any voice channel!");
 
+        var client = Context.Client;
+
         // You should check if the bot is already connected to the voice channel.
-        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one
-        var voiceClient = await JoinAsync(Context.Client, Context.Guild.Id, voiceState.ChannelId.GetValueOrDefault());
+        // If so, you should use an existing 'VoiceClient' instance instead of creating a new one.
+        // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
+        var voiceClient = await client.JoinVoiceChannelAsync(
+            client.ApplicationId,
+            guild.Id,
+            voiceState.ChannelId.GetValueOrDefault(),
+            new() { RedirectInputStreams = true /* Required to receive voice */ });
+
+        // Connect
+        await voiceClient.StartAsync();
+
+        // Wait for ready
+        await voiceClient.ReadyAsync;
+
+        // Enter speaking state, to be able to send voice
+        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
@@ -177,7 +137,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (args.UserId == 803230269111926786)
+            if (args.UserId == userId)
                 return outStream.WriteAsync(args.Frame);
             return default;
         };
