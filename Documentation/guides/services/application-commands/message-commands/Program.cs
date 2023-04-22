@@ -17,7 +17,7 @@ client.Log += message =>
 };
 await client.StartAsync();
 await client.ReadyAsync;
-await applicationCommandService.CreateCommandsAsync(client.Rest, client.ApplicationId!.Value);
+await applicationCommandService.CreateCommandsAsync(client.Rest, client.ApplicationId);
 
 client.InteractionCreate += async interaction =>
 {
