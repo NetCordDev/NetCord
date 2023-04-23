@@ -42,6 +42,11 @@ public class InteractionService<TContext> : IService where TContext : Interactio
             AddModuleCore(type);
     }
 
+    public void AddModule<T>()
+    {
+        AddModule(typeof(T));
+    }
+
     private void AddModuleCore(Type type)
     {
         var configuration = _configuration;

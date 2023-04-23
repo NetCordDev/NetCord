@@ -44,6 +44,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             AddModuleCore(type);
     }
 
+    public void AddModule<T>()
+    {
+        AddModule(typeof(T));
+    }
+
     private void AddModuleCore(Type type)
     {
         var configuration = _configuration;

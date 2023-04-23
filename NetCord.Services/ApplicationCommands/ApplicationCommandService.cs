@@ -70,6 +70,11 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             AddModuleCore(type);
     }
 
+    public void AddModule<T>()
+    {
+        AddModule(typeof(T));
+    }
+
     private void AddModuleCore(Type type)
     {
         var configuration = _configuration;

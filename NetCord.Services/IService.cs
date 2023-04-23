@@ -7,4 +7,6 @@ public interface IService
     public void AddModules(Assembly assembly);
 
     public void AddModule(Type type);
+
+    public void AddModule<T>();
 }
