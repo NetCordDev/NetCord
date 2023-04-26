@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using NetCord.Gateway.WebSockets;
@@ -16,7 +15,8 @@ public partial class GatewayClient : WebSocketClient
     private readonly string _botToken;
     private readonly GatewayClientConfiguration _configuration;
     private readonly Uri _url;
-    private bool _disposed;
+    private readonly object? _DMsLock;
+    private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -80,24 +80,42 @@ public partial class GatewayClient : WebSocketClient
     public event Func<StageInstance, ValueTask>? StageInstanceDelete;
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
-    public ImmutableDictionary<ulong, Guild> Guilds { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
-    public ImmutableDictionary<ulong, DMChannel> DMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
-    public ImmutableDictionary<ulong, GroupDMChannel> GroupDMChannels { get; private set; } = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
-
-    private readonly object? _dmsLock;
-    private readonly Dictionary<ulong, SemaphoreSlim>? _dmSemaphores;
+    /// <summary>
+    /// The cache of the <see cref="GatewayClient"/>.
+    /// </summary>
+    /// <remarks>It is <see langword="null"/> before starting of the <see cref="GatewayClient"/>.</remarks>
+    [AllowNull]
+    public IGatewayClientCache Cache { get; private set; }
 
     /// <summary>
-    /// Is <see langword="null"/> before <see cref="Ready"/> event.
+    /// The session id of the <see cref="GatewayClient"/>.
     /// </summary>
-    public SelfUser? User => _user;
-    private SelfUser? _user;
     public string? SessionId { get; private set; }
+
+    /// <summary>
+    /// The sequence number of the <see cref="GatewayClient"/>.
+    /// </summary>
     public int SequenceNumber { get; private set; }
+
+    /// <summary>
+    /// The shard of the <see cref="GatewayClient"/>.
+    /// </summary>
     public Shard? Shard { get; private set; }
+
+    /// <summary>
+    /// The application id of the <see cref="GatewayClient"/>.
+    /// </summary>
     public ulong ApplicationId => _applicationId;
     private ulong _applicationId;
+
+    /// <summary>
+    /// The application flags of the <see cref="GatewayClient"/>.
+    /// </summary>
     public ApplicationFlags ApplicationFlags { get; private set; }
+
+    /// <summary>
+    /// The <see cref="Rest.RestClient"/> of the <see cref="GatewayClient"/>.
+    /// </summary>
     public Rest.RestClient Rest { get; }
 
     public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
@@ -107,10 +125,11 @@ public partial class GatewayClient : WebSocketClient
         _configuration = configuration;
         _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
         Rest = new(token, configuration.RestClientConfiguration);
+
         if (configuration.CacheDMChannels)
         {
-            _dmsLock = new();
-            _dmSemaphores = new();
+            _DMsLock = new();
+            _DMSemaphores = new();
         }
     }
 
@@ -129,30 +148,46 @@ public partial class GatewayClient : WebSocketClient
     }
 
     /// <summary>
-    /// Connects the <see cref="GatewayClient"/> to the gateway.
+    /// Starts the <see cref="GatewayClient"/>.
     /// </summary>
+    /// <param name="presence">The presence to set.</param>
+    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null)
+    public async Task StartAsync(PresenceProperties? presence = null, IGatewayClientCache? cache = null)
     {
-        ThrowIfDisposed();
+        if (cache is null)
+            Cache ??= new GatewayClientCache();
+        else
+            Cache = cache;
+
         await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Disconnects the <see cref="GatewayClient"/> from the gateway.
+    /// Resumes the session specified by <paramref name="sessionId"/>.
     /// </summary>
+    /// <param name="sessionId">The session to resume.</param>
+    /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
+    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public Task CloseAsync()
+    public Task ResumeAsync(string sessionId, int sequenceNumber, IGatewayClientCache? cache = null)
     {
-        ThrowIfDisposed();
-        return CloseAsync(WebSocketCloseStatus.NormalClosure);
+        SessionId = sessionId;
+        SequenceNumber = sequenceNumber;
+
+        if (cache is null)
+            Cache ??= new GatewayClientCache();
+        else
+            Cache = cache;
+
+        return TryResumeAsync();
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
 
-    private protected override async Task ResumeAsync()
+    private protected override async Task TryResumeAsync()
     {
         await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
 
@@ -177,7 +212,7 @@ public partial class GatewayClient : WebSocketClient
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
                 try
                 {
-                    await ProcessEvent(payload).ConfigureAwait(false);
+                    await ProcessEventAsync(payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -218,18 +253,33 @@ public partial class GatewayClient : WebSocketClient
         }
     }
 
+    /// <summary>
+    /// Joins, moves, or disconnects the app from a voice channel.
+    /// </summary>
+    /// <param name="voiceState"></param>
+    /// <returns></returns>
     public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
         return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
     }
 
+    /// <summary>
+    /// Updates an app's presence.
+    /// </summary>
+    /// <param name="presence">The presence to set.</param>
+    /// <returns></returns>
     public ValueTask UpdatePresenceAsync(PresenceProperties presence)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
         return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
     }
 
+    /// <summary>
+    /// Requests user for a guild.
+    /// </summary>
+    /// <param name="requestProperties"></param>
+    /// <returns></returns>
     public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
@@ -237,7 +287,7 @@ public partial class GatewayClient : WebSocketClient
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private async Task ProcessEvent(JsonPayload payload)
+    private async Task ProcessEventAsync(JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
         var name = payload.Event!;
@@ -252,20 +302,28 @@ public partial class GatewayClient : WebSocketClient
                     ReadyEventArgs args = new(data.ToObject(JsonReadyEventArgs.JsonReadyEventArgsSerializerContext.WithOptions.JsonReadyEventArgs), Rest);
                     await InvokeEventAsync(Ready, args, data =>
                     {
-                        _user = args.User;
+                        var cache = Cache;
+                        cache = cache.CacheSelfUser(data.User);
                         if (_configuration.CacheDMChannels)
                         {
-                            lock (_dmsLock!)
+                            var readyDMChannels = args.DMChannels;
+                            if (readyDMChannels.Count != 0)
                             {
-                                foreach (var channel in args.DMChannels)
+                                lock (_DMsLock!)
                                 {
-                                    if (channel is GroupDMChannel groupDm)
-                                        GroupDMChannels = GroupDMChannels.SetItem(groupDm.Id, groupDm);
-                                    else if (channel is DMChannel dm)
-                                        DMChannels = DMChannels.SetItem(dm.Id, dm);
+                                    for (var i = 0; i < args.DMChannels.Count; i++)
+                                    {
+                                        var channel = args.DMChannels[i];
+                                        if (channel is GroupDMChannel groupDM)
+                                            cache = cache.CacheGroupDMChannel(groupDM);
+                                        else
+                                            cache = cache.CacheDMChannel(channel);
+                                    }
                                 }
                             }
                         }
+                        Cache = cache;
+
                         SessionId = args.SessionId;
                         Shard = args.Shard;
                         Interlocked.Exchange(ref _applicationId, args.ApplicationId);
@@ -282,8 +340,12 @@ public partial class GatewayClient : WebSocketClient
                     _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency);
-                    await InvokeResumedEventAsync().ConfigureAwait(false);
+                    var resumedTask = InvokeResumedEventAsync();
+
+                    _readyCompletionSource.TrySetResult();
+
                     await updateLatencyTask.ConfigureAwait(false);
+                    await resumedTask.ConfigureAwait(false);
                 }
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
@@ -316,14 +378,7 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelCreate, () => new(channel, guildId), () =>
-                    {
-                        if (TryGetGuild(guildId, out var guild))
-                        {
-                            guild.Channels = guild.Channels.SetItem(channel.Id, channel);
-                            guild._jsonModel.Channels = guild._jsonModel.Channels.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildChannelCreate, () => new(channel, guildId), () => Cache = Cache.CacheGuildChannel(guildId, channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_UPDATE":
@@ -331,14 +386,7 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelUpdate, () => new(channel, guildId), () =>
-                    {
-                        if (TryGetGuild(guildId, out var guild))
-                        {
-                            guild.Channels = guild.Channels.SetItem(channel.Id, channel);
-                            guild._jsonModel.Channels = guild._jsonModel.Channels.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildChannelUpdate, () => new(channel, guildId), () => Cache = Cache.CacheGuildChannel(guildId, channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_DELETE":
@@ -346,14 +394,7 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
                     var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelDelete, () => new(channel, guildId), () =>
-                    {
-                        if (TryGetGuild(guildId, out var guild))
-                        {
-                            guild.Channels = guild.Channels.Remove(channel.Id);
-                            guild._jsonModel.Channels = guild._jsonModel.Channels.Remove(json.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildChannelDelete, () => new(channel, guildId), () => Cache = Cache.RemoveGuildChannel(guildId, channel.Id)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
@@ -365,42 +406,21 @@ public partial class GatewayClient : WebSocketClient
                 {
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(GuildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () =>
-                    {
-                        if (TryGetGuild(thread.GuildId, out var guild))
-                        {
-                            guild.ActiveThreads = guild.ActiveThreads.SetItem(thread.Id, thread);
-                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () => Cache = Cache.CacheGuildThread(thread)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_UPDATE":
                 {
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(GuildThreadUpdate, thread, t =>
-                    {
-                        if (TryGetGuild(thread.GuildId, out var guild))
-                        {
-                            guild.ActiveThreads = guild.ActiveThreads.SetItem(t.Id, t);
-                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildThreadUpdate, thread, t => Cache = Cache.CacheGuildThread(t)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_DELETE":
                 {
                     var json = data.ToObject(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel);
                     var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildThreadDelete, () => new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type), () =>
-                    {
-                        if (TryGetGuild(guildId, out var guild))
-                        {
-                            guild.ActiveThreads = guild.ActiveThreads.Remove(json.Id);
-                            guild._jsonModel.ActiveThreads = guild._jsonModel.ActiveThreads.Remove(json.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildThreadDelete, () => new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type), () => Cache = Cache.RemoveGuildThread(guildId, json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_LIST_SYNC":
@@ -408,14 +428,7 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonGuildThreadListSyncEventArgs.JsonGuildThreadListSyncEventArgsSerializerContext.WithOptions.JsonGuildThreadListSyncEventArgs);
                     GuildThreadListSyncEventArgs args = new(json, Rest);
                     var guildId = args.GuildId;
-                    await InvokeEventAsync(GuildThreadListSync, args, args =>
-                    {
-                        if (TryGetGuild(guildId, out var guild))
-                        {
-                            guild.ActiveThreads = args.Threads;
-                            guild._jsonModel.ActiveThreads = json.Threads.ToImmutableDictionary(t => t.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildThreadListSync, args, args => Cache = Cache.SyncGuildActiveThreads(guildId, args.Threads)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
@@ -437,32 +450,23 @@ public partial class GatewayClient : WebSocketClient
                     else
                     {
                         Guild guild = new(jsonGuild, Rest);
-                        await InvokeEventAsync(GuildCreate, () => new(id, guild), () =>
-                        {
-                            Guilds = Guilds.SetItem(id, guild);
-                        }).ConfigureAwait(false);
+                        await InvokeEventAsync(GuildCreate, () => new(id, guild), () => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                     }
                 }
                 break;
             case "GUILD_UPDATE":
                 {
                     var guildId = GetGuildId();
-                    if (Guilds.TryGetValue(guildId, out var oldGuild))
+                    if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
                     {
-                        await InvokeEventAsync(GuildUpdate, new(data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild), oldGuild), guild =>
-                        {
-                            Guilds = Guilds.SetItem(guildId, guild);
-                        }).ConfigureAwait(false);
+                        await InvokeEventAsync(GuildUpdate, new(data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild), oldGuild), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                     }
                 }
                 break;
             case "GUILD_DELETE":
                 {
                     var jsonGuild = data.ToObject(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild);
-                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild.Id, !jsonGuild.IsUnavailable), () =>
-                    {
-                        Guilds = Guilds.Remove(jsonGuild.Id);
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild.Id, !jsonGuild.IsUnavailable), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
@@ -483,27 +487,13 @@ public partial class GatewayClient : WebSocketClient
             case "GUILD_EMOJIS_UPDATE":
                 {
                     var json = data.ToObject(JsonGuildEmojisUpdateEventArgs.JsonGuildEmojisUpdateEventArgsSerializerContext.WithOptions.JsonGuildEmojisUpdateEventArgs);
-                    await InvokeEventAsync(GuildEmojisUpdate, new(json, Rest), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Emojis = args.Emojis;
-                            guild._jsonModel.Emojis = json.Emojis;
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildEmojisUpdate, new(json, Rest), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
                     var json = data.ToObject(JsonGuildStickersUpdateEventArgs.JsonGuildStickersUpdateEventArgsSerializerContext.WithOptions.JsonGuildStickersUpdateEventArgs);
-                    await InvokeEventAsync(GuildStickersUpdate, new(json, Rest), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Stickers = args.Stickers;
-                            guild._jsonModel.Stickers = json.Stickers;
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildStickersUpdate, new(json, Rest), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
@@ -514,40 +504,19 @@ public partial class GatewayClient : WebSocketClient
             case "GUILD_MEMBER_ADD":
                 {
                     var json = data.ToObject(JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser);
-                    await InvokeEventAsync(GuildUserAdd, new(json, GetGuildId(), Rest), user =>
-                    {
-                        if (TryGetGuild(user.GuildId, out var guild))
-                        {
-                            guild.Users = guild.Users.SetItem(user.Id, user);
-                            guild._jsonModel.Users = guild._jsonModel.Users.SetItem(json.User.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildUserAdd, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
                     var json = data.ToObject(JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser);
-                    await InvokeEventAsync(GuildUserUpdate, new(json, GetGuildId(), Rest), user =>
-                    {
-                        if (TryGetGuild(user.GuildId, out var guild))
-                        {
-                            guild.Users = guild.Users.SetItem(user.Id, user);
-                            guild._jsonModel.Users = guild._jsonModel.Users.SetItem(json.User.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildUserUpdate, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
                     var json = data.ToObject(JsonGuildUserRemoveEventArgs.JsonGuildUserRemoveEventArgsSerializerContext.WithOptions.JsonGuildUserRemoveEventArgs);
-                    await InvokeEventAsync(GuildUserRemove, new(json, Rest), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Users = guild.Users.Remove(args.User.Id);
-                            guild._jsonModel.Users = guild._jsonModel.Users.Remove(json.User.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildUserRemove, new(json, Rest), args => Cache = Cache.RemoveGuildUser(args.GuildId, args.User.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBERS_CHUNK":
@@ -555,96 +524,49 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonGuildUserChunkEventArgs.JsonGuildUserChunkEventArgsSerializerContext.WithOptions.JsonGuildUserChunkEventArgs);
                     await InvokeEventAsync(GuildUserChunk, new(json, Rest), args =>
                     {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Users = guild.Users.SetItems(args.Users);
-                            guild._jsonModel.Users = guild._jsonModel.Users.SetItems(json.Users.Select(u => new KeyValuePair<ulong, JsonGuildUser>(u.User.Id, u)));
-
-                            if (args.Presences != null)
-                            {
-                                guild.Presences = guild.Presences.SetItems(args.Presences);
-                                guild._jsonModel.Presences = guild._jsonModel.Presences.SetItems(json.Presences!.Select(p => new KeyValuePair<ulong, JsonPresence>(p.User.Id, p)));
-                            }
-                        }
+                        var guildId = args.GuildId;
+                        var cache = Cache.CacheGuildUsers(guildId, args.Users);
+                        var presences = args.Presences;
+                        if (presences is not null)
+                            cache = cache.CachePresences(guildId, presences);
+                        Cache = cache;
                     }).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_CREATE":
                 {
                     var json = data.ToObject(JsonRoleEventArgs.JsonRoleEventArgsSerializerContext.WithOptions.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleCreate, new(json, Rest), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
-                            guild._jsonModel.Roles = guild._jsonModel.Roles.SetItem(json.Role.Id, json.Role);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(RoleCreate, new(json, Rest), args => Cache = Cache.CacheRole(args.GuildId, args.Role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
                     var json = data.ToObject(JsonRoleEventArgs.JsonRoleEventArgsSerializerContext.WithOptions.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleUpdate, new(json, Rest), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Roles = guild.Roles.SetItem(args.Role.Id, args.Role);
-                            guild._jsonModel.Roles = guild._jsonModel.Roles.SetItem(json.Role.Id, json.Role);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(RoleUpdate, new(json, Rest), args => Cache = Cache.CacheRole(args.GuildId, args.Role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_DELETE":
                 {
                     var json = data.ToObject(JsonRoleDeleteEventArgs.JsonRoleDeleteEventArgsSerializerContext.WithOptions.JsonRoleDeleteEventArgs);
-                    await InvokeEventAsync(RoleDelete, new(json), args =>
-                    {
-                        if (TryGetGuild(args.GuildId, out var guild))
-                        {
-                            guild.Roles = guild.Roles.Remove(args.RoleId);
-                            guild._jsonModel.Roles = guild._jsonModel.Roles.Remove(json.RoleId);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(RoleDelete, new(json), args => Cache = Cache.RemoveRole(args.GuildId, args.RoleId)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
                     var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventCreate, new(json, Rest), scheduledEvent =>
-                    {
-                        if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        {
-                            guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
-                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildScheduledEventCreate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
                     var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventUpdate, new(json, Rest), scheduledEvent =>
-                    {
-                        if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        {
-                            guild.ScheduledEvents = guild.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent);
-                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildScheduledEventUpdate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
                     var json = data.ToObject(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventDelete, new(json, Rest), scheduledEvent =>
-                    {
-                        if (TryGetGuild(scheduledEvent.GuildId, out var guild))
-                        {
-                            guild.ScheduledEvents = guild.ScheduledEvents.Remove(scheduledEvent.Id);
-                            guild._jsonModel.ScheduledEvents = guild._jsonModel.ScheduledEvents.Remove(json.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildScheduledEventDelete, new(json, Rest), scheduledEvent => Cache = Cache.RemoveGuildScheduledEvent(scheduledEvent.GuildId, scheduledEvent.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
@@ -674,7 +596,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction), this)).ConfigureAwait(false);
+                    await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(JsonInteraction.JsonInteractionSerializerContext.WithOptions.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":
@@ -692,13 +614,13 @@ public partial class GatewayClient : WebSocketClient
                     await InvokeEventAsync(
                         MessageCreate,
                         () => data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage),
-                        json => Message.CreateFromJson(json, this),
+                        json => Message.CreateFromJson(json, Cache, Rest),
                         json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {
                             var channelId = json.ChannelId;
-                            if (!_dmSemaphores!.TryGetValue(channelId, out var semaphore))
-                                _dmSemaphores.Add(channelId, semaphore = new(1, 1));
+                            if (!_DMSemaphores!.TryGetValue(channelId, out var semaphore))
+                                _DMSemaphores.Add(channelId, semaphore = new(1, 1));
                             return semaphore;
                         },
                         json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
@@ -709,13 +631,13 @@ public partial class GatewayClient : WebSocketClient
                     await InvokeEventAsync(
                         MessageUpdate,
                         () => data.ToObject(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage),
-                        json => Message.CreateFromJson(json, this),
+                        json => Message.CreateFromJson(json, Cache, Rest),
                         json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {
                             var channelId = json.ChannelId;
-                            if (!_dmSemaphores!.TryGetValue(channelId, out var semaphore))
-                                _dmSemaphores.Add(channelId, semaphore = new(1, 1));
+                            if (!_DMSemaphores!.TryGetValue(channelId, out var semaphore))
+                                _DMSemaphores.Add(channelId, semaphore = new(1, 1));
                             return semaphore;
                         },
                         json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
@@ -754,53 +676,25 @@ public partial class GatewayClient : WebSocketClient
             case "PRESENCE_UPDATE":
                 {
                     var json = data.ToObject(JsonPresence.JsonPresenceSerializerContext.WithOptions.JsonPresence);
-                    await InvokeEventAsync(PresenceUpdate, new(json, null, Rest), presence =>
-                    {
-                        if (TryGetGuild(presence.GuildId, out var guild))
-                        {
-                            guild.Presences = guild.Presences.SetItem(presence.User.Id, presence);
-                            guild._jsonModel.Presences = guild._jsonModel.Presences.SetItem(json.User.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(PresenceUpdate, new(json, null, Rest), presence => Cache = Cache.CachePresence(presence)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
                     var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceCreate, new(json, Rest), stageInstance =>
-                    {
-                        if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        {
-                            guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
-                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(StageInstanceCreate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
                     var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceUpdate, new(json, Rest), stageInstance =>
-                    {
-                        if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        {
-                            guild.StageInstances = guild.StageInstances.SetItem(stageInstance.Id, stageInstance);
-                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.SetItem(json.Id, json);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(StageInstanceUpdate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
                     var json = data.ToObject(JsonStageInstance.JsonStageInstanceSerializerContext.WithOptions.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceDelete, new(json, Rest), stageInstance =>
-                    {
-                        if (TryGetGuild(stageInstance.GuildId, out var guild))
-                        {
-                            guild.StageInstances = guild.StageInstances.Remove(stageInstance.Id);
-                            guild._jsonModel.StageInstances = guild._jsonModel.StageInstances.Remove(json.Id);
-                        }
-                    }).ConfigureAwait(false);
+                    await InvokeEventAsync(StageInstanceDelete, new(json, Rest), stageInstance => Cache = Cache.RemoveStageInstance(stageInstance.GuildId, stageInstance.Id)).ConfigureAwait(false);
                 }
                 break;
             case "TYPING_START":
@@ -810,7 +704,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "USER_UPDATE":
                 {
-                    await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), Rest), out _user).ConfigureAwait(false);
+                    await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), Rest), user => Cache = Cache.CacheSelfUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_STATE_UPDATE":
@@ -818,19 +712,10 @@ public partial class GatewayClient : WebSocketClient
                     var json = data.ToObject(JsonVoiceState.JsonVoiceStateSerializerContext.WithOptions.JsonVoiceState);
                     await InvokeEventAsync(VoiceStateUpdate, new(json, Rest), voiceState =>
                     {
-                        if (TryGetGuild(voiceState.GuildId.GetValueOrDefault(), out var guild))
-                        {
-                            if (voiceState.ChannelId.HasValue)
-                            {
-                                guild.VoiceStates = guild.VoiceStates.SetItem(voiceState.UserId, voiceState);
-                                guild._jsonModel.VoiceStates = guild._jsonModel.VoiceStates.SetItem(json.UserId, json);
-                            }
-                            else
-                            {
-                                guild.VoiceStates = guild.VoiceStates.Remove(voiceState.UserId);
-                                guild._jsonModel.VoiceStates = guild._jsonModel.VoiceStates.Remove(json.UserId);
-                            }
-                        }
+                        if (voiceState.ChannelId.HasValue)
+                            Cache = Cache.CacheVoiceState(voiceState.GuildId.GetValueOrDefault(), voiceState);
+                        else
+                            Cache = Cache.RemoveVoiceState(voiceState.GuildId.GetValueOrDefault(), voiceState.UserId);
                     }).ConfigureAwait(false);
                 }
                 break;
@@ -854,45 +739,35 @@ public partial class GatewayClient : WebSocketClient
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         ulong GetGuildId() => data.GetProperty("guild_id").ToObject(UInt64Utils.UInt64SerializerContext.WithOptions.UInt64);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool TryGetGuild(ulong guildId, [NotNullWhen(true)] out Guild? guild) => Guilds.TryGetValue(guildId, out guild);
-
         async ValueTask CacheChannelAsync(ulong channelId)
         {
-            if (!(DMChannels.ContainsKey(channelId) || GroupDMChannels.ContainsKey(channelId)))
+            var cache = Cache;
+            if (!(cache.DMChannels.ContainsKey(channelId) || cache.GroupDMChannels.ContainsKey(channelId)))
             {
                 var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
                 if (channel is GroupDMChannel groupDMChannel)
                 {
-                    lock (_dmsLock!)
-                        GroupDMChannels = GroupDMChannels.SetItem(channelId, groupDMChannel);
+                    lock (_DMsLock!)
+                        Cache = Cache.CacheGroupDMChannel(groupDMChannel);
                 }
                 else if (channel is DMChannel dMChannel)
                 {
-                    lock (_dmsLock!)
-                        DMChannels = DMChannels.SetItem(channelId, dMChannel);
+                    lock (_DMsLock!)
+                        Cache = Cache.CacheDMChannel(dMChannel);
                 }
             }
         }
     }
 
-    private void ThrowIfDisposed()
-    {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(GatewayClient));
-    }
-
     public override void Dispose()
     {
-        _disposed = true;
-        Guilds = null!;
-        DMChannels = null!;
-        GroupDMChannels = null!;
+        base.Dispose();
+        Rest.Dispose();
+        Cache.Dispose();
         if (_configuration.CacheDMChannels)
         {
-            foreach (var semaphore in _dmSemaphores!.Values)
+            foreach (var semaphore in _DMSemaphores!.Values)
                 semaphore.Dispose();
         }
-        base.Dispose();
     }
 }

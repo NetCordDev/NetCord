@@ -7,9 +7,9 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
     internal readonly JsonModels.JsonGuild _jsonModel;
 
-    public ImmutableDictionary<ulong, Role> Roles { get; internal set; }
-    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; internal set; }
-    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; internal set; }
+    public ImmutableDictionary<ulong, Role> Roles { get; set; }
+    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; set; }
+    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; set; }
 
     public override ulong Id => _jsonModel.Id;
     public string Name => _jsonModel.Name;

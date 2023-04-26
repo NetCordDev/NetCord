@@ -9,19 +9,18 @@ public abstract class WebSocketClient : IDisposable
 {
     private protected WebSocketClient(IWebSocket webSocket)
     {
-        _webSocket = webSocket;
-        _webSocket.Connecting += async () =>
+        webSocket.Connecting += async () =>
         {
             InvokeLog(LogMessage.Info("Connecting"));
             await InvokeEventAsync(Connecting).ConfigureAwait(false);
         };
-        _webSocket.Connected += async () =>
+        webSocket.Connected += async () =>
         {
             _token = (_tokenSource = new()).Token;
             InvokeLog(LogMessage.Info("Connected"));
             await InvokeEventAsync(Connected).ConfigureAwait(false);
         };
-        _webSocket.Disconnected += async (closeStatus, description) =>
+        webSocket.Disconnected += async (closeStatus, description) =>
         {
             _tokenSource!.Cancel();
             InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
@@ -34,7 +33,7 @@ public abstract class WebSocketClient : IDisposable
 
             await disconnectedTask.ConfigureAwait(false);
         };
-        _webSocket.Closed += async () =>
+        webSocket.Closed += async () =>
         {
             _tokenSource!.Cancel();
             InvokeLog(LogMessage.Info("Closed"));
@@ -44,7 +43,7 @@ public abstract class WebSocketClient : IDisposable
 
             await closedTask;
         };
-        _webSocket.MessageReceived += async data =>
+        webSocket.MessageReceived += async data =>
         {
             try
             {
@@ -55,6 +54,7 @@ public abstract class WebSocketClient : IDisposable
                 InvokeLog(LogMessage.Error(ex));
             }
         };
+        _webSocket = webSocket;
     }
 
     private protected readonly IWebSocket _webSocket;
@@ -79,7 +79,12 @@ public abstract class WebSocketClient : IDisposable
     public event Func<ValueTask>? Closed;
     public event Func<LogMessage, ValueTask>? Log;
 
-    private protected Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status)
+    /// <summary>
+    /// Closes the <see cref="WebSocketClient"/>.
+    /// </summary>
+    /// <param name="status">The status to close with.</param>
+    /// <returns></returns>
+    public Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
     {
         _tokenSource!.Cancel();
         return _webSocket.CloseAsync(status);
@@ -101,7 +106,7 @@ public abstract class WebSocketClient : IDisposable
             }
             try
             {
-                await ResumeAsync().ConfigureAwait(false);
+                await TryResumeAsync().ConfigureAwait(false);
                 return;
             }
             catch (Exception ex)
@@ -111,7 +116,7 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected abstract Task ResumeAsync();
+    private protected abstract Task TryResumeAsync();
 
     private protected async void BeginHeartbeating(double interval)
     {

@@ -1,5 +1,5 @@
 ﻿using System.Buffers.Binary;
-using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 
 using NetCord.Gateway.Voice.Encryption;
@@ -18,15 +18,24 @@ public class VoiceClient : WebSocketClient
     public event Func<ValueTask>? Ready;
     public event Func<ulong, ValueTask>? UserDisconnect;
 
-    public string Endpoint { get; }
-    public ulong GuildId { get; }
     public ulong UserId { get; }
+
     public string SessionId { get; }
+
+    public string Endpoint { get; }
+
+    public ulong GuildId { get; }
+
     public string Token { get; }
+
     public bool RedirectInputStreams { get; }
-    public uint Ssrc { get; private set; }
-    public ImmutableDictionary<ulong, uint> Ssrcs { get; private set; } = ImmutableDictionary<ulong, uint>.Empty;
-    public ImmutableDictionary<uint, ulong> Users { get; private set; } = ImmutableDictionary<uint, ulong>.Empty;
+
+    /// <summary>
+    /// The cache of the <see cref="VoiceClient"/>.
+    /// </summary>
+    /// <remarks>It is <see langword="null"/> before starting of the <see cref="VoiceClient"/>.</remarks>
+    [AllowNull]
+    public IVoiceClientCache Cache { get; private set; }
 
     private readonly Dictionary<uint, Stream> _inputStreams = new();
     private readonly Uri _url;
@@ -53,22 +62,41 @@ public class VoiceClient : WebSocketClient
         return _webSocket.SendAsync(serializedPayload);
     }
 
-    public async Task StartAsync()
+    /// <summary>
+    /// Starts the <see cref="VoiceClient"/>.
+    /// </summary>
+    /// <param name="cache">The cache to use.</param>
+    /// <returns></returns>
+    public async Task StartAsync(IVoiceClientCache? cache = null)
     {
+        if (cache is null)
+            Cache ??= new VoiceClientCache();
+        else
+            Cache = cache;
+
         await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync().ConfigureAwait(false);
     }
 
-    public async Task CloseAsync()
+    /// <summary>
+    /// Resumes a session.
+    /// </summary>
+    /// <param name="cache">The cache to use.</param>
+    /// <returns></returns>
+    public Task ResumeAsync(IVoiceClientCache? cache = null)
     {
-        await CloseAsync(WebSocketCloseStatus.NormalClosure).ConfigureAwait(false);
-        _udpSocket.Dispose();
+        if (cache is null)
+            Cache ??= new VoiceClientCache();
+        else
+            Cache = cache;
+
+        return TryResumeAsync();
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
 
-    private protected override async Task ResumeAsync()
+    private protected override async Task TryResumeAsync()
     {
         await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfVoiceResumePropertiesSerializerContext.WithOptions.VoicePayloadPropertiesVoiceResumeProperties);
@@ -93,16 +121,21 @@ public class VoiceClient : WebSocketClient
                     _reconnectTimer.Reset();
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(JsonReady.JsonReadySerializerContext.WithOptions.JsonReady);
-                    Ssrc = ready.Ssrc;
+                    var ssrc = ready.Ssrc;
+                    Cache = Cache.CacheSelfSsrc(ssrc);
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
                     if (RedirectInputStreams)
                     {
                         TaskCompletionSource<byte[]> result = new();
-                        _udpSocket.DatagramReceive += HandleDatagramReceiveOnce;
+                        var handleDatagramReceiveOnce = HandleDatagramReceiveOnce;
+                        _udpSocket.DatagramReceive += handleDatagramReceiveOnce;
+
                         await _udpSocket.SendAsync(CreateDatagram()).ConfigureAwait(false);
 
                         var datagram = await result.Task.ConfigureAwait(false);
+                        _udpSocket.DatagramReceive -= handleDatagramReceiveOnce;
+
                         GetIpAndPort(out var ip, out var port);
 
                         _udpSocket.DatagramReceive += HandleDatagramReceive;
@@ -116,14 +149,13 @@ public class VoiceClient : WebSocketClient
                             var span = bytes.Span;
                             span[1] = 1;
                             span[3] = 70;
-                            BinaryPrimitives.WriteUInt32BigEndian(span[4..], Ssrc);
+                            BinaryPrimitives.WriteUInt32BigEndian(span[4..], ssrc);
                             return bytes;
                         }
 
                         void HandleDatagramReceiveOnce(UdpReceiveResult datagram)
                         {
-                            _udpSocket.DatagramReceive -= HandleDatagramReceiveOnce;
-                            result.SetResult(datagram.Buffer);
+                            result.TrySetResult(datagram.Buffer);
                         }
 
                         void GetIpAndPort(out string ip, out ushort port)
@@ -157,8 +189,7 @@ public class VoiceClient : WebSocketClient
                     var json = payload.Data.GetValueOrDefault().ToObject(JsonSpeaking.JsonSpeakingSerializerContext.WithOptions.JsonSpeaking);
                     var ssrc = json.Ssrc;
                     var userId = json.UserId;
-                    Ssrcs = Ssrcs.SetItem(userId, ssrc);
-                    Users = Users.SetItem(ssrc, userId);
+                    Cache = Cache.CacheUser(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
                     DecryptStream sodiumDecryptStream = new(voiceInStream, _encryption, this);
@@ -192,11 +223,10 @@ public class VoiceClient : WebSocketClient
                     var json = payload.Data.GetValueOrDefault().ToObject(JsonClientDisconnect.JsonClientDisconnectSerializerContext.WithOptions.JsonClientDisconnect);
                     await InvokeEventAsync(UserDisconnect, json.UserId, userId =>
                     {
-                        var oldSsrcs = Ssrcs;
-                        if (oldSsrcs.TryGetValue(userId, out var ssrc))
+                        var cache = Cache;
+                        if (cache.Ssrcs.TryGetValue(userId, out var ssrc))
                         {
-                            Ssrcs = oldSsrcs.Remove(userId);
-                            Users = Users.Remove(ssrc);
+                            Cache = cache.RemoveUser(ssrc, userId);
                             if (_inputStreams.Remove(ssrc, out var stream))
                                 stream.Dispose();
                         }
@@ -229,7 +259,7 @@ public class VoiceClient : WebSocketClient
 
     public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
     {
-        VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Ssrc));
+        VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Cache.Ssrc));
         return _webSocket.SendAsync(payload.Serialize(VoicePayloadProperties.VoicePayloadPropertiesOfSpeakingPropertiesSerializerContext.WithOptions.VoicePayloadPropertiesSpeakingProperties));
     }
 
@@ -252,6 +282,7 @@ public class VoiceClient : WebSocketClient
     {
         base.Dispose();
         _udpSocket.Dispose();
+        Cache.Dispose();
         foreach (var stream in _inputStreams.Values)
             stream.Dispose();
     }

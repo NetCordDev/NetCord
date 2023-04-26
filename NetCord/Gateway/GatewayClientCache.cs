@@ -1,0 +1,376 @@
+﻿using System.Collections.Immutable;
+
+using NetCord.JsonModels;
+using NetCord.Rest;
+
+namespace NetCord.Gateway;
+
+public record GatewayClientCache : IGatewayClientCache
+{
+    public GatewayClientCache()
+    {
+        _DMChannels = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
+        _groupDMChannels = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
+        _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
+    }
+
+    public GatewayClientCache(JsonGatewayClientCache jsonModel, RestClient client)
+    {
+        var userModel = jsonModel.User;
+        if (userModel is not null)
+            _user = new(userModel, client);
+        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => (DMChannel)Channel.CreateFromJson(c, client));
+        _groupDMChannels = jsonModel.GroupDMChannels.ToImmutableDictionary(c => (GroupDMChannel)Channel.CreateFromJson(c, client));
+        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, client));
+    }
+
+    public SelfUser? User => _user;
+    public IReadOnlyDictionary<ulong, DMChannel> DMChannels => _DMChannels;
+    public IReadOnlyDictionary<ulong, GroupDMChannel> GroupDMChannels => _groupDMChannels;
+    public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
+
+    private SelfUser? _user;
+    private ImmutableDictionary<ulong, DMChannel> _DMChannels;
+    private ImmutableDictionary<ulong, GroupDMChannel> _groupDMChannels;
+    private ImmutableDictionary<ulong, Guild> _guilds;
+
+    public JsonGatewayClientCache ToJsonModel()
+    {
+        return new()
+        {
+            User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
+            DMChannels = _DMChannels.ToDictionary(p => p.Key, p => ((IJsonModel<JsonChannel>)p.Value).JsonModel),
+            GroupDMChannels = _groupDMChannels.ToDictionary(p => p.Key, p => ((IJsonModel<JsonChannel>)p.Value).JsonModel),
+            Guilds = _guilds.ToDictionary(p => p.Key, p => ((IJsonModel<JsonGuild>)p.Value).JsonModel),
+        };
+    }
+
+    public IGatewayClientCache CacheDMChannel(DMChannel dMChannel)
+    {
+        return this with
+        {
+            _DMChannels = _DMChannels.SetItem(dMChannel.Id, dMChannel),
+        };
+    }
+
+    public IGatewayClientCache CacheGroupDMChannel(GroupDMChannel groupDMChannel)
+    {
+        return this with
+        {
+            _groupDMChannels = _groupDMChannels.SetItem(groupDMChannel.Id, groupDMChannel),
+        };
+    }
+
+    public IGatewayClientCache CacheGuild(Guild guild)
+    {
+        return this with
+        {
+            _guilds = _guilds.SetItem(guild.Id, guild),
+        };
+    }
+
+    public IGatewayClientCache CacheGuildUser(GuildUser user)
+    {
+        var guildId = user.GuildId;
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItem(user.Id, user))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<KeyValuePair<ulong, GuildUser>> users)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItems(users))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<KeyValuePair<ulong, Presence>> presences)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItems(presences))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheRole(ulong guildId, Role role)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Roles = g.Roles.SetItem(role.Id, role))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildScheduledEvent(GuildScheduledEvent scheduledEvent)
+    {
+        var guildId = scheduledEvent.GuildId;
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ScheduledEvents = g.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildEmojis(ulong guildId, ImmutableDictionary<ulong, GuildEmoji> emojis)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Emojis = emojis)),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildStickers(ulong guildId, ImmutableDictionary<ulong, GuildSticker> stickers)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Stickers = stickers)),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildThread(GuildThread thread)
+    {
+        var guildId = thread.GuildId;
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = g.ActiveThreads.SetItem(thread.Id, thread))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = threads)),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheGuildChannel(ulong guildId, IGuildChannel channel)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Channels = g.Channels.SetItem(channel.Id, channel))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheStageInstance(StageInstance stageInstance)
+    {
+        var guildId = stageInstance.GuildId;
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.StageInstances = g.StageInstances.SetItem(stageInstance.Id, stageInstance))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CacheSelfUser(SelfUser user)
+    {
+        return this with
+        {
+            _user = user,
+        };
+    }
+
+    public IGatewayClientCache CacheVoiceState(ulong guildId, VoiceState voiceState)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.VoiceStates = g.VoiceStates.SetItem(voiceState.UserId, voiceState))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache CachePresence(Presence presence)
+    {
+        var guildId = presence.GuildId;
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItem(presence.User.Id, presence))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveGuild(ulong guildId)
+    {
+        return this with
+        {
+            _guilds = _guilds.Remove(guildId),
+        };
+    }
+
+    public IGatewayClientCache RemoveGuildUser(ulong guildId, ulong userId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.Remove(userId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveRole(ulong guildId, ulong roleId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Roles = g.Roles.Remove(roleId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveGuildScheduledEvent(ulong guildId, ulong scheduledEventId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ScheduledEvents = g.ScheduledEvents.Remove(scheduledEventId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveGuildThread(ulong guildId, ulong threadId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = g.ActiveThreads.Remove(threadId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveGuildChannel(ulong guildId, ulong channelId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Channels = g.Channels.Remove(channelId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveStageInstance(ulong guildId, ulong stageInstanceId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.StageInstances = g.StageInstances.Remove(stageInstanceId))),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache RemoveVoiceState(ulong guildId, ulong userId)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.VoiceStates = g.VoiceStates.Remove(userId))),
+            };
+        }
+
+        return this;
+    }
+
+    public void Dispose()
+    {
+    }
+}

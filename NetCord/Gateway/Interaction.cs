@@ -73,11 +73,11 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         };
     }
 
-    public static Interaction CreateFromJson(JsonInteraction jsonModel, GatewayClient client)
+    public static Interaction CreateFromJson(JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
     {
         var guildId = jsonModel.GuildId;
-        var guild = guildId.HasValue ? client.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, client.Rest);
+        var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
+        return CreateFromJson(jsonModel, guild, client);
     }
 
     public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, properties);

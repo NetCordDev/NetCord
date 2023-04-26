@@ -38,13 +38,20 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await semaphore.WaitAsync();
         try
         {
-            voiceClient = await client.JoinVoiceChannelAsync(client.ApplicationId, guild.Id, state.ChannelId.GetValueOrDefault());
+            voiceClient = await client.JoinVoiceChannelAsync(client.ApplicationId, guild.Id, state.ChannelId.GetValueOrDefault(), new()
+            {
+                RedirectInputStreams = true,
+            });
         }
         finally
         {
             semaphore.Release();
         }
-
+        voiceClient.Log += m =>
+        {
+            Console.WriteLine(m);
+            return default;
+        };
         await voiceClient.StartAsync();
         await voiceClient.ReadyAsync;
 
@@ -66,7 +73,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream);
         await opusEncodeStream.FlushAsync();
 
-        //client.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
+        //voiceClient.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
     }
 
     [SlashCommand("channel", "Channel")]
@@ -185,7 +192,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
             var roleId = mentionable.Role!.Id;
-            foreach (var user in Context.Client.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
+            foreach (var user in Context.Client.Cache.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
                 await user.AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.ModifyResponseAsync(x =>
             {

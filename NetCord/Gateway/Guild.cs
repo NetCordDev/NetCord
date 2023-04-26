@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 
 using NetCord.JsonModels;
 using NetCord.Rest;
@@ -7,13 +8,13 @@ namespace NetCord.Gateway;
 
 public class Guild : RestGuild
 {
-    public ImmutableDictionary<ulong, VoiceState> VoiceStates { get; internal set; }
-    public ImmutableDictionary<ulong, GuildUser> Users { get; internal set; }
-    public ImmutableDictionary<ulong, IGuildChannel> Channels { get; internal set; }
-    public ImmutableDictionary<ulong, GuildThread> ActiveThreads { get; internal set; }
-    public ImmutableDictionary<ulong, StageInstance> StageInstances { get; internal set; }
-    public ImmutableDictionary<ulong, Presence> Presences { get; internal set; }
-    public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; internal set; }
+    public ImmutableDictionary<ulong, VoiceState> VoiceStates { get; set; }
+    public ImmutableDictionary<ulong, GuildUser> Users { get; set; }
+    public ImmutableDictionary<ulong, IGuildChannel> Channels { get; set; }
+    public ImmutableDictionary<ulong, GuildThread> ActiveThreads { get; set; }
+    public ImmutableDictionary<ulong, StageInstance> StageInstances { get; set; }
+    public ImmutableDictionary<ulong, Presence> Presences { get; set; }
+    public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; set; }
 
     public string? IconHash => _jsonModel.IconHash;
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
@@ -57,5 +58,12 @@ public class Guild : RestGuild
         jsonModel.StageInstances = oldJsonModel.StageInstances;
         jsonModel.ScheduledEvents = oldJsonModel.ScheduledEvents;
         return jsonModel;
+    }
+
+    public Guild With(Action<Guild> action)
+    {
+        var cloned = Unsafe.As<Guild>(MemberwiseClone());
+        action(cloned);
+        return cloned;
     }
 }

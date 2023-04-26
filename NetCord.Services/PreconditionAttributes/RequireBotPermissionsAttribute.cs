@@ -28,45 +28,51 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
     public override ValueTask EnsureCanExecuteAsync(TContext context)
     {
         var guild = context.Guild;
-        if (guild != null && guild.OwnerId != context.Client.User!.Id)
+        if (guild is null)
+            return default;
+
+        var botId = context.Client.Cache.User!.Id;
+        if (guild.OwnerId == botId)
+            return default;
+
+        var guildUser = guild.Users[botId];
+        Permissions permissions = guild.EveryoneRole.Permissions;
+        foreach (var role in guildUser.GetRoles(guild))
+            permissions |= role.Permissions;
+        if (!permissions.HasFlag(Permissions.Administrator))
         {
-            var guildUser = guild.Users[context.Client.User.Id];
-            Permissions permissions = guild.EveryoneRole.Permissions;
-            foreach (var role in guildUser.GetRoles(guild))
-                permissions |= role.Permissions;
-            if (!permissions.HasFlag(Permissions.Administrator))
+            if (!permissions.HasFlag(GuildPermissions))
             {
-                if (!permissions.HasFlag(GuildPermissions))
+                var missingPermissions = GuildPermissions & ~permissions;
+                throw new PermissionsException(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Guild);
+            }
+            if (ChannelPermissions != default)
+            {
+                var channel = context.Channel;
+                if (channel is null)
+                    throw new EntityNotFoundException("Current channel could not be found.");
+
+                var permissionOverwrites = ((IGuildChannel)channel).PermissionOverwrites;
+                Permissions denied = default;
+                Permissions allowed = default;
+                foreach (var r in guildUser.RoleIds)
                 {
-                    var missingPermissions = GuildPermissions & ~permissions;
-                    throw new PermissionsException(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Guild);
+                    if (permissionOverwrites.TryGetValue(r, out var permissionOverwrite))
+                    {
+                        denied |= permissionOverwrite.Denied;
+                        allowed |= permissionOverwrite.Allowed;
+                    }
                 }
-                if (ChannelPermissions != default)
+                if (permissionOverwrites.TryGetValue(guildUser.Id, out var o))
                 {
-                    if (context.Channel == null)
-                        throw new EntityNotFoundException("Current channel could not be found.");
-                    var permissionOverwrites = ((IGuildChannel)context.Channel).PermissionOverwrites;
-                    Permissions denied = default;
-                    Permissions allowed = default;
-                    foreach (var r in guildUser.RoleIds)
-                    {
-                        if (permissionOverwrites.TryGetValue(r, out var permissionOverwrite))
-                        {
-                            denied |= permissionOverwrite.Denied;
-                            allowed |= permissionOverwrite.Allowed;
-                        }
-                    }
-                    if (permissionOverwrites.TryGetValue(guildUser.Id, out var o))
-                    {
-                        denied |= o.Denied;
-                        allowed |= o.Allowed;
-                    }
-                    permissions = (permissions & ~denied) | allowed;
-                    if (!permissions.HasFlag(ChannelPermissions))
-                    {
-                        var missingPermissions = ChannelPermissions & ~permissions;
-                        throw new PermissionsException(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Channel);
-                    }
+                    denied |= o.Denied;
+                    allowed |= o.Allowed;
+                }
+                permissions = (permissions & ~denied) | allowed;
+                if (!permissions.HasFlag(ChannelPermissions))
+                {
+                    var missingPermissions = ChannelPermissions & ~permissions;
+                    throw new PermissionsException(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Channel);
                 }
             }
         }

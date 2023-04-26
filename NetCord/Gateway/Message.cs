@@ -11,14 +11,14 @@ public class Message : RestMessage
         Channel = channel;
     }
 
-    public static Message CreateFromJson(JsonMessage jsonModel, GatewayClient client)
+    public static Message CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
         Guild? guild;
         TextChannel? channel;
         var guildId = jsonModel.GuildId;
         if (guildId.HasValue)
         {
-            if (client.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
+            if (cache.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
             {
                 var channelId = jsonModel.ChannelId;
                 if (guild.Channels.TryGetValue(channelId, out var guildChannel))
@@ -35,14 +35,14 @@ public class Message : RestMessage
         {
             guild = null;
             var channelId = jsonModel.ChannelId;
-            if (client.DMChannels.TryGetValue(channelId, out var dMChannel))
+            if (cache.DMChannels.TryGetValue(channelId, out var dMChannel))
                 channel = dMChannel;
-            else if (client.GroupDMChannels.TryGetValue(channelId, out var groupDMChannel))
+            else if (cache.GroupDMChannels.TryGetValue(channelId, out var groupDMChannel))
                 channel = groupDMChannel;
             else
                 channel = null;
         }
-        return new(jsonModel, guild, channel, client.Rest);
+        return new(jsonModel, guild, channel, client);
     }
 
     public ulong? GuildId => _jsonModel.GuildId;
