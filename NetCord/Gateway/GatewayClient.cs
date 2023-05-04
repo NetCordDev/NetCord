@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.JsonModels.EventArgs;
 using NetCord.Utils;
@@ -118,7 +117,7 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     public Rest.RestClient Rest { get; }
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer)
     {
         _botToken = token.RawToken;
 

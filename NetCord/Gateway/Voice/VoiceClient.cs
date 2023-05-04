@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
-using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
@@ -42,7 +41,7 @@ public class VoiceClient : WebSocketClient
     private readonly IUdpSocket _udpSocket;
     private readonly IVoiceEncryption _encryption;
 
-    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket ?? new WebSocket())
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer)
     {
         UserId = userId;
         SessionId = sessionId;

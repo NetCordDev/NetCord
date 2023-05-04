@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 
+using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 
@@ -7,8 +8,11 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
-    private protected WebSocketClient(IWebSocket webSocket)
+    private protected WebSocketClient(IWebSocket? webSocket, IReconnectTimer? reconnectTimer)
     {
+        webSocket ??= new WebSocket();
+        reconnectTimer ??= new ReconnectTimer();
+
         webSocket.Connecting += async () =>
         {
             InvokeLog(LogMessage.Info("Connecting"));
@@ -16,13 +20,18 @@ public abstract class WebSocketClient : IDisposable
         };
         webSocket.Connected += async () =>
         {
-            _token = (_tokenSource = new()).Token;
+            _disconnectedToken = (_disconnectedTokenSource = new()).Token;
+            _closedToken = (_closedTokenSource = new()).Token;
+
             InvokeLog(LogMessage.Info("Connected"));
             await InvokeEventAsync(Connected).ConfigureAwait(false);
         };
         webSocket.Disconnected += async (closeStatus, description) =>
         {
-            _tokenSource!.Cancel();
+            var disconnectedTokenSource = _disconnectedTokenSource!;
+            disconnectedTokenSource.Cancel();
+            disconnectedTokenSource.Dispose();
+
             InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
             var reconnect = Reconnect(closeStatus, description);
             var disconnectedTask = InvokeEventAsync(Disconnected, reconnect);
@@ -35,7 +44,15 @@ public abstract class WebSocketClient : IDisposable
         };
         webSocket.Closed += async () =>
         {
-            _tokenSource!.Cancel();
+            var disconnectedTokenSource = _disconnectedTokenSource!;
+            var closedTokenSource = _closedTokenSource!;
+
+            disconnectedTokenSource.Cancel();
+            closedTokenSource.Cancel();
+
+            disconnectedTokenSource.Dispose();
+            closedTokenSource.Dispose();
+
             InvokeLog(LogMessage.Info("Closed"));
             var closedTask = InvokeEventAsync(Closed).ConfigureAwait(false);
 
@@ -55,16 +72,19 @@ public abstract class WebSocketClient : IDisposable
             }
         };
         _webSocket = webSocket;
+        _reconnectTimer = reconnectTimer;
     }
 
     private protected readonly IWebSocket _webSocket;
     private protected readonly LatencyTimer _latencyTimer = new();
-    private protected readonly ReconnectTimer _reconnectTimer = new();
+    private protected readonly IReconnectTimer _reconnectTimer;
     private protected readonly object _eventsLock = new();
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
-    private protected CancellationTokenSource? _tokenSource;
-    private protected CancellationToken _token;
+    private protected CancellationTokenSource? _disconnectedTokenSource;
+    private protected CancellationToken _disconnectedToken;
+    private protected CancellationTokenSource? _closedTokenSource;
+    private protected CancellationToken _closedToken;
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
@@ -85,10 +105,7 @@ public abstract class WebSocketClient : IDisposable
     /// <param name="status">The status to close with.</param>
     /// <returns></returns>
     public Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
-    {
-        _tokenSource!.Cancel();
-        return _webSocket.CloseAsync(status);
-    }
+        => _webSocket.CloseAsync(status);
 
     private protected abstract bool Reconnect(System.Net.WebSockets.WebSocketCloseStatus? status, string? description);
 
@@ -98,7 +115,7 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                await _reconnectTimer.NextAsync(_token).ConfigureAwait(false);
+                await _reconnectTimer.NextAsync(_closedToken).ConfigureAwait(false);
             }
             catch
             {
@@ -125,7 +142,7 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                await timer.WaitForNextTickAsync(_token).ConfigureAwait(false);
+                await timer.WaitForNextTickAsync(_disconnectedToken).ConfigureAwait(false);
                 await HeartbeatAsync().ConfigureAwait(false);
             }
             catch
@@ -440,6 +457,18 @@ public abstract class WebSocketClient : IDisposable
     public virtual void Dispose()
     {
         _webSocket.Dispose();
-        _tokenSource?.Dispose();
+        var disconnectedTokenSource = _disconnectedTokenSource;
+        if (disconnectedTokenSource is not null && !disconnectedTokenSource.IsCancellationRequested)
+        {
+            disconnectedTokenSource.Cancel();
+            disconnectedTokenSource.Dispose();
+        }
+        var closedTokenSource = _closedTokenSource;
+        if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
+        {
+            closedTokenSource.Cancel();
+            closedTokenSource.Dispose();
+        }
+        _reconnectTimer.Dispose();
     }
 }

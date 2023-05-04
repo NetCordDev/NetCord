@@ -1,4 +1,5 @@
-﻿using NetCord.Gateway.WebSockets;
+﻿using NetCord.Gateway.ReconnectTimers;
+using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway;
 
@@ -12,6 +13,7 @@ public class GatewayClientConfiguration
     public PresenceProperties? Presence { get; init; }
     public Shard? Shard { get; init; }
     public IWebSocket? WebSocket { get; init; }
+    public IReconnectTimer? ReconnectTimer { get; init; }
     public bool CacheDMChannels { get; init; } = true;
     public Rest.RestClientConfiguration? RestClientConfiguration { get; init; }
 }
