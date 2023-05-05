@@ -159,7 +159,7 @@ public partial class GatewayClient : WebSocketClient
         else
             Cache = cache;
 
-        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
+        await ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
 
@@ -224,7 +224,7 @@ public partial class GatewayClient : WebSocketClient
                 InvokeLog(LogMessage.Info("Reconnect request"));
                 try
                 {
-                    await CloseAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
+                    await _webSocket.CloseAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

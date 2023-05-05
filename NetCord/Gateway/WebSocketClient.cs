@@ -21,7 +21,6 @@ public abstract class WebSocketClient : IDisposable
         webSocket.Connected += async () =>
         {
             _disconnectedToken = (_disconnectedTokenSource = new()).Token;
-            _closedToken = (_closedTokenSource = new()).Token;
 
             InvokeLog(LogMessage.Info("Connected"));
             await InvokeEventAsync(Connected).ConfigureAwait(false);
@@ -45,13 +44,8 @@ public abstract class WebSocketClient : IDisposable
         webSocket.Closed += async () =>
         {
             var disconnectedTokenSource = _disconnectedTokenSource!;
-            var closedTokenSource = _closedTokenSource!;
-
             disconnectedTokenSource.Cancel();
-            closedTokenSource.Cancel();
-
             disconnectedTokenSource.Dispose();
-            closedTokenSource.Dispose();
 
             InvokeLog(LogMessage.Info("Closed"));
             var closedTask = InvokeEventAsync(Closed).ConfigureAwait(false);
@@ -99,13 +93,29 @@ public abstract class WebSocketClient : IDisposable
     public event Func<ValueTask>? Closed;
     public event Func<LogMessage, ValueTask>? Log;
 
+    private protected Task ConnectAsync(Uri uri)
+    {
+        var closedTokenSource = _closedTokenSource;
+        if (closedTokenSource is null || closedTokenSource.IsCancellationRequested)
+            _closedToken = (_closedTokenSource = new()).Token;
+        return _webSocket.ConnectAsync(uri);
+    }
+
     /// <summary>
     /// Closes the <see cref="WebSocketClient"/>.
     /// </summary>
     /// <param name="status">The status to close with.</param>
     /// <returns></returns>
     public Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
-        => _webSocket.CloseAsync(status);
+    {
+        var closedTokenSource = _closedTokenSource;
+        if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
+        {
+            closedTokenSource.Cancel();
+            closedTokenSource.Dispose();
+        }
+        return _webSocket.CloseAsync(status);
+    }
 
     private protected abstract bool Reconnect(System.Net.WebSockets.WebSocketCloseStatus? status, string? description);
 

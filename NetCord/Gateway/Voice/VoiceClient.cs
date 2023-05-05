@@ -73,7 +73,7 @@ public class VoiceClient : WebSocketClient
         else
             Cache = cache;
 
-        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
+        await ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync().ConfigureAwait(false);
     }
 
