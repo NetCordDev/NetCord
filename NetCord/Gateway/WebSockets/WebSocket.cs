@@ -49,10 +49,10 @@ public class WebSocket : IWebSocket
     /// <summary>
     /// Sends a message.
     /// </summary>
-    public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken token = default)
+    public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         ThrowIfInvalid();
-        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, true, token);
+        return _webSocket!.SendAsync(buffer, WebSocketMessageType.Text, true, cancellationToken);
     }
 
     private async Task ReadAsync()

@@ -59,7 +59,7 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                await ProcessMessageAsync(JsonSerializer.Deserialize(data.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!).ConfigureAwait(false);
+                await ProcessPayloadAsync(JsonSerializer.Deserialize(data.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -71,16 +71,17 @@ public abstract class WebSocketClient : IDisposable
         _latencyTimer = latencyTimer;
     }
 
-    private protected readonly IWebSocket _webSocket;
+    private readonly IWebSocket _webSocket;
+    private readonly object _eventsLock = new();
+
     private protected readonly IReconnectTimer _reconnectTimer;
     private protected readonly ILatencyTimer _latencyTimer;
-    private protected readonly object _eventsLock = new();
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
-    private protected CancellationTokenSource? _disconnectedTokenSource;
-    private protected CancellationToken _disconnectedToken;
-    private protected CancellationTokenSource? _closedTokenSource;
-    private protected CancellationToken _closedToken;
+    private CancellationTokenSource? _disconnectedTokenSource;
+    private CancellationToken _disconnectedToken;
+    private CancellationTokenSource? _closedTokenSource;
+    private CancellationToken _closedToken;
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
@@ -117,6 +118,22 @@ public abstract class WebSocketClient : IDisposable
         }
         return _webSocket.CloseAsync(status);
     }
+
+    private protected async Task CloseAndReconnectAsync(System.Net.WebSockets.WebSocketCloseStatus status)
+    {
+        try
+        {
+            await _webSocket.CloseAsync(status).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
+        }
+        await ReconnectAsync().ConfigureAwait(false);
+    }
+
+    public ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        => _webSocket.SendAsync(buffer, cancellationToken);
 
     private protected abstract bool Reconnect(System.Net.WebSockets.WebSocketCloseStatus? status, string? description);
 
@@ -165,7 +182,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync();
 
-    private protected abstract Task ProcessMessageAsync(JsonPayload payload);
+    private protected abstract Task ProcessPayloadAsync(JsonPayload payload);
 
     private protected async void InvokeLog(LogMessage logMessage)
     {

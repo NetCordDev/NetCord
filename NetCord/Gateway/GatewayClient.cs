@@ -143,7 +143,7 @@ public partial class GatewayClient : WebSocketClient
             Intents = _configuration.Intents,
         }).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayIdentifyPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload);
     }
 
     /// <summary>
@@ -188,22 +188,22 @@ public partial class GatewayClient : WebSocketClient
 
     private protected override async Task TryResumeAsync()
     {
-        await _webSocket.ConnectAsync(_url).ConfigureAwait(false);
+        await ConnectAsync(_url).ConfigureAwait(false);
 
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGatewayResumePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        await _webSocket.SendAsync(serializedPayload).ConfigureAwait(false);
+        await SendPayloadAsync(serializedPayload).ConfigureAwait(false);
     }
 
     private protected override ValueTask HeartbeatAsync()
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfInt32SerializerContext.WithOptions.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return _webSocket.SendAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private protected override async Task ProcessMessageAsync(JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(JsonPayload payload)
     {
         switch ((GatewayOpcode)payload.Opcode)
         {
@@ -222,15 +222,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case GatewayOpcode.Reconnect:
                 InvokeLog(LogMessage.Info("Reconnect request"));
-                try
-                {
-                    await _webSocket.CloseAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    InvokeLog(LogMessage.Error(ex));
-                }
-                await ReconnectAsync().ConfigureAwait(false);
+                await CloseAndReconnectAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
@@ -260,7 +252,7 @@ public partial class GatewayClient : WebSocketClient
     public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
+        return SendPayloadAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfVoiceStatePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesVoiceStateProperties));
     }
 
     /// <summary>
@@ -271,7 +263,7 @@ public partial class GatewayClient : WebSocketClient
     public ValueTask UpdatePresenceAsync(PresenceProperties presence)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
+        return SendPayloadAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfPresencePropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesPresenceProperties));
     }
 
     /// <summary>
@@ -282,7 +274,7 @@ public partial class GatewayClient : WebSocketClient
     public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return _webSocket.SendAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGuildUsersRequestPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGuildUsersRequestProperties));
+        return SendPayloadAsync(payload.Serialize(GatewayPayloadProperties.GatewayPayloadPropertiesOfGuildUsersRequestPropertiesSerializerContext.WithOptions.GatewayPayloadPropertiesGuildUsersRequestProperties));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
