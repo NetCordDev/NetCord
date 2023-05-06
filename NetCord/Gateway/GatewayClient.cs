@@ -339,7 +339,7 @@ public partial class GatewayClient : WebSocketClient
                     _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency);
-                    var resumedTask = InvokeResumedEventAsync();
+                    var resumedTask = InvokeResumeEventAsync();
 
                     _readyCompletionSource.TrySetResult();
 

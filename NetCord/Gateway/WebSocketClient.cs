@@ -23,7 +23,7 @@ public abstract class WebSocketClient : IDisposable
             _disconnectedToken = (_disconnectedTokenSource = new()).Token;
 
             InvokeLog(LogMessage.Info("Connected"));
-            await InvokeEventAsync(Connected).ConfigureAwait(false);
+            await InvokeEventAsync(Connect).ConfigureAwait(false);
         };
         webSocket.Disconnected += async (closeStatus, description) =>
         {
@@ -33,13 +33,13 @@ public abstract class WebSocketClient : IDisposable
 
             InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
             var reconnect = Reconnect(closeStatus, description);
-            var disconnectedTask = InvokeEventAsync(Disconnected, reconnect);
+            var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
             if (reconnect)
                 await ReconnectAsync().ConfigureAwait(false);
             else
                 _readyCompletionSource.TrySetCanceled();
 
-            await disconnectedTask.ConfigureAwait(false);
+            await disconnectTask.ConfigureAwait(false);
         };
         webSocket.Closed += async () =>
         {
@@ -48,11 +48,11 @@ public abstract class WebSocketClient : IDisposable
             disconnectedTokenSource.Dispose();
 
             InvokeLog(LogMessage.Info("Closed"));
-            var closedTask = InvokeEventAsync(Closed).ConfigureAwait(false);
+            var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
 
             _readyCompletionSource.TrySetCanceled();
 
-            await closedTask;
+            await closeTask;
         };
         webSocket.MessageReceived += async data =>
         {
@@ -82,15 +82,14 @@ public abstract class WebSocketClient : IDisposable
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
-    public TimeSpan? Latency => _latency;
-    private TimeSpan? _latency;
+    public TimeSpan Latency { get; private set; }
 
-    public event Func<TimeSpan, ValueTask>? LatencyUpdated;
-    public event Func<ValueTask>? Resumed;
+    public event Func<TimeSpan, ValueTask>? LatencyUpdate;
+    public event Func<ValueTask>? Resume;
     public event Func<ValueTask>? Connecting;
-    public event Func<ValueTask>? Connected;
-    public event Func<bool, ValueTask>? Disconnected;
-    public event Func<ValueTask>? Closed;
+    public event Func<ValueTask>? Connect;
+    public event Func<bool, ValueTask>? Disconnect;
+    public event Func<ValueTask>? Close;
     public event Func<LogMessage, ValueTask>? Log;
 
     private protected Task ConnectAsync(Uri uri)
@@ -200,10 +199,10 @@ public abstract class WebSocketClient : IDisposable
     }
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
-        => InvokeEventAsync(LatencyUpdated, latency, out _latency);
+        => InvokeEventAsync(LatencyUpdate, latency, latency => Latency = latency);
 
-    private protected ValueTask InvokeResumedEventAsync()
-        => InvokeEventAsync(Resumed);
+    private protected ValueTask InvokeResumeEventAsync()
+        => InvokeEventAsync(Resume);
 
     private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
     {
@@ -276,66 +275,6 @@ public abstract class WebSocketClient : IDisposable
         }
         else
             return default;
-    }
-
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T dataField) where T : class
-    {
-        if (@event != null)
-        {
-            ValueTask task;
-            lock (_eventsLock)
-            {
-                try
-                {
-                    task = @event(data);
-                    dataField = data;
-                }
-                catch (Exception ex)
-                {
-                    dataField = data;
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
-                    return default;
-                }
-            }
-
-            return AwaitEventAsync(task);
-        }
-        else
-        {
-            lock (_eventsLock)
-                dataField = data;
-            return default;
-        }
-    }
-
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, out T? dataField) where T : struct
-    {
-        if (@event != null)
-        {
-            ValueTask task;
-            lock (_eventsLock)
-            {
-                try
-                {
-                    task = @event(data);
-                    dataField = data;
-                }
-                catch (Exception ex)
-                {
-                    dataField = data;
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
-                    return default;
-                }
-            }
-
-            return AwaitEventAsync(task);
-        }
-        else
-        {
-            lock (_eventsLock)
-                dataField = data;
-            return default;
-        }
     }
 
     private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)

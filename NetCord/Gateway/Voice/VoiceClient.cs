@@ -213,7 +213,7 @@ public class VoiceClient : WebSocketClient
                     _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
-                    await InvokeResumedEventAsync().ConfigureAwait(false);
+                    await InvokeResumeEventAsync().ConfigureAwait(false);
                     await updateLatencyTask;
                 }
                 break;
