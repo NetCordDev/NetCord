@@ -8,10 +8,11 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
-    private protected WebSocketClient(IWebSocket? webSocket, IReconnectTimer? reconnectTimer)
+    private protected WebSocketClient(IWebSocket? webSocket, IReconnectTimer? reconnectTimer, ILatencyTimer? latencyTimer)
     {
         webSocket ??= new WebSocket();
         reconnectTimer ??= new ReconnectTimer();
+        latencyTimer ??= new LatencyTimer();
 
         webSocket.Connecting += async () =>
         {
@@ -67,11 +68,12 @@ public abstract class WebSocketClient : IDisposable
         };
         _webSocket = webSocket;
         _reconnectTimer = reconnectTimer;
+        _latencyTimer = latencyTimer;
     }
 
     private protected readonly IWebSocket _webSocket;
-    private protected readonly LatencyTimer _latencyTimer = new();
     private protected readonly IReconnectTimer _reconnectTimer;
+    private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly object _eventsLock = new();
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 

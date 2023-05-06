@@ -117,7 +117,7 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     public Rest.RestClient Rest { get; }
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer)
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
         _botToken = token.RawToken;
 

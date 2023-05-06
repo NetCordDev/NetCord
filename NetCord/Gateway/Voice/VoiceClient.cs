@@ -41,7 +41,7 @@ public class VoiceClient : WebSocketClient
     private readonly IUdpSocket _udpSocket;
     private readonly IVoiceEncryption _encryption;
 
-    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer)
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
         UserId = userId;
         SessionId = sessionId;
