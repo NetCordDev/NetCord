@@ -331,12 +331,12 @@ public partial class GatewayClient : WebSocketClient
                     _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency);
-                    var resumedTask = InvokeResumeEventAsync();
+                    var resumeTask = InvokeResumeEventAsync();
 
                     _readyCompletionSource.TrySetResult();
 
                     await updateLatencyTask.ConfigureAwait(false);
-                    await resumedTask.ConfigureAwait(false);
+                    await resumeTask.ConfigureAwait(false);
                 }
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
