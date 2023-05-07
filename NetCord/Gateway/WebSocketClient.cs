@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
@@ -85,7 +86,8 @@ public abstract class WebSocketClient : IDisposable
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
-    public TimeSpan Latency { get; private set; }
+    public TimeSpan Latency => _latency;
+    private TimeSpan _latency;
 
     public event Func<TimeSpan, ValueTask>? LatencyUpdate;
     public event Func<ValueTask>? Resume;
@@ -218,7 +220,7 @@ public abstract class WebSocketClient : IDisposable
     }
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
-        => InvokeEventAsync(LatencyUpdate, latency, latency => Latency = latency);
+        => InvokeEventAsync(LatencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
 
     private protected ValueTask InvokeResumeEventAsync()
         => InvokeEventAsync(Resume);
