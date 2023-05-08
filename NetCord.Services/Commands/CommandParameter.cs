@@ -49,13 +49,14 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
     }
 
-    internal async Task EnsureCanExecuteAsync(object? value, TContext context)
+    internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
     {
-        var count = Preconditions.Count;
+        var preconditions = Preconditions;
+        var count = preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            var preconditionAttribute = Preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+            var preconditionAttribute = preconditions[i];
+            await preconditionAttribute.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
         }
     }
 }

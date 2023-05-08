@@ -5,7 +5,7 @@ namespace NetCord.Test.Commands.Administrative;
 
 internal class CanManageAttribute : ParameterPreconditionAttribute<CommandContext>
 {
-    public override ValueTask EnsureCanExecuteAsync(object? value, CommandContext context)
+    public override ValueTask EnsureCanExecuteAsync(object? value, CommandContext context, IServiceProvider? serviceProvider)
     {
         var user = (GuildUser)value!;
         var contextUser = (GuildUser)context.User;

@@ -2,17 +2,17 @@
 
 public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader where TContext : IApplicationCommandContext
 {
-    public abstract Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration);
+    public abstract Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
 
     public abstract ApplicationCommandOptionType Type { get; }
 
-    public virtual double? GetMaxValue(SlashCommandParameter<TContext> parameter) => null;
+    public virtual double? GetMaxValue(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => null;
 
-    public virtual double? GetMinValue(SlashCommandParameter<TContext> parameter) => null;
+    public virtual double? GetMinValue(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => null;
 
-    public virtual int? GetMaxLength(SlashCommandParameter<TContext> parameter) => null;
+    public virtual int? GetMaxLength(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => null;
 
-    public virtual int? GetMinLength(SlashCommandParameter<TContext> parameter) => null;
+    public virtual int? GetMinLength(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => null;
 
     public virtual IChoicesProvider<TContext>? ChoicesProvider => null;
 

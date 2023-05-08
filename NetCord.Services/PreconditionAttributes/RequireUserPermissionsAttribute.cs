@@ -25,7 +25,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
         ChannelPermissionsFormat = channelPermissionsFormat;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var guild = context.Guild;
         if (guild != null && guild.OwnerId != context.User.Id)

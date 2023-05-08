@@ -5,7 +5,7 @@ namespace NetCord.Services.Interactions.TypeReaders;
 
 public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : InteractionContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
         if (guild != null)

@@ -19,7 +19,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var channel = context.Channel;
 

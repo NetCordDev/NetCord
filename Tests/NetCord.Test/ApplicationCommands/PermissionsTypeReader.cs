@@ -10,14 +10,14 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration)
+    public override Task<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration, IServiceProvider? serviceProvider)
     {
         return Task.FromResult<object?>((Permissions)ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
     }
 
     public override Type? AutocompleteProviderType => typeof(PermissionsAutocompleteProvider);
 
-    public override double? GetMinValue(SlashCommandParameter<SlashCommandContext> parameter) => 0;
+    public override double? GetMinValue(SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration) => 0;
 }
 
 internal class PermissionsAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>

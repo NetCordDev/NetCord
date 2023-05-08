@@ -166,13 +166,14 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
         throw new AutocompleteNotFoundException();
     }
 
-    internal async Task EnsureCanExecuteAsync(TContext context)
+    internal async Task EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        var count = Preconditions.Count;
+        var preconditions = Preconditions;
+        var count = preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            var preconditionAttribute = Preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+            var preconditionAttribute = preconditions[i];
+            await preconditionAttribute.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
         }
     }
 }

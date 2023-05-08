@@ -18,7 +18,7 @@ public class InteractionRequireUserChannelPermissionsAttribute<TContext> : Preco
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         if (context.User is GuildInteractionUser guildUser && !guildUser.Permissions.HasFlag(ChannelPermissions))
         {

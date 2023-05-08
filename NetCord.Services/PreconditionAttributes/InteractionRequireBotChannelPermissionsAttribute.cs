@@ -15,7 +15,7 @@ public class InteractionRequireBotChannelPermissionsAttribute<TContext> : Precon
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         if (context.Interaction.AppPermissions.HasValue)
         {

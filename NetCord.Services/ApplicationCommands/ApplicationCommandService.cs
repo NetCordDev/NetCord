@@ -161,7 +161,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         var interaction = context.Interaction;
         var command = GetApplicationCommandInfo(interaction.Data.Id);
 
-        await command.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+        await command.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
 
         object?[]? parametersToPass;
 
@@ -181,8 +181,8 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
                 object? value;
                 if (parameter.Name == option.Name)
                 {
-                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration).ConfigureAwait(false);
-                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                    await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
                     optionIndex++;
                 }
                 else

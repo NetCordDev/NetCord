@@ -80,7 +80,7 @@ public class InteractionService<TContext> : IService where TContext : Interactio
         }
         var interactionInfo = GetInteractionInfo(customId);
 
-        await interactionInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+        await interactionInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
 
         var interactionParameters = interactionInfo.Parameters;
         int interactionParametersLength = interactionParameters.Count;
@@ -110,8 +110,8 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                     value = parameter.DefaultValue;
                 else
                 {
-                    value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration).ConfigureAwait(false);
-                    await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                    value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                    await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
                 }
 
                 parametersToPass[paramIndex] = value;
@@ -121,22 +121,22 @@ public class InteractionService<TContext> : IService where TContext : Interactio
                 if (parameter.HasDefaultValue && arguments.IsEmpty)
                     parametersToPass[paramIndex] = parameter.DefaultValue;
                 else
-                    await ReadParamsAsync(context, separator, parametersToPass, arguments, paramIndex, parameter, configuration).ConfigureAwait(false);
+                    await ReadParamsAsync(context, separator, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
             }
         }
 
         await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
     }
 
-    private static async Task ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration)
+    private static async Task ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separator);
         var count = ranges.Count;
         var array = Array.CreateInstance(parameter.ElementType, count);
         for (int i = 0; i < count; i++)
         {
-            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration).ConfigureAwait(false);
-            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration, serviceProvider).ConfigureAwait(false);
+            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
             array.SetValue(value, i);
         }
         parametersToPass[paramIndex] = array;

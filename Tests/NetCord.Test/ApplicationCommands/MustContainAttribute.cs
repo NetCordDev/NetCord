@@ -12,7 +12,7 @@ internal class MustContainAttribute : ParameterPreconditionAttribute<SlashComman
         _value = value;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(object? value, SlashCommandContext context)
+    public override ValueTask EnsureCanExecuteAsync(object? value, SlashCommandContext context, IServiceProvider? serviceProvider)
     {
         if (!((string)value!).Contains(_value))
             throw new($"The parameter must contain '{_value}'!");

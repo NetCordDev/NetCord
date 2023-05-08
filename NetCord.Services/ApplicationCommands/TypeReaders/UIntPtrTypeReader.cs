@@ -6,11 +6,11 @@ public class UIntPtrTypeReader<TContext> : SlashCommandTypeReader<TContext> wher
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => Task.FromResult<object?>(nuint.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
+    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => Task.FromResult<object?>(nuint.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
 
 #pragma warning disable IDE0004
-    public override double? GetMaxValue(SlashCommandParameter<TContext> parameter) => Math.Min((ulong)nuint.MaxValue, Discord.ApplicationCommandOptionMaxValue);
+    public override double? GetMaxValue(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => Math.Min((ulong)nuint.MaxValue, Discord.ApplicationCommandOptionMaxValue);
 #pragma warning restore IDE0004
 
-    public override double? GetMinValue(SlashCommandParameter<TContext> parameter) => nuint.MinValue;
+    public override double? GetMinValue(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => nuint.MinValue;
 }

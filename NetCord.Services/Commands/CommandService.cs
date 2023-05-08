@@ -118,7 +118,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
 
             try
             {
-                await commandInfo.EnsureCanExecuteAsync(context).ConfigureAwait(false);
+                await commandInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
             }
             catch
             {
@@ -152,7 +152,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                         object? value;
                         try
                         {
-                            value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration).ConfigureAwait(false);
+                            value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
                         }
                         catch
                         {
@@ -169,7 +169,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                         }
                         try
                         {
-                            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+                            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
                         }
                         catch
                         {
@@ -197,7 +197,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                 {
                     try
                     {
-                        await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter, configuration).ConfigureAwait(false);
+                        await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
                     }
                     catch
                     {
@@ -256,15 +256,15 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    private static async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
+    private static async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separators);
         var count = ranges.Count;
         var array = Array.CreateInstance(parameter.ElementType, count);
         for (int i = 0; i < count; i++)
         {
-            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration).ConfigureAwait(false);
-            await parameter.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration, serviceProvider).ConfigureAwait(false);
+            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
             array.SetValue(value, i);
         }
         parametersToPass[paramIndex] = array;

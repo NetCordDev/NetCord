@@ -3,7 +3,7 @@
 [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = true)]
 public abstract class ParameterPreconditionAttribute<TContext> : Attribute, IParameterPreconditionAttribute where TContext : IContext
 {
-    public abstract ValueTask EnsureCanExecuteAsync(object? value, TContext context);
+    public abstract ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider);
 }
 
 internal interface IParameterPreconditionAttribute

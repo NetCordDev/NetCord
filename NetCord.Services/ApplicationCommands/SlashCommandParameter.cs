@@ -88,10 +88,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             }
 
             AllowedChannelTypes = slashCommandParameterAttribute.AllowedChannelTypes ?? TypeReader.AllowedChannelTypes;
-            MaxValue = slashCommandParameterAttribute._maxValue ?? TypeReader.GetMaxValue(this);
-            MinValue = slashCommandParameterAttribute._minValue ?? TypeReader.GetMinValue(this);
-            MaxLength = slashCommandParameterAttribute._maxLength ?? TypeReader.GetMaxLength(this);
-            MinLength = slashCommandParameterAttribute._minLength ?? TypeReader.GetMinLength(this);
+            MaxValue = slashCommandParameterAttribute._maxValue ?? TypeReader.GetMaxValue(this, configuration);
+            MinValue = slashCommandParameterAttribute._minValue ?? TypeReader.GetMinValue(this, configuration);
+            MaxLength = slashCommandParameterAttribute._maxLength ?? TypeReader.GetMaxLength(this, configuration);
+            MinLength = slashCommandParameterAttribute._minLength ?? TypeReader.GetMinLength(this, configuration);
         }
         else
         {
@@ -109,10 +109,10 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
                 InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
             }
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
-            MaxValue = TypeReader.GetMaxValue(this);
-            MinValue = TypeReader.GetMinValue(this);
-            MaxLength = TypeReader.GetMaxLength(this);
-            MinLength = TypeReader.GetMinLength(this);
+            MaxValue = TypeReader.GetMaxValue(this, configuration);
+            MinValue = TypeReader.GetMinValue(this, configuration);
+            MaxLength = TypeReader.GetMaxLength(this, configuration);
+            MinLength = TypeReader.GetMinLength(this, configuration);
         }
 
         Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
@@ -157,13 +157,14 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         };
     }
 
-    internal async Task EnsureCanExecuteAsync(object? value, TContext context)
+    internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
     {
-        var count = Preconditions.Count;
+        var preconditions = Preconditions;
+        var count = preconditions.Count;
         for (var i = 0; i < count; i++)
         {
-            var preconditionAttribute = Preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(value, context).ConfigureAwait(false);
+            var preconditionAttribute = preconditions[i];
+            await preconditionAttribute.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
         }
     }
 }

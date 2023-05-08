@@ -5,7 +5,7 @@ namespace NetCord.Services.Interactions.TypeReaders;
 
 public class TimeSpanTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : InteractionContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         RegexOptions regexOptions = configuration.IgnoreCase ? RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase
                                                              : RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.RightToLeft | RegexOptions.CultureInvariant;

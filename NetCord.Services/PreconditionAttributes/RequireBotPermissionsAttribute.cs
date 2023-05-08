@@ -25,7 +25,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
         ChannelPermissionsFormat = channelPermissionsFormat;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var guild = context.Guild;
         if (guild is null)

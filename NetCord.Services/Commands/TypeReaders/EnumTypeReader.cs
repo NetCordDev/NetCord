@@ -8,7 +8,7 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
     private readonly Dictionary<CommandParameter<TContext>, bool> _parameters = new();
     private readonly Dictionary<Type, bool> _types = new();
 
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration)
+    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var span = input.Span;
         var type = parameter.NonNullableElementType;
