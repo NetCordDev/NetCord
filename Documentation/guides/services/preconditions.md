@@ -31,7 +31,7 @@ public class RequireDiscriminatorAttribute<TContext> : PreconditionAttribute<TCo
         _discriminator = discriminator;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context)
+    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         // Throw exception if invalid discriminator
         if (context.User.Discriminator != _discriminator)
@@ -69,7 +69,7 @@ public class MustContainAttribute<TContext> : ParameterPreconditionAttribute<TCo
         _value = value;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(object? value, TContext context)
+    public override ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
     {
         // Throw exception if does not contain
         if (!((string)value!).Contains(_value, StringComparison.InvariantCultureIgnoreCase))
