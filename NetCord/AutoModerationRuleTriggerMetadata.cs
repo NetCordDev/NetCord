@@ -21,4 +21,6 @@ public class AutoModerationRuleTriggerMetadata : IJsonModel<JsonAutoModerationRu
     public IReadOnlyList<string>? AllowList => _jsonModel.AllowList;
 
     public int? MentionTotalLimit => _jsonModel.MentionTotalLimit;
+
+    public bool MentionRaidProtectionEnabled => _jsonModel.MentionRaidProtectionEnabled;
 }

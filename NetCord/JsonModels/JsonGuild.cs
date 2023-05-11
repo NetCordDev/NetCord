@@ -168,6 +168,9 @@ public partial class JsonGuild : JsonEntity
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumPropressBarEnabled { get; set; }
 
+    [JsonPropertyName("safety_alerts_channel_id")]
+    public ulong? SafetyAlertsChannelId { get; set; }
+
     [JsonSerializable(typeof(JsonGuild))]
     public partial class JsonGuildSerializerContext : JsonSerializerContext
     {

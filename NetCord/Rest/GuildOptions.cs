@@ -85,6 +85,10 @@ public partial class GuildOptions
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool? PremiumProgressBarEnabled { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("safety_alerts_channel_id")]
+    public ulong? SafetyAlertsChannelId { get; set; }
+
     [JsonSerializable(typeof(GuildOptions))]
     public partial class GuildOptionsSerializerContext : JsonSerializerContext
     {

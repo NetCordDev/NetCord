@@ -19,6 +19,9 @@ public partial class JsonAutoModerationRuleTriggerMetadata
     [JsonPropertyName("mention_total_limit")]
     public int? MentionTotalLimit { get; set; }
 
+    [JsonPropertyName("mention_raid_protection_enabled")]
+    public bool MentionRaidProtectionEnabled { get; set; }
+
     [JsonSerializable(typeof(JsonAutoModerationRuleTriggerMetadata))]
     public partial class JsonAutoModerationRuleTriggerMetadataSerializerContext : JsonSerializerContext
     {

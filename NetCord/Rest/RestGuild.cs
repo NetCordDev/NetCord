@@ -48,6 +48,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public GuildWelcomeScreen? WelcomeScreen { get; }
     public NsfwLevel NsfwLevel => _jsonModel.NsfwLevel;
     public bool PremiumProgressBarEnabled => _jsonModel.PremiumPropressBarEnabled;
+    public ulong? SafetyAlertsChannelId => _jsonModel.SafetyAlertsChannelId;
 
     public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
