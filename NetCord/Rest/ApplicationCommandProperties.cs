@@ -82,15 +82,15 @@ public abstract partial class ApplicationCommandProperties
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {
-        Name = name;
         Type = type;
+        Name = name;
     }
 
     /// <summary>
     /// Type of the command.
     /// </summary>
     [JsonPropertyName("type")]
-    public ApplicationCommandType Type { get; set; }
+    public ApplicationCommandType Type { get; }
 
     /// <summary>
     /// Name of the command (1-32 characters).
