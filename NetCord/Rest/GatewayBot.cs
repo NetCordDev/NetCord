@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public class GatewayBot : IJsonModel<JsonGatewayBot>
+public class GatewayBot : IJsonModel<JsonModels.JsonGatewayBot>
 {
-    JsonGatewayBot IJsonModel<JsonGatewayBot>.JsonModel => _jsonModel;
-    private readonly JsonGatewayBot _jsonModel;
+    JsonModels.JsonGatewayBot IJsonModel<JsonModels.JsonGatewayBot>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGatewayBot _jsonModel;
 
-    public GatewayBot(JsonGatewayBot jsonModel)
+    public GatewayBot(JsonModels.JsonGatewayBot jsonModel)
     {
         _jsonModel = jsonModel;
         SessionStartLimit = new(jsonModel.SessionStartLimit);

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonWelcomeScreen
+public partial class JsonGuildWelcomeScreen
 {
     [JsonPropertyName("description")]
     public string? Description { get; set; }
@@ -10,9 +10,9 @@ public partial class JsonWelcomeScreen
     [JsonPropertyName("welcome_channels")]
     public JsonWelcomeScreenChannel[] WelcomeChannels { get; set; }
 
-    [JsonSerializable(typeof(JsonWelcomeScreen))]
-    public partial class JsonWelcomeScreenSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(JsonGuildWelcomeScreen))]
+    public partial class JsonGuildWelcomeScreenSerializerContext : JsonSerializerContext
     {
-        public static JsonWelcomeScreenSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static JsonGuildWelcomeScreenSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

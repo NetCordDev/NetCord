@@ -1,14 +1,13 @@
-﻿using NetCord.JsonModels.EventArgs;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildBanEventArgs : IJsonModel<JsonGuildBanEventArgs>
+public class GuildBanEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildBanEventArgs>
 {
-    JsonGuildBanEventArgs IJsonModel<JsonGuildBanEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonGuildBanEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildBanEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildBanEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildBanEventArgs _jsonModel;
 
-    public GuildBanEventArgs(JsonGuildBanEventArgs jsonModel, RestClient client)
+    public GuildBanEventArgs(JsonModels.EventArgs.JsonGuildBanEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         User = new(_jsonModel.User, client);

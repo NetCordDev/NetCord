@@ -1,15 +1,13 @@
-﻿using NetCord.JsonModels;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public class GuildTemplate : IJsonModel<JsonGuildTemplate>
+public class GuildTemplate : IJsonModel<JsonModels.JsonGuildTemplate>
 {
-    JsonGuildTemplate IJsonModel<JsonGuildTemplate>.JsonModel => _jsonModel;
-    private readonly JsonGuildTemplate _jsonModel;
+    JsonModels.JsonGuildTemplate IJsonModel<JsonModels.JsonGuildTemplate>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGuildTemplate _jsonModel;
 
     private readonly RestClient _client;
 
-    public GuildTemplate(JsonGuildTemplate jsonModel, RestClient client)
+    public GuildTemplate(JsonModels.JsonGuildTemplate jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         Creator = new(_jsonModel.Creator, client);

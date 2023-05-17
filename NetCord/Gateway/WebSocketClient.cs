@@ -1,9 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
 
+using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
-using NetCord.JsonModels;
 
 namespace NetCord.Gateway;
 

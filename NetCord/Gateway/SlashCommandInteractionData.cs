@@ -1,11 +1,10 @@
-﻿using NetCord.JsonModels;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 public class SlashCommandInteractionData : ApplicationCommandInteractionData
 {
-    public SlashCommandInteractionData(JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
+    public SlashCommandInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
     {
         Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToArray();
         if (jsonModel.ResolvedData != null)

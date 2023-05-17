@@ -1,4 +1,5 @@
 ﻿using NetCord.JsonModels;
+using NetCord.Rest.JsonModels;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;

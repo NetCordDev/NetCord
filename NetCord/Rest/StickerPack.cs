@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public class StickerPack : IJsonModel<JsonStickerPack>
+public class StickerPack : IJsonModel<JsonModels.JsonStickerPack>
 {
-    JsonStickerPack IJsonModel<JsonStickerPack>.JsonModel => _jsonModel;
-    private readonly JsonStickerPack _jsonModel;
+    JsonModels.JsonStickerPack IJsonModel<JsonModels.JsonStickerPack>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonStickerPack _jsonModel;
 
-    public StickerPack(JsonStickerPack jsonModel)
+    public StickerPack(JsonModels.JsonStickerPack jsonModel)
     {
         _jsonModel = jsonModel;
         Stickers = jsonModel.Stickers.Select(s => new StandardSticker(s)).ToArray();

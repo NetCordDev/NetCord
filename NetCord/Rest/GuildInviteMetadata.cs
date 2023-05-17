@@ -1,9 +1,9 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildInviteMetadata : IJsonModel<JsonModels.JsonGuildInviteMetadata>
+public class GuildInviteMetadata : IJsonModel<JsonModels.JsonRestGuildInviteMetadata>
 {
-    JsonModels.JsonGuildInviteMetadata IJsonModel<JsonModels.JsonGuildInviteMetadata>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildInviteMetadata _jsonModel;
+    JsonModels.JsonRestGuildInviteMetadata IJsonModel<JsonModels.JsonRestGuildInviteMetadata>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonRestGuildInviteMetadata _jsonModel;
 
     public int Uses => _jsonModel.Uses;
 
@@ -15,7 +15,7 @@ public class GuildInviteMetadata : IJsonModel<JsonModels.JsonGuildInviteMetadata
 
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
 
-    public GuildInviteMetadata(JsonModels.JsonGuildInviteMetadata jsonModel)
+    public GuildInviteMetadata(JsonModels.JsonRestGuildInviteMetadata jsonModel)
     {
         _jsonModel = jsonModel;
     }

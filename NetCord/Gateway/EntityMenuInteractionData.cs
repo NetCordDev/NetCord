@@ -1,13 +1,12 @@
 ﻿using System.Globalization;
 
-using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 public class EntityMenuInteractionData : ButtonInteractionData
 {
-    public EntityMenuInteractionData(JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
+    public EntityMenuInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
     {
         int length = jsonModel.SelectedValues!.Length;
         var selectedValues = new ulong[length];

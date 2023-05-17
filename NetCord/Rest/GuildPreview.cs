@@ -2,10 +2,16 @@
 
 namespace NetCord.Rest;
 
-public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
+public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
 {
-    JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuild _jsonModel;
+    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
+    private readonly NetCord.JsonModels.JsonGuild _jsonModel;
+
+    public GuildPreview(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+        Emojis = _jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+    }
 
     public override ulong Id => _jsonModel.Id;
 
@@ -26,10 +32,4 @@ public class GuildPreview : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
 
     public string? Description => _jsonModel.Description;
-
-    public GuildPreview(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        Emojis = _jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-    }
 }

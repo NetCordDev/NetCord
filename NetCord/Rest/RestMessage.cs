@@ -1,42 +1,11 @@
 ﻿namespace NetCord.Rest;
 
-public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
+public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessage>
 {
-    JsonModels.JsonMessage IJsonModel<JsonModels.JsonMessage>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonMessage _jsonModel;
+    NetCord.JsonModels.JsonMessage IJsonModel<NetCord.JsonModels.JsonMessage>.JsonModel => _jsonModel;
+    private protected readonly NetCord.JsonModels.JsonMessage _jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
-    public ulong ChannelId => _jsonModel.ChannelId;
-    public User Author { get; }
-    public string Content => _jsonModel.Content;
-    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
-    public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
-    public bool IsTts => _jsonModel.IsTts;
-    public bool MentionEveryone => _jsonModel.MentionEveryone;
-    public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
-    public IReadOnlyList<ulong> MentionedRoleIds { get; }
-    public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
-    public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
-    public IReadOnlyList<Embed> Embeds { get; }
-    public IReadOnlyList<MessageReaction> Reactions { get; }
-    public string? Nonce => _jsonModel.Nonce;
-    public bool IsPinned => _jsonModel.IsPinned;
-    public ulong? WebhookId => _jsonModel.WebhookId;
-    public MessageType Type => _jsonModel.Type;
-    public MessageActivity? Activity { get; }
-    public Application? Application { get; }
-    public ulong? ApplicationId => _jsonModel.ApplicationId;
-    public MessageReference? MessageReference { get; }
-    public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
-    public RestMessage? ReferencedMessage { get; }
-    public MessageInteraction? Interaction { get; }
-    public GuildThread? StartedThread { get; }
-    public IReadOnlyList<IComponent> Components { get; }
-    public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
-    public int? Position => _jsonModel.Position;
-    public RoleSubscriptionData? RoleSubscriptionData { get; }
-
-    public RestMessage(JsonModels.JsonMessage jsonModel, RestClient client) : base(client)
+    public RestMessage(NetCord.JsonModels.JsonMessage jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 
@@ -80,6 +49,37 @@ public class RestMessage : ClientEntity, IJsonModel<JsonModels.JsonMessage>
         if (jsonModel.RoleSubscriptionData != null)
             RoleSubscriptionData = new(jsonModel.RoleSubscriptionData);
     }
+
+    public override ulong Id => _jsonModel.Id;
+    public ulong ChannelId => _jsonModel.ChannelId;
+    public User Author { get; }
+    public string Content => _jsonModel.Content;
+    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
+    public bool IsTts => _jsonModel.IsTts;
+    public bool MentionEveryone => _jsonModel.MentionEveryone;
+    public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
+    public IReadOnlyList<ulong> MentionedRoleIds { get; }
+    public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
+    public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
+    public IReadOnlyList<Embed> Embeds { get; }
+    public IReadOnlyList<MessageReaction> Reactions { get; }
+    public string? Nonce => _jsonModel.Nonce;
+    public bool IsPinned => _jsonModel.IsPinned;
+    public ulong? WebhookId => _jsonModel.WebhookId;
+    public MessageType Type => _jsonModel.Type;
+    public MessageActivity? Activity { get; }
+    public Application? Application { get; }
+    public ulong? ApplicationId => _jsonModel.ApplicationId;
+    public MessageReference? MessageReference { get; }
+    public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+    public RestMessage? ReferencedMessage { get; }
+    public MessageInteraction? Interaction { get; }
+    public GuildThread? StartedThread { get; }
+    public IReadOnlyList<IComponent> Components { get; }
+    public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
+    public int? Position => _jsonModel.Position;
+    public RoleSubscriptionData? RoleSubscriptionData { get; }
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
     {

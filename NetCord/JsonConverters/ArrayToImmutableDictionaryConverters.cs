@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using NetCord.Gateway.JsonModels;
 using NetCord.JsonModels;
 
 namespace NetCord.JsonConverters;

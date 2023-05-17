@@ -1,11 +1,11 @@
 ﻿namespace NetCord.Gateway;
 
-public class MessageReactionEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
+public class MessageReactionEmoji : Entity, IJsonModel<NetCord.JsonModels.JsonEmoji>
 {
-    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonEmoji _jsonModel;
+    NetCord.JsonModels.JsonEmoji IJsonModel<NetCord.JsonModels.JsonEmoji>.JsonModel => _jsonModel;
+    private readonly NetCord.JsonModels.JsonEmoji _jsonModel;
 
-    public MessageReactionEmoji(JsonModels.JsonEmoji jsonModel)
+    public MessageReactionEmoji(NetCord.JsonModels.JsonEmoji jsonModel)
     {
         _jsonModel = jsonModel;
     }

@@ -1,10 +1,8 @@
-﻿using NetCord.JsonModels;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public class RestAuditLogEntryData
 {
-    public RestAuditLogEntryData(JsonAuditLog jsonModel, RestClient client)
+    public RestAuditLogEntryData(JsonModels.JsonAuditLog jsonModel, RestClient client)
     {
         ApplicationCommands = jsonModel.ApplicationCommands.ToDictionary(c => c.Id, c => new ApplicationCommand(c, client));
         AutoModerationRules = jsonModel.AutoModerationRules.ToDictionary(c => c.Id, r => new AutoModerationRule(r, client));

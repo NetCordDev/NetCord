@@ -1,14 +1,13 @@
 ﻿using System.Globalization;
 
-using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
+public abstract class Interaction : ClientEntity, IJsonModel<JsonModels.JsonInteraction>
 {
-    JsonInteraction IJsonModel<JsonInteraction>.JsonModel => _jsonModel;
-    private readonly JsonInteraction _jsonModel;
+    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonInteraction _jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 
@@ -34,7 +33,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
 
     public abstract InteractionData Data { get; }
 
-    private protected Interaction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(client)
+    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.GuildId.HasValue)
@@ -46,7 +45,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         Channel = (TextChannel)NetCord.Channel.CreateFromJson(jsonModel.Channel!, client);
     }
 
-    public static Interaction CreateFromJson(JsonInteraction jsonModel, Guild? guild, RestClient client)
+    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client)
     {
         return jsonModel.Type switch
         {
@@ -73,7 +72,7 @@ public abstract class Interaction : ClientEntity, IJsonModel<JsonInteraction>
         };
     }
 
-    public static Interaction CreateFromJson(JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
+    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, IGatewayClientCache cache, RestClient client)
     {
         var guildId = jsonModel.GuildId;
         var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;

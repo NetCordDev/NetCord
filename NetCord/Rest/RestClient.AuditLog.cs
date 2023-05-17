@@ -1,4 +1,6 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Rest.JsonModels;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -19,7 +21,7 @@ public partial class RestClient
             else
                 getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100";
         }
-        JsonModels.JsonAuditLog? jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+        JsonModels.JsonAuditLog? jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
         RestAuditLogEntryData data = new(jsonAuditLog, this);
         var entries = jsonAuditLog.AuditLogEntries;
 
@@ -53,7 +55,7 @@ public partial class RestClient
 
         while (true)
         {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
             RestAuditLogEntryData data = new(jsonAuditLog, this);
             var entries = jsonAuditLog.AuditLogEntries;
 
@@ -87,7 +89,7 @@ public partial class RestClient
 
         while (true)
         {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonModels.JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
             RestAuditLogEntryData data = new(jsonAuditLog, this);
             var entries = jsonAuditLog.AuditLogEntries;
 

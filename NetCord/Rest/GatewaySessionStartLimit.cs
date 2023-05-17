@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public class GatewaySessionStartLimit : IJsonModel<JsonGatewaySessionStartLimit>
+public class GatewaySessionStartLimit : IJsonModel<JsonModels.JsonGatewaySessionStartLimit>
 {
-    JsonGatewaySessionStartLimit IJsonModel<JsonGatewaySessionStartLimit>.JsonModel => _jsonModel;
-    private readonly JsonGatewaySessionStartLimit _jsonModel;
+    JsonModels.JsonGatewaySessionStartLimit IJsonModel<JsonModels.JsonGatewaySessionStartLimit>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonGatewaySessionStartLimit _jsonModel;
 
-    public GatewaySessionStartLimit(JsonGatewaySessionStartLimit jsonModel)
+    public GatewaySessionStartLimit(JsonModels.JsonGatewaySessionStartLimit jsonModel)
     {
         _jsonModel = jsonModel;
     }

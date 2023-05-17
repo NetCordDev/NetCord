@@ -2,7 +2,6 @@
 
 namespace NetCord.JsonModels;
 
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class JsonMessageReference
 {
     [JsonPropertyName("message_id")]

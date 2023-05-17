@@ -1,6 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
+using NetCord.Gateway.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord.JsonModels;
@@ -149,7 +150,7 @@ public partial class JsonGuild : JsonEntity
     public int? ApproximatePresenceCount { get; set; }
 
     [JsonPropertyName("welcome_screen")]
-    public JsonWelcomeScreen? WelcomeScreen { get; set; }
+    public JsonGuildWelcomeScreen? WelcomeScreen { get; set; }
 
     [JsonPropertyName("nsfw_level")]
     public NsfwLevel NsfwLevel { get; set; }

@@ -1,11 +1,10 @@
-﻿using NetCord.JsonModels;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 public class UserCommandInteractionData : ApplicationCommandInteractionData
 {
-    public UserCommandInteractionData(JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
+    public UserCommandInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
     {
         if (jsonModel.ResolvedData!.GuildUsers != null)
         {

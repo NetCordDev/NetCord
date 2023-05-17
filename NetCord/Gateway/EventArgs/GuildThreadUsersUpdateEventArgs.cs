@@ -1,14 +1,13 @@
-﻿using NetCord.JsonModels.EventArgs;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonGuildThreadUsersUpdateEventArgs>
+public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs>
 {
-    JsonGuildThreadUsersUpdateEventArgs IJsonModel<JsonGuildThreadUsersUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonGuildThreadUsersUpdateEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs _jsonModel;
 
-    public GuildThreadUsersUpdateEventArgs(JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
+    public GuildThreadUsersUpdateEventArgs(JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         if (jsonModel.AddedUsers != null)

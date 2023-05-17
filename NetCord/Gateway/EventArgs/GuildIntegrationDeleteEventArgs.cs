@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels.EventArgs;
+﻿namespace NetCord.Gateway;
 
-namespace NetCord.Gateway;
-
-public class GuildIntegrationDeleteEventArgs : IJsonModel<JsonGuildIntegrationDeleteEventArgs>
+public class GuildIntegrationDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>
 {
-    JsonGuildIntegrationDeleteEventArgs IJsonModel<JsonGuildIntegrationDeleteEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonGuildIntegrationDeleteEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs _jsonModel;
 
-    public GuildIntegrationDeleteEventArgs(JsonGuildIntegrationDeleteEventArgs jsonModel)
+    public GuildIntegrationDeleteEventArgs(JsonModels.EventArgs.JsonGuildIntegrationDeleteEventArgs jsonModel)
     {
         _jsonModel = jsonModel;
     }

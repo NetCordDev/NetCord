@@ -17,7 +17,7 @@ public partial class JsonMenuSelectOption
     public JsonEmoji? Emoji { get; set; }
 
     [JsonPropertyName("default")]
-    public bool? Default { get; set; }
+    public bool Default { get; set; }
 
     [JsonSerializable(typeof(JsonMenuSelectOption))]
     public partial class JsonMenuSelectOptionSerializerContext : JsonSerializerContext

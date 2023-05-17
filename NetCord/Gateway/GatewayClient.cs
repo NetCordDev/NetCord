@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
+using NetCord.Gateway.JsonModels;
+using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.JsonModels;
-using NetCord.JsonModels.EventArgs;
 using NetCord.Utils;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;

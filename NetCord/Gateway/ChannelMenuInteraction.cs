@@ -1,11 +1,10 @@
-﻿using NetCord.JsonModels;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 public class ChannelMenuInteraction : EntityMenuInteraction
 {
-    public ChannelMenuInteraction(JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
+    public ChannelMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
     }
 }

@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public class AuthorizationInformation : IJsonModel<JsonAuthorizationInformation>
+public class AuthorizationInformation : IJsonModel<JsonModels.JsonAuthorizationInformation>
 {
-    JsonAuthorizationInformation IJsonModel<JsonAuthorizationInformation>.JsonModel => _jsonModel;
-    private readonly JsonAuthorizationInformation _jsonModel;
+    JsonModels.JsonAuthorizationInformation IJsonModel<JsonModels.JsonAuthorizationInformation>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonAuthorizationInformation _jsonModel;
 
-    public AuthorizationInformation(JsonAuthorizationInformation jsonModel, RestClient client)
+    public AuthorizationInformation(JsonModels.JsonAuthorizationInformation jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         Application = new(jsonModel.Application, client);

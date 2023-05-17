@@ -2,10 +2,10 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 
+using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
-using NetCord.JsonModels;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 

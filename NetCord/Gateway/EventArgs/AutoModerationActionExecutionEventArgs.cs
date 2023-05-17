@@ -1,13 +1,11 @@
-﻿using NetCord.JsonModels.EventArgs;
+﻿namespace NetCord.Gateway;
 
-namespace NetCord.Gateway;
-
-public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonAutoModerationActionExecutionEventArgs>
+public class AutoModerationActionExecutionEventArgs : IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>
 {
-    JsonAutoModerationActionExecutionEventArgs IJsonModel<JsonAutoModerationActionExecutionEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationActionExecutionEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs IJsonModel<JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs>.JsonModel => _jsonModel;
+    private readonly JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs _jsonModel;
 
-    public AutoModerationActionExecutionEventArgs(JsonAutoModerationActionExecutionEventArgs jsonModel)
+    public AutoModerationActionExecutionEventArgs(JsonModels.EventArgs.JsonAutoModerationActionExecutionEventArgs jsonModel)
     {
         _jsonModel = jsonModel;
         Action = new(_jsonModel.Action);

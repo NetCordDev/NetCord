@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using NetCord.Gateway.JsonModels;
+
 namespace NetCord.JsonModels;
 
 public partial class JsonThreadUser : JsonThreadSelfUser

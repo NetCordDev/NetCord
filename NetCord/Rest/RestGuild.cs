@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
+public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
 {
-    JsonModels.JsonGuild IJsonModel<JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    internal readonly JsonModels.JsonGuild _jsonModel;
+    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
+    internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
 
     public ImmutableDictionary<ulong, Role> Roles { get; set; }
     public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; set; }
@@ -50,7 +50,7 @@ public class RestGuild : ClientEntity, IJsonModel<JsonModels.JsonGuild>
     public bool PremiumProgressBarEnabled => _jsonModel.PremiumPropressBarEnabled;
     public ulong? SafetyAlertsChannelId => _jsonModel.SafetyAlertsChannelId;
 
-    public RestGuild(JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
+    public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
