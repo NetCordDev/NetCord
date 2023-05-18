@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+﻿namespace NetCord.Gateway.LatencyTimers;
 
 public interface ILatencyTimer
 {

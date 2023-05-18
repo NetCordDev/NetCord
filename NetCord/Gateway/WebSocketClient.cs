@@ -2,6 +2,7 @@
 using System.Text.Json;
 
 using NetCord.Gateway.JsonModels;
+using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
 

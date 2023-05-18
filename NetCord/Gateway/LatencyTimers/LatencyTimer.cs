@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace NetCord.Gateway;
+namespace NetCord.Gateway.LatencyTimers;
 
 public class LatencyTimer : ILatencyTimer
 {
