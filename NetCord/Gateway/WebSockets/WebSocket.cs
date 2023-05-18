@@ -18,9 +18,6 @@ public class WebSocket : IWebSocket
 
     public bool IsConnected { get; private set; }
 
-    /// <summary>
-    /// Connects to a WebSocket server.
-    /// </summary>
     public async Task ConnectAsync(Uri uri)
     {
         if (_disposed)
@@ -34,9 +31,6 @@ public class WebSocket : IWebSocket
         _readAsync = ReadAsync();
     }
 
-    /// <summary>
-    /// Closes the <see cref="WebSocket"/>.
-    /// </summary>
     public async Task CloseAsync(WebSocketCloseStatus status)
     {
         ThrowIfInvalid();
@@ -46,9 +40,6 @@ public class WebSocket : IWebSocket
         await _readAsync!.ConfigureAwait(false);
     }
 
-    /// <summary>
-    /// Sends a message.
-    /// </summary>
     public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         ThrowIfInvalid();
@@ -58,37 +49,23 @@ public class WebSocket : IWebSocket
     private async Task ReadAsync()
     {
         var webSocket = _webSocket!;
-        var owner = MemoryPool<byte>.Shared.Rent(4096);
         try
         {
-            var buffer = owner.Memory;
-            int position = 0;
+            using ByteBufferWriter writer = new(4096);
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(buffer[position..], default).ConfigureAwait(false);
+                var result = await webSocket.ReceiveAsync(writer.GetMemory(4096), default).ConfigureAwait(false);
                 if (result.EndOfMessage)
                 {
                     if (result.MessageType != WebSocketMessageType.Close)
                     {
-                        MessageReceived?.Invoke(buffer[..(position + result.Count)]);
-                        position = 0;
+                        writer.Advance(result.Count);
+                        MessageReceived?.Invoke(writer.WrittenMemory);
+                        writer.Clear();
                     }
                 }
                 else
-                {
-                    position += result.Count;
-
-                    int length = buffer.Length;
-                    if (length == position)
-                    {
-                        var newOwner = MemoryPool<byte>.Shared.Rent(length * 2);
-                        var newBuffer = newOwner.Memory;
-                        buffer.CopyTo(newBuffer);
-                        owner.Dispose();
-                        owner = newOwner;
-                        buffer = newBuffer;
-                    }
-                }
+                    writer.Advance(result.Count);
             }
         }
         catch
@@ -104,10 +81,6 @@ public class WebSocket : IWebSocket
             catch
             {
             }
-        }
-        finally
-        {
-            owner.Dispose();
         }
     }
 
@@ -129,5 +102,67 @@ public class WebSocket : IWebSocket
             throw new ObjectDisposedException(nameof(WebSocket));
         else if (!IsConnected)
             throw new WebSocketException("WebSocket was not connected.");
+    }
+
+    private struct ByteBufferWriter : IBufferWriter<byte>, IDisposable
+    {
+        private int _index;
+        private byte[] _buffer;
+
+        public ByteBufferWriter()
+        {
+            _buffer = Array.Empty<byte>();
+        }
+
+        public ByteBufferWriter(int minimumInitialCapacity)
+        {
+            _buffer = ArrayPool<byte>.Shared.Rent(minimumInitialCapacity);
+        }
+
+        public readonly ReadOnlyMemory<byte> WrittenMemory => _buffer.AsMemory(0, _index);
+
+        public void Advance(int count)
+        {
+            _index += count;
+        }
+
+        public void Clear()
+        {
+            _index = 0;
+        }
+
+        public Memory<byte> GetMemory(int sizeHint = 1)
+        {
+            ResizeBuffer(sizeHint);
+            return _buffer.AsMemory(_index);
+        }
+
+        public Span<byte> GetSpan(int sizeHint = 1)
+        {
+            ResizeBuffer(sizeHint);
+            return _buffer.AsSpan(_index);
+        }
+
+#pragma warning disable IDE0251 // Make member 'readonly'
+        public void Dispose()
+#pragma warning restore IDE0251 // Make member 'readonly'
+        {
+            ArrayPool<byte>.Shared.Return(_buffer);
+        }
+
+        private void ResizeBuffer(int sizeHint)
+        {
+            var buffer = _buffer;
+            var index = _index;
+            var sum = index + sizeHint;
+            if (buffer.Length < sum)
+            {
+                var pool = ArrayPool<byte>.Shared;
+                var newBuffer = pool.Rent(sum);
+                Array.Copy(buffer, newBuffer, index);
+                pool.Return(buffer);
+                _buffer = newBuffer;
+            }
+        }
     }
 }
