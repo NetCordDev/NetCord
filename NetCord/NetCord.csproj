@@ -31,4 +31,18 @@
     <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
+  <Target Name="GenerateRestClientConstants" BeforeTargets="BeforeCompile">
+    <WriteLinesToFile File="$(IntermediateOutputPath)RestClient.Constants.cs" Lines="// &lt;auto-generated/&gt;
+namespace NetCord.Rest%3B
+
+public partial class RestClient
+{
+    private const string UserAgentHeader = &quot;DiscordBot ($(PackageProjectUrl), $(Version))&quot;%3B
+}
+" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)RestClient.Constants.cs" />
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -23,7 +23,7 @@ public partial class RestClient : IDisposable
         _globalBucket = new(this);
         _noRateLimitBucket = new(this);
 
-        _httpClient.AddDefaultRequestHeader("User-Agent", "NetCord");
+        _httpClient.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
     }
 
     public RestClient(Token token, RestClientConfiguration? configuration = null) : this(configuration)
