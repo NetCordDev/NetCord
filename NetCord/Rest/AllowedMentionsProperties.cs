@@ -31,57 +31,72 @@ public partial class AllowedMentionsProperties
         ReplyMention = true,
     };
 
-    public static AllowedMentionsProperties None => new()
+    public static AllowedMentionsProperties None
     {
-        Everyone = false,
-        AllowedRoles = Enumerable.Empty<ulong>(),
-        AllowedUsers = Enumerable.Empty<ulong>(),
-    };
+        get
+        {
+            AllowedMentionsProperties result = new()
+            {
+                Everyone = false,
+            };
+            result.AllowedRoles = result.AllowedUsers = Enumerable.Empty<ulong>();
+            return result;
+        }
+    }
 
     internal partial class AllowedMentionsConverter : JsonConverter<AllowedMentionsProperties>
     {
+        private static readonly JsonEncodedText _roles = JsonEncodedText.Encode("roles");
+        private static readonly JsonEncodedText _users = JsonEncodedText.Encode("users");
+        private static readonly JsonEncodedText _everyone = JsonEncodedText.Encode("everyone");
+        private static readonly JsonEncodedText _parse = JsonEncodedText.Encode("parse");
+        private static readonly JsonEncodedText _repliedUser = JsonEncodedText.Encode("replied_user");
+
         public override AllowedMentionsProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, AllowedMentionsProperties value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            List<string> list = new(3);
-            if (value.AllowedRoles == null)
-                list.Add("roles");
+
+            var parse = new JsonEncodedText[3];
+            int index = 0;
+            var allowedRoles = value.AllowedRoles;
+            if (allowedRoles is null)
+                parse[index++] = _roles;
             else
             {
-                writer.WritePropertyName("roles");
-                JsonSerializer.Serialize(writer, value.AllowedRoles, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
+                writer.WritePropertyName(_roles);
+                JsonSerializer.Serialize(writer, allowedRoles, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
             }
-            if (value.AllowedUsers == null)
-                list.Add("users");
+
+            var allowedUsers = value.AllowedUsers;
+            if (allowedUsers is null)
+                parse[index++] = _users;
             else
             {
-                writer.WritePropertyName("users");
-                JsonSerializer.Serialize(writer, value.AllowedUsers, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
+                writer.WritePropertyName(_users);
+                JsonSerializer.Serialize(writer, allowedUsers, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
             }
+
             if (value.Everyone)
-                list.Add("everyone");
-            writer.WritePropertyName("parse");
-            JsonSerializer.Serialize(writer, list, ListOfStringSerializerContext.WithOptions.ListString);
+                parse[index++] = _everyone;
+
+            writer.WritePropertyName(_parse);
+
+            writer.WriteStartArray();
+            for (int i = 0; i < index; i++)
+                writer.WriteStringValue(parse[i]);
+            writer.WriteEndArray();
 
             if (value.ReplyMention)
-            {
-                writer.WritePropertyName("replied_user");
-                writer.WriteBooleanValue(true);
-            }
+                writer.WriteBoolean(_repliedUser, true);
+
             writer.WriteEndObject();
         }
 
         [JsonSerializable(typeof(IEnumerable<ulong>))]
         public partial class IEnumerableOfUInt64SerializerContext : JsonSerializerContext
         {
-            public static IEnumerableOfUInt64SerializerContext WithOptions { get; } = new(new(Serialization.Options));
-        }
-
-        [JsonSerializable(typeof(List<string>))]
-        public partial class ListOfStringSerializerContext : JsonSerializerContext
-        {
-            public static ListOfStringSerializerContext WithOptions { get; } = new(new(Serialization.Options));
+            public static IEnumerableOfUInt64SerializerContext WithOptions { get; } = new(Serialization.Options);
         }
     }
 

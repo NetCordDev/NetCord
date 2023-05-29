@@ -12,7 +12,8 @@ public partial class GuildWelcomeScreenChannelProperties
     public string Description { get; set; }
 
     [JsonPropertyName("emoji_id")]
-    public GuildWelcomeScreenChannelEmojiProperties? Emoji { get; set; }
+    [JsonConverter(typeof(EmojiPropertiesConverter))]
+    public EmojiProperties? Emoji { get; set; }
 
     public GuildWelcomeScreenChannelProperties(ulong channelId, string description)
     {
@@ -25,43 +26,23 @@ public partial class GuildWelcomeScreenChannelProperties
     {
         public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
-}
 
-[JsonConverter(typeof(GuildWelcomeScreenChannelEmojiPropertiesConverter))]
-public partial class GuildWelcomeScreenChannelEmojiProperties
-{
-    public string? Unicode { get; set; }
-
-    public ulong? EmojiId { get; set; }
-
-    public GuildWelcomeScreenChannelEmojiProperties(string unicode)
+    internal class EmojiPropertiesConverter : JsonConverter<EmojiProperties>
     {
-        Unicode = unicode;
-    }
+        private static readonly JsonEncodedText _emojiName = JsonEncodedText.Encode("emoji_name");
 
-    public GuildWelcomeScreenChannelEmojiProperties(ulong emojiId)
-    {
-        EmojiId = emojiId;
-    }
+        public override EmojiProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
-    internal class GuildWelcomeScreenChannelEmojiPropertiesConverter : JsonConverter<GuildWelcomeScreenChannelEmojiProperties>
-    {
-        public override GuildWelcomeScreenChannelEmojiProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-        public override void Write(Utf8JsonWriter writer, GuildWelcomeScreenChannelEmojiProperties value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, EmojiProperties value, JsonSerializerOptions options)
         {
-            if (value.EmojiId != null)
-                writer.WriteStringValue(value.EmojiId.ToString());
+            var id = value.Id;
+            if (id.HasValue)
+                writer.WriteNumberValue(id.GetValueOrDefault());
             else
             {
                 writer.WriteNullValue();
-                writer.WriteString("emoji_name", value.Unicode);
+                writer.WriteString(_emojiName, value.Unicode);
             }
         }
-    }
-
-    [JsonSerializable(typeof(GuildWelcomeScreenChannelEmojiProperties))]
-    public partial class GuildWelcomeScreenChannelEmojiPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildWelcomeScreenChannelEmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -77,12 +77,20 @@ public abstract class ButtonProperties
     internal class MessageButtonConverter : JsonConverter<ButtonProperties>
     {
         public override ButtonProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+
         public override void Write(Utf8JsonWriter writer, ButtonProperties button, JsonSerializerOptions options)
         {
-            if (button is ActionButtonProperties actionButton)
-                JsonSerializer.Serialize(writer, actionButton, ActionButtonProperties.ActionButtonPropertiesSerializerContext.WithOptions.ActionButtonProperties);
-            else if (button is LinkButtonProperties linkButton)
-                JsonSerializer.Serialize(writer, linkButton, LinkButtonProperties.LinkButtonPropertiesSerializerContext.WithOptions.LinkButtonProperties);
+            switch (button)
+            {
+                case ActionButtonProperties actionButton:
+                    JsonSerializer.Serialize(writer, actionButton, ActionButtonProperties.ActionButtonPropertiesSerializerContext.WithOptions.ActionButtonProperties);
+                    break;
+                case LinkButtonProperties linkButton:
+                    JsonSerializer.Serialize(writer, linkButton, LinkButtonProperties.LinkButtonPropertiesSerializerContext.WithOptions.LinkButtonProperties);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid {nameof(ButtonProperties)} value.");
+            }
         }
     }
 }

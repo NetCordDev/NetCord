@@ -33,6 +33,19 @@ public class ImageUrl
         };
     }
 
+    internal static ReadOnlySpan<byte> GetFormatBytes(ImageFormat format)
+    {
+        return format switch
+        {
+            ImageFormat.Jpeg => "jpg"u8,
+            ImageFormat.Png => "png"u8,
+            ImageFormat.WebP => "webp"u8,
+            ImageFormat.Gif => "gif"u8,
+            ImageFormat.Lottie => "json"u8,
+            _ => throw new System.ComponentModel.InvalidEnumArgumentException("Invalid image format.")
+        };
+    }
+
     public static ImageUrl CustomEmoji(ulong emojiId, ImageFormat format)
     {
         return new($"/emojis/{emojiId}", GetFormat(format));

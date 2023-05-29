@@ -23,6 +23,9 @@ public abstract class ComponentProperties
 
     internal class ComponentConverter : JsonConverter<ComponentProperties>
     {
+        private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
+        private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");
+
         public override ComponentProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
         public override void Write(Utf8JsonWriter writer, ComponentProperties component, JsonSerializerOptions options)
         {
@@ -33,27 +36,32 @@ public abstract class ComponentProperties
                     break;
                 default:
                     writer.WriteStartObject();
-                    writer.WriteNumber("type", 1);
-                    writer.WriteStartArray("components");
-                    switch (component.ComponentType)
+
+                    writer.WriteNumber(_type, 1);
+
+                    writer.WriteStartArray(_components);
+                    switch (component)
                     {
-                        case ComponentType.StringMenu:
-                            JsonSerializer.Serialize(writer, (StringMenuProperties)component, StringMenuProperties.StringMenuPropertiesSerializerContext.WithOptions.StringMenuProperties);
+                        case StringMenuProperties stringMenuProperties:
+                            JsonSerializer.Serialize(writer, stringMenuProperties, StringMenuProperties.StringMenuPropertiesSerializerContext.WithOptions.StringMenuProperties);
                             break;
-                        case ComponentType.UserMenu:
-                            JsonSerializer.Serialize(writer, (UserMenuProperties)component, UserMenuProperties.UserMenuPropertiesSerializerContext.WithOptions.UserMenuProperties);
+                        case UserMenuProperties userMenuProperties:
+                            JsonSerializer.Serialize(writer, userMenuProperties, UserMenuProperties.UserMenuPropertiesSerializerContext.WithOptions.UserMenuProperties);
                             break;
-                        case ComponentType.RoleMenu:
-                            JsonSerializer.Serialize(writer, (RoleMenuProperties)component, RoleMenuProperties.RoleMenuPropertiesSerializerContext.WithOptions.RoleMenuProperties);
+                        case RoleMenuProperties roleMenuProperties:
+                            JsonSerializer.Serialize(writer, roleMenuProperties, RoleMenuProperties.RoleMenuPropertiesSerializerContext.WithOptions.RoleMenuProperties);
                             break;
-                        case ComponentType.MentionableMenu:
-                            JsonSerializer.Serialize(writer, (MentionableMenuProperties)component, MentionableMenuProperties.MentionableMenuPropertiesSerializerContext.WithOptions.MentionableMenuProperties);
+                        case MentionableMenuProperties mentionableMenuProperties:
+                            JsonSerializer.Serialize(writer, mentionableMenuProperties, MentionableMenuProperties.MentionableMenuPropertiesSerializerContext.WithOptions.MentionableMenuProperties);
                             break;
-                        case ComponentType.ChannelMenu:
-                            JsonSerializer.Serialize(writer, (ChannelMenuProperties)component, ChannelMenuProperties.ChannelMenuPropertiesSerializerContext.WithOptions.ChannelMenuProperties);
+                        case ChannelMenuProperties channelMenuProperties:
+                            JsonSerializer.Serialize(writer, channelMenuProperties, ChannelMenuProperties.ChannelMenuPropertiesSerializerContext.WithOptions.ChannelMenuProperties);
                             break;
+                        default:
+                            throw new InvalidOperationException($"Invalid {nameof(ComponentProperties)} value.");
                     }
                     writer.WriteEndArray();
+
                     writer.WriteEndObject();
                     break;
             }

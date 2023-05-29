@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using System.Buffers;
+using System.Buffers.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -23,10 +25,31 @@ public struct ImageProperties
 
         public override void Write(Utf8JsonWriter writer, ImageProperties value, JsonSerializerOptions options)
         {
-            if (value.Bytes.IsEmpty)
+            var valueBytes = value.Bytes;
+            if (valueBytes.IsEmpty)
                 writer.WriteNullValue();
             else
-                writer.WriteStringValue($"data:image/{ImageUrl.GetFormat(value.Format)};base64,{Convert.ToBase64String(value.Bytes.Span)}");
+            {
+                var format = ImageUrl.GetFormatBytes(value.Format);
+                var formatLength = format.Length;
+
+                // data:image/ - 11
+                // ;base64,    -  8
+                var length = 11 + 8 + formatLength + Base64.GetMaxEncodedToUtf8Length(valueBytes.Length);
+
+                byte[]? toReturn = null;
+                Span<byte> bytes = length <= 256 ? stackalloc byte[256] : (toReturn = ArrayPool<byte>.Shared.Rent(length));
+
+                "data:image/"u8.CopyTo(bytes);
+                format.CopyTo(bytes[11..]);
+                ";base64,"u8.CopyTo(bytes[(11 + formatLength)..]);
+                Base64.EncodeToUtf8(valueBytes.Span, bytes[(11 + 8 + formatLength)..], out _, out var bytesWritten);
+
+                writer.WriteStringValue(bytes[..(11 + 8 + formatLength + bytesWritten)]);
+
+                if (toReturn is not null)
+                    ArrayPool<byte>.Shared.Return(toReturn);
+            }
         }
     }
 }

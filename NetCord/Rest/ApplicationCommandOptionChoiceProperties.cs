@@ -51,22 +51,31 @@ public partial class ApplicationCommandOptionChoiceProperties
 
     internal partial class ApplicationCommandOptionChoicePropertiesConverter : JsonConverter<ApplicationCommandOptionChoiceProperties>
     {
+        private static readonly JsonEncodedText _name = JsonEncodedText.Encode("name");
+        private static readonly JsonEncodedText _nameLocalizations = JsonEncodedText.Encode("name_localizations");
+        private static readonly JsonEncodedText _value = JsonEncodedText.Encode("value");
+
         public override ApplicationCommandOptionChoiceProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
         public override void Write(Utf8JsonWriter writer, ApplicationCommandOptionChoiceProperties value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
-            writer.WriteString("name", value.Name);
-            if (value.NameLocalizations != null)
+
+            writer.WriteString(_name, value.Name);
+
+            var nameLocalizations = value.NameLocalizations;
+            if (nameLocalizations is not null)
             {
-                writer.WritePropertyName("name_localizations");
-                JsonSerializer.Serialize(writer, value.NameLocalizations, IReadOnlyDictionaryOfCultureInfoStringSerializerContext.WithOptions.IReadOnlyDictionaryCultureInfoString);
+                writer.WritePropertyName(_nameLocalizations);
+                JsonSerializer.Serialize(writer, nameLocalizations, IReadOnlyDictionaryOfCultureInfoStringSerializerContext.WithOptions.IReadOnlyDictionaryCultureInfoString);
             }
-            writer.WritePropertyName("value");
+
+            writer.WritePropertyName(_value);
             if (value.ValueType == ApplicationCommandOptionChoiceValueType.String)
                 writer.WriteStringValue(value.StringValue);
             else
                 writer.WriteNumberValue(value.NumericValue.GetValueOrDefault());
+
             writer.WriteEndObject();
         }
 
