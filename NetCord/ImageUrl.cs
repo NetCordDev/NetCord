@@ -81,6 +81,11 @@ public class ImageUrl
         return new($"/embed/avatars/{discriminator % 5}", "png");
     }
 
+    public static ImageUrl DefaultUserAvatar(ulong id)
+    {
+        return new($"/embed/avatars/{(id >> 22) % 6}", "png");
+    }
+
     public static ImageUrl UserAvatar(ulong userId, string avatarHash, ImageFormat? format)
     {
         return new($"/avatars/{userId}/{avatarHash}", GetExtension(avatarHash, format));

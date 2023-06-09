@@ -12,6 +12,7 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     public override ulong Id => _jsonModel.Id;
     public string Username => _jsonModel.Username;
     public ushort Discriminator => _jsonModel.Discriminator;
+    public string? GlobalName => _jsonModel.GlobalName;
     public string? AvatarHash => _jsonModel.AvatarHash;
     public bool IsBot => _jsonModel.IsBot;
     public bool? IsSystemUser => _jsonModel.IsSystemUser;
@@ -43,7 +44,7 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 
     public ImageUrl GetAvatarDecorationUrl() => ImageUrl.UserAvatarDecoration(Id, AvatarDecorationHash!);
 
-    public ImageUrl DefaultAvatarUrl => ImageUrl.DefaultUserAvatar(Discriminator);
+    public ImageUrl DefaultAvatarUrl => Discriminator is 0 ? ImageUrl.DefaultUserAvatar(Id) : ImageUrl.DefaultUserAvatar(Discriminator);
 
     public override string ToString() => $"<@{Id}>";
 
