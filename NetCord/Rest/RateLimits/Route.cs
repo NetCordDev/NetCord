@@ -1,17 +1,17 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-public record Route
+internal record Route
 {
-    public Route(RouteParameter? sensitiveParameter, ulong? sensitiveId = null, bool globalRateLimit = true)
+    public Route(HttpMethod method, string endpoint, TopLevelResourceInfo? resourceInfo = null)
     {
-        SensitiveParameter = sensitiveParameter;
-        SensitiveId = sensitiveId;
-        GlobalRateLimit = globalRateLimit;
+        Method = method;
+        Endpoint = endpoint;
+        ResourceInfo = resourceInfo;
     }
 
-    public RouteParameter? SensitiveParameter { get; }
+    public HttpMethod Method { get; }
 
-    public ulong? SensitiveId { get; }
+    public string Endpoint { get; }
 
-    public bool GlobalRateLimit { get; }
+    public TopLevelResourceInfo? ResourceInfo { get; }
 }

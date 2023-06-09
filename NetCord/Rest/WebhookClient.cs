@@ -12,7 +12,7 @@ public class WebhookClient : IDisposable
     {
         Id = webhookId;
         _token = webhookToken;
-        if (configuration == null || configuration.Client == null)
+        if (configuration is null || configuration.Client is null)
         {
             _dispose = true;
             _client = new();

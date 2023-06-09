@@ -6,22 +6,23 @@ public partial class RestClient
 {
     public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
-        Func<string> getUrl;
+        Func<string> query;
         if (userId.HasValue)
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}";
         }
         else
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}";
+                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100";
+                query = () => $"?limit=100";
         }
-        JsonModels.JsonAuditLog? jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+
+        JsonAuditLog? jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
         RestAuditLogEntryData data = new(jsonAuditLog, this);
         var entries = jsonAuditLog.AuditLogEntries;
 
@@ -37,25 +38,25 @@ public partial class RestClient
 
     public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogBeforeAsync(ulong guildId, ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
-        Func<string> getUrl;
+        Func<string> query;
         if (userId.HasValue)
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&before={before}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&before={before}";
         }
         else
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}";
+                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&before={before}";
+                query = () => $"?limit=100&before={before}";
         }
 
         while (true)
         {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
             RestAuditLogEntryData data = new(jsonAuditLog, this);
             var entries = jsonAuditLog.AuditLogEntries;
 
@@ -71,25 +72,25 @@ public partial class RestClient
 
     public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAfterAsync(ulong guildId, ulong after, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
     {
-        Func<string> getUrl;
+        Func<string> query;
         if (userId.HasValue)
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&after={after}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&after={after}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&user_id={userId.GetValueOrDefault()}&after={after}";
+                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&after={after}";
         }
         else
         {
             if (actionType.HasValue)
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&action_type={actionType.GetValueOrDefault()}&after={after}";
+                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}&after={after}";
             else
-                getUrl = () => $"/guilds/{guildId}/audit-logs?limit=100&after={after}";
+                query = () => $"?limit=100&after={after}";
         }
 
         while (true)
         {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, getUrl(), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
             RestAuditLogEntryData data = new(jsonAuditLog, this);
             var entries = jsonAuditLog.AuditLogEntries;
 

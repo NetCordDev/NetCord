@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class RequestProperties
+public class RequestProperties
 {
     public string? AuditLogReason { get; set; }
-    public RateLimitHandling RateLimitHandling { get; set; }
+    public RateLimitHandling RateLimitHandling { get; set; } = RateLimitHandling.Retry;
 
     internal void AddHeaders(HttpRequestHeaders headers)
     {

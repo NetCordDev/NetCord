@@ -2,12 +2,12 @@
 
 internal class TypingReminder : IDisposable
 {
-    private readonly RestClient _client;
-
     public ulong ChannelId { get; }
 
-    private readonly CancellationTokenSource _tokenSource;
+    private readonly RestClient _client;
     private readonly RequestProperties? _properties;
+    private readonly CancellationTokenSource _tokenSource;
+
 
     public TypingReminder(ulong channelId, RestClient client, RequestProperties? properties)
     {
@@ -26,7 +26,7 @@ internal class TypingReminder : IDisposable
     private async Task RunAsync()
     {
         var token = _tokenSource.Token;
-        PeriodicTimer timer = new(TimeSpan.FromSeconds(9.5));
+        using PeriodicTimer timer = new(TimeSpan.FromSeconds(9.5));
         while (true)
         {
             await timer.WaitForNextTickAsync(token).ConfigureAwait(false);

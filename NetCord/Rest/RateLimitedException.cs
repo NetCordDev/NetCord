@@ -5,25 +5,26 @@ namespace NetCord.Rest.RateLimits;
 [Serializable]
 public class RateLimitedException : Exception
 {
-    public bool Global { get; }
     public long Reset { get; }
+    public RateLimitScope Scope { get; }
+    public long ResetAfter => Reset - Environment.TickCount64;
 
-    public RateLimitedException(long reset, bool global) : base("Rate limit triggered.")
+    public RateLimitedException(long reset, RateLimitScope scope) : base("Rate limit triggered.")
     {
         Reset = reset;
-        Global = global;
+        Scope = scope;
     }
 
     protected RateLimitedException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
     {
-        Global = serializationInfo.GetBoolean(nameof(Global));
         Reset = serializationInfo.GetInt64(nameof(Reset));
+        Scope = (RateLimitScope)serializationInfo.GetSByte(nameof(Scope));
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
-        info.AddValue(nameof(Global), Global);
         info.AddValue(nameof(Reset), Reset);
+        info.AddValue(nameof(Scope), (sbyte)Scope);
     }
 }
