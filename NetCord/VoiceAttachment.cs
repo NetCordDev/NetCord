@@ -16,5 +16,5 @@ public class VoiceAttachment : Attachment
     /// <summary>
     /// Byte array representing a sampled waveform. It is intended to be a preview of the entire voice message. Clients sample the recording at most once per 100 milliseconds, but will downsample so that no more than 256 datapoints are in the waveform.
     /// </summary>
-    public byte[] Waveform => Convert.FromBase64String(_jsonModel.Waveform!);
+    public IReadOnlyList<byte> Waveform => _jsonModel.Waveform!;
 }

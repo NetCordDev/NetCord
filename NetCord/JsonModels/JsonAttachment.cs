@@ -37,7 +37,7 @@ public partial class JsonAttachment : JsonEntity
     public double? DurationSeconds { get; set; }
 
     [JsonPropertyName("waveform")]
-    public string? Waveform { get; set; }
+    public byte[]? Waveform { get; set; }
 
     [JsonSerializable(typeof(JsonAttachment))]
     public partial class JsonAttachmentSerializerContext : JsonSerializerContext
