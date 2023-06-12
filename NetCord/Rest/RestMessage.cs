@@ -81,7 +81,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     public int? Position => _jsonModel.Position;
     public RoleSubscriptionData? RoleSubscriptionData { get; }
 
-    public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true)
+    public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true, RequestProperties? properties = null)
     {
         MessageProperties message = new()
         {
@@ -92,7 +92,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
                 ReplyMention = replyMention
             },
         };
-        return _client.SendMessageAsync(ChannelId, message);
+        return _client.SendMessageAsync(ChannelId, message, properties);
     }
 
     #region Channel
