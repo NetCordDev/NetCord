@@ -1,8 +1,5 @@
-﻿using NetCord.Gateway;
+﻿namespace NetCord.Services.Commands;
 
-namespace NetCord.Services.Commands;
-
-public interface ICommandContext : IGatewayClientContext
+public interface ICommandContext : IMessageContext, IGatewayClientContext
 {
-    public Message Message { get; }
 }

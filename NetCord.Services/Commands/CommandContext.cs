@@ -2,17 +2,25 @@
 
 namespace NetCord.Services.Commands;
 
-public class CommandContext : ICommandContext, IUserContext, IGuildContext, IChannelContext, IMessageContext
+public class BaseCommandContext : ICommandContext
 {
-    public Message Message { get; }
-    public TextChannel? Channel => Message.Channel;
-    public User User => Message.Author;
-    public Guild? Guild => Message.Guild;
-    public GatewayClient Client { get; }
-
-    public CommandContext(Message message, GatewayClient client)
+    public BaseCommandContext(Message message, GatewayClient client)
     {
         Message = message;
         Client = client;
     }
+
+    public Message Message { get; }
+    public GatewayClient Client { get; }
+}
+
+public class CommandContext : BaseCommandContext, IGuildContext, IChannelContext, IUserContext
+{
+    public CommandContext(Message message, GatewayClient client) : base(message, client)
+    {
+    }
+
+    public Guild? Guild => Message.Guild;
+    public TextChannel? Channel => Message.Channel;
+    public User User => Message.Author;
 }
