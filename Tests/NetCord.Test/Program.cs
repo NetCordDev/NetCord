@@ -118,7 +118,7 @@ internal static class Program
             InteractionMessageProperties message = new()
             {
                 Content = ex.Message,
-                Flags = MessageFlags.Ephemeral
+                Flags = MessageFlags.Ephemeral,
             };
             try
             {

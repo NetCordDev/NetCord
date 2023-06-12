@@ -19,7 +19,7 @@ public partial class RestClient
 
     public async Task<GuildSticker> CreateGuildStickerAsync(ulong guildId, GuildStickerProperties sticker, RequestProperties? properties = null)
     {
-        using (HttpContent content = sticker.Build())
+        using (HttpContent content = sticker.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/stickers", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonSticker.JsonStickerSerializerContext.WithOptions.JsonSticker).ConfigureAwait(false), this);
     }
 

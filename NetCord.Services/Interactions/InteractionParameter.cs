@@ -4,7 +4,7 @@ using NetCord.Services.Utils;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionParameter<TContext> where TContext : InteractionContext
+public class InteractionParameter<TContext> where TContext : IInteractionContext
 {
     public InteractionTypeReader<TContext> TypeReader { get; }
     public Type ElementType { get; }

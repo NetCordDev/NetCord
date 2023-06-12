@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionInfo<TContext> where TContext : InteractionContext
+public class InteractionInfo<TContext> where TContext : IInteractionContext
 {
     public IReadOnlyList<InteractionParameter<TContext>> Parameters { get; }
     public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperties
+public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperties, IHttpSerializable
 {
     public ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : base(name)
     {
@@ -16,14 +16,14 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
     [JsonPropertyName("applied_tags")]
     public IEnumerable<ulong>? AppliedTags { get; set; }
 
-    internal HttpContent Build()
+    public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
         {
             { new JsonContent<ForumGuildThreadProperties>(this, ForumGuildThreadPropertiesSerializerContext.WithOptions.ForumGuildThreadProperties), "payload_json" }
         };
         var attachments = Message.Attachments;
-        if (attachments != null)
+        if (attachments is not null)
         {
             int i = 0;
             foreach (var attachment in attachments)

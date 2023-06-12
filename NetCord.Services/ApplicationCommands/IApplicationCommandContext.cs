@@ -1,8 +1,6 @@
-﻿using NetCord.Gateway;
+﻿namespace NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Services.ApplicationCommands;
-
-public interface IApplicationCommandContext : IContext
+public interface IApplicationCommandContext
 {
     public ApplicationCommandInteraction Interaction { get; }
 }

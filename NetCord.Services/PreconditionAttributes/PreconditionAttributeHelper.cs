@@ -4,7 +4,7 @@ namespace NetCord.Services;
 
 internal static class PreconditionAttributeHelper
 {
-    public static IReadOnlyList<PreconditionAttribute<TContext>> GetPreconditionAttributes<TContext>(Type declaringType, MethodInfo method) where TContext : IContext
+    public static IReadOnlyList<PreconditionAttribute<TContext>> GetPreconditionAttributes<TContext>(Type declaringType, MethodInfo method)
     {
         List<PreconditionAttribute<TContext>> preconditions = new();
         foreach (var a in declaringType.GetCustomAttributes())

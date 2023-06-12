@@ -4,7 +4,7 @@ namespace NetCord.Services;
 
 internal static class ParameterPreconditionAttributeHelper
 {
-    public static IReadOnlyList<ParameterPreconditionAttribute<TContext>> GetPreconditionAttributes<TContext>(IEnumerable<Attribute> attributes, MethodInfo method) where TContext : IContext
+    public static IReadOnlyList<ParameterPreconditionAttribute<TContext>> GetPreconditionAttributes<TContext>(IEnumerable<Attribute> attributes, MethodInfo method)
     {
         List<ParameterPreconditionAttribute<TContext>> preconditions = new();
         foreach (var a in attributes)

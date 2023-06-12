@@ -2,7 +2,7 @@
 
 #nullable disable
 
-public class BaseInteractionModule<TContext> where TContext : InteractionContext
+public class BaseInteractionModule<TContext> where TContext : IInteractionContext
 {
     public TContext Context { get; internal set; }
 }

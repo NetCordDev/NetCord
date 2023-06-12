@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildStickerProperties
+public partial class GuildStickerProperties : IHttpSerializable
 {
     public GuildStickerProperties(string name, string description, IEnumerable<string> tags, Stream stream, StickerFormat format)
     {
@@ -36,7 +36,7 @@ public partial class GuildStickerProperties
     private readonly Stream _stream;
     private bool _read;
 
-    internal HttpContent Build()
+    public HttpContent Serialize()
     {
         StreamContent file = new(Stream);
         file.Headers.ContentType = new(Format switch

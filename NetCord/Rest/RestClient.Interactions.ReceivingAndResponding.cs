@@ -6,7 +6,7 @@ public partial class RestClient
 {
     public async Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RequestProperties? properties = null)
     {
-        using (HttpContent content = callback.Build())
+        using (HttpContent content = callback.Serialize())
             await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", null, new(interactionId), properties, false).ConfigureAwait(false);
     }
 
@@ -17,7 +17,7 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        using (HttpContent content = messageOptions.Build())
+        using (HttpContent content = messageOptions.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/webhooks/{applicationId}/{interactionToken}/messages/@original", null, new(applicationId, interactionToken), properties, false).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
@@ -26,7 +26,7 @@ public partial class RestClient
 
     public async Task<RestMessage> SendInteractionFollowupMessageAsync(ulong applicationId, string interactionToken, InteractionMessageProperties message, RequestProperties? properties = null)
     {
-        using (HttpContent content = message.Build())
+        using (HttpContent content = message.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/webhooks/{applicationId}/{interactionToken}", null, new(applicationId, interactionToken), properties, false).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
@@ -37,7 +37,7 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        using (HttpContent content = messageOptions.Build())
+        using (HttpContent content = messageOptions.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/webhooks/{applicationId}/{interactionToken}/messages/{messageId}", null, new(applicationId, interactionToken), properties, false).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 

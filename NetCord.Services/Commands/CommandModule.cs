@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.Commands;
 
-public abstract class CommandModule<TContext> : BaseCommandModule<TContext> where TContext : CommandContext
+public abstract class CommandModule<TContext> : BaseCommandModule<TContext> where TContext : ICommandContext
 {
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true, RequestProperties? properties = null)
     {

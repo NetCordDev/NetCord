@@ -2,7 +2,7 @@
 
 namespace NetCord.Services;
 
-public class InteractionRequireBotChannelPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : InteractionContext
+public class InteractionRequireBotChannelPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IInteractionContext
 {
     public Permissions ChannelPermissions { get; }
     public string Format { get; }

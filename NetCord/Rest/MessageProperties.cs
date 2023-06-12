@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class MessageProperties
+public partial class MessageProperties : IHttpSerializable
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
@@ -45,16 +45,17 @@ public partial class MessageProperties
     [JsonPropertyName("flags")]
     public MessageFlags? Flags { get; set; }
 
-    internal MultipartFormDataContent Build()
+    public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
         {
             { new JsonContent<MessageProperties>(this, MessagePropertiesSerializerContext.WithOptions.MessageProperties), "payload_json" }
         };
-        if (Attachments != null)
+        var attachments = Attachments;
+        if (attachments is not null)
         {
             var i = 0;
-            foreach (var attachment in Attachments)
+            foreach (var attachment in attachments)
             {
                 if (attachment is not GoogleCloudPlatformAttachmentProperties)
                     content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);

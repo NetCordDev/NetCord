@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class WebhookMessageProperties
+public partial class WebhookMessageProperties : IHttpSerializable
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
@@ -45,16 +45,17 @@ public partial class WebhookMessageProperties
     [JsonPropertyName("thread_name")]
     public string? ThreadName { get; set; }
 
-    internal HttpContent Build()
+    public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
         {
             { new JsonContent<WebhookMessageProperties>(this, WebhookMessagePropertiesSerializerContext.WithOptions.WebhookMessageProperties), "payload_json" }
         };
-        if (Attachments != null)
+        var attachments = Attachments;
+        if (attachments is not null)
         {
             var i = 0;
-            foreach (var attachment in Attachments)
+            foreach (var attachment in attachments)
             {
                 if (attachment is not GoogleCloudPlatformAttachmentProperties)
                     content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);

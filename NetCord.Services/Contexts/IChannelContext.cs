@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public interface IChannelContext : IContext
+public interface IChannelContext
 {
     public TextChannel? Channel { get; }
 }

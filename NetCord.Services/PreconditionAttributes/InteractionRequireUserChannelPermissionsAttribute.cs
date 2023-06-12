@@ -1,6 +1,4 @@
-﻿using NetCord.Gateway;
-
-namespace NetCord.Services;
+﻿namespace NetCord.Services;
 
 /// <summary>
 /// Efficiently checks user channel permissions.

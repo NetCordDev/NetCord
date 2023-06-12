@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 
-using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
@@ -50,7 +49,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 
     public void AddModules(Assembly assembly)
     {
-        var baseType = typeof(ApplicationCommandModule<TContext>);
+        var baseType = typeof(BaseApplicationCommandModule<TContext>);
         lock (_commands)
         {
             foreach (var type in assembly.GetTypes())
@@ -63,7 +62,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 
     public void AddModule(Type type)
     {
-        if (!type.IsAssignableTo(typeof(ApplicationCommandModule<TContext>)))
+        if (!type.IsAssignableTo(typeof(BaseApplicationCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(ApplicationCommandModule<TContext>)}'.");
 
         lock (_commands)
@@ -104,30 +103,30 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
-        List<ApplicationCommand> list = new(_globalCommandsToCreate.Count + _guildCommandsToCreate.Count);
+        List<ApplicationCommand> list = new(includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count);
         var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue()), properties).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
         lock (_commands)
         {
-            foreach (var (First, Second) in e)
+            foreach (var (first, second) in e)
             {
-                _commands[First.Key] = Second;
-                list.Add(First.Value);
+                _commands[first.Key] = second;
+                list.Add(first.Value);
             }
         }
 
         if (includeGuildCommands)
         {
-            foreach (var c in _guildCommandsToCreate.GroupBy(c => c.GuildId))
+            foreach (var c in _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault()))
             {
                 var rawGuildCommands = c.Select(v => v.GetRawValue());
 
-                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key.GetValueOrDefault(), rawGuildCommands, properties).ConfigureAwait(false);
+                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key, rawGuildCommands, properties).ConfigureAwait(false);
                 lock (_commands)
                 {
-                    foreach (var (First, Second) in newCommands.Zip(c))
+                    foreach (var (first, second) in newCommands.Zip(c))
                     {
-                        _commands[First.Key] = Second;
-                        list.Add(First.Value);
+                        _commands[first.Key] = second;
+                        list.Add(first.Value);
                     }
                 }
             }
@@ -141,12 +140,16 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     public IEnumerable<IGrouping<ulong, ApplicationCommandProperties>> GetGuildCommandProperties()
         => _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault(), c => c.GetRawValue());
 
-    internal void AddCommands(IEnumerable<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
+    internal void AddCommands(IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
     {
         lock (_commands)
         {
-            foreach (var (command, commandInfo) in commands)
+            int count = commands.Count;
+            for (int i = 0; i < count; i++)
+            {
+                var (command, commandInfo) = commands[i];
                 _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
+            }
         }
     }
 

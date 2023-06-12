@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace NetCord.Services.Interactions.TypeReaders;
 
-public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : InteractionContext
+public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : IInteractionContext
 {
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;

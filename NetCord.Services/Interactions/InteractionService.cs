@@ -1,10 +1,8 @@
 ﻿using System.Reflection;
 
-using NetCord.Gateway;
-
 namespace NetCord.Services.Interactions;
 
-public class InteractionService<TContext> : IService where TContext : InteractionContext
+public class InteractionService<TContext> : IService where TContext : IInteractionContext
 {
     private readonly InteractionServiceConfiguration<TContext> _configuration;
     private readonly Dictionary<string, InteractionInfo<TContext>> _interactions = new();

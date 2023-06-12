@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext
+public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext, IGatewayClientContext
 {
     public Permissions GuildPermissions { get; }
     public Permissions ChannelPermissions { get; }

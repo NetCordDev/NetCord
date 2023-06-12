@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public interface IUserContext : IContext
+public interface IUserContext
 {
     public User User { get; }
 }

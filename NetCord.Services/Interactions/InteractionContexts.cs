@@ -3,256 +3,257 @@ using NetCord.Rest;
 
 namespace NetCord.Services.Interactions;
 
-public abstract class InteractionContext : IContext
+public class InteractionContext : IInteractionContext
 {
-    protected InteractionContext(GatewayClient client)
+    public InteractionContext(Interaction interaction)
     {
-        Client = client;
+        Interaction = interaction;
     }
 
-    public abstract Interaction Interaction { get; }
-
-    public GatewayClient Client { get; }
+    public virtual Interaction Interaction { get; }
 }
 
 public class BaseButtonInteractionContext : InteractionContext
 {
-    public override ButtonInteraction Interaction { get; }
-
-    public BaseButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(client)
+    public BaseButtonInteractionContext(ButtonInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
     }
+
+    public override ButtonInteraction Interaction { get; }
+}
+
+public class ButtonInteractionContext : BaseButtonInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+    }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
 }
 
 public class BaseStringMenuInteractionContext : InteractionContext
 {
-    public override StringMenuInteraction Interaction { get; }
-
-    public BaseStringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(client)
+    public BaseStringMenuInteractionContext(StringMenuInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
     }
+
+    public override StringMenuInteraction Interaction { get; }
+}
+
+public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+    }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseEntityMenuInteractionContext : InteractionContext
 {
-    public override EntityMenuInteraction Interaction { get; }
-
-    public BaseEntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(client)
+    public BaseEntityMenuInteractionContext(EntityMenuInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
     }
+
+    public override EntityMenuInteraction Interaction { get; }
+}
+
+public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+    }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseUserMenuInteractionContext : BaseEntityMenuInteractionContext
 {
+    public BaseUserMenuInteractionContext(UserMenuInteraction interaction) : base(interaction)
+    {
+        Interaction = interaction;
+    }
+
     public override UserMenuInteraction Interaction { get; }
-
-    public BaseUserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-        Interaction = interaction;
-    }
 }
 
-public class BaseRoleMenuInteractionContext : BaseEntityMenuInteractionContext
+public class UserMenuInteractionContext : BaseUserMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
-    public override RoleMenuInteraction Interaction { get; }
-
-    public BaseRoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction)
     {
-        Interaction = interaction;
-    }
-}
+        Client = client;
 
-public class BaseMentionableMenuInteractionContext : BaseEntityMenuInteractionContext
-{
-    public override MentionableMenuInteraction Interaction { get; }
-
-    public BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-        Interaction = interaction;
-    }
-}
-
-public class BaseChannelMenuInteractionContext : BaseEntityMenuInteractionContext
-{
-    public override ChannelMenuInteraction Interaction { get; }
-
-    public BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-        Interaction = interaction;
-    }
-}
-
-public class BaseModalSubmitInteractionContext : InteractionContext
-{
-    public override ModalSubmitInteraction Interaction { get; }
-
-    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(client)
-    {
-        Interaction = interaction;
-    }
-}
-
-public class ButtonInteractionContext : BaseButtonInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
-{
-    public RestMessage Message => Interaction.Message;
-
-    public User User => Interaction.User;
-
-    public Guild? Guild => Interaction.Guild;
-
-    public TextChannel? Channel => Interaction.Channel;
-
-    public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-    }
-}
-
-public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
-{
-    public RestMessage Message => Interaction.Message;
-
-    public User User => Interaction.User;
-
-    public Guild? Guild => Interaction.Guild;
-
-    public TextChannel? Channel => Interaction.Channel;
-
-    public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
-
-    public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-    }
-}
-
-public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IUserContext, IGuildContext, IChannelContext, IRestMessageContext
-{
-    public RestMessage Message => Interaction.Message;
-
-    public User User => Interaction.User;
-
-    public Guild? Guild => Interaction.Guild;
-
-    public TextChannel? Channel => Interaction.Channel;
-
-    public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
-
-    public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-    }
-}
-
-public class UserMenuInteractionContext : EntityMenuInteractionContext
-{
-    public override UserMenuInteraction Interaction { get; }
-
-    public IReadOnlyList<User> SelectedUsers { get; }
-
-    public UserMenuInteractionContext(UserMenuInteraction interaction, GatewayClient client) : base(interaction, client)
-    {
-        Interaction = interaction;
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
-        if (resolvedData != null)
+        if (resolvedData is null)
+            SelectedUsers = Array.Empty<User>();
+        else
         {
             var users = resolvedData.Users!;
             SelectedUsers = data.SelectedValues.Select(v => users[v]).ToArray();
         }
-        else
-            SelectedUsers = Array.Empty<User>();
     }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<User> SelectedUsers { get; }
 }
 
-public class RoleMenuInteractionContext : EntityMenuInteractionContext
+public class BaseRoleMenuInteractionContext : BaseEntityMenuInteractionContext
 {
-    public override RoleMenuInteraction Interaction { get; }
-
-    public IReadOnlyList<Role> SelectedRoles { get; }
-
-    public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseRoleMenuInteractionContext(RoleMenuInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
+    }
+
+    public override RoleMenuInteraction Interaction { get; }
+}
+
+public class RoleMenuInteractionContext : BaseRoleMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
-        if (resolvedData != null)
+        if (resolvedData is null)
+            SelectedRoles = Array.Empty<Role>();
+        else
         {
             var roles = resolvedData.Roles!;
             SelectedRoles = data.SelectedValues.Select(v => roles[v]).ToArray();
         }
-        else
-            SelectedRoles = Array.Empty<Role>();
     }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<Role> SelectedRoles { get; }
 }
 
-public class MentionableMenuInteractionContext : EntityMenuInteractionContext
+public class BaseMentionableMenuInteractionContext : BaseEntityMenuInteractionContext
 {
-    public override MentionableMenuInteraction Interaction { get; }
-
-    public IReadOnlyList<Mentionable> SelectedMentionables { get; }
-
-    public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
+    }
+
+    public override MentionableMenuInteraction Interaction { get; }
+}
+
+public class MentionableMenuInteractionContext : BaseMentionableMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public MentionableMenuInteractionContext(MentionableMenuInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+
         var data = Interaction.Data;
-        if (data.ResolvedData != null)
+        var resolvedData = data.ResolvedData;
+        if (resolvedData is null)
+            SelectedMentionables = Array.Empty<Mentionable>();
+        else
         {
-            var resolvedData = data.ResolvedData;
             var users = resolvedData.Users;
             var roles = resolvedData.Roles;
-            if (users != null)
-            {
-                if (roles != null)
-                    SelectedMentionables = data.SelectedValues.Select(v => users.TryGetValue(v, out var user) ? new Mentionable(user) : new Mentionable(roles[v])).ToArray();
-                else
-                    SelectedMentionables = data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray();
-            }
-            else
-            {
-                if (roles != null)
-                    SelectedMentionables = data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray();
-                else
-                    SelectedMentionables = Array.Empty<Mentionable>();
-            }
+            SelectedMentionables = users is null
+                ? roles is null
+                    ? Array.Empty<Mentionable>()
+                    : data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray()
+                : roles is null
+                    ? data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray()
+                    : data.SelectedValues.Select(v => users.TryGetValue(v, out var user) ? new Mentionable(user) : new Mentionable(roles[v])).ToArray();
         }
-        else
-            SelectedMentionables = Array.Empty<Mentionable>();
     }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<Mentionable> SelectedMentionables { get; }
 }
 
-public class ChannelMenuInteractionContext : EntityMenuInteractionContext
+public class BaseChannelMenuInteractionContext : BaseEntityMenuInteractionContext
 {
-    public override ChannelMenuInteraction Interaction { get; }
-
-    public IReadOnlyList<Channel> SelectedChannels { get; }
-
-    public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
+    }
+
+    public override ChannelMenuInteraction Interaction { get; }
+}
+
+public class ChannelMenuInteractionContext : BaseChannelMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+{
+    public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
-        if (resolvedData != null)
+        if (resolvedData is null)
+            SelectedChannels = Array.Empty<Channel>();
+        else
         {
             var channels = resolvedData.Channels!;
             SelectedChannels = data.SelectedValues.Select(v => channels[v]).ToArray();
         }
-        else
-            SelectedChannels = Array.Empty<Channel>();
     }
+
+    public GatewayClient Client { get; }
+    public RestMessage Message => Interaction.Message;
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<Channel> SelectedChannels { get; }
 }
 
-public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IUserContext, IGuildContext, IChannelContext
+public class BaseModalSubmitInteractionContext : InteractionContext
 {
-    public User User => Interaction.User;
-
-    public Guild? Guild => Interaction.Guild;
-
-    public TextChannel? Channel => Interaction.Channel;
-
-    public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
-
-    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction, client)
+    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction) : base(interaction)
     {
+        Interaction = interaction;
     }
+
+    public override ModalSubmitInteraction Interaction { get; }
+}
+
+public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
+{
+    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction)
+    {
+        Client = client;
+    }
+
+    public GatewayClient Client { get; }
+    public User User => Interaction.User;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel? Channel => Interaction.Channel;
+    public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 }

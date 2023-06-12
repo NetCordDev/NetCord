@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 
-using NetCord.Gateway;
-
 namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class UserTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext

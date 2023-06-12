@@ -2,6 +2,9 @@
 
 public enum InteractionCallbackType
 {
+    /// <summary>
+    /// ACK a <see cref="InteractionType.Ping"/> interaction.
+    /// </summary>
     Pong = 1,
 
     /// <summary>

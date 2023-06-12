@@ -1,11 +1,10 @@
-﻿using System.ComponentModel;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class InteractionCallback
+public partial class InteractionCallback : IHttpSerializable
 {
     [JsonPropertyName("type")]
     public InteractionCallbackType Type { get; }
@@ -14,6 +13,12 @@ public partial class InteractionCallback
     {
         Type = type;
     }
+
+    /// <summary>
+    /// ACK a <see cref="InteractionType.Ping"/> interaction.
+    /// </summary>
+    public static InteractionCallback Pong
+        => new(InteractionCallbackType.Pong);
 
     /// <summary>
     /// Respond to an interaction with a <paramref name="message"/>.
@@ -59,20 +64,17 @@ public partial class InteractionCallback
     public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
         => new(InteractionCallbackType.Modal, modal);
 
-    internal HttpContent Build()
+    public HttpContent Serialize()
     {
-        switch (Type)
+        switch (this)
         {
-            case InteractionCallbackType.ChannelMessageWithSource:
-            case InteractionCallbackType.DeferredChannelMessageWithSource:
-            case InteractionCallbackType.UpdateMessage:
-                var interactionCallback = (InteractionCallback<InteractionMessageProperties>)this;
+            case InteractionCallback<InteractionMessageProperties> interactionCallback:
                 MultipartFormDataContent content = new()
                 {
                     { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, InteractionCallbackOfInteractionMessagePropertiesSerializerContext.WithOptions.InteractionCallbackInteractionMessageProperties), "payload_json" }
                 };
                 var attachments = interactionCallback.Data.Attachments;
-                if (attachments != null)
+                if (attachments is not null)
                 {
                     int i = 0;
                     foreach (var attachment in attachments)
@@ -83,39 +85,40 @@ public partial class InteractionCallback
                     }
                 }
                 return content;
-            case InteractionCallbackType.DeferredUpdateMessage:
-                return new JsonContent<InteractionCallback>(this, InteractionCallbackSerializerContext.WithOptions.InteractionCallback);
-            case InteractionCallbackType.ApplicationCommandAutocompleteResult:
-                return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>((InteractionCallback<InteractionCallbackChoicesDataProperties>)this, InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext.WithOptions.InteractionCallbackInteractionCallbackChoicesDataProperties);
-            case InteractionCallbackType.Modal:
-                return new JsonContent<InteractionCallback<ModalProperties>>((InteractionCallback<ModalProperties>)this, InteractionCallbackOfModalPropertiesSerializerContext.WithOptions.InteractionCallbackModalProperties);
+
+            case InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback:
+                return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext.WithOptions.InteractionCallbackInteractionCallbackChoicesDataProperties);
+
+            case InteractionCallback<ModalProperties> interactionCallback:
+                return new JsonContent<InteractionCallback<ModalProperties>>(interactionCallback, InteractionCallbackOfModalPropertiesSerializerContext.WithOptions.InteractionCallbackModalProperties);
+
             default:
-                throw new InvalidEnumArgumentException(null, (int)Type, typeof(InteractionCallbackType));
+                return new JsonContent<InteractionCallback>(this, InteractionCallbackSerializerContext.WithOptions.InteractionCallback);
         }
     }
 
     [JsonSerializable(typeof(InteractionCallback<InteractionMessageProperties>))]
-    internal partial class InteractionCallbackOfInteractionMessagePropertiesSerializerContext : JsonSerializerContext
+    public partial class InteractionCallbackOfInteractionMessagePropertiesSerializerContext : JsonSerializerContext
     {
         public static InteractionCallbackOfInteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
-    [JsonSerializable(typeof(InteractionCallback))]
-    internal partial class InteractionCallbackSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
     [JsonSerializable(typeof(InteractionCallback<InteractionCallbackChoicesDataProperties>))]
-    internal partial class InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
+    public partial class InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
     {
         public static InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(InteractionCallback<ModalProperties>))]
-    internal partial class InteractionCallbackOfModalPropertiesSerializerContext : JsonSerializerContext
+    public partial class InteractionCallbackOfModalPropertiesSerializerContext : JsonSerializerContext
     {
         public static InteractionCallbackOfModalPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
+    }
+
+    [JsonSerializable(typeof(InteractionCallback))]
+    public partial class InteractionCallbackSerializerContext : JsonSerializerContext
+    {
+        public static InteractionCallbackSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 

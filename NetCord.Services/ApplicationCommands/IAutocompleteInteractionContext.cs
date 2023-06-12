@@ -1,8 +1,6 @@
-﻿using NetCord.Gateway;
+﻿namespace NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Services.ApplicationCommands;
-
-public interface IAutocompleteInteractionContext : IContext
+public interface IAutocompleteInteractionContext
 {
     public ApplicationCommandAutocompleteInteraction Interaction { get; }
 }

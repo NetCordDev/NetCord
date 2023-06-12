@@ -77,7 +77,7 @@ public partial class RestClient
 
     public async Task<ForumGuildThread> CreateForumGuildThreadAsync(ulong channelId, ForumGuildThreadProperties threadProperties, RequestProperties? properties = null)
     {
-        using (HttpContent content = threadProperties.Build())
+        using (HttpContent content = threadProperties.Serialize())
             return new ForumGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
     }
 
@@ -225,7 +225,7 @@ public partial class RestClient
 
     public async Task<RestMessage> SendMessageAsync(ulong channelId, MessageProperties message, RequestProperties? properties = null)
     {
-        using (HttpContent content = message.Build())
+        using (HttpContent content = message.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 
@@ -236,7 +236,7 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        using (HttpContent content = messageOptions.Build())
+        using (HttpContent content = messageOptions.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 

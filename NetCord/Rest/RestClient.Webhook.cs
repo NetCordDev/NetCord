@@ -46,7 +46,7 @@ public partial class RestClient
 
     public async Task<RestMessage?> ExecuteWebhookAsync(ulong webhookId, string webhookToken, WebhookMessageProperties message, bool wait = false, ulong? threadId = null, RequestProperties? properties = null)
     {
-        using (HttpContent content = message.Build())
+        using (HttpContent content = message.Serialize())
         {
             if (wait)
                 return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/webhooks/{webhookId}/{webhookToken}", threadId.HasValue ? $"?wait=True&thread_id={threadId.GetValueOrDefault()}" : $"?wait=True", new(webhookId, webhookToken), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
@@ -65,7 +65,7 @@ public partial class RestClient
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
-        using (HttpContent content = messageOptions.Build())
+        using (HttpContent content = messageOptions.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}", threadId.HasValue ? $"?thread_id={threadId.GetValueOrDefault()}" : null, new(webhookId, webhookToken), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
     }
 

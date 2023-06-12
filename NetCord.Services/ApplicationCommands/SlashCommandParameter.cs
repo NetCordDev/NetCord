@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.Utils;
 

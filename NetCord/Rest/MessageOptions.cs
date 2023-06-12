@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class MessageOptions
+public partial class MessageOptions : IHttpSerializable
 {
     internal MessageOptions()
     {
@@ -33,16 +33,17 @@ public partial class MessageOptions
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
-    internal HttpContent Build()
+    public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
         {
             { new JsonContent<MessageOptions>(this, MessageOptionsSerializerContext.WithOptions.MessageOptions), "payload_json" }
         };
-        if (Attachments != null)
+        var attachments = Attachments;
+        if (attachments is not null)
         {
             var i = 0;
-            foreach (var attachment in Attachments)
+            foreach (var attachment in attachments)
             {
                 if (attachment is not GoogleCloudPlatformAttachmentProperties)
                     content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
