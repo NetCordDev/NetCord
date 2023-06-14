@@ -14,37 +14,50 @@ public class InteractionResolvedData
 
     public InteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, ulong? guildId, RestClient client)
     {
-        if (jsonModel.Users != null)
-            if (jsonModel.GuildUsers != null)
+        var users = jsonModel.Users;
+        if (users is not null)
+        {
+            var guildUsers = jsonModel.GuildUsers;
+            if (guildUsers is not null)
             {
-                Dictionary<ulong, User> users = new();
-                using (var enumerator = jsonModel.Users.GetEnumerator())
+                Dictionary<ulong, User> resultUsers = new();
+                using (var enumerator = users.GetEnumerator())
                 {
-                    var max = jsonModel.Users.Count - jsonModel.GuildUsers.Count;
+                    var max = users.Count - guildUsers.Count;
                     for (var i = 0; i < max; i++)
                     {
                         enumerator.MoveNext();
                         var current = enumerator.Current;
-                        users.Add(current.Key, new(current.Value, client));
+                        resultUsers.Add(current.Key, new(current.Value, client));
                     }
-                    foreach (var guildUser in jsonModel.GuildUsers)
+
+                    var guildIdValue = guildId.GetValueOrDefault();
+                    foreach (var guildUser in guildUsers)
                     {
                         enumerator.MoveNext();
                         var current = enumerator.Current;
-                        guildUser.Value.User = current.Value;
-                        users.Add(current.Key, new GuildInteractionUser(guildUser.Value, guildId.GetValueOrDefault(), client));
+
+                        var guildUserModel = guildUser.Value;
+                        guildUserModel.User = current.Value;
+                        resultUsers.Add(current.Key, new GuildInteractionUser(guildUserModel, guildIdValue, client));
                     }
                 }
-                Users = users;
+                Users = resultUsers;
             }
             else
-                Users = jsonModel.Users.ToDictionary(u => u.Key, u => new User(u.Value, client));
+                Users = users.ToDictionary(u => u.Key, u => new User(u.Value, client));
+        }
 
-        if (jsonModel.Roles != null)
-            Roles = jsonModel.Roles.ToDictionary(r => r.Key, r => new Role(r.Value, guildId.GetValueOrDefault(), client));
-        if (jsonModel.Channels != null)
-            Channels = jsonModel.Channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
-        if (jsonModel.Attachments != null)
-            Attachments = jsonModel.Attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
+        var roles = jsonModel.Roles;
+        if (roles is not null)
+            Roles = roles.ToDictionary(r => r.Key, r => new Role(r.Value, guildId.GetValueOrDefault(), client));
+
+        var channels = jsonModel.Channels;
+        if (channels is not null)
+            Channels = channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
+
+        var attachments = jsonModel.Attachments;
+        if (attachments is not null)
+            Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
     }
 }

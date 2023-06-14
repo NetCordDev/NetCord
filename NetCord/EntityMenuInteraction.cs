@@ -3,16 +3,12 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class EntityMenuInteraction : Interaction
+public abstract class EntityMenuInteraction : MessageComponentInteraction
 {
-    public override EntityMenuInteractionData Data { get; }
-
-    public Message Message { get; }
-
-    protected EntityMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
+    private protected EntityMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
     {
         Data = new(jsonModel.Data!, jsonModel.GuildId, client);
-        jsonModel.Message!.GuildId = jsonModel.GuildId;
-        Message = new(jsonModel.Message, guild, Channel, client);
     }
+
+    public override EntityMenuInteractionData Data { get; }
 }

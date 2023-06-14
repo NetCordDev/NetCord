@@ -4,17 +4,20 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class EntityMenuInteractionData : ButtonInteractionData
+public class EntityMenuInteractionData : MessageComponentInteractionData
 {
     public EntityMenuInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
     {
-        int length = jsonModel.SelectedValues!.Length;
-        var selectedValues = new ulong[length];
+        var selectedValues = jsonModel.SelectedValues!;
+        int length = selectedValues.Length;
+        var result = new ulong[length];
         for (var i = 0; i < length; i++)
-            selectedValues[i] = ulong.Parse(jsonModel.SelectedValues[i], NumberStyles.None, CultureInfo.InvariantCulture);
-        SelectedValues = selectedValues;
-        if (jsonModel.ResolvedData != null)
-            ResolvedData = new(jsonModel.ResolvedData, guildId, client);
+            result[i] = ulong.Parse(selectedValues[i], NumberStyles.None, CultureInfo.InvariantCulture);
+        SelectedValues = result;
+
+        var resolvedData = jsonModel.ResolvedData;
+        if (resolvedData is not null)
+            ResolvedData = new(resolvedData, guildId, client);
     }
 
     public IReadOnlyList<ulong> SelectedValues { get; }

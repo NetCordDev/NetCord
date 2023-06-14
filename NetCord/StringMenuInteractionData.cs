@@ -1,10 +1,10 @@
 ﻿namespace NetCord;
 
-public class StringMenuInteractionData : ButtonInteractionData
+public class StringMenuInteractionData : MessageComponentInteractionData
 {
-    public IReadOnlyList<string> SelectedValues => _jsonModel.SelectedValues!;
-
     public StringMenuInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
     {
     }
+
+    public IReadOnlyList<string> SelectedValues => _jsonModel.SelectedValues!;
 }

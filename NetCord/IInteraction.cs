@@ -7,8 +7,6 @@ public interface IInteraction : IEntity, IJsonModel<JsonModels.JsonInteraction>
 {
     public ulong ApplicationId { get; }
 
-    public InteractionType Type { get; }
-
     public User User { get; }
 
     public string Token { get; }

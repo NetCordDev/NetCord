@@ -22,8 +22,6 @@ public class PingInteraction : ClientEntity, IInteraction
 
     public ulong ApplicationId => _jsonModel.ApplicationId;
 
-    public InteractionType Type => _jsonModel.Type;
-
     public User User { get; }
 
     public string Token => _jsonModel.Token;

@@ -28,8 +28,6 @@ public abstract class Interaction : ClientEntity, IInteraction
 
     public ulong ApplicationId => _jsonModel.ApplicationId;
 
-    public InteractionType Type => _jsonModel.Type;
-
     public ulong? GuildId => _jsonModel.GuildId;
 
     public Guild? Guild { get; }
@@ -52,14 +50,14 @@ public abstract class Interaction : ClientEntity, IInteraction
     {
         return jsonModel.Type switch
         {
-            InteractionType.ApplicationCommand => jsonModel.Data!.Type switch
+            InteractionType.ApplicationCommand => jsonModel.Data!.Type.GetValueOrDefault() switch
             {
                 ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, client),
                 ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, client),
                 ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.MessageComponent => jsonModel.Data!.ComponentType switch
+            InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
             {
                 ComponentType.Button => new ButtonInteraction(jsonModel, guild, client),
                 ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, client),
