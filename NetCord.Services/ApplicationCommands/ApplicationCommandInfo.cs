@@ -27,8 +27,10 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
     {
         Type = ApplicationCommandType.ChatInput;
         Description = slashCommandAttribute.Description;
-        if (slashCommandAttribute.DescriptionTranslationsProviderType != null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandAttribute.DescriptionTranslationsProviderType)!;
+
+        var descriptionTranslationsProviderType = slashCommandAttribute.DescriptionTranslationsProviderType;
+        if (descriptionTranslationsProviderType is not null)
+            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
 
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
@@ -47,7 +49,7 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             SlashCommandParameter<TContext> newP = new(parameter, method, configuration, supportsAutocomplete, autocompleteContextType, autocompleteBaseType);
             p[i] = newP;
             var invokeAutocompleteDelegate = newP.InvokeAutocomplete;
-            if (invokeAutocompleteDelegate != null)
+            if (invokeAutocompleteDelegate is not null)
                 autocompletes.Add(newP.Name, invokeAutocompleteDelegate);
         }
 
@@ -84,8 +86,11 @@ public class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TC
             throw new InvalidDefinitionException($"Application commands must return '{typeof(Task)}'.", method);
 
         Name = attribute.Name;
-        if (attribute.NameTranslationsProviderType != null)
-            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(attribute.NameTranslationsProviderType)!;
+
+        var nameTranslationsProviderType = attribute.NameTranslationsProviderType;
+        if (nameTranslationsProviderType is not null)
+            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
+
         DefaultGuildUserPermissions = attribute._defaultGuildUserPermissions;
         DMPermission = attribute._dMPermission.HasValue ? attribute._dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
 #pragma warning disable CS0618 // Type or member is obsolete

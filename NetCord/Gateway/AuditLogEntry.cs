@@ -16,8 +16,10 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     {
         _jsonModel = jsonModel;
         Changes = _jsonModel.Changes.ToDictionaryOrEmpty(c => c.Key, c => new AuditLogChange(c));
-        if (_jsonModel.Options != null)
-            Options = new(_jsonModel.Options);
+
+        var options = _jsonModel.Options;
+        if (options is not null)
+            Options = new(options);
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -156,7 +158,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
         var parameterExpression = memberAccessExpression.Parameters[0];
         var memberInfo = MatchSimpleMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression.Body);
 
-        if (memberInfo == null)
+        if (memberInfo is null)
             throw new ArgumentException($"The expression '{nameof(memberAccessExpression)}' is not a valid member access expression. The expression should represent a simple property or field access: 't => t.MyProperty'.", nameof(memberAccessExpression));
 
         return memberInfo;

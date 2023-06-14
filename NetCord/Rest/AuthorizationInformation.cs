@@ -9,8 +9,10 @@ public class AuthorizationInformation : IJsonModel<JsonModels.JsonAuthorizationI
     {
         _jsonModel = jsonModel;
         Application = new(jsonModel.Application, client);
-        if (jsonModel.User != null)
-            User = new(jsonModel.User, client);
+
+        var user = jsonModel.User;
+        if (user is not null)
+            User = new(user, client);
     }
 
     /// <summary>

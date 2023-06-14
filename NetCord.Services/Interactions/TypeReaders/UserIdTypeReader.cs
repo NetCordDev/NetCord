@@ -8,7 +8,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
-        if (guild != null)
+        if (guild is not null)
         {
             IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
             var span = input.Span;
@@ -35,7 +35,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                    if (user != null)
+                    if (user is not null)
                         return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
@@ -54,7 +54,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                     {
                         throw new AmbiguousMatchException("Too many users found.");
                     }
-                    if (user != null)
+                    if (user is not null)
                         return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
@@ -86,7 +86,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                    if (user != null)
+                    if (user is not null)
                         return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }
@@ -104,7 +104,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                     {
                         throw new AmbiguousMatchException("Too many users found.");
                     }
-                    if (user != null)
+                    if (user is not null)
                         return Task.FromResult<object?>(new UserId(user.Id, user));
                 }
             }

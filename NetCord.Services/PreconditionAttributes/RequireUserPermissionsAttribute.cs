@@ -28,7 +28,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
     public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var guild = context.Guild;
-        if (guild != null && guild.OwnerId != context.User.Id)
+        if (guild is not null && guild.OwnerId != context.User.Id)
         {
             var guildUser = (GuildUser)context.User;
             Permissions permissions = guild.EveryoneRole.Permissions;
@@ -43,9 +43,10 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
                 }
                 if (ChannelPermissions != default)
                 {
-                    if (context.Channel == null)
+                    var channel = context.Channel;
+                    if (channel is null)
                         throw new EntityNotFoundException("Current channel could not be found.");
-                    var permissionOverwrites = ((IGuildChannel)context.Channel).PermissionOverwrites;
+                    var permissionOverwrites = ((IGuildChannel)channel).PermissionOverwrites;
                     Permissions denied = default;
                     Permissions allowed = default;
                     foreach (var r in guildUser.RoleIds)

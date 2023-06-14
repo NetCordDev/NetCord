@@ -190,7 +190,7 @@ public abstract class WebSocketClient : IDisposable
     private protected async void InvokeLog(LogMessage logMessage)
     {
         var log = Log;
-        if (log != null)
+        if (log is not null)
         {
             try
             {
@@ -208,7 +208,7 @@ public abstract class WebSocketClient : IDisposable
     private async void InvokeLogWithoutLock(LogMessage logMessage)
     {
         var log = Log;
-        if (log != null)
+        if (log is not null)
         {
             try
             {
@@ -228,7 +228,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             ValueTask task;
             lock (_eventsLock)
@@ -252,7 +252,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             ValueTask task;
             var data = dataFunc();
@@ -277,7 +277,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             ValueTask task;
             lock (_eventsLock)
@@ -301,7 +301,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             ValueTask task;
             lock (_eventsLock)
@@ -331,7 +331,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             ValueTask task;
             var data = dataFunc();
@@ -362,7 +362,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async ValueTask InvokeEventAsync<TPartial, T>(Func<T, ValueTask>? @event, Func<TPartial> partialDataFunc, Func<TPartial, T> dataFunc, Func<TPartial, bool> cacheFunc, Func<TPartial, SemaphoreSlim> semaphoreFunc, Func<TPartial, ValueTask> cacheAsyncFunc)
     {
-        if (@event != null)
+        if (@event is not null)
         {
             var partialData = partialDataFunc();
             ValueTask task;

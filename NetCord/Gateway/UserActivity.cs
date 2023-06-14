@@ -30,16 +30,27 @@ public class UserActivity : IJsonModel<JsonModels.JsonUserActivity>
     public UserActivity(JsonModels.JsonUserActivity jsonModel, ulong guildId, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Timestamps != null)
-            Timestamps = new(jsonModel.Timestamps);
-        if (jsonModel.Emoji != null)
-            Emoji = Emoji.CreateFromJson(jsonModel.Emoji, guildId, client);
-        if (jsonModel.Party != null)
-            Party = new(jsonModel.Party);
-        if (jsonModel.Assets != null)
-            Assets = new(jsonModel.Assets);
-        if (jsonModel.Secrets != null)
-            Secrets = new(jsonModel.Secrets);
+
+        var timestamps = jsonModel.Timestamps;
+        if (timestamps is not null)
+            Timestamps = new(timestamps);
+
+        var emoji = jsonModel.Emoji;
+        if (emoji is not null)
+            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
+
+        var party = jsonModel.Party;
+        if (party is not null)
+            Party = new(party);
+
+        var assets = jsonModel.Assets;
+        if (assets is not null)
+            Assets = new(assets);
+
+        var secrets = jsonModel.Secrets;
+        if (secrets is not null)
+            Secrets = new(secrets);
+
         Buttons = jsonModel.ButtonsLabels.SelectOrEmpty(b => new UserActivityButton(b)).ToArray();
         GuildId = guildId;
     }

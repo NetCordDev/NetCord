@@ -40,11 +40,15 @@ public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
     public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.User != null)
-            User = new(_jsonModel.User, client);
+
+        var user = _jsonModel.User;
+        if (user is not null)
+            User = new(user, client);
+
         Account = new(_jsonModel.Account);
 
-        if (_jsonModel.Application != null)
-            Application = new(_jsonModel.Application, client);
+        var application = _jsonModel.Application;
+        if (application is not null)
+            Application = new(application, client);
     }
 }

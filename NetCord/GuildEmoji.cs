@@ -10,10 +10,15 @@ public class GuildEmoji : Emoji
     public GuildEmoji(JsonEmoji jsonModel, ulong guildId, RestClient client) : base(jsonModel)
     {
         _client = client;
-        if (jsonModel.Creator != null)
-            Creator = new(jsonModel.Creator, client);
-        if (jsonModel.AllowedRoles != null)
-            AllowedRoles = jsonModel.AllowedRoles.ToDictionary(r => r.Id, r => new Role(r, guildId, client));
+
+        var creator = jsonModel.Creator;
+        if (creator is not null)
+            Creator = new(creator, client);
+
+        var allowedRoles = jsonModel.AllowedRoles;
+        if (allowedRoles is not null)
+            AllowedRoles = allowedRoles.ToDictionary(r => r.Id, r => new Role(r, guildId, client));
+
         GuildId = guildId;
     }
 

@@ -16,8 +16,10 @@ public abstract class Button : IJsonModel<JsonModels.JsonComponent>
     private protected Button(JsonModels.JsonComponent jsonModel)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Emoji != null)
-            Emoji = new(jsonModel.Emoji);
+
+        var emoji = jsonModel.Emoji;
+        if (emoji is not null)
+            Emoji = new(emoji);
     }
 
     public static Button CreateFromJson(JsonModels.JsonComponent jsonModel)

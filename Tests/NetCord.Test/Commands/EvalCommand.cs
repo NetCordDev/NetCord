@@ -36,7 +36,7 @@ public class EvalCommand : CommandModule<CommandContext>
         {
             throw new($"{ex.Message}\n{new CodeBlock(await ex.GetDiscordErrorMessageAsync(), "json")}");
         }
-        if (value != null)
+        if (value is not null)
         {
             List<EmbedFieldProperties> fields = new();
             foreach (var property in value.GetType().GetProperties().Take(24))
@@ -45,7 +45,7 @@ public class EvalCommand : CommandModule<CommandContext>
                 try
                 {
                     var v = property.GetValue(value);
-                    description = v != null ? v.ToString() ?? "null" : "null";
+                    description = v is not null ? v.ToString() ?? "null" : "null";
                 }
                 catch (Exception ex)
                 {

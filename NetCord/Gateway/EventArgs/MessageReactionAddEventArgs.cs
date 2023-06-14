@@ -10,8 +10,11 @@ public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonM
     public MessageReactionAddEventArgs(JsonModels.EventArgs.JsonMessageReactionAddEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.User != null)
-            User = new(jsonModel.User, jsonModel.GuildId.GetValueOrDefault(), client);
+
+        var user = jsonModel.User;
+        if (user is not null)
+            User = new(user, jsonModel.GuildId.GetValueOrDefault(), client);
+
         Emoji = new(jsonModel.Emoji);
     }
 

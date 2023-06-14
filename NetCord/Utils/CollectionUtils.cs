@@ -7,7 +7,7 @@ internal static class CollectionsUtils
     #region IEnumerable<out T>
     public static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
-        if (source == null)
+        if (source is null)
             return new();
         else
             return source.ToDictionary(keySelector);
@@ -15,7 +15,7 @@ internal static class CollectionsUtils
 
     public static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
-        if (source == null)
+        if (source is null)
             return new();
         else
             return source.ToDictionary(keySelector, elementSelector);
@@ -23,7 +23,7 @@ internal static class CollectionsUtils
 
     public static IEnumerable<TResult> SelectOrEmpty<TSource, TResult>(this IEnumerable<TSource>? source, Func<TSource, TResult> selector)
     {
-        if (source == null)
+        if (source is null)
             return Enumerable.Empty<TResult>();
         else
             return source.Select(selector);
@@ -31,7 +31,7 @@ internal static class CollectionsUtils
 
     public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>>? source, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
-        if (source == null)
+        if (source is null)
             return CreateImmutableDictionary<TKey, TElement>();
         else
             return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(p => new KeyValuePair<TKey, TElement>(p.Key, elementSelector(p.Value))));
@@ -39,7 +39,7 @@ internal static class CollectionsUtils
 
     public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
-        if (source == null)
+        if (source is null)
             return CreateImmutableDictionary<TKey, TSource>();
         else
             return source.ToImmutableDictionary(keySelector);
@@ -47,7 +47,7 @@ internal static class CollectionsUtils
 
     public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
-        if (source == null)
+        if (source is null)
             return CreateImmutableDictionary<TKey, TElement>();
         else
             return source.ToImmutableDictionary(keySelector, elementSelector);

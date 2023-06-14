@@ -10,12 +10,18 @@ public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     public Webhook(JsonWebhook jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.Creator != null)
-            Creator = new(_jsonModel.Creator, client);
-        if (_jsonModel.Guild != null)
-            Guild = new(_jsonModel.Guild, client);
-        if (_jsonModel.Channel != null)
-            Channel = Channel.CreateFromJson(_jsonModel.Channel, client);
+
+        var creator = jsonModel.Creator;
+        if (creator is not null)
+            Creator = new(creator, client);
+
+        var guild = jsonModel.Guild;
+        if (guild is not null)
+            Guild = new(guild, client);
+
+        var channel = jsonModel.Channel;
+        if (channel is not null)
+            Channel = Channel.CreateFromJson(channel, client);
     }
 
     public override ulong Id => _jsonModel.Id;

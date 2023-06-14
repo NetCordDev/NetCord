@@ -43,35 +43,38 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             var name = Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
             Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
 
-            if (slashCommandParameterAttribute.NameTranslationsProviderType != null)
-            {
-                if (!slashCommandParameterAttribute.NameTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.NameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-                NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.NameTranslationsProviderType)!;
-            }
-            else
+            var nameTranslationsProviderType = slashCommandParameterAttribute.NameTranslationsProviderType;
+            if (nameTranslationsProviderType is null)
                 NameTranslationsProvider = TypeReader.NameTranslationsProvider;
-
-            if (slashCommandParameterAttribute.DescriptionTranslationsProviderType != null)
-            {
-                if (!slashCommandParameterAttribute.DescriptionTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.DescriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-                DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(slashCommandParameterAttribute.DescriptionTranslationsProviderType)!;
-            }
             else
+            {
+                if (!nameTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                    throw new InvalidOperationException($"'{nameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
+                NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
+            }
+
+            var descriptionTranslationsProviderType = slashCommandParameterAttribute.DescriptionTranslationsProviderType;
+            if (descriptionTranslationsProviderType is null)
                 DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
-
-            if (slashCommandParameterAttribute.ChoicesProviderType != null)
-            {
-                if (!slashCommandParameterAttribute.ChoicesProviderType.IsAssignableTo(typeof(IChoicesProvider<TContext>)))
-                    throw new InvalidOperationException($"'{slashCommandParameterAttribute.ChoicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'.");
-                ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(slashCommandParameterAttribute.ChoicesProviderType)!;
-            }
             else
+            {
+                if (!descriptionTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                    throw new InvalidOperationException($"'{descriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
+                DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
+            }
+
+            var choicesProviderType = slashCommandParameterAttribute.ChoicesProviderType;
+            if (choicesProviderType is null)
                 ChoicesProvider = TypeReader.ChoicesProvider;
+            else
+            {
+                if (!choicesProviderType.IsAssignableTo(typeof(IChoicesProvider<TContext>)))
+                    throw new InvalidOperationException($"'{choicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'.");
+                ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
+            }
 
             var autocompleteProviderType = slashCommandParameterAttribute.AutocompleteProviderType;
-            if (autocompleteProviderType != null)
+            if (autocompleteProviderType is not null)
             {
                 EnsureAutocompleteProviderValid(autocompleteProviderType);
                 InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
@@ -79,7 +82,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             else
             {
                 autocompleteProviderType = TypeReader.AutocompleteProviderType;
-                if (autocompleteProviderType != null)
+                if (autocompleteProviderType is not null)
                 {
                     EnsureAutocompleteProviderValid(autocompleteProviderType);
                     InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
@@ -102,7 +105,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
             ChoicesProvider = TypeReader.ChoicesProvider;
             var autocompleteProviderType = TypeReader.AutocompleteProviderType;
-            if (autocompleteProviderType != null)
+            if (autocompleteProviderType is not null)
             {
                 EnsureAutocompleteProviderValid(autocompleteProviderType);
                 InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
@@ -150,7 +153,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MaxLength = MaxLength,
             MinLength = MinLength,
             Required = !HasDefaultValue,
-            Autocomplete = InvokeAutocomplete != null,
+            Autocomplete = InvokeAutocomplete is not null,
             Choices = ChoicesProvider?.GetChoices(this),
             ChannelTypes = AllowedChannelTypes,
         };

@@ -22,18 +22,31 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public Embed(JsonModels.JsonEmbed jsonModel)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Footer != null)
-            Footer = new(jsonModel.Footer);
-        if (jsonModel.Image != null)
-            Image = new(jsonModel.Image);
-        if (jsonModel.Thumbnail != null)
-            Thumbnail = new(jsonModel.Thumbnail);
-        if (jsonModel.Video != null)
-            Video = new(jsonModel.Video);
-        if (jsonModel.Provider != null)
-            Provider = new(jsonModel.Provider);
-        if (jsonModel.Author != null)
-            Author = new(jsonModel.Author);
+
+        var footer = jsonModel.Footer;
+        if (footer is not null)
+            Footer = new(footer);
+
+        var image = jsonModel.Image;
+        if (image is not null)
+            Image = new(image);
+
+        var thumbnail = jsonModel.Thumbnail;
+        if (thumbnail is not null)
+            Thumbnail = new(thumbnail);
+
+        var video = jsonModel.Video;
+        if (video is not null)
+            Video = new(video);
+
+        var provider = jsonModel.Provider;
+        if (provider is not null)
+            Provider = new(provider);
+
+        var author = jsonModel.Author;
+        if (author is not null)
+            Author = new(author);
+
         Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f)).ToArray();
     }
 }

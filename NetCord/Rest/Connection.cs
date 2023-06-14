@@ -8,8 +8,10 @@ public class Connection : IJsonModel<JsonModels.JsonConnection>
     public Connection(JsonModels.JsonConnection jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Integrations != null)
-            Integrations = jsonModel.Integrations.ToDictionary(i => i.Id, i => new Integration(i, client));
+
+        var integrations = jsonModel.Integrations;
+        if (integrations is not null)
+            Integrations = integrations.ToDictionary(i => i.Id, i => new Integration(i, client));
     }
 
     /// <summary>

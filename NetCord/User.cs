@@ -32,15 +32,15 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
         _jsonModel = jsonModel;
     }
 
-    public bool HasAvatar => AvatarHash != null;
+    public bool HasAvatar => AvatarHash is not null;
 
     public ImageUrl GetAvatarUrl(ImageFormat? format = null) => ImageUrl.UserAvatar(Id, AvatarHash!, format);
 
-    public bool HasBanner => BannerHash != null;
+    public bool HasBanner => BannerHash is not null;
 
     public ImageUrl GetBannerUrl(ImageFormat? format = null) => ImageUrl.UserBanner(Id, BannerHash!, format);
 
-    public bool HasAvatarDecoration => AvatarDecorationHash != null;
+    public bool HasAvatarDecoration => AvatarDecorationHash is not null;
 
     public ImageUrl GetAvatarDecorationUrl() => ImageUrl.UserAvatarDecoration(Id, AvatarDecorationHash!);
 

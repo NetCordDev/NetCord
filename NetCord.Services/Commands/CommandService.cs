@@ -55,7 +55,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         foreach (var method in type.GetMethods())
         {
             CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
-            if (commandAttribute == null)
+            if (commandAttribute is null)
                 continue;
             CommandInfo<TContext> commandInfo = new(method, commandAttribute, configuration);
             foreach (var alias in commandAttribute.Aliases)

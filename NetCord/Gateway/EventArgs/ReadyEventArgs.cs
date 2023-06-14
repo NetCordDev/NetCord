@@ -17,9 +17,9 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public Shard? Shard => _jsonModel.Shard;
 
-    public ulong ApplicationId => _jsonModel.Application == null ? default : _jsonModel.Application.Id;
+    public ulong ApplicationId => _jsonModel.Application is null ? default : _jsonModel.Application.Id;
 
-    public ApplicationFlags ApplicationFlags => _jsonModel.Application == null ? default : _jsonModel.Application.Flags.GetValueOrDefault();
+    public ApplicationFlags ApplicationFlags => _jsonModel.Application is null ? default : _jsonModel.Application.Flags.GetValueOrDefault();
 
     public IReadOnlyList<DMChannel> DMChannels { get; }
 

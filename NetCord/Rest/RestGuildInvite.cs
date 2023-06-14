@@ -36,22 +36,39 @@ public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
     public RestGuildInvite(JsonModels.JsonRestGuildInvite jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.Guild != null)
-            Guild = new(_jsonModel.Guild, client);
-        if (_jsonModel.Channel != null)
-            Channel = Channel.CreateFromJson(_jsonModel.Channel, client);
-        if (_jsonModel.Inviter != null)
-            Inviter = new(_jsonModel.Inviter, client);
-        if (_jsonModel.TargetUser != null)
-            TargetUser = new(_jsonModel.TargetUser, client);
-        if (_jsonModel.TargetApplication != null)
-            TargetApplication = new(_jsonModel.TargetApplication, client);
-        if (_jsonModel.StageInstance != null)
-            StageInstance = new(_jsonModel.StageInstance, client);
-        if (_jsonModel.GuildScheduledEvent != null)
-            GuildScheduledEvent = new(_jsonModel.GuildScheduledEvent, client);
-        if (_jsonModel.Metadata != null)
-            Metadata = new(_jsonModel.Metadata);
+
+        var guild = jsonModel.Guild;
+        if (guild is not null)
+            Guild = new(guild, client);
+
+        var channel = jsonModel.Channel;
+        if (channel is not null)
+            Channel = Channel.CreateFromJson(channel, client);
+
+        var inviter = jsonModel.Inviter;
+        if (inviter is not null)
+            Inviter = new(inviter, client);
+
+        var targetUser = jsonModel.TargetUser;
+        if (targetUser is not null)
+            TargetUser = new(targetUser, client);
+
+        var targetApplication = jsonModel.TargetApplication;
+        if (targetApplication is not null)
+            TargetApplication = new(targetApplication, client);
+
+        var stageInstance = jsonModel.StageInstance;
+        if (stageInstance is not null)
+            StageInstance = new(stageInstance, client);
+
+        var guildScheduledEvent = jsonModel.GuildScheduledEvent;
+        if (guildScheduledEvent is not null)
+            GuildScheduledEvent = new(guildScheduledEvent, client);
+
+        var metadata = jsonModel.Metadata;
+        if (metadata is not null)
+            Metadata = new(metadata);
+
         _client = client;
     }
 

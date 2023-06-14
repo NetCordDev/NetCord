@@ -102,7 +102,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("s")]
     public Task S([DefaultParameterValue(null)] params string[]? s)
     {
-        if (s != null)
+        if (s is not null)
             return ReplyAsync("s: " + string.Join('\n', s));
         else
             return ReplyAsync("s: null");
@@ -157,7 +157,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("id")]
     public Task Id([CommandParameter(Remainder = true)] UserId? userId = null)
     {
-        var id = userId != null ? userId.Id : Context.User.Id;
+        var id = userId is not null ? userId.Id : Context.User.Id;
         var fields = new EmbedFieldProperties[]
         {
             new() { Title = "Id", Description = id.ToString()! },
@@ -201,7 +201,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task BotAvatar()
     {
         var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
-        if (newAvatar == null)
+        if (newAvatar is null)
             throw new("Give an url or attachment");
         return BotAvatar(new(newAvatar.Url));
     }

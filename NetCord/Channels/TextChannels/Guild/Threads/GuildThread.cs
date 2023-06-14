@@ -19,8 +19,11 @@ public abstract class GuildThread : TextChannel, INamedChannel
     protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
     {
         Metadata = new(jsonModel.Metadata!);
-        if (jsonModel.CurrentUser != null)
-            CurrentUser = new(jsonModel.CurrentUser);
+
+        var jsonCurrentUser = jsonModel.CurrentUser;
+        if (jsonCurrentUser is not null)
+            CurrentUser = new(jsonCurrentUser);
+
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     }
 

@@ -51,7 +51,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         foreach (var method in type.GetMethods())
         {
             InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
-            if (interactionAttribute == null)
+            if (interactionAttribute is null)
                 continue;
             InteractionInfo<TContext> interactionInfo = new(method, configuration);
             _interactions.Add(interactionAttribute.CustomId, interactionInfo);

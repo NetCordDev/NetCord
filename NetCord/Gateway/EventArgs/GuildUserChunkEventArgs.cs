@@ -11,8 +11,10 @@ public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuild
     {
         _jsonModel = jsonModel;
         Users = jsonModel.Users.ToDictionary(u => u.User.Id, u => new GuildUser(u, jsonModel.GuildId, client));
-        if (jsonModel.Presences != null)
-            Presences = jsonModel.Presences.ToDictionary(p => p.User.Id, p => new Presence(p, jsonModel.GuildId, client));
+
+        var presences = jsonModel.Presences;
+        if (presences is not null)
+            Presences = presences.ToDictionary(p => p.User.Id, p => new Presence(p, jsonModel.GuildId, client));
     }
 
     public ulong GuildId => _jsonModel.GuildId;

@@ -80,15 +80,15 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         foreach (var method in type.GetMethods())
         {
             var slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
-            if (slashCommandAttribute != null)
+            if (slashCommandAttribute is not null)
                 AddCommandInfo(new(method, slashCommandAttribute, configuration, _supportsAutocomplete, _autocompleteContextType, _autocompleteBaseType));
 
             var userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
-            if (userCommandAttribute != null)
+            if (userCommandAttribute is not null)
                 AddCommandInfo(new(method, userCommandAttribute, configuration));
 
             var messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
-            if (messageCommandAttribute != null)
+            if (messageCommandAttribute is not null)
                 AddCommandInfo(new(method, messageCommandAttribute, configuration));
         }
 

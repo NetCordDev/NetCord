@@ -57,8 +57,10 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
         // guild emojis always have Id
         Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
-        if (jsonModel.WelcomeScreen != null)
-            WelcomeScreen = new(jsonModel.WelcomeScreen);
+
+        var welcomeScreen = jsonModel.WelcomeScreen;
+        if (welcomeScreen is not null)
+            WelcomeScreen = new(welcomeScreen);
     }
 
     #region Guild

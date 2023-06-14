@@ -30,9 +30,9 @@ public class LogMessage
 
     public override string ToString()
     {
-        if (Severity == LogSeverity.Error)
+        if (Severity is LogSeverity.Error)
             return $"{DateTime.Now:T} {Severity}\t{Exception}";
-        else if (Description == null)
+        else if (Description is null)
             return $"{DateTime.Now:T} {Severity}\t{Message}";
         else
             return $"{DateTime.Now:T} {Severity}\t{Message}: {Description}";

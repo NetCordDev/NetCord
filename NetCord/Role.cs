@@ -37,8 +37,11 @@ public class Role : ClientEntity, IJsonModel<JsonRole>
     public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Tags != null)
-            Tags = new(jsonModel.Tags);
+
+        var tags = jsonModel.Tags;
+        if (tags is not null)
+            Tags = new(tags);
+
         GuildId = guildId;
     }
 

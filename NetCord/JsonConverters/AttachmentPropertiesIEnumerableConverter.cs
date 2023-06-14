@@ -28,7 +28,7 @@ internal class AttachmentPropertiesIEnumerableConverter : JsonConverter<IEnumera
             writer.WriteString(_fileName, attachment.FileName);
 
             var description = attachment.Description;
-            if (description != null)
+            if (description is not null)
                 writer.WriteString(_description, description);
 
             if (attachment is GoogleCloudPlatformAttachmentProperties googleCloudPlatformAttachment)

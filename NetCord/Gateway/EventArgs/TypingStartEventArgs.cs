@@ -10,8 +10,10 @@ public class TypingStartEventArgs : IJsonModel<JsonModels.EventArgs.JsonTypingSt
     public TypingStartEventArgs(JsonModels.EventArgs.JsonTypingStartEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.User != null)
-            User = new(jsonModel.User, _jsonModel.GuildId.GetValueOrDefault(), client);
+
+        var user = jsonModel.User;
+        if (user is not null)
+            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
     }
 
     public ulong ChannelId => _jsonModel.ChannelId;

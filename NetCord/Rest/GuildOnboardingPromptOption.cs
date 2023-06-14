@@ -9,7 +9,7 @@ public class GuildOnboardingPromptOption : Entity, IJsonModel<JsonModels.JsonGui
     {
         _jsonModel = jsonModel;
         var emoji = jsonModel.Emoji;
-        if (emoji.Name != null)
+        if (emoji.Name is not null)
             Emoji = Emoji.CreateFromJson(emoji, guildId, client);
     }
 

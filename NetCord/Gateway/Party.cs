@@ -14,10 +14,12 @@ public class Party : IJsonModel<JsonModels.JsonParty>
     public Party(JsonModels.JsonParty jsonModel)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Size != null)
+
+        var size = jsonModel.Size;
+        if (size is not null)
         {
-            CurrentSize = jsonModel.Size[0];
-            MaxSize = jsonModel.Size[1];
+            CurrentSize = size[0];
+            MaxSize = size[1];
         }
     }
 }

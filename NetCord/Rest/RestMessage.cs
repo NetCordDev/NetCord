@@ -9,7 +9,8 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     {
         _jsonModel = jsonModel;
 
-        if (jsonModel.GuildUser == null)
+        var guildUser = jsonModel.GuildUser;
+        if (guildUser is null)
         {
             Author = new(jsonModel.Author, client);
             MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
@@ -17,12 +18,13 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
         else
         {
             var guildId = jsonModel.GuildId.GetValueOrDefault();
-            jsonModel.GuildUser.User = jsonModel.Author;
-            Author = new GuildUser(jsonModel.GuildUser, guildId, client);
+            guildUser.User = jsonModel.Author;
+            Author = new GuildUser(guildUser, guildId, client);
             MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u =>
             {
-                u.GuildUser!.User = u;
-                return (User)new GuildUser(u.GuildUser, guildId, client);
+                var guildUser = u.GuildUser!;
+                guildUser.User = u;
+                return (User)new GuildUser(guildUser, guildId, client);
             });
         }
 
@@ -32,22 +34,36 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
         Embeds = jsonModel.Embeds.Select(e => new Embed(e)).ToArray();
         Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
-        if (jsonModel.Activity != null)
-            Activity = new(jsonModel.Activity);
-        if (jsonModel.Application != null)
-            Application = new(jsonModel.Application, client);
-        if (jsonModel.MessageReference != null)
-            MessageReference = new(jsonModel.MessageReference);
-        if (jsonModel.ReferencedMessage != null)
-            ReferencedMessage = new(jsonModel.ReferencedMessage, client);
-        if (jsonModel.Interaction != null)
-            Interaction = new(jsonModel.Interaction, client);
-        if (jsonModel.StartedThread != null)
-            StartedThread = (GuildThread)Channel.CreateFromJson(jsonModel.StartedThread, client);
+        var activity = jsonModel.Activity;
+        if (activity is not null)
+            Activity = new(activity);
+
+        var application = jsonModel.Application;
+        if (application is not null)
+            Application = new(application, client);
+
+        var messageReference = jsonModel.MessageReference;
+        if (messageReference is not null)
+            MessageReference = new(messageReference);
+
+        var referencedMessage = jsonModel.ReferencedMessage;
+        if (referencedMessage is not null)
+            ReferencedMessage = new(referencedMessage, client);
+
+        var interaction = jsonModel.Interaction;
+        if (interaction is not null)
+            Interaction = new(interaction, client);
+
+        var startedThread = jsonModel.StartedThread;
+        if (startedThread is not null)
+            StartedThread = (GuildThread)Channel.CreateFromJson(startedThread, client);
+
         Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
-        if (jsonModel.RoleSubscriptionData != null)
-            RoleSubscriptionData = new(jsonModel.RoleSubscriptionData);
+
+        var roleSubscriptionData = jsonModel.RoleSubscriptionData;
+        if (roleSubscriptionData is not null)
+            RoleSubscriptionData = new(roleSubscriptionData);
     }
 
     public override ulong Id => _jsonModel.Id;

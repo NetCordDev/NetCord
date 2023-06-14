@@ -9,8 +9,10 @@ public class ForumGuildChannel : Channel, IGuildChannel
     {
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t)).ToArray();
-        if (jsonModel.DefaultReactionEmoji != null)
-            DefaultReactionEmoji = new(jsonModel.DefaultReactionEmoji);
+
+        var defaultReactionEmoji = jsonModel.DefaultReactionEmoji;
+        if (defaultReactionEmoji is not null)
+            DefaultReactionEmoji = new(defaultReactionEmoji);
     }
 
     public ulong? GuildId => _jsonModel.GuildId;

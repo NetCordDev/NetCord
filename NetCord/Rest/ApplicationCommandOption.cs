@@ -86,10 +86,14 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
         _jsonModel = jsonModel;
         _fullName = $"{parentName} {jsonModel.Name}";
         _parentId = parentId;
-        if (jsonModel.Choices != null)
-            Choices = jsonModel.Choices.Select(c => new ApplicationCommandOptionChoice(c)).ToArray();
-        if (jsonModel.Options != null)
-            Options = jsonModel.Options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
+
+        var choices = jsonModel.Choices;
+        if (choices is not null)
+            Choices = choices.Select(c => new ApplicationCommandOptionChoice(c)).ToArray();
+
+        var options = jsonModel.Options;
+        if (options is not null)
+            Options = options.Select(o => new ApplicationCommandOption(o, _fullName, _parentId)).ToArray();
     }
 
     public override string ToString() => $"</{_fullName}:{_parentId}>";

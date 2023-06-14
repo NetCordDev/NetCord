@@ -31,5 +31,5 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
         return RoleIds.Select(r => roles[r]);
     }
 
-    public bool HasGuildAvatar => GuildAvatarHash != null;
+    public bool HasGuildAvatar => GuildAvatarHash is not null;
 }

@@ -12,12 +12,14 @@ public class GuildScheduledEventUser : IJsonModel<JsonModels.JsonGuildScheduledE
     public GuildScheduledEventUser(JsonModels.JsonGuildScheduledEventUser jsonModel, ulong guildId, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.GuildUser != null)
-        {
-            jsonModel.GuildUser.User = jsonModel.User;
-            User = new GuildUser(jsonModel.GuildUser, guildId, client);
-        }
-        else
+
+        var guildUser = jsonModel.GuildUser;
+        if (guildUser is null)
             User = new(jsonModel.User, client);
+        else
+        {
+            guildUser.User = jsonModel.User;
+            User = new GuildUser(guildUser, guildId, client);
+        }
     }
 }

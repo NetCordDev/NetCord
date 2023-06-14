@@ -240,7 +240,7 @@ public class VoiceClient : WebSocketClient
     private async void HandleDatagramReceive(UdpReceiveResult obj)
     {
         var @event = VoiceReceive;
-        if (@event != null)
+        if (@event is not null)
         {
             try
             {

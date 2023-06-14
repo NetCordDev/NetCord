@@ -10,8 +10,10 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.J
     public GuildThreadUsersUpdateEventArgs(JsonModels.EventArgs.JsonGuildThreadUsersUpdateEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.AddedUsers != null)
-            AddedUsers = jsonModel.AddedUsers.ToDictionary(u => u.UserId, u => new AddedThreadUser(u, GuildId, client));
+
+        var addedUsers = jsonModel.AddedUsers;
+        if (addedUsers is not null)
+            AddedUsers = addedUsers.ToDictionary(u => u.UserId, u => new AddedThreadUser(u, GuildId, client));
     }
 
     public ulong ThreadId => _jsonModel.ThreadId;

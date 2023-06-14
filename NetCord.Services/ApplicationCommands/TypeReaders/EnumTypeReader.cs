@@ -30,19 +30,20 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
             {
                 var eString = e.ToString();
                 var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
-                if (attribute != null)
+                if (attribute is not null)
                 {
-                    if (attribute.TranslationsProviderType != null)
+                    var translationsProviderType = attribute.TranslationsProviderType;
+                    if (translationsProviderType is null)
+                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e));
+                    else
                     {
-                        if (!attribute.TranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                            throw new InvalidOperationException($"'{attribute.TranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
+                        if (!translationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
+                            throw new InvalidOperationException($"'{translationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
                         yield return new(attribute.Name ?? eString, Convert.ToDouble(e))
                         {
-                            NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(attribute.TranslationsProviderType)!).Translations
+                            NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(translationsProviderType)!).Translations
                         };
                     }
-                    else
-                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e));
                 }
                 else
                     yield return new(eString, Convert.ToDouble(e));

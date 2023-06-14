@@ -9,7 +9,7 @@ public class RequestProperties
 
     internal void AddHeaders(HttpRequestHeaders headers)
     {
-        if (AuditLogReason != null)
+        if (AuditLogReason is not null)
             headers.Add("X-Audit-Log-Reason", Uri.EscapeDataString(AuditLogReason));
     }
 }

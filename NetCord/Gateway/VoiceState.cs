@@ -10,8 +10,10 @@ public class VoiceState : IJsonModel<JsonModels.JsonVoiceState>
     public VoiceState(JsonModels.JsonVoiceState jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.User != null)
-            User = new(_jsonModel.User, _jsonModel.GuildId.GetValueOrDefault(), client);
+
+        var user = jsonModel.User;
+        if (user is not null)
+            User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
     }
 
     public ulong? GuildId => _jsonModel.GuildId;

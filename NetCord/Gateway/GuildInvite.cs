@@ -10,12 +10,18 @@ public class GuildInvite : IJsonModel<JsonModels.JsonGuildInvite>
     public GuildInvite(JsonModels.JsonGuildInvite jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Inviter != null)
-            Inviter = new(jsonModel.Inviter, client);
-        if (jsonModel.TargetUser != null)
-            TargetUser = new(jsonModel.TargetUser, client);
-        if (jsonModel.TargetApplication != null)
-            TargetApplication = new(jsonModel.TargetApplication, client);
+
+        var inviter = jsonModel.Inviter;
+        if (inviter is not null)
+            Inviter = new(inviter, client);
+
+        var targetUser = jsonModel.TargetUser;
+        if (targetUser is not null)
+            TargetUser = new(targetUser, client);
+
+        var targetApplication = jsonModel.TargetApplication;
+        if (targetApplication is not null)
+            TargetApplication = new(targetApplication, client);
     }
 
     public ulong ChannelId => _jsonModel.ChannelId;

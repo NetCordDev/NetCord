@@ -12,9 +12,9 @@ internal static class ParameterHelper
         object? resultDefaultValue;
 
         var underlyingType = Nullable.GetUnderlyingType(type);
-        if (typeReaderType == null)
+        if (typeReaderType is null)
         {
-            if (underlyingType == null)
+            if (underlyingType is null)
             {
                 resultDefaultValue = parameter.HasDefaultValue ? GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
 
@@ -43,7 +43,7 @@ internal static class ParameterHelper
         }
         else
         {
-            if (underlyingType == null)
+            if (underlyingType is null)
             {
                 resultDefaultValue = parameter.HasDefaultValue ? GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
                 resultNonNullableType = type;
@@ -110,7 +110,7 @@ internal static class ParameterHelper
     public static Expression GetParameterDefaultValueExpression(Type type, ParameterInfo parameter)
     {
         var underlyingType = Nullable.GetUnderlyingType(type);
-        return underlyingType == null
+        return underlyingType is null
             ? GetNonUnderlyingTypeDefaultValueExpression(type, parameter)
             : GetUnderlyingTypeDefaultValueExpression(type, underlyingType, parameter);
     }

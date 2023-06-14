@@ -40,8 +40,10 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
     public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.Creator != null)
-            Creator = new(_jsonModel.Creator, client);
+
+        var creator = _jsonModel.Creator;
+        if (creator is not null)
+            Creator = new(creator, client);
     }
 
     #region GuildScheduledEvent

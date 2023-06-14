@@ -32,11 +32,17 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public Application(JsonModels.JsonApplication jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Owner != null)
-            Owner = new(jsonModel.Owner, client);
-        if (jsonModel.Team != null)
-            Team = new(jsonModel.Team, client);
-        if (jsonModel.InstallParams != null)
-            InstallParams = new(jsonModel.InstallParams);
+
+        var owner = jsonModel.Owner;
+        if (owner is not null)
+            Owner = new(owner, client);
+
+        var team = jsonModel.Team;
+        if (team is not null)
+            Team = new(team, client);
+
+        var installParams = jsonModel.InstallParams;
+        if (installParams is not null)
+            InstallParams = new(installParams);
     }
 }

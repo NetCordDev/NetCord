@@ -148,7 +148,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("ban", "Bans a user")]
     public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, [MustContain("wzium")] string reason = "no reason")
     {
-        if (Context.Guild == null)
+        if (Context.Guild is null)
             throw new InvalidOperationException("This command is available only in guild");
 
         await Context.Guild.BanUserAsync(user.Id, (int)deleteMessages, new() { AuditLogReason = reason });
@@ -159,7 +159,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("mute", "Mutes a user")]
     public async Task MuteAsync([SlashCommandParameter(Description = "User to mute")] User user, double days, string reason = "no reason")
     {
-        if (Context.Guild == null)
+        if (Context.Guild is null)
             throw new InvalidOperationException("This command is available only in guild");
 
         var until = DateTimeOffset.UtcNow.AddDays(days);
@@ -230,7 +230,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     //[SlashCommand("clear", "Clears channel")]
     //public async Task ClearAsync([MinValue(1)] int count, TextChannel? channel = null)
     //{
-    //    if (channel == null)
+    //    if (channel is null)
     //    {
     //        if (!((GuildInteractionUser)Context.User).Permissions.HasFlag(Permission.ManageMessages))
     //            throw new("Missing permissions!");

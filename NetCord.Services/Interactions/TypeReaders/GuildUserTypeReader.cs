@@ -8,7 +8,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
-        if (guild == null)
+        if (guild is null)
             goto exception;
         IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
         var span = input.Span;
@@ -37,7 +37,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                 if (ushort.TryParse(span[^4..], NumberStyles.None, CultureInfo.InvariantCulture, out var discriminator))
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
-                    if (user != null)
+                    if (user is not null)
                         return Task.FromResult<object?>(user);
                 }
                 goto exception;
@@ -58,7 +58,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                 {
                     throw new AmbiguousMatchException("Too many users found.");
                 }
-                if (user != null)
+                if (user is not null)
                     return Task.FromResult<object?>(user);
             }
         }

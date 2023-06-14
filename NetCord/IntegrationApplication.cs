@@ -22,7 +22,9 @@ public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrat
     public IntegrationApplication(JsonModels.JsonIntegrationApplication jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        if (_jsonModel.Bot != null)
-            Bot = new(_jsonModel.Bot, client);
+
+        var bot = _jsonModel.Bot;
+        if (bot is not null)
+            Bot = new(bot, client);
     }
 }

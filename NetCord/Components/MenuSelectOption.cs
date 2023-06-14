@@ -14,7 +14,9 @@ public class MenuSelectOption : IJsonModel<JsonModels.JsonMenuSelectOption>
     public MenuSelectOption(JsonModels.JsonMenuSelectOption jsonModel)
     {
         _jsonModel = jsonModel;
-        if (jsonModel.Emoji != null)
-            Emoji = new(jsonModel.Emoji);
+
+        var emoji = jsonModel.Emoji;
+        if (emoji is not null)
+            Emoji = new(emoji);
     }
 }

@@ -6,14 +6,17 @@ public class UserCommandInteractionData : ApplicationCommandInteractionData
 {
     public UserCommandInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
     {
-        if (jsonModel.ResolvedData!.GuildUsers != null)
+        var resolvedData = jsonModel.ResolvedData!;
+        var guildUsers = resolvedData.GuildUsers;
+        var targetId = jsonModel.TargetId.GetValueOrDefault();
+        if (guildUsers is null)
+            TargetUser = new(resolvedData.Users![targetId], client);
+        else
         {
-            var guildUser = jsonModel.ResolvedData.GuildUsers[jsonModel.TargetId.GetValueOrDefault()];
-            guildUser.User = jsonModel.ResolvedData.Users![jsonModel.TargetId.GetValueOrDefault()];
+            var guildUser = guildUsers[targetId];
+            guildUser.User = resolvedData.Users![targetId];
             TargetUser = new GuildUser(guildUser, guildId.GetValueOrDefault(), client);
         }
-        else
-            TargetUser = new(jsonModel.ResolvedData.Users![jsonModel.TargetId.GetValueOrDefault()], client);
     }
 
     public User TargetUser { get; }
