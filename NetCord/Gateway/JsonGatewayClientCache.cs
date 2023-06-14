@@ -12,9 +12,6 @@ public class JsonGatewayClientCache
     [JsonPropertyName("dm_channels")]
     public IReadOnlyDictionary<ulong, JsonChannel> DMChannels { get; set; }
 
-    [JsonPropertyName("group_dm_channels")]
-    public IReadOnlyDictionary<ulong, JsonChannel> GroupDMChannels { get; set; }
-
     [JsonPropertyName("guilds")]
     public IReadOnlyDictionary<ulong, JsonGuild> Guilds { get; set; }
 }

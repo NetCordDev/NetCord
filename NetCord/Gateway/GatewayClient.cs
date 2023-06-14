@@ -298,19 +298,14 @@ public partial class GatewayClient : WebSocketClient
                         cache = cache.CacheSelfUser(data.User);
                         if (_configuration.CacheDMChannels)
                         {
-                            var readyDMChannels = args.DMChannels;
-                            if (readyDMChannels.Count != 0)
+                            var dMChannels = args.DMChannels;
+                            var count = dMChannels.Count;
+                            if (count != 0)
                             {
                                 lock (_DMsLock!)
                                 {
-                                    for (var i = 0; i < args.DMChannels.Count; i++)
-                                    {
-                                        var channel = args.DMChannels[i];
-                                        if (channel is GroupDMChannel groupDM)
-                                            cache = cache.CacheGroupDMChannel(groupDM);
-                                        else
-                                            cache = cache.CacheDMChannel(channel);
-                                    }
+                                    for (var i = 0; i < count; i++)
+                                        cache = cache.CacheDMChannel(dMChannels[i]);
                                 }
                             }
                         }
@@ -734,15 +729,10 @@ public partial class GatewayClient : WebSocketClient
         async ValueTask CacheChannelAsync(ulong channelId)
         {
             var cache = Cache;
-            if (!(cache.DMChannels.ContainsKey(channelId) || cache.GroupDMChannels.ContainsKey(channelId)))
+            if (!cache.DMChannels.ContainsKey(channelId))
             {
                 var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
-                if (channel is GroupDMChannel groupDMChannel)
-                {
-                    lock (_DMsLock!)
-                        Cache = Cache.CacheGroupDMChannel(groupDMChannel);
-                }
-                else if (channel is DMChannel dMChannel)
+                if (channel is DMChannel dMChannel)
                 {
                     lock (_DMsLock!)
                         Cache = Cache.CacheDMChannel(dMChannel);

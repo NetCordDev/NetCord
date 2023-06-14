@@ -34,13 +34,7 @@ public class Message : RestMessage
         else
         {
             guild = null;
-            var channelId = jsonModel.ChannelId;
-            if (cache.DMChannels.TryGetValue(channelId, out var dMChannel))
-                channel = dMChannel;
-            else if (cache.GroupDMChannels.TryGetValue(channelId, out var groupDMChannel))
-                channel = groupDMChannel;
-            else
-                channel = null;
+            channel = cache.DMChannels.GetValueOrDefault(jsonModel.ChannelId);
         }
         return new(jsonModel, guild, channel, client);
     }

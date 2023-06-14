@@ -6,11 +6,9 @@ public interface IGatewayClientCache : IDisposable
 {
     public SelfUser? User { get; }
     public IReadOnlyDictionary<ulong, DMChannel> DMChannels { get; }
-    public IReadOnlyDictionary<ulong, GroupDMChannel> GroupDMChannels { get; }
     public IReadOnlyDictionary<ulong, Guild> Guilds { get; }
 
     public IGatewayClientCache CacheDMChannel(DMChannel dMChannel);
-    public IGatewayClientCache CacheGroupDMChannel(GroupDMChannel groupDMChannel);
     public IGatewayClientCache CacheGuild(Guild guild);
     public IGatewayClientCache CacheGuildUser(GuildUser user);
     public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<KeyValuePair<ulong, GuildUser>> users);

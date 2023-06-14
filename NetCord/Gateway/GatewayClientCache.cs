@@ -10,7 +10,6 @@ public record GatewayClientCache : IGatewayClientCache
     public GatewayClientCache()
     {
         _DMChannels = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
-        _groupDMChannels = CollectionsUtils.CreateImmutableDictionary<ulong, GroupDMChannel>();
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
@@ -20,18 +19,15 @@ public record GatewayClientCache : IGatewayClientCache
         if (userModel is not null)
             _user = new(userModel, client);
         _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => (DMChannel)Channel.CreateFromJson(c, client));
-        _groupDMChannels = jsonModel.GroupDMChannels.ToImmutableDictionary(c => (GroupDMChannel)Channel.CreateFromJson(c, client));
         _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, client));
     }
 
     public SelfUser? User => _user;
     public IReadOnlyDictionary<ulong, DMChannel> DMChannels => _DMChannels;
-    public IReadOnlyDictionary<ulong, GroupDMChannel> GroupDMChannels => _groupDMChannels;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
     private SelfUser? _user;
     private ImmutableDictionary<ulong, DMChannel> _DMChannels;
-    private ImmutableDictionary<ulong, GroupDMChannel> _groupDMChannels;
     private ImmutableDictionary<ulong, Guild> _guilds;
 
     public JsonGatewayClientCache ToJsonModel()
@@ -40,7 +36,6 @@ public record GatewayClientCache : IGatewayClientCache
         {
             User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
             DMChannels = _DMChannels.ToDictionary(p => p.Key, p => ((IJsonModel<JsonChannel>)p.Value).JsonModel),
-            GroupDMChannels = _groupDMChannels.ToDictionary(p => p.Key, p => ((IJsonModel<JsonChannel>)p.Value).JsonModel),
             Guilds = _guilds.ToDictionary(p => p.Key, p => ((IJsonModel<JsonGuild>)p.Value).JsonModel),
         };
     }
@@ -50,14 +45,6 @@ public record GatewayClientCache : IGatewayClientCache
         return this with
         {
             _DMChannels = _DMChannels.SetItem(dMChannel.Id, dMChannel),
-        };
-    }
-
-    public IGatewayClientCache CacheGroupDMChannel(GroupDMChannel groupDMChannel)
-    {
-        return this with
-        {
-            _groupDMChannels = _groupDMChannels.SetItem(groupDMChannel.Id, groupDMChannel),
         };
     }
 
