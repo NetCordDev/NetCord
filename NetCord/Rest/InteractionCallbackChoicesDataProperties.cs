@@ -1,8 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.Rest;
-
-namespace NetCord;
+namespace NetCord.Rest;
 
 public partial class InteractionCallbackChoicesDataProperties
 {

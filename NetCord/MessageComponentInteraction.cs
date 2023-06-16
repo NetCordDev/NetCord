@@ -15,5 +15,5 @@ public abstract class MessageComponentInteraction : Interaction
 
     public Message Message { get; }
 
-    public override abstract MessageComponentInteractionData Data { get; }
+    public abstract override MessageComponentInteractionData Data { get; }
 }

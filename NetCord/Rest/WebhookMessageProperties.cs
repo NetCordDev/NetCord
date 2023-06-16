@@ -49,19 +49,9 @@ public partial class WebhookMessageProperties : IHttpSerializable
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<WebhookMessageProperties>(this, WebhookMessagePropertiesSerializerContext.WithOptions.WebhookMessageProperties), "payload_json" }
+            { new JsonContent<WebhookMessageProperties>(this, WebhookMessagePropertiesSerializerContext.WithOptions.WebhookMessageProperties), "payload_json" },
         };
-        var attachments = Attachments;
-        if (attachments is not null)
-        {
-            var i = 0;
-            foreach (var attachment in attachments)
-            {
-                if (attachment is not GoogleCloudPlatformAttachmentProperties)
-                    content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
+        AttachmentProperties.AddAttachments(content, Attachments);
         return content;
     }
 

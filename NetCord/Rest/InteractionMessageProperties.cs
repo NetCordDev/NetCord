@@ -37,19 +37,9 @@ public partial class InteractionMessageProperties : IHttpSerializable
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<InteractionMessageProperties>(this, InteractionMessagePropertiesSerializerContext.WithOptions.InteractionMessageProperties), "payload_json" }
+            { new JsonContent<InteractionMessageProperties>(this, InteractionMessagePropertiesSerializerContext.WithOptions.InteractionMessageProperties), "payload_json" },
         };
-        var attachments = Attachments;
-        if (attachments is not null)
-        {
-            var i = 0;
-            foreach (var attachment in attachments)
-            {
-                if (attachment is not GoogleCloudPlatformAttachmentProperties)
-                    content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
+        AttachmentProperties.AddAttachments(content, Attachments);
         return content;
     }
 

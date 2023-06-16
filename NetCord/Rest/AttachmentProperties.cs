@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public partial class AttachmentProperties
+public class AttachmentProperties : IHttpSerializable
 {
     /// <summary>
     /// 
@@ -16,7 +16,7 @@ public partial class AttachmentProperties
     /// 
     /// </summary>
     /// <param name="fileName">Name of the file.</param>
-    private protected AttachmentProperties(string fileName)
+    protected AttachmentProperties(string fileName)
     {
         FileName = fileName;
     }
@@ -31,18 +31,100 @@ public partial class AttachmentProperties
     /// </summary>
     public string? Description { get; set; }
 
-    internal Stream? Stream
+    protected Stream? Stream
     {
         get
         {
             if (_read)
-                throw new InvalidOperationException("The attachment was already sent.");
+                throw new InvalidOperationException("The attachment has already been sent.");
             else
                 _read = true;
+
             return _stream;
         }
     }
 
     private readonly Stream? _stream;
     private bool _read;
+
+    public virtual bool SupportsHttpSerialization => true;
+
+    public virtual HttpContent Serialize() => new StreamContent(Stream!);
+
+    internal static void AddAttachments(MultipartFormDataContent content, IEnumerable<AttachmentProperties>? attachments)
+    {
+        if (attachments is not null)
+        {
+            int i = 0;
+            foreach (var attachment in attachments)
+            {
+                if (attachment.SupportsHttpSerialization)
+                    content.Add(attachment.Serialize(), $"files[{i}]", attachment.FileName);
+                i++;
+            }
+        }
+    }
+}
+
+public class Base64AttachmentProperties : AttachmentProperties
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <param name="stream">Content of the file encoded in Base64.</param>
+    public Base64AttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
+    {
+    }
+
+    public override HttpContent Serialize()
+    {
+        var content = base.Serialize();
+        content.Headers.Add("Content-Transfer-Encoding", "base64");
+        return content;
+    }
+}
+
+public class QuotedPrintableAttachmentProperties : AttachmentProperties
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
+    public QuotedPrintableAttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
+    {
+    }
+
+    public override HttpContent Serialize()
+    {
+        var content = base.Serialize();
+        content.Headers.Add("Content-Transfer-Encoding", "quoted-printable");
+        return content;
+    }
+}
+
+public class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="fileName">Name of the file.</param>
+    /// <param name="uploadedFileName">Name of the upload.</param>
+    public GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : base(fileName)
+    {
+        UploadedFileName = uploadedFileName;
+    }
+
+    /// <summary>
+    /// Name of the upload.
+    /// </summary>
+    public string UploadedFileName { get; set; }
+
+    public override bool SupportsHttpSerialization => false;
+
+    public override HttpContent Serialize()
+    {
+        throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support http serialization.");
+    }
 }

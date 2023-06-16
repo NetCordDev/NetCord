@@ -20,19 +20,9 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<ForumGuildThreadProperties>(this, ForumGuildThreadPropertiesSerializerContext.WithOptions.ForumGuildThreadProperties), "payload_json" }
+            { new JsonContent<ForumGuildThreadProperties>(this, ForumGuildThreadPropertiesSerializerContext.WithOptions.ForumGuildThreadProperties), "payload_json" },
         };
-        var attachments = Message.Attachments;
-        if (attachments is not null)
-        {
-            int i = 0;
-            foreach (var attachment in attachments)
-            {
-                if (attachment is not GoogleCloudPlatformAttachmentProperties)
-                    content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
+        AttachmentProperties.AddAttachments(content, Message.Attachments);
         return content;
     }
 

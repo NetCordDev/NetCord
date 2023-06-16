@@ -1,8 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.Rest;
-
-namespace NetCord;
+namespace NetCord.Rest;
 
 public partial class InteractionCallback : IHttpSerializable
 {
@@ -71,19 +69,9 @@ public partial class InteractionCallback : IHttpSerializable
             case InteractionCallback<InteractionMessageProperties> interactionCallback:
                 MultipartFormDataContent content = new()
                 {
-                    { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, InteractionCallbackOfInteractionMessagePropertiesSerializerContext.WithOptions.InteractionCallbackInteractionMessageProperties), "payload_json" }
+                    { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, InteractionCallbackOfInteractionMessagePropertiesSerializerContext.WithOptions.InteractionCallbackInteractionMessageProperties), "payload_json" },
                 };
-                var attachments = interactionCallback.Data.Attachments;
-                if (attachments is not null)
-                {
-                    int i = 0;
-                    foreach (var attachment in attachments)
-                    {
-                        if (attachment is not GoogleCloudPlatformAttachmentProperties)
-                            content.Add(new StreamContent(attachment.Stream!), $"files[{i}]", attachment.FileName);
-                        i++;
-                    }
-                }
+                AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
                 return content;
 
             case InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback:
