@@ -1,63 +1,56 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-public partial class GuildStickerProperties : IHttpSerializable
+public class GuildStickerProperties : IHttpSerializable
 {
-    public GuildStickerProperties(string name, string description, IEnumerable<string> tags, Stream stream, StickerFormat format)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="attachment">Sticker attachment.</param>
+    /// <param name="format">Sticker format.</param>
+    /// <param name="tags">Sticker autocomplete/suggestion tags (max 200 characters long when comma joined).</param>
+    public GuildStickerProperties(AttachmentProperties attachment, StickerFormat format, IEnumerable<string> tags)
     {
-        Name = name;
-        Description = description;
-        Tags = tags;
-        _stream = stream;
+        if (!attachment.SupportsHttpSerialization)
+            throw new ArgumentException("The attachment does not support HTTP serialization.", nameof(attachment));
+
+        Attachment = attachment;
         Format = format;
+        Tags = tags;
     }
 
-    public string Name { get; set; }
+    /// <summary>
+    /// Sticker attachment.
+    /// </summary>
+    public AttachmentProperties Attachment { get; set; }
 
-    public string Description { get; set; }
-
-    public IEnumerable<string> Tags { get; set; }
-
+    /// <summary>
+    /// Sticker format.
+    /// </summary>
     public StickerFormat Format { get; set; }
 
-    internal Stream Stream
-    {
-        get
-        {
-            if (_read)
-                throw new InvalidOperationException("The attachment was already sent.");
-            else
-                _read = true;
-            return _stream;
-        }
-    }
-
-    private readonly Stream _stream;
-    private bool _read;
+    /// <summary>
+    /// Sticker autocomplete/suggestion tags (max 200 characters long when comma joined).
+    /// </summary>
+    public IEnumerable<string> Tags { get; set; }
 
     public HttpContent Serialize()
     {
-        StreamContent file = new(Stream);
-        file.Headers.ContentType = new(Format switch
+        var attachment = Attachment;
+        var content = attachment.Serialize();
+        content.Headers.ContentType = new(Format switch
         {
             StickerFormat.Png or StickerFormat.Apng => "image/png",
             StickerFormat.Lottie => "application/json",
             StickerFormat.Gif => "image/gif",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException(null, (int)Format, typeof(StickerFormat)),
         });
+
         return new MultipartFormDataContent()
         {
-            { new StringContent(Name), "name" },
-            { new StringContent(Description), "description" },
+            { new StringContent(attachment.FileName), "name" },
+            { new StringContent(attachment.Description ?? string.Empty), "description" },
             { new StringContent(string.Join(',', Tags)), "tags" },
-            { file, "file", "f" },
+            { content, "file", "f" },
         };
-    }
-
-    [JsonSerializable(typeof(GuildStickerProperties))]
-    public partial class GuildStickerPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildStickerPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

@@ -5,7 +5,7 @@ public class AttachmentProperties : IHttpSerializable
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
     /// <param name="stream">Content of the file.</param>
     public AttachmentProperties(string fileName, Stream stream) : this(fileName)
     {
@@ -15,33 +15,30 @@ public class AttachmentProperties : IHttpSerializable
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
     protected AttachmentProperties(string fileName)
     {
         FileName = fileName;
     }
 
     /// <summary>
-    /// Name of the file.
+    /// Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).
     /// </summary>
     public string FileName { get; set; }
 
     /// <summary>
-    /// Description for the file (max 1024 characters).
+    /// Description for the file (max 1024 characters for attachments sent by message, max 200 characters for attachments used for sticker creation).
     /// </summary>
     public string? Description { get; set; }
 
-    protected Stream? Stream
+    protected Stream? GetStream()
     {
-        get
-        {
-            if (_read)
-                throw new InvalidOperationException("The attachment has already been sent.");
-            else
-                _read = true;
+        if (_read)
+            throw new InvalidOperationException("The attachment has already been sent.");
+        else
+            _read = true;
 
-            return _stream;
-        }
+        return _stream;
     }
 
     private readonly Stream? _stream;
@@ -49,7 +46,7 @@ public class AttachmentProperties : IHttpSerializable
 
     public virtual bool SupportsHttpSerialization => true;
 
-    public virtual HttpContent Serialize() => new StreamContent(Stream!);
+    public virtual HttpContent Serialize() => new StreamContent(GetStream()!);
 
     internal static void AddAttachments(MultipartFormDataContent content, IEnumerable<AttachmentProperties>? attachments)
     {
@@ -71,7 +68,7 @@ public class Base64AttachmentProperties : AttachmentProperties
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
     /// <param name="stream">Content of the file encoded in Base64.</param>
     public Base64AttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
     {
@@ -90,7 +87,7 @@ public class QuotedPrintableAttachmentProperties : AttachmentProperties
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
     /// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
     public QuotedPrintableAttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
     {
@@ -109,7 +106,7 @@ public class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="fileName">Name of the file.</param>
+    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
     /// <param name="uploadedFileName">Name of the upload.</param>
     public GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : base(fileName)
     {
@@ -125,6 +122,6 @@ public class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
 
     public override HttpContent Serialize()
     {
-        throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support http serialization.");
+        throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
     }
 }
