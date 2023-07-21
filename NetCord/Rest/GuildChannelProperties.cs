@@ -7,9 +7,8 @@ public partial class GuildChannelProperties
     [JsonPropertyName("name")]
     public string Name { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("type")]
-    public ChannelType? ChannelType { get; set; }
+    public ChannelType Type { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("topic")]
@@ -71,9 +70,10 @@ public partial class GuildChannelProperties
     [JsonPropertyName("default_forum_layout")]
     public ForumLayoutType? DefaultForumLayout { get; set; }
 
-    public GuildChannelProperties(string name)
+    public GuildChannelProperties(string name, ChannelType type)
     {
         Name = name;
+        Type = type;
     }
 
     [JsonSerializable(typeof(GuildChannelProperties))]
