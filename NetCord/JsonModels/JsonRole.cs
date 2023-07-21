@@ -34,6 +34,9 @@ public partial class JsonRole : JsonEntity
     [JsonPropertyName("tags")]
     public JsonRoleTags? Tags { get; set; }
 
+    [JsonPropertyName("flags")]
+    public RoleFlags Flags { get; set; }
+
     [JsonSerializable(typeof(JsonRole))]
     public partial class JsonRoleSerializerContext : JsonSerializerContext
     {

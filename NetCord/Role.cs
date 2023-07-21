@@ -32,6 +32,8 @@ public class Role : ClientEntity, IJsonModel<JsonRole>
 
     public RoleTags? Tags { get; }
 
+    public RoleFlags Flags => _jsonModel.Flags;
+
     public ulong GuildId { get; }
 
     public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
