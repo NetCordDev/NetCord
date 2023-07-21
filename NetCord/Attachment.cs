@@ -49,6 +49,8 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
     /// </summary>
     public bool Ephemeral => _jsonModel.Ephemeral;
 
+    public AttachmentFlags Flags => _jsonModel.Flags;
+
     public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
     {
         if (jsonModel.Width.HasValue)

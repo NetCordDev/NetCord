@@ -39,6 +39,9 @@ public partial class JsonAttachment : JsonEntity
     [JsonPropertyName("waveform")]
     public byte[]? Waveform { get; set; }
 
+    [JsonPropertyName("flags")]
+    public AttachmentFlags Flags { get; set; }
+
     [JsonSerializable(typeof(JsonAttachment))]
     public partial class JsonAttachmentSerializerContext : JsonSerializerContext
     {
