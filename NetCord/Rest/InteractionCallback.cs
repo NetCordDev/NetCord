@@ -27,24 +27,28 @@ public partial class InteractionCallback : IHttpSerializable
         => new(InteractionCallbackType.ChannelMessageWithSource, message);
 
     /// <summary>
-    /// ACK an interaction and edit a response later, the user sees a loading state.
+    /// ACK an interaction and modify a response later, the user sees a loading state.
     /// </summary>
-    public static InteractionCallback<InteractionMessageProperties> DeferredChannelMessageWithSource(MessageFlags? messageFlags = null)
-        => new(InteractionCallbackType.DeferredChannelMessageWithSource, new InteractionMessageProperties() { Flags = messageFlags });
+    public static InteractionCallback<InteractionMessageProperties> DeferredChannelMessageWithSource(MessageFlags? flags = null)
+        => new(InteractionCallbackType.DeferredChannelMessageWithSource, new() { Flags = flags });
 
     /// <summary>
-    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state.
+    /// For components, ACK an interaction and modify the original message later; the user does not see a loading state.
     /// </summary>
-    public static InteractionCallback DeferredUpdateMessage
-        => new(InteractionCallbackType.DeferredUpdateMessage);
+    public static InteractionCallback DeferredModifyMessage
+        => new(InteractionCallbackType.DeferredModifyMessage);
 
     /// <summary>
-    /// For components, edit the message the component was attached to.
+    /// For components, modify the message the component was attached to.
     /// </summary>
-    /// <param name="message"></param>
+    /// <param name="action"></param>
     /// <returns></returns>
-    public static InteractionCallback<InteractionMessageProperties> UpdateMessage(InteractionMessageProperties message)
-        => new(InteractionCallbackType.UpdateMessage, message);
+    public static InteractionCallback<MessageOptions> ModifyMessage(Action<MessageOptions> action)
+    {
+        MessageOptions options = new();
+        action(options);
+        return new(InteractionCallbackType.ModifyMessage, options);
+    }
 
     /// <summary>
     /// Respond to an autocomplete interaction with suggested <paramref name="choices"/>.
@@ -52,7 +56,7 @@ public partial class InteractionCallback : IHttpSerializable
     /// <param name="choices"></param>
     /// <returns></returns>
     public static InteractionCallback<InteractionCallbackChoicesDataProperties> ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
-        => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new InteractionCallbackChoicesDataProperties(choices));
+        => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new(choices));
 
     /// <summary>
     /// Respond to an interaction with a popup <paramref name="modal"/>.
@@ -74,6 +78,14 @@ public partial class InteractionCallback : IHttpSerializable
                 AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
                 return content;
 
+            case InteractionCallback<MessageOptions> interactionCallback:
+                content = new()
+                {
+                    { new JsonContent<InteractionCallback<MessageOptions>>(interactionCallback, InteractionCallbackOfMessageOptionsSerializerContext.WithOptions.InteractionCallbackMessageOptions), "payload_json" },
+                };
+                AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
+                return content;
+
             case InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback:
                 return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext.WithOptions.InteractionCallbackInteractionCallbackChoicesDataProperties);
 
@@ -89,6 +101,12 @@ public partial class InteractionCallback : IHttpSerializable
     public partial class InteractionCallbackOfInteractionMessagePropertiesSerializerContext : JsonSerializerContext
     {
         public static InteractionCallbackOfInteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
+    }
+
+    [JsonSerializable(typeof(InteractionCallback<MessageOptions>))]
+    public partial class InteractionCallbackOfMessageOptionsSerializerContext : JsonSerializerContext
+    {
+        public static InteractionCallbackOfMessageOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
     [JsonSerializable(typeof(InteractionCallback<InteractionCallbackChoicesDataProperties>))]

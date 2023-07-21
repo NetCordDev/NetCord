@@ -13,19 +13,19 @@ public enum InteractionCallbackType
     ChannelMessageWithSource = 4,
 
     /// <summary>
-    /// ACK an interaction and edit a response later, the user sees a loading state.
+    /// ACK an interaction and modify a response later, the user sees a loading state.
     /// </summary>
     DeferredChannelMessageWithSource = 5,
 
     /// <summary>
-    /// For components, ACK an interaction and edit the original message later; the user does not see a loading state.
+    /// For components, ACK an interaction and modify the original message later; the user does not see a loading state.
     /// </summary>
-    DeferredUpdateMessage = 6,
+    DeferredModifyMessage = 6,
 
     /// <summary>
-    /// For components, edit the message the component was attached to.
+    /// For components, modify the message the component was attached to.
     /// </summary>
-    UpdateMessage = 7,
+    ModifyMessage = 7,
 
     /// <summary>
     /// Respond to an autocomplete interaction with suggested choices.

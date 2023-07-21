@@ -18,6 +18,7 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
         //    Flags = MessageFlags.Ephemeral
         //};
         //return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
+
         return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", "Wzium user", new TextInputProperties[]
         {
             new("reason", TextInputStyle.Paragraph, "Reason")
