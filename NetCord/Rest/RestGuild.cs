@@ -69,7 +69,7 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildAsync(Id, properties);
     public Task<IReadOnlyDictionary<ulong, IGuildChannel>> GetChannelsAsync(RequestProperties? properties = null) => _client.GetGuildChannelsAsync(Id, properties);
     public Task<IGuildChannel> CreateChannelAsync(GuildChannelProperties channelProperties, RequestProperties? properties = null) => _client.CreateGuildChannelAsync(Id, channelProperties, properties);
-    public Task ModifyChannelPositionsAsync(IEnumerable<ChannelPositionProperties> positions, RequestProperties? properties = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, properties);
+    public Task ModifyChannelPositionsAsync(IEnumerable<GuildChannelPositionProperties> positions, RequestProperties? properties = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, properties);
     public Task<IReadOnlyDictionary<ulong, GuildThread>> GetActiveThreadsAsync(RequestProperties? properties = null) => _client.GetActiveGuildThreadsAsync(Id, properties);
     public Task<GuildUser> GetUserAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildUserAsync(Id, userId, properties);
     public IAsyncEnumerable<GuildUser> GetUsersAsync(RequestProperties? properties = null) => _client.GetGuildUsersAsync(Id, properties);
