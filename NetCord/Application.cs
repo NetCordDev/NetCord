@@ -20,10 +20,12 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string VerifyKey => _jsonModel.VerifyKey;
     public Team? Team { get; }
     public ulong? GuildId => _jsonModel.GuildId;
+    public RestGuild? Guild { get; }
     public ulong? PrimarySkuId => _jsonModel.PrimarySkuId;
     public string? Slug => _jsonModel.Slug;
     public string? CoverImageHash => _jsonModel.CoverImageHash;
     public ApplicationFlags? Flags => _jsonModel.Flags;
+    public int? ApproximateGuildCount => _jsonModel.ApproximateGuildCount;
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
     public ApplicationInstallParams? InstallParams { get; }
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
@@ -40,6 +42,10 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
         var team = jsonModel.Team;
         if (team is not null)
             Team = new(team, client);
+
+        var guild = jsonModel.Guild;
+        if (guild is not null)
+            Guild = new(guild, client);
 
         var installParams = jsonModel.InstallParams;
         if (installParams is not null)

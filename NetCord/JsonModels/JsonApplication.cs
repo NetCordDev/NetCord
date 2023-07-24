@@ -40,6 +40,9 @@ public partial class JsonApplication : JsonEntity
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
+    [JsonPropertyName("guild")]
+    public JsonGuild? Guild { get; set; }
+
     [JsonPropertyName("primary_sku_id")]
     public ulong? PrimarySkuId { get; set; }
 
@@ -51,6 +54,9 @@ public partial class JsonApplication : JsonEntity
 
     [JsonPropertyName("flags")]
     public ApplicationFlags? Flags { get; set; }
+
+    [JsonPropertyName("approximate_guild_count")]
+    public int? ApproximateGuildCount { get; set; }
 
     [JsonPropertyName("tags")]
     public string[]? Tags { get; set; }
