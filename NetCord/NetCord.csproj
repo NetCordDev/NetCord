@@ -14,7 +14,7 @@
     <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.201</VersionSuffix>
+    <VersionSuffix>alpha.202</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -29,6 +29,12 @@
 
   <ItemGroup>
     <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer" />
   </ItemGroup>
 
   <Target Name="GenerateRestClientConstants" BeforeTargets="BeforeCompile">

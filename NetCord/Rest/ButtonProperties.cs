@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(MessageButtonConverter))]
-public abstract class ButtonProperties
+public abstract partial class ButtonProperties
 {
     /// <summary>
     /// Style of the button.

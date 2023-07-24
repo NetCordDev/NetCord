@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class AttachmentProperties : IHttpSerializable
+public partial class AttachmentProperties : IHttpSerializable
 {
     /// <summary>
     /// 
@@ -63,7 +63,7 @@ public class AttachmentProperties : IHttpSerializable
     }
 }
 
-public class Base64AttachmentProperties : AttachmentProperties
+public partial class Base64AttachmentProperties : AttachmentProperties
 {
     /// <summary>
     /// 
@@ -82,7 +82,7 @@ public class Base64AttachmentProperties : AttachmentProperties
     }
 }
 
-public class QuotedPrintableAttachmentProperties : AttachmentProperties
+public partial class QuotedPrintableAttachmentProperties : AttachmentProperties
 {
     /// <summary>
     /// 
@@ -101,7 +101,7 @@ public class QuotedPrintableAttachmentProperties : AttachmentProperties
     }
 }
 
-public class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
+public partial class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
 {
     /// <summary>
     /// 

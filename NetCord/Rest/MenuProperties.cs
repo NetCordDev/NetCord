@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public abstract class MenuProperties : ComponentProperties
+public abstract partial class MenuProperties : ComponentProperties
 {
     /// <summary>
     /// Id for the menu (max 100 characters).
