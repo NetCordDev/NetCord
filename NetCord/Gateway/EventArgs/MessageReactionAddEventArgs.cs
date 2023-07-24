@@ -29,4 +29,6 @@ public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonM
     public GuildUser? User { get; }
 
     public MessageReactionEmoji Emoji { get; }
+
+    public ulong? MessageAuthorId => _jsonModel.MessageAuthorId;
 }

@@ -24,6 +24,9 @@ public partial class JsonMessageReactionAddEventArgs
     [JsonPropertyName("emoji")]
     public JsonEmoji Emoji { get; set; }
 
+    [JsonPropertyName("message_author_id")]
+    public ulong? MessageAuthorId { get; set; }
+
     [JsonSerializable(typeof(JsonMessageReactionAddEventArgs))]
     public partial class JsonMessageReactionAddEventArgsSerializerContext : JsonSerializerContext
     {
