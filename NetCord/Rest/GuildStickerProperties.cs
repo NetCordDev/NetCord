@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildStickerProperties : IHttpSerializable
+public partial class GuildStickerProperties : IHttpSerializable
 {
     /// <summary>
     /// 

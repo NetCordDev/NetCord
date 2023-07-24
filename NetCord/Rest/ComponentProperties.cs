@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(ComponentConverter))]
-public abstract class ComponentProperties
+public abstract partial class ComponentProperties
 {
     /// <summary>
     /// Type of the component.

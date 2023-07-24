@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class ReactionEmojiProperties
+public partial class ReactionEmojiProperties
 {
     public string Name { get; set; }
     public ulong? Id { get; set; }
