@@ -16,6 +16,9 @@ public partial class JsonGuildOnboarding
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; }
 
+    [JsonPropertyName("mode")]
+    public GuildOnboardingMode Mode { get; set; }
+
     [JsonSerializable(typeof(JsonGuildOnboarding))]
     public partial class JsonGuildOnboardingSerializerContext : JsonSerializerContext
     {

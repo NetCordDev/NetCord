@@ -31,4 +31,9 @@ public class GuildOnboarding : IJsonModel<JsonModels.JsonGuildOnboarding>
     /// Whether onboarding is enabled in the guild.
     /// </summary>
     public bool Enabled => _jsonModel.Enabled;
+
+    /// <summary>
+    /// Current mode of onboarding.
+    /// </summary>
+    public GuildOnboardingMode Mode => _jsonModel.Mode;
 }

@@ -293,6 +293,14 @@ public partial class RestClient
     public async Task<GuildOnboarding> GetGuildOnboardingAsync(ulong guildId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/onboarding", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildOnboarding.JsonGuildOnboardingSerializerContext.WithOptions.JsonGuildOnboarding).ConfigureAwait(false), this);
 
+    public async Task<GuildOnboarding> ModifyGuildOnboardingAsync(ulong guildId, Action<GuildOnboardingOptions> action, RequestProperties? properties = null)
+    {
+        GuildOnboardingOptions guildOnboardingOptions = new();
+        action(guildOnboardingOptions);
+        using (HttpContent content = new JsonContent<GuildOnboardingOptions>(guildOnboardingOptions, GuildOnboardingOptions.GuildOnboardingOptionsSerializerContext.WithOptions.GuildOnboardingOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Put, content, $"/guilds/{guildId}/onboarding", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildOnboarding.JsonGuildOnboardingSerializerContext.WithOptions.JsonGuildOnboarding).ConfigureAwait(false), this);
+    }
+
     public async Task ModifyCurrentGuildUserVoiceStateAsync(ulong guildId, Action<CurrentUserVoiceStateOptions> action, RequestProperties? properties = null)
     {
         CurrentUserVoiceStateOptions obj = new();
