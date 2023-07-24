@@ -19,11 +19,11 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/users/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
     }
 
-    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(RequestProperties? properties = null)
+    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(bool withCounts = false, RequestProperties ? properties = null)
     {
         byte count = 0;
         RestGuild? last = null;
-        foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", null, null, properties).ConfigureAwait(false))
+        foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", $"?with_counts={withCounts}", null, properties).ConfigureAwait(false))
             .ToObjectAsync(JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray).ConfigureAwait(false))
             .Select(g => new RestGuild(g, this)))
         {
@@ -32,18 +32,18 @@ public partial class RestClient
         }
         if (count == 200)
         {
-            await foreach (var guild in GetCurrentUserGuildsAfterAsync(last!.Id, properties))
+            await foreach (var guild in GetCurrentUserGuildsAfterAsync(last!.Id, withCounts, properties))
                 yield return guild;
         }
     }
 
-    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAfterAsync(ulong guildId, RequestProperties? properties = null)
+    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAfterAsync(ulong guildId, bool withCounts = false, RequestProperties? properties = null)
     {
         byte count;
         do
         {
             count = 0;
-            foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", $"?after={guildId}", null, properties).ConfigureAwait(false))
+            foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", $"?after={guildId}&with_counts={withCounts}", null, properties).ConfigureAwait(false))
                 .ToObjectAsync(JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray).ConfigureAwait(false))
                 .Select(g => new RestGuild(g, this)))
             {
@@ -55,13 +55,13 @@ public partial class RestClient
         while (count == 200);
     }
 
-    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsBeforeAsync(ulong guildId, RequestProperties? properties = null)
+    public async IAsyncEnumerable<RestGuild> GetCurrentUserGuildsBeforeAsync(ulong guildId, bool withCounts = false, RequestProperties? properties = null)
     {
         byte count;
         do
         {
             count = 0;
-            foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", $"?before={guildId}", null, properties).ConfigureAwait(false))
+            foreach (var guild in (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds", $"?before={guildId}&with_counts={withCounts}", null, properties).ConfigureAwait(false))
                 .ToObjectAsync(JsonGuild.JsonGuildArraySerializerContext.WithOptions.JsonGuildArray).ConfigureAwait(false))
                 .Select(g => new RestGuild(g, this)))
             {
