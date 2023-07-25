@@ -4,14 +4,18 @@ public class ImageUrl
 {
     private readonly string _url;
 
-    private ImageUrl(string partialUrl, string extension)
+    private ImageUrl(string partialUrl, string extension) : this($"{Discord.CDNUrl}{partialUrl}.{extension}")
     {
-        _url = $"{Discord.CDNUrl}{partialUrl}.{extension}";
+    }
+
+    protected ImageUrl(string url)
+    {
+        _url = url;
     }
 
     public override string ToString() => _url;
 
-    public string ToString(int size) => $"{_url}?size={size}";
+    public virtual string ToString(int size) => $"{_url}?size={size}";
 
     private static string GetExtension(string hash, ImageFormat? format)
     {
@@ -156,12 +160,31 @@ public class ImageUrl
         return new($"/guilds/{guildId}/users/{userId}/banners/{bannerHash}", GetExtension(bannerHash, format));
     }
 
-    public static string GuildWidget(ulong guildId, GuildWidgetStyle? style = null, string? hostname = null, ApiVersion version = ApiVersion.V10)
+    public static ImageUrl GuildWidget(ulong guildId, GuildWidgetStyle? style = null, string? hostname = null, ApiVersion? version = null)
     {
-        if (!style.HasValue)
-            return $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version}/guilds/{guildId}/widget.png";
-        else
-            return $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version}/guilds/{guildId}/widget.png?style={style switch
+        return new GuildWidgetUrl(guildId, style, hostname, version);
+    }
+
+    private class GuildWidgetUrl : ImageUrl
+    {
+        public GuildWidgetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version) : base(GetUrl(guildId, style, hostname, version))
+        {
+        }
+
+        private static string GetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version)
+        {
+            return version.HasValue
+                ? style.HasValue
+                    ? $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version.GetValueOrDefault()}/guilds/{guildId}/widget.png?style={GetGuildWidgetStyle(style.GetValueOrDefault())}"
+                    : $"https://{hostname ?? Discord.RestHostname}/api/v{(int)version.GetValueOrDefault()}/guilds/{guildId}/widget.png"
+                : style.HasValue
+                    ? $"https://{hostname ?? Discord.RestHostname}/api/guilds/{guildId}/widget.png?style={GetGuildWidgetStyle(style.GetValueOrDefault())}"
+                    : $"https://{hostname ?? Discord.RestHostname}/api/guilds/{guildId}/widget.png";
+        }
+
+        private static string GetGuildWidgetStyle(GuildWidgetStyle style)
+        {
+            return style switch
             {
                 GuildWidgetStyle.Shield => "shield",
                 GuildWidgetStyle.Banner1 => "banner1",
@@ -169,6 +192,12 @@ public class ImageUrl
                 GuildWidgetStyle.Banner3 => "banner3",
                 GuildWidgetStyle.Banner4 => "banner4",
                 _ => throw new System.ComponentModel.InvalidEnumArgumentException(nameof(style), (int)style, typeof(GuildWidgetStyle)),
-            }}";
+            };
+        }
+
+        public override string ToString(int size)
+        {
+            throw new NotSupportedException("Guild widgets do not support setting size.");
+        }
     }
 }
