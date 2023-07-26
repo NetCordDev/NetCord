@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public struct ForumGuildChannelDefaultReactionProperties
+public partial struct ForumGuildChannelDefaultReactionProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("emoji_id")]

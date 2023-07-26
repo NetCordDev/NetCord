@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(ImagePropertiesConverter))]
-public struct ImageProperties
+public partial struct ImageProperties
 {
     /// <summary>
     /// The format of the image.
