@@ -31,9 +31,9 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
 
     private bool FilterNodes(SyntaxNode node, CancellationToken cancellationToken)
     {
-        if (node is ClassDeclarationSyntax classDeclarationSyntax && classDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword))
+        if (node is TypeDeclarationSyntax typeDeclarationSyntax && typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword))
         {
-            var name = classDeclarationSyntax.Identifier.ToString();
+            var name = typeDeclarationSyntax.Identifier.ToString();
             return name.EndsWith("Properties") || name.EndsWith("Options");
         }
 
@@ -52,7 +52,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         WriteNamespace(stringWriter, typeSymbol);
         stringWriter.WriteLine();
 
-        WriteClassDeclaration(stringWriter, typeSymbol);
+        WriteTypeDeclaration(stringWriter, typeSymbol);
         stringWriter.Write("{");
         foreach (var property in GetProperties(typeSymbol))
         {
@@ -86,9 +86,18 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.WriteLine(";");
     }
 
-    private static void WriteClassDeclaration(StringWriter stringWriter, ITypeSymbol typeSymbol)
+    private static void WriteTypeDeclaration(StringWriter stringWriter, ITypeSymbol typeSymbol)
     {
-        stringWriter.Write("partial class ");
+        stringWriter.Write("partial ");
+        stringWriter.Write(typeSymbol switch
+        {
+            { TypeKind: TypeKind.Interface } => "interface ",
+            { IsReferenceType: true, IsRecord: false } => "class ",
+            { IsReferenceType: true, IsRecord: true } => "record ",
+            { IsValueType: true, IsRecord: false } => "struct ",
+            { IsValueType: true, IsRecord: true } => "record struct ",
+            _ => throw new ArgumentException($"Unsupported type kind: {typeSymbol.TypeKind}", nameof(typeSymbol)),
+        });
         stringWriter.WriteLine(typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
     }
 
