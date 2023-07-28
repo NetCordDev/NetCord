@@ -49,8 +49,6 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
     #region GuildScheduledEvent
     public Task<GuildScheduledEvent> ModifyAsync(Action<GuildScheduledEventOptions> action, RequestProperties? properties = null) => _client.ModifyGuildScheduledEventAsync(GuildId, Id, action, properties);
     public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildScheduledEventAsync(GuildId, Id, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAsync(bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(GuildId, Id, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAfterAsync(ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(GuildId, Id, userId, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersBeforeAsync(ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersBeforeAsync(GuildId, Id, userId, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAsync(OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(GuildId, Id, optionalGuildUsersPaginationProperties, properties);
     #endregion
 }

@@ -28,66 +28,26 @@ public partial class RestClient
     public Task DeleteGuildScheduledEventAsync(ulong guildId, ulong scheduledEventId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", null, new(guildId), properties);
 
-    public async IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong guildId, ulong scheduledEventId, bool guildUsers = false, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong guildId, ulong scheduledEventId, OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null)
     {
-        byte count = 0;
-        GuildScheduledEventUser? last = null;
-        foreach (var user in await GetMaxGuildScheduledEventUsersAsyncTask(guildId, scheduledEventId, guildUsers, properties).ConfigureAwait(false))
-        {
-            yield return last = user;
-            count++;
-        }
-        if (count == 100)
-        {
-            await foreach (var user in GetGuildScheduledEventUsersAfterAsync(guildId, scheduledEventId, last!.User.Id, guildUsers, properties))
-                yield return user;
-        }
-    }
+        var withGuildUsers = optionalGuildUsersPaginationProperties is not null && optionalGuildUsersPaginationProperties.WithGuildUsers;
 
-    public async IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAfterAsync(ulong guildId, ulong scheduledEventId, ulong userId, bool guildUsers = false, RequestProperties? properties = null)
-    {
-        byte count;
-        do
-        {
-            count = 0;
-            foreach (var user in await GetMaxGuildScheduledEventUsersAfterAsyncTask(guildId, scheduledEventId, userId, guildUsers, properties).ConfigureAwait(false))
+        var paginationProperties = PaginationProperties<ulong>.Prepare(optionalGuildUsersPaginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
+
+        return new PaginationAsyncEnumerable<GuildScheduledEventUser, ulong>(
+            this,
+            paginationProperties,
+            paginationProperties.Direction.GetValueOrDefault() switch
             {
-                yield return user;
-                userId = user.User.Id;
-                count++;
-            }
-        }
-        while (count == 100);
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).Select(u => new GuildScheduledEventUser(u, guildId, this)),
+                _ => throw new ArgumentException($"The value of '{nameof(optionalGuildUsersPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(optionalGuildUsersPaginationProperties)),
+            },
+            u => u.User.Id,
+            HttpMethod.Get,
+            $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
+            new(guildId),
+            properties);
     }
-
-    public async IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersBeforeAsync(ulong guildId, ulong scheduledEventId, ulong userId, bool guildUsers = false, RequestProperties? properties = null)
-    {
-        byte count;
-        do
-        {
-            count = 0;
-            foreach (var user in await GetMaxGuildScheduledEventUsersBeforeAsyncTask(guildId, scheduledEventId, userId, guildUsers, properties).ConfigureAwait(false))
-            {
-                yield return user;
-                userId = user.User.Id;
-                count++;
-            }
-        }
-        while (count == 100);
-    }
-
-    private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersAsyncTask(ulong guildId, ulong scheduledEventId, bool guildUsers, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users", $"?with_member={guildUsers}", new(guildId), properties).ConfigureAwait(false))
-                .ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false))
-                .Select(u => new GuildScheduledEventUser(u, guildId, this));
-
-    private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersAfterAsyncTask(ulong guildId, ulong scheduledEventId, ulong after, bool guildUsers, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users", $"?after={after}&with_member={guildUsers}", new(guildId), properties).ConfigureAwait(false))
-                .ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false))
-                .Select(u => new GuildScheduledEventUser(u, guildId, this));
-
-    private async Task<IEnumerable<GuildScheduledEventUser>> GetMaxGuildScheduledEventUsersBeforeAsyncTask(ulong guildId, ulong scheduledEventId, ulong before, bool guildUsers, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users", $"?before={before}&with_member={guildUsers}", new(guildId), properties).ConfigureAwait(false))
-                .ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false))
-                .Select(u => new GuildScheduledEventUser(u, guildId, this)).Reverse();
 }

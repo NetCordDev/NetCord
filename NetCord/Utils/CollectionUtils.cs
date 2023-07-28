@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord;
 
@@ -122,4 +123,16 @@ internal static class CollectionsUtils
     #endregion
 
     public static ImmutableDictionary<TKey, TElement> CreateImmutableDictionary<TKey, TElement>() where TKey : notnull => ImmutableDictionary<TKey, TElement>.Empty.WithComparers(null, new ReferenceEqualityComparer<TElement>());
+
+    private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
+    {
+        public bool Equals(T? x, T? y) => ReferenceEquals(x, y);
+        public int GetHashCode([DisallowNull] T obj) => obj.GetHashCode();
+    }
+
+    public static IEnumerable<T> GetReversedIEnumerable<T>(this T[] source)
+    {
+        for (int i = source.Length - 1; i >= 0; i--)
+            yield return source[i];
+    }
 }

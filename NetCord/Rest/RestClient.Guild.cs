@@ -51,44 +51,21 @@ public partial class RestClient
     public async Task<GuildUser> GetGuildUserAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members/{userId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildUser.JsonGuildUserSerializerContext.WithOptions.JsonGuildUser).ConfigureAwait(false), guildId, this);
 
-    public async IAsyncEnumerable<GuildUser> GetGuildUsersAsync(ulong guildId, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildUser> GetGuildUsersAsync(ulong guildId, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null)
     {
-        short count = 0;
-        GuildUser? lastUser = null;
+        paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 1000);
 
-        foreach (var user in await GetMaxGuildUsersAsyncTask(guildId).ConfigureAwait(false))
-        {
-            yield return lastUser = user;
-            count++;
-        }
-        if (count == 1000)
-        {
-            await foreach (var user in GetGuildUsersAfterAsync(guildId, lastUser!.Id, properties))
-                yield return user;
-        }
+        return new PaginationAsyncEnumerable<GuildUser, ulong>(
+            this,
+            paginationProperties,
+            async s => (await s.ToObjectAsync(JsonGuildUser.JsonGuildUserArraySerializerContext.WithOptions.JsonGuildUserArray).ConfigureAwait(false)).Select(u => new GuildUser(u, guildId, this)),
+            u => u.Id,
+            HttpMethod.Get,
+            $"/guilds/{guildId}/members",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(guildId),
+            properties);
     }
-
-    public async IAsyncEnumerable<GuildUser> GetGuildUsersAfterAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
-    {
-        short count;
-        do
-        {
-            count = 0;
-            foreach (var user in await GetMaxGuildUsersAfterAsyncTask(guildId, userId, properties).ConfigureAwait(false))
-            {
-                yield return user;
-                userId = user.Id;
-                count++;
-            }
-        }
-        while (count == 1000);
-    }
-
-    private async Task<IEnumerable<GuildUser>> GetMaxGuildUsersAsyncTask(ulong guildId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members", "?limit=1000", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildUser.JsonGuildUserArraySerializerContext.WithOptions.JsonGuildUserArray).ConfigureAwait(false)).Select(u => new GuildUser(u, guildId, this));
-
-    private async Task<IEnumerable<GuildUser>> GetMaxGuildUsersAfterAsyncTask(ulong guildId, ulong after, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members", $"?limit=1000&after={after}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildUser.JsonGuildUserArraySerializerContext.WithOptions.JsonGuildUserArray).ConfigureAwait(false)).Select(u => new GuildUser(u, guildId, this));
 
     public async Task<IReadOnlyDictionary<ulong, GuildUser>> FindGuildUserAsync(ulong guildId, string name, int limit, RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members/search", $"?query={Uri.EscapeDataString(name)}&limit={limit}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildUser.JsonGuildUserArraySerializerContext.WithOptions.JsonGuildUserArray).ConfigureAwait(false)).ToDictionary(u => u.User.Id, u => new GuildUser(u, guildId, this));
@@ -129,63 +106,26 @@ public partial class RestClient
     public Task KickGuildUserAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/members/{userId}", null, new(guildId), properties);
 
-    public async IAsyncEnumerable<GuildBan> GetGuildBansAsync(ulong guildId, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildBan> GetGuildBansAsync(ulong guildId, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null)
     {
-        int count = 0;
-        GuildBan? last = null;
+        paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 1000);
 
-        foreach (var ban in await GetMaxGuildBansAsyncTask(guildId, properties).ConfigureAwait(false))
-        {
-            yield return last = ban;
-            count++;
-        }
-        if (count == 1000)
-        {
-            await foreach (var ban in GetGuildBansAfterAsync(guildId, last!.User.Id, properties))
-                yield return ban;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildBan> GetGuildBansBeforeAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
-    {
-        int count;
-        do
-        {
-            count = 0;
-            foreach (var ban in await GetMaxGuildBansBeforeAsyncTask(guildId, userId, properties).ConfigureAwait(false))
+        return new PaginationAsyncEnumerable<GuildBan, ulong>(
+            this,
+            paginationProperties,
+            paginationProperties.Direction.GetValueOrDefault() switch
             {
-                yield return ban;
-                userId = ban.User.Id;
-                count++;
-            }
-        }
-        while (count == 1000);
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(b => new GuildBan(b, guildId, this)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).Select(b => new GuildBan(b, guildId, this)),
+                _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
+            },
+            b => b.User.Id,
+            HttpMethod.Get,
+            $"/guilds/{guildId}/bans",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(guildId),
+            properties);
     }
-
-    public async IAsyncEnumerable<GuildBan> GetGuildBansAfterAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
-    {
-        int count;
-        do
-        {
-            count = 0;
-            foreach (var ban in await GetMaxGuildBansAfterAsyncTask(guildId, userId, properties).ConfigureAwait(false))
-            {
-                yield return ban;
-                userId = ban.User.Id;
-                count++;
-            }
-        }
-        while (count == 1000);
-    }
-
-    private async Task<IEnumerable<GuildBan>> GetMaxGuildBansAsyncTask(ulong guildId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).Select(b => new GuildBan(b, guildId, this));
-
-    private async Task<IEnumerable<GuildBan>> GetMaxGuildBansBeforeAsyncTask(ulong guildId, ulong before, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", $"?before={before}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).Select(b => new GuildBan(b, guildId, this)).Reverse();
-
-    private async Task<IEnumerable<GuildBan>> GetMaxGuildBansAfterAsyncTask(ulong guildId, ulong after, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans", $"?after={after}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).Select(b => new GuildBan(b, guildId, this));
 
     public async Task<GuildBan> GetGuildBanAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/bans/{userId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildBan.JsonGuildBanSerializerContext.WithOptions.JsonGuildBan).ConfigureAwait(false), guildId, this);

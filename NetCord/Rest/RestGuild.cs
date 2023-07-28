@@ -72,8 +72,7 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
     public Task ModifyChannelPositionsAsync(IEnumerable<GuildChannelPositionProperties> positions, RequestProperties? properties = null) => _client.ModifyGuildChannelPositionsAsync(Id, positions, properties);
     public Task<IReadOnlyDictionary<ulong, GuildThread>> GetActiveThreadsAsync(RequestProperties? properties = null) => _client.GetActiveGuildThreadsAsync(Id, properties);
     public Task<GuildUser> GetUserAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildUserAsync(Id, userId, properties);
-    public IAsyncEnumerable<GuildUser> GetUsersAsync(RequestProperties? properties = null) => _client.GetGuildUsersAsync(Id, properties);
-    public IAsyncEnumerable<GuildUser> GetUsersAfterAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildUsersAfterAsync(Id, userId, properties);
+    public IAsyncEnumerable<GuildUser> GetUsersAsync(PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null) => _client.GetGuildUsersAsync(Id, paginationProperties, properties);
     public Task<IReadOnlyDictionary<ulong, GuildUser>> FindUserAsync(string name, int limit, RequestProperties? properties = null) => _client.FindGuildUserAsync(Id, name, limit, properties);
     public Task<GuildUser?> AddUserAsync(ulong userId, GuildUserProperties userProperties, RequestProperties? properties = null) => _client.AddGuildUserAsync(Id, userId, userProperties, properties);
     public Task<GuildUser> ModifyUserAsync(ulong userId, Action<GuildUserOptions> action, RequestProperties? properties = null) => _client.ModifyGuildUserAsync(Id, userId, action, properties);
@@ -81,9 +80,7 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
     public Task AddUserRoleAsync(ulong userId, ulong roleId, RequestProperties? properties = null) => _client.AddGuildUserRoleAsync(Id, userId, roleId, properties);
     public Task RemoveUserRoleAsync(ulong userId, ulong roleId, RequestProperties? properties = null) => _client.RemoveGuildUserRoleAsync(Id, userId, roleId, properties);
     public Task KickUserAsync(ulong userId, RequestProperties? properties = null) => _client.KickGuildUserAsync(Id, userId, properties);
-    public IAsyncEnumerable<GuildBan> GetBansAsync(RequestProperties? properties = null) => _client.GetGuildBansAsync(Id, properties);
-    public IAsyncEnumerable<GuildBan> GetBansBeforeAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBansBeforeAsync(Id, userId, properties);
-    public IAsyncEnumerable<GuildBan> GetBansAfterAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBansAfterAsync(Id, userId, properties);
+    public IAsyncEnumerable<GuildBan> GetBansAsync(PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null) => _client.GetGuildBansAsync(Id, paginationProperties, properties);
     public Task<GuildBan> GetBanAsync(ulong userId, RequestProperties? properties = null) => _client.GetGuildBanAsync(Id, userId, properties);
     public Task BanUserAsync(ulong userId, int deleteMessageSeconds = 0, RequestProperties? properties = null) => _client.BanGuildUserAsync(Id, userId, deleteMessageSeconds, properties);
     public Task UnbanUserAsync(ulong userId, RequestProperties? properties = null) => _client.UnbanGuildUserAsync(Id, userId, properties);
@@ -111,9 +108,7 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
     #endregion
 
     #region AuditLog
-    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogAsync(ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogAsync(Id, userId, actionType, properties);
-    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogBeforeAsync(ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogBeforeAsync(Id, before, userId, actionType, properties);
-    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogAfterAsync(ulong after, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null) => _client.GetGuildAuditLogAfterAsync(Id, after, userId, actionType, properties);
+    public IAsyncEnumerable<RestAuditLogEntry> GetAuditLogAsync(GuildAuditLogPaginationProperties? guildAuditLogPaginationProperties = null, RequestProperties? properties = null) => _client.GetGuildAuditLogAsync(Id, guildAuditLogPaginationProperties, properties);
     #endregion
 
     #region AutoModeration
@@ -138,9 +133,7 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
     public Task<GuildScheduledEvent> GetGuildScheduledEventAsync(ulong scheduledEventId, bool withUserCount = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventAsync(Id, scheduledEventId, withUserCount, properties);
     public Task<GuildScheduledEvent> ModifyGuildScheduledEventAsync(ulong scheduledEventId, Action<GuildScheduledEventOptions> action, RequestProperties? properties = null) => _client.ModifyGuildScheduledEventAsync(Id, scheduledEventId, action, properties);
     public Task DeleteGuildScheduledEventAsync(ulong scheduledEventId, RequestProperties? properties = null) => _client.DeleteGuildScheduledEventAsync(Id, scheduledEventId, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong scheduledEventId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(Id, scheduledEventId, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAfterAsync(ulong scheduledEventId, ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(Id, scheduledEventId, userId, guildUsers, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersBeforeAsync(ulong scheduledEventId, ulong userId, bool guildUsers = false, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAfterAsync(Id, scheduledEventId, userId, guildUsers, properties);
+    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong scheduledEventId, OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(Id, scheduledEventId, optionalGuildUsersPaginationProperties, properties);
     #endregion
 
     #region GuildTemplate

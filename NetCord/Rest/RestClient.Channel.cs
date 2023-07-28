@@ -35,193 +35,32 @@ public partial class RestClient
     public async Task<Channel> DeleteChannelAsync(ulong channelId, RequestProperties? properties = null)
         => Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
 
-    public Task TriggerTypingStateAsync(ulong channelId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties);
-
-    public async Task<IDisposable> EnterTypingStateAsync(ulong channelId, RequestProperties? properties = null)
+    public IAsyncEnumerable<RestMessage> GetMessagesAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null)
     {
-        TypingReminder typingReminder = new(channelId, this, properties);
-        await typingReminder.StartAsync().ConfigureAwait(false);
-        return typingReminder;
-    }
+        paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.Before, 100);
 
-    public async Task<IReadOnlyDictionary<ulong, RestMessage>> GetPinnedMessagesAsync(ulong channelId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
-
-    public Task PinMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
-
-    public Task UnpinMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
-
-    public async Task GroupDMChannelAddUserAsync(ulong channelId, ulong userId, GroupDMUserAddProperties groupDMUserAddProperties, RequestProperties? properties = null)
-    {
-        using (HttpContent content = new JsonContent<GroupDMUserAddProperties>(groupDMUserAddProperties, GroupDMUserAddProperties.GroupDMUserAddPropertiesSerializerContext.WithOptions.GroupDMUserAddProperties))
-            await SendRequestAsync(HttpMethod.Put, content, $"/channels/{channelId}/recipients/{userId}", null, new(channelId), properties).ConfigureAwait(false);
-    }
-
-    public Task GroupDMChannelDeleteUserAsync(ulong channelId, ulong userId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", null, new(channelId), properties);
-
-    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, ulong messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RequestProperties? properties = null)
-    {
-        using (HttpContent content = new JsonContent<GuildThreadFromMessageProperties>(threadFromMessageProperties, GuildThreadFromMessageProperties.GuildThreadFromMessagePropertiesSerializerContext.WithOptions.GuildThreadFromMessageProperties))
-            return (GuildThread)Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages/{messageId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
-    }
-
-    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, GuildThreadProperties threadProperties, RequestProperties? properties = null)
-    {
-        using (HttpContent content = new JsonContent<GuildThreadProperties>(threadProperties, GuildThreadProperties.GuildThreadPropertiesSerializerContext.WithOptions.GuildThreadProperties))
-            return (GuildThread)Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
-    }
-
-    public async Task<ForumGuildThread> CreateForumGuildThreadAsync(ulong channelId, ForumGuildThreadProperties threadProperties, RequestProperties? properties = null)
-    {
-        using (HttpContent content = threadProperties.Serialize())
-            return new ForumGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
-    }
-
-    public Task JoinGuildThreadAsync(ulong threadId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/@me", null, new(threadId), properties);
-
-    public Task AddGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/{userId}", null, new(threadId), properties);
-
-    public Task LeaveGuildThreadAsync(ulong threadId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/@me", null, new(threadId), properties);
-
-    public Task DeleteGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/{userId}", null, new(threadId), properties);
-
-    public async Task<ThreadUser> GetGuildThreadUserAsync(ulong threadId, ulong userId, bool withGuildUser = false, RequestProperties? properties = null)
-    {
-        var user = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", $"?with_member={withGuildUser}", new(threadId), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserSerializerContext.WithOptions.JsonThreadUser).ConfigureAwait(false);
-        return withGuildUser ? new GuildThreadUser(user, this) : new ThreadUser(user, this);
-    }
-
-    public async IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, bool withGuildUsers = false, RequestProperties? properties = null)
-    {
-        Func<JsonThreadUser, ThreadUser> func = withGuildUsers ? u => new GuildThreadUser(u, this) : u => new ThreadUser(u, this);
-        ulong after = 0;
-        var users = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", $"?with_member={withGuildUsers}&limit=100", new(threadId), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false);
-        foreach (var user in users)
-        {
-            after = user.UserId;
-            yield return func(user);
-        }
-        if (users.Length == 100)
-        {
-            await foreach (var user in GetGuildThreadUsersAfterAsync(threadId, after, withGuildUsers, properties))
-                yield return user;
-        }
-    }
-
-    public async IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAfterAsync(ulong threadId, ulong after, bool withGuildUsers = false, RequestProperties? properties = null)
-    {
-        Func<JsonThreadUser, ThreadUser> func = withGuildUsers ? u => new GuildThreadUser(u, this) : u => new ThreadUser(u, this);
-        int length;
-        do
-        {
-            var users = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members", $"?with_member={withGuildUsers}&after={after}&limit=100", new(threadId), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false);
-            foreach (var user in users)
+        return new PaginationAsyncEnumerable<RestMessage, ulong>(
+            this,
+            paginationProperties,
+            paginationProperties.Direction switch
             {
-                after = user.UserId;
-                yield return func(user);
-            }
-            length = users.Length;
-        }
-        while (length == 100);
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).Select(json => new RestMessage(json, this)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(json => new RestMessage(json, this)),
+                _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
+            },
+            m => m.Id,
+            HttpMethod.Get,
+            $"/channels/{channelId}/messages",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(channelId),
+            properties);
     }
 
-    public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, RequestProperties? properties = null)
-    {
-        var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/public", "?limit=100", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-        GuildThread? last = null;
-        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-            yield return last = thread;
+    public async Task<IReadOnlyDictionary<ulong, RestMessage>> GetMessagesAroundAsync(ulong channelId, ulong messageId, int? limit = null, RequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit={limit.GetValueOrDefault(100)}&around={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
 
-        if (threads.HasMore)
-        {
-            await foreach (var t in GetPublicArchivedGuildThreadsBeforeAsync(channelId, last!.Metadata.ArchiveTimestamp, properties))
-                yield return t;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsBeforeAsync(ulong channelId, DateTimeOffset before, RequestProperties? properties = null)
-    {
-        while (true)
-        {
-            GuildThread? last = null;
-            var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/public", $"?limit=100&before={before:s}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-                yield return last = thread;
-
-            if (!threads.HasMore)
-                break;
-
-            before = last!.Metadata.ArchiveTimestamp;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(ulong channelId, RequestProperties? properties = null)
-    {
-        var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/private", "?limit=100", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-        GuildThread? last = null;
-        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-            yield return last = thread;
-
-        if (threads.HasMore)
-        {
-            await foreach (var t in GetPrivateArchivedGuildThreadsBeforeAsync(channelId, last!.Metadata.ArchiveTimestamp, properties))
-                yield return t;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsBeforeAsync(ulong channelId, DateTimeOffset before, RequestProperties? properties = null)
-    {
-        while (true)
-        {
-            GuildThread? last = null;
-            var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/threads/archived/private", $"?limit=100&before={before:s}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-                yield return last = thread;
-
-            if (!threads.HasMore)
-                break;
-
-            before = last!.Metadata.ArchiveTimestamp;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(ulong channelId, RequestProperties? properties = null)
-    {
-        var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/users/@me/threads/archived/private", "?limit=100", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-        GuildThread? last = null;
-        foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-            yield return last = thread;
-
-        if (threads.HasMore)
-        {
-            await foreach (var t in GetJoinedPrivateArchivedGuildThreadsBeforeAsync(channelId, last!.Id, properties))
-                yield return t;
-        }
-    }
-
-    public async IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsBeforeAsync(ulong channelId, ulong before, RequestProperties? properties = null)
-    {
-        while (true)
-        {
-            GuildThread? last = null;
-            var threads = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/users/@me/threads/archived/private", $"?limit=100&before={before:s}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
-            foreach (var thread in GuildThreadGenerator.CreateThreads(threads, this))
-                yield return last = thread;
-
-            if (!threads.HasMore)
-                break;
-
-            before = last!.Id;
-        }
-    }
+    public async Task<RestMessage> GetMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
 
     public async Task<RestMessage> SendMessageAsync(ulong channelId, MessageProperties message, RequestProperties? properties = null)
     {
@@ -231,6 +70,39 @@ public partial class RestClient
 
     public async Task<RestMessage> CrosspostMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/crosspost", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+
+    public Task AddMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
+
+    public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
+
+    public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/{userId}", null, new(channelId), properties);
+
+    public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null)
+    {
+        paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
+
+        return new PaginationAsyncEnumerable<User, ulong>(
+            this,
+            paginationProperties,
+            async s => (await s.ToObjectAsync(JsonUser.JsonUserArraySerializerContext.WithOptions.JsonUserArray).ConfigureAwait(false)).Select(u => new User(u, this)),
+            u => u.Id,
+            HttpMethod.Get,
+            $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(channelId),
+            properties);
+    }
+
+    public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions", null, new(channelId), properties);
+
+    public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", null, new(channelId), properties);
+
+    private static string ReactionEmojiToString(ReactionEmojiProperties emoji) => emoji.EmojiType == ReactionEmojiType.Standard ? emoji.Name : $"{emoji.Name}:{emoji.Id}";
 
     public async Task<RestMessage> ModifyMessageAsync(ulong channelId, ulong messageId, Action<MessageOptions> action, RequestProperties? properties = null)
     {
@@ -321,125 +193,147 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/followers", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonFollowedChannel.JsonFollowedChannelSerializerContext.WithOptions.JsonFollowedChannel).ConfigureAwait(false), this);
     }
 
-    public async Task<RestMessage> GetMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageSerializerContext.WithOptions.JsonMessage).ConfigureAwait(false), this);
+    public Task TriggerTypingStateAsync(ulong channelId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties);
 
-    public async IAsyncEnumerable<RestMessage> GetMessagesAsync(ulong channelId, RequestProperties? properties = null)
+    public async Task<IDisposable> EnterTypingStateAsync(ulong channelId, RequestProperties? properties = null)
     {
-        byte messagesCount = 0;
-        RestMessage? lastMessage = null;
-
-        foreach (var message in await GetMaxMessagesAsyncTask(channelId, properties).ConfigureAwait(false))
-        {
-            yield return lastMessage = message;
-            messagesCount++;
-        }
-        if (messagesCount == 100)
-        {
-            await foreach (var message in GetMessagesBeforeAsync(channelId, lastMessage!.Id, properties))
-                yield return message;
-        }
+        TypingReminder typingReminder = new(channelId, this, properties);
+        await typingReminder.StartAsync().ConfigureAwait(false);
+        return typingReminder;
     }
 
-    public async IAsyncEnumerable<RestMessage> GetMessagesBeforeAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+    public async Task<IReadOnlyDictionary<ulong, RestMessage>> GetPinnedMessagesAsync(ulong channelId, RequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
+
+    public Task PinMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
+
+    public Task UnpinMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
+
+    public async Task GroupDMChannelAddUserAsync(ulong channelId, ulong userId, GroupDMUserAddProperties groupDMUserAddProperties, RequestProperties? properties = null)
     {
-        byte messagesCount;
-        do
-        {
-            messagesCount = 0;
-            foreach (var message in await GetMaxMessagesBeforeAsyncTask(channelId, messageId, properties).ConfigureAwait(false))
+        using (HttpContent content = new JsonContent<GroupDMUserAddProperties>(groupDMUserAddProperties, GroupDMUserAddProperties.GroupDMUserAddPropertiesSerializerContext.WithOptions.GroupDMUserAddProperties))
+            await SendRequestAsync(HttpMethod.Put, content, $"/channels/{channelId}/recipients/{userId}", null, new(channelId), properties).ConfigureAwait(false);
+    }
+
+    public Task GroupDMChannelDeleteUserAsync(ulong channelId, ulong userId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", null, new(channelId), properties);
+
+    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, ulong messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RequestProperties? properties = null)
+    {
+        using (HttpContent content = new JsonContent<GuildThreadFromMessageProperties>(threadFromMessageProperties, GuildThreadFromMessageProperties.GuildThreadFromMessagePropertiesSerializerContext.WithOptions.GuildThreadFromMessageProperties))
+            return (GuildThread)Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages/{messageId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    }
+
+    public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, GuildThreadProperties threadProperties, RequestProperties? properties = null)
+    {
+        using (HttpContent content = new JsonContent<GuildThreadProperties>(threadProperties, GuildThreadProperties.GuildThreadPropertiesSerializerContext.WithOptions.GuildThreadProperties))
+            return (GuildThread)Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    }
+
+    public async Task<ForumGuildThread> CreateForumGuildThreadAsync(ulong channelId, ForumGuildThreadProperties threadProperties, RequestProperties? properties = null)
+    {
+        using (HttpContent content = threadProperties.Serialize())
+            return new ForumGuildThread(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/threads", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonChannel.JsonChannelSerializerContext.WithOptions.JsonChannel).ConfigureAwait(false), this);
+    }
+
+    public Task JoinGuildThreadAsync(ulong threadId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/@me", null, new(threadId), properties);
+
+    public Task AddGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Put, $"/channels/{threadId}/thread-members/{userId}", null, new(threadId), properties);
+
+    public Task LeaveGuildThreadAsync(ulong threadId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/@me", null, new(threadId), properties);
+
+    public Task DeleteGuildThreadUserAsync(ulong threadId, ulong userId, RequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/channels/{threadId}/thread-members/{userId}", null, new(threadId), properties);
+
+    public async Task<ThreadUser> GetGuildThreadUserAsync(ulong threadId, ulong userId, bool withGuildUser = false, RequestProperties? properties = null)
+    {
+        var user = await (await SendRequestAsync(HttpMethod.Get, $"/channels/{threadId}/thread-members/{userId}", $"?with_member={withGuildUser}", new(threadId), properties).ConfigureAwait(false)).ToObjectAsync(JsonThreadUser.JsonThreadUserSerializerContext.WithOptions.JsonThreadUser).ConfigureAwait(false);
+        return withGuildUser ? new GuildThreadUser(user, this) : new ThreadUser(user, this);
+    }
+
+    public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null)
+    {
+        var withGuildUsers = optionalGuildUsersPaginationProperties is not null && optionalGuildUsersPaginationProperties.WithGuildUsers;
+
+        var paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(optionalGuildUsersPaginationProperties, PaginationDirection.After, 100);
+
+        return new PaginationAsyncEnumerable<ThreadUser, ulong>(
+            this,
+            paginationProperties,
+            withGuildUsers
+                ? async s => (await s.ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false)).Select(u => new GuildThreadUser(u, this))
+                : async s => (await s.ToObjectAsync(JsonThreadUser.JsonThreadUserArraySerializerContext.WithOptions.JsonThreadUserArray).ConfigureAwait(false)).Select(u => new ThreadUser(u, this)),
+            u => u.Id,
+            HttpMethod.Get,
+            $"/channels/{threadId}/thread-members",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
+            new(threadId),
+            properties);
+    }
+
+    public IAsyncEnumerable<GuildThread> GetPublicArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RequestProperties? properties = null)
+    {
+        paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
+
+        return new OptimizedPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+            this,
+            paginationProperties,
+            async s =>
             {
-                yield return message;
-                messageId = message.Id;
-                messagesCount++;
-            }
-        }
-        while (messagesCount == 100);
+                var result = await s.ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
+                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+            },
+            t => t.Metadata.ArchiveTimestamp,
+            HttpMethod.Get,
+            $"/channels/{channelId}/threads/archived/public",
+            new(paginationProperties.Limit.GetValueOrDefault(), t => t.ToString("s")),
+            new(channelId),
+            properties);
     }
 
-    public async IAsyncEnumerable<RestMessage> GetMessagesAfterAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildThread> GetPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<DateTimeOffset>? paginationProperties = null, RequestProperties? properties = null)
     {
-        byte messagesCount;
-        do
-        {
-            messagesCount = 0;
-            foreach (var message in await GetMaxMessagesAfterAsyncTask(channelId, messageId, properties).ConfigureAwait(false))
+        paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
+
+        return new OptimizedPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+            this,
+            paginationProperties,
+            async s =>
             {
-                yield return message;
-                messageId = message.Id;
-                messagesCount++;
-            }
-        }
-        while (messagesCount == 100);
+                var result = await s.ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
+                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+            },
+            t => t.Metadata.ArchiveTimestamp,
+            HttpMethod.Get,
+            $"/channels/{channelId}/threads/archived/private",
+            new(paginationProperties.Limit.GetValueOrDefault(), t => t.ToString("s")),
+            new(channelId),
+            properties);
     }
 
-    private async Task<IEnumerable<RestMessage>> GetMaxMessagesAsyncTask(ulong channelId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", "?limit=100", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this));
-
-    private async Task<IEnumerable<RestMessage>> GetMaxMessagesAroundAsyncTask(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit=100&around={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this));
-
-    private async Task<IEnumerable<RestMessage>> GetMaxMessagesBeforeAsyncTask(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit=100&before={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this));
-
-    private async Task<IEnumerable<RestMessage>> GetMaxMessagesAfterAsyncTask(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit=100&after={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonMessage.JsonMessageArraySerializerContext.WithOptions.JsonMessageArray).ConfigureAwait(false)).Select(m => new RestMessage(m, this)).Reverse();
-
-    public Task AddMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
-
-    public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
-
-    public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/{userId}", null, new(channelId), properties);
-
-    public async IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildThread> GetJoinedPrivateArchivedGuildThreadsAsync(ulong channelId, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null)
     {
-        var strEmoji = ReactionEmojiToString(emoji);
-        byte count = 0;
-        User? lastUser = null;
+        paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        foreach (var user in await GetMaxMessageReactionsAsyncTask(channelId, messageId, strEmoji, properties).ConfigureAwait(false))
-        {
-            yield return lastUser = user;
-            count++;
-        }
-        if (count == 100)
-        {
-            await foreach (var user in GetMessageReactionsAfterAsync(channelId, messageId, strEmoji, lastUser!.Id, properties))
-                yield return user;
-        }
-    }
-
-    public async IAsyncEnumerable<User> GetMessageReactionsAfterAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null)
-    {
-        var strEmoji = ReactionEmojiToString(emoji);
-        byte count;
-        do
-        {
-            count = 0;
-            foreach (var user in await GetMaxMessageReactionsAfterAsyncTask(channelId, messageId, strEmoji, userId, properties).ConfigureAwait(false))
+        return new OptimizedPaginationAsyncEnumerable<GuildThread, ulong>(
+            this,
+            paginationProperties,
+            async s =>
             {
-                yield return user;
-                userId = user.Id;
-                count++;
-            }
-        }
-        while (count == 100);
+                var result = await s.ToObjectAsync(JsonRestGuildThreadPartialResult.JsonRestGuildThreadPartialResultSerializerContext.WithOptions.JsonRestGuildThreadPartialResult).ConfigureAwait(false);
+                return (GuildThreadGenerator.CreateThreads(result, this), result.HasMore);
+            },
+            t => t.Id,
+            HttpMethod.Get,
+            $"/channels/{channelId}/threads/archived/private",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(channelId),
+            properties);
     }
-
-    private async Task<IEnumerable<User>> GetMaxMessageReactionsAsyncTask(ulong channelId, ulong messageId, string emoji, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", "?limit=100", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserArraySerializerContext.WithOptions.JsonUserArray).ConfigureAwait(false)).Select(u => new User(u, this));
-
-    private async Task<IEnumerable<User>> GetMaxMessageReactionsAfterAsyncTask(ulong channelId, ulong messageId, string emoji, ulong after, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", $"?limit=100&after={after}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserArraySerializerContext.WithOptions.JsonUserArray).ConfigureAwait(false)).Select(u => new User(u, this));
-
-    public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", null, new(channelId), properties);
-
-    public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions", null, new(channelId), properties);
-
-    private static string ReactionEmojiToString(ReactionEmojiProperties emoji) => emoji.EmojiType == ReactionEmojiType.Standard ? emoji.Name : $"{emoji.Name}:{emoji.Id}";
 }

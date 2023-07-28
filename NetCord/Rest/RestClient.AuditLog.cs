@@ -4,103 +4,43 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, GuildAuditLogPaginationProperties? guildAuditLogPaginationProperties = null, RequestProperties? properties = null)
     {
-        Func<string> query;
-        if (userId.HasValue)
+        ulong? userId;
+        AuditLogEvent? actionType;
+        if (guildAuditLogPaginationProperties is not null)
         {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}";
-            else
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}";
+            userId = guildAuditLogPaginationProperties.UserId;
+            actionType = guildAuditLogPaginationProperties.ActionType;
         }
         else
         {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}";
-            else
-                query = () => $"?limit=100";
+            userId = null;
+            actionType = null;
         }
 
-        JsonAuditLog? jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
-        RestAuditLogEntryData data = new(jsonAuditLog, this);
-        var entries = jsonAuditLog.AuditLogEntries;
+        var paginationProperties = PaginationProperties<ulong>.Prepare(guildAuditLogPaginationProperties, 0, long.MaxValue, PaginationDirection.Before, 100);
 
-        foreach (var jsonAuditLogEntry in entries)
-            yield return new(jsonAuditLogEntry, data);
-
-        if (entries.Length == 100)
-        {
-            await foreach (var auditLogEntry in GetGuildAuditLogBeforeAsync(guildId, entries[^1].Id))
-                yield return auditLogEntry;
-        }
-    }
-
-    public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogBeforeAsync(ulong guildId, ulong before, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
-    {
-        Func<string> query;
-        if (userId.HasValue)
-        {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&before={before}";
-            else
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&before={before}";
-        }
-        else
-        {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}&before={before}";
-            else
-                query = () => $"?limit=100&before={before}";
-        }
-
-        while (true)
-        {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
-            RestAuditLogEntryData data = new(jsonAuditLog, this);
-            var entries = jsonAuditLog.AuditLogEntries;
-
-            foreach (var jsonAuditLogEntry in entries)
-                yield return new(jsonAuditLogEntry, data);
-
-            if (entries.Length != 100)
-                break;
-
-            before = entries[^1].Id;
-        }
-    }
-
-    public async IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAfterAsync(ulong guildId, ulong after, ulong? userId = null, AuditLogEvent? actionType = null, RequestProperties? properties = null)
-    {
-        Func<string> query;
-        if (userId.HasValue)
-        {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&after={after}";
-            else
-                query = () => $"?limit=100&user_id={userId.GetValueOrDefault()}&after={after}";
-        }
-        else
-        {
-            if (actionType.HasValue)
-                query = () => $"?limit=100&action_type={actionType.GetValueOrDefault()}&after={after}";
-            else
-                query = () => $"?limit=100&after={after}";
-        }
-
-        while (true)
-        {
-            var jsonAuditLog = await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/audit-logs", query(), new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
-            RestAuditLogEntryData data = new(jsonAuditLog, this);
-            var entries = jsonAuditLog.AuditLogEntries;
-
-            foreach (var jsonAuditLogEntry in entries)
-                yield return new(jsonAuditLogEntry, data);
-
-            if (entries.Length != 100)
-                break;
-
-            after = entries[^1].Id;
-        }
+        return new PaginationAsyncEnumerable<RestAuditLogEntry, ulong>(
+            this,
+            paginationProperties,
+            async s =>
+            {
+                var jsonAuditLog = await s.ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+                RestAuditLogEntryData data = new(jsonAuditLog, this);
+                return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data));
+            },
+            e => e.Id,
+            HttpMethod.Get,
+            $"/guilds/{guildId}/audit-logs",
+            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), userId.HasValue
+                                                                                        ? (actionType.HasValue
+                                                                                            ? $"?user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&"
+                                                                                            : $"?user_id={userId.GetValueOrDefault()}&")
+                                                                                        : (actionType.HasValue
+                                                                                            ? $"?action_type={actionType.GetValueOrDefault()}&"
+                                                                                            : "?")),
+            new(guildId),
+            properties);
     }
 }
