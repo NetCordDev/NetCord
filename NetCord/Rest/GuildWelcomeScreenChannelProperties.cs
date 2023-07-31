@@ -27,7 +27,7 @@ public partial class GuildWelcomeScreenChannelProperties
         public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 
-    internal class EmojiPropertiesConverter : JsonConverter<EmojiProperties>
+    public class EmojiPropertiesConverter : JsonConverter<EmojiProperties>
     {
         private static readonly JsonEncodedText _emojiName = JsonEncodedText.Encode("emoji_name");
 

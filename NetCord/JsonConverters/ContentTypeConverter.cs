@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class ContentTypeConverter : JsonConverter<ContentType>
+public class ContentTypeConverter : JsonConverter<ContentType>
 {
     public override ContentType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => new(reader.GetString()!);

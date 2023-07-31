@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class NullableDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
+public class NullableDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 {
     public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

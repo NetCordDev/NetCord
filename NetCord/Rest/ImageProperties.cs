@@ -43,7 +43,7 @@ public partial struct ImageProperties
     /// </summary>
     public static ImageProperties Empty => default;
 
-    internal class ImagePropertiesConverter : JsonConverter<ImageProperties>
+    public class ImagePropertiesConverter : JsonConverter<ImageProperties>
     {
         public override ImageProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

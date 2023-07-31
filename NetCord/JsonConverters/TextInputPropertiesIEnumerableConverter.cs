@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord.JsonConverters;
 
-internal class TextInputPropertiesIEnumerableConverter : JsonConverter<IEnumerable<TextInputProperties>>
+public class TextInputPropertiesIEnumerableConverter : JsonConverter<IEnumerable<TextInputProperties>>
 {
     private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
     private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");

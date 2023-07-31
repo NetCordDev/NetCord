@@ -16,7 +16,7 @@ public partial class Shard
 
     public int ShardsCount { get; }
 
-    internal partial class JsonShardConverter : JsonConverter<Shard>
+    public partial class JsonShardConverter : JsonConverter<Shard>
     {
         public override Shard? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

@@ -6,7 +6,7 @@ namespace NetCord.JsonConverters;
 /// <summary>
 /// You must use <see cref="JsonIgnoreAttribute"/>(Condition = <see cref="JsonIgnoreCondition.WhenWritingDefault"/>)
 /// </summary>
-internal class NullConverter : JsonConverter<bool>
+public class NullConverter : JsonConverter<bool>
 {
     public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => true;
 

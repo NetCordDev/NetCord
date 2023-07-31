@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class MillisecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
+public class MillisecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 {
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64());
@@ -14,7 +14,7 @@ internal class MillisecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeO
     }
 }
 
-internal class SecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
+public class SecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset>
 {
     public override DateTimeOffset Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64());
@@ -25,7 +25,7 @@ internal class SecondsUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset
     }
 }
 
-internal class MillisecondsNullableUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
+public class MillisecondsNullableUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 {
     public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => DateTimeOffset.FromUnixTimeMilliseconds(reader.GetInt64());
@@ -39,7 +39,7 @@ internal class MillisecondsNullableUnixDateTimeOffsetConverter : JsonConverter<D
     }
 }
 
-internal class SecondsNullableUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
+public class SecondsNullableUnixDateTimeOffsetConverter : JsonConverter<DateTimeOffset?>
 {
     public override DateTimeOffset? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64());

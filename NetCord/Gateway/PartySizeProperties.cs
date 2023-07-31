@@ -16,7 +16,7 @@ public partial class PartySizeProperties
 
     public int MaxSize { get; set; }
 
-    internal class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
+    public class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
     {
         public override PartySizeProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

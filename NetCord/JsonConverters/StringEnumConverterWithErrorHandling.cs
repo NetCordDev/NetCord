@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class StringEnumConverterWithErrorHandling<T> : JsonConverter<T> where T : struct, Enum
+public class StringEnumConverterWithErrorHandling<T> : JsonConverter<T> where T : struct, Enum
 {
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

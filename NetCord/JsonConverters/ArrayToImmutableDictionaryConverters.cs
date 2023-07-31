@@ -7,7 +7,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.JsonConverters;
 
-internal partial class JsonRoleArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonRole>>
+public partial class JsonRoleArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonRole>>
 {
     public override ImmutableDictionary<ulong, JsonRole>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -26,7 +26,7 @@ internal partial class JsonRoleArrayToImmutableDictionaryConverter : JsonConvert
     }
 }
 
-internal partial class JsonChannelArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonChannel>>
+public partial class JsonChannelArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonChannel>>
 {
     public override ImmutableDictionary<ulong, JsonChannel>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -45,7 +45,7 @@ internal partial class JsonChannelArrayToImmutableDictionaryConverter : JsonConv
     }
 }
 
-internal partial class JsonStageInstanceArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonStageInstance>>
+public partial class JsonStageInstanceArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonStageInstance>>
 {
     public override ImmutableDictionary<ulong, JsonStageInstance>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -70,7 +70,7 @@ internal partial class JsonStageInstanceArrayToImmutableDictionaryConverter : Js
     }
 }
 
-internal partial class JsonGuildScheduledEventArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonGuildScheduledEvent>>
+public partial class JsonGuildScheduledEventArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonGuildScheduledEvent>>
 {
     public override ImmutableDictionary<ulong, JsonGuildScheduledEvent>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -89,7 +89,7 @@ internal partial class JsonGuildScheduledEventArrayToImmutableDictionaryConverte
     }
 }
 
-internal partial class JsonVoiceStateArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonVoiceState>>
+public partial class JsonVoiceStateArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonVoiceState>>
 {
     public override ImmutableDictionary<ulong, JsonVoiceState>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -114,7 +114,7 @@ internal partial class JsonVoiceStateArrayToImmutableDictionaryConverter : JsonC
     }
 }
 
-internal partial class JsonGuildUserArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonGuildUser>>
+public partial class JsonGuildUserArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonGuildUser>>
 {
     public override ImmutableDictionary<ulong, JsonGuildUser>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -133,7 +133,7 @@ internal partial class JsonGuildUserArrayToImmutableDictionaryConverter : JsonCo
     }
 }
 
-internal partial class JsonPresenceArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonPresence>>
+public partial class JsonPresenceArrayToImmutableDictionaryConverter : JsonConverter<ImmutableDictionary<ulong, JsonPresence>>
 {
     public override ImmutableDictionary<ulong, JsonPresence>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

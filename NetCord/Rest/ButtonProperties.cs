@@ -74,7 +74,7 @@ public abstract partial class ButtonProperties
         Emoji = emoji;
     }
 
-    internal class MessageButtonConverter : JsonConverter<ButtonProperties>
+    public class MessageButtonConverter : JsonConverter<ButtonProperties>
     {
         public override ButtonProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

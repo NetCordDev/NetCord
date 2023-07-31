@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord.JsonConverters;
 
-internal class AttachmentPropertiesIEnumerableConverter : JsonConverter<IEnumerable<AttachmentProperties>>
+public class AttachmentPropertiesIEnumerableConverter : JsonConverter<IEnumerable<AttachmentProperties>>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
     private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");

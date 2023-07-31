@@ -44,7 +44,7 @@ public partial class AllowedMentionsProperties
         }
     }
 
-    internal partial class AllowedMentionsConverter : JsonConverter<AllowedMentionsProperties>
+    public partial class AllowedMentionsConverter : JsonConverter<AllowedMentionsProperties>
     {
         private static readonly JsonEncodedText _roles = JsonEncodedText.Encode("roles");
         private static readonly JsonEncodedText _users = JsonEncodedText.Encode("users");

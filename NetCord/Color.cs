@@ -34,7 +34,7 @@ public readonly struct Color : IEquatable<Color>
 
     public override int GetHashCode() => RawValue.GetHashCode();
 
-    internal class ColorConverter : JsonConverter<Color>
+    public class ColorConverter : JsonConverter<Color>
     {
         public override Color Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
             => new(reader.GetInt32());

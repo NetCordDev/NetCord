@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class IntegrationTypeConverter : JsonConverter<IntegrationType>
+public class IntegrationTypeConverter : JsonConverter<IntegrationType>
 {
     public override IntegrationType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

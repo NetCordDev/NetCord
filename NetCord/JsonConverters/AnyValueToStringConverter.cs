@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class AnyValueToStringConverter : JsonConverter<string>
+public class AnyValueToStringConverter : JsonConverter<string>
 {
     private static readonly UTF8Encoding _encoding = new(false, true);
 

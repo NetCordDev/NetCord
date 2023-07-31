@@ -21,7 +21,7 @@ public abstract partial class ComponentProperties
         ComponentType = type;
     }
 
-    internal class ComponentConverter : JsonConverter<ComponentProperties>
+    public class ComponentConverter : JsonConverter<ComponentProperties>
     {
         private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
         private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");

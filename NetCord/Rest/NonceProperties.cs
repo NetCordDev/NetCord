@@ -23,7 +23,7 @@ public partial class NonceProperties
 
     public static implicit operator NonceProperties(string s) => new(s);
 
-    internal class NoncePropertiesConverter : JsonConverter<NonceProperties>
+    public class NoncePropertiesConverter : JsonConverter<NonceProperties>
     {
         public override NonceProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class UInt64Converter : JsonConverter<ulong>
+public class UInt64Converter : JsonConverter<ulong>
 {
     public override ulong Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

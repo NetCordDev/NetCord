@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class PermissionsConverter : JsonConverter<Permissions>
+public class PermissionsConverter : JsonConverter<Permissions>
 {
     public override Permissions Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

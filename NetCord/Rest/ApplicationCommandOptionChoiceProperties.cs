@@ -49,7 +49,7 @@ public partial class ApplicationCommandOptionChoiceProperties
         ValueType = ApplicationCommandOptionChoiceValueType.Numeric;
     }
 
-    internal partial class ApplicationCommandOptionChoicePropertiesConverter : JsonConverter<ApplicationCommandOptionChoiceProperties>
+    public partial class ApplicationCommandOptionChoicePropertiesConverter : JsonConverter<ApplicationCommandOptionChoiceProperties>
     {
         private static readonly JsonEncodedText _name = JsonEncodedText.Encode("name");
         private static readonly JsonEncodedText _nameLocalizations = JsonEncodedText.Encode("name_localizations");

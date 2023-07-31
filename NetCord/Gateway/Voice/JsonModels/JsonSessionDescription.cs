@@ -9,7 +9,7 @@ public partial class JsonSessionDescription
     [JsonPropertyName("secret_key")]
     public byte[] SecretKey { get; set; }
 
-    internal class ByteArrayOfLength32Converter : JsonConverter<byte[]>
+    public class ByteArrayOfLength32Converter : JsonConverter<byte[]>
     {
         public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

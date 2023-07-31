@@ -134,7 +134,7 @@ public abstract partial class ApplicationCommandProperties
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 
-    internal class ApplicationCommandPropertiesConverter : JsonConverter<ApplicationCommandProperties>
+    public class ApplicationCommandPropertiesConverter : JsonConverter<ApplicationCommandProperties>
     {
         public override ApplicationCommandProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

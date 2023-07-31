@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-internal class CultureInfoConverter : JsonConverter<CultureInfo>
+public class CultureInfoConverter : JsonConverter<CultureInfo>
 {
     public override CultureInfo Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => new(reader.GetString()!);
