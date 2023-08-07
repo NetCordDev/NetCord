@@ -13,6 +13,7 @@ public class IGuildChannelTypeReader<TContext> : ChannelTypeReader<TContext> whe
             yield return ChannelType.StageGuildChannel;
             yield return ChannelType.DirectoryGuildChannel;
             yield return ChannelType.ForumGuildChannel;
+            yield return ChannelType.MediaForumGuildChannel;
         }
     }
 }

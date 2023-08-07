@@ -5,7 +5,13 @@ public class INamedChannelTypeReader<TContext> : ChannelTypeReader<TContext> whe
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
-        if (guild is not null)
+        if (guild is null)
+        {
+            var channel = context.Message.Channel;
+            if (channel is not null)
+                return Task.FromResult<object?>(GetChannel<INamedChannel>(channel, input.Span));
+        }
+        else
             return Task.FromResult<object?>(GetGuildChannel<INamedChannel>(guild, input.Span));
 
         throw new EntityNotFoundException("The channel was not found.");

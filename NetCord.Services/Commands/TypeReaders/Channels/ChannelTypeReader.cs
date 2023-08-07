@@ -21,9 +21,21 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
         throw new EntityNotFoundException("The channel was not found.");
     }
 
-    protected T GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input) where T : TextChannel
+    protected T GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
     {
-        if (MentionUtils.TryParseChannel(input, out var id) || ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+        if (MentionUtils.TryParseChannel(input, out var id))
+        {
+            if (id == channel.Id && channel is T t)
+                return t;
+        }
+
+        if (channel is INamedChannel namedChannel)
+        {
+            if (input.SequenceEqual(namedChannel.Name) && channel is T t)
+                return t;
+        }
+
+        if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
         {
             if (id == channel.Id && channel is T t)
                 return t;

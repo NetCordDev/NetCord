@@ -37,6 +37,7 @@ public class ApplicationCommandServiceConfiguration<TContext> where TContext : I
         { typeof(AnnouncementGuildChannel), new TypeReaders.AnnouncementGuildChannelTypeReader<TContext>() },
         { typeof(DirectoryGuildChannel), new TypeReaders.DirectoryGuildChannelTypeReader<TContext>() },
         { typeof(ForumGuildChannel), new TypeReaders.ForumGuildChannelTypeReader<TContext>() },
+        { typeof(MediaForumGuildChannel), new TypeReaders.MediaForumGuildChannelTypeReader<TContext>() },
         { typeof(TextGuildChannel), new TypeReaders.TextGuildChannelTypeReader<TContext>() },
 
         { typeof(AnnouncementGuildThread), new TypeReaders.AnnouncementGuildThreadTypeReader<TContext>() },

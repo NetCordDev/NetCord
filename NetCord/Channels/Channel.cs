@@ -36,6 +36,7 @@ public class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChanne
             ChannelType.StageGuildChannel => new StageGuildChannel(jsonChannel, client),
             ChannelType.DirectoryGuildChannel => new DirectoryGuildChannel(jsonChannel, client),
             ChannelType.ForumGuildChannel => new ForumGuildChannel(jsonChannel, client),
+            ChannelType.MediaForumGuildChannel => new MediaForumGuildChannel(jsonChannel, client),
             _ => new Channel(jsonChannel, client),
         };
     }

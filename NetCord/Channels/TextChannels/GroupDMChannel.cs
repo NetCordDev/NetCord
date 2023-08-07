@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GroupDMChannel : DMChannel
+public class GroupDMChannel : DMChannel, INamedChannel
 {
     public string Name => _jsonModel.Name!;
     public string? IconHash => _jsonModel.IconHash;

@@ -14,4 +14,5 @@ public enum ChannelType
     StageGuildChannel = 13,
     DirectoryGuildChannel = 14,
     ForumGuildChannel = 15,
+    MediaForumGuildChannel = 16,
 }
