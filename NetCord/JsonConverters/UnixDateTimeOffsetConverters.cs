@@ -32,10 +32,7 @@ public class MillisecondsNullableUnixDateTimeOffsetConverter : JsonConverter<Dat
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
     {
-        if (value.HasValue)
-            writer.WriteNumberValue(value.GetValueOrDefault().ToUnixTimeMilliseconds());
-        else
-            writer.WriteNullValue();
+        writer.WriteNumberValue(value.GetValueOrDefault().ToUnixTimeMilliseconds());
     }
 }
 
@@ -46,9 +43,6 @@ public class SecondsNullableUnixDateTimeOffsetConverter : JsonConverter<DateTime
 
     public override void Write(Utf8JsonWriter writer, DateTimeOffset? value, JsonSerializerOptions options)
     {
-        if (value.HasValue)
-            writer.WriteNumberValue(value.GetValueOrDefault().ToUnixTimeSeconds());
-        else
-            writer.WriteNullValue();
+        writer.WriteNumberValue(value.GetValueOrDefault().ToUnixTimeSeconds());
     }
 }

@@ -4,14 +4,14 @@ namespace NetCord.Gateway;
 
 public partial class PresenceProperties
 {
-    public PresenceProperties(UserStatusType statusType, bool afk)
+    public PresenceProperties(UserStatusType statusType)
     {
         StatusType = statusType;
-        Afk = afk;
     }
 
+    [JsonConverter(typeof(JsonConverters.MillisecondsNullableUnixDateTimeOffsetConverter))]
     [JsonPropertyName("since")]
-    public int? Since { get; set; }
+    public DateTimeOffset? Since { get; set; }
 
     [JsonPropertyName("activities")]
     public IEnumerable<UserActivityProperties>? Activities { get; set; }
