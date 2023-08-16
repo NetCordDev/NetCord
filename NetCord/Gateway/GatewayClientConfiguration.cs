@@ -1,4 +1,5 @@
-﻿using NetCord.Gateway.LatencyTimers;
+﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
 
@@ -9,6 +10,7 @@ public class GatewayClientConfiguration
     public IWebSocket? WebSocket { get; init; }
     public IReconnectTimer? ReconnectTimer { get; init; }
     public ILatencyTimer? LatencyTimer { get; init; }
+    public IGatewayCompression? Compression { get; init; }
     public string? Hostname { get; init; }
     public ConnectionPropertiesProperties? ConnectionProperties { get; init; }
     public ApiVersion Version { get; init; } = ApiVersion.V10;

@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.JsonModels;
@@ -17,6 +19,7 @@ public partial class GatewayClient : WebSocketClient
     private readonly Uri _url;
     private readonly object? _DMsLock;
     private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
+    private readonly IGatewayCompression _compression;
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -123,7 +126,8 @@ public partial class GatewayClient : WebSocketClient
         _botToken = token.RawToken;
 
         _configuration = configuration;
-        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
+        var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
+        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
         Rest = new(token, configuration.RestClientConfiguration);
 
         if (configuration.CacheDMChannels)
@@ -202,6 +206,8 @@ public partial class GatewayClient : WebSocketClient
         _latencyTimer.Start();
         return SendPayloadAsync(serializedPayload);
     }
+
+    private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload), JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)
@@ -744,6 +750,7 @@ public partial class GatewayClient : WebSocketClient
     public override void Dispose()
     {
         base.Dispose();
+        _compression.Dispose();
         Rest.Dispose();
         Cache.Dispose();
         if (_configuration.CacheDMChannels)
