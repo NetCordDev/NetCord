@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -135,6 +136,11 @@ public partial class GatewayClient : WebSocketClient
             _DMsLock = new();
             _DMSemaphores = new();
         }
+    }
+
+    private protected override void OnConnected()
+    {
+        _compression.Initialize();
     }
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)

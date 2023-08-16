@@ -6,6 +6,10 @@ public class UncompressedGatewayCompression : IGatewayCompression
 
     public ReadOnlySpan<byte> Decompress(ReadOnlyMemory<byte> payload) => payload.Span;
 
+    public void Initialize()
+    {
+    }
+
     public void Dispose()
     {
     }

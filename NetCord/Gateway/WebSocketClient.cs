@@ -25,6 +25,7 @@ public abstract class WebSocketClient : IDisposable
         {
             _disconnectedToken = (_disconnectedTokenSource = new()).Token;
 
+            OnConnected();
             InvokeLog(LogMessage.Info("Connected"));
             await InvokeEventAsync(Connect).ConfigureAwait(false);
         };
@@ -121,6 +122,10 @@ public abstract class WebSocketClient : IDisposable
             closedTokenSource.Dispose();
         }
         return _webSocket.CloseAsync(status);
+    }
+
+    private protected virtual void OnConnected()
+    {
     }
 
     private protected async Task CloseAndReconnectAsync(System.Net.WebSockets.WebSocketCloseStatus status)

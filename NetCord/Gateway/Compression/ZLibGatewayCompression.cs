@@ -8,12 +8,12 @@ public class ZLibGatewayCompression : IGatewayCompression
     private const int DefaultBufferSize = 4096;
 
     private readonly ReadOnlyMemoryStream _memoryStream;
-    private readonly ZLibStream _zLibStream;
     private readonly RentedArrayBufferWriter<byte> _writer;
+    private ZLibStream? _zLibStream;
 
     public ZLibGatewayCompression()
     {
-        _zLibStream = new(_memoryStream = new(), CompressionMode.Decompress, true);
+        _memoryStream = new();
         _writer = new(2 * DefaultBufferSize);
     }
 
@@ -23,8 +23,8 @@ public class ZLibGatewayCompression : IGatewayCompression
     {
         _memoryStream.SetMemory(payload);
 
-        var zLibStream = _zLibStream;
         var writer = _writer;
+        var zLibStream = _zLibStream!;
         int bytesRead;
         while ((bytesRead = zLibStream.Read(writer.GetSpan(DefaultBufferSize))) != 0)
             writer.Advance(bytesRead);
@@ -34,10 +34,16 @@ public class ZLibGatewayCompression : IGatewayCompression
         return result;
     }
 
+    public void Initialize()
+    {
+        _zLibStream?.Dispose();
+        _zLibStream = new(_memoryStream, CompressionMode.Decompress, true);
+    }
+
     public void Dispose()
     {
         _memoryStream.Dispose();
-        _zLibStream.Dispose();
+        _zLibStream?.Dispose();
         _writer.Dispose();
     }
 
