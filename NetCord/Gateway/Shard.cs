@@ -4,38 +4,36 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(JsonShardConverter))]
-public partial class Shard
+public readonly partial struct Shard
 {
-    public Shard(int shardId, int shardsCount)
+    public Shard(int id, int count)
     {
-        ShardId = shardId;
-        ShardsCount = shardsCount;
+        Id = id;
+        Count = count;
     }
 
-    public int ShardId { get; }
+    public int Id { get; }
 
-    public int ShardsCount { get; }
+    public int Count { get; }
 
     public partial class JsonShardConverter : JsonConverter<Shard>
     {
-        public override Shard? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override Shard Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var a = reader.ToObject(Int32ArraySerializerContext.WithOptions.Int32Array);
-            return new(a[0], a[1]);
+            reader.Read();
+            var id = reader.GetInt32();
+            reader.Read();
+            var count = reader.GetInt32();
+            reader.Read();
+            return new(id, count);
         }
 
         public override void Write(Utf8JsonWriter writer, Shard value, JsonSerializerOptions options)
         {
             writer.WriteStartArray();
-            writer.WriteNumberValue(value.ShardId);
-            writer.WriteNumberValue(value.ShardsCount);
+            writer.WriteNumberValue(value.Id);
+            writer.WriteNumberValue(value.Count);
             writer.WriteEndArray();
-        }
-
-        [JsonSerializable(typeof(int[]))]
-        internal partial class Int32ArraySerializerContext : JsonSerializerContext
-        {
-            public static Int32ArraySerializerContext WithOptions { get; } = new(Serialization.Options);
         }
     }
 }

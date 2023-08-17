@@ -20,6 +20,7 @@ public partial class GatewayClient : WebSocketClient
     private readonly object? _DMsLock;
     private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
     private readonly IGatewayCompression _compression;
+    private readonly bool _disposeRest;
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -103,7 +104,7 @@ public partial class GatewayClient : WebSocketClient
     /// <summary>
     /// The shard of the <see cref="GatewayClient"/>.
     /// </summary>
-    public Shard? Shard { get; private set; }
+    public Shard? Shard => _configuration.Shard;
 
     /// <summary>
     /// The application id of the <see cref="GatewayClient"/>.
@@ -121,14 +122,19 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     public Rest.RestClient Rest { get; }
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
+    {
+        _disposeRest = true;
+    }
+
+    internal GatewayClient(Token token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
         _botToken = token.RawToken;
 
         _configuration = configuration;
         var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
         _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
-        Rest = new(token, configuration.RestClientConfiguration);
+        Rest = rest;
 
         if (configuration.CacheDMChannels)
         {
@@ -323,7 +329,6 @@ public partial class GatewayClient : WebSocketClient
                         Cache = cache;
 
                         SessionId = args.SessionId;
-                        Shard = args.Shard;
                         Interlocked.Exchange(ref _applicationId, args.ApplicationId);
                         ApplicationFlags = args.ApplicationFlags;
 
@@ -756,7 +761,8 @@ public partial class GatewayClient : WebSocketClient
     {
         base.Dispose();
         _compression.Dispose();
-        Rest.Dispose();
+        if (_disposeRest)
+            Rest.Dispose();
         Cache.Dispose();
         if (_configuration.CacheDMChannels)
         {
