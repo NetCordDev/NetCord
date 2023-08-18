@@ -1,0 +1,131 @@
+@font-face {
+    font-family: Cascadia Mono;
+    src: local(Cascadia Mono Regular), url(cascadia-mono.woff2) format(woff2);
+}
+
+@font-face {
+    font-family: Franklin Gothic Heavy;
+    src: local(Franklin Gothic Heavy), url(franklin-gothic-heavy.woff2) format(woff2);
+}
+
+:root {
+    --bs-font-monospace: Cascadia Mono;
+    --blurple: #5865F2;
+    --dark-blurple: #4752C4;
+}
+
+article img {
+    margin: 10px 0;
+    border-radius: 10px;
+    box-shadow: 3px 3px 6px #111;
+    background-color: #111;
+    display: grid;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+article, .main {
+    animation: fadeInUp 0.5s ease both;
+}
+
+.title {
+    font-family: Franklin Gothic Heavy;
+    font-size: 12em;
+    margin-bottom: 0;
+}
+
+.subtitle {
+    font-size: 1.7em;
+    margin-bottom: 70px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    margin: 0 6vw;
+}
+
+.main {
+    color: var(--bs-emphasis-color);
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    height: 80vh;
+    text-align: center;
+}
+
+.bg-body {
+    z-index: 1;
+}
+
+@media (max-height: 600px) {
+    .main {
+        height: auto;
+    }
+}
+
+@media (max-width: 767px) {
+    .title {
+        font-size: 23vw;
+    }
+
+    .subtitle {
+        font-size: 3.5vw;
+    }
+
+    .buttons {
+        flex-direction: column;
+    }
+}
+
+.bg-body {
+    --bs-bg-opacity: 0;
+    backdrop-filter: blur(10px) brightness(80%);
+}
+
+.border-bottom {
+    border-bottom: none;
+}
+
+.button {
+    font-size: 1.5em;
+    border-radius: 7px;
+    transition: all 0.2s;
+    text-decoration: none;
+    margin: 0 7px 10px;
+    padding: 10px 32px;
+    border: var(--blurple) solid 2px;
+}
+
+.primary-button {
+    color: var(--bs-white);
+    background-color: var(--blurple);
+}
+
+    .primary-button:hover {
+        background-color: var(--dark-blurple);
+        border-color: var(--dark-blurple);
+    }
+
+.secondary-button {
+    color: var(--bs-emphasis-color);
+}
+
+    .secondary-button:hover {
+        background-color: var(--blurple);
+        color: var(--bs-white);
+    }
+
+* {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}

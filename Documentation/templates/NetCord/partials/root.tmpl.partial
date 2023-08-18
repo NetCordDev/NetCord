@@ -1,0 +1,9 @@
+<div class="main">
+  <h1 class="title">NetCord</h1>
+  <p class="subtitle">A lightweight and asynchronous Discord API wrapper.</p>
+  <section class="buttons">
+    <a href="/guides/getting-started/installation.html" class="button primary-button">Get Started</a>
+    <a href="/guides/getting-started/installation.html" class="button secondary-button">Guides</a>
+    <a href="/docs/index.html" class="button secondary-button">Docs</a>
+  </section>
+</div>

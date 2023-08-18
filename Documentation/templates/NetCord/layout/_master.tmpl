@@ -57,7 +57,7 @@
   </script>
   {{/_googleAnalyticsTagId}}
 
-  <body class="tex2jax_ignore" data-layout="{{_layout}}{{layout}}" data-yaml-mime="{{yamlmime}}">
+  <body class="tex2jax_ignore{{#_root}} root{{/_root}}" data-layout="{{_layout}}{{layout}}" data-yaml-mime="{{yamlmime}}">
     <header class="bg-body border-bottom">
       <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
         <div class="container-xxl flex-nowrap">
@@ -82,7 +82,12 @@
       </nav>
     </header>
 
+    {{#_root}}
+    {{>partials/root}}
+    {{/_root}}
+    {{^_root}}
     <main class="container-xxl">
+      {{^_disableToc}}
       <div class="toc-offcanvas">
         <div class="offcanvas-md offcanvas-start" tabindex="-1" id="tocOffcanvas" aria-labelledby="tocOffcanvasLabel">
           <div class="offcanvas-header">
@@ -94,6 +99,7 @@
           </div>
         </div>
       </div>
+      {{/_disableToc}}
 
       <div class="content">
         <div class="actionbar">
@@ -103,7 +109,9 @@
             <i class="bi bi-list"></i>
           </button>
 
+          {{^_disableBreadcrumb}}
           <nav id="breadcrumb"></nav>
+          {{/_disableBreadcrumb}}
         </div>
 
         <article data-uid="{{uid}}">
@@ -136,6 +144,7 @@
     <div class="container-xxl search-results" id="search-results"></div>
     {{/_enableSearch}}
 
+    {{^_disableFooter}}
     <footer class="border-top">
       <div class="container-xxl">
         <div class="flex-fill">
@@ -143,6 +152,8 @@
         </div>
       </div>
     </footer>
+    {{/_disableFooter}}
+    {{/_root}}
   </body>
   {{/redirect_url}}
 </html>

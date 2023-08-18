@@ -10,9 +10,7 @@
           ]
         }
       ],
-      "dest": "docs",
-      "disableGitFeatures": false,
-      "disableDefaultFilter": false
+      "dest": "docs"
     }
   ],
   "build": {
@@ -61,16 +59,20 @@
       "templates/NetCord"
     ],
     "markdownEngineName": "markdig",
-    "noLangKeyword": false,
-    "keepFileLink": false,
-    "cleanupCacheHistory": false,
-    "disableGitFeatures": false,
     "globalMetadata": {
       "_appDescription": "NetCord – a lightweight and asynchronous Discord API wrapper",
       "_appTitle": "NetCord Documentation",
-      "_appFooter": "<span><strong>NetCord</strong></span>",
       "_enableSearch": true,
-      "_enableNewTab": true
+      "_disableFooter": true,
+      "_noindex": true
+    },
+    "fileMetadata": {
+      "_noindex": {
+        "docs/**": false
+      },
+      "_enableSearch": {
+        "!docs/**": false
+      }
     },
     "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}"
   }
