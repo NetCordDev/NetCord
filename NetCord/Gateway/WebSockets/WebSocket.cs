@@ -1,10 +1,11 @@
-﻿using System.Buffers;
-using System.Net.WebSockets;
+﻿using System.Net.WebSockets;
 
 namespace NetCord.Gateway.WebSockets;
 
 public class WebSocket : IWebSocket
 {
+    private const int DefaultBufferSize = 4096;
+
     private ClientWebSocket? _webSocket;
     private bool _closed;
     private Task? _readAsync;
@@ -51,10 +52,10 @@ public class WebSocket : IWebSocket
         var webSocket = _webSocket!;
         try
         {
-            using ByteBufferWriter writer = new(4096);
+            using RentedArrayBufferWriter<byte> writer = new(DefaultBufferSize);
             while (true)
             {
-                var result = await webSocket.ReceiveAsync(writer.GetMemory(4096), default).ConfigureAwait(false);
+                var result = await webSocket.ReceiveAsync(writer.GetMemory(DefaultBufferSize), default).ConfigureAwait(false);
                 if (result.EndOfMessage)
                 {
                     if (result.MessageType != WebSocketMessageType.Close)
@@ -102,67 +103,5 @@ public class WebSocket : IWebSocket
             throw new ObjectDisposedException(nameof(WebSocket));
         else if (!IsConnected)
             throw new WebSocketException("WebSocket was not connected.");
-    }
-
-    private struct ByteBufferWriter : IBufferWriter<byte>, IDisposable
-    {
-        private int _index;
-        private byte[] _buffer;
-
-        public ByteBufferWriter()
-        {
-            _buffer = Array.Empty<byte>();
-        }
-
-        public ByteBufferWriter(int minimumInitialCapacity)
-        {
-            _buffer = ArrayPool<byte>.Shared.Rent(minimumInitialCapacity);
-        }
-
-        public readonly ReadOnlyMemory<byte> WrittenMemory => _buffer.AsMemory(0, _index);
-
-        public void Advance(int count)
-        {
-            _index += count;
-        }
-
-        public void Clear()
-        {
-            _index = 0;
-        }
-
-        public Memory<byte> GetMemory(int sizeHint = 1)
-        {
-            ResizeBuffer(sizeHint);
-            return _buffer.AsMemory(_index);
-        }
-
-        public Span<byte> GetSpan(int sizeHint = 1)
-        {
-            ResizeBuffer(sizeHint);
-            return _buffer.AsSpan(_index);
-        }
-
-#pragma warning disable IDE0251 // Make member 'readonly'
-        public void Dispose()
-#pragma warning restore IDE0251 // Make member 'readonly'
-        {
-            ArrayPool<byte>.Shared.Return(_buffer);
-        }
-
-        private void ResizeBuffer(int sizeHint)
-        {
-            var buffer = _buffer;
-            var index = _index;
-            var sum = index + sizeHint;
-            if (buffer.Length < sum)
-            {
-                var pool = ArrayPool<byte>.Shared;
-                var newBuffer = pool.Rent(sum);
-                Array.Copy(buffer, newBuffer, index);
-                pool.Return(buffer);
-                _buffer = newBuffer;
-            }
-        }
     }
 }

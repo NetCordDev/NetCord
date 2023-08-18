@@ -14,7 +14,7 @@
     <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.209</VersionSuffix>
+    <VersionSuffix>alpha.213</VersionSuffix>
     <Description>A lightweight and asynchronous Discord API wrapper.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -32,20 +32,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj"
-                      ReferenceOutputAssembly="false"
-                      OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <Target Name="GenerateRestClientConstants" BeforeTargets="BeforeCompile">
-    <WriteLinesToFile File="$(IntermediateOutputPath)RestClient.Constants.cs" Lines="// &lt;auto-generated/&gt;
-namespace NetCord.Rest%3B
-
-public partial class RestClient
-{
-    private const string UserAgentHeader = &quot;DiscordBot ($(PackageProjectUrl), $(Version))&quot;%3B
-}
-" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <WriteLinesToFile File="$(IntermediateOutputPath)RestClient.Constants.cs" Lines="// &lt;auto-generated/&gt;&#xD;&#xA;namespace NetCord.Rest%3B&#xD;&#xA;&#xD;&#xA;public partial class RestClient&#xD;&#xA;{&#xD;&#xA;    private const string UserAgentHeader = &quot;DiscordBot ($(PackageProjectUrl), $(Version))&quot;%3B&#xD;&#xA;}&#xD;&#xA;" Overwrite="true" WriteOnlyWhenDifferent="true" />
     <ItemGroup>
       <Compile Include="$(IntermediateOutputPath)RestClient.Constants.cs" />
     </ItemGroup>

@@ -25,6 +25,7 @@ public abstract class WebSocketClient : IDisposable
         {
             _disconnectedToken = (_disconnectedTokenSource = new()).Token;
 
+            OnConnected();
             InvokeLog(LogMessage.Info("Connected"));
             await InvokeEventAsync(Connect).ConfigureAwait(false);
         };
@@ -61,7 +62,8 @@ public abstract class WebSocketClient : IDisposable
         {
             try
             {
-                await ProcessPayloadAsync(JsonSerializer.Deserialize(data.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!).ConfigureAwait(false);
+                var payload = CreatePayload(data);
+                await ProcessPayloadAsync(payload).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -120,6 +122,10 @@ public abstract class WebSocketClient : IDisposable
             closedTokenSource.Dispose();
         }
         return _webSocket.CloseAsync(status);
+    }
+
+    private protected virtual void OnConnected()
+    {
     }
 
     private protected async Task CloseAndReconnectAsync(System.Net.WebSockets.WebSocketCloseStatus status)
@@ -184,6 +190,8 @@ public abstract class WebSocketClient : IDisposable
     }
 
     private protected abstract ValueTask HeartbeatAsync();
+
+    private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
 
     private protected abstract Task ProcessPayloadAsync(JsonPayload payload);
 

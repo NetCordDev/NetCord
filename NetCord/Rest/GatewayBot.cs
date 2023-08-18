@@ -13,7 +13,7 @@ public class GatewayBot : IJsonModel<JsonModels.JsonGatewayBot>
 
     public string Url => _jsonModel.Url;
 
-    public int Shards => _jsonModel.Shards;
+    public int ShardCount => _jsonModel.ShardCount;
 
     public GatewaySessionStartLimit SessionStartLimit { get; }
 }

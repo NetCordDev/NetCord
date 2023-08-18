@@ -8,7 +8,7 @@ public partial class JsonGatewayBot
     public string Url { get; set; }
 
     [JsonPropertyName("shards")]
-    public int Shards { get; set; }
+    public int ShardCount { get; set; }
 
     [JsonPropertyName("session_start_limit")]
     public JsonGatewaySessionStartLimit SessionStartLimit { get; set; }

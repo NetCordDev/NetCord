@@ -5,13 +5,13 @@ namespace NetCord.JsonModels;
 public partial class JsonEmbedField
 {
     [JsonPropertyName("name")]
-    public string Title { get; set; }
+    public string Name { get; set; }
 
     [JsonPropertyName("value")]
-    public string Description { get; set; }
+    public string Value { get; set; }
 
     [JsonPropertyName("inline")]
-    public bool? Inline { get; set; }
+    public bool Inline { get; set; }
 
     [JsonSerializable(typeof(JsonEmbedField))]
     public partial class JsonEmbedFieldSerializerContext : JsonSerializerContext

@@ -10,7 +10,7 @@ public class EmbedField : IJsonModel<JsonModels.JsonEmbedField>
         _jsonModel = jsonModel;
     }
 
-    public string Title => _jsonModel.Title;
-    public string Description => _jsonModel.Description;
-    public bool? Inline => _jsonModel.Inline;
+    public string Name => _jsonModel.Name;
+    public string Value => _jsonModel.Value;
+    public bool Inline => _jsonModel.Inline;
 }

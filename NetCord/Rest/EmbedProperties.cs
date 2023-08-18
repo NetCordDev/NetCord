@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -199,43 +200,19 @@ public partial class EmbedAuthorProperties
 
 public partial class EmbedFieldProperties
 {
-    private const string Default = "\u00AD";
-
     /// <summary>
-    /// Title of the field.
+    /// Name of the field.
     /// </summary>
+    [JsonConverter(typeof(EmptyWhenNullStringConverter))]
     [JsonPropertyName("name")]
-    public string Title
-    {
-        get => _title;
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                _title = Default;
-            else
-                _title = value;
-        }
-    }
-
-    private string _title = Default;
+    public string? Name { get; set; }
 
     /// <summary>
-    /// Description of the field.
+    /// Value of the field.
     /// </summary>
+    [JsonConverter(typeof(EmptyWhenNullStringConverter))]
     [JsonPropertyName("value")]
-    public string Description
-    {
-        get => _description;
-        set
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                _description = Default;
-            else
-                _description = value;
-        }
-    }
-
-    private string _description = Default;
+    public string? Value { get; set; }
 
     /// <summary>
     /// Whether or not the field should display inline.
@@ -243,6 +220,18 @@ public partial class EmbedFieldProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("inline")]
     public bool Inline { get; set; }
+
+    public partial class EmptyWhenNullStringConverter : JsonConverter<string>
+    {
+        public override bool HandleNull => true;
+
+        public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => reader.GetString();
+
+        public override void Write(Utf8JsonWriter writer, string? value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value ?? string.Empty);
+        }
+    }
 
     [JsonSerializable(typeof(EmbedFieldProperties))]
     public partial class EmbedFieldPropertiesSerializerContext : JsonSerializerContext

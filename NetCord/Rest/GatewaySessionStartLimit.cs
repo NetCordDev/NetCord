@@ -14,7 +14,7 @@ public class GatewaySessionStartLimit : IJsonModel<JsonModels.JsonGatewaySession
 
     public int Remaining => _jsonModel.Remaining;
 
-    public int ResetAfter => _jsonModel.ResetAfter;
+    public TimeSpan ResetAfter => new(_jsonModel.ResetAfter * TimeSpan.TicksPerMillisecond);
 
     public int MaxConcurrency => _jsonModel.MaxConcurrency;
 }

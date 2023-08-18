@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.JsonModels.EventArgs;
 using NetCord.JsonModels;
@@ -17,6 +19,8 @@ public partial class GatewayClient : WebSocketClient
     private readonly Uri _url;
     private readonly object? _DMsLock;
     private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
+    private readonly IGatewayCompression _compression;
+    private readonly bool _disposeRest;
 
     public event Func<ReadyEventArgs, ValueTask>? Ready;
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
@@ -100,7 +104,7 @@ public partial class GatewayClient : WebSocketClient
     /// <summary>
     /// The shard of the <see cref="GatewayClient"/>.
     /// </summary>
-    public Shard? Shard { get; private set; }
+    public Shard? Shard => _configuration.Shard;
 
     /// <summary>
     /// The application id of the <see cref="GatewayClient"/>.
@@ -118,19 +122,30 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     public Rest.RestClient Rest { get; }
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
+    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
+    {
+        _disposeRest = true;
+    }
+
+    internal GatewayClient(Token token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
         _botToken = token.RawToken;
 
         _configuration = configuration;
-        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json", UriKind.Absolute);
-        Rest = new(token, configuration.RestClientConfiguration);
+        var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
+        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
+        Rest = rest;
 
         if (configuration.CacheDMChannels)
         {
             _DMsLock = new();
             _DMSemaphores = new();
         }
+    }
+
+    private protected override void OnConnected()
+    {
+        _compression.Initialize();
     }
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
@@ -202,6 +217,8 @@ public partial class GatewayClient : WebSocketClient
         _latencyTimer.Start();
         return SendPayloadAsync(serializedPayload);
     }
+
+    private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload), JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)
@@ -312,7 +329,6 @@ public partial class GatewayClient : WebSocketClient
                         Cache = cache;
 
                         SessionId = args.SessionId;
-                        Shard = args.Shard;
                         Interlocked.Exchange(ref _applicationId, args.ApplicationId);
                         ApplicationFlags = args.ApplicationFlags;
 
@@ -744,7 +760,9 @@ public partial class GatewayClient : WebSocketClient
     public override void Dispose()
     {
         base.Dispose();
-        Rest.Dispose();
+        _compression.Dispose();
+        if (_disposeRest)
+            Rest.Dispose();
         Cache.Dispose();
         if (_configuration.CacheDMChannels)
         {

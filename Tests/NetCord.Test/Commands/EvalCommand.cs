@@ -51,7 +51,7 @@ public class EvalCommand : CommandModule<CommandContext>
                 {
                     description = $"Exception was thrown: {ex}";
                 }
-                fields.Add(new() { Title = GetMaxLength(property.Name, 256), Description = GetMaxLength(description, 1024), Inline = true });
+                fields.Add(new() { Name = GetMaxLength(property.Name, 256), Value = GetMaxLength(description, 1024), Inline = true });
             }
             EmbedProperties embed = new()
             {

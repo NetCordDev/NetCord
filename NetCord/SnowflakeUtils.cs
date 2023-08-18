@@ -23,4 +23,6 @@ public static class SnowflakeUtils
     public static byte InternalProcessId(ulong id) => (byte)((id & 0x1F000) >> 12);
 
     public static ushort Increment(ulong id) => (ushort)(id & 0xFFF);
+
+    public static int ShardId(ulong guildId, int shardCount) => (int)((guildId >> 22) % (ulong)shardCount);
 }

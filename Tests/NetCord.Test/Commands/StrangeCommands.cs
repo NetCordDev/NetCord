@@ -160,11 +160,11 @@ public class StrangeCommands : CommandModule<CommandContext>
         var id = userId is not null ? userId.Id : Context.User.Id;
         var fields = new EmbedFieldProperties[]
         {
-            new() { Title = "Id", Description = id.ToString()! },
-            new() { Title = "Created At", Description = new Timestamp(SnowflakeUtils.CreatedAt(id)).ToString() },
-            new() { Title = "Internal Worker Id", Description = SnowflakeUtils.InternalWorkerId(id).ToString() },
-            new() { Title = "Internal Process Id", Description = SnowflakeUtils.InternalProcessId(id).ToString() },
-            new() { Title = "Increment", Description = SnowflakeUtils.Increment(id).ToString() },
+            new() { Name = "Id", Value = id.ToString()! },
+            new() { Name = "Created At", Value = new Timestamp(SnowflakeUtils.CreatedAt(id)).ToString() },
+            new() { Name = "Internal Worker Id", Value = SnowflakeUtils.InternalWorkerId(id).ToString() },
+            new() { Name = "Internal Process Id", Value = SnowflakeUtils.InternalProcessId(id).ToString() },
+            new() { Name = "Increment", Value = SnowflakeUtils.Increment(id).ToString() },
         };
         EmbedProperties embed = new()
         {
@@ -254,7 +254,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         EmbedProperties embedBuilder = new()
         {
-            Fields = new EmbedFieldProperties[] { new() { Title = "xd", Description = "wzium" } }
+            Fields = new EmbedFieldProperties[] { new() { Name = "xd", Value = "wzium" } }
         };
         return SendAsync(new MessageProperties() { Embeds = new EmbedProperties[] { embedBuilder } });
     }
