@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColorTest", "Tests\ColorTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TimestampTest", "Tests\TimestampTest\TimestampTest.csproj", "{B4AB1DD3-2016-4099-AD41-3248627069CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCord.Test.Sharded", "NetCord.Test.Sharded\NetCord.Test.Sharded.csproj", "{5CE4882E-DE7A-49E3-AA94-A12F0443C8B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCord.Test.Sharded", "Tests\NetCord.Test.Sharded\NetCord.Test.Sharded.csproj", "{5CE4882E-DE7A-49E3-AA94-A12F0443C8B0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SourceGenerators", "SourceGenerators", "{0A9D75D2-B760-43E3-8A18-1BF2F629D0FB}"
 EndProject

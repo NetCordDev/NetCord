@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -9,12 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove=".editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\NetCord.Services\NetCord.Services.csproj" />
-    <ProjectReference Include="..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="..\..\NetCord.Services\NetCord.Services.csproj" />
+    <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
   </ItemGroup>
 
 </Project>
