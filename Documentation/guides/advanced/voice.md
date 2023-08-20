@@ -16,7 +16,7 @@ Sending and receiving voice requires `libsodium.so` and optionally `opus.so` fil
 > In the following examples streams and @NetCord.Gateway.Voice.VoiceClient instances are not disposed because they should be stored somewhere and disposed later.
 
 ### Sending Voice
-[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L11-L102)]
+[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L12-L103)]
 
 ### Receiving Voice
-[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L104-L147)]
+[!code-cs[VoiceModule.cs](voice/VoiceModule.cs#L105-L147)]

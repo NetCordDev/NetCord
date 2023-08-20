@@ -5,23 +5,14 @@
 
 ## MessageCreate Event
 @NetCord.Gateway.GatewayClient.MessageCreate event fires when a message is sent. To detect it, add the following lines before `client.StartAsync()`.
-```cs
-client.MessageCreate += message =>
-{
-    Console.WriteLine(message.Content);
-    return default;
-};
-```
+[!code-cs[Program.cs](FirstEvents/Program.cs#L9-L13)]
+
 When you run this code, when you send a message, the message will be printed on a console.
 
 ## MessageUpdate Event
 @NetCord.Gateway.GatewayClient.MessageUpdate event fires when a message is modified. To detect it, add the following lines to your code.
-```cs
-client.MessageUpdate += async message =>
-{
-    await message.ReplyAsync("This message was modified!");
-};
-```
+[!code-cs[Program.cs](FirstEvents/Program.cs#L15-L18)]
+
 Now your bot is notifying everyone that someone has modified a message!
 
 ## Other Events

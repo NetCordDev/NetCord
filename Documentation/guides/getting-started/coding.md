@@ -4,7 +4,7 @@
 > This section assumes that you have a project with NetCord installed and you have a bot created. If not, go back!
 
 First, add the following line to file `Program.cs`.
-[!code-cs[Program.cs](coding/Program.cs#L1-L2)]
+[!code-cs[Program.cs](Coding/Program.cs#L1-L2)]
 
 Now, it's time to create a bot instance! But before, you need a token of your bot... so you need to return to [Discord Developer Portal](https://discord.com/developers/applications) and get it.
 ![](../../images/coding_Token_1.png)
@@ -28,4 +28,4 @@ Now, when you run the code, your bot should be online!
 If not, check the console window, you will probably see the following message: `Disconnected: Authentication failed`. If so, check that your token is correct.
 
 ## The Final Product
-[!code-cs[Program.cs](coding/Program.cs)]
+[!code-cs[Program.cs](Coding/Program.cs)]

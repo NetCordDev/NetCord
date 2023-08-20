@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-using NetCord;
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;

@@ -7,8 +7,8 @@ Discord supports uploading attachments directly on their Google Cloud Platform. 
 
 ## Uploading File to Google Cloud Platform
 
-[!code-cs[Program.cs](google-cloud-platform-attachments/uploading/Program.cs)]
+[!code-cs[Program.cs](GoogleCloudPlatformAttachments/Uploading/Program.cs)]
 
 ## Sending Google Cloud Platform Attachment
 
-[!code-cs[Program.cs](google-cloud-platform-attachments/sending/Program.cs)]
+[!code-cs[Program.cs](GoogleCloudPlatformAttachments/Sending/Program.cs)]

@@ -7,88 +7,21 @@ Preconditions determine whether a command or interaction can be invoked. They ar
 > [!NOTE]
 > The attributes are generic. Generic attributes are supported since C# 11.
 
-- @NetCord.Services.InteractionRequireBotChannelPermissionsAttribute`1
 - @NetCord.Services.InteractionRequireUserChannelPermissionsAttribute`1
+- @NetCord.Services.InteractionRequireBotChannelPermissionsAttribute`1
 - @NetCord.Services.RequireUserPermissionsAttribute`1
 - @NetCord.Services.RequireBotPermissionsAttribute`1
 - @NetCord.Services.RequireContextAttribute`1
 - @NetCord.Services.RequireNsfwAttribute`1
 
 ## Creating a Custom Precondition Attribute
-
-```cs
-using NetCord.Services;
-
-namespace MyBot;
-
-// We use generics to make our attribute usable for text commands, application commands and interactions at the same time
-public class RequireDiscriminatorAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IContext, IUserContext
-{
-    private readonly ushort _discriminator;
-    
-    public RequireDiscriminatorAttribute(ushort discriminator)
-    {
-        _discriminator = discriminator;
-    }
-
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
-    {
-        // Throw exception if invalid discriminator
-        if (context.User.Discriminator != _discriminator)
-            throw new($"You need {_discriminator:D4} discriminator to use this command.");
-
-        return default;
-    }
-}
-```
+[!code-cs[RequireDiscriminatorAttribute.cs](Preconditions/Preconditions/RequireDiscriminatorAttribute.cs)]
 
 ### Example usage
-
-```cs
-[RequireDiscriminator<CommandContext>(1234)]
-public class FirstModule : CommandModule<CommandContext>
-{
-    // All commands here will require 1234 discriminator
-}
-```
+[!code-cs[ExampleModule.cs](Preconditions/Preconditions/ExampleModule.cs)]
 
 ## Creating a Custom Parameter Precondition Attribute
-
-```cs
-using NetCord.Services;
-
-namespace MyBot;
-
-// We use generics to make our attribute usable for text commands, application commands and interactions at the same time
-public class MustContainAttribute<TContext> : ParameterPreconditionAttribute<TContext> where TContext : IContext
-{
-    private readonly string _value;
-
-    public MustContainAttribute(string value)
-    {
-        _value = value;
-    }
-
-    public override ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
-    {
-        // Throw exception if does not contain
-        if (!((string)value!).Contains(_value, StringComparison.InvariantCultureIgnoreCase))
-            throw new($"The parameter must contain '{_value}'.");
-
-        return default;
-    }
-}
-```
+[!code-cs[MustContainAttribute.cs](Preconditions/ParameterPreconditions/MustContainAttribute.cs)]
 
 ### Example usage
-
-```cs
-public class FirstModule : CommandModule<CommandContext>
-{
-    [Command("hello")]
-    public Task HelloAsync([Remainder][MustContain<CommandContext>("hello")] string text)
-    {
-        return ReplyAsync(text);
-    }
-}
-```
+[!code-cs[ExampleModule.cs](Preconditions/ParameterPreconditions/ExampleModule.cs)]

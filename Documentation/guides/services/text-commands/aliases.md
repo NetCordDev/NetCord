@@ -1,10 +1,4 @@
 # Aliases
 
 Each command can have multiple aliases, example:
-```cs
-[Command("average", "mean")]
-public Task AverageAsync(params double[] numbers)
-{
-    return ReplyAsync($"Average: {numbers.Average()}");
-}
-```
+[!code-cs[ExampleModule.cs](Aliases/ExampleModule.cs#L7-L11)]

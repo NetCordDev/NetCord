@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 
-using NetCord;
 using NetCord.Gateway.Voice;
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;

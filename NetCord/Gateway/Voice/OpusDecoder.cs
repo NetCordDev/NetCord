@@ -28,7 +28,7 @@ public class OpusDecoder : IDisposable
     /// <exception cref="OpusException"></exception>
     public void Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
     {
-        int result = Opus.OpusDecode(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, 0);
+        int result = Opus.OpusDecode(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.ExamplesPerChannel, 0);
 
         if (result < 0)
             throw new OpusException((OpusError)result);

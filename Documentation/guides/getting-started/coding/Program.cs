@@ -1,4 +1,4 @@
-using NetCord;
+﻿using NetCord;
 using NetCord.Gateway;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"));

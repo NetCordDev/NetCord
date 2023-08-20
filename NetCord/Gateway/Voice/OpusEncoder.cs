@@ -30,7 +30,7 @@ public class OpusEncoder : IDisposable
     /// <exception cref="OpusException"></exception>
     public int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
     {
-        int result = Opus.OpusEncode(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
+        int result = Opus.OpusEncode(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.ExamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
 
         if (result < 0)
             throw new OpusException((OpusError)result);

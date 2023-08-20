@@ -5,24 +5,11 @@
 
 ## Optional parameters
 To mark parameters as optional, give them a default value, example:
-```cs
-[SlashCommand("username", "Returns user's username")]
-public Task UsernameAsync(User? user = null)
-{
-    user ??= Context.User;
-    return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.Username));
-}
-```
+[!code-cs[ExampleModule.cs](Parameters/ExampleModule.cs#L9-L14)]
 
 ## Parameter name and description
 You can change parameter name and parameter description using @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute, example:
-```cs
-[SlashCommand("power", "Raises a number to a power")]
-public Task PowerAsync([SlashCommandParameter(Name = "base", Description = "The base")] double @base, [SlashCommandParameter(Description = "The power")] double power = 2)
-{
-    return RespondAsync(InteractionCallback.ChannelMessageWithSource($"Result: {Math.Pow(@base, power)}"));
-}
-```
+[!code-cs[ExampleModule.cs](Parameters/ExampleModule.cs#L16-L20)]
 
 ## Min and Max Values
 You can specify min and max parameter values by setting @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute.MinValue and @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute.MaxValue properties in @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute. It's only possible for numeric types.
@@ -35,22 +22,8 @@ Choices are constants for a given parameter, autocomplete may depend on a text e
 
 ### Choices
 Choices are automatically generated when you set `enum` as a parameter type, you can override choices' names using @NetCord.Services.ApplicationCommands.SlashCommandChoiceAttribute on enum fields, example:
-```cs
-[SlashCommand("animal", "Sends animal you selected")]
-public Task AnimalAsync(Animal animal)
-{
-    return RespondAsync(InteractionCallback.ChannelMessageWithSource(animal.ToString()));
-}
+[!code-cs[ExampleModule.cs](Parameters/ExampleModule.cs#L22-L35)]
 
-public enum Animal
-{
-    Dog,
-    Cat,
-    Fish,
-    [SlashCommandChoice(Name = "Guinea Pig")]
-    GuineaPig,
-}
-```
 You can also define own choices in Type Reader by overriding @NetCord.Services.ApplicationCommands.SlashCommandTypeReader`1.ChoicesProvider property or in @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute by setting @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute.ChoicesProviderType property.
 
 ### Autocomplete
