@@ -14,9 +14,12 @@
     --dark-blurple: #4752C4;
 }
 
+pre code, article img {
+    border-radius: 10px;
+}
+
 article img {
     margin: 10px 0;
-    border-radius: 10px;
     box-shadow: 3px 3px 6px #111;
     background-color: #111;
     display: grid;
