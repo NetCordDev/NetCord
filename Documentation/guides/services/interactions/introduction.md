@@ -93,7 +93,7 @@ We can add an interaction handler now.
 Ok, you have everything prepared! It's time to create first interactions!
 
 Create a new file `FirstModule.cs`. Make sure the class is public and add `using NetCord;` and `using NetCord.Services.Interactions;`. Make the class inheriting from `FirstModule<MentionableMenuInteractionContext>`. The file should look like this:
-[!code-cs[Program.cs](Introduction/MentionableMenus/Partial/Program.cs)]
+[!code-cs[FirstModule.cs](Introduction/MentionableMenus/Partial/FirstModule.cs)]
 
 Now, we will create a `menu` interaction! Add the following lines to the class.
 [!code-cs[FirstModule.cs](Introduction/MentionableMenus/Full/FirstModule.cs#L8-L12)]
