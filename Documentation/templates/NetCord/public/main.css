@@ -115,7 +115,7 @@ article, .main {
     background-color: var(--blurple);
 }
 
-    .primary-button:hover {
+    .primary-button:hover, .primary-button:active {
         background-color: var(--dark-blurple);
         border-color: var(--dark-blurple);
     }
@@ -126,6 +126,12 @@ article, .main {
 
     .secondary-button:hover {
         background-color: var(--blurple);
+        color: var(--bs-white);
+    }
+
+    .secondary-button:active {
+        background-color: var(--dark-blurple);
+        border-color: var(--dark-blurple);
         color: var(--bs-white);
     }
 
