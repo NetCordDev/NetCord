@@ -1,6 +1,6 @@
 @font-face {
-    font-family: Cascadia Mono;
-    src: local(Cascadia Mono Regular), url(cascadia-mono.woff2) format(woff2);
+    font-family: Cascadia Code;
+    src: local(Cascadia Code Regular), url(cascadia-code.woff2) format(woff2);
 }
 
 @font-face {
@@ -9,10 +9,15 @@
 }
 
 :root {
-    --bs-font-monospace: Cascadia Mono;
+    --bs-font-monospace: Cascadia Code;
     --blurple: #5865F2;
     --dark-blurple: #4752C4;
+    --ligatures: none;
 }
+
+    :root[ligatures="1"] {
+        --ligatures: normal;
+    }
 
 pre code, article img {
     border-radius: 10px;
@@ -134,6 +139,29 @@ article, .main {
         border-color: var(--dark-blurple);
         color: var(--bs-white);
     }
+
+.icon:before {
+    display: inline-grid;
+    vertical-align: bottom;
+    justify-content: center;
+    width: 16px;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ligatures:before {
+    content: "!=";
+    font-family: var(--bs-font-monospace);
+    font-weight: 700;
+    overflow: hidden;
+}
+
+code, .icon-ligatures:before {
+    font-variant-ligatures: var(--ligatures);
+}
 
 * {
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
