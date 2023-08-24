@@ -1,5 +1,6 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
+﻿using System.Reflection;
+
+using NetCord.Services.Helpers;
 
 namespace NetCord.Services.Interactions;
 
@@ -11,10 +12,8 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
 
     internal InteractionInfo(MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
     {
-        if (method.ReturnType != typeof(Task))
-            throw new InvalidDefinitionException($"Interactions must return '{typeof(Task)}'.", method);
+        MethodHelper.EnsureMethodReturnTypeValid(method);
 
-        var declaringType = method.DeclaringType!;
 
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
@@ -29,43 +28,13 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
         }
         Parameters = p;
 
-        InvokeAsync = CreateDelegate(method, declaringType, p);
+        var declaringType = method.DeclaringType!;
 
-        Preconditions = PreconditionAttributeHelper.GetPreconditionAttributes<TContext>(declaringType, method);
+        InvokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, p.Select(p => p.Type));
+
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
-    private static Func<object?[]?, TContext, IServiceProvider?, Task> CreateDelegate(MethodInfo method, Type declaringType, InteractionParameter<TContext>[] interactionParameters)
-    {
-        var parameters = Expression.Parameter(typeof(object?[]));
-        var contextType = typeof(TContext);
-        var context = Expression.Parameter(contextType);
-        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-        Expression? instance;
-        if (method.IsStatic)
-            instance = null;
-        else
-        {
-            var module = Expression.Variable(declaringType);
-            instance = Expression.Block(new[] { module },
-                                        Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
-                                        Expression.Assign(Expression.Property(module, declaringType.GetProperty(nameof(BaseInteractionModule<TContext>.Context), contextType)!), context),
-                                        module);
-        }
-        var call = Expression.Call(instance,
-                                   method,
-                                   interactionParameters.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i)), p.Type)));
-        var lambda = Expression.Lambda(call, parameters, context, serviceProvider);
-        return (Func<object?[]?, TContext, IServiceProvider?, Task>)lambda.Compile();
-    }
-
-    internal async Task EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
-    {
-        var preconditions = Preconditions;
-        var count = preconditions.Count;
-        for (var i = 0; i < count; i++)
-        {
-            var preconditionAttribute = preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
-        }
-    }
+    internal ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+        => PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider);
 }

@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using NetCord.Rest;
+using NetCord.Services.Helpers;
 using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
@@ -27,7 +28,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public IEnumerable<ChannelType>? AllowedChannelTypes { get; }
     public IReadOnlyList<ParameterPreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, bool supportsAutocomplete, Type? autocompleteContextType, Type? autocompleteBaseType)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
@@ -73,19 +74,20 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
                 ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
             }
 
+            var autocompleteProviderBaseType = configuration._autocompleteProviderBaseType;
             var autocompleteProviderType = slashCommandParameterAttribute.AutocompleteProviderType;
             if (autocompleteProviderType is not null)
             {
-                EnsureAutocompleteProviderValid(autocompleteProviderType);
-                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
+                EnsureAutocompleteProviderValid(autocompleteProviderType, autocompleteProviderBaseType);
+                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, configuration._autocompleteContextType!, autocompleteProviderBaseType!);
             }
             else
             {
                 autocompleteProviderType = TypeReader.AutocompleteProviderType;
                 if (autocompleteProviderType is not null)
                 {
-                    EnsureAutocompleteProviderValid(autocompleteProviderType);
-                    InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
+                    EnsureAutocompleteProviderValid(autocompleteProviderType, autocompleteProviderBaseType);
+                    InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, configuration._autocompleteContextType!, autocompleteProviderBaseType!);
                 }
             }
 
@@ -107,9 +109,11 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             var autocompleteProviderType = TypeReader.AutocompleteProviderType;
             if (autocompleteProviderType is not null)
             {
-                EnsureAutocompleteProviderValid(autocompleteProviderType);
-                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, autocompleteContextType!, autocompleteBaseType!);
+                var autocompleteProviderBaseType = configuration._autocompleteProviderBaseType;
+                EnsureAutocompleteProviderValid(autocompleteProviderType, autocompleteProviderBaseType);
+                InvokeAutocomplete = CreateAutocompleteDelegate(autocompleteProviderType, configuration._autocompleteContextType!, autocompleteProviderBaseType!);
             }
+
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
             MaxValue = TypeReader.GetMaxValue(this, configuration);
             MinValue = TypeReader.GetMinValue(this, configuration);
@@ -117,25 +121,25 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MinLength = TypeReader.GetMinLength(this, configuration);
         }
 
-        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
 
-        void EnsureAutocompleteProviderValid(Type type)
+        void EnsureAutocompleteProviderValid(Type autocompleteProviderType, Type? autocompleteProviderBaseType)
         {
-            if (!supportsAutocomplete)
+            if (!configuration._supportsAutocomplete)
                 throw new InvalidOperationException($"Autocomplete is not supported by this service. Use {typeof(ApplicationCommandService<,>)} instead.");
 
-            if (!type.IsAssignableTo(autocompleteBaseType))
-                throw new InvalidOperationException($"'{type}' is not assignable to '{autocompleteBaseType}'.");
+            if (!autocompleteProviderType.IsAssignableTo(autocompleteProviderBaseType!))
+                throw new InvalidOperationException($"'{autocompleteProviderType}' is not assignable to '{autocompleteProviderBaseType}'.");
         }
     }
 
-    private static Delegate CreateAutocompleteDelegate(Type autocompleteType, Type autocompleteContextType, Type autocompleteBaseType)
+    private static Delegate CreateAutocompleteDelegate(Type autocompleteProviderType, Type autocompleteContextType, Type autocompleteProviderBaseType)
     {
         var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
         var context = Expression.Parameter(autocompleteContextType);
         var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-        var getChoicesAsyncMethod = autocompleteBaseType.GetMethod("GetChoicesAsync", BindingFlags.Instance | BindingFlags.Public)!;
-        var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteType, serviceProvider),
+        var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod("GetChoicesAsync", BindingFlags.Instance | BindingFlags.Public)!;
+        var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider),
                                    getChoicesAsyncMethod,
                                    option, context);
         var lambda = Expression.Lambda(call, option, context, serviceProvider);
@@ -159,14 +163,6 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         };
     }
 
-    internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
-    {
-        var preconditions = Preconditions;
-        var count = preconditions.Count;
-        for (var i = 0; i < count; i++)
-        {
-            var preconditionAttribute = preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
-        }
-    }
+    internal ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+        => PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, value, context, serviceProvider);
 }

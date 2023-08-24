@@ -6,21 +6,25 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandService<TContext, TAutocompleteContext> : ApplicationCommandService<TContext> where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(configuration)
+    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(PrepareConfiguration(configuration))
     {
-        _supportsAutocomplete = true;
-        _autocompleteContextType = typeof(TAutocompleteContext);
-        _autocompleteBaseType = typeof(IAutocompleteProvider<TAutocompleteContext>);
+    }
+
+    private static ApplicationCommandServiceConfiguration<TContext> PrepareConfiguration(ApplicationCommandServiceConfiguration<TContext>? configuration)
+    {
+        configuration ??= new();
+        configuration._supportsAutocomplete = true;
+        configuration._autocompleteContextType = typeof(TAutocompleteContext);
+        configuration._autocompleteProviderBaseType = typeof(IAutocompleteProvider<TAutocompleteContext>);
+        return configuration;
     }
 
     public async Task ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
         var data = interaction.Data;
-        var command = GetApplicationCommandInfo(data.Id);
-        var option = data.Options.First(o => o.Focused);
-        var invokeAsync = command.GetAutocompleteDelegate<TAutocompleteContext>(option.Name);
-        var choices = await invokeAsync(option, context, serviceProvider).ConfigureAwait(false);
+        var command = (IAutocompleteInfo)GetApplicationCommandInfo(data.Id);
+        var choices = await command.InvokeAutocompleteAsync(context, data.Options, serviceProvider).ConfigureAwait(false);
         await interaction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
     }
 }
@@ -29,9 +33,6 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
-    private protected bool _supportsAutocomplete;
-    private protected Type? _autocompleteContextType;
-    private protected Type? _autocompleteBaseType;
 
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
@@ -77,19 +78,26 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
     private void AddModuleCore(Type type)
     {
         var configuration = _configuration;
-        foreach (var method in type.GetMethods())
+
+        var slashCommandAttribute = type.GetCustomAttribute<SlashCommandAttribute>();
+        if (slashCommandAttribute is not null)
+            AddCommandInfo(new SlashCommandGroupInfo<TContext>(type, slashCommandAttribute, configuration));
+        else
         {
-            var slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
-            if (slashCommandAttribute is not null)
-                AddCommandInfo(new(method, slashCommandAttribute, configuration, _supportsAutocomplete, _autocompleteContextType, _autocompleteBaseType));
+            foreach (var method in type.GetMethods())
+            {
+                slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
+                if (slashCommandAttribute is not null)
+                    AddCommandInfo(new SlashCommandInfo<TContext>(method, slashCommandAttribute, configuration));
 
-            var userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
-            if (userCommandAttribute is not null)
-                AddCommandInfo(new(method, userCommandAttribute, configuration));
+                var userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
+                if (userCommandAttribute is not null)
+                    AddCommandInfo(new UserCommandInfo<TContext>(method, userCommandAttribute, configuration));
 
-            var messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
-            if (messageCommandAttribute is not null)
-                AddCommandInfo(new(method, messageCommandAttribute, configuration));
+                var messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
+                if (messageCommandAttribute is not null)
+                    AddCommandInfo(new MessageCommandInfo<TContext>(method, messageCommandAttribute, configuration));
+            }
         }
 
         void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
@@ -159,51 +167,12 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
     }
 
-    public async Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    public Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
         var command = GetApplicationCommandInfo(interaction.Data.Id);
 
-        await command.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
-
-        object?[]? parametersToPass;
-
-        if (interaction is SlashCommandInteraction slashCommandInteraction)
-        {
-            var configuration = _configuration;
-            var parameters = command.Parameters;
-            int parametersCount = parameters!.Count;
-            parametersToPass = new object?[parametersCount];
-            var options = slashCommandInteraction.Data.Options;
-            int optionsCount = options.Count;
-            int parameterIndex = 0;
-            for (int optionIndex = 0; optionIndex < optionsCount; parameterIndex++)
-            {
-                var parameter = parameters[parameterIndex];
-                var option = options[optionIndex];
-                object? value;
-                if (parameter.Name == option.Name)
-                {
-                    value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-                    await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
-                    optionIndex++;
-                }
-                else
-                    value = parameter.DefaultValue;
-
-                parametersToPass[parameterIndex] = value;
-            }
-            while (parameterIndex < parametersCount)
-            {
-                var parameter = parameters[parameterIndex];
-                parametersToPass[parameterIndex] = parameter.DefaultValue;
-                parameterIndex++;
-            }
-        }
-        else
-            parametersToPass = null;
-
-        await command.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
+        return command.InvokeAsync(context, _configuration, serviceProvider);
     }
 
     private protected ApplicationCommandInfo<TContext> GetApplicationCommandInfo(ulong commandId)

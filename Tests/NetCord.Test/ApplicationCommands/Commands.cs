@@ -8,6 +8,38 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;
 
+[SlashCommand("permission-nested", "Permission")]
+public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
+{
+    [SubSlashCommand("add", "Permission add")]
+    public Task AddAsync(Permissions permission)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+    }
+
+    [SubSlashCommand("remove", "Permission remove")]
+    public Task RemoveAsync(Permissions permission)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+    }
+
+    [SubSlashCommand("list", "Permission list")]
+    public class ListCommand : ApplicationCommandModule<SlashCommandContext>
+    {
+        [SubSlashCommand("user", "Permission list user")]
+        public Task UserAsync(Permissions permission)
+        {
+            return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+        }
+
+        [SubSlashCommand("role", "Permission list role")]
+        public Task RoleAsync(Permissions permission)
+        {
+            return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+        }
+    }
+}
+
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
     private readonly Dictionary<ulong, SemaphoreSlim> _joinSemaphores;

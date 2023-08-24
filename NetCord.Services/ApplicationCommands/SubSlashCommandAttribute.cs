@@ -1,13 +1,19 @@
 ﻿namespace NetCord.Services.ApplicationCommands;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class SlashCommandAttribute : ApplicationCommandAttribute
+public class SubSlashCommandAttribute : Attribute
 {
-    public SlashCommandAttribute(string name, string description) : base(name)
+    public SubSlashCommandAttribute(string name, string description)
     {
+        Name = name;
         Description = description;
     }
 
+    public string Name { get; }
+
+    public Type? NameTranslationsProviderType { get; init; }
+
     public string Description { get; }
+
     public Type? DescriptionTranslationsProviderType { get; init; }
 }

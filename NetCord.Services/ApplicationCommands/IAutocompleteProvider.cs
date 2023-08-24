@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.ApplicationCommands;
 
-public interface IAutocompleteProvider<TContext> where TContext : IAutocompleteInteractionContext
+public interface IAutocompleteProvider<TAutocompleteContext> where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, TContext context);
+    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, TAutocompleteContext context);
 }

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 
+using NetCord.Services.Helpers;
 using NetCord.Services.Utils;
 
 namespace NetCord.Services.Commands;
@@ -46,7 +47,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
     internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)

@@ -66,4 +66,8 @@ public class ApplicationCommandServiceConfiguration<TContext> where TContext : I
     /// {0} - parameter name
     /// </summary>
     public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
+
+    internal bool _supportsAutocomplete;
+    internal Type? _autocompleteContextType;
+    internal Type? _autocompleteProviderBaseType;
 }

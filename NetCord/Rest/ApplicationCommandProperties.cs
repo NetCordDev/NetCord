@@ -122,7 +122,7 @@ public abstract partial class ApplicationCommandProperties
     /// <summary>
     /// Indicates whether the command is enabled by default when the app is added to a guild.
     /// </summary>
-    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
+    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }

@@ -5,7 +5,6 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class MessageCommands : ApplicationCommandModule<MessageCommandContext>
 {
-    //[RequireContext<MessageCommandContext>(RequiredContext.Guild)]
     [MessageCommand("Clear to this", DMPermission = false, DefaultGuildUserPermissions = Permissions.ManageMessages)]
     public async Task ClearToAsync()
     {
@@ -16,7 +15,7 @@ public class MessageCommands : ApplicationCommandModule<MessageCommandContext>
 
         await RespondAsync(InteractionCallback.DeferredChannelMessageWithSource());
         int i = 0;
-        var messages = Context.Channel!.GetMessagesAsync(new() { From = Context.Target.Id }).TakeWhile(m => m.CreatedAt < now).Select(m => { i++; return m.Id; });
+        var messages = Context.Channel!.GetMessagesAsync(new() { From = Context.Target.Id, Direction = PaginationDirection.After }).TakeWhile(m => m.CreatedAt < now).Select(m => { i++; return m.Id; });
         await Context.Client.Rest.DeleteMessagesAsync(Context.Channel.Id, messages);
         await Context.Interaction.ModifyResponseAsync(r => r.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
     }

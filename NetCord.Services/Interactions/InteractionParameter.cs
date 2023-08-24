@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 
+using NetCord.Services.Helpers;
 using NetCord.Services.Utils;
 
 namespace NetCord.Services.Interactions;
@@ -32,7 +33,7 @@ public class InteractionParameter<TContext> where TContext : IInteractionContext
         else
             typeReaderType = null;
 
-        Type type = Type = parameter.ParameterType;
+        var type = Type = parameter.ParameterType;
         Type elementType;
         if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
         {
@@ -44,7 +45,7 @@ public class InteractionParameter<TContext> where TContext : IInteractionContext
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, IInteractionTypeReader, InteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-        Preconditions = ParameterPreconditionAttributeHelper.GetPreconditionAttributes<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
     internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
