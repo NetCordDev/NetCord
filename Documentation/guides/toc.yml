@@ -32,6 +32,8 @@
           href: services/application-commands/multiple-services.md
         - name: Parameters
           href: services/application-commands/parameters.md
+        - name: Subcommands
+          href: services/application-commands/subcommands.md
         - name: Permissions
           href: services/application-commands/permissions.md
         - name: Translations

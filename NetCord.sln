@@ -162,6 +162,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomContexts", "Documenta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharding", "Documentation\guides\advanced\Sharding\Sharding.csproj", "{7FF73C26-720D-47FC-858C-74A5B545FE73}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subcommands", "Documentation\guides\services\application-commands\Subcommands\Subcommands.csproj", "{9FD4FB24-2910-42B2-A89B-3E823145467E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -368,6 +370,10 @@ Global
 		{7FF73C26-720D-47FC-858C-74A5B545FE73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7FF73C26-720D-47FC-858C-74A5B545FE73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7FF73C26-720D-47FC-858C-74A5B545FE73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FD4FB24-2910-42B2-A89B-3E823145467E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FD4FB24-2910-42B2-A89B-3E823145467E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FD4FB24-2910-42B2-A89B-3E823145467E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FD4FB24-2910-42B2-A89B-3E823145467E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -445,6 +451,7 @@ Global
 		{91D34DA8-B753-4174-8F16-702E322BDCD8} = {9D513F65-7725-466C-B62E-0E988BF2CCDE}
 		{1098C5F6-B9F1-4206-805C-5AC78315E946} = {9D513F65-7725-466C-B62E-0E988BF2CCDE}
 		{7FF73C26-720D-47FC-858C-74A5B545FE73} = {6D8C2163-1B05-48A5-AF31-811A93D55FED}
+		{9FD4FB24-2910-42B2-A89B-3E823145467E} = {46E6F97B-83C3-4B66-8B0F-226D02DEC5A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}
