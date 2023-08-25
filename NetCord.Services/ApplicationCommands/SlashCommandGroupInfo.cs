@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
@@ -7,7 +8,9 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>, IAutocompleteInfo where TContext : IApplicationCommandContext
 {
-    internal SlashCommandGroupInfo(Type type, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+    [UnconditionalSuppressMessage("Trimming", "IL2062:Value passed to a method parameter annotated with 'DynamicallyAccessedMembersAttribute' cannot be statically determined and may not meet the attribute's requirements.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
+    [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
+    internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         Description = attribute.Description!;
 
@@ -23,7 +26,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         {
             var subSlashCommandAttribute = method.GetCustomAttribute<SubSlashCommandAttribute>();
             if (subSlashCommandAttribute is not null)
-                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, subSlashCommandAttribute, configuration));
+                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -80,5 +83,11 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
         throw new AutocompleteNotFoundException();
+    }
+
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    {
+        foreach (var subCommand in SubCommands.Values)
+            subCommand.InitializeAutocomplete<TAutocompleteContext>();
     }
 }

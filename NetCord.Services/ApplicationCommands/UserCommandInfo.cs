@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
@@ -7,12 +8,11 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal UserCommandInfo(MethodInfo method, UserCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+    internal UserCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, UserCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         MethodHelper.EnsureMethodReturnTypeValid(method);
         MethodHelper.EnsureMethodParameterless(method);
 
-        var declaringType = method.DeclaringType!;
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
         _invokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, Enumerable.Empty<Type>());
     }

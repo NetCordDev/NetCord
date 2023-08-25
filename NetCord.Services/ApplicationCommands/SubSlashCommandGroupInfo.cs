@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
@@ -7,7 +8,7 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandGroupInfo(Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
+    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         Name = attribute.Name!;
 
@@ -23,13 +24,13 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
 
-        Dictionary<string, SubSlashCommandInfo<TContext>> subCommands = new();
+        Dictionary<string, ISubSlashCommandInfo<TContext>> subCommands = new();
 
         foreach (var method in type.GetMethods())
         {
             var subSlashCommandAttribute = method.GetCustomAttribute<SubSlashCommandAttribute>();
             if (subSlashCommandAttribute is not null)
-                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, subSlashCommandAttribute, configuration));
+                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration));
         }
 
         SubCommands = subCommands;
@@ -40,7 +41,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     public string Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
-    public IReadOnlyDictionary<string, SubSlashCommandInfo<TContext>> SubCommands { get; }
+    public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
 
     public async Task InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
@@ -70,5 +71,11 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
         throw new AutocompleteNotFoundException();
+    }
+
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    {
+        foreach (var subCommand in SubCommands.Values)
+            subCommand.InitializeAutocomplete<TAutocompleteContext>();
     }
 }

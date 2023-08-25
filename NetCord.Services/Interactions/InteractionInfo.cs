@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Services.Helpers;
 
@@ -10,7 +11,7 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
     public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal InteractionInfo(MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
+    internal InteractionInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, InteractionServiceConfiguration<TContext> configuration)
     {
         MethodHelper.EnsureMethodReturnTypeValid(method);
 
@@ -27,8 +28,6 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
             p[i] = new(parameter, method, configuration);
         }
         Parameters = p;
-
-        var declaringType = method.DeclaringType!;
 
         InvokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, p.Select(p => p.Type));
 

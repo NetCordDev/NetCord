@@ -1,8 +1,9 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionService<TContext> : IService where TContext : IInteractionContext
+public class InteractionService<TContext> where TContext : IInteractionContext
 {
     private readonly InteractionServiceConfiguration<TContext> _configuration;
     private readonly Dictionary<string, InteractionInfo<TContext>> _interactions = new();
@@ -18,6 +19,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         _configuration = configuration ?? new();
     }
 
+    [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
         Type baseType = typeof(BaseInteractionModule<TContext>);
@@ -31,7 +33,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         }
     }
 
-    public void AddModule(Type type)
+    public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseInteractionModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseInteractionModule<TContext>)}'.");
@@ -40,12 +42,12 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
             AddModuleCore(type);
     }
 
-    public void AddModule<T>()
+    public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>()
     {
         AddModule(typeof(T));
     }
 
-    private void AddModuleCore(Type type)
+    private void AddModuleCore([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         var configuration = _configuration;
         foreach (var method in type.GetMethods())
@@ -53,7 +55,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
             InteractionAttribute? interactionAttribute = method.GetCustomAttribute<InteractionAttribute>();
             if (interactionAttribute is null)
                 continue;
-            InteractionInfo<TContext> interactionInfo = new(method, configuration);
+            InteractionInfo<TContext> interactionInfo = new(method, type, configuration);
             _interactions.Add(interactionAttribute.CustomId, interactionInfo);
         }
     }

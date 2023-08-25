@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
@@ -8,7 +8,7 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAutocompleteInfo where TContext : IApplicationCommandContext
 {
-    internal SlashCommandInfo(MethodInfo method, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+    internal SlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         MethodHelper.EnsureMethodReturnTypeValid(method);
 
@@ -21,7 +21,6 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method, configuration);
         ParametersDictionary = parameters.ToDictionary(p => p.Name);
 
-        var declaringType = method.DeclaringType!;
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
         _invokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, parameters.Select(p => p.Type));
     }
@@ -60,10 +59,18 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
     public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
     {
-        var option = options[0];
+        var option = options.First(o => o.Focused);
         if (ParametersDictionary.TryGetValue(option.Name, out var parameter))
-            return Unsafe.As<Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?>>>(parameter.InvokeAutocomplete!)(option, context, serviceProvider);
+            return parameter.InvokeAutocompleteAsync(context, option, serviceProvider);
 
         throw new AutocompleteNotFoundException();
+    }
+
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    {
+        var parameters = Parameters;
+        var count = parameters.Count;
+        for (int i = 0; i < count; i++)
+            parameters[i].InitializeAutocomplete<TAutocompleteContext>();
     }
 }

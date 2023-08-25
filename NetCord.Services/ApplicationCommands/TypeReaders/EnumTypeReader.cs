@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 
@@ -21,32 +22,39 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     private class EnumChoicesProvider : IChoicesProvider<TContext>
     {
+        [UnconditionalSuppressMessage("Trimming", "IL2075:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "Literal fields on enums can never be trimmed")]
         public IEnumerable<ApplicationCommandOptionChoiceProperties>? GetChoices(SlashCommandParameter<TContext> parameter)
         {
-            var array = Enum.GetValues(parameter.Type);
-            if (array.Length > 25)
-                throw new InvalidOperationException($"'{parameter.Type}' has too many values, max choices count is 25.");
-            foreach (Enum e in array)
+            var type = parameter.NonNullableType;
+            var fields = type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            int length = fields.Length;
+            if (length > 25)
+                throw new InvalidOperationException($"'{type}' has too many values, max choices count is 25.");
+
+            for (var i = 0; i < length; i++)
             {
-                var eString = e.ToString();
-                var attribute = parameter.Type.GetField(eString)!.GetCustomAttribute<SlashCommandChoiceAttribute>();
+                var field = fields[i];
+                var value = ((IConvertible)field.GetRawConstantValue()!).ToDouble(null);
+
+                var attribute = field.GetCustomAttribute<SlashCommandChoiceAttribute>();
                 if (attribute is not null)
                 {
                     var translationsProviderType = attribute.TranslationsProviderType;
                     if (translationsProviderType is null)
-                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e));
+                        yield return new(attribute.Name ?? field.Name, value);
                     else
                     {
                         if (!translationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
                             throw new InvalidOperationException($"'{translationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-                        yield return new(attribute.Name ?? eString, Convert.ToDouble(e))
+
+                        yield return new(attribute.Name ?? field.Name, value)
                         {
-                            NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(translationsProviderType)!).Translations
+                            NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(translationsProviderType)!).Translations,
                         };
                     }
                 }
                 else
-                    yield return new(eString, Convert.ToDouble(e));
+                    yield return new(field.Name, value);
             }
         }
     }

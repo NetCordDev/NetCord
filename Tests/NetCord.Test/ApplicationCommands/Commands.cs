@@ -12,13 +12,13 @@ namespace NetCord.Test.SlashCommands;
 public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 {
     [SubSlashCommand("add", "Permission add")]
-    public Task AddAsync(Permissions permission)
+    public Task AddAsync(int i, Permissions permission)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
     }
 
     [SubSlashCommand("remove", "Permission remove")]
-    public Task RemoveAsync(Permissions permission)
+    public Task RemoveAsync(int i, Permissions permission)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
     }
@@ -27,13 +27,13 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     public class ListCommand : ApplicationCommandModule<SlashCommandContext>
     {
         [SubSlashCommand("user", "Permission list user")]
-        public Task UserAsync(Permissions permission)
+        public Task UserAsync(int i, Permissions permission)
         {
             return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
         }
 
         [SubSlashCommand("role", "Permission list role")]
-        public Task RoleAsync(Permissions permission)
+        public Task RoleAsync(int i, Permissions permission)
         {
             return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
         }

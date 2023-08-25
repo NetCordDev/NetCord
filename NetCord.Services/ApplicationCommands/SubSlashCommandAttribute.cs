@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services.ApplicationCommands;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class SubSlashCommandAttribute : Attribute
@@ -11,9 +13,11 @@ public class SubSlashCommandAttribute : Attribute
 
     public string Name { get; }
 
-    public Type? NameTranslationsProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
     public string Description { get; }
 
-    public Type? DescriptionTranslationsProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? DescriptionTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 }

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Services.Helpers;
 
@@ -11,12 +12,11 @@ public class CommandInfo<TContext> where TContext : ICommandContext
     public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal CommandInfo(MethodInfo method, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
+    internal CommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
     {
         MethodHelper.EnsureMethodReturnTypeValid(method);
 
         Priority = attribute.Priority;
-        var declaringType = method.DeclaringType!;
 
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;

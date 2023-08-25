@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services.ApplicationCommands;
 
 [AttributeUsage(AttributeTargets.Method)]
 public abstract class ApplicationCommandAttribute : Attribute
@@ -10,7 +12,8 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     public string Name { get; }
 
-    public Type? NameTranslationsProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
     public Permissions DefaultGuildUserPermissions
     {

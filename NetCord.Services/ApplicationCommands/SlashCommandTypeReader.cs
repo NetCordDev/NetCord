@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services.ApplicationCommands;
 
 public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader where TContext : IApplicationCommandContext
 {
@@ -16,6 +18,7 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
 
     public virtual IChoicesProvider<TContext>? ChoicesProvider => null;
 
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public virtual Type? AutocompleteProviderType => null;
 
     public virtual ITranslationsProvider? NameTranslationsProvider => null;

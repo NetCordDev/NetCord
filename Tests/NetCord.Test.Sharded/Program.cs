@@ -1,15 +1,24 @@
-﻿using System.Reflection;
-
-using NetCord;
+﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Rest;
+using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 
-CommandService<CommandContext> commandService = new();
-commandService.AddModules(Assembly.GetEntryAssembly()!);
+using NetCord.Test.Sharded;
 
-ShardedGatewayClient client = new(new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!), new()
+CommandService<CommandContext> commandService = new();
+commandService.AddModule<ExampleModule>();
+
+ApplicationCommandServiceConfiguration<SlashCommandContext> configuration = new();
+configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader());
+
+ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
+slashCommandService.AddModule<ExampleModule2>();
+
+Token token = new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!);
+ShardedGatewayClient client = new(token, new()
 {
-    ShardCount = 3,
+    ShardCount = 1,
     IntentsFactory = shard => GatewayIntents.All,
     PresenceFactory = shard => new(UserStatusType.Online)
     {
@@ -45,7 +54,40 @@ client.MessageCreate += async (client, message) =>
         }
     }
 };
+client.InteractionCreate += async (client, interaction) =>
+{
+    switch (interaction)
+    {
+        case SlashCommandInteraction slashCommandInteraction:
+            {
+                try
+                {
+                    await slashCommandService.ExecuteAsync(new(slashCommandInteraction, client));
+                }
+                catch (Exception ex)
+                {
+                    await slashCommandInteraction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(ex.Message));
+                }
 
+                break;
+            }
+
+        case ApplicationCommandAutocompleteInteraction autocompleteInteraction:
+            {
+                try
+                {
+                    await slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, client));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+
+                break;
+            }
+    }
+};
+var result = await slashCommandService.CreateCommandsAsync(client.Rest, token.Id);
 await client.StartAsync();
 
 await Task.Delay(-1);

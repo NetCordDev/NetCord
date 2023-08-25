@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using NetCord.Rest;
 
@@ -6,17 +7,8 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandService<TContext, TAutocompleteContext> : ApplicationCommandService<TContext> where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(PrepareConfiguration(configuration))
+    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(configuration)
     {
-    }
-
-    private static ApplicationCommandServiceConfiguration<TContext> PrepareConfiguration(ApplicationCommandServiceConfiguration<TContext>? configuration)
-    {
-        configuration ??= new();
-        configuration._supportsAutocomplete = true;
-        configuration._autocompleteContextType = typeof(TAutocompleteContext);
-        configuration._autocompleteProviderBaseType = typeof(IAutocompleteProvider<TAutocompleteContext>);
-        return configuration;
     }
 
     public async Task ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
@@ -27,9 +19,14 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
         var choices = await command.InvokeAutocompleteAsync(context, data.Options, serviceProvider).ConfigureAwait(false);
         await interaction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
     }
+
+    private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
+    {
+        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>();
+    }
 }
 
-public class ApplicationCommandService<TContext> : IService where TContext : IApplicationCommandContext
+public class ApplicationCommandService<TContext> where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
@@ -48,6 +45,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         _configuration = configuration ?? new();
     }
 
+    [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -61,7 +59,7 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         }
     }
 
-    public void AddModule(Type type)
+    public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseApplicationCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(ApplicationCommandModule<TContext>)}'.");
@@ -70,33 +68,41 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
             AddModuleCore(type);
     }
 
-    public void AddModule<T>()
+    public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] T>()
     {
         AddModule(typeof(T));
     }
 
-    private void AddModuleCore(Type type)
+    private void AddModuleCore([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type)
     {
         var configuration = _configuration;
 
         var slashCommandAttribute = type.GetCustomAttribute<SlashCommandAttribute>();
         if (slashCommandAttribute is not null)
-            AddCommandInfo(new SlashCommandGroupInfo<TContext>(type, slashCommandAttribute, configuration));
+        {
+            SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration);
+            OnAutocompleteAdd(slashCommandGroupInfo);
+            AddCommandInfo(slashCommandGroupInfo);
+        }
         else
         {
             foreach (var method in type.GetMethods())
             {
                 slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
                 if (slashCommandAttribute is not null)
-                    AddCommandInfo(new SlashCommandInfo<TContext>(method, slashCommandAttribute, configuration));
+                {
+                    SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration);
+                    OnAutocompleteAdd(slashCommandInfo);
+                    AddCommandInfo(slashCommandInfo);
+                }
 
                 var userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
                 if (userCommandAttribute is not null)
-                    AddCommandInfo(new UserCommandInfo<TContext>(method, userCommandAttribute, configuration));
+                    AddCommandInfo(new UserCommandInfo<TContext>(method, type, userCommandAttribute, configuration));
 
                 var messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
                 if (messageCommandAttribute is not null)
-                    AddCommandInfo(new MessageCommandInfo<TContext>(method, messageCommandAttribute, configuration));
+                    AddCommandInfo(new MessageCommandInfo<TContext>(method, type, messageCommandAttribute, configuration));
             }
         }
 
@@ -185,5 +191,9 @@ public class ApplicationCommandService<TContext> : IService where TContext : IAp
         if (success)
             return applicationCommandInfo!;
         throw new ApplicationCommandNotFoundException();
+    }
+
+    private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
+    {
     }
 }

@@ -1,15 +1,19 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services.ApplicationCommands;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class SlashCommandParameterAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    public Type? NameTranslationsProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
     public string? Description { get; init; }
 
-    public Type? DescriptionTranslationsProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? DescriptionTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
     public double MaxValue
     {
@@ -57,9 +61,12 @@ public class SlashCommandParameterAttribute : Attribute
 
     public ChannelType[]? AllowedChannelTypes { get; init; }
 
-    public Type? TypeReaderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? TypeReaderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
-    public Type? ChoicesProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? ChoicesProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
 
-    public Type? AutocompleteProviderType { get; init; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    public Type? AutocompleteProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] get; init; }
 }

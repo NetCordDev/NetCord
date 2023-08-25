@@ -1,11 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace NetCord.Services;
 
 internal static class ParameterHelper
 {
-    public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetParameterInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, Type? typeReaderType, Dictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader)
+    public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetParameterInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? typeReaderType, Dictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader)
     {
         TTypeReader resultTypeReader;
         Type resultNonNullableType;
@@ -65,6 +67,14 @@ internal static class ParameterHelper
             resultTypeReader = castedTypeReader;
         }
         return (resultTypeReader, resultNonNullableType, resultDefaultValue);
+    }
+
+    public static object? GetParameterDefaultValue(Type type, ParameterInfo parameter)
+    {
+        var underlyingType = Nullable.GetUnderlyingType(type);
+        return underlyingType is null
+            ? GetNonUnderlyingTypeDefaultValue(type, parameter)
+            : GetUnderlyingTypeDefaultValue(underlyingType, parameter);
     }
 
     public static object? GetNonUnderlyingTypeDefaultValue(Type type, ParameterInfo parameter)
@@ -161,9 +171,6 @@ internal static class ParameterHelper
         return defaultValue is null ? null : Enum.ToObject(type, defaultValue);
     }
 
-    private static readonly MethodInfo _getDefaultValueMethodInfo = typeof(ParameterHelper).GetMethod(nameof(GetDefaultValue), 1, BindingFlags.Static | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!;
-
-    private static object? GetDefaultValue(Type type) => _getDefaultValueMethodInfo.MakeGenericMethod(type).Invoke(null, null);
-
-    private static object? GetDefaultValue<T>() => default(T);
+    [UnconditionalSuppressMessage("Trimming", "IL2067:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "This does not actually require constructors to work")]
+    private static object? GetDefaultValue(Type type) => RuntimeHelpers.GetUninitializedObject(type);
 }

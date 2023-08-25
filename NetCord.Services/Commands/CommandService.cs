@@ -1,9 +1,10 @@
 ﻿using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
-public partial class CommandService<TContext> : IService where TContext : ICommandContext
+public partial class CommandService<TContext> where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration;
     private readonly char[] _parameterSeparators;
@@ -22,6 +23,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         _commands = new(configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
     }
 
+    [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
         Type baseType = typeof(BaseCommandModule<TContext>);
@@ -35,7 +37,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    public void AddModule(Type type)
+    public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseCommandModule<TContext>)}'.");
@@ -44,12 +46,12 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             AddModuleCore(type);
     }
 
-    public void AddModule<T>()
+    public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>()
     {
         AddModule(typeof(T));
     }
 
-    private void AddModuleCore(Type type)
+    private void AddModuleCore([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         var configuration = _configuration;
         foreach (var method in type.GetMethods())
@@ -57,7 +59,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
             if (commandAttribute is null)
                 continue;
-            CommandInfo<TContext> commandInfo = new(method, commandAttribute, configuration);
+            CommandInfo<TContext> commandInfo = new(method, type, commandAttribute, configuration);
             foreach (var alias in commandAttribute.Aliases)
             {
                 if (alias.ContainsAny(_parameterSeparators))
@@ -256,6 +258,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL3050:RequiresDynamicCode", Justification = "The type of the array is known to be present")]
     private static async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separators);
