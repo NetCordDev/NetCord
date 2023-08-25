@@ -1,7 +1,7 @@
 ﻿using NetCord;
 using NetCord.Gateway;
 
-ShardedGatewayClient shardedGatewayClient = new(new Token(TokenType.Bot, "Token"));
+ShardedGatewayClient shardedGatewayClient = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"));
 
 shardedGatewayClient.Log += (client, message) =>
 {
