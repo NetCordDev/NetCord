@@ -32,6 +32,7 @@ You can install NetCord and NetCord.Services via NuGet package manager:
 - **Asynchronous** - NetCord is fully asynchronous and concurrent
 - **Easy to use** - NetCord is easy to use and understand
 - **Fully customizable** - NetCord is fully customizable and extensible
+- **AOT-ready** - NetCord supports Native AOT compilation
 - **Immutable** - NetCord's caching is immutable by default
 - **Voice-ready** - NetCord supports both sending and receiving voice
 - **Comprehensive** - NetCord covers the entire Discord API and more
