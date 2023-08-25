@@ -160,6 +160,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomModuleBases", "Docume
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomContexts", "Documentation\guides\services\CustomModuleBasesAndContexts\CustomContexts\CustomContexts.csproj", "{1098C5F6-B9F1-4206-805C-5AC78315E946}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharding", "Documentation\guides\advanced\Sharding\Sharding.csproj", "{7FF73C26-720D-47FC-858C-74A5B545FE73}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

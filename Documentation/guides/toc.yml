@@ -52,6 +52,8 @@
       href: services/custom-module-bases-and-contexts.md
 - name: Advanced Concepts
   items:
+    - name: Sharding
+      href: advanced/sharding.md
     - name: Voice
       href: advanced/voice.md
     - name: Google Cloud Platform Attachments
