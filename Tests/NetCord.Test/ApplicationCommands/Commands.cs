@@ -49,6 +49,12 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         _joinSemaphores = joinSemaphores;
     }
 
+    [SlashCommand("enum", "Enum!")]
+    public Task EnumAsync(ChannelFlags @enum)
+    {
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(@enum.ToString()));
+    }
+
     [SlashCommand("play", "Plays music")]
     public async Task PlayAsync()
     {
@@ -461,7 +467,7 @@ public enum DeleteMessagesDays
     Last5Days = 5 * 24 * 60 * 60,
     [SlashCommandChoice(Name = "Last 6 days")]
     Last6Days = 6 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last week", TranslationsProviderType = typeof(DeleteMessagesDaysLastWeekTranslationsProvider))]
+    [SlashCommandChoice(Name = "Last week", NameTranslationsProviderType = typeof(DeleteMessagesDaysLastWeekTranslationsProvider))]
     LastWeek = 7 * 24 * 60 * 60,
 }
 

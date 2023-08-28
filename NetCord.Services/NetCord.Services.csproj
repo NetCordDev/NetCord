@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PublishTrimmed>true</PublishTrimmed>
 
     <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
@@ -28,5 +29,5 @@
     <ProjectReference Include="..\NetCord\NetCord.csproj" />
     <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
   </ItemGroup>
-
+  
 </Project>

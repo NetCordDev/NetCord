@@ -15,7 +15,6 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
     {
         MethodHelper.EnsureMethodReturnTypeValid(method);
 
-
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
 

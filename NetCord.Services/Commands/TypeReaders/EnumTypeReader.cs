@@ -1,37 +1,39 @@
 ﻿using System.Reflection;
 
+using NetCord.Services.EnumTypeReaders;
+
 namespace NetCord.Services.Commands.TypeReaders;
 
 public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    private readonly object _lock = new();
-    private readonly Dictionary<CommandParameter<TContext>, bool> _parameters = new();
-    private readonly Dictionary<Type, bool> _types = new();
+    private readonly EnumTypeReaderManager<IEnumTypeReader, CommandParameter<TContext>, CommandParameter<TContext>, CommandServiceConfiguration<TContext>> _enumTypeReaderManager;
+    private readonly Dictionary<Type, bool> _byValueTypes = new();
+
+    public unsafe EnumTypeReader()
+    {
+        _enumTypeReaderManager = new(&GetKey, (parameter, _, configuration) =>
+        {
+            var type = parameter.NonNullableElementType;
+            var allowByValueAttributeType = typeof(AllowByValueAttribute);
+
+            if (parameter.Attributes.ContainsKey(allowByValueAttributeType))
+                return new EnumNameOrValueTypeReader(type, configuration.IgnoreCase, configuration.CultureInfo);
+
+            var byValueTypes = _byValueTypes;
+            if (!byValueTypes.TryGetValue(type, out var byValueType))
+                byValueTypes.Add(type, byValueType = type.IsDefined(typeof(AllowByValueAttribute)));
+
+            return byValueType ? new EnumNameOrValueTypeReader(type, configuration.IgnoreCase, configuration.CultureInfo) : new EnumNameTypeReader(type, configuration.IgnoreCase);
+        });
+
+        static CommandParameter<TContext> GetKey(CommandParameter<TContext> parameter) => parameter;
+    }
 
     public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        var span = input.Span;
-        var type = parameter.NonNullableElementType;
+        if (_enumTypeReaderManager.GetTypeReader(parameter, configuration).TryRead(input, out var value))
+            return Task.FromResult<object?>(value);
 
-        bool byValue;
-        lock (_lock)
-        {
-            if (!_parameters.TryGetValue(parameter, out byValue))
-                _parameters[parameter] = byValue = parameter.Attributes.ContainsKey(typeof(AllowByValueAttribute))
-                                                   || (_types.TryGetValue(type, out var byValueType) ? byValueType : (_types[type] = type.IsDefined(typeof(AllowByValueAttribute))));
-        }
-
-        if (byValue) // by value or by name
-        {
-            if (Enum.TryParse(type, span, configuration.IgnoreCase, out var value) && Enum.IsDefined(type, value!))
-                return Task.FromResult(value);
-        }
-        else // by name
-        {
-            if (((uint)span[0] - '0') > 9 && Enum.TryParse(type, span, configuration.IgnoreCase, out var value))
-                return Task.FromResult(value);
-        }
-
-        throw new FormatException($"Invalid {type.Name}.");
+        throw new FormatException($"Invalid {parameter.NonNullableElementType.Name}.");
     }
 }

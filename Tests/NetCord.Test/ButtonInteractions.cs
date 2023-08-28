@@ -36,4 +36,10 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{s}\n{s2}"));
     }
+
+    [Interaction("enum")]
+    public Task EnumAsync(PaginationDirection paginationDirection)
+    {
+           return RespondAsync(InteractionCallback.ChannelMessageWithSource(paginationDirection.ToString()));
+    }
 }

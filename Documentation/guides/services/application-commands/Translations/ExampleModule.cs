@@ -21,13 +21,13 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
 
     public enum Animal
     {
-        [SlashCommandChoice(TranslationsProviderType = typeof(AnimalDogTranslationsProvider))]
+        [SlashCommandChoice(NameTranslationsProviderType = typeof(AnimalDogTranslationsProvider))]
         Dog,
-        [SlashCommandChoice(TranslationsProviderType = typeof(AnimalCatTranslationsProvider))]
+        [SlashCommandChoice(NameTranslationsProviderType = typeof(AnimalCatTranslationsProvider))]
         Cat,
-        [SlashCommandChoice(TranslationsProviderType = typeof(AnimalFishTranslationsProvider))]
+        [SlashCommandChoice(NameTranslationsProviderType = typeof(AnimalFishTranslationsProvider))]
         Fish,
-        [SlashCommandChoice(Name = "Guinea Pig", TranslationsProviderType = typeof(AnimalGuineaPigTranslationsProvider))]
+        [SlashCommandChoice(Name = "Guinea Pig", NameTranslationsProviderType = typeof(AnimalGuineaPigTranslationsProvider))]
         GuineaPig,
     }
 
