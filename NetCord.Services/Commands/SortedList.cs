@@ -5,8 +5,6 @@ namespace NetCord.Services.Commands;
 
 internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 {
-    private const int DefaultCapacity = 4;
-
     private T[] _items;
     private readonly Comparison<T> _comparison;
     private int _size;
@@ -73,15 +71,15 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 
     private void Grow(int capacity)
     {
-        var newcapacity = _items.Length == 0 ? DefaultCapacity : 2 * _items.Length;
+        var newCapacity = _items.Length + 1;
 
-        if ((uint)newcapacity > Array.MaxLength)
-            newcapacity = Array.MaxLength;
+        if ((uint)newCapacity > Array.MaxLength)
+            newCapacity = Array.MaxLength;
 
-        if (newcapacity < capacity)
-            newcapacity = capacity;
+        if (newCapacity < capacity)
+            newCapacity = capacity;
 
-        Capacity = newcapacity;
+        Capacity = newCapacity;
     }
 
     public void Clear()
