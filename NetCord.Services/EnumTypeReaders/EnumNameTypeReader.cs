@@ -15,7 +15,7 @@ internal class EnumNameTypeReader : IEnumTypeReader
     internal EnumNameTypeReader(Type enumType, FieldInfo[] fields, bool ignoreCase)
     {
         int length = fields.Length;
-        Dictionary<ReadOnlyMemory<char>, object> namesDictionary = new(length, ignoreCase ? InvariantIgnoreCaseReadOnlyMemoryCharComparer.Instance : null);
+        Dictionary<ReadOnlyMemory<char>, object> namesDictionary = new(length, ignoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
 
         for (var i = 0; i < length; i++)
         {

@@ -6,12 +6,12 @@ namespace NetCord.Services.Interactions;
 public class InteractionService<TContext> where TContext : IInteractionContext
 {
     private readonly InteractionServiceConfiguration<TContext> _configuration;
-    private readonly Dictionary<string, InteractionInfo<TContext>> _interactions = new();
+    private readonly Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
-    public IReadOnlyDictionary<string, InteractionInfo<TContext>> GetInteractions()
+    public IReadOnlyDictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> GetInteractions()
     {
         lock (_interactions)
-            return new Dictionary<string, InteractionInfo<TContext>>(_interactions);
+            return new Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>>(_interactions);
     }
 
     public InteractionService(InteractionServiceConfiguration<TContext>? configuration = null)
@@ -56,7 +56,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
             if (interactionAttribute is null)
                 continue;
             InteractionInfo<TContext> interactionInfo = new(method, type, configuration);
-            _interactions.Add(interactionAttribute.CustomId, interactionInfo);
+            _interactions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
         }
     }
 
@@ -64,21 +64,22 @@ public class InteractionService<TContext> where TContext : IInteractionContext
     {
         var configuration = _configuration;
         var separator = configuration.ParameterSeparator;
-        var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId;
-        var index = content.IndexOf(separator);
-        string? customId;
+        var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId.AsMemory();
+        var index = content.Span.IndexOf(separator);
+        InteractionInfo<TContext> interactionInfo;
         ReadOnlyMemory<char> arguments;
         if (index == -1)
         {
-            customId = content;
+            var customId = content;
+            interactionInfo = GetInteractionInfo(customId);
             arguments = default;
         }
         else
         {
-            customId = content[..index];
-            arguments = content.AsMemory(index + 1);
+            var customId = content[..index];
+            interactionInfo = GetInteractionInfo(customId);
+            arguments = content[(index + 1)..];
         }
-        var interactionInfo = GetInteractionInfo(customId);
 
         await interactionInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
 
@@ -161,7 +162,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
         }
     }
 
-    private InteractionInfo<TContext> GetInteractionInfo(string customId)
+    private InteractionInfo<TContext> GetInteractionInfo(ReadOnlyMemory<char> customId)
     {
         InteractionInfo<TContext>? interactionInfo;
         bool success;

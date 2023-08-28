@@ -40,6 +40,6 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
     [Interaction("enum")]
     public Task EnumAsync(PaginationDirection paginationDirection)
     {
-           return RespondAsync(InteractionCallback.ChannelMessageWithSource(paginationDirection.ToString()));
+        return RespondAsync(InteractionCallback.ChannelMessageWithSource(paginationDirection.ToString()));
     }
 }

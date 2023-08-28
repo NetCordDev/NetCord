@@ -8,19 +8,19 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration;
     private readonly char[] _parameterSeparators;
-    private readonly Dictionary<string, SortedList<CommandInfo<TContext>>> _commands;
+    private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands;
 
-    public IReadOnlyDictionary<string, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
+    public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
     {
         lock (_commands)
-            return new Dictionary<string, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<string, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
+            return new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
     }
 
     public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
         _configuration = configuration ??= new();
         _parameterSeparators = configuration.ParameterSeparators.ToArray();
-        _commands = new(configuration.IgnoreCase ? StringComparer.InvariantCultureIgnoreCase : StringComparer.InvariantCulture);
+        _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
     }
 
     [RequiresUnreferencedCode("Types might be removed")]
@@ -54,17 +54,22 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     private void AddModuleCore([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         var configuration = _configuration;
+        ReadOnlySpan<char> separators = _parameterSeparators;
+
         foreach (var method in type.GetMethods())
         {
-            CommandAttribute? commandAttribute = method.GetCustomAttribute<CommandAttribute>();
+            var commandAttribute = method.GetCustomAttribute<CommandAttribute>();
             if (commandAttribute is null)
                 continue;
             CommandInfo<TContext> commandInfo = new(method, type, commandAttribute, configuration);
             foreach (var alias in commandAttribute.Aliases)
             {
-                if (alias.ContainsAny(_parameterSeparators))
+                var aliasMemory = alias.AsMemory();
+
+                if (aliasMemory.Span.IndexOfAny(separators) >= 0)
                     throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParameterSeparators)}'.", method);
-                if (!_commands.TryGetValue(alias, out var list))
+
+                if (!_commands.TryGetValue(aliasMemory, out var list))
                 {
                     list = new((ci1, ci2) =>
                     {
@@ -83,7 +88,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
                             return 1;
                         return 0;
                     });
-                    _commands.Add(alias, list);
+                    _commands.Add(aliasMemory, list);
                 }
                 list.Add(commandInfo);
             }
@@ -92,22 +97,22 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 
     public async Task ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
     {
-        var content = context.Message.Content;
+        var fullCommand = context.Message.Content.AsMemory(prefixLength);
         var separators = _parameterSeparators;
-        var index = content.IndexOfAny(separators, prefixLength);
+        var index = fullCommand.Span.IndexOfAny(separators);
         SortedList<CommandInfo<TContext>> commandInfos;
         ReadOnlyMemory<char> baseArguments;
         if (index == -1)
         {
-            var command = content[prefixLength..];
+            var command = fullCommand;
             commandInfos = GetCommandInfos(command);
             baseArguments = default;
         }
         else
         {
-            var command = content[prefixLength..index];
+            var command = fullCommand[..index];
             commandInfos = GetCommandInfos(command);
-            baseArguments = content.AsMemory(index + 1);
+            baseArguments = fullCommand[(index + 1)..];
         }
         var configuration = _configuration;
 
@@ -235,7 +240,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         }
     }
 
-    private SortedList<CommandInfo<TContext>> GetCommandInfos(string command)
+    private SortedList<CommandInfo<TContext>> GetCommandInfos(ReadOnlyMemory<char> command)
     {
         SortedList<CommandInfo<TContext>>? commandInfos;
         bool success;
