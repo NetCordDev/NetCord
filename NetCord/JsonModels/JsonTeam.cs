@@ -5,9 +5,9 @@ namespace NetCord.JsonModels;
 public partial class JsonTeam : JsonEntity
 {
     [JsonPropertyName("icon")]
-    public string? Icon { get; set; }
+    public string? IconHash { get; set; }
 
-    [JsonPropertyName("users")]
+    [JsonPropertyName("members")]
     public JsonTeamUser[] Users { get; set; }
 
     [JsonPropertyName("name")]

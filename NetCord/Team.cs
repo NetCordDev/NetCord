@@ -9,7 +9,7 @@ public class Team : Entity, IJsonModel<JsonModels.JsonTeam>
 
     public override ulong Id => _jsonModel.Id;
 
-    public string? Icon => _jsonModel.Icon;
+    public string? IconHash => _jsonModel.IconHash;
 
     public IReadOnlyList<TeamUser> Users { get; }
 

@@ -8,8 +8,8 @@ public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
     private readonly JsonModels.JsonTeamUser _jsonTeamModel;
 
     public MembershipState MembershipState => _jsonTeamModel.MembershipState;
-    public IReadOnlyList<string> Permissions => _jsonTeamModel.Permissions;
     public ulong TeamId => _jsonTeamModel.TeamId;
+    public TeamRole Role => _jsonTeamModel.Role;
 
     public TeamUser(JsonModels.JsonTeamUser jsonModel, RestClient client) : base(jsonModel.User, client)
     {
