@@ -8,8 +8,8 @@ public partial class RestClient
     public async Task<StandardSticker> GetStickerAsync(ulong stickerId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/stickers/{stickerId}", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonSticker.JsonStickerSerializerContext.WithOptions.JsonSticker).ConfigureAwait(false));
 
-    public async Task<IReadOnlyDictionary<ulong, StickerPack>> GetNitroStickerPacksAsync(RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/sticker-packs", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonNitroStickerPacks.JsonNitroStickerPacksSerializerContext.WithOptions.JsonNitroStickerPacks).ConfigureAwait(false)).StickerPacks.ToDictionary(s => s.Id, s => new StickerPack(s));
+    public async Task<IReadOnlyDictionary<ulong, StickerPack>> GetStickerPacksAsync(RequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/sticker-packs", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonStickerPacks.JsonStickerPacksSerializerContext.WithOptions.JsonStickerPacks).ConfigureAwait(false)).StickerPacks.ToDictionary(s => s.Id, s => new StickerPack(s));
 
     public async Task<IReadOnlyDictionary<ulong, GuildSticker>> GetGuildStickersAsync(ulong guildId, RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/stickers", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonSticker.JsonStickerArraySerializerContext.WithOptions.JsonStickerArray).ConfigureAwait(false)).ToDictionary(s => s.Id, s => new GuildSticker(s, this));
