@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 {
