@@ -69,7 +69,7 @@ public static class MentionUtils
             throw new FormatException("Cannot parse the mention.");
     }
 
-    public static bool TryParseSlashCommand(ReadOnlySpan<char> mention, [NotNullWhen(true)] out SlashCommandMentionParseResult? result)
+    public static bool TryParseSlashCommand(ReadOnlySpan<char> mention, [MaybeNullWhen(false)] out SlashCommandMention result)
     {
         if (mention.StartsWith("</") && mention.EndsWith(">"))
         {
@@ -106,8 +106,8 @@ public static class MentionUtils
 
             result = i switch
             {
-                0 => new(id, s[0], null, null),
-                1 => new(id, s[0], null, s[1]),
+                0 => new(id, s[0]),
+                1 => new(id, s[0], s[1]),
                 _ => new(id, s[0], s[1], s[2]),
             };
             return true;
@@ -118,9 +118,35 @@ public static class MentionUtils
         return false;
     }
 
-    public static SlashCommandMentionParseResult ParseSlashCommand(ReadOnlySpan<char> mention)
+    public static SlashCommandMention ParseSlashCommand(ReadOnlySpan<char> mention)
     {
         if (TryParseSlashCommand(mention, out var result))
+            return result;
+        else
+            throw new FormatException("Cannot parse the mention.");
+    }
+
+    public static bool TryParseTimestamp(ReadOnlySpan<char> mention, out Timestamp result)
+    {
+        return Timestamp.TryParse(mention, out result);
+    }
+
+    public static Timestamp ParseTimestamp(ReadOnlySpan<char> mention)
+    {
+        if (TryParseTimestamp(mention, out var result))
+            return result;
+        else
+            throw new FormatException("Cannot parse the mention.");
+    }
+
+    public static bool TryParseGuildNavigation(ReadOnlySpan<char> mention, out GuildNavigation result)
+    {
+        return GuildNavigation.TryParse(mention, out result);
+    }
+
+    public static GuildNavigation ParseGuildNavigation(ReadOnlySpan<char> mention)
+    {
+        if (TryParseGuildNavigation(mention, out var result))
             return result;
         else
             throw new FormatException("Cannot parse the mention.");

@@ -1,8 +1,9 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace NetCord;
 
-public readonly struct Timestamp
+public readonly struct Timestamp : IEquatable<Timestamp>
 {
     public DateTimeOffset DateTime { get; }
     public TimestampStyle? Style { get; }
@@ -50,6 +51,16 @@ public readonly struct Timestamp
         else
             throw new FormatException($"Cannot parse '{nameof(Timestamp)}'.");
     }
+
+    public static bool operator ==(Timestamp left, Timestamp right) => left.Equals(right);
+
+    public static bool operator !=(Timestamp left, Timestamp right) => !(left == right);
+
+    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Timestamp timestamp && this.Equals(timestamp);
+
+    public bool Equals(Timestamp other) => DateTime == other.DateTime && Style == other.Style;
+
+    public override int GetHashCode() => HashCode.Combine(DateTime, Style);
 
     /// <summary>
     /// 

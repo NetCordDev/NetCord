@@ -1,93 +1,98 @@
+using System.Diagnostics.CodeAnalysis;
+
 using NetCord;
 
 namespace MentionUtilsTest;
 
 [TestClass]
-public class Test
+public unsafe class Test
 {
+    private const ulong Id = 859359702012788756;
+
     [TestMethod]
     public void User()
     {
-        ParseTest(MentionUtils.ParseUser, id => $"<@{id}>");
-        ParseTest(MentionUtils.ParseUser, id => $"<@!{id}>");
-        TryParseTest(MentionUtils.TryParseUser, id => $"<@{id}>");
-        TryParseTest(MentionUtils.TryParseUser, id => $"<@!{id}>");
+        ParseTest(&MentionUtils.ParseUser, Id, id => $"<@{id}>");
+        ParseTest(&MentionUtils.ParseUser, Id, id => $"<@!{id}>");
+        TryParseTest(&MentionUtils.TryParseUser, Id, id => $"<@{id}>");
+        TryParseTest(&MentionUtils.TryParseUser, Id, id => $"<@!{id}>");
     }
 
     [TestMethod]
     public void Channel()
     {
-        ParseTest(MentionUtils.ParseChannel, id => $"<#{id}>");
-        TryParseTest(MentionUtils.TryParseChannel, id => $"<#{id}>");
+        ParseTest(&MentionUtils.ParseChannel, Id, id => $"<#{id}>");
+        TryParseTest(&MentionUtils.TryParseChannel, Id, id => $"<#{id}>");
     }
 
     [TestMethod]
     public void Role()
     {
-        ParseTest(MentionUtils.ParseRole, id => $"<@&{id}>");
-        TryParseTest(MentionUtils.TryParseRole, id => $"<@&{id}>");
+        ParseTest(&MentionUtils.ParseRole, Id, id => $"<@&{id}>");
+        TryParseTest(&MentionUtils.TryParseRole, Id, id => $"<@&{id}>");
     }
 
     [TestMethod]
     public void SlashCommand()
     {
-        ulong id = 859359702012788756;
-
-        var result = MentionUtils.ParseSlashCommand($"</name:{id}>");
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual(null, result.SubCommandGroupName);
-        Assert.AreEqual(null, result.SubCommandName);
-
-        result = MentionUtils.ParseSlashCommand($"</name name2:{id}>");
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual(null, result.SubCommandGroupName);
-        Assert.AreEqual("name2", result.SubCommandName);
-
-        result = MentionUtils.ParseSlashCommand($"</name name2 name3:{id}>");
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual("name2", result.SubCommandGroupName);
-        Assert.AreEqual("name3", result.SubCommandName);
-
-        var badMentions = new string[]
+        var testMentions = new SlashCommandMention[]
         {
-            string.Empty,
-            $"</name name2 name3 name4:{id}>",
+            new(Id, "name"),
+            new(Id, "name", "name2"),
+            new(Id, "name", "name2", "name3")
         };
 
-        foreach (var badMention in badMentions)
-            Assert.ThrowsException<FormatException>(() => MentionUtils.ParseSlashCommand(badMention));
-
-        Assert.IsTrue(MentionUtils.TryParseSlashCommand($"</name:{id}>", out result));
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual(null, result.SubCommandGroupName);
-        Assert.AreEqual(null, result.SubCommandName);
-
-        Assert.IsTrue(MentionUtils.TryParseSlashCommand($"</name name2:{id}>", out result));
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual(null, result.SubCommandGroupName);
-        Assert.AreEqual("name2", result.SubCommandName);
-
-        Assert.IsTrue(MentionUtils.TryParseSlashCommand($"</name name2 name3:{id}>", out result));
-        Assert.AreEqual(id, result.Id);
-        Assert.AreEqual("name", result.Name);
-        Assert.AreEqual("name2", result.SubCommandGroupName);
-        Assert.AreEqual("name3", result.SubCommandName);
-
-        foreach (var badMention in badMentions)
-            Assert.IsFalse(MentionUtils.TryParseChannel(badMention, out _));
+        foreach (var mention in testMentions)
+        {
+            ParseTest(&MentionUtils.ParseSlashCommand, mention, m => m.ToString());
+            TryParseTest(&MentionUtils.TryParseSlashCommand, mention, m => m.ToString());
+        }
     }
 
-    public static void ParseTest(ParseDelegate del, Func<ulong, string> validMentionFunc)
+    [TestMethod]
+    public void Timestamp()
     {
-        ulong id = 859359702012788756;
-        var mention = validMentionFunc(id);
+        DateTimeOffset dateTimeOffset = new(2021, 07, 01, 00, 00, 00, TimeSpan.Zero);
+        var testMentions = new Timestamp[]
+        {
+            new(dateTimeOffset, TimestampStyle.ShortTime),
+            new(dateTimeOffset, TimestampStyle.LongTime),
+            new(dateTimeOffset, TimestampStyle.ShortDate),
+            new(dateTimeOffset, TimestampStyle.LongDate),
+            new(dateTimeOffset, TimestampStyle.ShortDateTime),
+            new(dateTimeOffset, TimestampStyle.LongDateTime),
+            new(dateTimeOffset, TimestampStyle.RelativeTime),
+        };
 
-        Assert.AreEqual(id, del(mention));
+        foreach (var mention in testMentions)
+        {
+            ParseTest(&MentionUtils.ParseTimestamp, mention, m => m.ToString());
+            TryParseTest(&MentionUtils.TryParseTimestamp, mention, m => m.ToString());
+        }
+    }
+
+    [TestMethod]
+    public void GuildNavigation()
+    {
+        var testMentions = new GuildNavigation[]
+        {
+            new(GuildNavigationType.Customize),
+            new(GuildNavigationType.Browse),
+            new(GuildNavigationType.Guide),
+        };
+
+        foreach (var mention in testMentions)
+        {
+            ParseTest(&MentionUtils.ParseGuildNavigation, mention, m => m.ToString());
+            TryParseTest(&MentionUtils.TryParseGuildNavigation, mention, m => m.ToString());
+        }
+    }
+
+    public static void ParseTest<T>(delegate*<ReadOnlySpan<char>, T> parse, T expected, Func<T, string> validMentionFunc)
+    {
+        var mention = validMentionFunc(expected);
+
+        Assert.AreEqual(expected, parse(mention));
 
         var badMentions = new string[]
         {
@@ -97,16 +102,15 @@ public class Test
         };
 
         foreach (var badMention in badMentions)
-            Assert.ThrowsException<FormatException>(() => del(badMention));
+            Assert.ThrowsException<FormatException>(() => parse(badMention));
     }
 
-    public static void TryParseTest(TryParseDelegate del, Func<ulong, string> validMentionFunc)
+    public static void TryParseTest<T>(delegate*<ReadOnlySpan<char>, out T?, bool> tryParse, T expected, Func<T, string> validMentionFunc)
     {
-        ulong id = 859359702012788756;
-        var mention = validMentionFunc(id);
+        var mention = validMentionFunc(expected);
 
-        Assert.IsTrue(del(mention, out var result));
-        Assert.AreEqual(id, result);
+        Assert.IsTrue(tryParse(mention, out var result));
+        Assert.AreEqual(expected, result);
 
         var badMentions = new string[]
         {
@@ -116,9 +120,6 @@ public class Test
         };
 
         foreach (var badMention in badMentions)
-            Assert.IsFalse(del(badMention, out _));
+            Assert.IsFalse(tryParse(badMention, out _));
     }
-
-    public delegate ulong ParseDelegate(ReadOnlySpan<char> span);
-    public delegate bool TryParseDelegate(ReadOnlySpan<char> span, out ulong result);
 }
