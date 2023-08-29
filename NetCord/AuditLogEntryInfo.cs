@@ -66,4 +66,9 @@ public class AuditLogEntryInfo : IJsonModel<JsonAuditLogEntryInfo>
     /// Type of overwritten entity.
     /// </summary>
     public PermissionOverwriteType? Type => (PermissionOverwriteType?)_jsonModel.Type;
+
+    /// <summary>
+    /// Type of integration which performed the action.
+    /// </summary>
+    public IntegrationType? IntegrationType => _jsonModel.IntegrationType;
 }

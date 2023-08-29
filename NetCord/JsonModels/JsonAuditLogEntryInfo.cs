@@ -41,4 +41,7 @@ public class JsonAuditLogEntryInfo
     [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
     [JsonPropertyName("type")]
     public int? Type { get; set; } //PermissionOverwriteType
+
+    [JsonPropertyName("integration_type")]
+    public IntegrationType? IntegrationType { get; set; }
 }
