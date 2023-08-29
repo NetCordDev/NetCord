@@ -16,7 +16,6 @@ public class Guild : RestGuild
     public ImmutableDictionary<ulong, Presence> Presences { get; set; }
     public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; set; }
 
-    public string? IconHash => _jsonModel.IconHash;
     public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public bool IsLarge => _jsonModel.IsLarge;
     public bool IsUnavailable => _jsonModel.IsUnavailable;
@@ -24,13 +23,13 @@ public class Guild : RestGuild
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
-        VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionary(s => new VoiceState(s, client));
-        Users = _jsonModel.Users.ToImmutableDictionary(u => new GuildUser(u, Id, client));
-        Channels = _jsonModel.Channels.ToImmutableDictionary(c => (IGuildChannel)Channel.CreateFromJson(c, client));
-        ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionary(t => (GuildThread)Channel.CreateFromJson(t, client));
-        StageInstances = _jsonModel.StageInstances.ToImmutableDictionary(i => new StageInstance(i, client));
-        Presences = _jsonModel.Presences.ToImmutableDictionary(p => new Presence(p, Id, client));
-        ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionary(e => new GuildScheduledEvent(e, client));
+        VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, client));
+        Users = _jsonModel.Users.ToImmutableDictionaryOrEmpty(u => new GuildUser(u, Id, client));
+        Channels = _jsonModel.Channels.ToImmutableDictionaryOrEmpty(c => (IGuildChannel)Channel.CreateFromJson(c, client));
+        ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionaryOrEmpty(t => (GuildThread)Channel.CreateFromJson(t, client));
+        StageInstances = _jsonModel.StageInstances.ToImmutableDictionaryOrEmpty(i => new StageInstance(i, client));
+        Presences = _jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, Id, client));
+        ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
     }
 
     public Guild(JsonGuild jsonModel, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)

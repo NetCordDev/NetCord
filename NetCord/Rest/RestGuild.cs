@@ -13,8 +13,8 @@ public class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
 
     public override ulong Id => _jsonModel.Id;
     public string Name => _jsonModel.Name;
-    public string? Icon => _jsonModel.Icon;
-    public string? Splash => _jsonModel.SplashHash;
+    public string? IconHash => _jsonModel.IconHash ?? _jsonModel.IconHashTemplate;
+    public string? SplashHash => _jsonModel.SplashHash;
     public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
     public ulong OwnerId => _jsonModel.OwnerId;
     public Permissions? Permissions => _jsonModel.Permissions;

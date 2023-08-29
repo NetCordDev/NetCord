@@ -12,10 +12,10 @@ public partial class JsonGuild : JsonEntity
     public string Name { get; set; }
 
     [JsonPropertyName("icon")]
-    public string? Icon { get; set; }
+    public string? IconHash { get; set; }
 
     [JsonPropertyName("icon_hash")]
-    public string? IconHash { get; set; }
+    public string? IconHashTemplate { get; set; }
 
     [JsonPropertyName("splash")]
     public string? SplashHash { get; set; }

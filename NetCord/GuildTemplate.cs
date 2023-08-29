@@ -1,4 +1,7 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Gateway;
+using NetCord.Rest;
+
+namespace NetCord;
 
 public class GuildTemplate : IJsonModel<JsonModels.JsonGuildTemplate>
 {
@@ -11,7 +14,7 @@ public class GuildTemplate : IJsonModel<JsonModels.JsonGuildTemplate>
     {
         _jsonModel = jsonModel;
         Creator = new(_jsonModel.Creator, client);
-        SerializedSourceGuild = new(_jsonModel.SerializedSourceGuild, _jsonModel.SourceGuildId, client);
+        SerializedSourceGuild = new(jsonModel.SerializedSourceGuild, client);
         _client = client;
     }
 
@@ -33,7 +36,7 @@ public class GuildTemplate : IJsonModel<JsonModels.JsonGuildTemplate>
 
     public ulong SourceGuildId => _jsonModel.SourceGuildId;
 
-    public GuildTemplateSourceGuild SerializedSourceGuild { get; }
+    public Guild SerializedSourceGuild { get; }
 
     public bool? IsDirty => _jsonModel.IsDirty;
 
