@@ -15,9 +15,30 @@
     --ligatures: none;
 }
 
-    :root[ligatures="1"] {
-        --ligatures: normal;
-    }
+.navbar-nav {
+    --bs-nav-link-color: var(--bs-emphasis-color);
+    --bs-nav-link-hover-color: var(--blurple);
+    --bs-navbar-active-color: var(--blurple);
+    --bs-nav-link-font-weight: 600;
+}
+
+.btn {
+    --bs-btn-color: var(--bs-emphasis-color);
+    --bs-btn-hover-color: var(--blurple);
+    --bs-btn-active-color: var(--blurple);
+    --bs-btn-font-size: 1.05rem;
+}
+
+.dropdown-item {
+    --bs-dropdown-link-color: var(--bs-emphasis-color);
+    --bs-dropdown-link-hover-color: var(--blurple);
+    --bs-dropdown-link-active-color: var(--bs-white);
+    --bs-dropdown-link-active-bg: var(--blurple);
+}
+
+:root[ligatures="1"] {
+    --ligatures: normal;
+}
 
 .logo {
     height: 30px;
@@ -153,7 +174,7 @@ article, .main {
     display: inline-grid;
     vertical-align: bottom;
     justify-content: center;
-    width: 16px;
+    width: var(--bs-btn-font-size);
     font-style: normal;
     font-variant: normal;
     text-transform: none;
@@ -173,5 +194,13 @@ code, .icon-ligatures:before {
 }
 
 * {
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control {
+    transition: inherit;
+}
+
+.nav-link {
+    transition: inherit;
 }
