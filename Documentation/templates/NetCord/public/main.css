@@ -19,6 +19,15 @@
         --ligatures: normal;
     }
 
+.logo {
+    height: 30px;
+    width: 30px;
+}
+
+.navbar .navbar-brand {
+    padding: 10px;
+}
+
 pre code, article img {
     border-radius: 10px;
 }

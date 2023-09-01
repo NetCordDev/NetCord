@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="Resources/Logo/png/BigOutline.png" alt="Logo" width="650px">
+    <img src="Resources/Logo/svg/BigOutline.svg" alt="Logo" width="650px">
 </p>
 <p align="center">
     <b>A lightweight and asynchronous Discord API wrapper.</b>
