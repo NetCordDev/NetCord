@@ -36,6 +36,11 @@
     --bs-dropdown-link-active-bg: var(--blurple);
 }
 
+.dropdown-menu[data-bs-popper] {
+    left: unset;
+    right: 0;
+}
+
 :root[ligatures="1"] {
     --ligatures: normal;
 }
