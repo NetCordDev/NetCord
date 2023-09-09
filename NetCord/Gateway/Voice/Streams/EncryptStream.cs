@@ -69,7 +69,7 @@ internal class EncryptStream : RewritingStream
         datagram[0] = 0b10000000;
         datagram[1] = 0b1111000;
         BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], ++_sequenceNumber);
-        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += Opus.ExamplesPerChannel);
+        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += Opus.SamplesPerChannel);
         BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], _client.Cache.Ssrc);
     }
 }

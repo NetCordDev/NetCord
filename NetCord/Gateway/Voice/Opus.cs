@@ -6,15 +6,16 @@ public static class Opus
 {
     public const int SamplingRate = 48_000;
     public const int FrameDuration = 20;
-    public const int ExamplesPerChannel = SamplingRate / 1000 * FrameDuration;
-    public const int MaxOpusFrameLength = (255 * 4) + 255; // https://www.rfc-editor.org/rfc/rfc6716#section-3.2.1
+    public const int SamplesPerChannel = SamplingRate * FrameDuration / 1000;
+    public const int MaxOpusBitrate = 510_000;
+    public const int MaxOpusFrameLength = MaxOpusBitrate / 8 * FrameDuration / 1000;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="channels">Number of channels.</param>
     /// <returns></returns>
-    public static int GetFrameSize(VoiceChannels channels) => ExamplesPerChannel * sizeof(short) * (int)channels;
+    public static int GetFrameSize(VoiceChannels channels) => SamplesPerChannel * sizeof(short) * (int)channels;
 
     [DllImport("opus", EntryPoint = "opus_encoder_create", CallingConvention = CallingConvention.Cdecl)]
     internal static extern OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
