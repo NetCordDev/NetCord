@@ -94,7 +94,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await voiceClient.ReadyAsync;
 
         var outputStream = voiceClient.CreateOutputStream(/*false*/);
-        var opusEncodeStream = new OpusEncodeStream(outputStream, VoiceChannels.Stereo, OpusApplication.Audio);
+        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
@@ -104,7 +104,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
-            Arguments = $"-i \"{url}\" -ac 2 -f s16le -ar 48000 pipe:1",
+            Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
             RedirectStandardOutput = true,
         })!;
 

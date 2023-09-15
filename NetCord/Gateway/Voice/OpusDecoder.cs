@@ -34,6 +34,20 @@ public class OpusDecoder : IDisposable
             throw new OpusException((OpusError)result);
     }
 
+    /// <summary>
+    /// Decodes an Opus frame.
+    /// </summary>
+    /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
+    /// <param name="pcm">Output signal.</param>
+    /// <exception cref="OpusException"></exception>
+    public void DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm)
+    {
+        int result = Opus.OpusDecodeFloat(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, 0);
+
+        if (result < 0)
+            throw new OpusException((OpusError)result);
+    }
+
     public void Dispose()
     {
         _decoder.Dispose();

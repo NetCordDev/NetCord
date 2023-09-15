@@ -13,9 +13,10 @@ public static class Opus
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="format">Format of PCM.</param>
     /// <param name="channels">Number of channels.</param>
     /// <returns></returns>
-    public static int GetFrameSize(VoiceChannels channels) => SamplesPerChannel * sizeof(short) * (int)channels;
+    public static int GetFrameSize(PcmFormat format, VoiceChannels channels) => SamplesPerChannel * (byte)format * (byte)channels;
 
     [DllImport("opus", EntryPoint = "opus_encoder_create", CallingConvention = CallingConvention.Cdecl)]
     internal static extern OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
@@ -26,6 +27,9 @@ public static class Opus
     [DllImport("opus", EntryPoint = "opus_encode", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int OpusEncode(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
 
+    [DllImport("opus", EntryPoint = "opus_encode_float", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int OpusEncodeFloat(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
+
     [DllImport("opus", EntryPoint = "opus_decoder_create", CallingConvention = CallingConvention.Cdecl)]
     internal static extern OpusDecoderHandle OpusDecoderCreate(int Fs, VoiceChannels channels, out OpusError error);
 
@@ -34,4 +38,7 @@ public static class Opus
 
     [DllImport("opus", EntryPoint = "opus_decode", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int OpusDecode(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
+
+    [DllImport("opus", EntryPoint = "opus_decode_float", CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int OpusDecodeFloat(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
 }

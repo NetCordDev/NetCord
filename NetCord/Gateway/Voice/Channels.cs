@@ -3,7 +3,7 @@
 /// <summary>
 /// Number of channels.
 /// </summary>
-public enum VoiceChannels
+public enum VoiceChannels : byte
 {
     /// <summary>
     /// One channel.

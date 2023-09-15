@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.ComponentModel;
 
 namespace NetCord.Gateway.Voice;
 
@@ -8,12 +9,19 @@ public class OpusEncodeStream : RewritingStream
     /// 
     /// </summary>
     /// <param name="next">The stream that this stream is writing to.</param>
+    /// <param name="format">The PCM format to encode from.</param>
     /// <param name="channels">Number of channels in input signal.</param>
     /// <param name="application">Opus coding mode.</param>
     /// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
-    public OpusEncodeStream(Stream next, VoiceChannels channels, OpusApplication application, bool segment = true) : base(segment ? new SegmentingStream(new OpusEncodeStreamInternal(next, channels, application), channels)
-                                                                                                                                  : new OpusEncodeStreamInternal(next, channels, application))
+    public OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment = true) : base(CreateNextStream(next, format, channels, application, segment))
     {
+    }
+
+    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment)
+    {
+        OpusEncodeStreamInternal encodeStream = new(next, format, channels, application);
+        return segment ? new SegmentingStream(encodeStream, format, channels)
+                       : encodeStream;
     }
 
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -30,9 +38,9 @@ public class OpusEncodeStream : RewritingStream
         private readonly int _frameSize;
         private readonly Memory<byte> _buffer;
 
-        public SegmentingStream(Stream next, VoiceChannels channels) : base(next)
+        public SegmentingStream(Stream next, PcmFormat format, VoiceChannels channels) : base(next)
         {
-            _buffer = new byte[_frameSize = Opus.GetFrameSize(channels)];
+            _buffer = new byte[_frameSize = Opus.GetFrameSize(format, channels)];
         }
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -125,20 +133,36 @@ public class OpusEncodeStream : RewritingStream
         }
     }
 
-    private class OpusEncodeStreamInternal : RewritingStream
+    private unsafe partial class OpusEncodeStreamInternal : RewritingStream
     {
         private readonly OpusEncoder _encoder;
+        private readonly delegate*<OpusEncoder, ReadOnlySpan<byte>, Span<byte>, int> _encode;
 
-        public OpusEncodeStreamInternal(Stream next, VoiceChannels channels, OpusApplication application) : base(next)
+        public OpusEncodeStreamInternal(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application) : base(next)
         {
             _encoder = new(channels, application);
+            _encode = format switch
+            {
+                PcmFormat.Short => &Encode,
+                PcmFormat.Float => &EncodeFloat,
+                _ => throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(PcmFormat)),
+            };
+
+            static int Encode(OpusEncoder encoder, ReadOnlySpan<byte> pcm, Span<byte> data) => encoder.Encode(pcm, data);
+
+            static int EncodeFloat(OpusEncoder encoder, ReadOnlySpan<byte> pcm, Span<byte> data) => encoder.EncodeFloat(pcm, data);
         }
 
+        private int Encode(ReadOnlySpan<byte> pcm, Span<byte> data) => _encode(_encoder, pcm, data);
+    }
+
+    private partial class OpusEncodeStreamInternal : RewritingStream
+    {
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             using var owner = MemoryPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
             var data = owner.Memory;
-            int count = _encoder.Encode(buffer.Span, data.Span);
+            int count = Encode(buffer.Span, data.Span);
             await _next.WriteAsync(data[..count], cancellationToken).ConfigureAwait(false);
         }
 
@@ -146,7 +170,7 @@ public class OpusEncodeStream : RewritingStream
         {
             using var owner = MemoryPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
             var data = owner.Memory.Span;
-            int count = _encoder.Encode(buffer, data);
+            int count = Encode(buffer, data);
             _next.Write(data[..count]);
         }
 

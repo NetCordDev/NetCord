@@ -38,6 +38,23 @@ public class OpusEncoder : IDisposable
         return result;
     }
 
+    /// <summary>
+    /// Encodes an Opus frame.
+    /// </summary>
+    /// <param name="pcm">Input signal.</param>
+    /// <param name="data">Output payload.</param>
+    /// <returns>The length of the encoded packet.</returns>
+    /// <exception cref="OpusException"></exception>
+    public int EncodeFloat(ReadOnlySpan<byte> pcm, Span<byte> data)
+    {
+        int result = Opus.OpusEncodeFloat(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
+
+        if (result < 0)
+            throw new OpusException((OpusError)result);
+
+        return result;
+    }
+
     public void Dispose()
     {
         _encoder.Dispose();
