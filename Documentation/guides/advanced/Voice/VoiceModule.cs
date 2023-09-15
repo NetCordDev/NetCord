@@ -48,7 +48,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 
         // We create this stream to automatically convert the PCM data returned by FFmpeg to Opus data.
         // The Opus data is then written to 'outStream' that sends the data to Discord
-        OpusEncodeStream stream = new(outStream, VoiceChannels.Stereo, OpusApplication.Audio);
+        OpusEncodeStream stream = new(outStream, PcmFormat.Short, VoiceChannels.Stereo, OpusApplication.Audio);
 
         ProcessStartInfo startInfo = new("ffmpeg")
         {
