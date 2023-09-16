@@ -14,13 +14,13 @@ Now, it's time to create a bot instance! But before, you need a token of your bo
 > You should never give your token to anybody.
 
 Add the following line to the file.
-[!code-cs[Program.cs](coding/Program.cs#L4)]
+[!code-cs[Program.cs](Coding/Program.cs#L4)]
 
 Logging is important, because of it you know what is your bot doing. To add it, add the following lines to your code.
-[!code-cs[Program.cs](coding/Program.cs#L6-L10)]
+[!code-cs[Program.cs](Coding/Program.cs#L6-L10)]
 
 Now it's time to finally... make the bot online! To do it, add the following lines to your code.
-[!code-cs[Program.cs](coding/Program.cs#L12-L13)]
+[!code-cs[Program.cs](Coding/Program.cs#L12-L13)]
 
 Now, when you run the code, your bot should be online!
 ![](../../images/coding_BotOnline.png)
