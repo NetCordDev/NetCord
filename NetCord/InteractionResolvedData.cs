@@ -12,7 +12,7 @@ public class InteractionResolvedData
 
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
-    public InteractionResolvedData(JsonModels.JsonApplicationCommandResolvedData jsonModel, ulong? guildId, RestClient client)
+    public InteractionResolvedData(JsonModels.JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
     {
         var users = jsonModel.Users;
         if (users is not null)

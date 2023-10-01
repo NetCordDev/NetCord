@@ -14,7 +14,7 @@ public partial class JsonInteractionData
     public ApplicationCommandType? Type { get; set; }
 
     [JsonPropertyName("resolved")]
-    public JsonApplicationCommandResolvedData? ResolvedData { get; set; }
+    public JsonInteractionResolvedData? ResolvedData { get; set; }
 
     [JsonPropertyName("options")]
     public JsonApplicationCommandInteractionDataOption[]? Options { get; set; }

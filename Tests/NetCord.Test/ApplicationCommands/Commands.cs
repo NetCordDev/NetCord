@@ -420,7 +420,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         => RateLimitTestAsync();
 
     [SlashCommand("entity-menus", "Entity Menus")]
-    public Task EntityMenusAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues, [SlashCommandParameter(Name = "max_values", MinValue = 0)] int maxValues)
+    public Task EntityMenusAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues = 1, [SlashCommandParameter(Name = "max_values", MinValue = 2)] int maxValues = 2)
     {
         return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
         {
@@ -430,21 +430,29 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
+                    DefaultValues = new ulong[] { 855528385677885470 },
                 },
                 new RoleMenuProperties("roles")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
+                    DefaultValues = new ulong[] { 862347766324002827 },
                 },
                 new MentionableMenuProperties("mentionables")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
+                    DefaultValues = new MentionableValueProperties[]
+                    {
+                        new(803230269111926786, MentionableValueType.User),
+                        new(913370324689633341, MentionableValueType.Role),
+                    },
                 },
                 new ChannelMenuProperties("channels")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
+                    DefaultValues = new ulong[] { 994276824584573038 },
                 },
             }
         }));

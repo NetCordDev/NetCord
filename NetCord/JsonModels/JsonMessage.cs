@@ -98,6 +98,9 @@ public partial class JsonMessage : JsonEntity
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
 
+    [JsonPropertyName("resolved")]
+    public JsonInteractionResolvedData? ResolvedData { get; set; }
+
     [JsonSerializable(typeof(JsonMessage))]
     public partial class JsonMessageSerializerContext : JsonSerializerContext
     {

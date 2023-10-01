@@ -64,6 +64,10 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
         if (roleSubscriptionData is not null)
             RoleSubscriptionData = new(roleSubscriptionData);
+
+        var resolvedData = jsonModel.ResolvedData;
+        if (resolvedData is not null)
+            ResolvedData = new(resolvedData, jsonModel.GuildId, client);
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -96,6 +100,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
     public int? Position => _jsonModel.Position;
     public RoleSubscriptionData? RoleSubscriptionData { get; }
+    public InteractionResolvedData? ResolvedData { get; }
 
     public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true, RequestProperties? properties = null)
     {

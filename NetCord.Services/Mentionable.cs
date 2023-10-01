@@ -7,14 +7,11 @@ public class Mentionable : Entity
     public Role? Role { get; }
     public MentionableType Type { get; }
 
-    private readonly bool _user;
-
     public Mentionable(User user)
     {
         Id = user.Id;
         User = user;
         Type = MentionableType.User;
-        _user = true;
     }
 
     public Mentionable(Role role)
@@ -24,11 +21,16 @@ public class Mentionable : Entity
         Type = MentionableType.Role;
     }
 
-    public override string ToString() => _user ? User!.ToString() : Role!.ToString();
+    public override string ToString() => Type switch
+    {
+        MentionableType.User => User!.ToString(),
+        MentionableType.Role => Role!.ToString(),
+        _ => throw new ArgumentOutOfRangeException(),
+    };
 }
 
 public enum MentionableType : byte
 {
-    Role,
     User,
+    Role,
 }
