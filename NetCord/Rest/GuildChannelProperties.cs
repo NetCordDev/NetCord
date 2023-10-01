@@ -70,6 +70,10 @@ public partial class GuildChannelProperties
     [JsonPropertyName("default_forum_layout")]
     public ForumLayoutType? DefaultForumLayout { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("default_thread_rate_limit_per_user")]
+    public int? DefaultThreadSlowmode { get; set; }
+
     public GuildChannelProperties(string name, ChannelType type)
     {
         Name = name;
