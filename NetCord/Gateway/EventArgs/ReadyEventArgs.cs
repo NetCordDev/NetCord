@@ -9,7 +9,7 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public ApiVersion Version => _jsonModel.Version;
 
-    public SelfUser User { get; }
+    public CurrentUser User { get; }
 
     public IReadOnlyList<ulong> GuildIds { get; }
 

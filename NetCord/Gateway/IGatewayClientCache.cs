@@ -4,7 +4,7 @@ namespace NetCord.Gateway;
 
 public interface IGatewayClientCache : IDisposable
 {
-    public SelfUser? User { get; }
+    public CurrentUser? User { get; }
     public IReadOnlyDictionary<ulong, DMChannel> DMChannels { get; }
     public IReadOnlyDictionary<ulong, Guild> Guilds { get; }
 
@@ -21,7 +21,7 @@ public interface IGatewayClientCache : IDisposable
     public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads);
     public IGatewayClientCache CacheGuildChannel(ulong guildId, IGuildChannel channel);
     public IGatewayClientCache CacheStageInstance(StageInstance stageInstance);
-    public IGatewayClientCache CacheSelfUser(SelfUser user);
+    public IGatewayClientCache CacheCurrentUser(CurrentUser user);
     public IGatewayClientCache CacheVoiceState(ulong guildId, VoiceState voiceState);
     public IGatewayClientCache CachePresence(Presence presence);
 

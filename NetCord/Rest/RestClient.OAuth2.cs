@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async Task<Application> GetCurrentBotApplicationInformationAsync(RequestProperties? properties = null)
+    public async Task<CurrentApplication> GetCurrentBotApplicationInformationAsync(RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/oauth2/applications/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonApplication.JsonApplicationSerializerContext.WithOptions.JsonApplication).ConfigureAwait(false), this);
 
     public async Task<AuthorizationInformation> GetCurrentAuthorizationInformationAsync(RequestProperties? properties = null)

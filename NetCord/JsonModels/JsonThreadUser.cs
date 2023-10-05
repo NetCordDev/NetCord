@@ -4,7 +4,7 @@ using NetCord.Gateway.JsonModels;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonThreadUser : JsonThreadSelfUser
+public partial class JsonThreadUser : JsonThreadCurrentUser
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }

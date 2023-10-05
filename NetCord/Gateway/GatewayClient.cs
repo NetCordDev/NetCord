@@ -74,7 +74,7 @@ public partial class GatewayClient : WebSocketClient
     public event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
     public event Func<Presence, ValueTask>? PresenceUpdate;
     public event Func<TypingStartEventArgs, ValueTask>? TypingStart;
-    public event Func<SelfUser, ValueTask>? CurrentUserUpdate;
+    public event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
     public event Func<VoiceState, ValueTask>? VoiceStateUpdate;
     public event Func<VoiceServerUpdateEventArgs, ValueTask>? VoiceServerUpdate;
     public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
@@ -315,7 +315,7 @@ public partial class GatewayClient : WebSocketClient
                     await InvokeEventAsync(Ready, args, data =>
                     {
                         var cache = Cache;
-                        cache = cache.CacheSelfUser(data.User);
+                        cache = cache.CacheCurrentUser(data.User);
                         if (_configuration.CacheDMChannels)
                         {
                             var dMChannels = args.DMChannels;
@@ -710,7 +710,7 @@ public partial class GatewayClient : WebSocketClient
                 break;
             case "USER_UPDATE":
                 {
-                    await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), Rest), user => Cache = Cache.CacheSelfUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser), Rest), user => Cache = Cache.CacheCurrentUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_STATE_UPDATE":

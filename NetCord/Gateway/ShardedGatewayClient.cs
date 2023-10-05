@@ -1140,8 +1140,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _currentUserUpdateLock = new();
-    private Func<GatewayClient, SelfUser, ValueTask>? _currentUserUpdate;
-    public event Func<GatewayClient, SelfUser, ValueTask>? CurrentUserUpdate
+    private Func<GatewayClient, CurrentUser, ValueTask>? _currentUserUpdate;
+    public event Func<GatewayClient, CurrentUser, ValueTask>? CurrentUserUpdate
     {
         add
         {

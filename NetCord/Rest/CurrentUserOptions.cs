@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class SelfUserOptions
+public partial class CurrentUserOptions
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("username")]
@@ -12,9 +12,9 @@ public partial class SelfUserOptions
     [JsonPropertyName("avatar")]
     public ImageProperties? Avatar { get; set; }
 
-    [JsonSerializable(typeof(SelfUserOptions))]
-    public partial class SelfUserOptionsSerializerContext : JsonSerializerContext
+    [JsonSerializable(typeof(CurrentUserOptions))]
+    public partial class CurrentUserOptionsSerializerContext : JsonSerializerContext
     {
-        public static SelfUserOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
+        public static CurrentUserOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

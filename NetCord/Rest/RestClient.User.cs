@@ -5,17 +5,17 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async Task<SelfUser> GetCurrentUserAsync(RequestProperties? properties = null)
+    public async Task<CurrentUser> GetCurrentUserAsync(RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
 
     public async Task<User> GetUserAsync(ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
 
-    public async Task<SelfUser> ModifyCurrentUserAsync(Action<SelfUserOptions> action, RequestProperties? properties = null)
+    public async Task<CurrentUser> ModifyCurrentUserAsync(Action<CurrentUserOptions> action, RequestProperties? properties = null)
     {
-        SelfUserOptions selfUserOptions = new();
-        action(selfUserOptions);
-        using (HttpContent content = new JsonContent<SelfUserOptions>(selfUserOptions, SelfUserOptions.SelfUserOptionsSerializerContext.WithOptions.SelfUserOptions))
+        CurrentUserOptions CurrentUserOptions = new();
+        action(CurrentUserOptions);
+        using (HttpContent content = new JsonContent<CurrentUserOptions>(CurrentUserOptions, CurrentUserOptions.CurrentUserOptionsSerializerContext.WithOptions.CurrentUserOptions))
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/users/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonUser.JsonUserSerializerContext.WithOptions.JsonUser).ConfigureAwait(false), this);
     }
 

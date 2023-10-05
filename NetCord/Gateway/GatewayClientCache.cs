@@ -22,11 +22,11 @@ public record GatewayClientCache : IGatewayClientCache
         _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, client));
     }
 
-    public SelfUser? User => _user;
+    public CurrentUser? User => _user;
     public IReadOnlyDictionary<ulong, DMChannel> DMChannels => _DMChannels;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
-    private SelfUser? _user;
+    private CurrentUser? _user;
     private ImmutableDictionary<ulong, DMChannel> _DMChannels;
     private ImmutableDictionary<ulong, Guild> _guilds;
 
@@ -214,7 +214,7 @@ public record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheSelfUser(SelfUser user)
+    public IGatewayClientCache CacheCurrentUser(CurrentUser user)
     {
         return this with
         {

@@ -13,7 +13,7 @@ public abstract class GuildThread : TextChannel, INamedChannel
     public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
     public int UserCount => _jsonModel.UserCount.GetValueOrDefault();
     public GuildThreadMetadata Metadata { get; }
-    public ThreadSelfUser? CurrentUser { get; }
+    public ThreadCurrentUser? CurrentUser { get; }
     public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
 
     protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)

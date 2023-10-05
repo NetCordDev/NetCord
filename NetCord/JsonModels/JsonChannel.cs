@@ -74,7 +74,7 @@ public partial class JsonChannel : JsonEntity
     public JsonGuildThreadMetadata? Metadata { get; set; }
 
     [JsonPropertyName("member")]
-    public JsonThreadSelfUser? CurrentUser { get; set; }
+    public JsonThreadCurrentUser? CurrentUser { get; set; }
 
     [JsonPropertyName("default_auto_archive_duration")]
     public int? DefaultAutoArchiveDuration { get; set; }
