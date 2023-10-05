@@ -82,6 +82,9 @@ public partial class GatewayClient : WebSocketClient
     public event Func<StageInstance, ValueTask>? StageInstanceCreate;
     public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
     public event Func<StageInstance, ValueTask>? StageInstanceDelete;
+    public event Func<Entitlement, ValueTask>? EntitlementCreate;
+    public event Func<Entitlement, ValueTask>? EntitlementUpdate;
+    public event Func<Entitlement, ValueTask>? EntitlementDelete;
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     /// <summary>
@@ -730,6 +733,21 @@ public partial class GatewayClient : WebSocketClient
             case "WEBHOOKS_UPDATE":
                 {
                     await InvokeEventAsync(WebhooksUpdate, () => new(data.ToObject(JsonWebhooksUpdateEventArgs.JsonWebhooksUpdateEventArgsSerializerContext.WithOptions.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            case "ENTITLEMENT_CREATE":
+                {
+                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(JsonEntitlement.JsonEntitlementSerializerContext.WithOptions.JsonEntitlement))).ConfigureAwait(false);
+                }
+                break;
+            case "ENTITLEMENT_UPDATE":
+                {
+                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(JsonEntitlement.JsonEntitlementSerializerContext.WithOptions.JsonEntitlement))).ConfigureAwait(false);
+                }
+                break;
+            case "ENTITLEMENT_DELETE":
+                {
+                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(JsonEntitlement.JsonEntitlementSerializerContext.WithOptions.JsonEntitlement))).ConfigureAwait(false);
                 }
                 break;
             default:

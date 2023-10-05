@@ -16,6 +16,8 @@ public class PingInteraction : ClientEntity, IInteraction
             User = new GuildInteractionUser(jsonModel.GuildUser!, guildId.GetValueOrDefault(), client);
         else
             User = new(jsonModel.User!, client);
+
+        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -25,4 +27,6 @@ public class PingInteraction : ClientEntity, IInteraction
     public User User { get; }
 
     public string Token => _jsonModel.Token;
+
+    public IReadOnlyList<Entitlement> Entitlements { get; }
 }

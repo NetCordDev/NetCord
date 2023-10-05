@@ -11,6 +11,8 @@ public interface IInteraction : IEntity, IJsonModel<JsonModels.JsonInteraction>
 
     public string Token { get; }
 
+    public IReadOnlyList<Entitlement> Entitlements { get; }
+
     public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, RestClient client)
     {
         if (jsonModel.Type is InteractionType.Ping)

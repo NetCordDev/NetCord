@@ -22,6 +22,7 @@ public abstract class Interaction : ClientEntity, IInteraction
 
         Guild = guild;
         Channel = (TextChannel)NetCord.Channel.CreateFromJson(jsonModel.Channel!, client);
+        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -43,6 +44,8 @@ public abstract class Interaction : ClientEntity, IInteraction
     public CultureInfo UserLocale => _jsonModel.UserLocale!;
 
     public CultureInfo? GuildLocale => _jsonModel.GuildLocale;
+
+    public IReadOnlyList<Entitlement> Entitlements { get; }
 
     public abstract InteractionData Data { get; }
 

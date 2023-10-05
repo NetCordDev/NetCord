@@ -41,6 +41,9 @@ public partial class JsonInteraction : JsonEntity
     [JsonPropertyName("guild_locale")]
     public CultureInfo? GuildLocale { get; set; }
 
+    [JsonPropertyName("entitlements")]
+    public JsonEntitlement[] Entitlements { get; set; }
+
     [JsonSerializable(typeof(JsonInteraction))]
     public partial class JsonInteractionSerializerContext : JsonSerializerContext
     {

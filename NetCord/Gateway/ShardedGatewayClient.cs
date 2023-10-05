@@ -307,6 +307,9 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         HookEvent(client, _stageInstanceCreateLock, ref _stageInstanceCreate, a => _stageInstanceCreate!(client, a), (c, e) => c.StageInstanceCreate += e);
         HookEvent(client, _stageInstanceUpdateLock, ref _stageInstanceUpdate, a => _stageInstanceUpdate!(client, a), (c, e) => c.StageInstanceUpdate += e);
         HookEvent(client, _stageInstanceDeleteLock, ref _stageInstanceDelete, a => _stageInstanceDelete!(client, a), (c, e) => c.StageInstanceDelete += e);
+        HookEvent(client, _entitlementCreateLock, ref _entitlementCreate, a => _entitlementCreate!(client, a), (c, e) => c.EntitlementCreate += e);
+        HookEvent(client, _entitlementUpdateLock, ref _entitlementUpdate, a => _entitlementUpdate!(client, a), (c, e) => c.EntitlementUpdate += e);
+        HookEvent(client, _entitlementDeleteLock, ref _entitlementDelete, a => _entitlementDelete!(client, a), (c, e) => c.EntitlementDelete += e);
         HookEvent(client, _unknownEventLock, ref _unknownEvent, a => _unknownEvent!(client, a), (c, e) => c.UnknownEvent += e);
     }
 
@@ -1245,6 +1248,48 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         remove
         {
             UnhookEvent(_stageInstanceDeleteLock, value, ref _stageInstanceDelete, (c, e) => c.StageInstanceDelete -= e);
+        }
+    }
+
+    private readonly object _entitlementCreateLock = new();
+    private Func<GatewayClient, Entitlement, ValueTask>? _entitlementCreate;
+    public event Func<GatewayClient, Entitlement, ValueTask>? EntitlementCreate
+    {
+        add
+        {
+            HookEvent(_entitlementCreateLock, value, ref _entitlementCreate, client => a => _entitlementCreate!(client, a), (c, e) => c.EntitlementCreate += e);
+        }
+        remove
+        {
+            UnhookEvent(_entitlementCreateLock, value, ref _entitlementCreate, (c, e) => c.EntitlementCreate -= e);
+        }
+    }
+
+    private readonly object _entitlementUpdateLock = new();
+    private Func<GatewayClient, Entitlement, ValueTask>? _entitlementUpdate;
+    public event Func<GatewayClient, Entitlement, ValueTask>? EntitlementUpdate
+    {
+        add
+        {
+            HookEvent(_entitlementUpdateLock, value, ref _entitlementUpdate, client => a => _entitlementUpdate!(client, a), (c, e) => c.EntitlementUpdate += e);
+        }
+        remove
+        {
+            UnhookEvent(_entitlementUpdateLock, value, ref _entitlementUpdate, (c, e) => c.EntitlementUpdate -= e);
+        }
+    }
+
+    private readonly object _entitlementDeleteLock = new();
+    private Func<GatewayClient, Entitlement, ValueTask>? _entitlementDelete;
+    public event Func<GatewayClient, Entitlement, ValueTask>? EntitlementDelete
+    {
+        add
+        {
+            HookEvent(_entitlementDeleteLock, value, ref _entitlementDelete, client => a => _entitlementDelete!(client, a), (c, e) => c.EntitlementDelete += e);
+        }
+        remove
+        {
+            UnhookEvent(_entitlementDeleteLock, value, ref _entitlementDelete, (c, e) => c.EntitlementDelete -= e);
         }
     }
 
