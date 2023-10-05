@@ -21,9 +21,9 @@ public partial class RestClient
 
     public async Task<RestGuild> ModifyGuildAsync(ulong guildId, Action<GuildOptions> action, RequestProperties? properties = null)
     {
-        GuildOptions guildProperties = new();
-        action(guildProperties);
-        using (HttpContent content = new JsonContent<GuildOptions>(guildProperties, GuildOptions.GuildOptionsSerializerContext.WithOptions.GuildOptions))
+        GuildOptions guildOptions = new();
+        action(guildOptions);
+        using (HttpContent content = new JsonContent<GuildOptions>(guildOptions, GuildOptions.GuildOptionsSerializerContext.WithOptions.GuildOptions))
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/guilds/{guildId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuild.JsonGuildSerializerContext.WithOptions.JsonGuild).ConfigureAwait(false), this);
     }
 

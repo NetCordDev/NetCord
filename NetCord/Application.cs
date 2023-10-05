@@ -14,6 +14,7 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public IReadOnlyList<string> RpcOrigins => _jsonModel.RpcOrigins;
     public bool? BotPublic => _jsonModel.BotPublic;
     public bool? BotRequireCodeGrant => _jsonModel.BotRequireCodeGrant;
+    public User? Bot { get; }
     public string? TermsOfServiceUrl => _jsonModel.TermsOfServiceUrl;
     public string? PrivacyPolicyUrl => _jsonModel.PrivacyPolicyUrl;
     public User? Owner { get; }
@@ -26,14 +27,20 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public string? CoverImageHash => _jsonModel.CoverImageHash;
     public ApplicationFlags? Flags => _jsonModel.Flags;
     public int? ApproximateGuildCount => _jsonModel.ApproximateGuildCount;
+    public IReadOnlyList<string>? RedirectUris => _jsonModel.RedirectUris;
+    public string? InteractionsEndpointUrl => _jsonModel.InteractionsEndpointUrl;
+    public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
     public ApplicationInstallParams? InstallParams { get; }
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
-    public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
 
     public Application(JsonModels.JsonApplication jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
+
+        var bot = jsonModel.Bot;
+        if (bot is not null)
+            Bot = new(bot, client);
 
         var owner = jsonModel.Owner;
         if (owner is not null)

@@ -22,6 +22,9 @@ public partial class JsonApplication : JsonEntity
     [JsonPropertyName("bot_require_code_grant")]
     public bool? BotRequireCodeGrant { get; set; }
 
+    [JsonPropertyName("bot")]
+    public JsonUser? Bot { get; set; }
+
     [JsonPropertyName("terms_of_service_url")]
     public string? TermsOfServiceUrl { get; set; }
 
@@ -58,6 +61,15 @@ public partial class JsonApplication : JsonEntity
     [JsonPropertyName("approximate_guild_count")]
     public int? ApproximateGuildCount { get; set; }
 
+    [JsonPropertyName("redirect_uris")]
+    public string[]? RedirectUris { get; set; }
+
+    [JsonPropertyName("interactions_endpoint_url")]
+    public string? InteractionsEndpointUrl { get; set; }
+
+    [JsonPropertyName("role_connections_verification_url")]
+    public string? RoleConnectionsVerificationUrl { get; set; }
+
     [JsonPropertyName("tags")]
     public string[]? Tags { get; set; }
 
@@ -66,9 +78,6 @@ public partial class JsonApplication : JsonEntity
 
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
-
-    [JsonPropertyName("role_connections_verification_url")]
-    public string? RoleConnectionsVerificationUrl { get; set; }
 
     [JsonSerializable(typeof(JsonApplication))]
     public partial class JsonApplicationSerializerContext : JsonSerializerContext
