@@ -2,12 +2,12 @@
 
 namespace NetCord;
 
-public class PingInteraction : ClientEntity, IInteraction
+public class PingInteraction : Entity, IInteraction
 {
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonInteraction _jsonModel;
 
-    public PingInteraction(JsonModels.JsonInteraction jsonModel, RestClient client) : base(client)
+    public PingInteraction(JsonModels.JsonInteraction jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
 
