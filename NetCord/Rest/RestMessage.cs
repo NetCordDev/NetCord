@@ -28,7 +28,6 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
             });
         }
 
-        MentionedRoleIds = jsonModel.MentionedRoleIds;
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, Attachment.CreateFromJson);
         Embeds = jsonModel.Embeds.Select(e => new Embed(e)).ToArray();
@@ -79,7 +78,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     public bool IsTts => _jsonModel.IsTts;
     public bool MentionEveryone => _jsonModel.MentionEveryone;
     public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
-    public IReadOnlyList<ulong> MentionedRoleIds { get; }
+    public IReadOnlyList<ulong> MentionedRoleIds => _jsonModel.MentionedRoleIds;
     public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
     public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
     public IReadOnlyList<Embed> Embeds { get; }
