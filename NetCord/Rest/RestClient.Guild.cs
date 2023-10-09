@@ -115,8 +115,8 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(b => new GuildBan(b, guildId, this)),
                 PaginationDirection.After => async s => (await s.ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).Select(b => new GuildBan(b, guildId, this)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildBan.JsonGuildBanArraySerializerContext.WithOptions.JsonGuildBanArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(b => new GuildBan(b, guildId, this)),
                 _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
             },
             b => b.User.Id,

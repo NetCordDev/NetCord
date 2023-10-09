@@ -39,8 +39,8 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
                 PaginationDirection.After => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).Select(u => new GuildScheduledEventUser(u, guildId, this)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
                 _ => throw new ArgumentException($"The value of '{nameof(optionalGuildUsersPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(optionalGuildUsersPaginationProperties)),
             },
             u => u.User.Id,

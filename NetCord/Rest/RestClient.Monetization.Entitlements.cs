@@ -32,7 +32,12 @@ public partial class RestClient
         return new PaginationAsyncEnumerable<Entitlement, ulong>(
             this,
             paginationProperties,
-            async s => (await s.ToObjectAsync(JsonEntitlement.JsonEntitlementArraySerializerContext.WithOptions.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
+            paginationProperties.Direction.GetValueOrDefault() switch
+            {
+                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonEntitlement.JsonEntitlementArraySerializerContext.WithOptions.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonEntitlement.JsonEntitlementArraySerializerContext.WithOptions.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e)),
+                _ => throw new ArgumentException($"The value of '{nameof(entitlementsPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(entitlementsPaginationProperties)),
+            },
             e => e.Id,
             HttpMethod.Get,
             $"/applications/{applicationId}/entitlements",
