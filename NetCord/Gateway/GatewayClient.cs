@@ -142,7 +142,7 @@ public partial class GatewayClient : WebSocketClient
         if (configuration.CacheDMChannels)
         {
             _DMsLock = new();
-            _DMSemaphores = new();
+            _DMSemaphores = [];
         }
     }
 

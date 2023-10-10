@@ -4,7 +4,7 @@ internal static class CollectionsUtils
 {
     public static Dictionary<TKey, IReadOnlyList<TSource>> ToRankedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
-        Dictionary<TKey, IReadOnlyList<TSource>> result = new();
+        Dictionary<TKey, IReadOnlyList<TSource>> result = [];
         foreach (var s in source)
         {
             var key = keySelector(s);
@@ -24,7 +24,7 @@ internal static class CollectionsUtils
 
     public static Dictionary<TKey, IReadOnlyList<TElement>> ToRankedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
-        Dictionary<TKey, IReadOnlyList<TElement>> result = new();
+        Dictionary<TKey, IReadOnlyList<TElement>> result = [];
         foreach (var s in source)
         {
             var key = keySelector(s);

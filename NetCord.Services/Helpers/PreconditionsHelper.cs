@@ -6,7 +6,7 @@ internal static class PreconditionsHelper
 {
     public static IReadOnlyList<PreconditionAttribute<TContext>> GetPreconditions<TContext>(params MemberInfo[] members)
     {
-        List<PreconditionAttribute<TContext>> preconditions = new();
+        List<PreconditionAttribute<TContext>> preconditions = [];
 
         foreach (MemberInfo member in members)
             foreach (var attribute in member.GetCustomAttributes())
@@ -25,7 +25,7 @@ internal static class PreconditionsHelper
 
     public static IReadOnlyList<ParameterPreconditionAttribute<TContext>> GetParameterPreconditions<TContext>(IEnumerable<Attribute> attributes, MethodInfo method)
     {
-        List<ParameterPreconditionAttribute<TContext>> preconditions = new();
+        List<ParameterPreconditionAttribute<TContext>> preconditions = [];
         foreach (var a in attributes)
             AddPreconditionIfValid(a);
 

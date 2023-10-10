@@ -10,7 +10,7 @@ internal unsafe class EnumTypeReaderManager<TTypeReader, TKey, TParameter, TConf
     {
         _getKey = getKey;
         _factory = factory;
-        _typeReaders = new();
+        _typeReaders = [];
     }
 
     public TTypeReader GetTypeReader(TParameter parameter, TConfiguration configuration)

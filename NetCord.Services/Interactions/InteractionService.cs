@@ -136,7 +136,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
 
         static List<Range> Split(ReadOnlySpan<char> arguments, char separator)
         {
-            List<Range> result = new();
+            List<Range> result = [];
 
             int startIndex = 0;
             int index;

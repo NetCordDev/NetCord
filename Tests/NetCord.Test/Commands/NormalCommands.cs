@@ -71,7 +71,7 @@ public class NormalCommands : CommandModule<CommandContext>
     public static MenuProperties CreateRolesMenu(IEnumerable<Role> guildRoles, IEnumerable<ulong> defaultValues)
     {
         var roles = guildRoles.Where(r => !r.Managed).OrderByDescending(r => r.Position).SkipLast(1);
-        List<StringMenuSelectOptionProperties> options = new();
+        List<StringMenuSelectOptionProperties> options = [];
         foreach (var role in roles)
             options.Add(new(role.Name, role.Id.ToString()!) { Default = defaultValues.Contains(role.Id) });
 

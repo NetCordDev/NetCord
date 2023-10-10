@@ -38,7 +38,7 @@ public class EvalCommand : CommandModule<CommandContext>
         }
         if (value is not null)
         {
-            List<EmbedFieldProperties> fields = new();
+            List<EmbedFieldProperties> fields = [];
             foreach (var property in value.GetType().GetProperties().Take(24))
             {
                 string description;

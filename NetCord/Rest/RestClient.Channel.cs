@@ -119,7 +119,7 @@ public partial class RestClient
     {
         var ids = new ulong[100];
         int c = 0;
-        List<Task> tasks = new();
+        List<Task> tasks = [];
         foreach (var id in messageIds)
         {
             ids[c] = id;
@@ -142,7 +142,7 @@ public partial class RestClient
     {
         var ids = new ulong[100];
         int c = 0;
-        List<Task> tasks = new();
+        List<Task> tasks = [];
         await foreach (var id in messageIds)
         {
             ids[c] = id;

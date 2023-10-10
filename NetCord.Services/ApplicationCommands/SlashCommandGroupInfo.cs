@@ -20,7 +20,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
 
-        Dictionary<string, ISubSlashCommandInfo<TContext>> subCommands = new();
+        Dictionary<string, ISubSlashCommandInfo<TContext>> subCommands = [];
 
         foreach (var method in type.GetMethods())
         {

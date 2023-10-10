@@ -268,7 +268,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 
         static List<Range> Split(ReadOnlySpan<char> arguments, ReadOnlySpan<char> separators)
         {
-            List<Range> result = new();
+            List<Range> result = [];
 
             int startIndex = 0;
             int index;

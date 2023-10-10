@@ -20,7 +20,7 @@ public class InteractionResolvedData
             var guildUsers = jsonModel.GuildUsers;
             if (guildUsers is not null)
             {
-                Dictionary<ulong, User> resultUsers = new();
+                Dictionary<ulong, User> resultUsers = [];
                 using (var enumerator = users.GetEnumerator())
                 {
                     var max = users.Count - guildUsers.Count;
