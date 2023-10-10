@@ -11,10 +11,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands;
 
     public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
-    {
-        lock (_commands)
-            return new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
-    }
+        => new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
 
     public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
@@ -26,14 +23,11 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        Type baseType = typeof(BaseCommandModule<TContext>);
-        lock (_commands)
+        var baseType = typeof(BaseCommandModule<TContext>);
+        foreach (var type in assembly.GetTypes())
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                if (type.IsAssignableTo(baseType))
-                    AddModuleCore(type);
-            }
+            if (type.IsAssignableTo(baseType))
+                AddModuleCore(type);
         }
     }
 
@@ -42,8 +36,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseCommandModule<TContext>)}'.");
 
-        lock (_commands)
-            AddModuleCore(type);
+        AddModuleCore(type);
     }
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>()
@@ -242,13 +235,9 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 
     private SortedList<CommandInfo<TContext>> GetCommandInfos(ReadOnlyMemory<char> command)
     {
-        SortedList<CommandInfo<TContext>>? commandInfos;
-        bool success;
-        lock (_commands)
-            success = _commands.TryGetValue(command, out commandInfos);
+        if (_commands.TryGetValue(command, out var commandInfos))
+            return commandInfos;
 
-        if (success)
-            return commandInfos!;
         throw new CommandNotFoundException();
     }
 

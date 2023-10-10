@@ -34,11 +34,7 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
     internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
 
-    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands()
-    {
-        lock (_commands)
-            return new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
-    }
+    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
 
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
@@ -49,13 +45,10 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
     public void AddModules(Assembly assembly)
     {
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
-        lock (_commands)
+        foreach (var type in assembly.GetTypes())
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                if (type.IsAssignableTo(baseType))
-                    AddModuleCore(type);
-            }
+            if (type.IsAssignableTo(baseType))
+                AddModuleCore(type);
         }
     }
 
@@ -64,8 +57,7 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
         if (!type.IsAssignableTo(typeof(BaseApplicationCommandModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(ApplicationCommandModule<TContext>)}'.");
 
-        lock (_commands)
-            AddModuleCore(type);
+        AddModuleCore(type);
     }
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] T>()
@@ -119,13 +111,10 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
     {
         List<ApplicationCommand> list = new(includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count);
         var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue()), properties).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
-        lock (_commands)
+        foreach (var (first, second) in e)
         {
-            foreach (var (first, second) in e)
-            {
-                _commands[first.Key] = second;
-                list.Add(first.Value);
-            }
+            _commands[first.Key] = second;
+            list.Add(first.Value);
         }
 
         if (includeGuildCommands)
@@ -135,13 +124,10 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
                 var rawGuildCommands = c.Select(v => v.GetRawValue());
 
                 var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key, rawGuildCommands, properties).ConfigureAwait(false);
-                lock (_commands)
+                foreach (var (first, second) in newCommands.Zip(c))
                 {
-                    foreach (var (first, second) in newCommands.Zip(c))
-                    {
-                        _commands[first.Key] = second;
-                        list.Add(first.Value);
-                    }
+                    _commands[first.Key] = second;
+                    list.Add(first.Value);
                 }
             }
         }
@@ -156,21 +142,17 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
 
     internal void AddCommands(IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
     {
-        lock (_commands)
+        int count = commands.Count;
+        for (int i = 0; i < count; i++)
         {
-            int count = commands.Count;
-            for (int i = 0; i < count; i++)
-            {
-                var (command, commandInfo) = commands[i];
-                _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
-            }
+            var (command, commandInfo) = commands[i];
+            _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
         }
     }
 
     internal void AddCommand((ApplicationCommand Command, IApplicationCommandInfo CommandInfo) command)
     {
-        lock (_commands)
-            _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
+        _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
     }
 
     public Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
@@ -183,13 +165,9 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
 
     private protected ApplicationCommandInfo<TContext> GetApplicationCommandInfo(ulong commandId)
     {
-        ApplicationCommandInfo<TContext>? applicationCommandInfo;
-        bool success;
-        lock (_commands)
-            success = _commands.TryGetValue(commandId, out applicationCommandInfo);
+        if (_commands.TryGetValue(commandId, out var applicationCommandInfo))
+            return applicationCommandInfo;
 
-        if (success)
-            return applicationCommandInfo!;
         throw new ApplicationCommandNotFoundException();
     }
 

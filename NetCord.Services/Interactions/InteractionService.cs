@@ -8,11 +8,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
     private readonly InteractionServiceConfiguration<TContext> _configuration;
     private readonly Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
-    public IReadOnlyDictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> GetInteractions()
-    {
-        lock (_interactions)
-            return new Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>>(_interactions);
-    }
+    public IReadOnlyDictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> GetInteractions() => new Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>>(_interactions);
 
     public InteractionService(InteractionServiceConfiguration<TContext>? configuration = null)
     {
@@ -22,14 +18,11 @@ public class InteractionService<TContext> where TContext : IInteractionContext
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        Type baseType = typeof(BaseInteractionModule<TContext>);
-        lock (_interactions)
+        var baseType = typeof(BaseInteractionModule<TContext>);
+        foreach (var type in assembly.GetTypes())
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                if (type.IsAssignableTo(baseType))
-                    AddModuleCore(type);
-            }
+            if (type.IsAssignableTo(baseType))
+                AddModuleCore(type);
         }
     }
 
@@ -38,8 +31,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
         if (!type.IsAssignableTo(typeof(BaseInteractionModule<TContext>)))
             throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseInteractionModule<TContext>)}'.");
 
-        lock (_interactions)
-            AddModuleCore(type);
+        AddModuleCore(type);
     }
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>()
@@ -164,13 +156,9 @@ public class InteractionService<TContext> where TContext : IInteractionContext
 
     private InteractionInfo<TContext> GetInteractionInfo(ReadOnlyMemory<char> customId)
     {
-        InteractionInfo<TContext>? interactionInfo;
-        bool success;
-        lock (_interactions)
-            success = _interactions.TryGetValue(customId, out interactionInfo);
+        if (_interactions.TryGetValue(customId, out var interactionInfo))
+            return interactionInfo;
 
-        if (success)
-            return interactionInfo!;
         throw new InteractionNotFoundException();
     }
 }
