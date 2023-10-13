@@ -15,9 +15,9 @@ public partial class RestClient : IDisposable
 
     private readonly object _rateLimitersLock = new();
     private readonly GlobalRateLimiter _globalRateLimiter = new();
-    private readonly Dictionary<BucketInfo, RouteRateLimiter> _rateLimitersFromBuckets = new();
-    private readonly Dictionary<Route, RouteRateLimiter> _rateLimiters = new();
-    private readonly Dictionary<Route, SemaphoreSlim?> _knownRoutesWithoutRateLimiters = new();
+    private readonly Dictionary<BucketInfo, RouteRateLimiter> _rateLimitersFromBuckets = [];
+    private readonly Dictionary<Route, RouteRateLimiter> _rateLimiters = [];
+    private readonly Dictionary<Route, SemaphoreSlim?> _knownRoutesWithoutRateLimiters = [];
 
     public RestClient(RestClientConfiguration? configuration = null)
     {

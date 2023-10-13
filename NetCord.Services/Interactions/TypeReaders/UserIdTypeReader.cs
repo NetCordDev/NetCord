@@ -1,16 +1,18 @@
 ﻿using System.Globalization;
 using System.Reflection;
 
+using NetCord.Services.Utils;
+
 namespace NetCord.Services.Interactions.TypeReaders;
 
 public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : IInteractionContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
         if (guild is not null)
         {
-            IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
+            var users = guild.Users;
             var span = input.Span;
             var s = span.ToString();
 
@@ -18,14 +20,14 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
+                return new(new UserId(id, user));
             }
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
+                return new(new UserId(id, user));
             }
 
             // by name and tag
@@ -36,7 +38,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
+                        return new(new UserId(user.Id, user));
                 }
             }
             // by name or nickname
@@ -45,23 +47,17 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 var len = input.Length;
                 if (len <= 32)
                 {
-                    GuildUser? user;
-                    try
-                    {
-                        user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s);
-                    }
-                    catch
-                    {
-                        throw new AmbiguousMatchException("Too many users found.");
-                    }
+                    if (users.Values.TryGetSingle(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s, out var user))
+                        return new(user);
+
                     if (user is not null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
+                        throw new AmbiguousMatchException("Too many users found.");
                 }
             }
         }
         else if (context.Interaction.Channel is DMChannel dm)
         {
-            IReadOnlyDictionary<ulong, User> users = dm.Users;
+            var users = dm.Users;
             var span = input.Span;
             var s = span.ToString();
 
@@ -69,14 +65,14 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
+                return new(new UserId(id, user));
             }
 
             // by mention
             if (MentionUtils.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return Task.FromResult<object?>(new UserId(id, user));
+                return new(new UserId(id, user));
             }
 
             // by name and tag
@@ -87,7 +83,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
+                        return new(new UserId(user.Id, user));
                 }
             }
             // by name
@@ -95,17 +91,11 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             {
                 if (input.Length is <= 32 and >= 2)
                 {
-                    User? user;
-                    try
-                    {
-                        user = users.Values.SingleOrDefault(u => u.Username == s);
-                    }
-                    catch
-                    {
-                        throw new AmbiguousMatchException("Too many users found.");
-                    }
+                    if (users.Values.TryGetSingle(u => u.Username == s, out var user))
+                        return new(user);
+
                     if (user is not null)
-                        return Task.FromResult<object?>(new UserId(user.Id, user));
+                        throw new AmbiguousMatchException("Too many users found.");
                 }
             }
         }

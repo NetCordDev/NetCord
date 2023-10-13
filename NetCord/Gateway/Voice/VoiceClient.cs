@@ -36,7 +36,7 @@ public class VoiceClient : WebSocketClient
     [AllowNull]
     public IVoiceClientCache Cache { get; private set; }
 
-    private readonly Dictionary<uint, Stream> _inputStreams = new();
+    private readonly Dictionary<uint, Stream> _inputStreams = [];
     private readonly Uri _url;
     private readonly IUdpSocket _udpSocket;
     private readonly IVoiceEncryption _encryption;

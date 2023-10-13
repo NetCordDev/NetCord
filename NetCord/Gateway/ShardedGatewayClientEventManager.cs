@@ -4,7 +4,7 @@ namespace NetCord.Gateway;
 
 internal class ShardedGatewayClientEventManager
 {
-    private readonly Dictionary<(GatewayClient, object), Delegate> _events = new();
+    private readonly Dictionary<(GatewayClient, object), Delegate> _events = [];
 
     public bool AddEvent(GatewayClient client, object @lock, Func<ValueTask> @delegate)
     {

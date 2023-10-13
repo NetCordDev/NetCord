@@ -6,7 +6,7 @@ public class SByteTypeReader<TContext> : SlashCommandTypeReader<TContext> where 
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override Task<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => Task.FromResult<object?>(sbyte.Parse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture));
+    public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(sbyte.Parse(value, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture));
 
     public override double? GetMaxValue(SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration) => sbyte.MaxValue;
 

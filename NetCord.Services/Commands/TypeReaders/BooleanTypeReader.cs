@@ -2,5 +2,5 @@
 
 public class BooleanTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => Task.FromResult<object?>(bool.Parse(input.Span));
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(bool.Parse(input.Span));
 }

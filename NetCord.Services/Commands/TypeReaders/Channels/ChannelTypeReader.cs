@@ -6,17 +6,17 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
         {
             var channel = context.Message.Channel;
             if (channel is not null)
-                return Task.FromResult<object?>(GetChannel<TextChannel>(channel, input.Span));
+                return new(GetChannel<TextChannel>(channel, input.Span));
         }
         else
-            return Task.FromResult<object?>(GetGuildChannel<Channel>(guild, input.Span));
+            return new(GetGuildChannel<Channel>(guild, input.Span));
 
         throw new EntityNotFoundException("The channel was not found.");
     }

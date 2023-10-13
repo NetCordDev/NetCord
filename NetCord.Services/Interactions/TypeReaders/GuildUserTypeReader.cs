@@ -1,16 +1,18 @@
 ﻿using System.Globalization;
 using System.Reflection;
 
+using NetCord.Services.Utils;
+
 namespace NetCord.Services.Interactions.TypeReaders;
 
 public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : IInteractionContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
         if (guild is null)
-            goto exception;
-        IReadOnlyDictionary<ulong, GuildUser> users = guild.Users;
+            goto NotFound;
+        var users = guild.Users;
         var span = input.Span;
         var s = span.ToString();
 
@@ -18,7 +20,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
         if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
-                return Task.FromResult<object?>(user);
+                return new(user);
         }
         else
         {
@@ -26,8 +28,8 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
             if (MentionUtils.TryParseUser(span, out id))
             {
                 if (users.TryGetValue(id, out var user))
-                    return Task.FromResult<object?>(user);
-                goto exception;
+                    return new(user);
+                goto NotFound;
             }
 
             // by name and tag
@@ -38,9 +40,9 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return Task.FromResult<object?>(user);
+                        return new(user);
                 }
-                goto exception;
+                goto NotFound;
             }
         }
 
@@ -49,20 +51,14 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
             var len = input.Length;
             if (len <= 32)
             {
-                GuildUser? user;
-                try
-                {
-                    user = users.Values.SingleOrDefault(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s);
-                }
-                catch
-                {
-                    throw new AmbiguousMatchException("Too many users found.");
-                }
+                if (users.Values.TryGetSingle(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s, out var user))
+                    return new(user);
+
                 if (user is not null)
-                    return Task.FromResult<object?>(user);
+                    throw new AmbiguousMatchException("Too many users found.");
             }
         }
-        exception:
+        NotFound:
         throw new EntityNotFoundException("The user was not found.");
     }
 }

@@ -29,10 +29,10 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
 public class ApplicationCommandService<TContext> where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
-    private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = new();
+    private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = [];
 
-    internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = new();
-    internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = new();
+    internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
+    internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = [];
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
 

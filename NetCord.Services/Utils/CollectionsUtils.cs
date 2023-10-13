@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services.Utils;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services.Utils;
 
 internal static class CollectionsUtils
 {
@@ -52,5 +54,32 @@ internal static class CollectionsUtils
             secondEnumerator.MoveNext();
             yield return (firstEnumerator.Current, secondEnumerator.Current);
         }
+    }
+
+    public static bool TryGetSingle<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, [MaybeNullWhen(false)] out TSource value)
+    {
+        using (var e = source.GetEnumerator())
+        {
+            while (e.MoveNext())
+            {
+                var result = e.Current;
+                if (predicate(result))
+                {
+                    value = result;
+                    while (e.MoveNext())
+                    {
+                        if (predicate(e.Current))
+                        {
+                            value = default;
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+
+        value = default;
+        return false;
     }
 }

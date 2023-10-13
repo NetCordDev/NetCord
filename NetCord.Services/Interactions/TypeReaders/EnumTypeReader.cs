@@ -13,10 +13,10 @@ public class EnumTypeReader<TContext> : InteractionTypeReader<TContext> where TC
         static Type GetKey(InteractionParameter<TContext> parameter) => parameter.NonNullableElementType;
     }
 
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, configuration).TryRead(input, out var value))
-            return Task.FromResult<object?>(value);
+            return new(value);
 
         throw new FormatException($"Invalid {parameter.NonNullableElementType.Name}.");
     }

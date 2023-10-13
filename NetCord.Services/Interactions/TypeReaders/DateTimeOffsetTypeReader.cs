@@ -2,5 +2,5 @@
 
 public class DateTimeOffsetTypeReader<TContext> : InteractionTypeReader<TContext> where TContext : IInteractionContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => Task.FromResult<object?>(DateTimeOffset.Parse(input.Span, configuration.CultureInfo));
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(DateTimeOffset.Parse(input.Span, configuration.CultureInfo));
 }

@@ -9,7 +9,7 @@ internal static class CollectionsUtils
     public static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
         if (source is null)
-            return new();
+            return [];
         else
             return source.ToDictionary(keySelector);
     }
@@ -17,7 +17,7 @@ internal static class CollectionsUtils
     public static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
         if (source is null)
-            return new();
+            return [];
         else
             return source.ToDictionary(keySelector, elementSelector);
     }
@@ -74,7 +74,7 @@ internal static class CollectionsUtils
     public static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
         if (source.IsDefaultOrEmpty)
-            return new();
+            return [];
         else
             return source.ToDictionary(keySelector);
     }
@@ -82,7 +82,7 @@ internal static class CollectionsUtils
     public static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
         if (source.IsDefaultOrEmpty)
-            return new();
+            return [];
         else
             return source.ToDictionary(keySelector, elementSelector);
     }

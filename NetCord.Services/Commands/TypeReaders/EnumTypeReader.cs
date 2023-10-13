@@ -7,7 +7,7 @@ namespace NetCord.Services.Commands.TypeReaders;
 public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
     private readonly EnumTypeReaderManager<IEnumTypeReader, CommandParameter<TContext>, CommandParameter<TContext>, CommandServiceConfiguration<TContext>> _enumTypeReaderManager;
-    private readonly Dictionary<Type, bool> _byValueTypes = new();
+    private readonly Dictionary<Type, bool> _byValueTypes = [];
 
     public unsafe EnumTypeReader()
     {
@@ -29,10 +29,10 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         static CommandParameter<TContext> GetKey(CommandParameter<TContext> parameter) => parameter;
     }
 
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, configuration).TryRead(input, out var value))
-            return Task.FromResult<object?>(value);
+            return new(value);
 
         throw new FormatException($"Invalid {parameter.NonNullableElementType.Name}.");
     }

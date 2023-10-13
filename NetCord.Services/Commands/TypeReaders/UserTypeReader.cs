@@ -6,16 +6,16 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override Task<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
         {
             if (context.Message.Channel is DMChannel dMchannel)
-                return Task.FromResult<object?>(GetUser(dMchannel, input.Span));
+                return new(GetUser(dMchannel, input.Span));
         }
         else
-            return Task.FromResult<object?>(GetGuildUser(guild, input.Span));
+            return new(GetGuildUser(guild, input.Span));
 
         throw new EntityNotFoundException("The user was not found.");
     }
