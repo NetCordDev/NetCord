@@ -8,9 +8,11 @@ internal static class Libsodium
     public const int MacBytes = 16;
     public const int NonceBytes = 24;
 
+    [SuppressGCTransition]
     [DllImport("libsodium", EntryPoint = "crypto_secretbox_easy", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int CryptoSecretboxEasy(ref byte c, ref byte m, ulong mlen, ref byte n, ref byte k);
 
+    [SuppressGCTransition]
     [DllImport("libsodium", EntryPoint = "crypto_secretbox_open_easy", CallingConvention = CallingConvention.Cdecl)]
     internal static extern int CryptoSecretboxOpenEasy(ref byte m, ref byte c, ulong clen, ref byte n, ref byte k);
 }
