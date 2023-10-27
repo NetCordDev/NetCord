@@ -781,7 +781,7 @@ public partial class GatewayClient : WebSocketClient
         _compression.Dispose();
         if (_disposeRest)
             Rest.Dispose();
-        Cache.Dispose();
+        Cache?.Dispose();
         if (_configuration.CacheDMChannels)
         {
             foreach (var semaphore in _DMSemaphores!.Values)
