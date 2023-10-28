@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Gateway;
+﻿using NetCord.Gateway;
 
 namespace NetCord.Services.Commands.TypeReaders;
 

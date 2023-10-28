@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 using NetCord.Services.Interactions;
 
 namespace NetCord.Test;

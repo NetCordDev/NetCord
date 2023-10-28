@@ -39,7 +39,7 @@ public static class Snowflake
     {
         if (TryParse(bytes, out var id))
             return id;
-        
+
         throw new FormatException("The input is not in a correct format.");
     }
 }

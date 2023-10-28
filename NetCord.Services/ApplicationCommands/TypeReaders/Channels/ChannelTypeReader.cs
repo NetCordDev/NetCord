@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord.Services.ApplicationCommands.TypeReaders;
+﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class ChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {

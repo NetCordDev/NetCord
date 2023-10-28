@@ -1,5 +1,4 @@
-﻿using System.Buffers.Text;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord;
 

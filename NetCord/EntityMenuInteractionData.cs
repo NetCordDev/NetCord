@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord;
 

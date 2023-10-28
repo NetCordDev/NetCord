@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord.Services.ApplicationCommands.TypeReaders;
+﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class RoleTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {
