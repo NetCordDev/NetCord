@@ -23,7 +23,7 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
 
     protected T GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
     {
-        if (MentionUtils.TryParseChannel(input, out var id))
+        if (Mention.TryParseChannel(input, out var id))
         {
             if (id == channel.Id && channel is T t)
                 return t;
@@ -50,7 +50,7 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
         var threads = guild.ActiveThreads;
 
         // by mention
-        if (MentionUtils.TryParseChannel(input, out var id))
+        if (Mention.TryParseChannel(input, out var id))
         {
             if (channels.TryGetValue(id, out var channel))
             {

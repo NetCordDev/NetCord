@@ -18,7 +18,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5E156987
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeTest", "Tests\SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentionUtilsTest", "Tests\MentionUtilsTest\MentionUtilsTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentionTest", "Tests\MentionTest\MentionTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TokenTest", "Tests\TokenTest\TokenTest.csproj", "{B6698DB7-5FCF-47C9-BAE0-5206D7E9D9AF}"
 EndProject

@@ -25,7 +25,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         var users = dMChannel.Users;
 
         // by mention
-        if (MentionUtils.TryParseUser(input, out var id))
+        if (Mention.TryParseUser(input, out var id))
         {
             if (users.TryGetValue(id, out var user))
                 return user;
@@ -80,7 +80,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         var users = guild.Users;
 
         // by mention
-        if (MentionUtils.TryParseUser(input, out var id))
+        if (Mention.TryParseUser(input, out var id))
         {
             if (users.TryGetValue(id, out var user))
                 return user;

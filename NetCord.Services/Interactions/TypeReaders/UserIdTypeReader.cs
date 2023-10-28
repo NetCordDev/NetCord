@@ -24,7 +24,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             }
 
             // by mention
-            if (MentionUtils.TryParseUser(span, out id))
+            if (Mention.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
                 return new(new UserId(id, user));
@@ -69,7 +69,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             }
 
             // by mention
-            if (MentionUtils.TryParseUser(span, out id))
+            if (Mention.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
                 return new(new UserId(id, user));

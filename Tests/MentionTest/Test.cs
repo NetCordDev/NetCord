@@ -10,24 +10,24 @@ public unsafe class Test
     [TestMethod]
     public void User()
     {
-        ParseTest(&MentionUtils.ParseUser, Id, id => $"<@{id}>");
-        ParseTest(&MentionUtils.ParseUser, Id, id => $"<@!{id}>");
-        TryParseTest(&MentionUtils.TryParseUser, Id, id => $"<@{id}>");
-        TryParseTest(&MentionUtils.TryParseUser, Id, id => $"<@!{id}>");
+        ParseTest(&Mention.ParseUser, Id, id => $"<@{id}>");
+        ParseTest(&Mention.ParseUser, Id, id => $"<@!{id}>");
+        TryParseTest(&Mention.TryParseUser, Id, id => $"<@{id}>");
+        TryParseTest(&Mention.TryParseUser, Id, id => $"<@!{id}>");
     }
 
     [TestMethod]
     public void Channel()
     {
-        ParseTest(&MentionUtils.ParseChannel, Id, id => $"<#{id}>");
-        TryParseTest(&MentionUtils.TryParseChannel, Id, id => $"<#{id}>");
+        ParseTest(&Mention.ParseChannel, Id, id => $"<#{id}>");
+        TryParseTest(&Mention.TryParseChannel, Id, id => $"<#{id}>");
     }
 
     [TestMethod]
     public void Role()
     {
-        ParseTest(&MentionUtils.ParseRole, Id, id => $"<@&{id}>");
-        TryParseTest(&MentionUtils.TryParseRole, Id, id => $"<@&{id}>");
+        ParseTest(&Mention.ParseRole, Id, id => $"<@&{id}>");
+        TryParseTest(&Mention.TryParseRole, Id, id => $"<@&{id}>");
     }
 
     [TestMethod]
@@ -42,8 +42,8 @@ public unsafe class Test
 
         foreach (var mention in testMentions)
         {
-            ParseTest(&MentionUtils.ParseSlashCommand, mention, m => m.ToString());
-            TryParseTest(&MentionUtils.TryParseSlashCommand, mention, m => m.ToString());
+            ParseTest(&Mention.ParseSlashCommand, mention, m => m.ToString());
+            TryParseTest(&Mention.TryParseSlashCommand, mention, m => m.ToString());
         }
     }
 
@@ -64,8 +64,8 @@ public unsafe class Test
 
         foreach (var mention in testMentions)
         {
-            ParseTest(&MentionUtils.ParseTimestamp, mention, m => m.ToString());
-            TryParseTest(&MentionUtils.TryParseTimestamp, mention, m => m.ToString());
+            ParseTest(&Mention.ParseTimestamp, mention, m => m.ToString());
+            TryParseTest(&Mention.TryParseTimestamp, mention, m => m.ToString());
         }
     }
 
@@ -81,8 +81,8 @@ public unsafe class Test
 
         foreach (var mention in testMentions)
         {
-            ParseTest(&MentionUtils.ParseGuildNavigation, mention, m => m.ToString());
-            TryParseTest(&MentionUtils.TryParseGuildNavigation, mention, m => m.ToString());
+            ParseTest(&Mention.ParseGuildNavigation, mention, m => m.ToString());
+            TryParseTest(&Mention.TryParseGuildNavigation, mention, m => m.ToString());
         }
     }
 

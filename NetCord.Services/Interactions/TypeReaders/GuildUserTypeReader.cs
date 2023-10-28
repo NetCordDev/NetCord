@@ -25,7 +25,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
         else
         {
             // by mention
-            if (MentionUtils.TryParseUser(span, out id))
+            if (Mention.TryParseUser(span, out id))
             {
                 if (users.TryGetValue(id, out var user))
                     return new(user);

@@ -15,7 +15,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 var span = input.Span;
 
                 // by mention
-                if (MentionUtils.TryParseUser(span, out var id))
+                if (Mention.TryParseUser(span, out var id))
                     return new(new UserId(id, users.GetValueOrDefault(id)));
 
                 // by name and tag
@@ -63,7 +63,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             var span = input.Span;
 
             // by mention
-            if (MentionUtils.TryParseUser(span, out var id))
+            if (Mention.TryParseUser(span, out var id))
                 return new(new UserId(id, users.GetValueOrDefault(id)));
 
             var len = span.Length;

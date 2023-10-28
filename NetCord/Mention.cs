@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace NetCord;
 
-public static class MentionUtils
+public static class Mention
 {
     public static bool TryParseUser(ReadOnlySpan<char> mention, out ulong id)
     {
