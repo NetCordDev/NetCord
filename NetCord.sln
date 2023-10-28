@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Services", "NetCord
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5E156987-5CC6-4873-B774-F41CBD7D3F3D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeUtilsTest", "Tests\SnowflakeUtilsTest\SnowflakeUtilsTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SnowflakeTest", "Tests\SnowflakeTest\SnowflakeTest.csproj", "{621D2994-DCBF-4A8D-91FB-9B264C462FE7}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MentionUtilsTest", "Tests\MentionUtilsTest\MentionUtilsTest.csproj", "{567AEDB7-EFC5-4555-AB85-E1FBAB7A0F21}"
 EndProject
@@ -160,9 +160,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomModuleBases", "Docume
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomContexts", "Documentation\guides\services\CustomModuleBasesAndContexts\CustomContexts\CustomContexts.csproj", "{1098C5F6-B9F1-4206-805C-5AC78315E946}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sharding", "Documentation\guides\advanced\Sharding\Sharding.csproj", "{7FF73C26-720D-47FC-858C-74A5B545FE73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharding", "Documentation\guides\advanced\Sharding\Sharding.csproj", "{7FF73C26-720D-47FC-858C-74A5B545FE73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Subcommands", "Documentation\guides\services\application-commands\Subcommands\Subcommands.csproj", "{9FD4FB24-2910-42B2-A89B-3E823145467E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Subcommands", "Documentation\guides\services\application-commands\Subcommands\Subcommands.csproj", "{9FD4FB24-2910-42B2-A89B-3E823145467E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

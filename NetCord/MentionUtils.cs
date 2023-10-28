@@ -10,7 +10,7 @@ public static class MentionUtils
         if (mention.StartsWith("<@") && mention.EndsWith(">"))
         {
             mention = mention[2..^1];
-            if (ulong.TryParse(mention.StartsWith("!") ? mention[1..] : mention, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (Snowflake.TryParse(mention.StartsWith("!") ? mention[1..] : mention, out id))
                 return true;
         }
         else
@@ -31,7 +31,7 @@ public static class MentionUtils
     {
         if (mention.StartsWith("<#") && mention.EndsWith(">"))
         {
-            if (ulong.TryParse(mention[2..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (Snowflake.TryParse(mention[2..^1], out id))
                 return true;
         }
         else
@@ -52,7 +52,7 @@ public static class MentionUtils
     {
         if (mention.StartsWith("<@&") && mention.EndsWith(">"))
         {
-            if (ulong.TryParse(mention[3..^1], NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (Snowflake.TryParse(mention[3..^1], out id))
                 return true;
         }
         else
@@ -101,7 +101,7 @@ public static class MentionUtils
                 goto Fail;
 
             Skip:
-            if (!ulong.TryParse(mention[(index + 1)..], NumberStyles.None, CultureInfo.InvariantCulture, out var id))
+            if (!Snowflake.TryParse(mention[(index + 1)..], out var id))
                 goto Fail;
 
             result = i switch

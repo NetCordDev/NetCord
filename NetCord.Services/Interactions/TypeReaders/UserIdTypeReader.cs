@@ -17,7 +17,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             var s = span.ToString();
 
             // by id
-            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
+            if (Snowflake.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return new(new UserId(id, user));
@@ -62,7 +62,7 @@ public class UserIdTypeReader<TContext> : InteractionTypeReader<TContext> where 
             var s = span.ToString();
 
             // by id
-            if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
+            if (Snowflake.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
                 return new(new UserId(id, user));

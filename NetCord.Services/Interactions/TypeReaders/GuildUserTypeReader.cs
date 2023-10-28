@@ -17,7 +17,7 @@ public class GuildUserTypeReader<TContext> : InteractionTypeReader<TContext> whe
         var s = span.ToString();
 
         // by id
-        if (ulong.TryParse(s, NumberStyles.None, CultureInfo.InvariantCulture, out ulong id))
+        if (Snowflake.TryParse(s, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
                 return new(user);

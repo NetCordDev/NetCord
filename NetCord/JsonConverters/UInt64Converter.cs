@@ -10,9 +10,7 @@ public class UInt64Converter : JsonConverter<ulong>
     public override ulong Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         var span = reader.HasValueSequence ? reader.ValueSequence.ToArray() : reader.ValueSpan;
-        if (Utf8Parser.TryParse(span, out ulong value, out int bytesConsumed) && span.Length == bytesConsumed)
-            return value;
-        throw new FormatException("Either the JSON value is not in a supported format, or is out of bounds for a UInt64.");
+        return Snowflake.Parse(span);
     }
 
     public override void Write(Utf8JsonWriter writer, ulong value, JsonSerializerOptions options)

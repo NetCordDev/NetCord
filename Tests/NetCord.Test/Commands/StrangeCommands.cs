@@ -52,7 +52,7 @@ public class StrangeCommands : CommandModule<CommandContext>
             var first = span.IndexOf(':');
             var name = span[(last == first ? 1 : first + 1)..last];
             var id = span[(last + 1)..^1];
-            reaction = new(name.ToString(), ulong.Parse(id, NumberStyles.None, CultureInfo.InvariantCulture));
+            reaction = new(name.ToString(), Snowflake.Parse(id));
         }
         return Context.Message.AddReactionAsync(reaction);
     }
@@ -161,10 +161,10 @@ public class StrangeCommands : CommandModule<CommandContext>
         var fields = new EmbedFieldProperties[]
         {
             new() { Name = "Id", Value = id.ToString()! },
-            new() { Name = "Created At", Value = new Timestamp(SnowflakeUtils.CreatedAt(id)).ToString() },
-            new() { Name = "Internal Worker Id", Value = SnowflakeUtils.InternalWorkerId(id).ToString() },
-            new() { Name = "Internal Process Id", Value = SnowflakeUtils.InternalProcessId(id).ToString() },
-            new() { Name = "Increment", Value = SnowflakeUtils.Increment(id).ToString() },
+            new() { Name = "Created At", Value = new Timestamp(Snowflake.CreatedAt(id)).ToString() },
+            new() { Name = "Internal Worker Id", Value = Snowflake.InternalWorkerId(id).ToString() },
+            new() { Name = "Internal Process Id", Value = Snowflake.InternalProcessId(id).ToString() },
+            new() { Name = "Increment", Value = Snowflake.Increment(id).ToString() },
         };
         EmbedProperties embed = new()
         {

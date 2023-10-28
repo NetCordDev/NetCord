@@ -27,7 +27,7 @@ public class Token
             {
                 var idBase64 = RawToken[..index];
                 var idConverted = Convert.FromBase64String(idBase64.PadRight((idBase64.Length + 3) / 4 * 4, '='));
-                if (Utf8Parser.TryParse(idConverted, out ulong id, out int bytesConsumed) && idConverted.Length == bytesConsumed)
+                if (Snowflake.TryParse(idConverted, out ulong id))
                     return id;
             }
 

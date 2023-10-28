@@ -1,6 +1,9 @@
-﻿namespace NetCord;
+﻿using System.Buffers.Text;
+using System.Globalization;
 
-public static class SnowflakeUtils
+namespace NetCord;
+
+public static class Snowflake
 {
     public static ulong Create(DateTimeOffset createdAt)
     {
@@ -25,4 +28,18 @@ public static class SnowflakeUtils
     public static ushort Increment(ulong id) => (ushort)(id & 0xFFF);
 
     public static int ShardId(ulong guildId, int shardCount) => (int)((guildId >> 22) % (ulong)shardCount);
+
+    public static bool TryParse(ReadOnlySpan<char> value, out ulong id) => ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out id);
+
+    public static ulong Parse(ReadOnlySpan<char> value) => ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
+
+    public static bool TryParse(ReadOnlySpan<byte> bytes, out ulong id) => Utf8Parser.TryParse(bytes, out id, out int bytesConsumed) && bytesConsumed == bytes.Length;
+
+    public static ulong Parse(ReadOnlySpan<byte> bytes)
+    {
+        if (TryParse(bytes, out var id))
+            return id;
+        
+        throw new FormatException("The input is not in a correct format.");
+    }
 }

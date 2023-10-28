@@ -12,7 +12,7 @@ public class EntityMenuInteractionData : MessageComponentInteractionData
         int length = selectedValues.Length;
         var result = new ulong[length];
         for (var i = 0; i < length; i++)
-            result[i] = ulong.Parse(selectedValues[i], NumberStyles.None, CultureInfo.InvariantCulture);
+            result[i] = Snowflake.Parse(selectedValues[i]);
         SelectedValues = result;
 
         var resolvedData = jsonModel.ResolvedData;

@@ -8,6 +8,6 @@ public class UserTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
+        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![Snowflake.Parse(value)]);
     }
 }

@@ -66,7 +66,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         }
 
         // by id
-        if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+        if (Snowflake.TryParse(input, out id))
         {
             if (users.TryGetValue(id, out var user))
                 return user;
@@ -143,7 +143,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         }
 
         // by id
-        if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+        if (Snowflake.TryParse(input, out id))
         {
             if (users.TryGetValue(id, out var user))
                 return user;

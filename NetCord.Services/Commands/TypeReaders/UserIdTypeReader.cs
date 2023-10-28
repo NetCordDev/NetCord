@@ -53,7 +53,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                 }
 
                 // by id
-                if (ulong.TryParse(span, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+                if (Snowflake.TryParse(span, out id))
                     return new(new UserId(id, users.GetValueOrDefault(id)));
             }
         }
@@ -123,7 +123,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
             }
 
             // by id
-            if (ulong.TryParse(span, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+            if (Snowflake.TryParse(span, out id))
                 return new(new UserId(id, users.GetValueOrDefault(id)));
         }
 

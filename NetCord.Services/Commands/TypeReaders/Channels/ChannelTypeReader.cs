@@ -35,7 +35,7 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
                 return t;
         }
 
-        if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+        if (Snowflake.TryParse(input, out id))
         {
             if (id == channel.Id && channel is T t)
                 return t;
@@ -87,7 +87,7 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
         }
 
         // by id
-        if (ulong.TryParse(input, NumberStyles.None, CultureInfo.InvariantCulture, out id))
+        if (Snowflake.TryParse(input, out id))
         {
             if (channels.TryGetValue(id, out var channel))
             {

@@ -11,7 +11,7 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
         var resolvedData = slashInteraction.Data.ResolvedData!;
         var roles = resolvedData.Roles;
-        var id = ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
+        var id = Snowflake.Parse(value);
         if (roles is not null && roles.TryGetValue(id, out var role))
             return new(new Mentionable(role));
         else

@@ -8,7 +8,7 @@ public class GuildUserTypeReader<TContext> : SlashCommandTypeReader<TContext> wh
 
     public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)];
+        var user = ((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Users![Snowflake.Parse(value)];
         if (user is GuildUser guildUser)
             return new(guildUser);
         else

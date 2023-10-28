@@ -74,7 +74,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         get
         {
             var clients = _clients!;
-            return clients[SnowflakeUtils.ShardId(guildId, clients.Count)];
+            return clients[Snowflake.ShardId(guildId, clients.Count)];
         }
     }
 

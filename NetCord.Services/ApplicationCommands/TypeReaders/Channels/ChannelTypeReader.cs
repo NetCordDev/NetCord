@@ -8,6 +8,6 @@ public class ChannelTypeReader<TContext> : SlashCommandTypeReader<TContext> wher
 
     public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
+        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Channels![Snowflake.Parse(value)]);
     }
 }

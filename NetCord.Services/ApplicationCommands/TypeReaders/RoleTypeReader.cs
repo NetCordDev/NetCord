@@ -8,6 +8,6 @@ public class RoleTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture)]);
+        return new(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Roles![Snowflake.Parse(value)]);
     }
 }
