@@ -43,7 +43,7 @@ client.InteractionCreate += async interaction =>
     {
         try
         {
-            await interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"Error: {ex.Message}"));
+            await interaction.SendResponseAsync(InteractionCallback.Message($"Error: {ex.Message}"));
         }
         catch
         {

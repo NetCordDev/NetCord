@@ -8,6 +8,6 @@ public class MentionableMenuInteractions : InteractionModule<MentionableMenuInte
     [Interaction("mentionables")]
     public Task MentionablesAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedMentionables)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedMentionables)}"));
     }
 }

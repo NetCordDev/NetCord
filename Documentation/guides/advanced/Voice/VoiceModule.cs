@@ -41,7 +41,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
         // Respond to the interaction
-        await RespondAsync(InteractionCallback.ChannelMessageWithSource($"Playing {Path.GetFileName(track)}!"));
+        await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
 
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream();
@@ -143,6 +143,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         };
 
         // Respond to the interaction
-        await RespondAsync(InteractionCallback.ChannelMessageWithSource("Echo!"));
+        await RespondAsync(InteractionCallback.Message("Echo!"));
     }
 }

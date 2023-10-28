@@ -7,5 +7,5 @@ public class UserCommands : ApplicationCommandModule<UserCommandContext>
 {
     [UserCommand("Get id")]
     public Task GetId()
-        => RespondAsync(InteractionCallback.ChannelMessageWithSource(Context.Target.Id.ToString()!));
+        => RespondAsync(InteractionCallback.Message(Context.Target.Id.ToString()!));
 }

@@ -11,7 +11,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
         DMPermission = false)]
     public Task MentionEveryoneAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        return RespondAsync(InteractionCallback.Message(new()
         {
             AllowedMentions = AllowedMentionsProperties.All,
             Content = "@everyone",

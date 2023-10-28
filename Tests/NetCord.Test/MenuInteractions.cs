@@ -13,10 +13,10 @@ public class MenuInteractions : BaseInteractionModule<StringMenuInteractionConte
         {
             var selectedValues = Context.Interaction.Data.SelectedValues.Select(s => Snowflake.Parse(s));
             await guildUser.ModifyAsync(x => x.RoleIds = selectedValues);
-            await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = "Roles updated" }));
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = "Roles updated" }));
         }
         else
-            await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = "You are not in guild" }));
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = "You are not in guild" }));
     }
 
     [Interaction("menu")]
@@ -27,6 +27,6 @@ public class MenuInteractions : BaseInteractionModule<StringMenuInteractionConte
             Flags = MessageFlags.Ephemeral,
             Content = "You selected: " + string.Join(", ", Context.SelectedValues),
         };
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message(interactionMessage));
     }
 }

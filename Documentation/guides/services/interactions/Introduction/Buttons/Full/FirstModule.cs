@@ -8,6 +8,6 @@ public class FirstModule : InteractionModule<ButtonInteractionContext>
     [Interaction("button")]
     public Task ButtonAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource("You clicked a button!"));
+        return RespondAsync(InteractionCallback.Message("You clicked a button!"));
     }
 }

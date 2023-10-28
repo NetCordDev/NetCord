@@ -8,6 +8,6 @@ public class FirstModule : InteractionModule<ModalSubmitInteractionContext>
     [Interaction("modal")]
     public Task ModalAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(string.Join('\n', Context.Components.Select(c => $"{c.CustomId}: {c.Value}"))));
+        return RespondAsync(InteractionCallback.Message(string.Join('\n', Context.Components.Select(c => $"{c.CustomId}: {c.Value}"))));
     }
 }

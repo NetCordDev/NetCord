@@ -8,6 +8,6 @@ public class FirstModule : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("ping", "This is a ping command")]
     public Task PingAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource("pong!"));
+        return RespondAsync(InteractionCallback.Message("pong!"));
     }
 }

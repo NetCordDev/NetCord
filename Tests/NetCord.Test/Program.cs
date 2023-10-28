@@ -122,7 +122,7 @@ internal static class Program
             };
             try
             {
-                await interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(message));
+                await interaction.SendResponseAsync(InteractionCallback.Message(message));
             }
             catch
             {

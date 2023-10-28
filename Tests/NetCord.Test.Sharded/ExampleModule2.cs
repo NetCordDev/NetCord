@@ -12,20 +12,20 @@ public class ExampleModule2 : ApplicationCommandModule<SlashCommandContext>
         [SubSlashCommand("xd3", "Ping")]
         public Task PingAsync([SlashCommandParameter(Name = "guild_user_flags")] GuildUserFlags guildUserFlags)
         {
-            return RespondAsync(InteractionCallback.ChannelMessageWithSource(guildUserFlags.ToString()));
+            return RespondAsync(InteractionCallback.Message(guildUserFlags.ToString()));
         }
 
         [SubSlashCommand("permissions", "Permissions")]
         public Task PermissionsAsync(Permissions permissions)
         {
-            return RespondAsync(InteractionCallback.ChannelMessageWithSource(permissions.ToString()));
+            return RespondAsync(InteractionCallback.Message(permissions.ToString()));
         }
     }
 
     [SubSlashCommand("xd4", "Ping")]
     public Task PingAsync(E? e)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(e.GetValueOrDefault().ToString()));
+        return RespondAsync(InteractionCallback.Message(e.GetValueOrDefault().ToString()));
     }
 }
 

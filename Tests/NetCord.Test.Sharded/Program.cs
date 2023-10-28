@@ -66,7 +66,7 @@ client.InteractionCreate += async (client, interaction) =>
                 }
                 catch (Exception ex)
                 {
-                    await slashCommandInteraction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(ex.Message));
+                    await slashCommandInteraction.SendResponseAsync(InteractionCallback.Message(ex.Message));
                 }
 
                 break;

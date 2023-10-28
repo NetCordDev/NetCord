@@ -9,6 +9,6 @@ public class ModalSubmitInteractions : InteractionModule<ModalSubmitInteractionC
     [Interaction("wzium")]
     public Task WziumAsync(UserId user)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{user} got wziummed with reason: {Context.Components[0].Value}"));
+        return RespondAsync(InteractionCallback.Message($"{user} got wziummed with reason: {Context.Components[0].Value}"));
     }
 }

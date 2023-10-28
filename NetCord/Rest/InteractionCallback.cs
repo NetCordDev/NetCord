@@ -13,7 +13,7 @@ public partial class InteractionCallback : IHttpSerializable
     }
 
     /// <summary>
-    /// ACK a <see cref="InteractionType.Ping"/> interaction.
+    /// ACK a ping interaction.
     /// </summary>
     public static InteractionCallback Pong
         => new(InteractionCallbackType.Pong);
@@ -23,14 +23,14 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback<InteractionMessageProperties> ChannelMessageWithSource(InteractionMessageProperties message)
-        => new(InteractionCallbackType.ChannelMessageWithSource, message);
+    public static InteractionCallback<InteractionMessageProperties> Message(InteractionMessageProperties message)
+        => new(InteractionCallbackType.Message, message);
 
     /// <summary>
     /// ACK an interaction and modify a response later, the user sees a loading state.
     /// </summary>
-    public static InteractionCallback<InteractionMessageProperties> DeferredChannelMessageWithSource(MessageFlags? flags = null)
-        => new(InteractionCallbackType.DeferredChannelMessageWithSource, new() { Flags = flags });
+    public static InteractionCallback<InteractionMessageProperties> DeferredMessage(MessageFlags? flags = null)
+        => new(InteractionCallbackType.DeferredMessage, new() { Flags = flags });
 
     /// <summary>
     /// For components, ACK an interaction and modify the original message later; the user does not see a loading state.
@@ -55,8 +55,8 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="choices"></param>
     /// <returns></returns>
-    public static InteractionCallback<InteractionCallbackChoicesDataProperties> ApplicationCommandAutocompleteResult(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
-        => new(InteractionCallbackType.ApplicationCommandAutocompleteResult, new(choices));
+    public static InteractionCallback<InteractionCallbackChoicesDataProperties> Autocomplete(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
+        => new(InteractionCallbackType.Autocomplete, new(choices));
 
     /// <summary>
     /// Respond to an interaction with a popup <paramref name="modal"/>.

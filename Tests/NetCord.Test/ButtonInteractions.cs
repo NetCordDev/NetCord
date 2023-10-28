@@ -34,12 +34,12 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
     [Interaction("test")]
     public Task TestAsync(string s, string s2)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{s}\n{s2}"));
+        return RespondAsync(InteractionCallback.Message($"{s}\n{s2}"));
     }
 
     [Interaction("enum")]
     public Task EnumAsync(PaginationDirection paginationDirection)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(paginationDirection.ToString()));
+        return RespondAsync(InteractionCallback.Message(paginationDirection.ToString()));
     }
 }

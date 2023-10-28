@@ -8,6 +8,6 @@ public class FirstModule : ApplicationCommandModule<UserCommandContext>
     [UserCommand("Username")]
     public Task UsernameAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(Context.Target.Username));
+        return RespondAsync(InteractionCallback.Message(Context.Target.Username));
     }
 }

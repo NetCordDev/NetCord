@@ -14,13 +14,13 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     [SubSlashCommand("add", "Permission add")]
     public Task AddAsync(int i, Permissions permission)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+        return RespondAsync(InteractionCallback.Message(permission.ToString()));
     }
 
     [SubSlashCommand("remove", "Permission remove")]
     public Task RemoveAsync(int i, Permissions permission)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+        return RespondAsync(InteractionCallback.Message(permission.ToString()));
     }
 
     [SubSlashCommand("list", "Permission list")]
@@ -29,13 +29,13 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
         [SubSlashCommand("user", "Permission list user")]
         public Task UserAsync(int i, Permissions permission)
         {
-            return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+            return RespondAsync(InteractionCallback.Message(permission.ToString()));
         }
 
         [SubSlashCommand("role", "Permission list role")]
         public Task RoleAsync(int i, Permissions permission)
         {
-            return RespondAsync(InteractionCallback.ChannelMessageWithSource(permission.ToString()));
+            return RespondAsync(InteractionCallback.Message(permission.ToString()));
         }
     }
 }
@@ -52,7 +52,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("enum", "Enum!")]
     public Task EnumAsync(ChannelFlags @enum)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(@enum.ToString()));
+        return RespondAsync(InteractionCallback.Message(@enum.ToString()));
     }
 
     [SlashCommand("play", "Plays music")]
@@ -100,7 +100,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
-        await RespondAsync(InteractionCallback.ChannelMessageWithSource($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
+        await RespondAsync(InteractionCallback.Message($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
         var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
@@ -117,19 +117,19 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("channel", "Channel")]
     public Task ChannelAsync(TextChannel channel)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(channel.ToString()));
+        return RespondAsync(InteractionCallback.Message(channel.ToString()));
     }
 
     [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permissions.AddReactions)]
     public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{i1} {i2} {i3} {i4} {i5} {i6}"));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
     [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
     public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider), MaxLength = 500)] string query)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
     }
 
     private class SearchNameTranslationsProvider : ITranslationsProvider
@@ -179,7 +179,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("percentage", "Show formatted percentage")]
     public Task PercentageAsync([SlashCommandParameter(TypeReaderType = typeof(PercentageTypeReader))] byte percentage)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource($"{percentage}%"));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{percentage}%"));
     }
 
     [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.BanUsers), RequireBotPermissions<SlashCommandContext>(Permissions.BanUsers)]
@@ -190,7 +190,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             throw new InvalidOperationException("This command is available only in guild");
 
         await Context.Guild.BanUserAsync(user.Id, (int)deleteMessages, new() { AuditLogReason = reason });
-        await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
+        await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
     [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.ModerateUsers), RequireBotPermissions<SlashCommandContext>(Permissions.ModerateUsers)]
@@ -202,13 +202,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
         var until = DateTimeOffset.UtcNow.AddDays(days);
         await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild.Id, user.Id, u => u.TimeOutUntil = until, new() { AuditLogReason = reason });
-        await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"**{user} got muted until {new Timestamp(until, TimestampStyle.LongDateTime)}**", AllowedMentions = AllowedMentionsProperties.None }));
+        await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"**{user} got muted until {new Timestamp(until, TimestampStyle.LongDateTime)}**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
     [SlashCommand("permissions", "Shows role permissions")]
     public Task PermissionsAsync(Role role)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(role.Permissions.ToString()));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message(role.Permissions.ToString()));
     }
 
     //[SlashCommand("channel-name", "Shows channel name")]
@@ -220,7 +220,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("user", "Shows user info")]
     public Task UserAsync(User user)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message(user.ToString()));
     }
 
     [SlashCommand("add-role", "Adds role to user or users")]
@@ -228,7 +228,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     {
         if (mentionable.Type == MentionableType.Role)
         {
-            await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredChannelMessageWithSource());
+            await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
             var roleId = mentionable.Role!.Id;
             foreach (var user in Context.Client.Cache.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
                 await user.AddRoleAsync(roleToAdd.Id);
@@ -241,7 +241,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         else
         {
             await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd.Id);
-            await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
 
@@ -254,13 +254,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("dżejuś", "Shows dżejuś", GuildId = 856183259972763669)]
     public Task DzejusAsync()
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource("https://cdn.discordapp.com/attachments/927877869173084171/937493837335646238/dzejus.gif"));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message("https://cdn.discordapp.com/attachments/927877869173084171/937493837335646238/dzejus.gif"));
     }
 
     [SlashCommand("permission", "Shows permission value")]
     public Task PermissionAsync(Permissions permission)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(((ulong)permission).ToString()));
+        return RespondAsync(InteractionCallback.Message(((ulong)permission).ToString()));
     }
 
     ////[RequireContext<SlashCommandContext>(RequiredContext.Guild)]
@@ -321,19 +321,19 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("nsfw", "You can use this command in nsfw channel", Nsfw = true)]
     public Task NsfwAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource("You used nsfw command!"));
+        return RespondAsync(InteractionCallback.Message("You used nsfw command!"));
     }
 
     [SlashCommand("test2", "This is test")]
     public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, nint i8, sbyte i9, float i10, ushort i11, uint i12, ulong i13, nuint i14)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource("Wzium"));
+        return RespondAsync(InteractionCallback.Message("Wzium"));
     }
 
     [SlashCommand("attachment", "You can pass attachment as a parameter!")]
     public async Task AttachmentAsync(Attachment attachment)
     {
-        await RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        await RespondAsync(InteractionCallback.Message(new()
         {
             Content = "You sent it:",
             Attachments = new AttachmentProperties[]
@@ -346,13 +346,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("guilduser", "Guild User")]
     public Task GuildUserAsync(GuildUser user)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.ToString()));
+        return RespondAsync(InteractionCallback.Message(user.ToString()));
     }
 
     [SlashCommand("button", "Sends button", NameTranslationsProviderType = typeof(ButtonNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(ButtonDescriptionTranslationsProvider))]
     public Task ButtonAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        return RespondAsync(InteractionCallback.Message(new()
         {
             Content = "Button:",
             Components = new List<ComponentProperties>
@@ -391,13 +391,13 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("user-test", "Test")]
     public Task TestAsync(User user1, User user2)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{(user1 is GuildUser g ? (g.Nickname ?? g.Username) : user1.Username)}\n{(user2 is GuildUser g2 ? (g2.Nickname ?? g2.Username) : user2.Username)}"));
+        return RespondAsync(InteractionCallback.Message($"{(user1 is GuildUser g ? (g.Nickname ?? g.Username) : user1.Username)}\n{(user2 is GuildUser g2 ? (g2.Nickname ?? g2.Username) : user2.Username)}"));
     }
 
     [SlashCommand("large-user-test", "Test")]
     public Task TestAsync(User user1, User user2, User user3, User user4, User user5, User user6, User user7, User user8, User user9)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"{GetName(user1)}\n{GetName(user2)}\n{GetName(user3)}\n{GetName(user4)}\n{GetName(user5)}\n{GetName(user6)}\n{GetName(user7)}\n{GetName(user8)}\n{GetName(user9)}\n"));
+        return RespondAsync(InteractionCallback.Message($"{GetName(user1)}\n{GetName(user2)}\n{GetName(user3)}\n{GetName(user4)}\n{GetName(user5)}\n{GetName(user6)}\n{GetName(user7)}\n{GetName(user8)}\n{GetName(user9)}\n"));
 
         static string GetName(User u) => u is GuildUser g ? (g.Nickname ?? g.Username) : u.Username;
     }
@@ -405,7 +405,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("rate-limit-test", "test")]
     public async Task RateLimitTestAsync()
     {
-        await Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource("wz"));
+        await Context.Interaction.SendResponseAsync(InteractionCallback.Message("wz"));
         await Context.Interaction.ModifyResponseAsync(m => m.Content = "wz2");
         var message = await Context.Interaction.SendFollowupMessageAsync("xd");
         await Context.Interaction.ModifyFollowupMessageAsync(message.Id, m => m.Content = "xd2");
@@ -422,7 +422,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("entity-menus", "Entity Menus")]
     public Task EntityMenusAsync([SlashCommandParameter(Name = "min_values", MinValue = 0)] int minValues = 1, [SlashCommandParameter(Name = "max_values", MinValue = 2)] int maxValues = 2)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(new()
+        return RespondAsync(InteractionCallback.Message(new()
         {
             Components = new ComponentProperties[]
             {

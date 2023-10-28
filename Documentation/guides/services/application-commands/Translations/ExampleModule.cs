@@ -16,7 +16,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
             NameTranslationsProviderType = typeof(AnimalNameTranslationsProvider),
             DescriptionTranslationsProviderType = typeof(AnimalDescriptionTranslationsProvider))] Animal animal)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(animal.ToString()));
+        return RespondAsync(InteractionCallback.Message(animal.ToString()));
     }
 
     public enum Animal

@@ -11,7 +11,7 @@ public class GuildCommandsModule : ApplicationCommandModule<SlashCommandContext>
     [SubSlashCommand("channels", "Get guild channel count")]
     public Task ChannelsAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"Channels: {Context.Guild!.Channels.Count}"));
+        return RespondAsync(InteractionCallback.Message($"Channels: {Context.Guild!.Channels.Count}"));
     }
 
     [SubSlashCommand("name", "Guild name")]
@@ -20,7 +20,7 @@ public class GuildCommandsModule : ApplicationCommandModule<SlashCommandContext>
         [SubSlashCommand("get", "Get guild name")]
         public Task GetNameAsync()
         {
-            return RespondAsync(InteractionCallback.ChannelMessageWithSource($"Name: {Context.Guild!.Name}"));
+            return RespondAsync(InteractionCallback.Message($"Name: {Context.Guild!.Name}"));
         }
 
         [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.ManageGuild)]
@@ -30,7 +30,7 @@ public class GuildCommandsModule : ApplicationCommandModule<SlashCommandContext>
         {
             var guild = Context.Guild!;
             await guild.ModifyAsync(g => g.Name = name);
-            await RespondAsync(InteractionCallback.ChannelMessageWithSource($"Name: {guild.Name} -> {name}"));
+            await RespondAsync(InteractionCallback.Message($"Name: {guild.Name} -> {name}"));
         }
     }
 }

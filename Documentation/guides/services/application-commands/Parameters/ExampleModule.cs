@@ -10,19 +10,19 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     public Task UsernameAsync(User? user = null)
     {
         user ??= Context.User;
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(user.Username));
+        return RespondAsync(InteractionCallback.Message(user.Username));
     }
 
     [SlashCommand("power", "Raises a number to a power")]
     public Task PowerAsync([SlashCommandParameter(Name = "base", Description = "The base")] double @base, [SlashCommandParameter(Description = "The power")] double power = 2)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"Result: {Math.Pow(@base, power)}"));
+        return RespondAsync(InteractionCallback.Message($"Result: {Math.Pow(@base, power)}"));
     }
 
     [SlashCommand("animal", "Sends animal you selected")]
     public Task AnimalAsync(Animal animal)
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource(animal.ToString()));
+        return RespondAsync(InteractionCallback.Message(animal.ToString()));
     }
 
     public enum Animal

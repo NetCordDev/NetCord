@@ -8,6 +8,6 @@ public class FirstModule : InteractionModule<ChannelMenuInteractionContext>
     [Interaction("menu")]
     public Task MenuAsync()
     {
-        return RespondAsync(InteractionCallback.ChannelMessageWithSource($"You selected: {string.Join(", ", Context.SelectedChannels)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedChannels)}"));
     }
 }

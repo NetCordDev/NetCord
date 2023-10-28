@@ -17,7 +17,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
         var data = interaction.Data;
         var command = (IAutocompleteInfo)GetApplicationCommandInfo(data.Id);
         var choices = await command.InvokeAutocompleteAsync(context, data.Options, serviceProvider).ConfigureAwait(false);
-        await interaction.SendResponseAsync(InteractionCallback.ApplicationCommandAutocompleteResult(choices)).ConfigureAwait(false);
+        await interaction.SendResponseAsync(InteractionCallback.Autocomplete(choices)).ConfigureAwait(false);
     }
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
