@@ -221,7 +221,7 @@ public partial class GatewayClient : WebSocketClient
         return SendPayloadAsync(serializedPayload);
     }
 
-    private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload), JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
+    private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)

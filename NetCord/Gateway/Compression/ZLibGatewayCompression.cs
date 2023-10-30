@@ -5,7 +5,7 @@ namespace NetCord.Gateway.Compression;
 
 public class ZLibGatewayCompression : IGatewayCompression
 {
-    private const int DefaultBufferSize = 4096;
+    private const int DefaultBufferSize = 8192;
 
     private readonly ReadOnlyMemoryStream _memoryStream;
     private readonly RentedArrayBufferWriter<byte> _writer;
@@ -14,22 +14,22 @@ public class ZLibGatewayCompression : IGatewayCompression
     public ZLibGatewayCompression()
     {
         _memoryStream = new();
-        _writer = new(2 * DefaultBufferSize);
+        _writer = new(DefaultBufferSize);
     }
 
     public string Name => "zlib-stream";
 
-    public ReadOnlySpan<byte> Decompress(ReadOnlyMemory<byte> payload)
+    public ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload)
     {
         _memoryStream.SetMemory(payload);
 
         var writer = _writer;
         var zLibStream = _zLibStream!;
         int bytesRead;
-        while ((bytesRead = zLibStream.Read(writer.GetSpan(DefaultBufferSize))) != 0)
+        while ((bytesRead = zLibStream.Read(writer.GetSpan())) != 0)
             writer.Advance(bytesRead);
 
-        var result = writer.WrittenMemory.Span;
+        var result = writer.WrittenMemory;
         writer.Clear();
         return result;
     }
@@ -50,6 +50,7 @@ public class ZLibGatewayCompression : IGatewayCompression
     private class ReadOnlyMemoryStream : Stream
     {
         private ReadOnlyMemory<byte> _memory;
+        private int _position;
 
         public override bool CanRead => true;
 
@@ -59,7 +60,7 @@ public class ZLibGatewayCompression : IGatewayCompression
 
         public override long Length => _memory.Length;
 
-        public override long Position { get; set; }
+        public override long Position { get => _position; set => _position = checked((int)value); }
 
         public override void Flush()
         {
@@ -69,11 +70,11 @@ public class ZLibGatewayCompression : IGatewayCompression
 
         public override int Read(Span<byte> buffer)
         {
-            var position = (int)Position;
             var span = _memory.Span;
+            var position = _position;
             var length = Math.Min(span.Length - position, buffer.Length);
             span.Slice(position, length).CopyTo(buffer);
-            Position += length;
+            _position += length;
             return length;
         }
 
@@ -94,7 +95,7 @@ public class ZLibGatewayCompression : IGatewayCompression
         public void SetMemory(ReadOnlyMemory<byte> memory)
         {
             _memory = memory;
-            Position = 0;
+            _position = 0;
         }
     }
 }

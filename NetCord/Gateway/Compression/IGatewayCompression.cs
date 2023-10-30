@@ -4,7 +4,7 @@ public interface IGatewayCompression : IDisposable
 {
     public string Name { get; }
 
-    public ReadOnlySpan<byte> Decompress(ReadOnlyMemory<byte> payload);
+    public ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload);
 
     public void Initialize();
 }
