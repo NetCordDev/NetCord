@@ -18,6 +18,14 @@ Ok, you have everything prepared. It's time to create first slash commands!
 Create a new file `FirstModule.cs`. Make sure the class is public and add `using NetCord;` and `using NetCord.Services.ApplicationCommands;`. Make the class inheriting from `ApplicationCommandModule<SlashCommandContext>`. The file should look like this:
 [!code-cs[Program.cs](Introduction/SlashCommands/Partial/FirstModule.cs)]
 
+> [!IMPORTANT]
+> Please note that names of:
+> - slash commands
+> - sub slash commands
+> - slash command parameters
+> 
+> **must** be lowercase.
+
 Now, we will create a `ping` command! Add the following lines to the class.
 [!code-cs[FirstModule.cs](Introduction/SlashCommands/Full/FirstModule.cs#L8-L12)]
 

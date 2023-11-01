@@ -1,13 +1,17 @@
 # Parameters
 
 > [!WARNING]
-> Parameters are supported only by Slash Commands.
+> Parameters are supported only by slash commands.
 
 ## Optional parameters
 To mark parameters as optional, give them a default value, example:
 [!code-cs[ExampleModule.cs](Parameters/ExampleModule.cs#L9-L14)]
 
 ## Parameter name and description
+
+> [!IMPORTANT]
+> Parameter names **must** be lowercase.
+
 You can change parameter name and parameter description using @NetCord.Services.ApplicationCommands.SlashCommandParameterAttribute, example:
 [!code-cs[ExampleModule.cs](Parameters/ExampleModule.cs#L16-L20)]
 
