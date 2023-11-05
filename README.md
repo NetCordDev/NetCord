@@ -2,7 +2,7 @@
     <img src="Resources/Logo/svg/BigOutline.svg" alt="Logo" width="650px">
 </p>
 <p align="center">
-    <b>A lightweight and asynchronous Discord API wrapper.</b>
+    <b>The modern and fully customizable C# Discord library</b>
 </p>
 <p align="center">
     <a href="https://www.nuget.org/packages/NetCord"><img src="https://img.shields.io/nuget/v/NetCord?color=5865F2&logo=nuget&label=NetCord" alt="NuGet"></a>
