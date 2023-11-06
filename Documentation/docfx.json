@@ -60,7 +60,7 @@
     ],
     "markdownEngineName": "markdig",
     "globalMetadata": {
-      "_appDescription": "NetCord – a lightweight and asynchronous Discord API wrapper",
+      "_appDescription": "NetCord – the modern and fully customizable C# Discord library",
       "_appTitle": "NetCord Documentation",
       "_enableSearch": true,
       "_disableFooter": true,
