@@ -13,13 +13,13 @@ public class ExampleAutocompleteProvider : IAutocompleteProvider<AutocompleteInt
         _data = data;
     }
 
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
     {
         var input = option.Value!;
         var result = _data.Where(d => d.Contains(input))
                           .Take(25)
                           .Select(d => new ApplicationCommandOptionChoiceProperties(d, d));
 
-        return Task.FromResult<IEnumerable<ApplicationCommandOptionChoiceProperties>?>(result);
+        return new(result);
     }
 }

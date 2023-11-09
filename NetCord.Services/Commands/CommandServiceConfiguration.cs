@@ -81,4 +81,6 @@ public class CommandServiceConfiguration<TContext> where TContext : ICommandCont
     public bool IgnoreCase { get; init; } = true;
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
+
+    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new CommandResultResolverProvider<TContext>();
 }

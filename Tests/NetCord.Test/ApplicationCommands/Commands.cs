@@ -18,18 +18,18 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SubSlashCommand("remove", "Permission remove")]
-    public Task RemoveAsync(int i, Permissions permission)
+    public static InteractionCallback Remove(int i, Permissions permission)
     {
-        return RespondAsync(InteractionCallback.Message(permission.ToString()));
+        return InteractionCallback.Message(permission.ToString());
     }
 
     [SubSlashCommand("list", "Permission list")]
     public class ListCommand : ApplicationCommandModule<SlashCommandContext>
     {
         [SubSlashCommand("user", "Permission list user")]
-        public Task UserAsync(int i, Permissions permission)
+        public static InteractionCallback User(int i, Permissions permission)
         {
-            return RespondAsync(InteractionCallback.Message(permission.ToString()));
+            return InteractionCallback.Message(permission.ToString());
         }
 
         [SubSlashCommand("role", "Permission list role")]
@@ -50,9 +50,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("enum", "Enum!")]
-    public Task EnumAsync(ChannelFlags @enum)
+    public void Enum(ChannelFlags @enum)
     {
-        return RespondAsync(InteractionCallback.Message(@enum.ToString()));
+        //return RespondAsync(InteractionCallback.Message(@enum.ToString()));
     }
 
     [SlashCommand("play", "Plays music")]
@@ -319,9 +319,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     //[RequireNsfw<SlashCommandContext>()]
     [SlashCommand("nsfw", "You can use this command in nsfw channel", Nsfw = true)]
-    public Task NsfwAsync()
+    public static InteractionCallback Nsfw()
     {
-        return RespondAsync(InteractionCallback.Message("You used nsfw command!"));
+        return InteractionCallback.Message("You used nsfw command!");
     }
 
     [SlashCommand("test2", "This is test")]
@@ -350,20 +350,20 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("button", "Sends button", NameTranslationsProviderType = typeof(ButtonNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(ButtonDescriptionTranslationsProvider))]
-    public Task ButtonAsync()
+    public static InteractionCallback Button()
     {
-        return RespondAsync(InteractionCallback.Message(new()
+        return InteractionCallback.Message(new()
         {
             Content = "Button:",
-            Components = new List<ComponentProperties>
+            Components = new ComponentProperties[]
             {
                 new ActionRowProperties(new List<ButtonProperties>
                 {
                     new ActionButtonProperties("id", new EmojiProperties(942818016222138399), ButtonStyle.Success),
                     new LinkButtonProperties(new("https://google.com"), new EmojiProperties(942818016222138399)),
-                })
-            }
-        }));
+                }),
+            },
+        });
     }
 
     private class ButtonNameTranslationsProvider : ITranslationsProvider

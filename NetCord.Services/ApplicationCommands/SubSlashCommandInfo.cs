@@ -10,8 +10,6 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 {
     internal SubSlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
-        MethodHelper.EnsureMethodReturnTypeValid(method);
-
         Name = attribute.Name!;
 
         var nameTranslationsProviderType = attribute.NameTranslationsProviderType;
@@ -28,7 +26,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         ParametersDictionary = parameters.ToDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
-        _invokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, parameters.Select(p => p.Type));
+        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
     }
 
     public string Name { get; }
@@ -39,9 +37,9 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    private readonly Func<object?[]?, TContext, IServiceProvider?, Task> _invokeAsync;
+    private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
-    public async Task InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
 
@@ -59,7 +57,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         };
     }
 
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
     {
         var option = options.First(o => o.Focused);
         if (ParametersDictionary.TryGetValue(option.Name, out var parameter))

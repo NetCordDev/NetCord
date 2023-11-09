@@ -57,7 +57,7 @@ public partial class MessageProperties : IHttpSerializable
 
     public static implicit operator MessageProperties(string content) => new()
     {
-        Content = content
+        Content = content,
     };
 
     [JsonSerializable(typeof(MessageProperties))]

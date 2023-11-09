@@ -4,5 +4,5 @@ namespace NetCord.Services.ApplicationCommands;
 
 public interface IAutocompleteProvider<TAutocompleteContext> where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, TAutocompleteContext context);
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, TAutocompleteContext context);
 }

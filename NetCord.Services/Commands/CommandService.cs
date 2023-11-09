@@ -88,7 +88,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
         }
     }
 
-    public async Task ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
     {
         var fullCommand = context.Message.Content.AsMemory(prefixLength);
         var separators = _parameterSeparators;
@@ -253,7 +253,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL3050:RequiresDynamicCode", Justification = "The type of the array is known to be present")]
-    private static async Task ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    private static async ValueTask ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separators);
         var count = ranges.Count;

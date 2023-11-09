@@ -9,13 +9,11 @@ public class CommandInfo<TContext> where TContext : ICommandContext
 {
     public int Priority { get; }
     public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
-    public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
+    public Func<object?[]?, TContext, IServiceProvider?, ValueTask> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal CommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
     {
-        MethodHelper.EnsureMethodReturnTypeValid(method);
-
         Priority = attribute.Priority;
 
         var parameters = method.GetParameters();
@@ -36,7 +34,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         }
         Parameters = p;
 
-        InvokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, p.Select(p => p.Type));
+        InvokeAsync = InvocationHelper.CreateDelegate(method, declaringType, p.Select(p => p.Type), configuration.ResultResolverProvider);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }

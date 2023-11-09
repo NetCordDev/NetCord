@@ -140,4 +140,6 @@ public class InteractionServiceConfiguration<TContext> where TContext : IInterac
     public char ParameterSeparator { get; init; } = ':';
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
+
+    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new InteractionResultResolverProvider<TContext>();
 }

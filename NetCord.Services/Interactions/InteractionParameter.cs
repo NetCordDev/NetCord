@@ -48,7 +48,7 @@ public class InteractionParameter<TContext> where TContext : IInteractionContext
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    internal async Task EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    internal async ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
     {
         var preconditions = Preconditions;
         var count = preconditions.Count;

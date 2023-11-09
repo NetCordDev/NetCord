@@ -152,7 +152,11 @@ internal static class Program
                 {
                     try
                     {
-                        await message.ReplyAsync(ex.Message, failIfNotExists: false);
+                        await message.ReplyAsync(new()
+                        {
+                            Content = ex.Message,
+                            FailIfNotExists = false,
+                        });
                     }
                     catch
                     {

@@ -52,7 +52,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
         }
     }
 
-    public async Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         var configuration = _configuration;
         var separator = configuration.ParameterSeparator;
@@ -121,7 +121,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
         await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
     }
 
-    private static async Task ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    private static async ValueTask ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separator);
         var count = ranges.Count;

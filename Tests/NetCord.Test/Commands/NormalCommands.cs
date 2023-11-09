@@ -37,15 +37,15 @@ public class NormalCommands : CommandModule<CommandContext>
     }
 
     [Command("roles")]
-    public async Task Roles(params ulong[] roles)
+    public async Task<ReplyMessageProperties> Roles(params ulong[] roles)
     {
         if (Context.User is GuildUser guildUser)
         {
             await guildUser.ModifyAsync(p => p.RoleIds = guildUser.RoleIds.Concat(roles).Distinct());
-            await ReplyAsync("Added the roles!!!");
+            return "Added the roles!!!";
         }
         else
-            await ReplyAsync("You are not in a guild");
+            return "You are not in a guild";
     }
 
     [Command("roles")]
@@ -57,10 +57,7 @@ public class NormalCommands : CommandModule<CommandContext>
             MessageProperties message = new()
             {
                 Content = "Select roles",
-                Components = new List<ComponentProperties>()
-                {
-                    menu
-                }
+                Components = new ComponentProperties[] { menu },
             };
             await SendAsync(message);
         }

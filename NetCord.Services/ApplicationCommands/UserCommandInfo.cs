@@ -10,18 +10,17 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
 {
     internal UserCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, UserCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
-        MethodHelper.EnsureMethodReturnTypeValid(method);
         MethodHelper.EnsureMethodParameterless(method);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, Enumerable.Empty<Type>());
+        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
     }
 
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    private readonly Func<object?[]?, TContext, IServiceProvider?, Task> _invokeAsync;
+    private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
-    public override async Task InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override async ValueTask InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
         await _invokeAsync(null, context, serviceProvider).ConfigureAwait(false);

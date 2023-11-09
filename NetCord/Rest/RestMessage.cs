@@ -101,19 +101,11 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     public RoleSubscriptionData? RoleSubscriptionData { get; }
     public InteractionResolvedData? ResolvedData { get; }
 
-    public Task<RestMessage> ReplyAsync(string content, bool replyMention = false, bool failIfNotExists = true, RequestProperties? properties = null)
-    {
-        MessageProperties message = new()
-        {
-            Content = content,
-            MessageReference = new(Id, failIfNotExists),
-            AllowedMentions = new()
-            {
-                ReplyMention = replyMention
-            },
-        };
-        return _client.SendMessageAsync(ChannelId, message, properties);
-    }
+    public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RequestProperties? properties = null)
+        => SendAsync(replyMessage.ToMessageProperties(Id), properties);
+
+    public Task<RestMessage> SendAsync(MessageProperties message, RequestProperties? properties = null)
+        => _client.SendMessageAsync(ChannelId, message, properties);
 
     #region Channel
     public Task<RestMessage> CrosspostAsync(RequestProperties? properties = null) => _client.CrosspostMessageAsync(ChannelId, Id, properties);

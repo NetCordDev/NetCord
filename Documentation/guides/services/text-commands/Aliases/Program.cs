@@ -22,7 +22,7 @@ client.MessageCreate += async message =>
         {
             try
             {
-                await message.ReplyAsync($"Error: {ex.Message}", failIfNotExists: false);
+                await message.ReplyAsync($"Error: {ex.Message}");
             }
             catch
             {

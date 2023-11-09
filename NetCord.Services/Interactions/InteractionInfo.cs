@@ -8,13 +8,11 @@ namespace NetCord.Services.Interactions;
 public class InteractionInfo<TContext> where TContext : IInteractionContext
 {
     public IReadOnlyList<InteractionParameter<TContext>> Parameters { get; }
-    public Func<object?[]?, TContext, IServiceProvider?, Task> InvokeAsync { get; }
+    public Func<object?[]?, TContext, IServiceProvider?, ValueTask> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal InteractionInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, InteractionServiceConfiguration<TContext> configuration)
     {
-        MethodHelper.EnsureMethodReturnTypeValid(method);
-
         var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
 
@@ -28,7 +26,7 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
         }
         Parameters = p;
 
-        InvokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, p.Select(p => p.Type));
+        InvokeAsync = InvocationHelper.CreateDelegate(method, declaringType, p.Select(p => p.Type), configuration.ResultResolverProvider);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }

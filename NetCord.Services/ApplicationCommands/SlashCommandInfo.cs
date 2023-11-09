@@ -10,8 +10,6 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 {
     internal SlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
-        MethodHelper.EnsureMethodReturnTypeValid(method);
-
         Description = attribute.Description;
 
         var descriptionTranslationsProviderType = attribute.DescriptionTranslationsProviderType;
@@ -22,7 +20,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         ParametersDictionary = parameters.ToDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateDelegate<TContext>(method, declaringType, parameters.Select(p => p.Type));
+        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
     }
 
     public string Description { get; }
@@ -31,9 +29,9 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    private readonly Func<object?[]?, TContext, IServiceProvider?, Task> _invokeAsync;
+    private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
-    public override async Task InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override async ValueTask InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
 
@@ -57,7 +55,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 
-    public Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
     {
         var option = options.First(o => o.Focused);
         if (ParametersDictionary.TryGetValue(option.Name, out var parameter))

@@ -14,7 +14,7 @@ public class DDGAutocomplete : IAutocompleteProvider<AutocompleteInteractionCont
 
     private readonly HttpClient _client;
 
-    public async Task<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
+    public async ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
     {
         return JsonDocument.Parse(await (await _client.GetAsync($"https://duckduckgo.com/ac/?q={Uri.EscapeDataString(option.Value!)}")).Content.ReadAsStreamAsync()).RootElement.EnumerateArray().Select(e =>
         {

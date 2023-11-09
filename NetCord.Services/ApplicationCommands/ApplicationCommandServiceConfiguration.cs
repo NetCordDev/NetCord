@@ -66,4 +66,6 @@ public class ApplicationCommandServiceConfiguration<TContext> where TContext : I
     /// {0} - parameter name
     /// </summary>
     public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
+
+    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new ApplicationCommandResultResolverProvider<TContext>();
 }

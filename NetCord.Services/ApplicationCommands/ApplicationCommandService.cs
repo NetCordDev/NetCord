@@ -11,7 +11,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
     {
     }
 
-    public async Task ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
         var data = interaction.Data;
@@ -155,7 +155,7 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
         _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
     }
 
-    public Task ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    public ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
         var command = GetApplicationCommandInfo(interaction.Data.Id);

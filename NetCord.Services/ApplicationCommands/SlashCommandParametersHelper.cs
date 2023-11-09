@@ -25,7 +25,7 @@ internal static class SlashCommandParametersHelper
         return p;
     }
 
-    public static async Task<object?[]> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) where TContext : IApplicationCommandContext
+    public static async ValueTask<object?[]> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) where TContext : IApplicationCommandContext
     {
         int parametersCount = parameters.Count;
         var parametersToPass = new object?[parametersCount];
