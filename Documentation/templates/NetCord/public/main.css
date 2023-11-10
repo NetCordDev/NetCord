@@ -9,7 +9,7 @@
 }
 
 :root {
-    --bs-font-monospace: Cascadia Code;
+    --bs-font-monospace: Cascadia Code, monospace;
     --blurple: #5865F2;
     --dark-blurple: #4752C4;
     --ligatures: none;
