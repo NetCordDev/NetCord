@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
 
@@ -22,7 +23,7 @@ public class EvalCommand : CommandModule<CommandContext>
         object? value;
         try
         {
-            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).AddImports(
+            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).WithLanguageVersion(LanguageVersion.Preview).WithAllowUnsafe(true).AddImports(
                 "NetCord",
                 "NetCord.Rest",
                 "NetCord.Gateway",
@@ -45,7 +46,7 @@ public class EvalCommand : CommandModule<CommandContext>
                 try
                 {
                     var v = property.GetValue(value);
-                    description = v is not null ? v.ToString() ?? "null" : "null";
+                    description = v is not null ? (v.ToString() ?? "null") : "null";
                 }
                 catch (Exception ex)
                 {
