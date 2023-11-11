@@ -33,13 +33,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerators\UserAgentHeaderGenerator\UserAgentHeaderGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerators\Shared\Shared.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
-
-  <Target Name="GenerateRestClientConstants" BeforeTargets="BeforeCompile">
-    <WriteLinesToFile File="$(IntermediateOutputPath)RestClient.Constants.cs" Lines="// &lt;auto-generated/&gt;&#xD;&#xA;namespace NetCord.Rest%3B&#xD;&#xA;&#xD;&#xA;public partial class RestClient&#xD;&#xA;{&#xD;&#xA;    private const string UserAgentHeader = &quot;DiscordBot ($(PackageProjectUrl), $(Version))&quot;%3B&#xD;&#xA;}&#xD;&#xA;" Overwrite="true" WriteOnlyWhenDifferent="true" />
-    <ItemGroup>
-      <Compile Include="$(IntermediateOutputPath)RestClient.Constants.cs" />
-    </ItemGroup>
-  </Target>
 
 </Project>

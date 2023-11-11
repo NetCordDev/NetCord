@@ -7,6 +7,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
+using Shared;
+
 namespace MethodsForPropertiesGenerator;
 
 [Generator(LanguageNames.CSharp)]

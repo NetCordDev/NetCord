@@ -1,8 +1,8 @@
 ﻿using Microsoft.CodeAnalysis;
 
-namespace MethodsForPropertiesGenerator;
+namespace Shared;
 
-internal static class INamedTypeSymbolExtensions
+public static class INamedTypeSymbolExtensions
 {
     private static readonly SymbolDisplayFormat _qualifiedNameFormat = new(
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
