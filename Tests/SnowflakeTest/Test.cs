@@ -1,3 +1,5 @@
+using System.Text;
+
 using NetCord;
 
 namespace SnowflakeTest;
@@ -35,8 +37,13 @@ public class Test
     {
         DateTimeOffset dateTime = new(2017, 10, 12, 10, 23, 59, default);
         var id = Snowflake.Create(dateTime);
-        Assert.IsTrue(Snowflake.TryParse(id.ToString(), out ulong result));
+        var stringId = id.ToString();
+
+        Assert.IsTrue(Snowflake.TryParse(stringId, out ulong result));
         Assert.AreEqual(id, result);
+
+        Assert.IsTrue(Snowflake.TryParse(Encoding.UTF8.GetBytes(stringId), out var result2));
+        Assert.AreEqual(id, result2);
     }
 
     [TestMethod]
@@ -47,7 +54,12 @@ public class Test
         byte process = 2;
         ushort increment = 2345;
         var id = Snowflake.Create(dateTime, worker, process, increment);
-        Assert.IsTrue(Snowflake.TryParse(id.ToString(), out ulong result));
+        var stringId = id.ToString();
+
+        Assert.IsTrue(Snowflake.TryParse(stringId, out ulong result));
         Assert.AreEqual(id, result);
+
+        Assert.IsTrue(Snowflake.TryParse(Encoding.UTF8.GetBytes(stringId), out var result2));
+        Assert.AreEqual(id, result2);
     }
 }
