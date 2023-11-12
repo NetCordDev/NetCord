@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ApplicationCommandInteractionData : InteractionData, IEntity
+public class ApplicationCommandInteractionData : InteractionData
 {
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 

@@ -13,8 +13,8 @@ public partial class JsonMessage : JsonEntity
     [JsonPropertyName("content")]
     public string Content { get; set; }
 
-    [JsonPropertyName("timestamp")]
-    public DateTimeOffset CreatedAt { get; set; }
+    //[JsonPropertyName("timestamp")]
+    //public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("edited_timestamp")]
     public DateTimeOffset? EditedAt { get; set; }

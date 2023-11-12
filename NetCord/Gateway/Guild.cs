@@ -16,7 +16,7 @@ public class Guild : RestGuild
     public ImmutableDictionary<ulong, Presence> Presences { get; set; }
     public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; set; }
 
-    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
     public bool IsLarge => _jsonModel.IsLarge;
     public bool IsUnavailable => _jsonModel.IsUnavailable;
     public int UserCount => _jsonModel.UserCount;
@@ -46,7 +46,7 @@ public class Guild : RestGuild
     private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)
     {
         var oldJsonModel = oldGuild._jsonModel;
-        jsonModel.CreatedAt = oldJsonModel.CreatedAt;
+        jsonModel.JoinedAt = oldJsonModel.JoinedAt;
         jsonModel.IsLarge = oldJsonModel.IsLarge;
         jsonModel.UserCount = oldJsonModel.UserCount;
         jsonModel.VoiceStates = oldJsonModel.VoiceStates;

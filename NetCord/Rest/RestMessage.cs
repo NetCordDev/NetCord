@@ -73,7 +73,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
     public ulong ChannelId => _jsonModel.ChannelId;
     public User Author { get; }
     public string Content => _jsonModel.Content;
-    public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    //public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
     public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
     public bool IsTts => _jsonModel.IsTts;
     public bool MentionEveryone => _jsonModel.MentionEveryone;

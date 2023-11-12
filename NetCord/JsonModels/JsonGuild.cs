@@ -79,7 +79,7 @@ public partial class JsonGuild : JsonEntity
     public ulong? RulesChannelId { get; set; }
 
     [JsonPropertyName("joined_at")]
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset JoinedAt { get; set; }
 
     [JsonPropertyName("large")]
     public bool IsLarge { get; set; }
