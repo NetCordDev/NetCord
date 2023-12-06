@@ -15,16 +15,12 @@ public class GuildEmoji : Emoji
         if (creator is not null)
             Creator = new(creator, client);
 
-        var allowedRoles = jsonModel.AllowedRoles;
-        if (allowedRoles is not null)
-            AllowedRoles = allowedRoles.ToDictionary(r => r.Id, r => new Role(r, guildId, client));
-
         GuildId = guildId;
     }
 
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 
-    public IReadOnlyDictionary<ulong, Role>? AllowedRoles { get; }
+    public IReadOnlyList<ulong>? AllowedRoles => _jsonModel.AllowedRoles;
 
     public User? Creator { get; }
 
