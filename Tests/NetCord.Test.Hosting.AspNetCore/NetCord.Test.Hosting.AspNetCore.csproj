@@ -9,19 +9,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj" />
     <ProjectReference Include="..\..\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
     <ProjectReference Include="..\..\NetCord.Hosting\NetCord.Hosting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="libsodium.dll" Condition="Exists('appsettings.json')">
+    <None Include="appsettings.json" Condition="Exists('appsettings.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="libsodium.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
