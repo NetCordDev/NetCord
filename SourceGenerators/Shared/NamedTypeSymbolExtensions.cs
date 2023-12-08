@@ -2,7 +2,7 @@
 
 namespace Shared;
 
-public static class INamedTypeSymbolExtensions
+public static class NamedTypeSymbolExtensions
 {
     private static readonly SymbolDisplayFormat _qualifiedNameFormat = new(
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,

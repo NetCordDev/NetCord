@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionService<TContext> where TContext : IInteractionContext
+public class InteractionService<TContext> : IService where TContext : IInteractionContext
 {
     private readonly InteractionServiceConfiguration<TContext> _configuration;
     private readonly Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
@@ -12,7 +12,7 @@ public class InteractionService<TContext> where TContext : IInteractionContext
 
     public InteractionService(InteractionServiceConfiguration<TContext>? configuration = null)
     {
-        _configuration = configuration ?? new();
+        _configuration = configuration ?? InteractionServiceConfiguration<TContext>.Default;
     }
 
     [RequiresUnreferencedCode("Types might be removed")]
@@ -50,6 +50,12 @@ public class InteractionService<TContext> where TContext : IInteractionContext
             InteractionInfo<TContext> interactionInfo = new(method, type, configuration);
             _interactions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
         }
+    }
+
+    public void AddInteraction(string customId, Delegate handler)
+    {
+        InteractionInfo<TContext> interactionInfo = new(handler, _configuration);
+        _interactions.Add(customId.AsMemory(), interactionInfo);
     }
 
     public async ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)

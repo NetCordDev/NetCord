@@ -5,7 +5,7 @@ namespace NetCord;
 
 public abstract class EntityMenuInteraction : MessageComponentInteraction
 {
-    private protected EntityMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
+    private protected EntityMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
         Data = new(jsonModel.Data!, jsonModel.GuildId, client);
     }

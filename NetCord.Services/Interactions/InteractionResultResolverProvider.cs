@@ -49,6 +49,26 @@ public class InteractionResultResolverProvider<TContext> : IResultResolverProvid
             return true;
         }
 
+        if (type == typeof(Task<InteractionMessageProperties>))
+        {
+            resolver = async (result, context) =>
+            {
+                var message = await Unsafe.As<Task<InteractionMessageProperties>>(result!).ConfigureAwait(false);
+                await context.Interaction.SendResponseAsync(InteractionCallback.Message(message)).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (type == typeof(Task<string>))
+        {
+            resolver = async (result, context) =>
+            {
+                var content = await Unsafe.As<Task<string>>(result!).ConfigureAwait(false);
+                await context.Interaction.SendResponseAsync(InteractionCallback.Message(content)).ConfigureAwait(false);
+            };
+            return true;
+        }
+
         if (type == typeof(void))
         {
             resolver = (_, _) => default;
@@ -61,6 +81,26 @@ public class InteractionResultResolverProvider<TContext> : IResultResolverProvid
             {
                 var callback = Unsafe.As<InteractionCallback>(result!);
                 return new(context.Interaction.SendResponseAsync(callback));
+            };
+            return true;
+        }
+
+        if (type == typeof(InteractionMessageProperties))
+        {
+            resolver = (result, context) =>
+            {
+                var message = Unsafe.As<InteractionMessageProperties>(result!);
+                return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
+            };
+            return true;
+        }
+
+        if (type == typeof(string))
+        {
+            resolver = (result, context) =>
+            {
+                var content = Unsafe.As<string>(result!);
+                return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(content)));
             };
             return true;
         }

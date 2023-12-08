@@ -13,15 +13,6 @@ public class InteractionContext : IInteractionContext
     public virtual Interaction Interaction { get; }
 }
 
-public class HttpInteractionContext : InteractionContext, IHttpInteractionContext
-{
-    public HttpInteractionContext(Interaction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class BaseButtonInteractionContext : InteractionContext
 {
     public BaseButtonInteractionContext(ButtonInteraction interaction) : base(interaction)
@@ -30,15 +21,6 @@ public class BaseButtonInteractionContext : InteractionContext
     }
 
     public override ButtonInteraction Interaction { get; }
-}
-
-public class BaseHttpButtonInteractionContext : BaseButtonInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpButtonInteractionContext(ButtonInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
 }
 
 public class ButtonInteractionContext : BaseButtonInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -55,7 +37,7 @@ public class ButtonInteractionContext : BaseButtonInteractionContext, IGatewayCl
     public TextChannel Channel => Interaction.Channel;
 }
 
-public class HttpButtonInteractionContext : BaseHttpButtonInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpButtonInteractionContext : BaseButtonInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpButtonInteractionContext(ButtonInteraction interaction, RestClient client) : base(interaction)
     {
@@ -78,15 +60,6 @@ public class BaseStringMenuInteractionContext : InteractionContext
     public override StringMenuInteraction Interaction { get; }
 }
 
-public class BaseHttpStringMenuInteractionContext : BaseStringMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpStringMenuInteractionContext(StringMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
     public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(interaction)
@@ -102,7 +75,7 @@ public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IG
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class HttpStringMenuInteractionContext : BaseHttpStringMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpStringMenuInteractionContext : BaseStringMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpStringMenuInteractionContext(StringMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -126,15 +99,6 @@ public class BaseEntityMenuInteractionContext : InteractionContext
     public override EntityMenuInteraction Interaction { get; }
 }
 
-public class BaseHttpEntityMenuInteractionContext : BaseEntityMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpEntityMenuInteractionContext(EntityMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
     public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction)
@@ -150,7 +114,7 @@ public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IG
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class HttpEntityMenuInteractionContext : BaseHttpEntityMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpEntityMenuInteractionContext : BaseEntityMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpEntityMenuInteractionContext(EntityMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -172,15 +136,6 @@ public class BaseUserMenuInteractionContext : BaseEntityMenuInteractionContext
     }
 
     public override UserMenuInteraction Interaction { get; }
-}
-
-public class BaseHttpUserMenuInteractionContext : BaseUserMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpUserMenuInteractionContext(UserMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
 }
 
 public class UserMenuInteractionContext : BaseUserMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -208,7 +163,7 @@ public class UserMenuInteractionContext : BaseUserMenuInteractionContext, IGatew
     public IReadOnlyList<User> SelectedUsers { get; }
 }
 
-public class HttpUserMenuInteractionContext : BaseHttpUserMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpUserMenuInteractionContext : BaseUserMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpUserMenuInteractionContext(UserMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -242,15 +197,6 @@ public class BaseRoleMenuInteractionContext : BaseEntityMenuInteractionContext
     public override RoleMenuInteraction Interaction { get; }
 }
 
-public class BaseHttpRoleMenuInteractionContext : BaseRoleMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpRoleMenuInteractionContext(RoleMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class RoleMenuInteractionContext : BaseRoleMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
     public RoleMenuInteractionContext(RoleMenuInteraction interaction, GatewayClient client) : base(interaction)
@@ -276,7 +222,7 @@ public class RoleMenuInteractionContext : BaseRoleMenuInteractionContext, IGatew
     public IReadOnlyList<Role> SelectedRoles { get; }
 }
 
-public class HttpRoleMenuInteractionContext : BaseHttpRoleMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpRoleMenuInteractionContext : BaseRoleMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -308,15 +254,6 @@ public class BaseMentionableMenuInteractionContext : BaseEntityMenuInteractionCo
     }
 
     public override MentionableMenuInteraction Interaction { get; }
-}
-
-public class BaseHttpMentionableMenuInteractionContext : BaseMentionableMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
 }
 
 public class MentionableMenuInteractionContext : BaseMentionableMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -351,7 +288,7 @@ public class MentionableMenuInteractionContext : BaseMentionableMenuInteractionC
     public IReadOnlyList<Mentionable> SelectedMentionables { get; }
 }
 
-public class HttpMentionableMenuInteractionContext : BaseHttpMentionableMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpMentionableMenuInteractionContext : BaseMentionableMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpMentionableMenuInteractionContext(MentionableMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -392,15 +329,6 @@ public class BaseChannelMenuInteractionContext : BaseEntityMenuInteractionContex
     public override ChannelMenuInteraction Interaction { get; }
 }
 
-public class BaseHttpChannelMenuInteractionContext : BaseChannelMenuInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpChannelMenuInteractionContext(ChannelMenuInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class ChannelMenuInteractionContext : BaseChannelMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
     public ChannelMenuInteractionContext(ChannelMenuInteraction interaction, GatewayClient client) : base(interaction)
@@ -426,7 +354,7 @@ public class ChannelMenuInteractionContext : BaseChannelMenuInteractionContext, 
     public IReadOnlyList<Channel> SelectedChannels { get; }
 }
 
-public class HttpChannelMenuInteractionContext : BaseHttpChannelMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpChannelMenuInteractionContext : BaseChannelMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
     public HttpChannelMenuInteractionContext(ChannelMenuInteraction interaction, RestClient client) : base(interaction)
     {
@@ -460,15 +388,6 @@ public class BaseModalSubmitInteractionContext : InteractionContext
     public override ModalSubmitInteraction Interaction { get; }
 }
 
-public class BaseHttpModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IHttpInteractionContext
-{
-    public BaseHttpModalSubmitInteractionContext(ModalSubmitInteraction interaction) : base(interaction)
-    {
-    }
-
-    public InteractionCallback? Callback { get; set; }
-}
-
 public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
 {
     public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction)
@@ -483,7 +402,7 @@ public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, 
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 }
 
-public class HttpModalSubmitInteractionContext : BaseHttpModalSubmitInteractionContext, IRestClientContext, IUserContext, IChannelContext
+public class HttpModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IRestClientContext, IUserContext, IChannelContext
 {
     public HttpModalSubmitInteractionContext(ModalSubmitInteraction interaction, RestClient client) : base(interaction)
     {

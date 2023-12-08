@@ -22,11 +22,11 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         if (descriptionTranslationsProviderType is not null)
             DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
 
-        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method, configuration);
+        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
         ParametersDictionary = parameters.ToDictionary(p => p.Name);
 
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
-        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
     }
 
     public string Name { get; }

@@ -13,22 +13,42 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
 
     internal InteractionInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, InteractionServiceConfiguration<TContext> configuration)
     {
-        var parameters = method.GetParameters();
+        var parameters = GetParameters(method.GetParameters(), method, configuration);
+        Parameters = parameters;
+
+        InvokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+    }
+
+    private static InteractionParameter<TContext>[] GetParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, InteractionServiceConfiguration<TContext> configuration)
+    {
         var parametersLength = parameters.Length;
 
-        var p = new InteractionParameter<TContext>[parametersLength];
+        var result = new InteractionParameter<TContext>[parametersLength];
 
         // We allow required parameters to follow optional parameters.
         for (var i = 0; i < parametersLength; i++)
         {
             var parameter = parameters[i];
-            p[i] = new(parameter, method, configuration);
+            result[i] = new(parameter, method, configuration);
         }
-        Parameters = p;
 
-        InvokeAsync = InvocationHelper.CreateDelegate(method, declaringType, p.Select(p => p.Type), configuration.ResultResolverProvider);
+        return result;
+    }
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+    internal InteractionInfo(Delegate handler, InteractionServiceConfiguration<TContext> configuration)
+    {
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+
+        var parameters = GetParameters(split.Parameters, method, configuration);
+        Parameters = parameters;
+
+        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
     internal ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)

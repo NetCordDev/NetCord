@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsAotCompatible>false</IsAotCompatible>
+
+    <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
+    <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>
+    <PackageTags>bot;discord;discord-api</PackageTags>
+    <PackageIcon>SmallSquare.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>$(VersionPrefix)</Version>
+    <VersionSuffix>alpha.0</VersionSuffix>
+    <Description>The modern and fully customizable C# Discord library.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetCord\NetCord.csproj" />
+  </ItemGroup>
+
+</Project>

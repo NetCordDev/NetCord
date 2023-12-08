@@ -1,10 +1,18 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using System.Collections.Immutable;
 
-public class ApplicationCommandServiceConfiguration<TContext> where TContext : IApplicationCommandContext
+namespace NetCord.Services.ApplicationCommands;
+
+public record ApplicationCommandServiceConfiguration<TContext> where TContext : IApplicationCommandContext
 {
-    public Dictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; } = new()
-    #region TypeReaders
+    public static ApplicationCommandServiceConfiguration<TContext> Default { get; } = new();
+
+    private ApplicationCommandServiceConfiguration()
     {
+    }
+
+    public ImmutableDictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; init; } = new Dictionary<Type, SlashCommandTypeReader<TContext>>()
+    {
+    #region TypeReaders
         // text types
         { typeof(string), new TypeReaders.StringTypeReader<TContext>() },
         // integral numeric types
@@ -55,8 +63,8 @@ public class ApplicationCommandServiceConfiguration<TContext> where TContext : I
         { typeof(Role), new TypeReaders.RoleTypeReader<TContext>() },
         { typeof(Mentionable), new TypeReaders.MentionableTypeReader<TContext>() },
         { typeof(Attachment), new TypeReaders.AttachmentTypeReader<TContext>() },
-    };
     #endregion
+    }.ToImmutableDictionary();
 
     public SlashCommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 

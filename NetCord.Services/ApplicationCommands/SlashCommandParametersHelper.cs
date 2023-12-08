@@ -4,11 +4,10 @@ namespace NetCord.Services.ApplicationCommands;
 
 internal static class SlashCommandParametersHelper
 {
-    public static SlashCommandParameter<TContext>[] GetParameters<TContext>(MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration) where TContext : IApplicationCommandContext
+    public static SlashCommandParameter<TContext>[] GetParameters<TContext>(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration) where TContext : IApplicationCommandContext
     {
-        var parameters = method.GetParameters();
         var parametersLength = parameters.Length;
-        var p = new SlashCommandParameter<TContext>[parametersLength];
+        var result = new SlashCommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
         for (var i = 0; i < parametersLength; i++)
         {
@@ -16,13 +15,12 @@ internal static class SlashCommandParametersHelper
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
+                throw new InvalidDefinitionException("Optional parameters must appear after all required parameters.", method);
 
-            SlashCommandParameter<TContext> newP = new(parameter, method, configuration);
-            p[i] = newP;
+            result[i] = new(parameter, method, configuration);
         }
 
-        return p;
+        return result;
     }
 
     public static async ValueTask<object?[]> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) where TContext : IApplicationCommandContext

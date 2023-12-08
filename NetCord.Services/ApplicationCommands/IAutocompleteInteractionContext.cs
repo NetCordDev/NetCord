@@ -2,5 +2,5 @@
 
 public interface IAutocompleteInteractionContext
 {
-    public ApplicationCommandAutocompleteInteraction Interaction { get; }
+    public AutocompleteInteraction Interaction { get; }
 }

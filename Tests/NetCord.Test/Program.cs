@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,9 +36,12 @@ internal static class Program
 
     static Program()
     {
-        ApplicationCommandServiceConfiguration<SlashCommandContext> options = new();
-        options.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader());
-        _slashCommandService = new(options);
+        var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
+        configuration = configuration with
+        {
+            TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader()),
+        };
+        _slashCommandService = new(configuration);
 
         ServiceCollection services = new();
         services.AddSingleton("wzium");
@@ -53,17 +57,26 @@ internal static class Program
         _client.InteractionCreate += Client_InteractionCreate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
         var assembly = Assembly.GetEntryAssembly()!;
+        _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
         _commandService.AddModules(assembly);
+
         _buttonInteractionService.AddModules(assembly);
+        _buttonInteractionService.AddInteraction("wziummm", (ButtonInteractionContext context) => "wzium");
         _stringMenuInteractionService.AddModules(assembly);
         _userMenuInteractionService.AddModules(assembly);
         _roleMenuInteractionService.AddModules(assembly);
         _mentionableMenuInteractionService.AddModules(assembly);
         _channelMenuInteractionService.AddModules(assembly);
         _modalSubmitInteractionService.AddModules(assembly);
+        _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
+
+        _messageCommandService.AddMessageCommand("wziummm", InteractionMessageProperties (MessageCommandContext context) => new() { Components = [new ActionRowProperties([new ActionButtonProperties("wziummm", "WZIUM", ButtonStyle.Success)])] });
+
         _userCommandService.AddModules(assembly);
+
+        _userCommandService.AddUserCommand("wziummm", (UserCommandContext context) => "wzium");
         ApplicationCommandServiceManager manager = new();
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
@@ -108,7 +121,7 @@ internal static class Program
                 MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client), _serviceProvider),
                 ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
                 ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
-                ApplicationCommandAutocompleteInteraction applicationCommandAutocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(applicationCommandAutocompleteInteraction, _client), _serviceProvider),
+                AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
                 ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
                 _ => throw new("Invalid interaction."),
             });

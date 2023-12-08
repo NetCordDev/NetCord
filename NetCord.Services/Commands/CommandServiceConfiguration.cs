@@ -1,12 +1,19 @@
-﻿using System.Globalization;
+﻿using System.Collections.Immutable;
+using System.Globalization;
 
 namespace NetCord.Services.Commands;
 
-public class CommandServiceConfiguration<TContext> where TContext : ICommandContext
+public record CommandServiceConfiguration<TContext> where TContext : ICommandContext
 {
-    public Dictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; } = new()
-    #region TypeReaders
+    public static CommandServiceConfiguration<TContext> Default { get; } = new();
+
+    private CommandServiceConfiguration()
     {
+    }
+
+    public ImmutableDictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; init; } = new Dictionary<Type, CommandTypeReader<TContext>>()
+    {
+    #region TypeReaders
         // text types
         { typeof(string), new TypeReaders.StringTypeReader<TContext>() },
         { typeof(ReadOnlyMemory<char>), new TypeReaders.ReadOnlyMemoryOfCharTypeReader<TContext>() },
@@ -65,8 +72,8 @@ public class CommandServiceConfiguration<TContext> where TContext : ICommandCont
         { typeof(UserId), new TypeReaders.UserIdTypeReader<TContext>() },
         { typeof(Timestamp), new TypeReaders.TimestampTypeReader<TContext>() },
         { typeof(CodeBlock), new TypeReaders.CodeBlockTypeReader<TContext>() }
-    };
     #endregion
+    }.ToImmutableDictionary();
 
     public CommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 

@@ -23,12 +23,13 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         HasDefaultValue = parameter.HasDefaultValue;
 
         var attributesIEnumerable = parameter.GetCustomAttributes();
-        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        var attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        Attributes = attributes;
 
         Type? typeReaderType;
-        if (Attributes.TryGetValue(typeof(CommandParameterAttribute), out var attributes))
+        if (attributes.TryGetValue(typeof(CommandParameterAttribute), out var commandParameterAttributes))
         {
-            var commandParameterAttribute = (CommandParameterAttribute)attributes[0];
+            var commandParameterAttribute = (CommandParameterAttribute)commandParameterAttributes[0];
             Remainder = commandParameterAttribute.Remainder;
             typeReaderType = commandParameterAttribute.TypeReaderType;
         }
@@ -37,7 +38,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
 
         Type type = Type = parameter.ParameterType;
         Type elementType;
-        if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
+        if (attributes.ContainsKey(typeof(ParamArrayAttribute)))
         {
             Params = true;
             elementType = ElementType = type.GetElementType()!;
@@ -45,7 +46,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         else
             elementType = ElementType = type;
 
-        (TypeReader, NonNullableElementType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+        (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }

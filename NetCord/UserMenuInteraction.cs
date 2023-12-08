@@ -5,7 +5,7 @@ namespace NetCord;
 
 public class UserMenuInteraction : EntityMenuInteraction
 {
-    public UserMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
+    public UserMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
     }
 }

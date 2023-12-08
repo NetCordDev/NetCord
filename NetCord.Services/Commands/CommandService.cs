@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace NetCord.Services.Commands;
 
-public partial class CommandService<TContext> where TContext : ICommandContext
+public partial class CommandService<TContext> : IService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration;
     private readonly char[] _parameterSeparators;
@@ -15,7 +15,7 @@ public partial class CommandService<TContext> where TContext : ICommandContext
 
     public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
     {
-        _configuration = configuration ??= new();
+        _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
         _parameterSeparators = configuration.ParameterSeparators.ToArray();
         _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
     }
@@ -47,44 +47,54 @@ public partial class CommandService<TContext> where TContext : ICommandContext
     private void AddModuleCore([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         var configuration = _configuration;
-        ReadOnlySpan<char> separators = _parameterSeparators;
 
         foreach (var method in type.GetMethods())
         {
             var commandAttribute = method.GetCustomAttribute<CommandAttribute>();
             if (commandAttribute is null)
                 continue;
-            CommandInfo<TContext> commandInfo = new(method, type, commandAttribute, configuration);
-            foreach (var alias in commandAttribute.Aliases)
+            CommandInfo<TContext> commandInfo = new(method, type, commandAttribute.Priority, configuration);
+            AddCommandInfo(commandAttribute.Aliases, commandInfo, method);
+        }
+    }
+
+    public void AddCommand(string[] aliases, Delegate handler, int priority = 0)
+    {
+        CommandInfo<TContext> commandInfo = new(handler, priority, _configuration);
+        AddCommandInfo(aliases, commandInfo, handler.Method);
+    }
+
+    private void AddCommandInfo(string[] aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
+    {
+        foreach (var alias in aliases)
+        {
+            var aliasMemory = alias.AsMemory();
+
+            if (aliasMemory.Span.IndexOfAny(_parameterSeparators) >= 0)
+                throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParameterSeparators)}'.", method);
+
+            if (!_commands.TryGetValue(aliasMemory, out var list))
             {
-                var aliasMemory = alias.AsMemory();
-
-                if (aliasMemory.Span.IndexOfAny(separators) >= 0)
-                    throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParameterSeparators)}'.", method);
-
-                if (!_commands.TryGetValue(aliasMemory, out var list))
+                list = new((ci1, ci2) =>
                 {
-                    list = new((ci1, ci2) =>
-                    {
-                        var ci1Priority = ci1.Priority;
-                        var ci2Priority = ci2.Priority;
-                        if (ci1Priority > ci2Priority)
-                            return -1;
-                        if (ci1Priority < ci2Priority)
-                            return 1;
+                    var ci1Priority = ci1.Priority;
+                    var ci2Priority = ci2.Priority;
+                    if (ci1Priority > ci2Priority)
+                        return -1;
+                    if (ci1Priority < ci2Priority)
+                        return 1;
 
-                        var ci1CommandParametersLength = ci1.Parameters.Count;
-                        var ci2CommandParametersLength = ci2.Parameters.Count;
-                        if (ci1CommandParametersLength > ci2CommandParametersLength)
-                            return -1;
-                        if (ci1CommandParametersLength < ci2CommandParametersLength)
-                            return 1;
-                        return 0;
-                    });
-                    _commands.Add(aliasMemory, list);
-                }
-                list.Add(commandInfo);
+                    var ci1CommandParametersLength = ci1.Parameters.Count;
+                    var ci2CommandParametersLength = ci2.Parameters.Count;
+                    if (ci1CommandParametersLength > ci2CommandParametersLength)
+                        return -1;
+                    if (ci1CommandParametersLength < ci2CommandParametersLength)
+                        return 1;
+                    return 0;
+                });
+                _commands.Add(aliasMemory, list);
             }
+            list.Add(commandInfo);
         }
     }
 

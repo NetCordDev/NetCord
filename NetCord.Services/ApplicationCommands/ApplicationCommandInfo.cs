@@ -1,25 +1,36 @@
-﻿using NetCord.Rest;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
 
 public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TContext : IApplicationCommandContext
 {
-    private protected ApplicationCommandInfo(ApplicationCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
+    private protected ApplicationCommandInfo(string name, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType, Permissions? defaultGuildUserPermissions, bool? dMPermission, bool defaultPermission, bool nsfw, ulong? guildId, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
-        Name = attribute.Name;
+        Name = name;
 
-        var nameTranslationsProviderType = attribute.NameTranslationsProviderType;
         if (nameTranslationsProviderType is not null)
             NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
 
-        DefaultGuildUserPermissions = attribute._defaultGuildUserPermissions;
-        DMPermission = attribute._dMPermission.HasValue ? attribute._dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
+        DefaultGuildUserPermissions = defaultGuildUserPermissions;
+        DMPermission = dMPermission.HasValue ? dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
+        DefaultPermission = defaultPermission;
+        Nsfw = nsfw;
+        GuildId = guildId;
+    }
+
+    private protected ApplicationCommandInfo(ApplicationCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(attribute.Name,
+                                                                                                     attribute.NameTranslationsProviderType,
+                                                                                                     attribute._defaultGuildUserPermissions,
+                                                                                                     attribute._dMPermission,
 #pragma warning disable CS0618 // Type or member is obsolete
-        DefaultPermission = attribute.DefaultPermission;
+                                                                                                     attribute.DefaultPermission,
 #pragma warning restore CS0618 // Type or member is obsolete
-        Nsfw = attribute.Nsfw;
-        if (attribute._guildId.HasValue)
-            GuildId = attribute._guildId.GetValueOrDefault();
+                                                                                                     attribute.Nsfw,
+                                                                                                     attribute._guildId,
+                                                                                                     configuration)
+    {
     }
 
     public string Name { get; }

@@ -5,17 +5,17 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class BaseAutocompleteInteractionContext : InteractionContext, IAutocompleteInteractionContext
 {
-    public BaseAutocompleteInteractionContext(ApplicationCommandAutocompleteInteraction interaction) : base(interaction)
+    public BaseAutocompleteInteractionContext(AutocompleteInteraction interaction) : base(interaction)
     {
         Interaction = interaction;
     }
 
-    public override ApplicationCommandAutocompleteInteraction Interaction { get; }
+    public override AutocompleteInteraction Interaction { get; }
 }
 
 public class AutocompleteInteractionContext : BaseAutocompleteInteractionContext, IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
 {
-    public AutocompleteInteractionContext(ApplicationCommandAutocompleteInteraction interaction, GatewayClient client) : base(interaction)
+    public AutocompleteInteractionContext(AutocompleteInteraction interaction, GatewayClient client) : base(interaction)
     {
         Client = client;
     }

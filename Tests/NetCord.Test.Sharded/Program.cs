@@ -8,9 +8,13 @@ using NetCord.Test.Sharded;
 
 CommandService<CommandContext> commandService = new();
 commandService.AddModule<ExampleModule>();
+commandService.AddCommand(["pong"], ReplyMessageProperties () => "ping!");
 
-ApplicationCommandServiceConfiguration<SlashCommandContext> configuration = new();
-configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader());
+var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
+configuration = configuration with
+{
+    TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader()),
+};
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
@@ -72,7 +76,7 @@ client.InteractionCreate += async (client, interaction) =>
                 break;
             }
 
-        case ApplicationCommandAutocompleteInteraction autocompleteInteraction:
+        case AutocompleteInteraction autocompleteInteraction:
             {
                 try
                 {

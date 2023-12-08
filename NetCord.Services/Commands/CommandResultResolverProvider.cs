@@ -35,6 +35,16 @@ public class CommandResultResolverProvider<TContext> : IResultResolverProvider<T
             return true;
         }
 
+        if (type == typeof(Task<string>))
+        {
+            resolver = async (result, context) =>
+            {
+                var message = await Unsafe.As<Task<string>>(result!).ConfigureAwait(false);
+                await context.Message.ReplyAsync(message).ConfigureAwait(false);
+            };
+            return true;
+        }
+
         if (type == typeof(void))
         {
             resolver = (_, _) => default;
@@ -57,6 +67,16 @@ public class CommandResultResolverProvider<TContext> : IResultResolverProvider<T
             {
                 var messageProperties = Unsafe.As<MessageProperties>(result!);
                 return new(context.Message.SendAsync(messageProperties));
+            };
+            return true;
+        }
+
+        if (type == typeof(string))
+        {
+            resolver = (result, context) =>
+            {
+                var message = Unsafe.As<string>(result!);
+                return new(context.Message.ReplyAsync(message));
             };
             return true;
         }

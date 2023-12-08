@@ -35,7 +35,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
 
     public SortedList(Comparison<T> comparison)
     {
-        _items = Array.Empty<T>();
+        _items = [];
         _size = 0;
         _comparison = comparison;
     }

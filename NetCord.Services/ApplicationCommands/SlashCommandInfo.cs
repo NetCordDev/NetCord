@@ -8,7 +8,10 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAutocompleteInfo where TContext : IApplicationCommandContext
 {
-    internal SlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+    internal SlashCommandInfo(MethodInfo method,
+                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
+                              SlashCommandAttribute attribute,
+                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         Description = attribute.Description;
 
@@ -16,11 +19,48 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         if (descriptionTranslationsProviderType is not null)
             DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
 
-        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method, configuration);
+        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
+        Parameters = parameters;
         ParametersDictionary = parameters.ToDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+    }
+
+    internal SlashCommandInfo(string name,
+                              string description,
+                              Delegate handler,
+                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType,
+                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? descriptionTranslationsProviderType,
+                              Permissions? defaultGuildUserPermissions,
+                              bool? dMPermission,
+                              bool defaultPermission,
+                              bool nsfw,
+                              ulong? guildId,
+                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
+                                                                                                     nameTranslationsProviderType,
+                                                                                                     defaultGuildUserPermissions,
+                                                                                                     dMPermission,
+                                                                                                     defaultPermission,
+                                                                                                     nsfw,
+                                                                                                     guildId,
+                                                                                                     configuration)
+    {
+        Description = description;
+
+        if (descriptionTranslationsProviderType is not null)
+            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
+
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration);
+        Parameters = parameters;
+        ParametersDictionary = parameters.ToDictionary(p => p.Name);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
     public string Description { get; }

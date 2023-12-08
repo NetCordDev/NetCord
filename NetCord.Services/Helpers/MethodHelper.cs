@@ -4,9 +4,11 @@ namespace NetCord.Services.Helpers;
 
 internal static class MethodHelper
 {
-    public static void EnsureMethodParameterless(MethodInfo method)
+    public static void EnsureNoParameters(MethodInfo method) => EnsureNoParameters(method.GetParameters(), method);
+
+    public static void EnsureNoParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method)
     {
-        if (method.GetParameters().Length != 0)
-            throw new InvalidDefinitionException("The method must be parameterless.", method);
+        if (parameters.Length != 0)
+            throw new InvalidDefinitionException("The command cannot have parameters.", method);
     }
 }

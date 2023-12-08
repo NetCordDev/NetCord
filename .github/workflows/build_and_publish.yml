@@ -31,12 +31,18 @@ jobs:
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
+          dotnet pack NetCord.Hosting -c Release --no-build
+          dotnet pack NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Publish
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         run: |
           dotnet nuget push NetCord/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
           dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Hosting/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Hosting.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Build Documentation
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'

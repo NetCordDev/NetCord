@@ -62,6 +62,24 @@ public class HttpInteractionValidator
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="signature">The value of <c>X-Signature-Ed25519</c> header.</param>
+    /// <param name="timestampAndBody">he value of <c>X-Signature-Timestamp</c> header as bytes appended by the request body.</param>
+    /// <returns></returns>
+    public bool Validate(ReadOnlySpan<char> signature, ReadOnlySpan<byte> timestampAndBody)
+    {
+        if (!ValidateSignature(signature))
+            return false;
+
+        Span<byte> signatureBytes = stackalloc byte[64];
+        if (!TryDecodeFromUtf16(signature, signatureBytes))
+            return false;
+
+        return ValidateUnsafe(signatureBytes, timestampAndBody);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
     /// <param name="signature">The hex decoded value of <c>X-Signature-Ed25519</c> header.</param>
     /// <param name="timestamp">The value of <c>X-Signature-Timestamp</c> header as bytes.</param>
     /// <param name="body">The request body.</param>
@@ -160,7 +178,7 @@ public class HttpInteractionValidator
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int FromChar(int c)
+    private static int FromChar(int c)
     {
         return c >= CharToHexLookup.Length ? 0xFF : CharToHexLookup[c];
     }

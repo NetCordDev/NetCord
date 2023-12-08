@@ -12,14 +12,39 @@ public class CommandInfo<TContext> where TContext : ICommandContext
     public Func<object?[]?, TContext, IServiceProvider?, ValueTask> InvokeAsync { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
-    internal CommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, CommandAttribute attribute, CommandServiceConfiguration<TContext> configuration)
+    internal CommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, int priority, CommandServiceConfiguration<TContext> configuration)
     {
-        Priority = attribute.Priority;
+        Priority = priority;
 
-        var parameters = method.GetParameters();
+        var parameters = GetParameters(method.GetParameters(), method, configuration);
+        Parameters = parameters;
+
+        InvokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+    }
+
+    internal CommandInfo(Delegate handler, int priority, CommandServiceConfiguration<TContext> configuration)
+    {
+        Priority = priority;
+
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+
+        var parameters = GetParameters(split.Parameters, method, configuration);
+        Parameters = parameters;
+
+        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+    }
+
+    private static CommandParameter<TContext>[] GetParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, CommandServiceConfiguration<TContext> configuration)
+    {
         var parametersLength = parameters.Length;
 
-        var p = new CommandParameter<TContext>[parametersLength];
+        var result = new CommandParameter<TContext>[parametersLength];
         var hasDefaultValue = false;
         for (var i = 0; i < parametersLength; i++)
         {
@@ -28,15 +53,12 @@ public class CommandInfo<TContext> where TContext : ICommandContext
             if (parameter.HasDefaultValue)
                 hasDefaultValue = true;
             else if (hasDefaultValue)
-                throw new InvalidDefinitionException($"Optional parameters must appear after all required parameters.", method);
+                throw new InvalidDefinitionException("Optional parameters must appear after all required parameters.", method);
 
-            p[i] = new(parameter, method, configuration);
+            result[i] = new(parameter, method, configuration);
         }
-        Parameters = p;
 
-        InvokeAsync = InvocationHelper.CreateDelegate(method, declaringType, p.Select(p => p.Type), configuration.ResultResolverProvider);
-
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        return result;
     }
 
     internal ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)

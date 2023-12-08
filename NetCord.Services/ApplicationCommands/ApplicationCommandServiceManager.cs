@@ -4,38 +4,44 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandServiceManager
 {
-    private readonly List<(Action<IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)>> AddCommands, IReadOnlyList<IApplicationCommandInfo> CommandInfos)> _globalCommands = [];
-    private readonly List<(Action<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> AddCommand, IReadOnlyList<IApplicationCommandInfo> CommandInfos)> _guildCommands = [];
+    private readonly List<IApplicationCommandService> _services = [];
 
-    public void AddService<TContext>(ApplicationCommandService<TContext> service) where TContext : IApplicationCommandContext
+    public void AddService(IApplicationCommandService service)
     {
-        _globalCommands.Add((service.AddCommands, service._globalCommandsToCreate));
-        _guildCommands.Add((service.AddCommand, service._guildCommandsToCreate));
+        _services.Add(service);
     }
 
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
-        List<ApplicationCommand> list = new(includeGuildCommands ? _globalCommands.Sum(c => c.CommandInfos.Count) + _guildCommands.Sum(c => c.CommandInfos.Count) : _globalCommands.Sum(c => c.CommandInfos.Count));
-        var result = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommands.Select(c => c.CommandInfos).SelectMany(c => c.Select(x => x.GetRawValue())), properties).ConfigureAwait(false)).Values.Zip(_globalCommands.SelectMany(x => x.CommandInfos)).ToArray();
-        int i = 0;
-        foreach (var (addCommands, commandInfos) in _globalCommands)
+        var services = _services.ToArray();
+
+        var globalInfos = services.SelectMany(s => s.GlobalCommands.Select(c => (Service: s, Command: c))).ToArray();
+
+        List<ApplicationCommand> list = new(globalInfos.Length);
+
+        var globalProperties = globalInfos.Select(c => c.Command.GetRawValue());
+        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
+
+        foreach (var (command, (service, commandInfo)) in created.Zip(globalInfos))
         {
-            var count = commandInfos.Count;
-            ArraySegment<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands = new(result, i, count);
-            i += count;
-            addCommands(commands);
-            list.AddRange(commands.Select(c => c.Command));
+            service.AddCommand(command.Key, commandInfo);
+            list.Add(command.Value);
         }
 
         if (includeGuildCommands)
         {
-            foreach (var g in _guildCommands.SelectMany(x => x.CommandInfos.Select(d => (d, x.AddCommand))).GroupBy(c => c.d.GuildId))
+            foreach (var guildCommandsGroup in services.SelectMany(s => s.GuildCommands.Select(c => (Service: s, Commands: c))).GroupBy(c => c.Commands.GuildId))
             {
-                var guildResult = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, g.Key.GetValueOrDefault(), g.Select(c => c.d.GetRawValue()), properties).ConfigureAwait(false);
-                foreach (var (first, second) in g.Zip(guildResult.Values))
+                var guildInfos = guildCommandsGroup.SelectMany(g => g.Commands.Commands.Select(c => (g.Service, Command: c))).ToArray();
+
+                var guildProperties = guildInfos.Select(c => c.Command.GetRawValue());
+
+                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsGroup.Key, guildProperties, properties).ConfigureAwait(false);
+
+                foreach (var (command, (service, commandInfo)) in guildCreated.Zip(guildInfos))
                 {
-                    first.AddCommand((second, first.d));
-                    list.Add(second);
+                    service.AddCommand(command.Key, commandInfo);
+                    list.Add(command.Value);
                 }
             }
         }

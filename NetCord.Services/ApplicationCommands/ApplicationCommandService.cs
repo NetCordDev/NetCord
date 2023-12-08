@@ -26,19 +26,23 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
     }
 }
 
-public class ApplicationCommandService<TContext> where TContext : IApplicationCommandContext
+public class ApplicationCommandService<TContext> : IApplicationCommandService, IService where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = [];
 
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
-    internal readonly List<ApplicationCommandInfo<TContext>> _guildCommandsToCreate = [];
+    internal readonly Dictionary<ulong, List<ApplicationCommandInfo<TContext>>> _guildCommandsToCreate = [];
+
+    IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GlobalCommands => _globalCommandsToCreate;
+
+    IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
 
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
-        _configuration = configuration ?? new();
+        _configuration = configuration ?? ApplicationCommandServiceConfiguration<TContext>.Default;
     }
 
     [RequiresUnreferencedCode("Types might be removed")]
@@ -97,63 +101,139 @@ public class ApplicationCommandService<TContext> where TContext : IApplicationCo
                     AddCommandInfo(new MessageCommandInfo<TContext>(method, type, messageCommandAttribute, configuration));
             }
         }
+    }
 
-        void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
+    public void AddSlashCommand(string name,
+                                string description,
+                                Delegate handler,
+                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
+                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? descriptionTranslationsProviderType = null,
+                                Permissions? defaultGuildUserPermissions = null,
+                                bool? dMPermission = null,
+                                bool defaultPermission = true,
+                                bool nsfw = false,
+                                ulong? guildId = null)
+    {
+        var slashCommandInfo = new SlashCommandInfo<TContext>(name,
+                                                              description,
+                                                              handler,
+                                                              nameTranslationsProviderType,
+                                                              descriptionTranslationsProviderType,
+                                                              defaultGuildUserPermissions,
+                                                              dMPermission,
+                                                              defaultPermission,
+                                                              nsfw,
+                                                              guildId,
+                                                              _configuration);
+        OnAutocompleteAdd(slashCommandInfo);
+        AddCommandInfo(slashCommandInfo);
+    }
+
+    public void AddUserCommand(string name,
+                               Delegate handler,
+                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
+                               Permissions? defaultGuildUserPermissions = null,
+                               bool? dMPermission = null,
+                               bool defaultPermission = true,
+                               bool nsfw = false,
+                               ulong? guildId = null)
+    {
+        AddCommandInfo(new UserCommandInfo<TContext>(name,
+                                                     handler,
+                                                     nameTranslationsProviderType,
+                                                     defaultGuildUserPermissions,
+                                                     dMPermission,
+                                                     defaultPermission,
+                                                     nsfw,
+                                                     guildId,
+                                                     _configuration));
+    }
+
+    public void AddMessageCommand(string name,
+                                  Delegate handler,
+                                  [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
+                                  Permissions? defaultGuildUserPermissions = null,
+                                  bool? dMPermission = null,
+                                  bool defaultPermission = true,
+                                  bool nsfw = false,
+                                  ulong? guildId = null)
+    {
+        AddCommandInfo(new MessageCommandInfo<TContext>(name,
+                                                        handler,
+                                                        nameTranslationsProviderType,
+                                                        defaultGuildUserPermissions,
+                                                        dMPermission,
+                                                        defaultPermission,
+                                                        nsfw,
+                                                        guildId,
+                                                        _configuration));
+    }
+
+    void IApplicationCommandService.AddCommand(ulong id, IApplicationCommandInfo applicationCommandInfo)
+    {
+        _commands[id] = (ApplicationCommandInfo<TContext>)applicationCommandInfo;
+    }
+
+    private void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
+    {
+        if (applicationCommandInfo.GuildId.HasValue)
         {
-            if (applicationCommandInfo.GuildId.HasValue)
-                _guildCommandsToCreate.Add(applicationCommandInfo);
-            else
-                _globalCommandsToCreate.Add(applicationCommandInfo);
+            var guildCommandsToCreate = _guildCommandsToCreate;
+            if (!guildCommandsToCreate.TryGetValue(applicationCommandInfo.GuildId.GetValueOrDefault(), out var list))
+                guildCommandsToCreate.Add(applicationCommandInfo.GuildId.GetValueOrDefault(), list = []);
+
+            list.Add(applicationCommandInfo);
         }
+        else
+            _globalCommandsToCreate.Add(applicationCommandInfo);
     }
 
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
-        List<ApplicationCommand> list = new(includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count);
-        var e = (await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, _globalCommandsToCreate.Select(c => c.GetRawValue()), properties).ConfigureAwait(false)).Zip(_globalCommandsToCreate);
-        foreach (var (first, second) in e)
+        int count = includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count;
+        List<ApplicationCommand> list = new(count);
+
+        var globalProperties = _globalCommandsToCreate.Select(c => c.GetRawValue());
+        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
+
+        foreach (var (command, commandInfo) in created.Zip(_globalCommandsToCreate))
         {
-            _commands[first.Key] = second;
-            list.Add(first.Value);
+            _commands[command.Key] = commandInfo;
+            list.Add(command.Value);
         }
 
         if (includeGuildCommands)
         {
-            foreach (var c in _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault()))
+            foreach (var guildCommandsPair in _guildCommandsToCreate)
             {
-                var rawGuildCommands = c.Select(v => v.GetRawValue());
+                var guildCommands = guildCommandsPair.Value;
+                var guildProperties = guildCommands.Select(v => v.GetRawValue());
 
-                var newCommands = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, c.Key, rawGuildCommands, properties).ConfigureAwait(false);
-                foreach (var (first, second) in newCommands.Zip(c))
+                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties).ConfigureAwait(false);
+                foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))
                 {
-                    _commands[first.Key] = second;
-                    list.Add(first.Value);
+                    _commands[command.Key] = commandInfo;
+                    list.Add(command.Value);
                 }
             }
         }
         return list;
     }
 
-    public IEnumerable<ApplicationCommandProperties> GetGlobalCommandProperties()
-        => _globalCommandsToCreate.Select(c => c.GetRawValue());
+    //internal void AddCommands(IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
+    //{
+    //    int count = commands.Count;
+    //    for (int i = 0; i < count; i++)
+    //    {
+    //        var (command, commandInfo) = commands[i];
+    //        _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
+    //    }
+    //}
 
-    public IEnumerable<IGrouping<ulong, ApplicationCommandProperties>> GetGuildCommandProperties()
-        => _guildCommandsToCreate.GroupBy(c => c.GuildId.GetValueOrDefault(), c => c.GetRawValue());
-
-    internal void AddCommands(IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
-    {
-        int count = commands.Count;
-        for (int i = 0; i < count; i++)
-        {
-            var (command, commandInfo) = commands[i];
-            _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
-        }
-    }
-
-    internal void AddCommand((ApplicationCommand Command, IApplicationCommandInfo CommandInfo) command)
-    {
-        _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
-    }
+    //internal void AddCommand((ApplicationCommand Command, IApplicationCommandInfo CommandInfo) command)
+    //{
+    //    _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
+    //}
 
     public ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {

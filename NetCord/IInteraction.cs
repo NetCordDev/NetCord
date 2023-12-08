@@ -1,5 +1,4 @@
-﻿using NetCord.Gateway;
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord;
 
@@ -13,11 +12,13 @@ public interface IInteraction : IEntity, IJsonModel<JsonModels.JsonInteraction>
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
-    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, RestClient client)
+    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client)
     {
         if (jsonModel.Type is InteractionType.Ping)
-            return new PingInteraction(jsonModel, client);
+            return new PingInteraction(jsonModel, sendResponseAsync, client);
 
-        return Interaction.CreateFromJson(jsonModel, (Guild?)null, client);
+        return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
     }
+
+    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null);
 }

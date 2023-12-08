@@ -2,6 +2,6 @@
 
 public enum LogSeverity
 {
-    Info,
-    Error
+    Info = 2,
+    Error = 4,
 }

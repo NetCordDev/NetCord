@@ -1,13 +1,32 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace NetCord.Services;
 
-internal static class ParameterHelper
+internal static class ParametersHelper
 {
-    public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetParameterInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? typeReaderType, Dictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader)
+    public readonly ref struct SplitParameters(IEnumerable<ParameterInfo> services, bool hasContext, ReadOnlySpan<ParameterInfo> parameters)
+    {
+        public IEnumerable<ParameterInfo> Services { get; } = services;
+        public bool HasContext { get; } = hasContext;
+        public ReadOnlySpan<ParameterInfo> Parameters { get; } = parameters;
+    }
+
+    public static SplitParameters SplitHandlerParameters<TContext>(MethodInfo method)
+    {
+        var methodParameters = method.GetParameters();
+
+        var contextType = typeof(TContext);
+        var index = Array.FindIndex(methodParameters, p => p.ParameterType == contextType);
+        bool context = index >= 0;
+
+        return new(methodParameters.Take(index), context, methodParameters.AsSpan(index + 1));
+    }
+
+    public static (TTypeReader TypeReader, Type NonNullableType, object? DefaultValue) GetParameterInfo<TContext, TTypeReaderBase, TTypeReader>(Type type, ParameterInfo parameter, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? typeReaderType, ImmutableDictionary<Type, TTypeReader> typeReaders, TTypeReader enumTypeReader)
     {
         TTypeReader resultTypeReader;
         Type resultNonNullableType;

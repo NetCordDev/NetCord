@@ -7,7 +7,9 @@ public class PingInteraction : Entity, IInteraction
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonInteraction _jsonModel;
 
-    public PingInteraction(JsonModels.JsonInteraction jsonModel, RestClient client)
+    private readonly Func<IInteraction, InteractionCallback, RequestProperties?, Task> _sendResponseAsync;
+
+    public PingInteraction(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client)
     {
         _jsonModel = jsonModel;
 
@@ -18,6 +20,8 @@ public class PingInteraction : Entity, IInteraction
             User = new(jsonModel.User!, client);
 
         Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
+
+        _sendResponseAsync = sendResponseAsync;
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -29,4 +33,6 @@ public class PingInteraction : Entity, IInteraction
     public string Token => _jsonModel.Token;
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
+
+    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _sendResponseAsync(this, interactionCallback, properties);
 }

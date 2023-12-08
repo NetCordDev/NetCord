@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(JsonShardConverter))]
-public readonly partial struct Shard
+public readonly struct Shard
 {
     public Shard(int id, int count)
     {
@@ -16,7 +16,7 @@ public readonly partial struct Shard
 
     public int Count { get; }
 
-    public partial class JsonShardConverter : JsonConverter<Shard>
+    public class JsonShardConverter : JsonConverter<Shard>
     {
         public override Shard Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {

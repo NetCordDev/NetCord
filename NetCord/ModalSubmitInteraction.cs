@@ -5,7 +5,7 @@ namespace NetCord;
 
 public class ModalSubmitInteraction : Interaction
 {
-    public ModalSubmitInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(jsonModel, guild, client)
+    public ModalSubmitInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
         var message = jsonModel.Message;
         if (message is not null)

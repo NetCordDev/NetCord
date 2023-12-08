@@ -45,7 +45,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
         {
             var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
-            (TypeReader, NonNullableType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
             var name = Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
             Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
@@ -89,7 +89,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         }
         else
         {
-            (TypeReader, NonNullableType, DefaultValue) = ParameterHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
+            (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
 
             var name = Name = parameter.Name!;
             NameTranslationsProvider = TypeReader.NameTranslationsProvider;
@@ -130,7 +130,6 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, ApplicationCommandInteractionDataOption option, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
         => Unsafe.As<Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?>>>(_invokeAutocompleteAsync!)(option, context, serviceProvider);
 
-    [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "The code is invoked only in dynamic code")]
     internal void InitializeAutocomplete<TAutocompleteContext>() where TAutocompleteContext : IAutocompleteInteractionContext
     {
         var autocompleteProviderType = AutocompleteProviderType;
@@ -141,26 +140,14 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         if (!autocompleteProviderType.IsAssignableTo(autocompleteProviderBaseType))
             throw new InvalidOperationException($"'{autocompleteProviderType}' is not assignable to '{autocompleteProviderBaseType}'.");
 
-        if (RuntimeFeature.IsDynamicCodeCompiled)
-        {
-            var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
-            var context = Expression.Parameter(typeof(TAutocompleteContext));
-            var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-            var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod(nameof(IAutocompleteProvider<TAutocompleteContext>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
-            var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider),
-                                       getChoicesAsyncMethod,
-                                       option, context);
-            var lambda = Expression.Lambda(call, option, context, serviceProvider);
-            _invokeAutocompleteAsync = lambda.Compile();
-        }
-        else
-        {
-            var createInstance = TypeHelper.GetCreateInstanceReflectionDelegate<IAutocompleteProvider<TAutocompleteContext>>(autocompleteProviderType);
-
-            _invokeAutocompleteAsync = (ApplicationCommandInteractionDataOption option, TAutocompleteContext context, IServiceProvider? serviceProvider) =>
-            {
-                return createInstance(serviceProvider).GetChoicesAsync(option, context);
-            };
-        }
+        var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
+        var context = Expression.Parameter(typeof(TAutocompleteContext));
+        var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
+        var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod(nameof(IAutocompleteProvider<TAutocompleteContext>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
+        var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider),
+                                   getChoicesAsyncMethod,
+                                   option, context);
+        var lambda = Expression.Lambda(call, option, context, serviceProvider);
+        _invokeAutocompleteAsync = lambda.Compile();
     }
 }

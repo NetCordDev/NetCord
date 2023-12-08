@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "NetCord.Test.Hosting.AspNetCore": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:57192"
+    }
+  }
+}

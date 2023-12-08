@@ -10,7 +10,9 @@ public abstract class Interaction : ClientEntity, IInteraction
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonInteraction _jsonModel;
 
-    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client) : base(client)
+    private readonly Func<IInteraction, InteractionCallback, RequestProperties?, Task> _sendResponseAsync;
+
+    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 
@@ -23,6 +25,8 @@ public abstract class Interaction : ClientEntity, IInteraction
         Guild = guild;
         Channel = (TextChannel)NetCord.Channel.CreateFromJson(jsonModel.Channel!, client);
         Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
+
+        _sendResponseAsync = sendResponseAsync;
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -49,29 +53,29 @@ public abstract class Interaction : ClientEntity, IInteraction
 
     public abstract InteractionData Data { get; }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, RestClient client)
+    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client)
     {
         return jsonModel.Type switch
         {
             InteractionType.ApplicationCommand => jsonModel.Data!.Type.GetValueOrDefault() switch
             {
-                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, client),
-                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, client),
-                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, client),
+                ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+                ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+                ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
             {
-                ComponentType.Button => new ButtonInteraction(jsonModel, guild, client),
-                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, client),
-                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, client),
-                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, client),
-                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, client),
-                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, client),
+                ComponentType.Button => new ButtonInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.StringMenu => new StringMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.UserMenu => new UserMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.RoleMenu => new RoleMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.MentionableMenu => new MentionableMenuInteraction(jsonModel, guild, sendResponseAsync, client),
+                ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.ApplicationCommandAutocomplete => new ApplicationCommandAutocompleteInteraction(jsonModel, guild, client),
-            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, guild, client),
+            InteractionType.ApplicationCommandAutocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
+            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, guild, sendResponseAsync, client),
             _ => throw new InvalidOperationException(),
         };
     }
@@ -80,10 +84,10 @@ public abstract class Interaction : ClientEntity, IInteraction
     {
         var guildId = jsonModel.GuildId;
         var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, client);
+        return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties), client);
     }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _client.SendInteractionResponseAsync(Id, Token, interactionCallback, properties);
+    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _sendResponseAsync(this, interactionCallback, properties);
 
     public Task<RestMessage> GetResponseAsync(RequestProperties? properties = null) => _client.GetInteractionResponseAsync(ApplicationId, Token, properties);
 

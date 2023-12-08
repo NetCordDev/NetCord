@@ -8,12 +8,41 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal MessageCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, MessageCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+    internal MessageCommandInfo(MethodInfo method,
+                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
+                                MessageCommandAttribute attribute,
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
-        MethodHelper.EnsureMethodParameterless(method);
+        MethodHelper.EnsureNoParameters(method);
 
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateDelegate(method, declaringType, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
+    }
+
+    internal MessageCommandInfo(string name,
+                             Delegate handler,
+                             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType,
+                             Permissions? defaultGuildUserPermissions,
+                             bool? dMPermission,
+                             bool defaultPermission,
+                             bool nsfw,
+                             ulong? guildId,
+                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
+                                                                                                    nameTranslationsProviderType,
+                                                                                                    defaultGuildUserPermissions,
+                                                                                                    dMPermission,
+                                                                                                    defaultPermission,
+                                                                                                    nsfw,
+                                                                                                    guildId,
+                                                                                                    configuration)
+    {
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+        MethodHelper.EnsureNoParameters(split.Parameters, method);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
