@@ -19,15 +19,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetCord\NetCord.csproj" />
-    <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
   </ItemGroup>
   
 </Project>
