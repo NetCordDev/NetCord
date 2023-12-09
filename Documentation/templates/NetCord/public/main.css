@@ -249,14 +249,14 @@ code, .icon-ligatures:before {
 
 @keyframes snowflake-shake {
     0% {
-        transform: translateX(-2.5vw);
+        transform: translateX(calc(-2.5vw - 50%));
     }
 
     50% {
-        transform: translateX(2.5vw);
+        transform: translateX(calc(2.5vw - 50%));
     }
 
     100% {
-        transform: translateX(-2.5vw);
+        transform: translateX(calc(-2.5vw - 50%));
     }
 }
