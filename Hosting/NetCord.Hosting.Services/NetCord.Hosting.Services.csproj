@@ -19,12 +19,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
+    <None Include="../../Resources/Logo/png/SmallSquare.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NetCord.Hosting\NetCord.Hosting.csproj" />
-    <ProjectReference Include="..\NetCord.Services\NetCord.Services.csproj" />
+    <ProjectReference Include="..\..\NetCord.Services\NetCord.Services.csproj" />
   </ItemGroup>
 
 </Project>

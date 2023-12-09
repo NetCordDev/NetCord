@@ -170,15 +170,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "SourceGenerators\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test.Hosting", "Tests\NetCord.Test.Hosting\NetCord.Test.Hosting.csproj", "{8E1206F6-99D6-44A4-84FE-D8A6FE021A09}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting", "NetCord.Hosting\NetCord.Hosting.csproj", "{CA86C6D8-8A5C-44D3-98E7-3278AF51404A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting", "Hosting\NetCord.Hosting\NetCord.Hosting.csproj", "{CA86C6D8-8A5C-44D3-98E7-3278AF51404A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting.AspNetCore", "NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj", "{C51F865B-3002-4438-ABF5-56B4DB42BBA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting.AspNetCore", "Hosting\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj", "{C51F865B-3002-4438-ABF5-56B4DB42BBA5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test.Hosting.AspNetCore", "Tests\NetCord.Test.Hosting.AspNetCore\NetCord.Test.Hosting.AspNetCore.csproj", "{DA6CA7EB-016A-415A-8909-6A2B2588B71A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting.Services", "NetCord.Hosting.Services\NetCord.Hosting.Services.csproj", "{5985051C-DE41-4FF5-939B-32C8D10EDBC3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Hosting.Services", "Hosting\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj", "{5985051C-DE41-4FF5-939B-32C8D10EDBC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCord.Test.Sharded.Hosting", "Tests\NetCord.Test.Sharded.Hosting\NetCord.Test.Sharded.Hosting.csproj", "{997B8089-CE3C-4DD7-87F9-2E4A2BA364D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetCord.Test.Sharded.Hosting", "Tests\NetCord.Test.Sharded.Hosting\NetCord.Test.Sharded.Hosting.csproj", "{997B8089-CE3C-4DD7-87F9-2E4A2BA364D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosting", "Hosting", "{737B0970-FA77-4942-A24D-A6EF12D37C88}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -503,7 +505,10 @@ Global
 		{E844293D-91EB-4E6E-9E57-8B9C109C6640} = {0A9D75D2-B760-43E3-8A18-1BF2F629D0FB}
 		{624246E3-4194-4952-BDDD-52254E94D5D6} = {0A9D75D2-B760-43E3-8A18-1BF2F629D0FB}
 		{8E1206F6-99D6-44A4-84FE-D8A6FE021A09} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
+		{CA86C6D8-8A5C-44D3-98E7-3278AF51404A} = {737B0970-FA77-4942-A24D-A6EF12D37C88}
+		{C51F865B-3002-4438-ABF5-56B4DB42BBA5} = {737B0970-FA77-4942-A24D-A6EF12D37C88}
 		{DA6CA7EB-016A-415A-8909-6A2B2588B71A} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
+		{5985051C-DE41-4FF5-939B-32C8D10EDBC3} = {737B0970-FA77-4942-A24D-A6EF12D37C88}
 		{997B8089-CE3C-4DD7-87F9-2E4A2BA364D6} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

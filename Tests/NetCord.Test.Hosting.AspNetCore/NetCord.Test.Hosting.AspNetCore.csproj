@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj" />
-    <ProjectReference Include="..\..\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
-    <ProjectReference Include="..\..\NetCord.Hosting\NetCord.Hosting.csproj" />
+    <ProjectReference Include="..\..\Hosting\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\Hosting\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
+    <ProjectReference Include="..\..\Hosting\NetCord.Hosting\NetCord.Hosting.csproj" />
   </ItemGroup>
 
   <ItemGroup>
