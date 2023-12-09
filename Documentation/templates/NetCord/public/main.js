@@ -21,9 +21,15 @@ function removeSnowflakes() {
 function generateSnowflakes() {
     const snowflakeContainer = document.getElementById('snow-container');
 
+    const delays = [];
+    for (let i = 0; i < 9; i++)
+        delays.push(i);
+        
     for (let i = 0; i < 9; i++) {
         const snowflake = document.createElement('div');
         snowflake.className = 'bi bi-snow snowflake';
+        snowflake.style.left = `${(i + 1) * 10}%`;
+        snowflake.style.animationDelay = `${delays.splice(Math.floor(Math.random() * delays.length), 1)[0]}s`;
         snowflakeContainer.appendChild(snowflake);
     }
 }
@@ -58,7 +64,7 @@ const iconLinks = [
     {
         title: 'Toggle ligatures',
         icon: 'icon icon-ligatures',
-        onclick: 'window.docfx.toggleLigatures()',
+        onclick: 'window.docfx.toggleLigatures()'
     }
 ];
 
@@ -78,7 +84,7 @@ if (month == 11) {
         {
             title: 'Toggle snow',
             icon: 'bi icon-snow',
-            onclick: 'window.docfx.toggleSnow()',
+            onclick: 'window.docfx.toggleSnow()'
         });
 }
 

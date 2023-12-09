@@ -237,50 +237,6 @@ code, .icon-ligatures:before {
     cursor: default;
 }
 
-    .snowflake:nth-of-type(1) {
-        left: 10%;
-    }
-
-    .snowflake:nth-of-type(2) {
-        left: 20%;
-        animation-delay: 6s, 6s;
-    }
-
-    .snowflake:nth-of-type(3) {
-        left: 30%;
-        animation-delay: 2s, 2s;
-    }
-
-    .snowflake:nth-of-type(4) {
-        left: 40%;
-        animation-delay: 8s, 8s;
-    }
-
-    .snowflake:nth-of-type(5) {
-        left: 50%;
-        animation-delay: 3s, 3s;
-    }
-
-    .snowflake:nth-of-type(6) {
-        left: 60%;
-        animation-delay: 9s, 9s;
-    }
-
-    .snowflake:nth-of-type(7) {
-        left: 70%;
-        animation-delay: 4s, 4s;
-    }
-
-    .snowflake:nth-of-type(8) {
-        left: 80%;
-        animation-delay: 7s, 7s;
-    }
-
-    .snowflake:nth-of-type(9) {
-        left: 90%;
-        animation-delay: 1s, 1s;
-    }
-
 @keyframes snowflake-fall {
     from {
         top: -10%;
