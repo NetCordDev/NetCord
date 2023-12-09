@@ -13,6 +13,8 @@
     --blurple: #5865F2;
     --dark-blurple: #4752C4;
     --ligatures: none;
+    --snow-icon: "\f2bb";
+    --snowflake-color: #A0FFFF;
 }
 
 .navbar-nav {
@@ -43,6 +45,10 @@
 
 :root[ligatures="1"] {
     --ligatures: normal;
+}
+
+:root[snow="0"] {
+    --snow-icon: "\f2bc";
 }
 
 .logo {
@@ -208,4 +214,93 @@ code, .icon-ligatures:before {
 
 .nav-link {
     transition: inherit;
+}
+
+.icon-snow:before {
+    content: var(--snow-icon);
+}
+
+.snow-container {
+    pointer-events: none;
+}
+
+.snowflake {
+    position: fixed;
+    top: -10%;
+    z-index: 9999;
+    color: var(--snowflake-color);
+    animation-name: snowflake-fall, snowflake-shake;
+    animation-duration: 10s, 3.5s;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    user-select: none;
+    cursor: default;
+}
+
+    .snowflake:nth-of-type(1) {
+        left: 10%;
+    }
+
+    .snowflake:nth-of-type(2) {
+        left: 20%;
+        animation-delay: 6s, 6s;
+    }
+
+    .snowflake:nth-of-type(3) {
+        left: 30%;
+        animation-delay: 2s, 2s;
+    }
+
+    .snowflake:nth-of-type(4) {
+        left: 40%;
+        animation-delay: 8s, 8s;
+    }
+
+    .snowflake:nth-of-type(5) {
+        left: 50%;
+        animation-delay: 3s, 3s;
+    }
+
+    .snowflake:nth-of-type(6) {
+        left: 60%;
+        animation-delay: 9s, 9s;
+    }
+
+    .snowflake:nth-of-type(7) {
+        left: 70%;
+        animation-delay: 4s, 4s;
+    }
+
+    .snowflake:nth-of-type(8) {
+        left: 80%;
+        animation-delay: 7s, 7s;
+    }
+
+    .snowflake:nth-of-type(9) {
+        left: 90%;
+        animation-delay: 1s, 1s;
+    }
+
+@keyframes snowflake-fall {
+    from {
+        top: -10%;
+    }
+
+    to {
+        top: 100%;
+    }
+}
+
+@keyframes snowflake-shake {
+    0% {
+        transform: translateX(-2.5vw);
+    }
+
+    50% {
+        transform: translateX(2.5vw);
+    }
+
+    100% {
+        transform: translateX(-2.5vw);
+    }
 }
