@@ -47,6 +47,9 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                 subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration));
         }
 
+        if (subCommands.Count == 0)
+            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+
         SubCommands = subCommands;
     }
 
