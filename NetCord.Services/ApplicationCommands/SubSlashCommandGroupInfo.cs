@@ -28,8 +28,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         foreach (var method in type.GetMethods())
         {
-            var subSlashCommandAttribute = method.GetCustomAttribute<SubSlashCommandAttribute>();
-            if (subSlashCommandAttribute is not null)
+            foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
                 subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration));
         }
 

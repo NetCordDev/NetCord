@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.ApplicationCommands;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
 public class SubSlashCommandAttribute : Attribute
 {
     public SubSlashCommandAttribute(string name, string description)

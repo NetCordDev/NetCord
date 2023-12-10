@@ -73,31 +73,35 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
     {
         var configuration = _configuration;
 
-        var slashCommandAttribute = type.GetCustomAttribute<SlashCommandAttribute>();
-        if (slashCommandAttribute is not null)
+        bool slashCommandGroup = false;
+
+        foreach (var slashCommandAttribute in type.GetCustomAttributes<SlashCommandAttribute>())
         {
             SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration);
             OnAutocompleteAdd(slashCommandGroupInfo);
             AddCommandInfo(slashCommandGroupInfo);
+
+            slashCommandGroup = true;
         }
-        else
+
+        if (slashCommandGroup)
+            return;
+
+        foreach (var method in type.GetMethods())
         {
-            foreach (var method in type.GetMethods())
+            foreach (var applicationCommandAttribute in method.GetCustomAttributes<ApplicationCommandAttribute>())
             {
-                slashCommandAttribute = method.GetCustomAttribute<SlashCommandAttribute>();
-                if (slashCommandAttribute is not null)
+                if (applicationCommandAttribute is SlashCommandAttribute slashCommandAttribute)
                 {
                     SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration);
                     OnAutocompleteAdd(slashCommandInfo);
                     AddCommandInfo(slashCommandInfo);
                 }
 
-                var userCommandAttribute = method.GetCustomAttribute<UserCommandAttribute>();
-                if (userCommandAttribute is not null)
+                if (applicationCommandAttribute is UserCommandAttribute userCommandAttribute)
                     AddCommandInfo(new UserCommandInfo<TContext>(method, type, userCommandAttribute, configuration));
 
-                var messageCommandAttribute = method.GetCustomAttribute<MessageCommandAttribute>();
-                if (messageCommandAttribute is not null)
+                if (applicationCommandAttribute is MessageCommandAttribute messageCommandAttribute)
                     AddCommandInfo(new MessageCommandInfo<TContext>(method, type, messageCommandAttribute, configuration));
             }
         }

@@ -8,9 +8,11 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;
 
+[SlashCommand("pn", "PN")]
 [SlashCommand("permission-nested", "Permission")]
 public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 {
+    [SubSlashCommand("a", "A")]
     [SubSlashCommand("add", "Permission add")]
     public Task AddAsync(int i, Permissions permission)
     {
@@ -23,9 +25,11 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
         return InteractionCallback.Message(permission.ToString());
     }
 
+    [SubSlashCommand("l", "L")]
     [SubSlashCommand("list", "Permission list")]
     public class ListCommand : ApplicationCommandModule<SlashCommandContext>
     {
+        [SubSlashCommand("u", "U")]
         [SubSlashCommand("user", "Permission list user")]
         public static InteractionCallback User(int i, Permissions permission)
         {
@@ -114,6 +118,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         //voiceClient.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
     }
 
+    [SlashCommand("c", "C")]
     [SlashCommand("channel", "Channel")]
     public Task ChannelAsync(TextChannel channel)
     {

@@ -2,7 +2,7 @@
 
 namespace NetCord.Services.ApplicationCommands;
 
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public abstract class ApplicationCommandAttribute : Attribute
 {
     private protected ApplicationCommandAttribute(string name)

@@ -33,8 +33,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
         foreach (var method in type.GetMethods())
         {
-            var subSlashCommandAttribute = method.GetCustomAttribute<SubSlashCommandAttribute>();
-            if (subSlashCommandAttribute is not null)
+            foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
                 subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration));
         }
 
@@ -44,8 +43,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
             if (!nested.IsAssignableTo(baseType))
                 continue;
 
-            var subSlashCommandAttribute = nested.GetCustomAttribute<SubSlashCommandAttribute>();
-            if (subSlashCommandAttribute is not null)
+            foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
                 subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration));
         }
 
