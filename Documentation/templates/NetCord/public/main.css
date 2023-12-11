@@ -230,7 +230,7 @@ code, .icon-ligatures:before {
     z-index: 9999;
     color: var(--snowflake-color);
     animation-name: snowflake-fall, snowflake-shake;
-    animation-duration: 10s, 3.5s;
+    animation-duration: 9s, 3.5s;
     animation-timing-function: linear, ease-in-out;
     animation-iteration-count: infinite, infinite;
     user-select: none;
