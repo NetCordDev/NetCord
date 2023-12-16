@@ -23,7 +23,7 @@ var host = builder.Build()
     .AddInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedRoles))
     .AddInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedMentionables))
     .AddInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedChannels))
-    .AddInteraction<ModalSubmitInteractionContext>("modal", (ModalSubmitInteractionContext context) => string.Join("\n", context.Values))
+    .AddInteraction<ModalSubmitInteractionContext>("modal", (ModalSubmitInteractionContext context) => context.Components[0].Value)
     .AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();
 
