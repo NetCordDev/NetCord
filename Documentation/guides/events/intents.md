@@ -1,7 +1,3 @@
----
-uid: Intents
----
-
 # Intents
 
 ## What are intents?
@@ -12,14 +8,19 @@ Privileged intents are intents that you need to enable in [Discord Developer Por
 ![](../../images/intents_Privileged.png)
 
 ## How to specify intents in NetCord?
+
 Intents in NetCord are handled by @NetCord.Gateway.GatewayIntents.
 You specify them like this:
-[!code-cs[Program.cs](Intents/Program.cs#L4-L7)]
 
-> [!WARNING]
-> `MessageContent` intent is privileged.
+## [Hosting](#tab/hosting)
+[!code-cs[Program.cs](IntentsHosting/Program.cs?highlight=6#L6-L13)]
 
-If you made this, you receive guild and direct messages.
+## [Without Hosting](#tab/without-hosting)
+[!code-cs[Program.cs](Intents/Program.cs?highlight=3#L4-L7)]
+
+***
+
+If you have done this, you will receive guild and direct messages.
 
 > [!NOTE]
-> `MessageContent` is a special intent that allows you to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages on events. Otherwise they are empty.
+> `MessageContent` is a special, privileged intent that allows you to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages on events. Otherwise they are empty.

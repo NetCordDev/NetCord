@@ -3,7 +3,11 @@ using NetCord.Gateway;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
 {
-    Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent,
+    Intents = GatewayIntents.GuildMessages
+              | GatewayIntents.DirectMessages
+              | GatewayIntents.MessageContent
+              | GatewayIntents.DirectMessageReactions
+              | GatewayIntents.GuildMessageReactions,
 });
 
 client.MessageCreate += message =>
@@ -12,7 +16,7 @@ client.MessageCreate += message =>
     return default;
 };
 
-client.MessageUpdate += async message =>
+client.MessageReactionAdd += async args =>
 {
-    await message.ReplyAsync("This message was modified!");
+    await client.Rest.SendMessageAsync(args.ChannelId, $"<@{args.UserId}> reacted with {args.Emoji.Name}!");
 };

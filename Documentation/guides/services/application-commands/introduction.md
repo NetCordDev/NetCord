@@ -1,23 +1,5 @@
 # Introduction
 
-# [Slash Commands](#tab/slash-commands)
-Firstly, add the following line to using section.
-[!code-cs[Program.cs](Introduction/SlashCommands/Full/Program.cs#L4)]
-
-Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add modules to it.
-[!code-cs[Program.cs](Introduction/SlashCommands/Full/Program.cs#L11-L12)]
-
-Now, we should send the commands to Discord, to make them usable. Add the following lines under `await client.StartAsync();` line:
-[!code-cs[Program.cs](Introduction/SlashCommands/Full/Program.cs#L20-L21)]
-
-We can add a command handler now.
-[!code-cs[Program.cs](Introduction/SlashCommands/Full/Program.cs#L23-L42)]
-
-Ok, you have everything prepared. It's time to create first slash commands!
-
-Create a new file `FirstModule.cs`. Make sure the class is public and add `using NetCord;` and `using NetCord.Services.ApplicationCommands;`. Make the class inheriting from `ApplicationCommandModule<SlashCommandContext>`. The file should look like this:
-[!code-cs[Program.cs](Introduction/SlashCommands/Partial/FirstModule.cs)]
-
 > [!IMPORTANT]
 > Please note that names of:
 > - slash commands
@@ -26,71 +8,41 @@ Create a new file `FirstModule.cs`. Make sure the class is public and add `using
 > 
 > **must** be lowercase.
 
-Now, we will create a `ping` command! Add the following lines to the class.
-[!code-cs[FirstModule.cs](Introduction/SlashCommands/Full/FirstModule.cs#L8-L12)]
+## [Hosting](#tab/hosting)
 
-Now, you have your first slash command working!
+With hosting, adding application commands is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostBuilderExtensions.UseApplicationCommandService``2(Microsoft.Extensions.Hosting.IHostBuilder) to add an application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the ASP.NET Core minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
+[!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=11-13,16-20)]
 
-# [User Commands](#tab/user-commands)
-Firstly, add the following line to using section.
-[!code-cs[Program.cs](Introduction/UserCommands/Full/Program.cs#L4)]
+## [Without Hosting](#tab/without-hosting)
 
-Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add modules to it.
-[!code-cs[Program.cs](Introduction/UserCommands/Full/Program.cs#L11-L12)]
+First, add the following line to using the section.
+[!code-cs[Program.cs](Introduction/Program.cs#L4)]
 
-Now, we should send the commands to Discord, to make them usable. Add the following lines under `await client.StartAsync();` line:
-[!code-cs[Program.cs](Introduction/UserCommands/Full/Program.cs#L20-L21)]
-
-We can add a command handler now.
-[!code-cs[Program.cs](Introduction/UserCommands/Full/Program.cs#L23-L42)]
-
-Ok, you have everything prepared. It's time to create first user commands!
-
-Create a new file `FirstModule.cs`. Make sure the class is public and add `using NetCord;` and `using NetCord.Services.ApplicationCommands;`. Make the class inheriting from `ApplicationCommandModule<UserCommandContext>`. The file should look like this:
-[!code-cs[Program.cs](Introduction/UserCommands/Partial/FirstModule.cs)]
-
-Now, we will create a `Username` command! Add the following lines to the class.
-[!code-cs[FirstModule.cs](Introduction/UserCommands/Full/FirstModule.cs#L8-L12)]
-
-Now, you have your first user command working!
-
-# [Message Commands](#tab/message-commands)
-Firstly, add the following line to using section.
-[!code-cs[Program.cs](Introduction/MessageCommands/Full/Program.cs#L4)]
-
-Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add modules to it.
-[!code-cs[Program.cs](Introduction/MessageCommands/Full/Program.cs#L11-L12)]
+Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add application commands to it. You can do it by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddSlashCommand*, @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddUserCommand* or @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddMessageCommand* to add an application command using the ASP.NET Core minimal APIs way and/or by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddModules(System.Reflection.Assembly) to add modules from an assembly. You can use a context of your choice, it can be for example @NetCord.Services.ApplicationCommands.SlashCommandContext, @NetCord.Services.ApplicationCommands.UserCommandContext or @NetCord.Services.ApplicationCommands.MessageCommandContext. In this example, we will use @NetCord.Services.ApplicationCommands.SlashCommandContext.
+[!code-cs[Program.cs](Introduction/Program.cs#L11-L13)]
 
 Now, we should send the commands to Discord, to make them usable. Add the following lines under `await client.StartAsync();` line:
-[!code-cs[Program.cs](Introduction/MessageCommands/Full/Program.cs#L20-L21)]
+[!code-cs[Program.cs](Introduction/Program.cs#L21-L22)]
 
-We can add a command handler now.
-[!code-cs[Program.cs](Introduction/MessageCommands/Full/Program.cs#L23-L42)]
+We can add a command handler now. If you used other context than @NetCord.Services.ApplicationCommands.SlashCommandContext, you should change the interaction type of the handler to the appropriate one.
+[!code-cs[Program.cs](Introduction/Program.cs#L24-L43)]
 
-Ok, you have everything prepared. It's time to create first message commands!
+### The Final Product
 
-Create a new file `FirstModule.cs`. Make sure the class is public and add `using NetCord;` and `using NetCord.Services.ApplicationCommands;`. Make the class inheriting from `ApplicationCommandModule<MessageCommandContext>`. The file should look like this:
-[!code-cs[Program.cs](Introduction/MessageCommands/Partial/FirstModule.cs)]
-
-Now, we will create a `Get Length` command! Add the following lines to the class.
-[!code-cs[FirstModule.cs](Introduction/MessageCommands/Full/FirstModule.cs#L8-L12)]
-
-Now, you have your first message command working!
+#### Program.cs
+[!code-cs[Program.cs](Introduction/Program.cs)]
 
 ***
 
-## The Final Product
+### Example Modules
 
-# [Program.cs](#tab/program/slash-commands)
-[!code-cs[Program.cs](Introduction/SlashCommands/Full/Program.cs)]
-# [Program.cs](#tab/program/user-commands)
-[!code-cs[Program.cs](Introduction/UserCommands/Full/Program.cs)]
-# [Program.cs](#tab/program/message-commands)
-[!code-cs[Program.cs](Introduction/MessageCommands/Full/Program.cs)]
+Here you can see example modules for each type of application command.
 
-# [FirstModule.cs](#tab/first-module/slash-commands)
-[!code-cs[FirstModule.cs](Introduction/SlashCommands/Full/FirstModule.cs)]
-# [FirstModule.cs](#tab/first-module/user-commands)
-[!code-cs[FirstModule.cs](Introduction/UserCommands/Full/FirstModule.cs)]
-# [FirstModule.cs](#tab/first-module/message-commands)
-[!code-cs[FirstModule.cs](Introduction/MessageCommands/Full/FirstModule.cs)]
+#### Slash Command Module
+[!code-cs[SlashCommandModule.cs](Introduction/SlashCommandModule.cs)]
+
+#### User Command Module
+[!code-cs[UserCommandModule.cs](Introduction/UserCommandModule.cs)]
+
+#### Message Command Module
+[!code-cs[MessageCommandModule.cs](Introduction/MessageCommandModule.cs)]

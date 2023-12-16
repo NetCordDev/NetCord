@@ -1,19 +1,46 @@
 # First Events
 
-> [!WARNING]
-> You need to enable `MessageContent` intent to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages. If you don't know how, go to @"Intents".
+## [Hosting](#tab/hosting)
 
-## MessageCreate Event
-@NetCord.Gateway.GatewayClient.MessageCreate event fires when a message is sent. To detect it, add the following lines before `client.StartAsync()`.
-[!code-cs[Program.cs](FirstEvents/Program.cs#L9-L13)]
+With hosting, the preferred way to receive events is by implementing @NetCord.Hosting.Gateway.IGatewayEventHandler or @NetCord.Hosting.Gateway.IGatewayEventHandler`1.
 
-When you run this code, when you send a message, the message will be printed on a console.
+First, use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add all event handlers in an assembly. You also need to call @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the handlers to the client.
+[!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=18,21)]
 
-## MessageUpdate Event
-@NetCord.Gateway.GatewayClient.MessageUpdate event fires when a message is modified. To detect it, add the following lines to your code.
-[!code-cs[Program.cs](FirstEvents/Program.cs#L15-L18)]
+> [!NOTE]
+> All gateway event handlers require @NetCord.Hosting.Gateway.GatewayEventAttribute that specifies the event to bind to. The event argument must match the type of the handler, otherwise an exception will be thrown.
 
-Now your bot is notifying everyone that someone has modified a message!
+### MessageCreate Event
+Now it's time to implement your MessageCreate event handler!
+[!code-cs[Program.cs](FirstEventsHosting/MessageCreateHandler.cs)]
 
-## Other Events
+When you run this code, when someone sends a message, the message will be printed on a console!
+
+### MessageReactionAdd Event
+We will also implement a MessageReactionAdd event handler!
+[!code-cs[Program.cs](FirstEventsHosting/MessageReactionAddHandler.cs)]
+
+When you run this code, when someone reacts to a message, the bot will notify everyone about it!
+
+### Other Events
+Other events work similar to these. You can play with them if you want!
+
+> [!NOTE]
+> When using @NetCord.Gateway.ShardedGatewayClient, you need to implement @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1 instead. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add event handlers instead.
+
+## [Without Hosting](#tab/without-hosting)
+
+### MessageCreate Event
+To listen to the event, add the following lines before `client.StartAsync()`!
+[!code-cs[Program.cs](FirstEvents/Program.cs#L13-L17)]
+
+When you run this code, when someone sends a message, the message will be printed on a console!
+
+### MessageReactionAdd Event
+To listen to the event, add the following lines to your code.
+[!code-cs[Program.cs](FirstEvents/Program.cs#L19-L22)]
+
+When you run this code, when someone reacts to a message, the bot will notify everyone about it!
+
+### Other Events
 Other events work similar to these. You can play with them if you want!
