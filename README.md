@@ -55,4 +55,4 @@ The goal of NetCord is to allow .NET developers to create fully customizable Dis
 
 ## 7. 📜 License
 
-The repository is released under the [MIT License](LICENSE.md).
+This repository is released under the [MIT License](LICENSE.md).
