@@ -14,7 +14,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public string? Title => _jsonModel.Title;
     
     /// <summary>
-    /// The type of the embed, always set to <see cref="EmbedType.Rich"> for webhook embeds. </see>.
+    /// The type of the embed, always set to <see cref="EmbedType.Rich"/> for webhook embeds.
     /// </summary>
     public EmbedType? Type => _jsonModel.Type;
     
