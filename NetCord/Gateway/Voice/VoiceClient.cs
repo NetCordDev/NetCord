@@ -191,10 +191,10 @@ public class VoiceClient : WebSocketClient
                     Cache = Cache.CacheUser(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    DecryptStream sodiumDecryptStream = new(voiceInStream, _encryption, this);
+                    DecryptStream decryptStream = new(voiceInStream, _encryption, this);
                     if (_inputStreams.Remove(ssrc, out var stream))
                         stream.Dispose();
-                    _inputStreams[ssrc] = sodiumDecryptStream;
+                    _inputStreams[ssrc] = decryptStream;
                 }
                 break;
             case VoiceOpcode.HeartbeatACK:
