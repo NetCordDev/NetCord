@@ -44,12 +44,12 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedFooter? Footer { get; }
     
     /// <summary>
-    /// The URL of the image, a large-sized image located below the <see cref="Description"/> element.
+    /// A string containing the URL of an image, displayed as a large-sized image located below the <see cref="Description"/> element.
     /// </summary>
     public EmbedImage? Image { get; }
     
     /// <summary>
-    /// The URL of the thumbnail, a medium-sized image in the top right corner of the embed.
+    /// A string containing the URL of the thumbnail, displayed as  a medium-sized image in the top right corner of the embed.
     /// </summary>
     public EmbedThumbnail? Thumbnail { get; }
     
