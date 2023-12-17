@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
 /// <summary>
-/// Displays embedded content such as an image or URL, alongside a title and various other fields. All text in the embed must add up to under 6000 characters, and you can only have up to 10 embeds per message.
+/// Displays embedded content such as an image or URL, alongside a title and various other fields. You can only have up to 10 embeds per message, and the total text of all embeds must be less than 6000 characters.
 /// </summary>
 public class Embed : IJsonModel<JsonModels.JsonEmbed>
 {
@@ -59,7 +59,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedVideo? Video { get; }
     
     /// <summary>
-    /// The provider of the embed content (YouTube, Twitter/X, etc). Generally unused in bot embeds.
+    /// The provider of the embed content (YouTube, Twitter/X, etc), automatically generated from links in content.
     /// </summary>
     public EmbedProvider? Provider { get; }
     
