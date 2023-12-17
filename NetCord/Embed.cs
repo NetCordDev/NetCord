@@ -11,7 +11,6 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     /// <summary>
     /// The text that is placed above the description, usually highlighted. Also directs to a URL if given, has a 256 character limit.
     /// </summary>
-    
     public string? Title => _jsonModel.Title;
     
     /// <summary>
