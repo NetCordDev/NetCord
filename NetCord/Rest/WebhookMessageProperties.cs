@@ -45,6 +45,10 @@ public partial class WebhookMessageProperties : IHttpSerializable
     [JsonPropertyName("thread_name")]
     public string? ThreadName { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("applied_tags")]
+    public IEnumerable<ulong>? AppliedTags { get; set; }
+
     public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
