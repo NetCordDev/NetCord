@@ -19,25 +19,24 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedType? Type => _jsonModel.Type;
     
     /// <summary>
-    /// The part of the embed where most of the text is contained, limited to 4096 characters.
+    /// The part of the embed where the main text is contained, limited to 4096 characters.
     /// </summary>
     public string? Description => _jsonModel.Description;
     
     /// <summary>
-    /// The link to the address of the webpage. Mostly used with the thumbnail, icon and author elements in order to link to an image.
+    /// A link to an address of a webpage. When set, the <see cref="Title"/> becomes a clickable link, directing to the URL.
     /// </summary>
     public string? Url => _jsonModel.Url;
     
     /// <summary>
-    /// Time that the embed was posted. Located next to the footer.
+    /// Displays time in a format similar to a message timestamp. Located next to the footer.
     /// </summary>
     public DateTimeOffset? Timestamp => _jsonModel.Timestamp;
     
     /// <summary>
-    /// Color of your embed’s border, usually in hexadecimal or decimal, specified by an integer between 0x000000 and 0xFFFFFF.
+    /// The color of the embed’s border in an RGB format.
     /// </summary>
     public Color? Color => _jsonModel.Color;
-    
     
     /// <summary>
     /// Text at the bottom of the embed, limited to 2048 characters.
