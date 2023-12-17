@@ -36,10 +36,22 @@ public partial class GuildOnboardingPromptOptionProperties
     public IEnumerable<ulong>? RoleIds { get; set; }
 
     /// <summary>
-    /// Emoji of the option.
+    /// Emoji Id of the option.
     /// </summary>
-    [JsonPropertyName("emoji")]
-    public EmojiProperties? Emoji { get; set; }
+    [JsonPropertyName("emoji_id")]
+    public ulong? EmojiId { get; set; }
+
+    /// <summary>
+    /// Emoji name of the option.
+    /// </summary>
+    [JsonPropertyName("emoji_name")]
+    public string? EmojiName { get; set; }
+
+    /// <summary>
+    /// Whether the emoji is animated.
+    /// </summary>
+    [JsonPropertyName("emoji_animated")]
+    public bool? EmojiAnimated { get; set; }
 
     /// <summary>
     /// Title of the option.
