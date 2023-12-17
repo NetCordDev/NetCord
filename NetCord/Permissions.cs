@@ -154,7 +154,7 @@ public enum Permissions : ulong
     ManageWebhooks = 1uL << 29,
 
     /// <summary>
-    /// Allows management and editing of emojis, stickers, and soundboard sounds.
+    /// Allows for editing and deleting emojis, stickers, and soundboard sounds created by all users.
     /// </summary>
     ManageGuildExpressions = 1uL << 30,
 
@@ -169,7 +169,7 @@ public enum Permissions : ulong
     RequestToSpeak = 1uL << 32,
 
     /// <summary>
-    /// Allows for creating, editing, and deleting scheduled events.
+    /// Allows for creating, editing and deleting scheduled events created by all users.
     /// </summary>
     ManageEvents = 1uL << 33,
 
@@ -217,6 +217,16 @@ public enum Permissions : ulong
     /// Allows for using soundboard in a voice channel.
     /// </summary>
     UseSoundboard = 1uL << 42,
+
+    /// <summary>
+    /// Allows for creating emojis, stickers, and soundboard sounds, and editing and deleting those created by the current user.
+    /// </summary>
+    CreateGuildExpressions = 1uL << 43,
+
+    /// <summary>
+    /// Allows for creating scheduled events, and editing and deleting those created by the current user.
+    /// </summary>
+    CreateEvents = 1uL << 44,
 
     /// <summary>
     /// Allows the usage of custom soundboard sounds from other servers.
