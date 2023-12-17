@@ -4,7 +4,6 @@ public partial class ReactionEmojiProperties
 {
     public string Name { get; set; }
     public ulong? Id { get; set; }
-    public ReactionEmojiType EmojiType { get; set; }
 
     /// <summary>
     /// Creates <see cref="ReactionEmojiProperties"/> from guild emoji
@@ -15,7 +14,6 @@ public partial class ReactionEmojiProperties
     {
         Name = name;
         Id = id;
-        EmojiType = ReactionEmojiType.Guild;
     }
 
     /// <summary>
@@ -25,7 +23,6 @@ public partial class ReactionEmojiProperties
     public ReactionEmojiProperties(string unicode)
     {
         Name = unicode;
-        EmojiType = ReactionEmojiType.Standard;
     }
 
     public static implicit operator ReactionEmojiProperties(string unicode) => new(unicode);

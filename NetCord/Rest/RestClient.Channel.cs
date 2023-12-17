@@ -102,7 +102,7 @@ public partial class RestClient
     public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", null, new(channelId), properties);
 
-    private static string ReactionEmojiToString(ReactionEmojiProperties emoji) => emoji.EmojiType == ReactionEmojiType.Standard ? emoji.Name : $"{emoji.Name}:{emoji.Id}";
+    private static string ReactionEmojiToString(ReactionEmojiProperties emoji) => emoji.Id.HasValue ? $"{emoji.Name}:{emoji.Id.GetValueOrDefault()}" : emoji.Name;
 
     public async Task<RestMessage> ModifyMessageAsync(ulong channelId, ulong messageId, Action<MessageOptions> action, RequestProperties? properties = null)
     {
