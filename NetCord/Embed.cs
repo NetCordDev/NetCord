@@ -44,7 +44,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedFooter? Footer { get; }
     
     /// <summary>
-    /// The URL of the image, a large-sized image located below the "Description" element.
+    /// The URL of the image, a large-sized image located below the <see cref="Description"/> element.
     /// </summary>
     public EmbedImage? Image { get; }
     
