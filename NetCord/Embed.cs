@@ -70,7 +70,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedAuthor? Author { get; }
     
     /// <summary>
-    /// Allows you to add multiple subtitles with additional content underneath them below the main "Title" and "Description" blocks, maximum of 25 per embed.
+    /// Allows you to add multiple subtitles with additional content underneath them below the main <see cref="Title"/> and <see cref="Description"/> blocks, maximum of 25 per embed.
     /// </summary>
     public IReadOnlyList<EmbedField> Fields { get; }
     
