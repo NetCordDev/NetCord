@@ -75,7 +75,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public IReadOnlyList<EmbedField> Fields { get; }
     
     /// <summary>
-    /// Creates an embed from its JsonModels equivalent.
+    /// Creates an embed from its <see cref="JsonModels.JsonEmbed"/> equivalent.
     /// </summary>
     public Embed(JsonModels.JsonEmbed jsonModel)
     {
