@@ -29,7 +29,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public string? Url => _jsonModel.Url;
     
     /// <summary>
-    /// Displays time in a format similar to a message timestamp. Located next to the footer.
+    /// Displays time in a format similar to a message timestamp. Located next to the <see cref="Footer"/>.
     /// </summary>
     public DateTimeOffset? Timestamp => _jsonModel.Timestamp;
     
@@ -64,7 +64,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedProvider? Provider { get; }
     
     /// <summary>
-    /// Contains the author block of the embed, always located at the top of the embed.
+    /// Contains the author block, always located at the top of the embed.
     /// </summary>
     public EmbedAuthor? Author { get; }
     
