@@ -18,7 +18,7 @@ public class EmbedThumbnail : IJsonModel<JsonModels.JsonEmbedThumbnail>
     public string? Url => _jsonModel.Url;
     
     /// <summary>
-    /// The URL of the image displayed as the thumbnail in the embed, proxied by the discord CDN server.
+    /// The URL of the image displayed as the thumbnail in the embed, proxied by the Discord CDN server.
     /// </summary>
     public string? ProxyUrl => _jsonModel.ProxyUrl;
     
