@@ -28,7 +28,7 @@ public class EmbedAuthor : IJsonModel<JsonModels.JsonEmbedAuthor>
     public string? IconUrl => _jsonModel.IconUrl;
     
     /// <summary>
-    /// The URL of the icon image, proxied by the discord CDN server.
+    /// The URL of the icon image, proxied by the Discord CDN server.
     /// </summary>
     public string? ProxyIconUrl => _jsonModel.ProxyIconUrl;
 }
