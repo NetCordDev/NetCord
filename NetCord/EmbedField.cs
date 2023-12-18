@@ -20,7 +20,6 @@ public class EmbedField : IJsonModel<JsonModels.JsonEmbedField>
     /// <summary>
     /// Equivalent to <see cref="Embed.Description"/> but localised to a field, limited to 1024 characters.
     /// </summary>
-    
     public string Value => _jsonModel.Value;
 
     /// <summary>
