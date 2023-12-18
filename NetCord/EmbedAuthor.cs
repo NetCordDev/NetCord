@@ -18,7 +18,7 @@ public class EmbedAuthor : IJsonModel<JsonModels.JsonEmbedAuthor>
     public string? Name => _jsonModel.Name;
     
     /// <summary>
-    /// When set, turns the <see cref="Name"/> into a clickable link, pointing to the base of the specified URL.
+    /// When set, turns the <see cref="Name"/> into a clickable link, pointing to the specified URL.
     /// </summary>
     public string? Url => _jsonModel.Url;
 
