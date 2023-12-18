@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
 /// <summary>
-/// Displays embedded content such as an image or URL, alongside a title and various other fields. You can only have up to 10 embeds per message, and the total text of all embeds must be less than or equal 6000 characters.
+/// Displays embedded content such as an image or URL, alongside a title and various other fields. You can only have up to 10 embeds per message, and the total text of all embeds must be less than or equal to 6000 characters.
 /// </summary>
 public class Embed : IJsonModel<JsonModels.JsonEmbed>
 {
@@ -14,7 +14,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public string? Title => _jsonModel.Title;
     
     /// <summary>
-    /// The type of the embed, always set to <see cref="EmbedType.Rich"/> for webhook embeds.
+    /// Information about the type of the embed.
     /// </summary>
     public EmbedType? Type => _jsonModel.Type;
     
