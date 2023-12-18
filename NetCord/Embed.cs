@@ -9,7 +9,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     private readonly JsonModels.JsonEmbed _jsonModel;
     
     /// <summary>
-    /// The text that is placed above the description, usually highlighted. Also directs to a URL if given, has a 256 character limit.
+    /// The text that is placed above the description, usually highlighted. Also directs to a URL if one is given in <see cref="Url"/>, has a 256 character limit.
     /// </summary>
     public string? Title => _jsonModel.Title;
     
@@ -39,12 +39,12 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public Color? Color => _jsonModel.Color;
     
     /// <summary>
-    /// Text at the bottom of the embed, limited to 2048 characters.
+    /// The text at the bottom of the embed, limited to 2048 characters.
     /// </summary>
     public EmbedFooter? Footer { get; }
     
     /// <summary>
-    /// The image to include in the embed, displayed as a large-sized image located below the <see cref="Description"/> element.
+    /// The image included in the embed, displayed as a large-sized image located below the <see cref="Description"/> element.
     /// </summary>
     public EmbedImage? Image { get; }
     
@@ -54,7 +54,7 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedThumbnail? Thumbnail { get; }
     
     /// <summary>
-    /// The video to include and display in the embed.
+    /// The video included and displayed in the embed.
     /// </summary>
     public EmbedVideo? Video { get; }
     
@@ -64,12 +64,12 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     public EmbedProvider? Provider { get; }
     
     /// <summary>
-    /// Adds the author block to the embed, always located at the top of the embed.
+    /// Contains the author block of the embed, always located at the top of the embed.
     /// </summary>
     public EmbedAuthor? Author { get; }
     
     /// <summary>
-    /// Allows you to add multiple subtitles with additional content underneath them below the main <see cref="Title"/> and <see cref="Description"/> blocks, maximum of 25 per embed.
+    /// Allows the addition of multiple subtitles with additional content underneath them below the main <see cref="Title"/> and <see cref="Description"/> blocks, maximum of 25 per embed.
     /// </summary>
     public IReadOnlyList<EmbedField> Fields { get; }
     
