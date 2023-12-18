@@ -19,7 +19,7 @@ public class EmbedImage : IJsonModel<JsonModels.JsonEmbedImage>
     public string? Url => _jsonModel.Url;
     
     /// <summary>
-    /// The URL of the image, proxied by the discord CDN server.
+    /// The URL of the image, proxied by the Discord CDN server.
     /// </summary>
     public string? ProxyUrl => _jsonModel.ProxyUrl;
     
