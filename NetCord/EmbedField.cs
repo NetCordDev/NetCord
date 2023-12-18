@@ -22,6 +22,7 @@ public class EmbedField : IJsonModel<JsonModels.JsonEmbedField>
     /// </summary>
     
     public string Value => _jsonModel.Value;
+
     /// <summary>
     /// When set alongside another field with <see cref="Inline"/> set, displays the fields side by side.
     /// </summary>
