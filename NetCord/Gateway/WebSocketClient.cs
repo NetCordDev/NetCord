@@ -113,7 +113,7 @@ public abstract class WebSocketClient : IDisposable
     /// </summary>
     /// <param name="status">The status to close with.</param>
     /// <returns></returns>
-    public Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
+    public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
     {
         var closedTokenSource = _closedTokenSource;
         if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
@@ -121,7 +121,14 @@ public abstract class WebSocketClient : IDisposable
             closedTokenSource.Cancel();
             closedTokenSource.Dispose();
         }
-        return _webSocket.CloseAsync(status);
+
+        try
+        {
+            await _webSocket.CloseAsync(status).ConfigureAwait(false);
+        }
+        catch
+        {
+        }
     }
 
     private protected virtual void OnConnected()
@@ -138,6 +145,7 @@ public abstract class WebSocketClient : IDisposable
         {
             InvokeLog(LogMessage.Error(ex));
         }
+
         await ReconnectAsync().ConfigureAwait(false);
     }
 
