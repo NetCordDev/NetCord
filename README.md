@@ -39,7 +39,7 @@ You can install NetCord and NetCord.Services via NuGet package manager:
 
 ## 3. 🥅 Goals
 
-The goal of NetCord is to allow .NET developers to create fully customizable Discord bots without fighting the API wrapper itself. NetCord is designed to be easy to use and fully customizable, while still being lightweight and performant.
+NetCord's goal is to allow .NET developers to create fully customizable Discord bots without fighting the API wrapper itself. NetCord is designed to be easy to use and fully customizable, while still being lightweight and performant.
 
 ## 4. 📚 Guides
 
