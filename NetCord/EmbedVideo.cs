@@ -16,17 +16,17 @@ public class EmbedVideo : IJsonModel<JsonModels.JsonEmbedVideo>
     /// The URL of the video displayed in the embed.
     /// </summary>
     public string? Url => _jsonModel.Url;
-    
+
     /// <summary>
     /// The URL of the video displayed in the embed, proxied by the Discord CDN server.
     /// </summary>
     public string? ProxyUrl => _jsonModel.ProxyUrl;
-    
+
     /// <summary>
     /// The height of the video in pixels.
     /// </summary>
     public int? Height => _jsonModel.Height;
-    
+
     /// <summary>
     /// The width of the video in pixels.
     /// </summary>

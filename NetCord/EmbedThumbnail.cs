@@ -16,17 +16,17 @@ public class EmbedThumbnail : IJsonModel<JsonModels.JsonEmbedThumbnail>
     /// The URL of the image displayed as the thumbnail in the embed.
     /// </summary>
     public string? Url => _jsonModel.Url;
-    
+
     /// <summary>
     /// The URL of the image displayed as the thumbnail in the embed, proxied by the Discord CDN server.
     /// </summary>
     public string? ProxyUrl => _jsonModel.ProxyUrl;
-    
+
     /// <summary>
     /// The height of the image in pixels.
     /// </summary>
     public int? Height => _jsonModel.Height;
-    
+
     /// <summary>
     /// The width of the image in pixels.
     /// </summary>
