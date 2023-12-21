@@ -15,7 +15,7 @@ public static class EndpointRouteBuilderExtensions
 {
     public static IEndpointRouteBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
-        var publicKey = endpoints.ServiceProvider.GetRequiredService<IOptions<IDiscordOptions>>().Value.PublicKey;
+        var publicKey = endpoints.ServiceProvider.GetRequiredService<IOptions<IDiscordOptions>>().Value.PublicKey ?? throw new InvalidOperationException($"'{nameof(IDiscordOptions.PublicKey)}' must be set.");
         HttpInteractionValidator validator = new(publicKey);
 
         var handlers = endpoints.ServiceProvider.GetServices<IHttpInteractionHandler>().ToArray();
