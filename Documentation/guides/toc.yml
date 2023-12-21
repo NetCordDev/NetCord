@@ -16,14 +16,6 @@
   items:
     - name: Introduction
       href: services/introduction.md
-    - name: Text Commands
-      items:
-        - name: Introduction
-          href: services/text-commands/introduction.md
-        - name: Parameters
-          href: services/text-commands/parameters.md
-        - name: Aliases
-          href: services/text-commands/aliases.md
     - name: Application Commands
       items:
         - name: Introduction
@@ -44,6 +36,14 @@
           href: services/interactions/introduction.md
         - name: Parameters
           href: services/interactions/parameters.md
+    - name: Text Commands
+      items:
+        - name: Introduction
+          href: services/text-commands/introduction.md
+        - name: Parameters
+          href: services/text-commands/parameters.md
+        - name: Aliases
+          href: services/text-commands/aliases.md
     - name: Dependency Injection
       href: services/dependency-injection.md
     - name: Type Readers
