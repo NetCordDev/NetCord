@@ -54,6 +54,8 @@
       href: services/custom-module-bases-and-contexts.md
 - name: Advanced Concepts
   items:
+    - name: HTTP Interactions
+      href: advanced/http-interactions.md
     - name: Sharding
       href: advanced/sharding.md
     - name: Voice

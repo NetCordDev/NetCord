@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting.AspNetCore\NetCord.Hosting.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\Hosting\NetCord.Hosting.Services\NetCord.Hosting.Services.csproj" />
+    <ProjectReference Include="..\..\..\..\NetCord\NetCord.csproj" />
+  </ItemGroup>
+
+</Project>

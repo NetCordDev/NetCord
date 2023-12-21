@@ -16,7 +16,8 @@ builder.Host
     .UseApplicationCommandService<SlashCommandInteraction, HttpSlashCommandContext>()
     .UseInteractionService<ButtonInteraction, HttpButtonInteractionContext>();
 
-builder.Services.AddHttpInteractionHandler<InteractionHandler>();
+builder.Services
+    .AddHttpInteractionHandler<InteractionHandler>();
 
 var app = builder.Build();
 

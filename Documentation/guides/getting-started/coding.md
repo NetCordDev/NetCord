@@ -3,7 +3,7 @@
 > [!Note]
 > This section assumes that you have a project with NetCord installed and you have a bot created. If not, go back!
 
-Before we start, you need a token of your bot... so you need to go to [Discord Developer Portal](https://discord.com/developers/applications) and get it.
+Before we start, you need a token of your bot... so you need to go to the [Discord Developer Portal](https://discord.com/developers/applications) and get it.
 ![](../../images/coding_Token_1.png)
 ![](../../images/coding_Token_2.png)
 
