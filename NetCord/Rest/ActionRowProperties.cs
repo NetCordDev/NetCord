@@ -18,10 +18,4 @@ public partial class ActionRowProperties : ComponentProperties
     {
         Buttons = buttons;
     }
-
-    [JsonSerializable(typeof(ActionRowProperties))]
-    public partial class ActionRowPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ActionRowPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonUserActivity
+public class JsonUserActivity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -51,10 +51,4 @@ public partial class JsonUserActivity
 
     [JsonPropertyName("buttons")]
     public string[] ButtonsLabels { get; set; }
-
-    [JsonSerializable(typeof(JsonUserActivity))]
-    public partial class JsonUserActivitySerializerContext : JsonSerializerContext
-    {
-        public static JsonUserActivitySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -53,7 +53,7 @@ public partial class WebhookMessageProperties : IHttpSerializable
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<WebhookMessageProperties>(this, WebhookMessagePropertiesSerializerContext.WithOptions.WebhookMessageProperties), "payload_json" },
+            { new JsonContent<WebhookMessageProperties>(this, Serialization.Default.WebhookMessageProperties), "payload_json" },
         };
         AttachmentProperties.AddAttachments(content, Attachments);
         return content;
@@ -63,10 +63,4 @@ public partial class WebhookMessageProperties : IHttpSerializable
     {
         Content = content
     };
-
-    [JsonSerializable(typeof(WebhookMessageProperties))]
-    public partial class WebhookMessagePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static WebhookMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

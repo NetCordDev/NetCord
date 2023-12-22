@@ -67,7 +67,7 @@ public partial class ApplicationCommandOptionChoiceProperties
             if (nameLocalizations is not null)
             {
                 writer.WritePropertyName(_nameLocalizations);
-                JsonSerializer.Serialize(writer, nameLocalizations, IReadOnlyDictionaryOfCultureInfoStringSerializerContext.WithOptions.IReadOnlyDictionaryCultureInfoString);
+                JsonSerializer.Serialize(writer, nameLocalizations, Serialization.Default.IReadOnlyDictionaryCultureInfoString);
             }
 
             writer.WritePropertyName(_value);
@@ -78,17 +78,5 @@ public partial class ApplicationCommandOptionChoiceProperties
 
             writer.WriteEndObject();
         }
-
-        [JsonSerializable(typeof(IReadOnlyDictionary<CultureInfo, string>))]
-        public partial class IReadOnlyDictionaryOfCultureInfoStringSerializerContext : JsonSerializerContext
-        {
-            public static IReadOnlyDictionaryOfCultureInfoStringSerializerContext WithOptions { get; } = new(Serialization.Options);
-        }
-    }
-
-    [JsonSerializable(typeof(ApplicationCommandOptionChoiceProperties))]
-    public partial class ApplicationCommandOptionChoicePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationCommandOptionChoicePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

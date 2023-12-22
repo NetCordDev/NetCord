@@ -35,10 +35,4 @@ public partial class AutoModerationRuleOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("exempt_channels")]
     public IEnumerable<ulong>? ExemptChannels { get; set; }
-
-    [JsonSerializable(typeof(AutoModerationRuleOptions))]
-    public partial class AutoModerationRuleOptionsSerializerContext : JsonSerializerContext
-    {
-        public static AutoModerationRuleOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

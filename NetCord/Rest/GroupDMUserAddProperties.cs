@@ -14,10 +14,4 @@ public partial class GroupDMUserAddProperties
     {
         AccessToken = accessToken;
     }
-
-    [JsonSerializable(typeof(GroupDMUserAddProperties))]
-    public partial class GroupDMUserAddPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GroupDMUserAddPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

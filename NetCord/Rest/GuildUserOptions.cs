@@ -4,6 +4,10 @@ namespace NetCord.Rest;
 
 public partial class GuildUserOptions : CurrentGuildUserOptions
 {
+    internal GuildUserOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
     public IEnumerable<ulong>? RoleIds { get; set; }
@@ -28,10 +32,4 @@ public partial class GuildUserOptions : CurrentGuildUserOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]
     public GuildUserFlags? GuildFlags { get; set; }
-
-    [JsonSerializable(typeof(GuildUserOptions))]
-    public partial class GuildUserOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildUserOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

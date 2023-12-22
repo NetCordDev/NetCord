@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonGuildInvite
+public class JsonGuildInvite
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
@@ -41,10 +41,4 @@ public partial class JsonGuildInvite
 
     [JsonPropertyName("uses")]
     public int Uses { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildInvite))]
-    public partial class JsonGuildInviteSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildInviteSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

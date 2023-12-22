@@ -15,10 +15,4 @@ public partial class MessageReferenceProperties
         Id = messageId;
         FailIfNotExists = failIfNotExists;
     }
-
-    [JsonSerializable(typeof(MessageReferenceProperties))]
-    public partial class MessageReferencePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static MessageReferencePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

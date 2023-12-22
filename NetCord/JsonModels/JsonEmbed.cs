@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEmbed
+public class JsonEmbed
 {
     [JsonPropertyName("title")]
     public string? Title { get; set; }
@@ -42,10 +42,4 @@ public partial class JsonEmbed
 
     [JsonPropertyName("fields")]
     public JsonEmbedField[] Fields { get; set; }
-
-    [JsonSerializable(typeof(JsonEmbed))]
-    public partial class JsonEmbedSerializerContext : JsonSerializerContext
-    {
-        public static JsonEmbedSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

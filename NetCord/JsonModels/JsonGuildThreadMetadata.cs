@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuildThreadMetadata
+public class JsonGuildThreadMetadata
 {
     [JsonPropertyName("archived")]
     public bool Archived { get; set; }
@@ -18,10 +18,4 @@ public partial class JsonGuildThreadMetadata
 
     [JsonPropertyName("invitable")]
     public bool? Invitable { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildThreadMetadata))]
-    public partial class JsonGuildThreadMetadataSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildThreadMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

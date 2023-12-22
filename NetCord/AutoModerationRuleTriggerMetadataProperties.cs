@@ -21,10 +21,4 @@ public partial class AutoModerationRuleTriggerMetadataProperties
 
     [JsonPropertyName("mention_raid_protection_enabled")]
     public bool MentionRaidProtectionEnabled { get; set; }
-
-    [JsonSerializable(typeof(AutoModerationRuleTriggerMetadataProperties))]
-    public partial class AutoModerationRuleTriggerMetadataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static AutoModerationRuleTriggerMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

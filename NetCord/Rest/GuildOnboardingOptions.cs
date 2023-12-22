@@ -4,6 +4,10 @@ namespace NetCord.Rest;
 
 public partial class GuildOnboardingOptions
 {
+    internal GuildOnboardingOptions()
+    {
+    }
+
     /// <summary>
     /// Prompts shown during onboarding and in customize community.
     /// </summary>
@@ -31,10 +35,4 @@ public partial class GuildOnboardingOptions
     [JsonPropertyName("mode")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GuildOnboardingMode? Mode { get; set; }
-
-    [JsonSerializable(typeof(GuildOnboardingOptions))]
-    public partial class GuildOnboardingOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildOnboardingOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

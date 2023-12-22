@@ -36,10 +36,4 @@ public partial class ConnectionPropertiesProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("device")]
     public string? Device { get; set; }
-
-    [JsonSerializable(typeof(ConnectionPropertiesProperties))]
-    public partial class ConnectionPropertiesPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ConnectionPropertiesPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

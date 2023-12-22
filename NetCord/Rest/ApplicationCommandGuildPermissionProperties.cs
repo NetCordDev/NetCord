@@ -34,10 +34,4 @@ public partial class ApplicationCommandGuildPermissionProperties
         Type = type;
         Permission = permission;
     }
-
-    [JsonSerializable(typeof(ApplicationCommandGuildPermissionProperties))]
-    public partial class ApplicationCommandGuildPermissionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationCommandGuildPermissionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

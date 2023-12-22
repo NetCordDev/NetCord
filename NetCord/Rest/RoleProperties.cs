@@ -31,10 +31,4 @@ public partial class RoleProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("mentionable")]
     public bool? Mentionable { get; set; }
-
-    [JsonSerializable(typeof(RoleProperties))]
-    public partial class RolePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static RolePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

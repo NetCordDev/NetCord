@@ -15,10 +15,4 @@ public partial class GuildThreadProperties : GuildThreadFromMessageProperties
     public GuildThreadProperties(string name) : base(name)
     {
     }
-
-    [JsonSerializable(typeof(GuildThreadProperties))]
-    public partial class GuildThreadPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildThreadPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

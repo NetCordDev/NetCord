@@ -19,7 +19,7 @@ public class TextInputPropertiesIEnumerableConverter : JsonConverter<IEnumerable
             writer.WriteStartObject();
             writer.WriteNumber(_type, 1);
             writer.WriteStartArray(_components);
-            JsonSerializer.Serialize(writer, textInput, TextInputProperties.TextInputPropertiesSerializerContext.WithOptions.TextInputProperties);
+            JsonSerializer.Serialize(writer, textInput, Serialization.Default.TextInputProperties);
             writer.WriteEndArray();
             writer.WriteEndObject();
         }

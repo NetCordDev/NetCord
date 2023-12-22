@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonSku : JsonEntity
+public class JsonSku : JsonEntity
 {
     [JsonPropertyName("type")]
     public SkuType Type { get; set; }
@@ -20,10 +20,4 @@ public partial class JsonSku : JsonEntity
 
     [JsonPropertyName("flags")]
     public SkuFlags Flags { get; set; }
-
-    [JsonSerializable(typeof(JsonSku[]))]
-    public partial class JsonSkuArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonSkuArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

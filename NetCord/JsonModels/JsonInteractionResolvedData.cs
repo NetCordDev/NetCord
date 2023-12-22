@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonInteractionResolvedData
+public class JsonInteractionResolvedData
 {
     [JsonPropertyName("users")]
     public Dictionary<ulong, JsonUser>? Users { get; set; }
@@ -21,10 +21,4 @@ public partial class JsonInteractionResolvedData
 
     [JsonPropertyName("attachments")]
     public Dictionary<ulong, JsonAttachment>? Attachments { get; set; }
-
-    [JsonSerializable(typeof(JsonInteractionResolvedData))]
-    public partial class JsonInteractionResolvedDataSerializerContext : JsonSerializerContext
-    {
-        public static JsonInteractionResolvedDataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

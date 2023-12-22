@@ -112,10 +112,4 @@ public partial class ApplicationCommandOptionProperties
         Name = name;
         Description = description;
     }
-
-    [JsonSerializable(typeof(ApplicationCommandOptionProperties))]
-    public partial class ApplicationCommandOptionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationCommandOptionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

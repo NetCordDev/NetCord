@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationCommandOptionChoice
+public class JsonApplicationCommandOptionChoice
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -14,10 +14,4 @@ public partial class JsonApplicationCommandOptionChoice
 
     [JsonPropertyName("value")]
     public JsonElement Value { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationCommandOptionChoice))]
-    public partial class JsonApplicationCommandOptionChoiceSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandOptionChoiceSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

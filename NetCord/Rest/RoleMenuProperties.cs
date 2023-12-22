@@ -27,10 +27,4 @@ public partial class RoleMenuProperties : MenuProperties
         {
         }
     }
-
-    [JsonSerializable(typeof(RoleMenuProperties))]
-    public partial class RoleMenuPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static RoleMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

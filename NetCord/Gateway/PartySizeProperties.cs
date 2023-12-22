@@ -28,10 +28,4 @@ public partial class PartySizeProperties
             writer.WriteEndArray();
         }
     }
-
-    [JsonSerializable(typeof(PartySizeProperties))]
-    public partial class PartySizePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static PartySizePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

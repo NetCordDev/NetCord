@@ -199,7 +199,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync();
 
-    private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, JsonPayload.JsonPayloadSerializerContext.WithOptions.JsonPayload)!;
+    private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, Serialization.Default.JsonPayload)!;
 
     private protected abstract Task ProcessPayloadAsync(JsonPayload payload);
 

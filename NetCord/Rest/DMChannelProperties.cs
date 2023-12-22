@@ -14,10 +14,4 @@ internal partial class DMChannelProperties
     /// </summary>
     [JsonPropertyName("recipient_id")]
     public ulong UserId { get; set; }
-
-    [JsonSerializable(typeof(DMChannelProperties))]
-    public partial class DMChannelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static DMChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

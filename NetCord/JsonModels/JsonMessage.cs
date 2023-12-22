@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessage : JsonEntity
+public class JsonMessage : JsonEntity
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
@@ -100,16 +100,4 @@ public partial class JsonMessage : JsonEntity
 
     [JsonPropertyName("resolved")]
     public JsonInteractionResolvedData? ResolvedData { get; set; }
-
-    [JsonSerializable(typeof(JsonMessage))]
-    public partial class JsonMessageSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonMessage[]))]
-    public partial class JsonMessageArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -15,10 +15,4 @@ public partial class GuildFromGuildTemplateProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
     public ImageProperties? Icon { get; set; }
-
-    [JsonSerializable(typeof(GuildFromGuildTemplateProperties))]
-    public partial class GuildFromGuildTemplatePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildFromGuildTemplatePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

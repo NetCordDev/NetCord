@@ -21,12 +21,6 @@ public partial class GuildWelcomeScreenChannelProperties
         Description = description;
     }
 
-    [JsonSerializable(typeof(GuildWelcomeScreenChannelProperties))]
-    public partial class GuildWelcomeScreenChannelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildWelcomeScreenChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
     public class EmojiPropertiesConverter : JsonConverter<EmojiProperties>
     {
         private static readonly JsonEncodedText _emojiName = JsonEncodedText.Encode("emoji_name");

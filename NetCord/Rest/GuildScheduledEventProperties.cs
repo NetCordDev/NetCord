@@ -43,10 +43,4 @@ public partial class GuildScheduledEventProperties
         ScheduledStartTime = scheduledStartTime;
         EntityType = entityType;
     }
-
-    [JsonSerializable(typeof(GuildScheduledEventProperties))]
-    public partial class GuildScheduledEventPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildScheduledEventPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

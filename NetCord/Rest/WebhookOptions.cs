@@ -19,10 +19,4 @@ public partial class WebhookOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
-
-    [JsonSerializable(typeof(WebhookOptions))]
-    public partial class WebhookOptionsSerializerContext : JsonSerializerContext
-    {
-        public static WebhookOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

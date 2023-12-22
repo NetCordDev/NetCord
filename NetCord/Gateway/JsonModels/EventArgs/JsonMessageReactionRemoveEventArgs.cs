@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonMessageReactionRemoveEventArgs
+public class JsonMessageReactionRemoveEventArgs
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
@@ -20,10 +20,4 @@ public partial class JsonMessageReactionRemoveEventArgs
 
     [JsonPropertyName("emoji")]
     public JsonEmoji Emoji { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageReactionRemoveEventArgs))]
-    public partial class JsonMessageReactionRemoveEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageReactionRemoveEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

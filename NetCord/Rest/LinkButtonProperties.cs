@@ -40,10 +40,4 @@ public partial class LinkButtonProperties : ButtonProperties
     {
         Url = url;
     }
-
-    [JsonSerializable(typeof(LinkButtonProperties))]
-    public partial class LinkButtonPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static LinkButtonPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

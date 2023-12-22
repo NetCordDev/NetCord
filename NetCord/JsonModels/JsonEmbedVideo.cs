@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEmbedVideo
+public class JsonEmbedVideo
 {
     [JsonPropertyName("url")]
     public string? Url { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonEmbedVideo
 
     [JsonPropertyName("width")]
     public int? Width { get; set; }
-
-    [JsonSerializable(typeof(JsonEmbedVideo))]
-    public partial class JsonEmbedVideoSerializerContext : JsonSerializerContext
-    {
-        public static JsonEmbedVideoSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

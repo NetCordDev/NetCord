@@ -15,10 +15,4 @@ public partial class AutoModerationActionProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("metadata")]
     public AutoModerationActionMetadataProperties? Metadata { get; set; }
-
-    [JsonSerializable(typeof(AutoModerationActionProperties))]
-    public partial class AutoModerationActionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static AutoModerationActionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

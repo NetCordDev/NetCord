@@ -24,10 +24,4 @@ public partial class GuildInviteProperties
 
     [JsonPropertyName("target_application_id")]
     public ulong? TargetApplicationId { get; set; }
-
-    [JsonSerializable(typeof(GuildInviteProperties))]
-    public partial class GuildInvitePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildInvitePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

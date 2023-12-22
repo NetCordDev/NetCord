@@ -20,15 +20,9 @@ public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperti
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<ForumGuildThreadProperties>(this, ForumGuildThreadPropertiesSerializerContext.WithOptions.ForumGuildThreadProperties), "payload_json" },
+            { new JsonContent<ForumGuildThreadProperties>(this, Serialization.Default.ForumGuildThreadProperties), "payload_json" },
         };
         AttachmentProperties.AddAttachments(content, Message.Attachments);
         return content;
-    }
-
-    [JsonSerializable(typeof(ForumGuildThreadProperties))]
-    public partial class ForumGuildThreadPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ForumGuildThreadPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

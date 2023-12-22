@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonMessageReactionAddEventArgs
+public class JsonMessageReactionAddEventArgs
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
@@ -26,10 +26,4 @@ public partial class JsonMessageReactionAddEventArgs
 
     [JsonPropertyName("message_author_id")]
     public ulong? MessageAuthorId { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageReactionAddEventArgs))]
-    public partial class JsonMessageReactionAddEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageReactionAddEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonGuildInviteDeleteEventArgs
+public class JsonGuildInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong InviteChannelId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonGuildInviteDeleteEventArgs
 
     [JsonPropertyName("code")]
     public string InviteCode { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildInviteDeleteEventArgs))]
-    public partial class JsonGuildInviteDeleteEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildInviteDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

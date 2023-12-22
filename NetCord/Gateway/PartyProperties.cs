@@ -9,10 +9,4 @@ public partial class PartyProperties
 
     [JsonPropertyName("size")]
     public PartySizeProperties? Size { get; set; }
-
-    [JsonSerializable(typeof(PartyProperties))]
-    public partial class PartyPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static PartyPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -28,26 +28,27 @@ internal static class SerializationUtils
         }
     }
 
-    internal const string SerializationUnreferencedCodeMessage = "JSON serialization and deserialization might require types that cannot be statically analyzed. Use the overload that takes a JsonTypeInfo or JsonSerializerContext, or make sure all of the required types are preserved.";
-
-    [RequiresUnreferencedCode(SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(JsonElement, JsonSerializerOptions)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(JsonElement, JsonSerializerOptions)")]
     internal static T ToObject<T>(this JsonElement element)
     {
-        return JsonSerializer.Deserialize<T>(element, Serialization.OriginalOptions)!;
+        return JsonSerializer.Deserialize<T>(element, Serialization.Default.Options)!;
     }
 
-    [RequiresUnreferencedCode(SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(ref Utf8JsonReader, JsonSerializerOptions)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Deserialize<TValue>(ref Utf8JsonReader, JsonSerializerOptions)")]
     internal static T ToObject<T>(this ref Utf8JsonReader reader)
     {
-        return JsonSerializer.Deserialize<T>(ref reader, Serialization.OriginalOptions)!;
+        return JsonSerializer.Deserialize<T>(ref reader, Serialization.Default.Options)!;
     }
 
-    [RequiresUnreferencedCode(SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     internal static async ValueTask<T> ToObjectAsync<T>(this Stream stream)
     {
         try
         {
-            return (await JsonSerializer.DeserializeAsync<T>(stream, Serialization.OriginalOptions).ConfigureAwait(false))!;
+            return (await JsonSerializer.DeserializeAsync<T>(stream, Serialization.Default.Options).ConfigureAwait(false))!;
         }
         finally
         {

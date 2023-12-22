@@ -2,17 +2,11 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonApplicationInstallParams
+public class JsonApplicationInstallParams
 {
     [JsonPropertyName("scopes")]
     public string[] Scopes { get; set; }
 
     [JsonPropertyName("permissions")]
     public Permissions Permissions { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationInstallParams))]
-    public partial class JsonApplicationInstallParamsSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationInstallParamsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

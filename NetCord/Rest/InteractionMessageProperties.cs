@@ -37,7 +37,7 @@ public partial class InteractionMessageProperties : IHttpSerializable
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<InteractionMessageProperties>(this, InteractionMessagePropertiesSerializerContext.WithOptions.InteractionMessageProperties), "payload_json" },
+            { new JsonContent<InteractionMessageProperties>(this, Serialization.Default.InteractionMessageProperties), "payload_json" },
         };
         AttachmentProperties.AddAttachments(content, Attachments);
         return content;
@@ -47,10 +47,4 @@ public partial class InteractionMessageProperties : IHttpSerializable
     {
         Content = content
     };
-
-    [JsonSerializable(typeof(InteractionMessageProperties))]
-    public partial class InteractionMessagePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

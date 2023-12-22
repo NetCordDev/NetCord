@@ -79,10 +79,4 @@ public partial class GuildChannelProperties
         Name = name;
         Type = type;
     }
-
-    [JsonSerializable(typeof(GuildChannelProperties))]
-    public partial class GuildChannelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

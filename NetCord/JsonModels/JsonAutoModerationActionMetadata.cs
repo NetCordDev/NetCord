@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonAutoModerationActionMetadata
+public class JsonAutoModerationActionMetadata
 {
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonAutoModerationActionMetadata
 
     [JsonPropertyName("custom_message")]
     public string? CustomMessage { get; set; }
-
-    [JsonSerializable(typeof(JsonAutoModerationActionMetadata))]
-    public partial class JsonAutoModerationActionMetadataSerializerContext : JsonSerializerContext
-    {
-        public static JsonAutoModerationActionMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

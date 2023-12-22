@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonReadyEventArgs
+public class JsonReadyEventArgs
 {
     [JsonPropertyName("v")]
     public ApiVersion Version { get; set; }
@@ -26,10 +26,4 @@ public partial class JsonReadyEventArgs
 
     [JsonPropertyName("private_channels")]
     public JsonChannel[] DMChannels { get; set; }
-
-    [JsonSerializable(typeof(JsonReadyEventArgs))]
-    public partial class JsonReadyEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonReadyEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

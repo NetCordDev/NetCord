@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal partial class GuildBanProperties
+internal class GuildBanProperties
 {
     public GuildBanProperties(int deleteMessageSeconds)
     {
@@ -12,10 +12,4 @@ internal partial class GuildBanProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("delete_message_seconds")]
     public int DeleteMessageSeconds { get; set; }
-
-    [JsonSerializable(typeof(GuildBanProperties))]
-    public partial class GuildBanPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildBanPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

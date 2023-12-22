@@ -5,7 +5,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationCommand : JsonEntity
+public class JsonApplicationCommand : JsonEntity
 {
     [JsonPropertyName("type")]
     public ApplicationCommandType Type { get; set; } = ApplicationCommandType.ChatInput;
@@ -45,16 +45,4 @@ public partial class JsonApplicationCommand : JsonEntity
 
     [JsonPropertyName("version")]
     public ulong Version { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationCommand))]
-    public partial class JsonApplicationCommandSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonApplicationCommand[]))]
-    public partial class JsonApplicationCommandArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

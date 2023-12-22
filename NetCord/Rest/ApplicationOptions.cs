@@ -4,6 +4,10 @@ namespace NetCord.Rest;
 
 public partial class CurrentApplicationOptions
 {
+    internal CurrentApplicationOptions()
+    {
+    }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
@@ -39,10 +43,4 @@ public partial class CurrentApplicationOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("tags")]
     public IEnumerable<string>? Tags { get; set; }
-
-    [JsonSerializable(typeof(CurrentApplicationOptions))]
-    public partial class CurrentApplicationOptionsSerializerContext : JsonSerializerContext
-    {
-        public static CurrentApplicationOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

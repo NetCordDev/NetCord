@@ -1,6 +1,4 @@
-﻿using NetCord.Rest.JsonModels;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -26,7 +24,7 @@ public partial class RestClient
             paginationProperties,
             async s =>
             {
-                var jsonAuditLog = await s.ToObjectAsync(JsonAuditLog.JsonAuditLogSerializerContext.WithOptions.JsonAuditLog).ConfigureAwait(false);
+                var jsonAuditLog = await s.ToObjectAsync(Serialization.Default.JsonAuditLog).ConfigureAwait(false);
                 RestAuditLogEntryData data = new(jsonAuditLog, this);
                 return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data));
             },

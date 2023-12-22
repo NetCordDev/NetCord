@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonTeamUser
+public class JsonTeamUser
 {
     [JsonPropertyName("membership_state")]
     public MembershipState MembershipState { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonTeamUser
 
     [JsonPropertyName("role")]
     public TeamRole Role { get; set; }
-
-    [JsonSerializable(typeof(JsonTeamUser))]
-    public partial class JsonTeamUserSerializerContext : JsonSerializerContext
-    {
-        public static JsonTeamUserSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

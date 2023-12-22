@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
-
 namespace NetCord.JsonConverters;
 
 public abstract class MenuPropertiesDefaultValuesConverter : JsonConverter<IEnumerable<ulong>>
@@ -18,7 +16,7 @@ public abstract class MenuPropertiesDefaultValuesConverter : JsonConverter<IEnum
 
     public override IEnumerable<ulong>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return reader.ToObject(JsonEntity.JsonEntityArraySerializerContext.WithOptions.JsonEntityArray).Select(x => x.Id);
+        return reader.ToObject(Serialization.Default.JsonEntityArray).Select(x => x.Id);
     }
 
     public override void Write(Utf8JsonWriter writer, IEnumerable<ulong> value, JsonSerializerOptions options)

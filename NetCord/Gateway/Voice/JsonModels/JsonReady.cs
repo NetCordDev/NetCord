@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-public partial class JsonReady
+internal class JsonReady
 {
     [JsonPropertyName("ssrc")]
     public uint Ssrc { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonReady
 
     [JsonPropertyName("modes")]
     public string[] Modes { get; set; }
-
-    [JsonSerializable(typeof(JsonReady))]
-    public partial class JsonReadySerializerContext : JsonSerializerContext
-    {
-        public static JsonReadySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

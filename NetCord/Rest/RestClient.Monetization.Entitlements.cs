@@ -1,7 +1,5 @@
 ﻿using System.Text;
 
-using NetCord.JsonModels;
-
 namespace NetCord.Rest;
 
 public partial class RestClient
@@ -34,8 +32,8 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonEntitlement.JsonEntitlementArraySerializerContext.WithOptions.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonEntitlement.JsonEntitlementArraySerializerContext.WithOptions.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e)),
                 _ => throw new ArgumentException($"The value of '{nameof(entitlementsPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(entitlementsPaginationProperties)),
             },
             e => e.Id,
@@ -48,8 +46,8 @@ public partial class RestClient
 
     public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RequestProperties? properties = null)
     {
-        using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, TestEntitlementProperties.TestEntitlementPropertiesSerializerContext.WithOptions.TestEntitlementProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties).ConfigureAwait(false)).ToObjectAsync(JsonEntitlement.JsonEntitlementSerializerContext.WithOptions.JsonEntitlement).ConfigureAwait(false));
+        using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, Serialization.Default.TestEntitlementProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false));
     }
 
     public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RequestProperties? properties = null)

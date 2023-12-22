@@ -10,7 +10,7 @@ public abstract partial class ComponentProperties
     /// Type of the component.
     /// </summary>
     [JsonPropertyName("type")]
-    public ComponentType ComponentType { get; set; }
+    public ComponentType ComponentType { get; }
 
     /// <summary>
     /// 
@@ -27,44 +27,45 @@ public abstract partial class ComponentProperties
         private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");
 
         public override ComponentProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+
         public override void Write(Utf8JsonWriter writer, ComponentProperties component, JsonSerializerOptions options)
         {
-            switch (component.ComponentType)
+            if (component is ActionRowProperties actionRowProperties)
             {
-                case ComponentType.ActionRow:
-                    JsonSerializer.Serialize(writer, (ActionRowProperties)component, ActionRowProperties.ActionRowPropertiesSerializerContext.WithOptions.ActionRowProperties);
+                JsonSerializer.Serialize(writer, actionRowProperties, Serialization.Default.ActionRowProperties);
+                return;
+            }
+
+            writer.WriteStartObject();
+
+            writer.WriteNumber(_type, 1);
+
+            writer.WriteStartArray(_components);
+
+            switch (component)
+            {
+                case StringMenuProperties stringMenuProperties:
+                    JsonSerializer.Serialize(writer, stringMenuProperties, Serialization.Default.StringMenuProperties);
+                    break;
+                case UserMenuProperties userMenuProperties:
+                    JsonSerializer.Serialize(writer, userMenuProperties, Serialization.Default.UserMenuProperties);
+                    break;
+                case RoleMenuProperties roleMenuProperties:
+                    JsonSerializer.Serialize(writer, roleMenuProperties, Serialization.Default.RoleMenuProperties);
+                    break;
+                case MentionableMenuProperties mentionableMenuProperties:
+                    JsonSerializer.Serialize(writer, mentionableMenuProperties, Serialization.Default.MentionableMenuProperties);
+                    break;
+                case ChannelMenuProperties channelMenuProperties:
+                    JsonSerializer.Serialize(writer, channelMenuProperties, Serialization.Default.ChannelMenuProperties);
                     break;
                 default:
-                    writer.WriteStartObject();
-
-                    writer.WriteNumber(_type, 1);
-
-                    writer.WriteStartArray(_components);
-                    switch (component)
-                    {
-                        case StringMenuProperties stringMenuProperties:
-                            JsonSerializer.Serialize(writer, stringMenuProperties, StringMenuProperties.StringMenuPropertiesSerializerContext.WithOptions.StringMenuProperties);
-                            break;
-                        case UserMenuProperties userMenuProperties:
-                            JsonSerializer.Serialize(writer, userMenuProperties, UserMenuProperties.UserMenuPropertiesSerializerContext.WithOptions.UserMenuProperties);
-                            break;
-                        case RoleMenuProperties roleMenuProperties:
-                            JsonSerializer.Serialize(writer, roleMenuProperties, RoleMenuProperties.RoleMenuPropertiesSerializerContext.WithOptions.RoleMenuProperties);
-                            break;
-                        case MentionableMenuProperties mentionableMenuProperties:
-                            JsonSerializer.Serialize(writer, mentionableMenuProperties, MentionableMenuProperties.MentionableMenuPropertiesSerializerContext.WithOptions.MentionableMenuProperties);
-                            break;
-                        case ChannelMenuProperties channelMenuProperties:
-                            JsonSerializer.Serialize(writer, channelMenuProperties, ChannelMenuProperties.ChannelMenuPropertiesSerializerContext.WithOptions.ChannelMenuProperties);
-                            break;
-                        default:
-                            throw new InvalidOperationException($"Invalid {nameof(ComponentProperties)} value.");
-                    }
-                    writer.WriteEndArray();
-
-                    writer.WriteEndObject();
-                    break;
+                    throw new InvalidOperationException($"Invalid {nameof(ComponentProperties)} value.");
             }
+
+            writer.WriteEndArray();
+
+            writer.WriteEndObject();
         }
     }
 }

@@ -21,10 +21,4 @@ public partial class PresenceProperties
 
     [JsonPropertyName("afk")]
     public bool Afk { get; set; }
-
-    [JsonSerializable(typeof(PresenceProperties))]
-    public partial class PresencePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static PresencePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -1,28 +1,25 @@
-﻿using NetCord.JsonModels;
-using NetCord.Rest.JsonModels;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {
     public async Task<IReadOnlyDictionary<ulong, GuildScheduledEvent>> GetGuildScheduledEventsAsync(ulong guildId, bool withUserCount = false, RequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events", $"?with_user_count={withUserCount}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildScheduledEvent.JsonGuildScheduledEventArraySerializerContext.WithOptions.JsonGuildScheduledEventArray).ConfigureAwait(false)).ToDictionary(e => e.Id, e => new GuildScheduledEvent(e, this));
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events", $"?with_user_count={withUserCount}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEventArray).ConfigureAwait(false)).ToDictionary(e => e.Id, e => new GuildScheduledEvent(e, this));
 
     public async Task<GuildScheduledEvent> CreateGuildScheduledEventAsync(ulong guildId, GuildScheduledEventProperties guildScheduledEventProperties, RequestProperties? properties = null)
     {
-        using (HttpContent content = new JsonContent<GuildScheduledEventProperties>(guildScheduledEventProperties, GuildScheduledEventProperties.GuildScheduledEventPropertiesSerializerContext.WithOptions.GuildScheduledEventProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/scheduled-events", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<GuildScheduledEventProperties>(guildScheduledEventProperties, Serialization.Default.GuildScheduledEventProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/scheduled-events", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEvent).ConfigureAwait(false), this);
     }
 
     public async Task<GuildScheduledEvent> GetGuildScheduledEventAsync(ulong guildId, ulong scheduledEventId, bool withUserCount = false, RequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", $"?with_user_count={withUserCount}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent).ConfigureAwait(false), this);
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", $"?with_user_count={withUserCount}", new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEvent).ConfigureAwait(false), this);
 
     public async Task<GuildScheduledEvent> ModifyGuildScheduledEventAsync(ulong guildId, ulong scheduledEventId, Action<GuildScheduledEventOptions> action, RequestProperties? properties = null)
     {
         GuildScheduledEventOptions options = new();
         action(options);
-        using (HttpContent content = new JsonContent<GuildScheduledEventOptions>(options, GuildScheduledEventOptions.GuildScheduledEventOptionsSerializerContext.WithOptions.GuildScheduledEventOptions))
-            return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(JsonGuildScheduledEvent.JsonGuildScheduledEventSerializerContext.WithOptions.JsonGuildScheduledEvent).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<GuildScheduledEventOptions>(options, Serialization.Default.GuildScheduledEventOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/guilds/{guildId}/scheduled-events/{scheduledEventId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEvent).ConfigureAwait(false), this);
     }
 
     public Task DeleteGuildScheduledEventAsync(ulong guildId, ulong scheduledEventId, RequestProperties? properties = null)
@@ -39,8 +36,8 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.After => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).Select(u => new GuildScheduledEventUser(u, guildId, this)),
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(JsonGuildScheduledEventUser.JsonGuildScheduledEventUserArraySerializerContext.WithOptions.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).Select(u => new GuildScheduledEventUser(u, guildId, this)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
                 _ => throw new ArgumentException($"The value of '{nameof(optionalGuildUsersPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(optionalGuildUsersPaginationProperties)),
             },
             u => u.User.Id,

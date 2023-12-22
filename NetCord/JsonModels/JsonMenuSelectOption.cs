@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMenuSelectOption
+public class JsonMenuSelectOption
 {
     [JsonPropertyName("label")]
     public string Label { get; set; }
@@ -18,10 +18,4 @@ public partial class JsonMenuSelectOption
 
     [JsonPropertyName("default")]
     public bool Default { get; set; }
-
-    [JsonSerializable(typeof(JsonMenuSelectOption))]
-    public partial class JsonMenuSelectOptionSerializerContext : JsonSerializerContext
-    {
-        public static JsonMenuSelectOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

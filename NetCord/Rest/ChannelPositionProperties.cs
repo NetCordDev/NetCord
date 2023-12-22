@@ -39,16 +39,4 @@ public partial class GuildChannelPositionProperties
     {
         Id = id;
     }
-
-    [JsonSerializable(typeof(GuildChannelPositionProperties))]
-    public partial class ChannelPositionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ChannelPositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(IEnumerable<GuildChannelPositionProperties>))]
-    public partial class IEnumerableOfGuildChannelPositionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static IEnumerableOfGuildChannelPositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

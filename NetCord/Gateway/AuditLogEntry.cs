@@ -77,7 +77,8 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
     /// <param name="change">The result.</param>
     /// <returns></returns>
-    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out AuditLogChange<TValue> change) where TObject : JsonEntity
     {
         if (TryGetChangeModel(expression, out var model))
@@ -98,7 +99,8 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <param name="expression">Expression finding the change, for example: <c>channel => channel.Name</c>.</param>
     /// <returns></returns>
     /// <exception cref="EntityNotFoundException"></exception>
-    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression) where TObject : JsonEntity
     {
         if (TryGetChange(expression, out var value))

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonMessageReactionRemoveAllEventArgs
+public class JsonMessageReactionRemoveAllEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonMessageReactionRemoveAllEventArgs
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageReactionRemoveAllEventArgs))]
-    public partial class JsonMessageReactionRemoveAllEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageReactionRemoveAllEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

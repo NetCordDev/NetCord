@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonAuditLogChange
+public class JsonAuditLogChange
 {
     [JsonPropertyName("new_value")]
     public JsonElement? NewValue { get; set; }
@@ -13,10 +13,4 @@ public partial class JsonAuditLogChange
 
     [JsonPropertyName("key")]
     public string Key { get; set; }
-
-    [JsonSerializable(typeof(JsonAuditLogChange))]
-    public partial class JsonAuditLogChangeSerializerContext : JsonSerializerContext
-    {
-        public static JsonAuditLogChangeSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

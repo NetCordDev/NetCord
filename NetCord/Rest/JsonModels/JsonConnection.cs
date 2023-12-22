@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonConnection : JsonEntity
+public class JsonConnection : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -32,16 +32,4 @@ public partial class JsonConnection : JsonEntity
 
     [JsonPropertyName("visibility")]
     public ConnectionVisibility Visibility { get; set; }
-
-    [JsonSerializable(typeof(JsonConnection))]
-    public partial class JsonConnectionSerializerContext : JsonSerializerContext
-    {
-        public static JsonConnectionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonConnection[]))]
-    public partial class JsonConnectionArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonConnectionArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

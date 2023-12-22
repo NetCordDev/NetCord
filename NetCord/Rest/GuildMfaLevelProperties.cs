@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal partial class GuildMfaLevelProperties
+internal class GuildMfaLevelProperties
 {
     public GuildMfaLevelProperties(MfaLevel level)
     {
@@ -11,10 +11,4 @@ internal partial class GuildMfaLevelProperties
 
     [JsonPropertyName("level")]
     public MfaLevel Level { get; set; }
-
-    [JsonSerializable(typeof(GuildMfaLevelProperties))]
-    public partial class GuildMfaLevelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildMfaLevelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonPayload
+internal class JsonPayload
 {
     [JsonPropertyName("op")]
     public byte Opcode { get; set; }
@@ -16,10 +16,4 @@ public partial class JsonPayload
 
     [JsonPropertyName("t")]
     public string? Event { get; set; }
-
-    [JsonSerializable(typeof(JsonPayload))]
-    public partial class JsonPayloadSerializerContext : JsonSerializerContext
-    {
-        public static JsonPayloadSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

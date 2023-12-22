@@ -23,10 +23,4 @@ public partial class VoiceStateProperties
         GuildId = guildId;
         ChannelId = channelId;
     }
-
-    [JsonSerializable(typeof(VoiceStateProperties))]
-    public partial class VoiceStatePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static VoiceStatePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

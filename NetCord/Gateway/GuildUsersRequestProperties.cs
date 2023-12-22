@@ -26,10 +26,4 @@ public partial class GuildUsersRequestProperties
     {
         GuildId = guildId;
     }
-
-    [JsonSerializable(typeof(GuildUsersRequestProperties))]
-    public partial class GuildUsersRequestPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildUsersRequestPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

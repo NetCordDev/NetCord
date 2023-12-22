@@ -47,10 +47,4 @@ public partial class GuildScheduledEventOptions
     [JsonPropertyName("image")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ImageProperties? Image { get; set; }
-
-    [JsonSerializable(typeof(GuildScheduledEventOptions))]
-    public partial class GuildScheduledEventOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildScheduledEventOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

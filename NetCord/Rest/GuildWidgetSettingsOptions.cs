@@ -13,10 +13,4 @@ public partial class GuildWidgetSettingsOptions
 
     [JsonPropertyName("channel_id")]
     public ulong? ChannelId { get; set; }
-
-    [JsonSerializable(typeof(GuildWidgetSettingsOptions))]
-    public partial class GuildWidgetSettingsOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildWidgetSettingsOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

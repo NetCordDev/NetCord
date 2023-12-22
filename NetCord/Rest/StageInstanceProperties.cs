@@ -27,10 +27,4 @@ public partial class StageInstanceProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("guild_scheduled_event_id")]
     public ulong? GuildScheduledEventId { get; set; }
-
-    [JsonSerializable(typeof(StageInstanceProperties))]
-    public partial class StageInstancePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static StageInstancePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

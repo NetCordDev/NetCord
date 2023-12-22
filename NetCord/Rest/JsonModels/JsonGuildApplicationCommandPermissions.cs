@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationCommandGuildPermissions
+public class JsonApplicationCommandGuildPermissions
 {
     [JsonPropertyName("id")]
     public ulong CommandId { get; set; }
@@ -17,16 +17,4 @@ public partial class JsonApplicationCommandGuildPermissions
 
     [JsonPropertyName("permissions")]
     public JsonApplicationCommandGuildPermission[] Permissions { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationCommandGuildPermissions))]
-    public partial class JsonApplicationCommandGuildPermissionsSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandGuildPermissionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonApplicationCommandGuildPermissions[]))]
-    public partial class JsonApplicationCommandGuildPermissionsArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandGuildPermissionsArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

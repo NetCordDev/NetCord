@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonAuthorizationInformation
+public class JsonAuthorizationInformation
 {
     [JsonPropertyName("application")]
     public JsonApplication Application { get; set; }
@@ -17,10 +17,4 @@ public partial class JsonAuthorizationInformation
 
     [JsonPropertyName("user")]
     public JsonUser? User { get; set; }
-
-    [JsonSerializable(typeof(JsonAuthorizationInformation))]
-    public partial class JsonAuthorizationInformationSerializerContext : JsonSerializerContext
-    {
-        public static JsonAuthorizationInformationSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonRestGuildInvite
+public class JsonRestGuildInvite
 {
     [JsonPropertyName("code")]
     public string Code { get; set; }
@@ -44,16 +44,4 @@ public partial class JsonRestGuildInvite
 
     [JsonPropertyName("metadata")]
     public JsonRestGuildInviteMetadata? Metadata { get; set; }
-
-    [JsonSerializable(typeof(JsonRestGuildInvite))]
-    public partial class JsonRestGuildInviteSerializerContext : JsonSerializerContext
-    {
-        public static JsonRestGuildInviteSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonRestGuildInvite[]))]
-    public partial class JsonRestGuildInviteArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonRestGuildInviteArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

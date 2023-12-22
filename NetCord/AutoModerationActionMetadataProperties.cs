@@ -12,10 +12,4 @@ public partial class AutoModerationActionMetadataProperties
 
     [JsonPropertyName("custom_message")]
     public string? CustomMessage { get; set; }
-
-    [JsonSerializable(typeof(AutoModerationActionMetadataProperties))]
-    public partial class AutoModerationActionMetadataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static AutoModerationActionMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

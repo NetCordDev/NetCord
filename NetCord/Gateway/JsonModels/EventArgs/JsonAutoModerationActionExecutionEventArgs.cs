@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonAutoModerationActionExecutionEventArgs
+public class JsonAutoModerationActionExecutionEventArgs
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -38,10 +38,4 @@ public partial class JsonAutoModerationActionExecutionEventArgs
 
     [JsonPropertyName("matched_content")]
     public string? MatchedContent { get; set; }
-
-    [JsonSerializable(typeof(JsonAutoModerationActionExecutionEventArgs))]
-    public partial class JsonAutoModerationActionExecutionEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonAutoModerationActionExecutionEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

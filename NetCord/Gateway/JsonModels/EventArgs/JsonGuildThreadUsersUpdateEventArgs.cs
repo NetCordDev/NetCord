@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonGuildThreadUsersUpdateEventArgs
+public class JsonGuildThreadUsersUpdateEventArgs
 {
     [JsonPropertyName("id")]
     public ulong ThreadId { get; set; }
@@ -20,10 +20,4 @@ public partial class JsonGuildThreadUsersUpdateEventArgs
 
     [JsonPropertyName("removed_member_ids")]
     public ulong[] RemovedUserIds { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildThreadUsersUpdateEventArgs))]
-    public partial class JsonGuildThreadUsersUpdateEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildThreadUsersUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -19,10 +19,4 @@ public partial class GuildStickerOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("tags")]
     public string? Tags { get; set; }
-
-    [JsonSerializable(typeof(GuildStickerOptions))]
-    public partial class GuildStickerOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildStickerOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

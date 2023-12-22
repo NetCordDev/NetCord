@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessageReaction
+public class JsonMessageReaction
 {
     [JsonPropertyName("count")]
     public int Count { get; set; }
@@ -21,10 +21,4 @@ public partial class JsonMessageReaction
 
     [JsonPropertyName("burst_colors")]
     public Color[] BurstColors { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageReaction))]
-    public partial class JsonMessageReactionSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageReactionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

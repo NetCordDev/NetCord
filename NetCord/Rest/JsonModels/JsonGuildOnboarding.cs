@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonGuildOnboarding
+public class JsonGuildOnboarding
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -18,10 +18,4 @@ public partial class JsonGuildOnboarding
 
     [JsonPropertyName("mode")]
     public GuildOnboardingMode Mode { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildOnboarding))]
-    public partial class JsonGuildOnboardingSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildOnboardingSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

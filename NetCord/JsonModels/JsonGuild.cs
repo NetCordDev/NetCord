@@ -6,7 +6,7 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuild : JsonEntity
+public class JsonGuild : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -171,16 +171,4 @@ public partial class JsonGuild : JsonEntity
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
-
-    [JsonSerializable(typeof(JsonGuild))]
-    public partial class JsonGuildSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonGuild[]))]
-    public partial class JsonGuildArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

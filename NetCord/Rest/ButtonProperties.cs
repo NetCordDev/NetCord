@@ -83,10 +83,10 @@ public abstract partial class ButtonProperties
             switch (button)
             {
                 case ActionButtonProperties actionButton:
-                    JsonSerializer.Serialize(writer, actionButton, ActionButtonProperties.ActionButtonPropertiesSerializerContext.WithOptions.ActionButtonProperties);
+                    JsonSerializer.Serialize(writer, actionButton, Serialization.Default.ActionButtonProperties);
                     break;
                 case LinkButtonProperties linkButton:
-                    JsonSerializer.Serialize(writer, linkButton, LinkButtonProperties.LinkButtonPropertiesSerializerContext.WithOptions.LinkButtonProperties);
+                    JsonSerializer.Serialize(writer, linkButton, Serialization.Default.LinkButtonProperties);
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid {nameof(ButtonProperties)} value.");

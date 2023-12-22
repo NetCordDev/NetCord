@@ -29,10 +29,4 @@ public partial class CurrentUserVoiceStateOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }
-
-    [JsonSerializable(typeof(CurrentUserVoiceStateOptions))]
-    public partial class CurrentUserVoiceStateOptionsSerializerContext : JsonSerializerContext
-    {
-        public static CurrentUserVoiceStateOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -72,10 +72,4 @@ public partial class ApplicationCommandOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("nsfw")]
     public bool? Nsfw { get; set; }
-
-    [JsonSerializable(typeof(ApplicationCommandOptions))]
-    public partial class ApplicationCommandOptionsSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationCommandOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

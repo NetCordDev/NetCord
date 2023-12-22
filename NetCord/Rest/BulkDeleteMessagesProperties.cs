@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal partial class BulkDeleteMessagesProperties
+internal class BulkDeleteMessagesProperties
 {
     public BulkDeleteMessagesProperties(ArraySegment<ulong> messageIds)
     {
@@ -11,10 +11,4 @@ internal partial class BulkDeleteMessagesProperties
 
     [JsonPropertyName("messages")]
     public ArraySegment<ulong> MessageIds { get; set; }
-
-    [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
-    public partial class BulkDeleteMessagesPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static BulkDeleteMessagesPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

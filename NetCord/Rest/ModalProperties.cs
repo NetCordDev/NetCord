@@ -20,10 +20,4 @@ public partial class ModalProperties
         Title = title;
         Components = components;
     }
-
-    [JsonSerializable(typeof(ModalProperties))]
-    public partial class ModalPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ModalPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

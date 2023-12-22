@@ -15,10 +15,4 @@ public partial class UserActivityAssetsProperties
 
     [JsonPropertyName("small_text")]
     public string? SmallText { get; set; }
-
-    [JsonSerializable(typeof(UserActivityAssetsProperties))]
-    public partial class UserActivityAssetsPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserActivityAssetsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

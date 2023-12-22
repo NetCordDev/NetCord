@@ -4,7 +4,7 @@ using NetCord.Rest;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonWebhook : JsonEntity
+public class JsonWebhook : JsonEntity
 {
     [JsonPropertyName("type")]
     public WebhookType Type { get; set; }
@@ -38,16 +38,4 @@ public partial class JsonWebhook : JsonEntity
 
     [JsonPropertyName("url")]
     public string? Url { get; set; }
-
-    [JsonSerializable(typeof(JsonWebhook))]
-    public partial class JsonWebhookSerializerContext : JsonSerializerContext
-    {
-        public static JsonWebhookSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonWebhook[]))]
-    public partial class JsonWebhookArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonWebhookArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

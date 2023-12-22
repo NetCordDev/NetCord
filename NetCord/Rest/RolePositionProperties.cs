@@ -15,16 +15,4 @@ public partial class RolePositionProperties
     {
         Id = id;
     }
-
-    [JsonSerializable(typeof(RolePositionProperties))]
-    public partial class RolePositionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static RolePositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(IEnumerable<RolePositionProperties>))]
-    public partial class IEnumerableOfRolePositionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static IEnumerableOfRolePositionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

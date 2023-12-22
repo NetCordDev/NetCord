@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonStageInstance : JsonEntity
+public class JsonStageInstance : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -18,10 +18,4 @@ public partial class JsonStageInstance : JsonEntity
 
     [JsonPropertyName("discoverable_disabled")]
     public bool DiscoverableDisabled { get; set; }
-
-    [JsonSerializable(typeof(JsonStageInstance))]
-    public partial class JsonStageInstanceSerializerContext : JsonSerializerContext
-    {
-        public static JsonStageInstanceSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonUser : JsonEntity
+public class JsonUser : JsonEntity
 {
     [JsonPropertyName("username")]
     public string Username { get; set; }
@@ -56,16 +56,4 @@ public partial class JsonUser : JsonEntity
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
-
-    [JsonSerializable(typeof(JsonUser))]
-    public partial class JsonUserSerializerContext : JsonSerializerContext
-    {
-        public static JsonUserSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonUser[]))]
-    public partial class JsonUserArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

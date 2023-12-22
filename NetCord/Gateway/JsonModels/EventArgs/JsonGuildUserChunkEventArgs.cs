@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonGuildUserChunkEventArgs
+public class JsonGuildUserChunkEventArgs
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -26,10 +26,4 @@ public partial class JsonGuildUserChunkEventArgs
 
     [JsonPropertyName("nonce")]
     public string? Nonce { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildUserChunkEventArgs))]
-    public partial class JsonGuildUserChunkEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildUserChunkEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

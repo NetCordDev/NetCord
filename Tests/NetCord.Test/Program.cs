@@ -99,7 +99,7 @@ internal static class Program
     {
         if (entry.ActionType is AuditLogEvent.ChannelUpdate)
         {
-            if (entry.TryGetChange<JsonChannel, string>(c => c.Name, JsonChannel.JsonChannelSerializerContext.WithOptions.String, out var change))
+            if (entry.TryGetChange<JsonChannel, string>(c => c.Name, out var change))
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue} new: {change.NewValue}");
             else
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");

@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonRestGuildInviteMetadata
+public class JsonRestGuildInviteMetadata
 {
     [JsonPropertyName("uses")]
     public int Uses { get; set; }
@@ -18,10 +18,4 @@ public partial class JsonRestGuildInviteMetadata
 
     [JsonPropertyName("created_at")]
     public DateTimeOffset CreatedAt { get; set; }
-
-    [JsonSerializable(typeof(JsonRestGuildInviteMetadata))]
-    public partial class JsonRestGuildInviteMetadataSerializerContext : JsonSerializerContext
-    {
-        public static JsonRestGuildInviteMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

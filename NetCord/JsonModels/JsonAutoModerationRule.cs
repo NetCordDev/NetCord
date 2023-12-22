@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonAutoModerationRule : JsonEntity
+public class JsonAutoModerationRule : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -33,16 +33,4 @@ public partial class JsonAutoModerationRule : JsonEntity
 
     [JsonPropertyName("exempt_channels")]
     public ulong[] ExemptChannels { get; set; }
-
-    [JsonSerializable(typeof(JsonAutoModerationRule))]
-    public partial class JsonAutoModerationRuleSerializerContext : JsonSerializerContext
-    {
-        public static JsonAutoModerationRuleSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonAutoModerationRule[]))]
-    public partial class JsonAutoModerationRuleArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonAutoModerationRuleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

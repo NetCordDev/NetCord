@@ -12,10 +12,4 @@ public partial class UserActivitySecretsProperties
 
     [JsonPropertyName("match")]
     public string? Match { get; set; }
-
-    [JsonSerializable(typeof(UserActivitySecretsProperties))]
-    public partial class UserActivitySecretsPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserActivitySecretsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

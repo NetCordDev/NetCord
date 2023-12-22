@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonChannel : JsonEntity
+public class JsonChannel : JsonEntity
 {
     [JsonPropertyName("type")]
     public ChannelType Type { get; set; }
@@ -111,16 +111,4 @@ public partial class JsonChannel : JsonEntity
 
     [JsonPropertyName("newly_created")]
     public bool? NewlyCreated { get; set; }
-
-    [JsonSerializable(typeof(JsonChannel))]
-    public partial class JsonChannelSerializerContext : JsonSerializerContext
-    {
-        public static JsonChannelSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonChannel[]))]
-    public partial class JsonChannelArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonChannelArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

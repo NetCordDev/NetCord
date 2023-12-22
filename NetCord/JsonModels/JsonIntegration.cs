@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonIntegration : JsonEntity
+public class JsonIntegration : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -45,16 +45,4 @@ public partial class JsonIntegration : JsonEntity
 
     [JsonPropertyName("application")]
     public JsonIntegrationApplication? Application { get; set; }
-
-    [JsonSerializable(typeof(JsonIntegration))]
-    public partial class JsonIntegrationSerializerContext : JsonSerializerContext
-    {
-        public static JsonIntegrationSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonIntegration[]))]
-    public partial class JsonIntegrationArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonIntegrationArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

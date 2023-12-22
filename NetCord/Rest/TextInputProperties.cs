@@ -42,10 +42,4 @@ public partial class TextInputProperties
         Style = style;
         Label = label;
     }
-
-    [JsonSerializable(typeof(TextInputProperties))]
-    public partial class TextInputPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static TextInputPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

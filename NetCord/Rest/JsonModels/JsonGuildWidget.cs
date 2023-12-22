@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonGuildWidget : JsonEntity
+public class JsonGuildWidget : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -20,10 +20,4 @@ public partial class JsonGuildWidget : JsonEntity
 
     [JsonPropertyName("presence_count")]
     public int PresenceCount { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildWidget))]
-    public partial class JsonGuildWidgetSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildWidgetSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

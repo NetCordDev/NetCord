@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonRole : JsonEntity
+public class JsonRole : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -36,16 +36,4 @@ public partial class JsonRole : JsonEntity
 
     [JsonPropertyName("flags")]
     public RoleFlags Flags { get; set; }
-
-    [JsonSerializable(typeof(JsonRole))]
-    public partial class JsonRoleSerializerContext : JsonSerializerContext
-    {
-        public static JsonRoleSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonRole[]))]
-    public partial class JsonRoleArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonRoleArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

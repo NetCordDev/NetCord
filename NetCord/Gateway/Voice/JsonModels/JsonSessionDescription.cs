@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-public partial class JsonSessionDescription
+internal class JsonSessionDescription
 {
     [JsonConverter(typeof(ByteArrayOfLength32Converter))]
     [JsonPropertyName("secret_key")]
@@ -24,11 +24,5 @@ public partial class JsonSessionDescription
         }
 
         public override void Write(Utf8JsonWriter writer, byte[] value, JsonSerializerOptions options) => throw new NotImplementedException();
-    }
-
-    [JsonSerializable(typeof(JsonSessionDescription))]
-    public partial class JsonSessionDescriptionSerializerContext : JsonSerializerContext
-    {
-        public static JsonSessionDescriptionSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

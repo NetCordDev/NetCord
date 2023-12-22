@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessageReference
+public class JsonMessageReference
 {
     [JsonPropertyName("message_id")]
     public ulong? MessageId { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonMessageReference
 
     [JsonPropertyName("fail_if_not_exists")]
     public bool? FailIfNotExists { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageReference))]
-    public partial class JsonMessageReferenceSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageReferenceSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

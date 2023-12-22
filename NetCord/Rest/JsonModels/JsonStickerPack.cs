@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonStickerPack : JsonEntity
+public class JsonStickerPack : JsonEntity
 {
     [JsonPropertyName("stickers")]
     public JsonSticker[] Stickers { get; set; }
@@ -23,10 +23,4 @@ public partial class JsonStickerPack : JsonEntity
 
     [JsonPropertyName("banner_asset_id")]
     public ulong? BannerAssetId { get; set; }
-
-    [JsonSerializable(typeof(JsonStickerPack))]
-    public partial class JsonStickerPackSerializerContext : JsonSerializerContext
-    {
-        public static JsonStickerPackSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

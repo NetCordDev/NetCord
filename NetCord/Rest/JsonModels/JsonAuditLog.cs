@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonAuditLog
+public class JsonAuditLog
 {
     [JsonPropertyName("application_commands")]
     public JsonApplicationCommand[] ApplicationCommands { get; set; }
@@ -29,10 +29,4 @@ public partial class JsonAuditLog
 
     [JsonPropertyName("webhooks")]
     public JsonWebhook[] Webhooks { get; set; }
-
-    [JsonSerializable(typeof(JsonAuditLog))]
-    public partial class JsonAuditLogSerializerContext : JsonSerializerContext
-    {
-        public static JsonAuditLogSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

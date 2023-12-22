@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessageInteraction : JsonEntity
+public class JsonMessageInteraction : JsonEntity
 {
     [JsonPropertyName("type")]
     public InteractionType Type { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonMessageInteraction : JsonEntity
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageInteraction))]
-    public partial class JsonMessageInteractionSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageInteractionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonTeam : JsonEntity
+public class JsonTeam : JsonEntity
 {
     [JsonPropertyName("icon")]
     public string? IconHash { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonTeam : JsonEntity
 
     [JsonPropertyName("owner_user_id")]
     public ulong OwnerId { get; set; }
-
-    [JsonSerializable(typeof(JsonTeam))]
-    public partial class JsonTeamSerializerContext : JsonSerializerContext
-    {
-        public static JsonTeamSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

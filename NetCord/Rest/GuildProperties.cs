@@ -51,10 +51,4 @@ public partial class GuildProperties
     {
         Name = name;
     }
-
-    [JsonSerializable(typeof(GuildProperties))]
-    public partial class GuildPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

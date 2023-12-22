@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationCommandOption
+public class JsonApplicationCommandOption
 {
     [JsonPropertyName("type")]
     public ApplicationCommandOptionType Type { get; set; }
@@ -46,10 +46,4 @@ public partial class JsonApplicationCommandOption
 
     [JsonPropertyName("autocomplete")]
     public bool Autocomplete { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationCommandOption))]
-    public partial class JsonApplicationCommandOptionSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

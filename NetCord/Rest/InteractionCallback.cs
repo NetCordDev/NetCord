@@ -79,7 +79,7 @@ public partial class InteractionCallback : IHttpSerializable
             case InteractionCallback<InteractionMessageProperties> interactionCallback:
                 MultipartFormDataContent content = new()
                 {
-                    { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, InteractionCallbackOfInteractionMessagePropertiesSerializerContext.WithOptions.InteractionCallbackInteractionMessageProperties), "payload_json" },
+                    { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, Serialization.Default.InteractionCallbackInteractionMessageProperties), "payload_json" },
                 };
                 AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
                 return content;
@@ -87,50 +87,20 @@ public partial class InteractionCallback : IHttpSerializable
             case InteractionCallback<MessageOptions> interactionCallback:
                 content = new()
                 {
-                    { new JsonContent<InteractionCallback<MessageOptions>>(interactionCallback, InteractionCallbackOfMessageOptionsSerializerContext.WithOptions.InteractionCallbackMessageOptions), "payload_json" },
+                    { new JsonContent<InteractionCallback<MessageOptions>>(interactionCallback, Serialization.Default.InteractionCallbackMessageOptions), "payload_json" },
                 };
                 AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
                 return content;
 
             case InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback:
-                return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext.WithOptions.InteractionCallbackInteractionCallbackChoicesDataProperties);
+                return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, Serialization.Default.InteractionCallbackInteractionCallbackChoicesDataProperties);
 
             case InteractionCallback<ModalProperties> interactionCallback:
-                return new JsonContent<InteractionCallback<ModalProperties>>(interactionCallback, InteractionCallbackOfModalPropertiesSerializerContext.WithOptions.InteractionCallbackModalProperties);
+                return new JsonContent<InteractionCallback<ModalProperties>>(interactionCallback, Serialization.Default.InteractionCallbackModalProperties);
 
             default:
-                return new JsonContent<InteractionCallback>(this, InteractionCallbackSerializerContext.WithOptions.InteractionCallback);
+                return new JsonContent<InteractionCallback>(this, Serialization.Default.InteractionCallback);
         }
-    }
-
-    [JsonSerializable(typeof(InteractionCallback<InteractionMessageProperties>))]
-    public partial class InteractionCallbackOfInteractionMessagePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackOfInteractionMessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(InteractionCallback<MessageOptions>))]
-    public partial class InteractionCallbackOfMessageOptionsSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackOfMessageOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(InteractionCallback<InteractionCallbackChoicesDataProperties>))]
-    public partial class InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackOfInteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(InteractionCallback<ModalProperties>))]
-    public partial class InteractionCallbackOfModalPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackOfModalPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(InteractionCallback))]
-    public partial class InteractionCallbackSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }
 

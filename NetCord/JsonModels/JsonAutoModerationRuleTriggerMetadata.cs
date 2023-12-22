@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonAutoModerationRuleTriggerMetadata
+public class JsonAutoModerationRuleTriggerMetadata
 {
     [JsonPropertyName("keyword_filter")]
     public string[]? KeywordFilter { get; set; }
@@ -21,10 +21,4 @@ public partial class JsonAutoModerationRuleTriggerMetadata
 
     [JsonPropertyName("mention_raid_protection_enabled")]
     public bool MentionRaidProtectionEnabled { get; set; }
-
-    [JsonSerializable(typeof(JsonAutoModerationRuleTriggerMetadata))]
-    public partial class JsonAutoModerationRuleTriggerMetadataSerializerContext : JsonSerializerContext
-    {
-        public static JsonAutoModerationRuleTriggerMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

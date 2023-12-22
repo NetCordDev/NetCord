@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonAttachment : JsonEntity
+public class JsonAttachment : JsonEntity
 {
     [JsonPropertyName("filename")]
     public string FileName { get; set; }
@@ -41,10 +41,4 @@ public partial class JsonAttachment : JsonEntity
 
     [JsonPropertyName("flags")]
     public AttachmentFlags Flags { get; set; }
-
-    [JsonSerializable(typeof(JsonAttachment))]
-    public partial class JsonAttachmentSerializerContext : JsonSerializerContext
-    {
-        public static JsonAttachmentSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

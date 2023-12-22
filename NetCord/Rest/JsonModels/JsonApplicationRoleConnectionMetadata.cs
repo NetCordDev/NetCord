@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationRoleConnectionMetadata
+public class JsonApplicationRoleConnectionMetadata
 {
     [JsonPropertyName("type")]
     public ApplicationRoleConnectionMetadataType Type { get; set; }
@@ -22,16 +22,4 @@ public partial class JsonApplicationRoleConnectionMetadata
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationRoleConnectionMetadata))]
-    public partial class JsonApplicationRoleConnectionMetadataSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(IEnumerable<JsonApplicationRoleConnectionMetadata>))]
-    public partial class IEnumerableOfJsonApplicationRoleConnectionMetadataSerializerContext : JsonSerializerContext
-    {
-        public static IEnumerableOfJsonApplicationRoleConnectionMetadataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

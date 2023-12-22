@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonSticker : JsonEntity
+public class JsonSticker : JsonEntity
 {
     [JsonPropertyName("pack_id")]
     public ulong? PackId { get; set; }
@@ -33,16 +33,4 @@ public partial class JsonSticker : JsonEntity
 
     [JsonPropertyName("sort_value")]
     public int SortValue { get; set; }
-
-    [JsonSerializable(typeof(JsonSticker))]
-    public partial class JsonStickerSerializerContext : JsonSerializerContext
-    {
-        public static JsonStickerSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonSticker[]))]
-    public partial class JsonStickerArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonStickerArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

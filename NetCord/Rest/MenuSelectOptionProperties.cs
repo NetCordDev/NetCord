@@ -27,10 +27,4 @@ public partial class StringMenuSelectOptionProperties
         Label = label;
         Value = value;
     }
-
-    [JsonSerializable(typeof(StringMenuSelectOptionProperties))]
-    public partial class StringMenuSelectOptionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static StringMenuSelectOptionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

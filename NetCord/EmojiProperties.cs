@@ -21,10 +21,4 @@ public partial class EmojiProperties
     {
         Unicode = unicode;
     }
-
-    [JsonSerializable(typeof(EmojiProperties))]
-    public partial class EmojiPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static EmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

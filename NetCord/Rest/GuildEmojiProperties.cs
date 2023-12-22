@@ -18,10 +18,4 @@ public partial class GuildEmojiProperties
 
     [JsonPropertyName("roles")]
     public IEnumerable<ulong>? AllowedRoles { get; set; }
-
-    [JsonSerializable(typeof(GuildEmojiProperties))]
-    public partial class GuildEmojiPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildEmojiPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonMessageDeleteEventArgs
+public class JsonMessageDeleteEventArgs
 {
     [JsonPropertyName("id")]
     public ulong MessageId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonMessageDeleteEventArgs
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
-
-    [JsonSerializable(typeof(JsonMessageDeleteEventArgs))]
-    public partial class JsonMessageDeleteEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonMessageDeleteEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

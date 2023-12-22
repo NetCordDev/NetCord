@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEmoji
+public class JsonEmoji
 {
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }
@@ -27,16 +27,4 @@ public partial class JsonEmoji
 
     [JsonPropertyName("available")]
     public bool? Available { get; set; }
-
-    [JsonSerializable(typeof(JsonEmoji))]
-    public partial class JsonEmojiSerializerContext : JsonSerializerContext
-    {
-        public static JsonEmojiSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonEmoji[]))]
-    public partial class JsonEmojiArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonEmojiArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

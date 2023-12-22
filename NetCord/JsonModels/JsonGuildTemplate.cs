@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuildTemplate
+public class JsonGuildTemplate
 {
     [JsonPropertyName("code")]
     public string Code { get; set; }
@@ -36,16 +36,4 @@ public partial class JsonGuildTemplate
 
     [JsonPropertyName("is_dirty")]
     public bool? IsDirty { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildTemplate))]
-    public partial class JsonGuildTemplateSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildTemplateSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonGuildTemplate[]))]
-    public partial class JsonGuildTemplateArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildTemplateArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

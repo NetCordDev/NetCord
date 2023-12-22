@@ -16,10 +16,4 @@ public partial class GuildWelcomeScreenOptions
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
-
-    [JsonSerializable(typeof(GuildWelcomeScreenOptions))]
-    public partial class GuildWelcomeScreenOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildWelcomeScreenOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

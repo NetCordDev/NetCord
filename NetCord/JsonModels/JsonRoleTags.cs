@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonRoleTags
+public class JsonRoleTags
 {
     [JsonPropertyName("bot_id")]
     public ulong? BotId { get; set; }
@@ -27,10 +27,4 @@ public partial class JsonRoleTags
     [JsonConverter(typeof(JsonConverters.NullConverter))]
     [JsonPropertyName("guild_connections")]
     public bool GuildConnections { get; set; }
-
-    [JsonSerializable(typeof(JsonRoleTags))]
-    public partial class JsonTagsSerializerContext : JsonSerializerContext
-    {
-        public static JsonTagsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

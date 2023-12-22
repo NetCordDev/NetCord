@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuildChannelMention : JsonEntity
+public class JsonGuildChannelMention : JsonEntity
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonGuildChannelMention : JsonEntity
 
     [JsonPropertyName("name")]
     public string Name { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildChannelMention))]
-    public partial class JsonGuildChannelMentionSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildChannelMentionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -44,10 +44,4 @@ public partial class ActionButtonProperties : ButtonProperties
     {
         CustomId = customId;
     }
-
-    [JsonSerializable(typeof(ActionButtonProperties))]
-    public partial class ActionButtonPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ActionButtonPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

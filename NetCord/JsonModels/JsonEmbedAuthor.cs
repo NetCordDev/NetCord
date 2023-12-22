@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEmbedAuthor
+public class JsonEmbedAuthor
 {
     [JsonPropertyName("name")]
     public string? Name { get; set; }
@@ -15,10 +15,4 @@ public partial class JsonEmbedAuthor
 
     [JsonPropertyName("proxy_icon_url")]
     public string? ProxyIconUrl { get; set; }
-
-    [JsonSerializable(typeof(JsonEmbedAuthor))]
-    public partial class JsonEmbedAuthorSerializerContext : JsonSerializerContext
-    {
-        public static JsonEmbedAuthorSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

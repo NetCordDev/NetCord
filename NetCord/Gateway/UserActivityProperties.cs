@@ -67,10 +67,4 @@ public partial class UserActivityProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("buttons")]
     public IEnumerable<UserActivityButtonProperties>? Buttons { get; set; }
-
-    [JsonSerializable(typeof(UserActivityProperties))]
-    public partial class UserActivityPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserActivityPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

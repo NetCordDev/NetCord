@@ -49,7 +49,7 @@ public partial class MessageProperties : IHttpSerializable
     {
         MultipartFormDataContent content = new()
         {
-            { new JsonContent<MessageProperties>(this, MessagePropertiesSerializerContext.WithOptions.MessageProperties), "payload_json" },
+            { new JsonContent<MessageProperties>(this, Serialization.Default.MessageProperties), "payload_json" },
         };
         AttachmentProperties.AddAttachments(content, Attachments);
         return content;
@@ -59,10 +59,4 @@ public partial class MessageProperties : IHttpSerializable
     {
         Content = content,
     };
-
-    [JsonSerializable(typeof(MessageProperties))]
-    public partial class MessagePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static MessagePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonInteractionData
+public class JsonInteractionData
 {
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }
@@ -33,10 +33,4 @@ public partial class JsonInteractionData
 
     [JsonPropertyName("components")]
     public JsonComponent[]? Components { get; set; }
-
-    [JsonSerializable(typeof(JsonInteractionData))]
-    public partial class JsonInteractionDataSerializerContext : JsonSerializerContext
-    {
-        public static JsonInteractionDataSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

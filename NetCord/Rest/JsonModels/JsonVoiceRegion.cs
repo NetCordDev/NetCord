@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonVoiceRegion
+public class JsonVoiceRegion
 {
     [JsonPropertyName("id")]
     public string Id { get; set; }
@@ -18,16 +18,4 @@ public partial class JsonVoiceRegion
 
     [JsonPropertyName("custom")]
     public bool Custom { get; set; }
-
-    [JsonSerializable(typeof(JsonVoiceRegion))]
-    public partial class JsonVoiceRegionSerializerContext : JsonSerializerContext
-    {
-        public static JsonVoiceRegionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonVoiceRegion[]))]
-    public partial class JsonVoiceRegionArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonVoiceRegionArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

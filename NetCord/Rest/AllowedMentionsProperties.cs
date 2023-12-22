@@ -65,7 +65,7 @@ public partial class AllowedMentionsProperties
             else
             {
                 writer.WritePropertyName(_roles);
-                JsonSerializer.Serialize(writer, allowedRoles, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
+                JsonSerializer.Serialize(writer, allowedRoles, Serialization.Default.IEnumerableUInt64);
             }
 
             var allowedUsers = value.AllowedUsers;
@@ -74,7 +74,7 @@ public partial class AllowedMentionsProperties
             else
             {
                 writer.WritePropertyName(_users);
-                JsonSerializer.Serialize(writer, allowedUsers, IEnumerableOfUInt64SerializerContext.WithOptions.IEnumerableUInt64);
+                JsonSerializer.Serialize(writer, allowedUsers, Serialization.Default.IEnumerableUInt64);
             }
 
             if (value.Everyone)
@@ -92,17 +92,5 @@ public partial class AllowedMentionsProperties
 
             writer.WriteEndObject();
         }
-
-        [JsonSerializable(typeof(IEnumerable<ulong>))]
-        public partial class IEnumerableOfUInt64SerializerContext : JsonSerializerContext
-        {
-            public static IEnumerableOfUInt64SerializerContext WithOptions { get; } = new(Serialization.Options);
-        }
-    }
-
-    [JsonSerializable(typeof(AllowedMentionsProperties))]
-    public partial class AllowedMentionsPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static AllowedMentionsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
     }
 }

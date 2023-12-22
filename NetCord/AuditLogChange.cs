@@ -34,17 +34,18 @@ public class AuditLogChange : IJsonModel<JsonAuditLogChange>
     /// Gets the change with values associated.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
+    /// <param name="jsonTypeInfo"></param>
     /// <returns></returns>
-    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
-    public AuditLogChange<TValue> WithValues<TValue>() => new(_jsonModel);
+    public AuditLogChange<TValue> WithValues<TValue>(JsonTypeInfo<TValue> jsonTypeInfo) => new(_jsonModel, jsonTypeInfo);
 
     /// <summary>
     /// Gets the change with values associated.
     /// </summary>
     /// <typeparam name="TValue"></typeparam>
-    /// <param name="jsonTypeInfo"></param>
     /// <returns></returns>
-    public AuditLogChange<TValue> WithValues<TValue>(JsonTypeInfo<TValue> jsonTypeInfo) => new(_jsonModel, jsonTypeInfo);
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    public AuditLogChange<TValue> WithValues<TValue>() => new(_jsonModel);
 }
 
 public class AuditLogChange<TValue> : AuditLogChange
@@ -55,7 +56,8 @@ public class AuditLogChange<TValue> : AuditLogChange
         OldValue = jsonModel.OldValue!.Value.ToObject(jsonTypeInfo);
     }
 
-    [RequiresUnreferencedCode(SerializationUtils.SerializationUnreferencedCodeMessage)]
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public AuditLogChange(JsonAuditLogChange jsonModel) : base(jsonModel)
     {
         NewValue = jsonModel.NewValue!.Value.ToObject<TValue>();

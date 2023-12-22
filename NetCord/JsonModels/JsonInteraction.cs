@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonInteraction : JsonEntity
+public class JsonInteraction : JsonEntity
 {
     [JsonPropertyName("application_id")]
     public ulong ApplicationId { get; set; }
@@ -43,10 +43,4 @@ public partial class JsonInteraction : JsonEntity
 
     [JsonPropertyName("entitlements")]
     public JsonEntitlement[] Entitlements { get; set; }
-
-    [JsonSerializable(typeof(JsonInteraction))]
-    public partial class JsonInteractionSerializerContext : JsonSerializerContext
-    {
-        public static JsonInteractionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

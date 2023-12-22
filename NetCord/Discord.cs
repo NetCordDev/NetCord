@@ -1,4 +1,6 @@
-﻿namespace NetCord;
+﻿using System.Text.Json;
+
+namespace NetCord;
 
 public static class Discord
 {
@@ -13,4 +15,6 @@ public static class Discord
     public const double ApplicationCommandOptionMaxValue = 9007199254740991;
 
     public const double ApplicationCommandOptionMinValue = -ApplicationCommandOptionMaxValue;
+
+    public static JsonSerializerOptions SerializerOptions => Serialization.Default.Options;
 }

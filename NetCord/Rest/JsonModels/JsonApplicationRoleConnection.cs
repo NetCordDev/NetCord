@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonApplicationRoleConnection
+public class JsonApplicationRoleConnection
 {
     [JsonPropertyName("platform_name")]
     public string? PlatformName { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonApplicationRoleConnection
 
     [JsonPropertyName("metadata")]
     public IReadOnlyDictionary<string, string> Metadata { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationRoleConnection))]
-    public partial class JsonApplicationRoleConnectionSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationRoleConnectionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

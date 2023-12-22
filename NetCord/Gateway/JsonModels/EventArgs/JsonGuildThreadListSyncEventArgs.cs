@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonGuildThreadListSyncEventArgs
+public class JsonGuildThreadListSyncEventArgs
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
@@ -17,10 +17,4 @@ public partial class JsonGuildThreadListSyncEventArgs
 
     [JsonPropertyName("members")]
     public JsonThreadUser[] Users { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildThreadListSyncEventArgs))]
-    public partial class JsonGuildThreadListSyncEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildThreadListSyncEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -88,10 +88,4 @@ public partial class GuildOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
-
-    [JsonSerializable(typeof(GuildOptions))]
-    public partial class GuildOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

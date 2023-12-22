@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonPresence
+public class JsonPresence
 {
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }
@@ -20,10 +20,4 @@ public partial class JsonPresence
 
     [JsonPropertyName("client_status")]
     public IReadOnlyDictionary<Platform, UserStatusType> Platform { get; set; }
-
-    [JsonSerializable(typeof(JsonPresence))]
-    public partial class JsonPresenceSerializerContext : JsonSerializerContext
-    {
-        public static JsonPresenceSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

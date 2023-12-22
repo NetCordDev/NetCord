@@ -19,10 +19,4 @@ public partial class TestEntitlementProperties
 
     [JsonPropertyName("owner_type")]
     public TestEntitlementOwnerType OwnerType { get; set; }
-
-    [JsonSerializable(typeof(TestEntitlementProperties))]
-    public partial class TestEntitlementPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static TestEntitlementPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

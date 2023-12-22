@@ -1,7 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.JsonModels;
-public partial class JsonUserActivitySecrets
+
+public class JsonUserActivitySecrets
 {
     [JsonPropertyName("join")]
     public string? Join { get; set; }
@@ -11,10 +12,4 @@ public partial class JsonUserActivitySecrets
 
     [JsonPropertyName("match")]
     public string? Match { get; set; }
-
-    [JsonSerializable(typeof(JsonUserActivitySecrets))]
-    public partial class JsonUserActivitySecretsSerializerContext : JsonSerializerContext
-    {
-        public static JsonUserActivitySecretsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

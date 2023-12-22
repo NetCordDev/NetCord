@@ -83,10 +83,4 @@ public partial class GuildChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_forum_layout")]
     public ForumLayoutType? DefaultForumLayout { get; set; }
-
-    [JsonSerializable(typeof(GuildChannelOptions))]
-    public partial class GuildChannelOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildChannelOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

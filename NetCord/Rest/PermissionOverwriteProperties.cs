@@ -23,10 +23,4 @@ public partial class PermissionOverwriteProperties
         Id = id;
         Type = type;
     }
-
-    [JsonSerializable(typeof(PermissionOverwriteProperties))]
-    public partial class PermissionOverwritePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static PermissionOverwritePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -35,10 +35,4 @@ public partial class NonceProperties
                 writer.WriteStringValue(value._s!);
         }
     }
-
-    [JsonSerializable(typeof(NonceProperties))]
-    public partial class NoncePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static NoncePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

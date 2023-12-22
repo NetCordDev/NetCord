@@ -15,10 +15,4 @@ public partial class GuildTemplateOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]
     public string? Description { get; set; }
-
-    [JsonSerializable(typeof(GuildTemplateOptions))]
-    public partial class GuildTemplateOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildTemplateOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

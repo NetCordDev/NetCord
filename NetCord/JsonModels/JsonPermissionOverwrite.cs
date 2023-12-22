@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonPermissionOverwrite : JsonEntity
+public class JsonPermissionOverwrite : JsonEntity
 {
     [JsonPropertyName("type")]
     public PermissionOverwriteType Type { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonPermissionOverwrite : JsonEntity
 
     [JsonPropertyName("deny")]
     public Permissions Denied { get; set; }
-
-    [JsonSerializable(typeof(JsonPermissionOverwrite))]
-    public partial class JsonPermissionOverwriteSerializerContext : JsonSerializerContext
-    {
-        public static JsonPermissionOverwriteSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonVoiceState
+public class JsonVoiceState
 {
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
@@ -44,10 +44,4 @@ public partial class JsonVoiceState
 
     [JsonPropertyName("request_to_speak_timestamp")]
     public DateTimeOffset? RequestToSpeakTimestamp { get; set; }
-
-    [JsonSerializable(typeof(JsonVoiceState))]
-    public partial class JsonVoiceStateSerializerContext : JsonSerializerContext
-    {
-        public static JsonVoiceStateSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

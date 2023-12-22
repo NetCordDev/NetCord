@@ -30,16 +30,4 @@ public partial class ApplicationRoleConnectionMetadataProperties
 
     [JsonPropertyName("description_localizations")]
     public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
-
-    [JsonSerializable(typeof(ApplicationRoleConnectionMetadataProperties))]
-    public partial class ApplicationRoleConnectionMetadataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationRoleConnectionMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(IEnumerable<ApplicationRoleConnectionMetadataProperties>))]
-    public partial class IEnumerableOfApplicationRoleConnectionMetadataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static IEnumerableOfApplicationRoleConnectionMetadataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

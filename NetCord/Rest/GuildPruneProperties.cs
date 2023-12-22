@@ -18,10 +18,4 @@ public partial class GuildPruneProperties
     {
         Days = days;
     }
-
-    [JsonSerializable(typeof(GuildPruneProperties))]
-    public partial class GuildPrunePropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildPrunePropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

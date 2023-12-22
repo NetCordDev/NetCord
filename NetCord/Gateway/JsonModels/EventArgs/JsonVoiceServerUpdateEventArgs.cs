@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonVoiceServerUpdateEventArgs
+public class JsonVoiceServerUpdateEventArgs
 {
     [JsonPropertyName("token")]
     public string Token { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonVoiceServerUpdateEventArgs
 
     [JsonPropertyName("endpoint")]
     public string? Endpoint { get; set; }
-
-    [JsonSerializable(typeof(JsonVoiceServerUpdateEventArgs))]
-    public partial class JsonVoiceServerUpdateEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonVoiceServerUpdateEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

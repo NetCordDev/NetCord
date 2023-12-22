@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonGuildScheduledEventUserEventArgs
+public class JsonGuildScheduledEventUserEventArgs
 {
     [JsonPropertyName("guild_scheduled_event_id")]
     public ulong GuildScheduledEventId { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonGuildScheduledEventUserEventArgs
 
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildScheduledEventUserEventArgs))]
-    public partial class JsonGuildScheduledEventUserEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildScheduledEventUserEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

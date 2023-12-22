@@ -14,10 +14,4 @@ public partial class MentionableMenuProperties : MenuProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_values")]
     public IEnumerable<MentionableValueProperties>? DefaultValues { get; set; }
-
-    [JsonSerializable(typeof(MentionableMenuProperties))]
-    public partial class MentionableMenuPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static MentionableMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

@@ -14,10 +14,4 @@ public partial class GroupDMChannelProperties
 
     [JsonPropertyName("nicks")]
     public IReadOnlyDictionary<ulong, string>? Nicknames { get; set; }
-
-    [JsonSerializable(typeof(GroupDMChannelProperties))]
-    public partial class GroupDMChannelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GroupDMChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

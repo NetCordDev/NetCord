@@ -12,10 +12,4 @@ public partial class ApplicationRoleConnectionProperties
 
     [JsonPropertyName("metadata")]
     public IReadOnlyDictionary<string, string>? Metadata { get; set; }
-
-    [JsonSerializable(typeof(ApplicationRoleConnectionProperties))]
-    public partial class ApplicationRoleConnectionPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static ApplicationRoleConnectionPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

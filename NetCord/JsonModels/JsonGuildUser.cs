@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonGuildUser
+public class JsonGuildUser
 {
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }
@@ -42,16 +42,4 @@ public partial class JsonGuildUser
 
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
-
-    [JsonSerializable(typeof(JsonGuildUser))]
-    public partial class JsonGuildUserSerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildUserSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonGuildUser[]))]
-    public partial class JsonGuildUserArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonGuildUserArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

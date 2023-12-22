@@ -15,10 +15,4 @@ public partial class GuildEmojiOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("roles")]
     public IEnumerable<ulong>? AllowedRoles { get; set; }
-
-    [JsonSerializable(typeof(GuildEmojiOptions))]
-    public partial class GuildEmojiOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildEmojiOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

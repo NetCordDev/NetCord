@@ -15,10 +15,4 @@ public partial class UserActivityButtonProperties
 
     [JsonPropertyName("url")]
     public string Url { get; set; }
-
-    [JsonSerializable(typeof(UserActivityButtonProperties))]
-    public partial class UserActivityButtonPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserActivityButtonPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

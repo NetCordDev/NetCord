@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal partial class FollowAnnouncementGuildChannelProperties
+internal class FollowAnnouncementGuildChannelProperties
 {
     /// <summary>
     /// Id of target channel.
@@ -18,10 +18,4 @@ internal partial class FollowAnnouncementGuildChannelProperties
     /// </summary>
     [JsonPropertyName("webhook_channel_id")]
     public ulong WebhookChannelId { get; set; }
-
-    [JsonSerializable(typeof(FollowAnnouncementGuildChannelProperties))]
-    public partial class FollowAnnouncementGuildChannelPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static FollowAnnouncementGuildChannelPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

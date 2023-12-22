@@ -11,10 +11,4 @@ public partial class StringMenuProperties : MenuProperties
     {
         Options = options;
     }
-
-    [JsonSerializable(typeof(StringMenuProperties))]
-    public partial class StringMenuPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static StringMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

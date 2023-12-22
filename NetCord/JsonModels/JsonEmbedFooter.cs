@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEmbedFooter
+public class JsonEmbedFooter
 {
     [JsonPropertyName("text")]
     public string Text { get; set; }
@@ -12,10 +12,4 @@ public partial class JsonEmbedFooter
 
     [JsonPropertyName("proxy_icon_url")]
     public string? ProxyIconUrl { get; set; }
-
-    [JsonSerializable(typeof(JsonEmbedFooter))]
-    public partial class JsonEmbedFooterSerializerContext : JsonSerializerContext
-    {
-        public static JsonEmbedFooterSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

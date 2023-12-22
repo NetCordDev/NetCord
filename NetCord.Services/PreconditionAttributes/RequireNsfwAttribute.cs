@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace NetCord.Services;
+﻿namespace NetCord.Services;
 
 public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
@@ -19,14 +17,9 @@ public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> wh
     }
 }
 
-[Serializable]
 public class RequiredNsfwException : Exception
 {
     public RequiredNsfwException(string message) : base(message)
-    {
-    }
-
-    protected RequiredNsfwException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
     {
     }
 }

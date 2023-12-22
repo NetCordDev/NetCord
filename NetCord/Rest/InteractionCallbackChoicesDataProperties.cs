@@ -11,10 +11,4 @@ public partial class InteractionCallbackChoicesDataProperties
     {
         Choices = choices;
     }
-
-    [JsonSerializable(typeof(InteractionCallbackChoicesDataProperties))]
-    public partial class InteractionCallbackChoicesDataPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static InteractionCallbackChoicesDataPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

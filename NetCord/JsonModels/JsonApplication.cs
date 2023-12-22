@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonApplication : JsonEntity
+public class JsonApplication : JsonEntity
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -78,10 +78,4 @@ public partial class JsonApplication : JsonEntity
 
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
-
-    [JsonSerializable(typeof(JsonApplication))]
-    public partial class JsonApplicationSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

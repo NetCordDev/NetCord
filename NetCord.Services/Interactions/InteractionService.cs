@@ -127,6 +127,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL3050:RequiresDynamicCode", Justification = "The type of the array is known to be present")]
     private static async ValueTask ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separator);

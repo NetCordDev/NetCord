@@ -27,10 +27,4 @@ public partial class UserMenuProperties : MenuProperties
         {
         }
     }
-
-    [JsonSerializable(typeof(UserMenuProperties))]
-    public partial class UserMenuPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserMenuPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

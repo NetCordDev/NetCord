@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonApplicationCommandInteractionDataOption
+public class JsonApplicationCommandInteractionDataOption
 {
     [JsonPropertyName("name")]
     public string Name { get; set; }
@@ -19,10 +19,4 @@ public partial class JsonApplicationCommandInteractionDataOption
 
     [JsonPropertyName("focused")]
     public bool Focused { get; set; }
-
-    [JsonSerializable(typeof(JsonApplicationCommandInteractionDataOption))]
-    public partial class JsonApplicationCommandInteractionDataOptionSerializerContext : JsonSerializerContext
-    {
-        public static JsonApplicationCommandInteractionDataOptionSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

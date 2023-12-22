@@ -9,10 +9,4 @@ public partial class UserActivityTimestampsProperties
 
     [JsonPropertyName("end")]
     public int? End { get; set; }
-
-    [JsonSerializable(typeof(UserActivityTimestampsProperties))]
-    public partial class UserActivityTimestampsPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static UserActivityTimestampsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

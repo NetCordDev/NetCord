@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonEntitlement : JsonEntity
+public class JsonEntitlement : JsonEntity
 {
     [JsonPropertyName("sku_id")]
     public ulong SkuId { get; set; }
@@ -27,16 +27,4 @@ public partial class JsonEntitlement : JsonEntity
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
-
-    [JsonSerializable(typeof(JsonEntitlement))]
-    public partial class JsonEntitlementSerializerContext : JsonSerializerContext
-    {
-        public static JsonEntitlementSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
-
-    [JsonSerializable(typeof(JsonEntitlement[]))]
-    public partial class JsonEntitlementArraySerializerContext : JsonSerializerContext
-    {
-        public static JsonEntitlementArraySerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

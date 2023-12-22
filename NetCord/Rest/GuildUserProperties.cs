@@ -27,10 +27,4 @@ public partial class GuildUserProperties
     {
         AccessToken = accessToken;
     }
-
-    [JsonSerializable(typeof(GuildUserProperties))]
-    public partial class GuildUserPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GuildUserPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

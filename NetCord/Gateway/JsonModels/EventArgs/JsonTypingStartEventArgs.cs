@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public partial class JsonTypingStartEventArgs
+public class JsonTypingStartEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
@@ -21,10 +21,4 @@ public partial class JsonTypingStartEventArgs
 
     [JsonPropertyName("member")]
     public JsonGuildUser? User { get; set; }
-
-    [JsonSerializable(typeof(JsonTypingStartEventArgs))]
-    public partial class JsonTypingStartEventArgsSerializerContext : JsonSerializerContext
-    {
-        public static JsonTypingStartEventArgsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

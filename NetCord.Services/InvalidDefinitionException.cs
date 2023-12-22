@@ -1,14 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using System.Runtime.Serialization;
+﻿using System.Reflection;
 
 namespace NetCord.Services;
 
-[Serializable]
 public class InvalidDefinitionException : Exception
 {
-    [AllowNull]
-    [field: NonSerialized]
     public MemberInfo Member { get; }
 
     public InvalidDefinitionException(string? message, MemberInfo member) : base($"{message} | {GetMemberName(member)}")
@@ -20,9 +15,5 @@ public class InvalidDefinitionException : Exception
     {
         var declaringType = member.DeclaringType;
         return declaringType is null ? member.Name : $"{declaringType.FullName}.{member.Name}";
-    }
-
-    protected InvalidDefinitionException(SerializationInfo serializationInfo, StreamingContext streamingContext) : base(serializationInfo, streamingContext)
-    {
     }
 }

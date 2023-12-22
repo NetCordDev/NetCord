@@ -15,10 +15,4 @@ public partial class VoiceStateOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("suppress")]
     public bool? Suppress { get; set; }
-
-    [JsonSerializable(typeof(VoiceStateOptions))]
-    public partial class VoiceStateOptionsSerializerContext : JsonSerializerContext
-    {
-        public static VoiceStateOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

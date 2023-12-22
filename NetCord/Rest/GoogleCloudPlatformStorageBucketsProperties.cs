@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal partial class GoogleCloudPlatformStorageBucketsProperties
+internal class GoogleCloudPlatformStorageBucketsProperties
 {
     public GoogleCloudPlatformStorageBucketsProperties(IEnumerable<GoogleCloudPlatformStorageBucketProperties> buckets)
     {
@@ -11,10 +11,4 @@ internal partial class GoogleCloudPlatformStorageBucketsProperties
 
     [JsonPropertyName("files")]
     public IEnumerable<GoogleCloudPlatformStorageBucketProperties> Buckets { get; set; }
-
-    [JsonSerializable(typeof(GoogleCloudPlatformStorageBucketsProperties))]
-    public partial class GoogleCloudPlatformStorageBucketsPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static GoogleCloudPlatformStorageBucketsPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

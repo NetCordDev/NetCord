@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonComponent
+public class JsonComponent
 {
     [JsonPropertyName("type")]
     public ComponentType Type { get; set; }
@@ -51,10 +51,4 @@ public partial class JsonComponent
 
     [JsonPropertyName("value")]
     public string? Value { get; set; }
-
-    [JsonSerializable(typeof(JsonComponent))]
-    public partial class JsonComponentSerializerContext : JsonSerializerContext
-    {
-        public static JsonComponentSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

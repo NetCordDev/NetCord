@@ -15,10 +15,4 @@ public partial class WebhookProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("avatar")]
     public ImageProperties? Avatar { get; set; }
-
-    [JsonSerializable(typeof(WebhookProperties))]
-    public partial class WebhookPropertiesSerializerContext : JsonSerializerContext
-    {
-        public static WebhookPropertiesSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }

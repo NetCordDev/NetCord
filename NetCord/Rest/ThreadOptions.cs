@@ -39,10 +39,4 @@ public partial class GuildThreadOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("applied_tags")]
     public IEnumerable<ulong>? AppliedTags { get; set; }
-
-    [JsonSerializable(typeof(GuildThreadOptions))]
-    public partial class GuildThreadOptionsSerializerContext : JsonSerializerContext
-    {
-        public static GuildThreadOptionsSerializerContext WithOptions { get; } = new(Serialization.Options);
-    }
 }
