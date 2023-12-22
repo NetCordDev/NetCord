@@ -330,7 +330,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("test2", "This is test")]
-    public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, nint i8, sbyte i9, float i10, ushort i11, uint i12, ulong i13, nuint i14)
+    public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, Int128 i8, nint i9, sbyte i10, float i11, ushort i12, uint i13, ulong i14, UInt128 i15, nuint i16)
     {
         return RespondAsync(InteractionCallback.Message("Wzium"));
     }

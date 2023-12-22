@@ -23,7 +23,9 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
         { typeof(int), new TypeReaders.Int32TypeReader<TContext>() },
         { typeof(uint), new TypeReaders.UInt32TypeReader<TContext>() },
         { typeof(long), new TypeReaders.Int64TypeReader<TContext>() },
+        { typeof(Int128), new TypeReaders.Int128TypeReader<TContext>() },
         { typeof(ulong), new TypeReaders.UInt64TypeReader<TContext>() },
+        { typeof(UInt128), new TypeReaders.UInt128TypeReader<TContext>() },
         { typeof(nint), new TypeReaders.IntPtrTypeReader<TContext>() },
         { typeof(nuint), new TypeReaders.UIntPtrTypeReader<TContext>() },
         // floating-point numeric types
