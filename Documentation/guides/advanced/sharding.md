@@ -6,7 +6,7 @@ Sharding is required when your bot is in more than 2500 guilds.
 
 ## What is sharding?
 
-Sharding is splitting your bot into multiple @"NetCord.Gateway.GatewayClient"s. Each shard, represented as a @NetCord.Gateway.GatewayClient instance, will be responsible for a certain amount of guilds.
+Sharding is splitting your bot into multiple @"NetCord.Gateway.GatewayClient"s. Each shard, represented as a @NetCord.Gateway.GatewayClient instance, will be responsible for a certain number of guilds.
 
 ## How to shard?
 
