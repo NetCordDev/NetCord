@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Scripting;
@@ -35,7 +36,8 @@ public class EvalCommand : CommandModule<CommandContext>
         }
         catch (RestException ex)
         {
-            throw new($"{ex.Message}\n{new CodeBlock(await ex.GetDiscordErrorMessageAsync(), "json")}");
+            var error = ex.Error;
+            throw new($"{ex.Message}\n{(error is null ? "No error returned." : new CodeBlock(JsonSerializer.Serialize(error, Discord.SerializerOptions), "json"))}");
         }
         if (value is not null)
         {

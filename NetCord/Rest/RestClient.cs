@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 using NetCord.Rest.HttpClients;
 using NetCord.Rest.RateLimits;
@@ -175,7 +176,23 @@ public partial class RestClient : IDisposable
             if (response.IsSuccessStatusCode)
                 return response;
 
-            throw new RestException(response);
+            RestError error;
+            var content = response.Content;
+            if (content.Headers.ContentType is { MediaType: "application/json" })
+            {
+                try
+                {
+                    error = (await JsonSerializer.DeserializeAsync(await content.ReadAsStreamAsync().ConfigureAwait(false), Serialization.Default.RestError).ConfigureAwait(false))!;
+                }
+                catch
+                {
+                    throw new RestException(response.StatusCode, response.ReasonPhrase!);
+                }
+            }
+            else
+                throw new RestException(response.StatusCode, response.ReasonPhrase!);
+
+            throw new RestException(response.StatusCode, response.ReasonPhrase!, error);
         }
     }
 

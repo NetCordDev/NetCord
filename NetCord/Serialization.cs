@@ -215,6 +215,10 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildScheduledEventUser[]))]
 [JsonSerializable(typeof(TestEntitlementProperties))]
 [JsonSerializable(typeof(JsonCreateGoogleCloudPlatformStorageBucketResult))]
+[JsonSerializable(typeof(IReadOnlyList<RestErrorDetail>))]
+[JsonSerializable(typeof(IRestErrorGroup))]
+[JsonSerializable(typeof(RestError))]
+[JsonSerializable(typeof(IReadOnlyDictionary<string, IRestErrorGroup>))]
 internal partial class Serialization : JsonSerializerContext
 {
 }
