@@ -23,12 +23,12 @@ public class RestError
     }
 }
 
-[JsonConverter(typeof(IRestNestedErrorConverter))]
+[JsonConverter(typeof(IRestErrorGroupConverter))]
 public interface IRestErrorGroup
 {
     private static readonly JsonEncodedText _errors = JsonEncodedText.Encode("_errors");
 
-    public class IRestNestedErrorConverter : JsonConverter<IRestErrorGroup>
+    public class IRestErrorGroupConverter : JsonConverter<IRestErrorGroup>
     {
         public override IRestErrorGroup? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
