@@ -5,11 +5,11 @@
         {
           "src": "../",
           "files": [
-            "NetCord/bin/Release/net6.0/NetCord.dll",
-            "NetCord.Services/bin/Release/net6.0/NetCord.Services.dll",
-            "Hosting/NetCord.Hosting/bin/Release/net6.0/NetCord.Hosting.dll",
-            "Hosting/NetCord.Hosting.Services/bin/Release/net6.0/NetCord.Hosting.Services.dll",
-            "Hosting/NetCord.Hosting.AspNetCore/bin/Release/net6.0/NetCord.Hosting.AspNetCore.dll"
+            "NetCord/bin/Release/net8.0/NetCord.dll",
+            "NetCord.Services/bin/Release/net8.0/NetCord.Services.dll",
+            "Hosting/NetCord.Hosting/bin/Release/net8.0/NetCord.Hosting.dll",
+            "Hosting/NetCord.Hosting.Services/bin/Release/net8.0/NetCord.Hosting.Services.dll",
+            "Hosting/NetCord.Hosting.AspNetCore/bin/Release/net8.0/NetCord.Hosting.AspNetCore.dll"
           ]
         }
       ],

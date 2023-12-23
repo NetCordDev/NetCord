@@ -10,7 +10,6 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseCommandService<CommandContext>();
 
 var host = builder.Build()
-    // Before C# 12 you have to use 'new string[] { "ping" }' instead of '["ping"]'
     .AddCommand<CommandContext>(["ping"], () => "Pong!")
     .AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();

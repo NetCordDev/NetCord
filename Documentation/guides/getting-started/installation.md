@@ -1,7 +1,7 @@
 # Installing NetCord
 
 > [!NOTE]
-> NetCord requires [.NET 6](https://dotnet.microsoft.com/download/dotnet/6.0) or higher. Older versions are not supported.
+> NetCord requires [.NET 8](https://dotnet.microsoft.com/download/dotnet/8.0) or higher. Older versions are not supported.
 
 ## [Visual Studio](#tab/visual-studio)
 1. Create a new project.
