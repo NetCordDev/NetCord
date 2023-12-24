@@ -65,7 +65,7 @@ public partial class RestClient : IDisposable
     public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RequestProperties? properties = null, bool global = true)
     {
         properties ??= _defaultRequestProperties;
-        string url = $"{_baseUrl}{endpoint}";
+        string url = $"{_baseUrl}{endpoint}{query}";
 
         var response = await SendRequestAsync(new(method, endpoint.Format, resourceInfo), global, () =>
         {
@@ -303,7 +303,7 @@ public partial class RestClient : IDisposable
         }
     }
 
-    private static bool TryGetBucketHeaderValue(HttpResponseHeaders headers, [NotNullWhen(true)] out string? bucket)
+    private static bool TryGetBucketHeaderValue(HttpResponseHeaders headers, [MaybeNullWhen(false)] out string bucket)
     {
         if (headers.TryGetValues("x-ratelimit-bucket", out var values))
         {
