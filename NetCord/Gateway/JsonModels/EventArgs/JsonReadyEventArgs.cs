@@ -18,6 +18,9 @@ public class JsonReadyEventArgs
     [JsonPropertyName("session_id")]
     public string SessionId { get; set; }
 
+    [JsonPropertyName("resume_gateway_url")]
+    public string ResumeGatewayUrl { get; set; }
+
     [JsonPropertyName("shard")]
     public Shard? Shard { get; set; }
 
