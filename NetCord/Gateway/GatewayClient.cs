@@ -313,19 +313,7 @@ public partial class GatewayClient : WebSocketClient
                     {
                         var cache = Cache;
                         cache = cache.CacheCurrentUser(data.User);
-                        if (_configuration.CacheDMChannels)
-                        {
-                            var dMChannels = args.DMChannels;
-                            var count = dMChannels.Count;
-                            if (count != 0)
-                            {
-                                lock (_DMsLock!)
-                                {
-                                    for (var i = 0; i < count; i++)
-                                        cache = cache.CacheDMChannel(dMChannels[i]);
-                                }
-                            }
-                        }
+                        cache = cache.SyncGuilds(data.GuildIds);
                         Cache = cache;
 
                         SessionId = args.SessionId;

@@ -171,20 +171,6 @@ public record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads)
-    {
-        var guilds = _guilds;
-        if (guilds.TryGetValue(guildId, out var guild))
-        {
-            return this with
-            {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = threads)),
-            };
-        }
-
-        return this;
-    }
-
     public IGatewayClientCache CacheGuildChannel(ulong guildId, IGuildChannel channel)
     {
         var guilds = _guilds;
@@ -249,6 +235,29 @@ public record GatewayClientCache : IGatewayClientCache
         }
 
         return this;
+    }
+
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = threads)),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache SyncGuilds(IReadOnlyList<ulong> guildIds)
+    {
+        var guilds = _guilds;
+        return this with
+        {
+            _guilds = guilds.RemoveRange(guilds.Keys.Except(guildIds)),
+        };
     }
 
     public IGatewayClientCache RemoveGuild(ulong guildId)

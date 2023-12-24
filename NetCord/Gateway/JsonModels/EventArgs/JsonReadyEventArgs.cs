@@ -23,7 +23,4 @@ public class JsonReadyEventArgs
 
     [JsonPropertyName("application")]
     public JsonApplication? Application { get; set; }
-
-    [JsonPropertyName("private_channels")]
-    public JsonChannel[] DMChannels { get; set; }
 }

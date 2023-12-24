@@ -21,13 +21,10 @@ public class ReadyEventArgs : IJsonModel<JsonModels.EventArgs.JsonReadyEventArgs
 
     public ApplicationFlags ApplicationFlags => _jsonModel.Application is null ? default : _jsonModel.Application.Flags.GetValueOrDefault();
 
-    public IReadOnlyList<DMChannel> DMChannels { get; }
-
     public ReadyEventArgs(JsonModels.EventArgs.JsonReadyEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
         User = new(jsonModel.User, client);
         GuildIds = _jsonModel.Guilds.Select(g => g.Id).ToArray();
-        DMChannels = _jsonModel.DMChannels.Select(c => (DMChannel)Channel.CreateFromJson(c, client)).ToArray();
     }
 }
