@@ -6,5 +6,7 @@ public interface IApplicationCommandService
 
     internal IEnumerable<GuildCommands> GuildCommands { get; }
 
-    internal void AddCommand(ulong id, IApplicationCommandInfo applicationCommandInfo);
+    internal void SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands);
+
+    internal int GetApproximateCommandsCount(bool includeGuildCommands);
 }

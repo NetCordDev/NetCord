@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -29,12 +30,12 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
 
-        Dictionary<string, ISubSlashCommandInfo<TContext>> subCommands = [];
+        List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration));
+                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration)));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -44,13 +45,13 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration));
+                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration)));
         }
 
         if (subCommands.Count == 0)
             throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
 
-        SubCommands = subCommands;
+        SubCommands = subCommands.ToFrozenDictionary();
     }
 
     public string Description { get; }

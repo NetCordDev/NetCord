@@ -1,9 +1,20 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord.Services.Utils;
 
 internal static class CollectionsUtils
 {
+    public static FrozenDictionary<TKey, IReadOnlyList<TSource>> ToRankedFrozenDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
+    {
+        return ToRankedDictionary(source, keySelector).ToFrozenDictionary();
+    }
+
+    public static FrozenDictionary<TKey, IReadOnlyList<TElement>> ToRankedFrozenDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    {
+        return ToRankedDictionary(source, keySelector, elementSelector).ToFrozenDictionary();
+    }
+
     public static Dictionary<TKey, IReadOnlyList<TSource>> ToRankedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
         Dictionary<TKey, IReadOnlyList<TSource>> result = [];
@@ -43,17 +54,6 @@ internal static class CollectionsUtils
             }
         }
         return result;
-    }
-
-    public static IEnumerable<(TFirst, TSecond?)> ZipAndSecondNull<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second)
-    {
-        using var firstEnumerator = first.GetEnumerator();
-        using var secondEnumerator = second.GetEnumerator();
-        while (firstEnumerator.MoveNext())
-        {
-            secondEnumerator.MoveNext();
-            yield return (firstEnumerator.Current, secondEnumerator.Current);
-        }
     }
 
     public static bool TryGetSingle<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate, [MaybeNullWhen(false)] out TSource value)

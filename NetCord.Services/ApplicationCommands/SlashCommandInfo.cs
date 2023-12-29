@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -21,7 +22,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
         var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
         Parameters = parameters;
-        ParametersDictionary = parameters.ToDictionary(p => p.Name);
+        ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
@@ -57,7 +58,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
         var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration);
         Parameters = parameters;
-        ParametersDictionary = parameters.ToDictionary(p => p.Name);
+        ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);

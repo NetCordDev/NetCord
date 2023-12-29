@@ -35,7 +35,7 @@ builder.ConfigureServices(services =>
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand<SlashCommandContext>("help", "Help!", (ApplicationCommandService<SlashCommandContext> slashCommandService, SlashCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Values.Select(c => c.Name)))
+    .AddSlashCommand<SlashCommandContext>("help", "Help!", (ApplicationCommandService<SlashCommandContext> slashCommandService, SlashCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
     .AddSlashCommand<SlashCommandContext>("button", "Button!", () =>
     {
         return new InteractionMessageProperties()

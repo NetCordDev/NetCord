@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -29,7 +30,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
 public class ApplicationCommandService<TContext> : IApplicationCommandService, IService where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
-    private protected readonly Dictionary<ulong, ApplicationCommandInfo<TContext>> _commands = [];
+    private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>? _commands;
 
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
     internal readonly Dictionary<ulong, List<ApplicationCommandInfo<TContext>>> _guildCommandsToCreate = [];
@@ -38,7 +39,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
 
     IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
 
-    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => new Dictionary<ulong, ApplicationCommandInfo<TContext>>(_commands);
+    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>>? GetCommands() => _commands;
 
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
@@ -173,10 +174,13 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
                                                         _configuration));
     }
 
-    void IApplicationCommandService.AddCommand(ulong id, IApplicationCommandInfo applicationCommandInfo)
+    void IApplicationCommandService.SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands)
     {
-        _commands[id] = (ApplicationCommandInfo<TContext>)applicationCommandInfo;
+        _commands = commands.ToFrozenDictionary(c => c.Key, c => (ApplicationCommandInfo<TContext>)c.Value);
     }
+
+    int IApplicationCommandService.GetApproximateCommandsCount(bool includeGuildCommands)
+        => includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count;
 
     private void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)
     {
@@ -194,16 +198,17 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
 
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
-        int count = includeGuildCommands ? _globalCommandsToCreate.Count + _guildCommandsToCreate.Count : _globalCommandsToCreate.Count;
-        List<ApplicationCommand> list = new(count);
+        int count = ((IApplicationCommandService)this).GetApproximateCommandsCount(includeGuildCommands);
+        List<KeyValuePair<ulong, ApplicationCommandInfo<TContext>>> commands = new(count);
+        List<ApplicationCommand> result = new(count);
 
         var globalProperties = _globalCommandsToCreate.Select(c => c.GetRawValue());
         var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
 
         foreach (var (command, commandInfo) in created.Zip(_globalCommandsToCreate))
         {
-            _commands[command.Key] = commandInfo;
-            list.Add(command.Value);
+            commands.Add(new(command.Key, commandInfo));
+            result.Add(command.Value);
         }
 
         if (includeGuildCommands)
@@ -216,28 +221,16 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
                 var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties).ConfigureAwait(false);
                 foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))
                 {
-                    _commands[command.Key] = commandInfo;
-                    list.Add(command.Value);
+                    commands.Add(new(command.Key, commandInfo));
+                    result.Add(command.Value);
                 }
             }
         }
-        return list;
+
+        _commands = commands.ToFrozenDictionary();
+
+        return result;
     }
-
-    //internal void AddCommands(IReadOnlyList<(ApplicationCommand Command, IApplicationCommandInfo CommandInfo)> commands)
-    //{
-    //    int count = commands.Count;
-    //    for (int i = 0; i < count; i++)
-    //    {
-    //        var (command, commandInfo) = commands[i];
-    //        _commands[command.Id] = (ApplicationCommandInfo<TContext>)commandInfo;
-    //    }
-    //}
-
-    //internal void AddCommand((ApplicationCommand Command, IApplicationCommandInfo CommandInfo) command)
-    //{
-    //    _commands[command.Command.Id] = (ApplicationCommandInfo<TContext>)command.CommandInfo;
-    //}
 
     public ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
@@ -249,7 +242,8 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
 
     private protected ApplicationCommandInfo<TContext> GetApplicationCommandInfo(ulong commandId)
     {
-        if (_commands.TryGetValue(commandId, out var applicationCommandInfo))
+        var commands = _commands;
+        if (commands is not null && commands.TryGetValue(commandId, out var applicationCommandInfo))
             return applicationCommandInfo;
 
         throw new ApplicationCommandNotFoundException();

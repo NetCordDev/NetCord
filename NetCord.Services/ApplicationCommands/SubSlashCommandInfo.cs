@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
@@ -23,7 +24,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
             DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
 
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
-        ParametersDictionary = parameters.ToDictionary(p => p.Name);
+        ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);

@@ -38,7 +38,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
-        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        Attributes = attributesIEnumerable.ToRankedFrozenDictionary(a => a.GetType());
 
         var type = Type = parameter.ParameterType;
 

@@ -14,37 +14,42 @@ public class ApplicationCommandServiceManager
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
         var services = _services.ToArray();
+        var serviceCommands = services.Select(s => (Service: s, Commands: new List<KeyValuePair<ulong, IApplicationCommandInfo>>(s.GetApproximateCommandsCount(includeGuildCommands)))).ToArray();
 
-        var globalInfos = services.SelectMany(s => s.GlobalCommands.Select(c => (Service: s, Command: c))).ToArray();
+        var globalInfos = serviceCommands.SelectMany(serviceCommands => serviceCommands.Service.GlobalCommands.Select(command => (serviceCommands.Service, serviceCommands.Commands, Command: command))).ToArray();
 
-        List<ApplicationCommand> list = new(globalInfos.Length);
+        List<ApplicationCommand> result = new(globalInfos.Length);
 
         var globalProperties = globalInfos.Select(c => c.Command.GetRawValue());
         var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
 
-        foreach (var (command, (service, commandInfo)) in created.Zip(globalInfos))
+        foreach (var (command, (service, commands, commandInfo)) in created.Zip(globalInfos))
         {
-            service.AddCommand(command.Key, commandInfo);
-            list.Add(command.Value);
+            commands.Add(new(command.Key, commandInfo));
+            result.Add(command.Value);
         }
 
         if (includeGuildCommands)
         {
-            foreach (var guildCommandsGroup in services.SelectMany(s => s.GuildCommands.Select(c => (Service: s, Commands: c))).GroupBy(c => c.Commands.GuildId))
+            foreach (var guildCommandsGroup in serviceCommands.SelectMany(serviceCommands => serviceCommands.Service.GuildCommands.Select(c => (serviceCommands.Service, serviceCommands.Commands, GuildCommands: c))).GroupBy(c => c.GuildCommands.GuildId))
             {
-                var guildInfos = guildCommandsGroup.SelectMany(g => g.Commands.Commands.Select(c => (g.Service, Command: c))).ToArray();
+                var guildInfos = guildCommandsGroup.SelectMany(g => g.GuildCommands.Commands.Select(c => (g.Service, g.Commands, Command: c))).ToArray();
 
                 var guildProperties = guildInfos.Select(c => c.Command.GetRawValue());
 
                 var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsGroup.Key, guildProperties, properties).ConfigureAwait(false);
 
-                foreach (var (command, (service, commandInfo)) in guildCreated.Zip(guildInfos))
+                foreach (var (command, (service, commands, commandInfo)) in guildCreated.Zip(guildInfos))
                 {
-                    service.AddCommand(command.Key, commandInfo);
-                    list.Add(command.Value);
+                    commands.Add(new(command.Key, commandInfo));
+                    result.Add(command.Value);
                 }
             }
         }
-        return list;
+
+        foreach (var (service, commands) in serviceCommands)
+            service.SetCommands(commands);
+
+        return result;
     }
 }
