@@ -35,7 +35,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "zwierzę" },
+            { new("pl-PL"), "zwierzę" },
             { new("es-ES"), "animal" }
         };
     }
@@ -44,7 +44,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Wysyła zwierzę, które wybrałeś" },
+            { new("pl-PL"), "Wysyła zwierzę, które wybrałeś" },
             { new("es-ES"), "Envía el animal que seleccionaste" }
         };
     }
@@ -53,7 +53,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "zwierzę" },
+            { new("pl-PL"), "zwierzę" },
             { new("es-ES"), "animal" }
         };
     }
@@ -62,7 +62,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Zwierzę do wysłania" },
+            { new("pl-PL"), "Zwierzę do wysłania" },
             { new("es-ES"), "Animal para enviar" }
         };
     }
@@ -71,7 +71,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Pies" },
+            { new("pl-PL"), "Pies" },
             { new("es-ES"), "Perro/a" }
         };
     }
@@ -80,7 +80,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Kot" },
+            { new("pl-PL"), "Kot" },
             { new("es-ES"), "Gato/a" }
         };
     }
@@ -89,7 +89,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Ryba" },
+            { new("pl-PL"), "Ryba" },
             { new("es-ES"), "Pez" }
         };
     }
@@ -98,7 +98,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     {
         public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
         {
-            { new("pl"), "Świnka morska" },
+            { new("pl-PL"), "Świnka morska" },
             { new("es-ES"), "Cobayo/a" }
         };
     }
