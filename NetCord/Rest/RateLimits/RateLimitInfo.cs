@@ -1,14 +1,20 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal readonly struct RateLimitInfo
+public class RateLimitInfo
 {
-    public RateLimitInfo(int resetAfter, bool rateLimited)
+    public RateLimitInfo(long timestamp, int resetAfter, int remaining, int limit, BucketInfo bucketInfo)
     {
+        Timestamp = timestamp;
         ResetAfter = resetAfter;
-        RateLimited = rateLimited;
+        Remaining = remaining;
+        Limit = limit;
+        BucketInfo = bucketInfo;
     }
 
+    public long Timestamp { get; }
+    public long Reset => Timestamp + ResetAfter;
     public int ResetAfter { get; }
-
-    public bool RateLimited { get; }
+    public int Remaining { get; }
+    public int Limit { get; }
+    public BucketInfo BucketInfo { get; }
 }

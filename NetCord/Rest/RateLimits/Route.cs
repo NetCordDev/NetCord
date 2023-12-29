@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal record Route
+public record Route
 {
     public Route(HttpMethod method, string endpoint, TopLevelResourceInfo? resourceInfo = null)
     {

@@ -1,26 +1,26 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class RouteRateLimiter : IRateLimiter
+internal class RouteRateLimiter : IRouteRateLimiter
 {
     private readonly object _lock = new();
-    private readonly int _limit;
 
-    private int _remaining;
     private long _reset;
     private int _maxResetAfter;
+    private int _remaining;
+    private readonly int _limit;
 
     public BucketInfo BucketInfo { get; }
 
-    public RouteRateLimiter(int limit, int remaining, long reset, int resetAfter, BucketInfo bucketInfo)
+    public RouteRateLimiter(RateLimitInfo rateLimitInfo)
     {
-        _limit = limit;
-        _remaining = remaining;
-        _reset = reset;
-        _maxResetAfter = resetAfter;
-        BucketInfo = bucketInfo;
+        _reset = rateLimitInfo.Reset;
+        _maxResetAfter = rateLimitInfo.ResetAfter;
+        _remaining = rateLimitInfo.Remaining;
+        _limit = rateLimitInfo.Limit;
+        BucketInfo = rateLimitInfo.BucketInfo;
     }
 
-    public RateLimitInfo TryAcquire()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {
         var timestamp = Environment.TickCount64;
         lock (_lock)
@@ -34,37 +34,43 @@ internal class RouteRateLimiter : IRateLimiter
             else
             {
                 if (_remaining == 0)
-                    return new((int)diff, true);
+                    return new(RateLimitAcquisitionResult.RateLimit((int)diff));
                 else
                     _remaining--;
             }
         }
-        return new(0, false);
+        return new(RateLimitAcquisitionResult.NoRateLimit());
     }
 
-    public void CancelAcquire(long timestamp)
+    public ValueTask CancelAcquireAsync(long timestamp)
     {
         lock (_lock)
         {
             if (timestamp - (_reset - _maxResetAfter) >= -50 && _remaining < _limit)
                 _remaining++;
         }
+        return default;
     }
 
-    public void Update(int newRemaining, long newReset, int newResetAfter)
+    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo)
     {
         lock (_lock)
         {
-            if (newReset - _reset >= -50)
+            if (rateLimitInfo.Reset - _reset >= -50)
             {
-                if (newRemaining < _remaining)
-                    _remaining = newRemaining;
+                var remaining = rateLimitInfo.Remaining;
+                if (remaining < _remaining)
+                    _remaining = remaining;
 
-                _reset = newReset;
+                _reset = rateLimitInfo.Reset;
             }
 
-            if (newResetAfter > _maxResetAfter)
-                _maxResetAfter = newResetAfter;
+            var resetAfter = rateLimitInfo.ResetAfter;
+            if (resetAfter > _maxResetAfter)
+                _maxResetAfter = resetAfter;
         }
+        return default;
     }
+
+    public ValueTask IndicateExchangeAsync(long timestamp) => CancelAcquireAsync(timestamp);
 }

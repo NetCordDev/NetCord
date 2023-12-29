@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal interface IRateLimiter
+public interface IRateLimiter
 {
-    public RateLimitInfo TryAcquire();
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync();
 }

@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal record BucketInfo
+public record BucketInfo
 {
     public BucketInfo(string bucket, TopLevelResourceInfo? resourceInfo)
     {

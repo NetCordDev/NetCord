@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class GlobalRateLimiter : IRateLimiter
+internal class GlobalRateLimiter : IGlobalRateLimiter
 {
     private readonly object _lock = new();
 
@@ -12,7 +12,7 @@ internal class GlobalRateLimiter : IRateLimiter
         _remaining = 50;
     }
 
-    public RateLimitInfo TryAcquire()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {
         var timestamp = Environment.TickCount64;
         lock (_lock)
@@ -26,16 +26,16 @@ internal class GlobalRateLimiter : IRateLimiter
             else
             {
                 if (_remaining == 0)
-                    return new((int)diff, true);
+                    return new(RateLimitAcquisitionResult.RateLimit((int)diff));
                 else
                     _remaining--;
             }
         }
 
-        return new(0, false);
+        return new(RateLimitAcquisitionResult.NoRateLimit());
     }
 
-    public void RateLimitReceived(long reset)
+    public ValueTask IndicateRateLimitAsync(long reset)
     {
         lock (_lock)
         {
@@ -44,5 +44,7 @@ internal class GlobalRateLimiter : IRateLimiter
             if (reset > _reset)
                 _reset = reset;
         }
+
+        return default;
     }
 }

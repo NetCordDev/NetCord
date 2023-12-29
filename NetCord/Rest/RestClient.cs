@@ -13,12 +13,7 @@ public partial class RestClient : IDisposable
     private readonly string _baseUrl;
     private readonly IHttpClient _httpClient;
     private readonly RequestProperties _defaultRequestProperties;
-
-    private readonly object _rateLimitersLock = new();
-    private readonly GlobalRateLimiter _globalRateLimiter = new();
-    private readonly Dictionary<BucketInfo, RouteRateLimiter> _rateLimitersFromBuckets = [];
-    private readonly Dictionary<Route, RouteRateLimiter> _rateLimiters = [];
-    private readonly Dictionary<Route, SemaphoreSlim?> _knownRoutesWithoutRateLimiters = [];
+    private readonly IRateLimitManager _rateLimitManager;
 
     public RestClient(RestClientConfiguration? configuration = null)
     {
@@ -31,6 +26,8 @@ public partial class RestClient : IDisposable
         _httpClient = httpClient;
 
         _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
+
+        _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
     public RestClient(Token token, RestClientConfiguration? configuration = null)
@@ -45,6 +42,8 @@ public partial class RestClient : IDisposable
         _httpClient = httpClient;
 
         _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
+
+        _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RequestProperties? properties = null, bool global = true)
@@ -84,33 +83,9 @@ public partial class RestClient : IDisposable
     {
         while (true)
         {
-            if (global)
-                await AcquireRateLimiter(_globalRateLimiter, true, properties).ConfigureAwait(false);
+            var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(properties).ConfigureAwait(false) : null;
 
-            bool rateLimiterFound;
-            RouteRateLimiter? rateLimiter;
-
-            bool isNotFirstUse;
-            SemaphoreSlim? semaphore;
-
-            lock (_rateLimitersLock)
-            {
-                if (rateLimiterFound = _rateLimiters.TryGetValue(route, out rateLimiter))
-                {
-                    isNotFirstUse = true;
-                    semaphore = null;
-                }
-                else if (!(isNotFirstUse = _knownRoutesWithoutRateLimiters.TryGetValue(route, out semaphore)))
-                    _knownRoutesWithoutRateLimiters.Add(route, semaphore = new(0));
-            }
-
-            if (rateLimiterFound)
-                await AcquireRateLimiter(rateLimiter!, false, properties).ConfigureAwait(false);
-            else if (isNotFirstUse && semaphore is not null)
-            {
-                await semaphore.WaitAsync().ConfigureAwait(false);
-                continue;
-            }
+            var rateLimiter = await AcquireRouteRateLimiterAsync(route, properties).ConfigureAwait(false);
 
             var message = messageFunc();
             var timestamp = Environment.TickCount64;
@@ -121,65 +96,83 @@ public partial class RestClient : IDisposable
             }
             catch
             {
-                semaphore?.Release();
+                await rateLimiter.CancelAcquireAsync(timestamp).ConfigureAwait(false);
                 throw;
             }
 
             var headers = response.Headers;
-            long reset = 0;
-            bool bucketFound;
-            if (bucketFound = TryGetBucketHeaderValue(headers, out var bucket))
+
+            var rateLimited = IsRateLimited(headers, out var scope);
+
+            if (TryGetBucketHeaderValue(headers, out var bucket)
+                && TryGetRemainingHeaderValue(headers, out var remaining)
+                && TryGetResetAfterHeaderValue(headers, out var resetAfter)
+                && TryGetLimitHeaderValue(headers, out var limit))
             {
-                if (rateLimiterFound)
-                    HandleResponse(route, bucket!, headers, timestamp, rateLimiter!, ref reset);
+                BucketInfo bucketInfo = new(bucket, route.ResourceInfo);
+                RateLimitInfo rateLimitInfo = new(timestamp, resetAfter, remaining, limit, bucketInfo);
+                if (rateLimiter.BucketInfo == bucketInfo)
+                    await rateLimiter.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
                 else
-                    HandleResponseWithoutRateLimiter(route, bucket!, headers, timestamp, ref reset, semaphore);
-            }
-
-            if (IsRateLimited(headers, out var scope))
-            {
-                if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
                 {
-                    if (scope is RateLimitScope.Global)
-                    {
-                        _globalRateLimiter.RateLimitReceived(timestamp + (int)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds);
-                        if (!bucketFound)
-                            semaphore?.Release();
-                    }
-                    else
-                    {
-                        if (!bucketFound)
-                            SetRouteWithoutRateLimit(route, semaphore);
+                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, rateLimitInfo).ConfigureAwait(false);
+                    await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
+                }
 
+                if (rateLimited)
+                {
+                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                    {
                         if (scope is RateLimitScope.Shared)
                             await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault()).ConfigureAwait(false);
+
+                        continue;
                     }
-                    continue;
+
+                    throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
+                }
+            }
+            else if (rateLimited)
+            {
+                if (scope is RateLimitScope.Global)
+                {
+                    if (global)
+                        await globalRateLimiter!.IndicateRateLimitAsync(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds).ConfigureAwait(false);
+
+                    await rateLimiter.CancelAcquireAsync(timestamp).ConfigureAwait(false);
+
+                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                        continue;
                 }
                 else
                 {
-                    if (scope is RateLimitScope.Global)
-                    {
-                        _globalRateLimiter.RateLimitReceived(timestamp + (int)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds);
-                        if (!bucketFound)
-                            semaphore?.Release();
-                    }
-                    else if (!bucketFound)
-                        SetRouteWithoutRateLimit(route, semaphore);
+                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null).ConfigureAwait(false);
+                    await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
 
-                    throw new RateLimitedException(reset, scope);
+                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                    {
+                        if (scope is RateLimitScope.Shared)
+                            await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault()).ConfigureAwait(false);
+
+                        continue;
+                    }
                 }
+
+                throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
             }
-            else if (!bucketFound)
-                SetRouteWithoutRateLimit(route, semaphore);
+            else
+            {
+                await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null).ConfigureAwait(false);
+                await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
+            }
 
             if (response.IsSuccessStatusCode)
                 return response;
 
-            RestError error;
             var content = response.Content;
             if (content.Headers.ContentType is { MediaType: "application/json" })
             {
+                RestError error;
                 try
                 {
                     error = (await JsonSerializer.DeserializeAsync(await content.ReadAsStreamAsync().ConfigureAwait(false), Serialization.Default.RestError).ConfigureAwait(false))!;
@@ -188,118 +181,50 @@ public partial class RestClient : IDisposable
                 {
                     throw new RestException(response.StatusCode, response.ReasonPhrase!);
                 }
+                throw new RestException(response.StatusCode, response.ReasonPhrase!, error);
             }
             else
                 throw new RestException(response.StatusCode, response.ReasonPhrase!);
-
-            throw new RestException(response.StatusCode, response.ReasonPhrase!, error);
         }
     }
 
-    private void HandleResponse(Route route, string bucket, HttpResponseHeaders headers, long timestamp, RouteRateLimiter rateLimiter, ref long reset)
-    {
-        var currentBucket = rateLimiter.BucketInfo.Bucket;
-        if (bucket != currentBucket)
-        {
-            bool update;
-            RouteRateLimiter? newRateLimiter;
-            BucketInfo bucketInfo = new(bucket, route.ResourceInfo);
-            lock (_rateLimitersLock)
-            {
-                if (update = _rateLimitersFromBuckets.TryGetValue(bucketInfo, out newRateLimiter))
-                    _rateLimiters[route] = newRateLimiter!;
-                else if (TryGetLimitHeaderValue(headers, out var limit) && TryGetRemainingHeaderValue(headers, out var remaining) && TryGetResetAfterHeaderValue(headers, out var resetAfter))
-                {
-                    newRateLimiter = new(limit, remaining, reset = timestamp + resetAfter, resetAfter, bucketInfo);
-                    _rateLimiters[route] = newRateLimiter;
-                    _rateLimitersFromBuckets.Add(bucketInfo, newRateLimiter);
-                }
-            }
-
-            if (update)
-            {
-                if (TryGetRemainingHeaderValue(headers, out var remaining) && TryGetResetAfterHeaderValue(headers, out var resetAfter))
-                    newRateLimiter!.Update(remaining, reset = timestamp + resetAfter, resetAfter);
-            }
-
-            rateLimiter.CancelAcquire(timestamp);
-        }
-        else if (TryGetRemainingHeaderValue(headers, out var remaining) && TryGetResetAfterHeaderValue(headers, out var resetAfter))
-            rateLimiter.Update(remaining, reset = timestamp + resetAfter, resetAfter);
-    }
-
-    private void HandleResponseWithoutRateLimiter(Route route, string bucket, HttpResponseHeaders headers, long timestamp, ref long reset, SemaphoreSlim? semaphore)
-    {
-        bool update;
-        RouteRateLimiter? rateLimiter;
-        bool removeSemaphore;
-        BucketInfo bucketInfo = new(bucket, route.ResourceInfo);
-        lock (_rateLimitersLock)
-        {
-            if (update = _rateLimitersFromBuckets.TryGetValue(bucketInfo, out rateLimiter))
-            {
-                _rateLimiters.TryAdd(route, rateLimiter!);
-                removeSemaphore = true;
-            }
-            else if (TryGetLimitHeaderValue(headers, out var limit) && TryGetRemainingHeaderValue(headers, out var remaining) && TryGetResetAfterHeaderValue(headers, out var resetAfter))
-            {
-                rateLimiter = new(limit, remaining, reset = timestamp + resetAfter, resetAfter, bucketInfo);
-                _rateLimiters.Add(route, rateLimiter);
-                _rateLimitersFromBuckets.Add(bucketInfo, rateLimiter);
-                removeSemaphore = true;
-            }
-            else
-                removeSemaphore = false;
-        }
-
-        if (update)
-        {
-            if (TryGetRemainingHeaderValue(headers, out var remaining) && TryGetResetAfterHeaderValue(headers, out var resetAfter))
-                rateLimiter!.Update(remaining, reset = timestamp + resetAfter, resetAfter);
-        }
-
-        if (removeSemaphore)
-            RemoveSemaphore(route, semaphore);
-        else
-            semaphore?.Release();
-    }
-
-    private void RemoveSemaphore(Route route, SemaphoreSlim? semaphore)
-    {
-        if (semaphore is not null)
-        {
-            lock (_rateLimitersLock)
-                _knownRoutesWithoutRateLimiters.Remove(route);
-            semaphore.Release(int.MaxValue);
-            semaphore.Dispose();
-        }
-    }
-
-    private void SetRouteWithoutRateLimit(Route route, SemaphoreSlim? semaphore)
-    {
-        if (semaphore is not null)
-        {
-            lock (_rateLimitersLock)
-                _knownRoutesWithoutRateLimiters[route] = null;
-            semaphore.Release(int.MaxValue);
-            semaphore.Dispose();
-        }
-    }
-
-    private static async Task AcquireRateLimiter(IRateLimiter rateLimiter, bool global, RequestProperties properties)
+    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(RequestProperties properties)
     {
         while (true)
         {
-            var info = rateLimiter.TryAcquire();
+            var rateLimiter = await _rateLimitManager.GetGlobalRateLimiterAsync().ConfigureAwait(false);
+            var info = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
             if (info.RateLimited)
             {
-                if (properties.RateLimitHandling.HasFlag(global ? RateLimitHandling.RetryGlobal : RateLimitHandling.RetryUser))
+                if (properties.RateLimitHandling.HasFlag(RateLimitHandling.RetryGlobal))
                     await Task.Delay(info.ResetAfter).ConfigureAwait(false);
                 else
-                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, global ? RateLimitScope.Global : RateLimitScope.User);
+                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.Global);
             }
+            else if (info.AlwaysRetry)
+                continue;
             else
-                break;
+                return rateLimiter;
+        }
+    }
+
+    private async ValueTask<IRouteRateLimiter> AcquireRouteRateLimiterAsync(Route route, RequestProperties properties)
+    {
+        while (true)
+        {
+            var rateLimiter = await _rateLimitManager.GetRouteRateLimiterAsync(route).ConfigureAwait(false);
+            var info = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
+            if (info.RateLimited)
+            {
+                if (properties.RateLimitHandling.HasFlag(RateLimitHandling.RetryUser))
+                    await Task.Delay(info.ResetAfter).ConfigureAwait(false);
+                else
+                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.User);
+            }
+            else if (info.AlwaysRetry)
+                continue;
+            else
+                return rateLimiter;
         }
     }
 
@@ -372,5 +297,6 @@ public partial class RestClient : IDisposable
     public void Dispose()
     {
         _httpClient.Dispose();
+        _rateLimitManager.Dispose();
     }
 }
