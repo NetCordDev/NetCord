@@ -11,10 +11,10 @@ commandService.AddModule<ExampleModule>();
 commandService.AddCommand(["pong"], ReplyMessageProperties () => "ping!");
 
 var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
-configuration = configuration with
-{
-    TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader()),
-};
+//configuration = configuration with
+//{
+//    TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader()),
+//};
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();

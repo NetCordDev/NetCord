@@ -12,6 +12,6 @@ public class SlashCommandAttribute : ApplicationCommandAttribute
 
     public string Description { get; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? DescriptionTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? DescriptionTranslationsProviderType { get; init; }
 }

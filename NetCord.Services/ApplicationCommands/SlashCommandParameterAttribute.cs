@@ -7,13 +7,13 @@ public class SlashCommandParameterAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { get; init; }
 
     public string? Description { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? DescriptionTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? DescriptionTranslationsProviderType { get; init; }
 
     public double MaxValue
     {
@@ -61,12 +61,12 @@ public class SlashCommandParameterAttribute : Attribute
 
     public ChannelType[]? AllowedChannelTypes { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? TypeReaderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? TypeReaderType { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? ChoicesProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? ChoicesProviderType { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-    public Type? AutocompleteProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    public Type? AutocompleteProviderType { get; init; }
 }

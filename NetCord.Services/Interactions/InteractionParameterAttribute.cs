@@ -7,5 +7,6 @@ public class InteractionParameterAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    public Type? TypeReaderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? TypeReaderType { get; init; }
 }

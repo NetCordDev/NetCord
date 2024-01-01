@@ -7,6 +7,6 @@ public class SlashCommandChoiceAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { get; init; }
 }

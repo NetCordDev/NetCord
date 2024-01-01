@@ -12,8 +12,8 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     public string Name { get; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? NameTranslationsProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] get; init; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+    public Type? NameTranslationsProviderType { get; init; }
 
     public Permissions DefaultGuildUserPermissions
     {

@@ -22,8 +22,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public string Description { get; }
     public ITranslationsProvider? DescriptionTranslationsProvider { get; }
 
-    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-    public Type? AutocompleteProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] get; }
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    public Type? AutocompleteProviderType { get; }
     public IChoicesProvider<TContext>? ChoicesProvider { get; }
     public double? MaxValue { get; }
     public double? MinValue { get; }

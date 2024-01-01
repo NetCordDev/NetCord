@@ -16,7 +16,7 @@ public class ExampleModule2 : ApplicationCommandModule<SlashCommandContext>
         }
 
         [SubSlashCommand("permissions", "Permissions")]
-        public Task PermissionsAsync(Permissions permissions)
+        public Task PermissionsAsync([SlashCommandParameter(TypeReaderType = typeof(PermissionsTypeReader))] Permissions permissions)
         {
             return RespondAsync(InteractionCallback.Message(permissions.ToString()));
         }
