@@ -25,13 +25,13 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
         ChannelPermissionsFormat = channelPermissionsFormat;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var guild = context.Guild;
         if (guild is not null && guild.OwnerId != context.User.Id)
         {
             var guildUser = (GuildUser)context.User;
-            Permissions permissions = guild.EveryoneRole.Permissions;
+            var permissions = guild.EveryoneRole.Permissions;
             foreach (var role in guildUser.GetRoles(guild))
                 permissions |= role.Permissions;
             if (!permissions.HasFlag(Permissions.Administrator))
@@ -39,13 +39,13 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
                 if (!permissions.HasFlag(GuildPermissions))
                 {
                     var missingPermissions = GuildPermissions & ~permissions;
-                    throw new PermissionsException(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Guild);
+                    return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Guild));
                 }
                 if (ChannelPermissions != default)
                 {
                     var channel = context.Channel;
                     if (channel is null)
-                        throw new EntityNotFoundException("Current channel could not be found.");
+                        return new(PreconditionResult.Fail("The current channel could not be found."));
                     var permissionOverwrites = ((IGuildChannel)channel).PermissionOverwrites;
                     Permissions denied = default;
                     Permissions allowed = default;
@@ -66,11 +66,12 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
                     if (!permissions.HasFlag(ChannelPermissions))
                     {
                         var missingPermissions = ChannelPermissions & ~permissions;
-                        throw new PermissionsException(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel);
+                        return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel));
                     }
                 }
             }
         }
-        return default;
+
+        return new(PreconditionResult.Success);
     }
 }

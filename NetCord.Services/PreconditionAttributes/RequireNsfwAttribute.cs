@@ -2,24 +2,25 @@
 
 public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
-    public string Message { get; }
+    private readonly RequiredNsfwResult _failResult;
 
     public RequireNsfwAttribute(string message = "Required nsfw channel.")
     {
-        Message = message;
+        _failResult = new(message);
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         if (context.Channel is TextGuildChannel guildChannel && !guildChannel.Nsfw)
-            throw new RequiredNsfwException(Message);
-        return default;
+            return new(_failResult);
+
+        return new(PreconditionResult.Success);
     }
 }
 
-public class RequiredNsfwException : Exception
+public class RequiredNsfwResult : PreconditionFailResult
 {
-    public RequiredNsfwException(string message) : base(message)
+    public RequiredNsfwResult(string message) : base(message)
     {
     }
 }

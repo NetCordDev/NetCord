@@ -6,7 +6,7 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
@@ -17,10 +17,10 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         else
             return new(GetGuildUser(guild, input.Span));
 
-        throw new EntityNotFoundException("The user was not found.");
+        return new(TypeReaderResult.Fail("The user was not found."));
     }
 
-    protected User GetUser(DMChannel dMChannel, ReadOnlySpan<char> input)
+    protected TypeReaderResult GetUser(DMChannel dMChannel, ReadOnlySpan<char> input)
     {
         var users = dMChannel.Users;
 
@@ -28,7 +28,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         if (Mention.TryParseUser(input, out var id))
         {
             if (users.TryGetValue(id, out var user))
-                return user;
+                return TypeReaderResult.Success(user);
         }
 
         // by name and tag
@@ -40,7 +40,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                 foreach (var user in users.Values)
                 {
                     if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
-                        return user;
+                        return TypeReaderResult.Success(user);
                 }
             }
         }
@@ -58,9 +58,9 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                     {
                         var current2 = enumerator.Current;
                         if (input.SequenceEqual(current2.Username))
-                            throw new InvalidOperationException("Too many users found.");
+                            return TypeReaderResult.Fail("Too many users found.");
                     }
-                    return current;
+                    return TypeReaderResult.Success(current);
                 }
             }
         }
@@ -69,13 +69,13 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         if (Snowflake.TryParse(input, out id))
         {
             if (users.TryGetValue(id, out var user))
-                return user;
+                return TypeReaderResult.Success(user);
         }
 
-        throw new EntityNotFoundException("The user was not found.");
+        return TypeReaderResult.Fail("The user was not found.");
     }
 
-    protected GuildUser GetGuildUser(Guild guild, ReadOnlySpan<char> input)
+    protected TypeReaderResult GetGuildUser(Guild guild, ReadOnlySpan<char> input)
     {
         var users = guild.Users;
 
@@ -83,7 +83,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         if (Mention.TryParseUser(input, out var id))
         {
             if (users.TryGetValue(id, out var user))
-                return user;
+                return TypeReaderResult.Success(user);
         }
 
         var len = input.Length;
@@ -97,7 +97,7 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                 foreach (var user in users.Values)
                 {
                     if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
-                        return user;
+                        return TypeReaderResult.Success(user);
                 }
             }
         }
@@ -117,9 +117,9 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                         {
                             var current2 = enumerator.Current;
                             if (input.SequenceEqual(current2.Username) || input.SequenceEqual(current2.Nickname))
-                                throw new InvalidOperationException("Too many users found.");
+                                return TypeReaderResult.Fail("Too many users found.");
                         }
-                        return current;
+                        return TypeReaderResult.Success(current);
                     }
                 }
             }
@@ -134,9 +134,9 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
                         {
                             var current2 = enumerator.Current;
                             if (input.SequenceEqual(current2.Nickname))
-                                throw new InvalidOperationException("Too many users found.");
+                                return TypeReaderResult.Fail("Too many users found.");
                         }
-                        return current;
+                        return TypeReaderResult.Success(current);
                     }
                 }
             }
@@ -146,9 +146,9 @@ public class UserTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         if (Snowflake.TryParse(input, out id))
         {
             if (users.TryGetValue(id, out var user))
-                return user;
+                return TypeReaderResult.Success(user);
         }
 
-        throw new EntityNotFoundException("The user was not found.");
+        return TypeReaderResult.Fail("The user was not found.");
     }
 }

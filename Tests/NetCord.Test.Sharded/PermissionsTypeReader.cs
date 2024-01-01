@@ -2,6 +2,7 @@
 using System.Globalization;
 
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.Sharded;
@@ -10,9 +11,11 @@ internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContex
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override ValueTask<object?> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(string value, SlashCommandContext context, SlashCommandParameter<SlashCommandContext> parameter, ApplicationCommandServiceConfiguration<SlashCommandContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new((Permissions)ulong.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture));
+        return ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var result)
+            ? new(TypeReaderResult.Success((Permissions)result))
+            : new(TypeReaderResult.ParseFail(parameter.Name));
     }
 
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]

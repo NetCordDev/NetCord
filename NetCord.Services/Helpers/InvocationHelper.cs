@@ -52,8 +52,8 @@ internal class InvocationHelper
         var resolver = GetResolver(method, resultResolverProvider);
         var invokeResolver = GetInvokeResolverExpression(method, context, invoke, resolver);
 
-        var lambda = Expression.Lambda(invokeResolver, parameters, context, serviceProvider);
-        return (Func<object?[]?, TContext, IServiceProvider?, ValueTask>)lambda.Compile();
+        var lambda = Expression.Lambda<Func<object?[]?, TContext, IServiceProvider?, ValueTask>>(invokeResolver, parameters, context, serviceProvider);
+        return lambda.Compile();
     }
 
     private static NewExpression GetServiceNotFoundExceptionExpression(ParameterInfo p)

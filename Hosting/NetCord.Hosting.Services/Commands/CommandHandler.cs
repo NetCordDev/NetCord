@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
+using NetCord.Services;
 using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
@@ -15,7 +16,7 @@ internal class CommandHandler<TContext> : IGatewayEventHandler<Message>, ISharde
     private readonly CommandService<TContext> _commandService;
     private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<int>> _getPrefixLengthAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, TContext>? _createContext;
-    private readonly Func<Exception, Message, GatewayClient, ILogger, IServiceProvider, ValueTask> _handleExceptionAsync;
+    private readonly Func<IExecutionResult, Message, GatewayClient, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
     private readonly GatewayClient? _client;
 
     public CommandHandler(IServiceProvider services, ILogger<CommandHandler<TContext>> logger, CommandService<TContext> commandService, IOptions<CommandServiceOptions<TContext>> options, GatewayClient? client = null)
@@ -26,7 +27,7 @@ internal class CommandHandler<TContext> : IGatewayEventHandler<Message>, ISharde
         var optionsValue = options.Value;
         _getPrefixLengthAsync = GetGetPrefixLengthAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>();
-        _handleExceptionAsync = optionsValue.HandleExceptionAsync;
+        _handleResultAsync = optionsValue.HandleResultAsync;
         _client = client;
     }
 
@@ -82,25 +83,20 @@ internal class CommandHandler<TContext> : IGatewayEventHandler<Message>, ISharde
     private async ValueTask HandleMessageAsync(Message message, GatewayClient client)
     {
         var services = _services;
+        var prefixLength = await _getPrefixLengthAsync(message, client, services).ConfigureAwait(false);
+        if (prefixLength < 0)
+            return;
+
+        var context = _createContext!(message, client, services);
+        var result = await _commandService.ExecuteAsync(prefixLength, context, services).ConfigureAwait(false);
+
         try
         {
-            var prefixLength = await _getPrefixLengthAsync(message, client, services).ConfigureAwait(false);
-            if (prefixLength < 0)
-                return;
-
-            var context = _createContext!(message, client, services);
-            await _commandService.ExecuteAsync(prefixLength, context, services).ConfigureAwait(false);
+            await _handleResultAsync(result, message, client, _logger, services).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception exceptionHandlerException)
         {
-            try
-            {
-                await _handleExceptionAsync(ex, message, client, _logger, services).ConfigureAwait(false);
-            }
-            catch (Exception exceptionHandlerException)
-            {
-                _logger.LogError(exceptionHandlerException, "An exception occurred while handling an exception");
-            }
+            _logger.LogError(exceptionHandlerException, "An exception occurred while handling the result");
         }
     }
 }

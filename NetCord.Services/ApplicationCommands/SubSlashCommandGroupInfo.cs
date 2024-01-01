@@ -46,15 +46,17 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
 
-    public async ValueTask InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask<IExecutionResult> InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
+        var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
+        if (preconditionResult is IFailResult)
+            return preconditionResult;
 
         var option = options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            throw new ApplicationCommandNotFoundException();
+            return new NotFoundResult("Command not found.");
 
-        await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
+        return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
 
     public ApplicationCommandOptionProperties GetRawValue()
@@ -67,13 +69,13 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         };
     }
 
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
+    public ValueTask<IExecutionResult> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
     {
         var option = options[0];
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        throw new AutocompleteNotFoundException();
+        return new(new NotFoundResult("Command not found."));
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()

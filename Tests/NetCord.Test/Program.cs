@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NetCord.Gateway;
 using NetCord.JsonModels;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.Interactions;
@@ -110,29 +111,26 @@ internal static class Program
 
     private static async ValueTask Client_InteractionCreate(Interaction interaction)
     {
-        try
+        var result = await (interaction switch
         {
-            await (interaction switch
-            {
-                SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client), _serviceProvider),
-                MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client), _serviceProvider),
-                UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client), _serviceProvider),
-                StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client), _serviceProvider),
-                UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client), _serviceProvider),
-                RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client), _serviceProvider),
-                MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client), _serviceProvider),
-                ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
-                ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
-                AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
-                ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
-                _ => throw new("Invalid interaction."),
-            });
-        }
-        catch (Exception ex)
+            SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client), _serviceProvider),
+            MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client), _serviceProvider),
+            UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client), _serviceProvider),
+            StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client), _serviceProvider),
+            UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client), _serviceProvider),
+            RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client), _serviceProvider),
+            MentionableMenuInteraction mentionableMenuInteraction => _mentionableMenuInteractionService.ExecuteAsync(new(mentionableMenuInteraction, _client), _serviceProvider),
+            ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
+            ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
+            AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
+            ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
+            _ => throw new("Invalid interaction."),
+        });
+        if (result is IFailResult failResult)
         {
             InteractionMessageProperties message = new()
             {
-                Content = ex.Message,
+                Content = failResult.Message,
                 Flags = MessageFlags.Ephemeral,
             };
             try
@@ -159,17 +157,14 @@ internal static class Program
             const string prefix = "!";
             if (message.Content.StartsWith(prefix))
             {
-                try
-                {
-                    await _commandService.ExecuteAsync(prefix.Length, new(message, _client), _serviceProvider);
-                }
-                catch (Exception ex)
+                var result = await _commandService.ExecuteAsync(prefix.Length, new(message, _client), _serviceProvider);
+                if (result is IFailResult failResult)
                 {
                     try
                     {
                         await message.ReplyAsync(new()
                         {
-                            Content = ex.Message,
+                            Content = failResult.Message,
                             FailIfNotExists = false,
                         });
                     }

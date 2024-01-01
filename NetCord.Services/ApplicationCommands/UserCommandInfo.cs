@@ -49,10 +49,22 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
-    public override async ValueTask InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
-        await _invokeAsync(null, context, serviceProvider).ConfigureAwait(false);
+        var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
+        if (preconditionResult is IFailResult)
+            return preconditionResult;
+
+        try
+        {
+            await _invokeAsync(null, context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+
+        return SuccessResult.Instance;
     }
 
     public override ApplicationCommandProperties GetRawValue()

@@ -4,7 +4,7 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
@@ -16,7 +16,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
 
                 // by mention
                 if (Mention.TryParseUser(span, out var id))
-                    return new(new UserId(id, users.GetValueOrDefault(id)));
+                    return new(TypeReaderResult.Success(new UserId(id, users.GetValueOrDefault(id))));
 
                 // by name and tag
                 if (span.Length is >= 7 and <= 37 && span[^5] == '#')
@@ -27,7 +27,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                         foreach (var user in users.Values)
                         {
                             if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
-                                return new(new UserId(user.Id, user));
+                                return new(TypeReaderResult.Success(new UserId(user.Id, user)));
                         }
                     }
                 }
@@ -47,14 +47,14 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                                 if (span.SequenceEqual(current2.Username))
                                     goto TooManyFound;
                             }
-                            return new(new UserId(current.Id, current));
+                            return new(TypeReaderResult.Success(new UserId(current.Id, current)));
                         }
                     }
                 }
 
                 // by id
                 if (Snowflake.TryParse(span, out id))
-                    return new(new UserId(id, users.GetValueOrDefault(id)));
+                    return new(TypeReaderResult.Success(new UserId(id, users.GetValueOrDefault(id))));
             }
         }
         else
@@ -64,7 +64,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
 
             // by mention
             if (Mention.TryParseUser(span, out var id))
-                return new(new UserId(id, users.GetValueOrDefault(id)));
+                return new(TypeReaderResult.Success(new UserId(id, users.GetValueOrDefault(id))));
 
             var len = span.Length;
 
@@ -77,7 +77,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                     foreach (var user in users.Values)
                     {
                         if (user.Discriminator == discriminator && username.SequenceEqual(user.Username))
-                            return new(new UserId(user.Id, user));
+                            return new(TypeReaderResult.Success(new UserId(user.Id, user)));
                     }
                 }
             }
@@ -99,7 +99,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                                 if (span.SequenceEqual(current2.Username) || span.SequenceEqual(current2.Nickname))
                                     goto TooManyFound;
                             }
-                            return new(new UserId(current.Id, current));
+                            return new(TypeReaderResult.Success(new UserId(current.Id, current)));
                         }
                     }
                 }
@@ -116,7 +116,7 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
                                 if (span.SequenceEqual(current2.Nickname))
                                     goto TooManyFound;
                             }
-                            return new(new UserId(current.Id, current));
+                            return new(TypeReaderResult.Success(new UserId(current.Id, current)));
                         }
                     }
                 }
@@ -124,12 +124,12 @@ public class UserIdTypeReader<TContext> : CommandTypeReader<TContext> where TCon
 
             // by id
             if (Snowflake.TryParse(span, out id))
-                return new(new UserId(id, users.GetValueOrDefault(id)));
+                return new(TypeReaderResult.Success(new UserId(id, users.GetValueOrDefault(id))));
         }
 
-        throw new EntityNotFoundException("The user was not found.");
+        return new(TypeReaderResult.Fail("The user was not found."));
 
         TooManyFound:
-        throw new InvalidOperationException("Too many users found.");
+        return new(TypeReaderResult.Fail("Too many users found."));
     }
 }

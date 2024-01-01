@@ -12,13 +12,14 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
     {
     }
 
-    public async ValueTask ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
+    public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
         var data = interaction.Data;
-        var command = (IAutocompleteInfo)GetApplicationCommandInfo(data.Id);
-        var choices = await command.InvokeAutocompleteAsync(context, data.Options, serviceProvider).ConfigureAwait(false);
-        await interaction.SendResponseAsync(InteractionCallback.Autocomplete(choices)).ConfigureAwait(false);
+        if (TryGetApplicationCommandInfo(data.Id, out var command))
+            return ((IAutocompleteInfo)command).InvokeAutocompleteAsync(context, data.Options, serviceProvider);
+
+        return new(new NotFoundResult("Command not found."));
     }
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
@@ -30,7 +31,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
 public class ApplicationCommandService<TContext> : IApplicationCommandService, IService where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
-    private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>? _commands;
+    private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>> _commands = FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>.Empty;
 
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
     internal readonly Dictionary<ulong, List<ApplicationCommandInfo<TContext>>> _guildCommandsToCreate = [];
@@ -39,7 +40,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
 
     IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
 
-    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>>? GetCommands() => _commands;
+    public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => _commands;
 
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
@@ -232,21 +233,26 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
         return result;
     }
 
-    public ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
-        var interaction = context.Interaction;
-        var command = GetApplicationCommandInfo(interaction.Data.Id);
+        if (TryGetApplicationCommandInfo(context.Interaction.Data.Id, out var command))
+        {
+            try
+            {
+                return await command.InvokeAsync(context, _configuration, serviceProvider).ConfigureAwait(false);
+            }
+            catch (Exception exception)
+            {
+                return new ExecutionExceptionResult(exception);
+            }
+        }
 
-        return command.InvokeAsync(context, _configuration, serviceProvider);
+        return new NotFoundResult("Command not found.");
     }
 
-    private protected ApplicationCommandInfo<TContext> GetApplicationCommandInfo(ulong commandId)
+    private protected bool TryGetApplicationCommandInfo(ulong commandId, [MaybeNullWhen(false)] out ApplicationCommandInfo<TContext> result)
     {
-        var commands = _commands;
-        if (commands is not null && commands.TryGetValue(commandId, out var applicationCommandInfo))
-            return applicationCommandInfo;
-
-        throw new ApplicationCommandNotFoundException();
+        return _commands.TryGetValue(commandId, out result);
     }
 
     private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)

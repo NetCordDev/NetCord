@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public enum ParameterCountExceptionType
+public enum ParameterCountMismatchType
 {
     TooFew,
     TooMany,

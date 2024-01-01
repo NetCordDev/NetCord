@@ -12,12 +12,12 @@ public class RequireDiscriminatorAttribute<TContext> : PreconditionAttribute<TCo
         _discriminator = discriminator;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        // Throw exception if invalid discriminator
+        // Return a fail result if invalid discriminator
         if (context.User.Discriminator != _discriminator)
-            throw new($"You need {_discriminator:D4} discriminator to use this command.");
+            return new(PreconditionResult.Fail($"You need {_discriminator:D4} discriminator to use this."));
 
-        return default;
+        return new(PreconditionResult.Success);
     }
 }

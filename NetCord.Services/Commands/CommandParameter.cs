@@ -7,6 +7,7 @@ namespace NetCord.Services.Commands;
 
 public class CommandParameter<TContext> where TContext : ICommandContext
 {
+    public string Name { get; }
     public CommandTypeReader<TContext> TypeReader { get; }
     public Type ElementType { get; }
     public Type NonNullableElementType { get; }
@@ -30,13 +31,17 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         if (attributes.TryGetValue(typeof(CommandParameterAttribute), out var commandParameterAttributes))
         {
             var commandParameterAttribute = (CommandParameterAttribute)commandParameterAttributes[0];
+            Name = commandParameterAttribute.Name ?? parameter.Name!;
             Remainder = commandParameterAttribute.Remainder;
             typeReaderType = commandParameterAttribute.TypeReaderType;
         }
         else
+        {
+            Name = parameter.Name!;
             typeReaderType = null;
+        }
 
-        Type type = Type = parameter.ParameterType;
+        var type = Type = parameter.ParameterType;
         Type elementType;
         if (attributes.ContainsKey(typeof(ParamArrayAttribute)))
         {
@@ -51,14 +56,20 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    internal async ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        var preconditions = Preconditions;
-        var count = preconditions.Count;
-        for (var i = 0; i < count; i++)
+        try
         {
-            var preconditionAttribute = preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+            return await TypeReader.ReadAsync(input, context, this, configuration, serviceProvider).ConfigureAwait(false);
         }
+        catch (Exception ex)
+        {
+            return new TypeReaderExceptionResult(ex);
+        }
+    }
+
+    internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    {
+        return PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, value, context, serviceProvider);
     }
 }

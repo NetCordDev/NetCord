@@ -15,7 +15,7 @@ public class InteractionRequireBotChannelPermissionsAttribute<TContext> : Precon
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         if (context.Interaction.AppPermissions.HasValue)
         {
@@ -23,9 +23,9 @@ public class InteractionRequireBotChannelPermissionsAttribute<TContext> : Precon
             if (!permissions.HasFlag(ChannelPermissions))
             {
                 var missingPermissions = ChannelPermissions & ~permissions;
-                throw new PermissionsException(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel);
+                return new(new MissingPermissionsResult(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Channel));
             }
         }
-        return default;
+        return new(PreconditionResult.Success);
     }
 }

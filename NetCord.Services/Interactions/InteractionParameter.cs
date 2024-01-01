@@ -7,6 +7,7 @@ namespace NetCord.Services.Interactions;
 
 public class InteractionParameter<TContext> where TContext : IInteractionContext
 {
+    public string Name { get; }
     public InteractionTypeReader<TContext> TypeReader { get; }
     public Type ElementType { get; }
     public Type NonNullableElementType { get; }
@@ -28,10 +29,14 @@ public class InteractionParameter<TContext> where TContext : IInteractionContext
         if (Attributes.TryGetValue(typeof(InteractionParameterAttribute), out var attributes))
         {
             var commandParameterAttribute = (InteractionParameterAttribute)attributes[0];
+            Name = commandParameterAttribute.Name ?? parameter.Name!;
             typeReaderType = commandParameterAttribute.TypeReaderType;
         }
         else
+        {
+            Name = parameter.Name!;
             typeReaderType = null;
+        }
 
         var type = Type = parameter.ParameterType;
         Type elementType;
@@ -48,14 +53,20 @@ public class InteractionParameter<TContext> where TContext : IInteractionContext
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    internal async ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        var preconditions = Preconditions;
-        var count = preconditions.Count;
-        for (var i = 0; i < count; i++)
+        try
         {
-            var preconditionAttribute = preconditions[i];
-            await preconditionAttribute.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+            return await TypeReader.ReadAsync(input, context, this, configuration, serviceProvider).ConfigureAwait(false);
         }
+        catch (Exception ex)
+        {
+            return new TypeReaderExceptionResult(ex);
+        }
+    }
+
+    internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    {
+        return PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, value, context, serviceProvider);
     }
 }

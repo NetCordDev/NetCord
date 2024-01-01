@@ -2,6 +2,7 @@
 
 using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
@@ -12,10 +13,19 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInt
 
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public Func<Exception, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleExceptionAsync { get; set; } = (exception, interaction, client, logger, services) =>
+    public Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, interaction, client, logger, services) =>
     {
-        logger.LogInformation(exception, "An exception occurred while executing an application command of name '{Name}'", interaction.Data.Name);
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(exception.Message)));
+        if (result is not IFailResult failResult)
+            return default;
+
+        var message = failResult.Message;
+
+        if (failResult is IExceptionResult exceptionResult)
+            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", interaction.Data.Name);
+        else
+            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, message);
+
+        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
     };
 }
 
@@ -23,9 +33,19 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompl
 {
     public Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext>? CreateAutocompleteContext { get; set; }
 
-    public Func<Exception, AutocompleteInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleAutocompleteExceptionAsync { get; set; } = (exception, interaction, client, logger, services) =>
+    public Func<IExecutionResult, AutocompleteInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleAutocompleteResultAsync { get; set; } = (result, interaction, client, logger, services) =>
     {
-        logger.LogError(exception, "An exception occurred while executing an application command autocomplete for parameter '{Parameter}' of application command of name '{Name}'", interaction.Data.Options.First(o => o.Focused), interaction.Data.Name);
+        if (result is not IFailResult failResult)
+            return default;
+
+        var parameterName = interaction.Data.Options.First(o => o.Focused).Name;
+        var commandName = interaction.Data.Name;
+
+        if (failResult is IExceptionResult exceptionResult)
+            logger.LogError(exceptionResult.Exception, "Execution of an autocomplete for parameter '{Parameter}' of application command of name '{Name}' failed with an exception", parameterName, commandName);
+        else
+            logger.LogDebug("Execution of an autocomplete for parameter '{Parameter}' of application command of name '{Name}' failed with '{Message}'", parameterName, commandName, failResult.Message);
+
         return default;
     };
 }

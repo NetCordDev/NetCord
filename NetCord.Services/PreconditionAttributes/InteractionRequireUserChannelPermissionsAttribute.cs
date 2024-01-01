@@ -16,13 +16,13 @@ public class InteractionRequireUserChannelPermissionsAttribute<TContext> : Preco
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         if (context.User is GuildInteractionUser guildUser && !guildUser.Permissions.HasFlag(ChannelPermissions))
         {
             var missingPermissions = ChannelPermissions & ~guildUser.Permissions;
-            throw new PermissionsException(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel);
+            return new(new MissingPermissionsResult(string.Format(Format, missingPermissions), missingPermissions, PermissionsExceptionEntityType.User, PermissionsExceptionPermissionType.Channel));
         }
-        return default;
+        return new(PreconditionResult.Success);
     }
 }

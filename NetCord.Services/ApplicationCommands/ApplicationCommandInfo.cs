@@ -41,6 +41,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public bool Nsfw { get; }
     public ulong? GuildId { get; }
 
-    public abstract ValueTask InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
+    public abstract ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
     public abstract ApplicationCommandProperties GetRawValue();
 }

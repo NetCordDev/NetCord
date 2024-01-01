@@ -61,6 +61,6 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         return result;
     }
 
-    internal ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
         => PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider);
 }

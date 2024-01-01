@@ -51,6 +51,6 @@ public class InteractionInfo<TContext> where TContext : IInteractionContext
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
-    internal ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
         => PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider);
 }

@@ -1,12 +1,12 @@
 ﻿namespace NetCord.Services;
 
-public class PermissionsException : Exception
+public class MissingPermissionsResult : PreconditionFailResult
 {
     public Permissions MissingPermissions { get; }
     public PermissionsExceptionEntityType EntityType { get; }
     public PermissionsExceptionPermissionType PermissionType { get; }
 
-    public PermissionsException(string? message, Permissions missingPermissions, PermissionsExceptionEntityType entityType, PermissionsExceptionPermissionType permissionType) : base(message)
+    public MissingPermissionsResult(string message, Permissions missingPermissions, PermissionsExceptionEntityType entityType, PermissionsExceptionPermissionType permissionType) : base(message)
     {
         MissingPermissions = missingPermissions;
         EntityType = entityType;

@@ -322,8 +322,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     //    await Context.Interaction.ModifyResponseAsync(m => m.Content = $"**Deleted {(i == 1 ? "1 message" : $"{i} messages")}**");
     //}
 
-    //[RequireNsfw<SlashCommandContext>()]
-    [SlashCommand("nsfw", "You can use this command in nsfw channel", Nsfw = true)]
+    [RequireNsfw<SlashCommandContext>()]
+    [SlashCommand("nsfw", "You can use this command in nsfw channel"/*, Nsfw = true*/)]
     public static InteractionCallback Nsfw()
     {
         return InteractionCallback.Message("You used nsfw command!");

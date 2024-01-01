@@ -124,7 +124,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         };
     }
 
-    internal ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
         => PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, value, context, serviceProvider);
 
     public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, ApplicationCommandInteractionDataOption option, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext

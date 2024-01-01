@@ -4,7 +4,7 @@ namespace NetCord.Services.Commands.TypeReaders;
 
 public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
@@ -16,33 +16,33 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
         else
             return new(GetGuildChannel<Channel>(guild, input.Span));
 
-        throw new EntityNotFoundException("The channel was not found.");
+        return new(TypeReaderResult.Fail("The channel was not found."));
     }
 
-    protected T GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
+    protected TypeReaderResult GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
     {
         if (Mention.TryParseChannel(input, out var id))
         {
             if (id == channel.Id && channel is T t)
-                return t;
+                return TypeReaderResult.Success(t);
         }
 
         if (channel is INamedChannel namedChannel)
         {
             if (input.SequenceEqual(namedChannel.Name) && channel is T t)
-                return t;
+                return TypeReaderResult.Success(t);
         }
 
         if (Snowflake.TryParse(input, out id))
         {
             if (id == channel.Id && channel is T t)
-                return t;
+                return TypeReaderResult.Success(t);
         }
 
-        throw new EntityNotFoundException("The channel was not found.");
+        return TypeReaderResult.Fail("The channel was not found.");
     }
 
-    protected T GetGuildChannel<T>(Guild guild, ReadOnlySpan<char> input)
+    protected TypeReaderResult GetGuildChannel<T>(Guild guild, ReadOnlySpan<char> input)
     {
         var channels = guild.Channels;
         var threads = guild.ActiveThreads;
@@ -53,12 +53,12 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
             if (channels.TryGetValue(id, out var channel))
             {
                 if (channel is T t)
-                    return t;
+                    return TypeReaderResult.Success(t);
             }
             else if (threads.TryGetValue(id, out var thread))
             {
                 if (thread is T t)
-                    return t;
+                    return TypeReaderResult.Success(t);
             }
         }
 
@@ -75,9 +75,9 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
                     {
                         var current2 = enumerator.Current;
                         if (input.SequenceEqual(current2.Name) && current2 is T)
-                            throw new InvalidOperationException("Too many channels found.");
+                            return TypeReaderResult.Fail("Too many channels found.");
                     }
-                    return t;
+                    return TypeReaderResult.Success(t);
                 }
             }
 
@@ -90,15 +90,15 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
             if (channels.TryGetValue(id, out var channel))
             {
                 if (channel is T t)
-                    return t;
+                    return TypeReaderResult.Success(t);
             }
             else if (threads.TryGetValue(id, out var thread))
             {
                 if (thread is T t)
-                    return t;
+                    return TypeReaderResult.Success(t);
             }
         }
 
-        throw new EntityNotFoundException("The channel was not found.");
+        return TypeReaderResult.Fail("The channel was not found.");
     }
 }

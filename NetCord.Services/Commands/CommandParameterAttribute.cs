@@ -5,6 +5,8 @@ namespace NetCord.Services.Commands;
 [AttributeUsage(AttributeTargets.Parameter)]
 public class CommandParameterAttribute : Attribute
 {
+    public string? Name { get; init; }
+
     public bool Remainder { get; init; }
 
     [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]

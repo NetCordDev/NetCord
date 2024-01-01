@@ -25,7 +25,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
         ChannelPermissionsFormat = channelPermissionsFormat;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var guild = context.Guild;
         if (guild is null)
@@ -36,7 +36,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             return default;
 
         var guildUser = guild.Users[botId];
-        Permissions permissions = guild.EveryoneRole.Permissions;
+        var permissions = guild.EveryoneRole.Permissions;
         foreach (var role in guildUser.GetRoles(guild))
             permissions |= role.Permissions;
         if (!permissions.HasFlag(Permissions.Administrator))
@@ -44,13 +44,13 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (!permissions.HasFlag(GuildPermissions))
             {
                 var missingPermissions = GuildPermissions & ~permissions;
-                throw new PermissionsException(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Guild);
+                return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Guild));
             }
             if (ChannelPermissions != default)
             {
                 var channel = context.Channel;
                 if (channel is null)
-                    throw new EntityNotFoundException("Current channel could not be found.");
+                    return new(PreconditionResult.Fail("The current channel could not be found."));
 
                 var permissionOverwrites = ((IGuildChannel)channel).PermissionOverwrites;
                 Permissions denied = default;
@@ -72,10 +72,10 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
                 if (!permissions.HasFlag(ChannelPermissions))
                 {
                     var missingPermissions = ChannelPermissions & ~permissions;
-                    throw new PermissionsException(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Channel);
+                    return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, PermissionsExceptionEntityType.Bot, PermissionsExceptionPermissionType.Channel));
                 }
             }
         }
-        return default;
+        return new(PreconditionResult.Success);
     }
 }

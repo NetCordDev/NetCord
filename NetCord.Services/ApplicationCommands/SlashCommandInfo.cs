@@ -72,12 +72,27 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
-    public override async ValueTask InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
+        var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
+        if (preconditionResult is IFailResult)
+            return preconditionResult;
 
-        var parameters = await SlashCommandParametersHelper.ParseParametersAsync(context, ((SlashCommandInteraction)context.Interaction).Data.Options, Parameters, configuration, serviceProvider).ConfigureAwait(false);
-        await _invokeAsync(parameters, context, serviceProvider).ConfigureAwait(false);
+        var parameters = new object?[Parameters.Count];
+        var result = await SlashCommandParametersHelper.ParseParametersAsync(context, ((SlashCommandInteraction)context.Interaction).Data.Options, Parameters, configuration, serviceProvider, parameters).ConfigureAwait(false);
+        if (result is IFailResult)
+            return result;
+
+        try
+        {
+            await _invokeAsync(parameters, context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+
+        return SuccessResult.Instance;
     }
 
     public override ApplicationCommandProperties GetRawValue()
@@ -96,13 +111,25 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 #pragma warning restore CS0618 // Type or member is obsolete
     }
 
-    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
+    public async ValueTask<IExecutionResult> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext
     {
         var option = options.First(o => o.Focused);
         if (ParametersDictionary.TryGetValue(option.Name, out var parameter))
-            return parameter.InvokeAutocompleteAsync(context, option, serviceProvider);
+        {
+            try
+            {
+                var result = await parameter.InvokeAutocompleteAsync(context, option, serviceProvider).ConfigureAwait(false);
+                await context.Interaction.SendResponseAsync(InteractionCallback.Autocomplete(result)).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return new ExecutionExceptionResult(ex);
+            }
 
-        throw new AutocompleteNotFoundException();
+            return SuccessResult.Instance;
+        }
+
+        return new NotFoundResult("Command not found.");
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()

@@ -29,11 +29,11 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         static CommandParameter<TContext> GetKey(CommandParameter<TContext> parameter) => parameter;
     }
 
-    public override ValueTask<object?> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, configuration).TryRead(input, out var value))
-            return new(value);
+            return new(TypeReaderResult.Success(value));
 
-        throw new FormatException($"Invalid {parameter.NonNullableElementType.Name}.");
+        return new(TypeReaderResult.ParseFail(parameter.Name));
     }
 }

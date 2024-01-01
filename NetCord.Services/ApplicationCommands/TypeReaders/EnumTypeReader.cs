@@ -18,12 +18,12 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<TypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, null).TryRead(value.AsMemory(), out var result))
-            return new(result);
+            return new(TypeReaderResult.Success(result));
 
-        throw new FormatException($"Invalid {parameter.NonNullableType.Name}.");
+        return new(TypeReaderResult.ParseFail(parameter.Name));
     }
 
     public override IChoicesProvider<TContext>? ChoicesProvider { get; }

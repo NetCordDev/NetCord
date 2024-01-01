@@ -17,19 +17,22 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
         Format = format;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
         var channel = context.Channel;
 
-        if (RequiredContext switch
+        var requiredContext = RequiredContext;
+
+        if (requiredContext switch
         {
             RequiredContext.Guild => channel is not IGuildChannel,
             RequiredContext.GroupDM => channel is not GroupDMChannel,
             RequiredContext.DM => channel is not DMChannel,
             _ => throw new InvalidOperationException(),
         })
-            throw new InvalidContextException(string.Format(Format, RequiredContext), RequiredContext);
-        return default;
+            return new(new InvalidContextException(string.Format(Format, requiredContext), requiredContext));
+
+        return new(PreconditionResult.Success);
     }
 }
 
@@ -40,7 +43,7 @@ public enum RequiredContext
     DM,
 }
 
-public class InvalidContextException : Exception
+public class InvalidContextException : PreconditionFailResult
 {
     public RequiredContext MissingContext { get; }
 

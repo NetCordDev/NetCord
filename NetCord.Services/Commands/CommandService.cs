@@ -98,23 +98,41 @@ public partial class CommandService<TContext> : IService where TContext : IComma
         }
     }
 
-    public async ValueTask ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask<IExecutionResult> ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
+    {
+        try
+        {
+            return await ExecuteAsyncCore(prefixLength, context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+    }
+
+    private async ValueTask<IExecutionResult> ExecuteAsyncCore(int prefixLength, TContext context, IServiceProvider? serviceProvider)
     {
         var fullCommand = context.Message.Content.AsMemory(prefixLength);
         var separators = _parameterSeparators;
         var index = fullCommand.Span.IndexOfAny(separators);
-        SortedList<CommandInfo<TContext>> commandInfos;
+        SortedList<CommandInfo<TContext>>? commandInfos;
         ReadOnlyMemory<char> baseArguments;
         if (index == -1)
         {
             var command = fullCommand;
-            commandInfos = GetCommandInfos(command);
+
+            if (!TryGetCommandInfos(command, out commandInfos))
+                return new NotFoundResult("Command not found.");
+
             baseArguments = default;
         }
         else
         {
             var command = fullCommand[..index];
-            commandInfos = GetCommandInfos(command);
+
+            if (!TryGetCommandInfos(command, out commandInfos))
+                return new NotFoundResult("Command not found.");
+
             baseArguments = fullCommand[(index + 1)..];
         }
         var configuration = _configuration;
@@ -126,14 +144,11 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             var commandInfo = commandInfos[i];
             var lastCommand = i == maxIndex;
 
-            try
-            {
-                await commandInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
-            }
-            catch
+            var preconditionResult = await commandInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
+            if (preconditionResult is IFailResult)
             {
                 if (lastCommand)
-                    throw;
+                    return preconditionResult;
                 else
                     continue;
             }
@@ -159,12 +174,9 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     var currentArgLength = currentArg.Length;
                     if (currentArgLength != 0)
                     {
-                        object? value;
-                        try
-                        {
-                            value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-                        }
-                        catch
+                        var typeReaderResult = await parameter.ReadAsync(currentArg, context, configuration, serviceProvider).ConfigureAwait(false);
+
+                        if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
                         {
                             if (parameter.HasDefaultValue && paramIndex != maxParamIndex)
                             {
@@ -173,21 +185,22 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                                 goto Skip;
                             }
                             else if (lastCommand)
-                                throw;
+                                return typeReaderResult;
                             else
                                 goto NextCommand;
                         }
-                        try
-                        {
-                            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
-                        }
-                        catch
+
+                        var value = typeReaderSuccessResult.Value;
+
+                        var parameterPreconditionResult = await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+                        if (parameterPreconditionResult is IFailResult)
                         {
                             if (lastCommand)
-                                throw;
+                                return parameterPreconditionResult;
                             else
                                 goto NextCommand;
                         }
+
                         parametersToPass[paramIndex] = value;
                         arguments = arguments[currentArgLength..].TrimStart(separators);
                         isLastArgGood = false;
@@ -199,20 +212,17 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                         isLastArgGood = true;
                     }
                     else if (lastCommand)
-                        throw new ParameterCountException(ParameterCountExceptionType.TooFew);
+                        return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
                     else
                         goto NextCommand;
                 }
                 else if (!arguments.IsEmpty)
                 {
-                    try
-                    {
-                        await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
-                    }
-                    catch
+                    var result = await ReadParamsAsync(context, separators, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                    if (result is IFailResult)
                     {
                         if (lastCommand)
-                            throw;
+                            return result;
                         else
                             goto NextCommand;
                     }
@@ -224,7 +234,7 @@ public partial class CommandService<TContext> : IService where TContext : IComma
                     goto Break;
                 }
                 else if (lastCommand)
-                    throw new ParameterCountException(ParameterCountExceptionType.TooFew);
+                    return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
                 else
                     goto NextCommand;
                 paramIndex++;
@@ -232,23 +242,29 @@ public partial class CommandService<TContext> : IService where TContext : IComma
             if (arguments.Length != 0)
             {
                 if (lastCommand)
-                    throw new ParameterCountException(ParameterCountExceptionType.TooMany);
+                    return new ParameterCountMismatchResult(ParameterCountMismatchType.TooMany);
                 else
                     continue;
             }
             Break:
-            await commandInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
+            try
+            {
+                await commandInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return new ExecutionExceptionResult(ex);
+            }
             break;
             NextCommand:;
         }
+
+        return SuccessResult.Instance;
     }
 
-    private SortedList<CommandInfo<TContext>> GetCommandInfos(ReadOnlyMemory<char> command)
+    private bool TryGetCommandInfos(ReadOnlyMemory<char> command, [MaybeNullWhen(false)] out SortedList<CommandInfo<TContext>> result)
     {
-        if (_commands.TryGetValue(command, out var commandInfos))
-            return commandInfos;
-
-        throw new CommandNotFoundException();
+        return _commands.TryGetValue(command, out result);
     }
 
     private static void UpdateCurrentArg(char[] separators, ReadOnlyMemory<char> arguments, bool isLastArgGood, bool remainder, ref ReadOnlyMemory<char> currentArg)
@@ -263,18 +279,30 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL3050:RequiresDynamicCode", Justification = "The type of the array is known to be present")]
-    private static async ValueTask ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    private static async ValueTask<IExecutionResult> ReadParamsAsync(TContext context, char[] separators, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separators);
         var count = ranges.Count;
         var array = Array.CreateInstance(parameter.ElementType, count);
         for (int i = 0; i < count; i++)
         {
-            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+            var typeReaderResult = await parameter.ReadAsync(arguments[ranges[i]], context, configuration, serviceProvider).ConfigureAwait(false);
+
+            if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                return typeReaderResult;
+
+            var value = typeReaderSuccessResult.Value;
+
+            var preconditionResult = await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+
+            if (preconditionResult is IFailResult)
+                return preconditionResult;
+
             array.SetValue(value, i);
         }
         parametersToPass[paramIndex] = array;
+
+        return SuccessResult.Instance;
 
         static List<Range> Split(ReadOnlySpan<char> arguments, ReadOnlySpan<char> separators)
         {

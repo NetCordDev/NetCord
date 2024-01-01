@@ -4,5 +4,5 @@ public class StringTypeReader<TContext> : SlashCommandTypeReader<TContext> where
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.String;
 
-    public override ValueTask<object?> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(value);
+    public override ValueTask<TypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(TypeReaderResult.Success(value));
 }

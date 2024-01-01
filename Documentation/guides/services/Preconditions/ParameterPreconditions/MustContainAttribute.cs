@@ -12,12 +12,12 @@ public class MustContainAttribute<TContext> : ParameterPreconditionAttribute<TCo
         _value = value;
     }
 
-    public override ValueTask EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
+    public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(object? value, TContext context, IServiceProvider? serviceProvider)
     {
-        // Throw exception if does not contain
+        // Return a fail result if does not contain
         if (!((string)value!).Contains(_value, StringComparison.InvariantCultureIgnoreCase))
-            throw new($"The parameter must contain '{_value}'.");
+            return new(PreconditionResult.Fail($"The parameter must contain '{_value}'."));
 
-        return default;
+        return new(PreconditionResult.Success);
     }
 }

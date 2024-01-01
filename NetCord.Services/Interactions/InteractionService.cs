@@ -58,28 +58,49 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         _interactions.Add(customId.AsMemory(), interactionInfo);
     }
 
-    public async ValueTask ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
+    {
+        try
+        {
+            return await ExecuteAsyncCore(context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+    }
+
+    private async ValueTask<IExecutionResult> ExecuteAsyncCore(TContext context, IServiceProvider? serviceProvider)
     {
         var configuration = _configuration;
         var separator = configuration.ParameterSeparator;
         var content = ((ICustomIdInteractionData)context.Interaction.Data).CustomId.AsMemory();
         var index = content.Span.IndexOf(separator);
-        InteractionInfo<TContext> interactionInfo;
+        InteractionInfo<TContext>? interactionInfo;
         ReadOnlyMemory<char> arguments;
         if (index == -1)
         {
             var customId = content;
-            interactionInfo = GetInteractionInfo(customId);
+
+            if (!TryGetInteractionInfo(customId, out interactionInfo))
+                return new NotFoundResult("Interaction not found.");
+
             arguments = default;
         }
         else
         {
             var customId = content[..index];
-            interactionInfo = GetInteractionInfo(customId);
+
+            if (!TryGetInteractionInfo(customId, out interactionInfo))
+                return new NotFoundResult("Interaction not found.");
+
             arguments = content[(index + 1)..];
         }
 
-        await interactionInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
+        var preconditionResult = await interactionInfo.EnsureCanExecuteAsync(context, serviceProvider).ConfigureAwait(false);
+
+        if (preconditionResult is IFailResult)
+            return preconditionResult;
 
         var interactionParameters = interactionInfo.Parameters;
         int interactionParametersLength = interactionParameters.Count;
@@ -99,7 +120,7 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
                 {
                     index = arguments.Span.IndexOf(separator);
                     if (index == -1)
-                        throw new ParameterCountException(ParameterCountExceptionType.TooFew);
+                        return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
 
                     currentArg = arguments[..index];
                     arguments = arguments[(index + 1)..];
@@ -109,8 +130,16 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
                     value = parameter.DefaultValue;
                 else
                 {
-                    value = await parameter.TypeReader.ReadAsync(currentArg, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-                    await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+                    var typeReaderResult = await parameter.ReadAsync(currentArg, context, configuration, serviceProvider).ConfigureAwait(false);
+
+                    if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                        return typeReaderResult;
+
+                    value = typeReaderSuccessResult.Value;
+
+                    var parameterPreconditionResult = await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+                    if (parameterPreconditionResult is IFailResult)
+                        return parameterPreconditionResult;
                 }
 
                 parametersToPass[paramIndex] = value;
@@ -120,26 +149,49 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
                 if (parameter.HasDefaultValue && arguments.IsEmpty)
                     parametersToPass[paramIndex] = parameter.DefaultValue;
                 else
-                    await ReadParamsAsync(context, separator, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                {
+                    var result = await ReadParamsAsync(context, separator, parametersToPass, arguments, paramIndex, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                    if (result is IFailResult)
+                        return result;
+                }
             }
         }
 
-        await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
+        try
+        {
+            await interactionInfo.InvokeAsync(parametersToPass, context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+
+        return SuccessResult.Instance;
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL3050:RequiresDynamicCode", Justification = "The type of the array is known to be present")]
-    private static async ValueTask ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    private static async ValueTask<IExecutionResult> ReadParamsAsync(TContext context, char separator, object?[] parametersToPass, ReadOnlyMemory<char> arguments, int paramIndex, InteractionParameter<TContext> parameter, InteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var ranges = Split(arguments.Span, separator);
         var count = ranges.Count;
         var array = Array.CreateInstance(parameter.ElementType, count);
         for (int i = 0; i < count; i++)
         {
-            var value = await parameter.TypeReader.ReadAsync(arguments[ranges[i]], context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-            await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+            var typeReaderResult = await parameter.ReadAsync(arguments[ranges[i]], context, configuration, serviceProvider).ConfigureAwait(false);
+
+            if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                return typeReaderResult;
+
+            var value = typeReaderSuccessResult.Value;
+
+            var preconditionResult = await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+            if (preconditionResult is IFailResult)
+                return preconditionResult;
+
             array.SetValue(value, i);
         }
         parametersToPass[paramIndex] = array;
+        return SuccessResult.Instance;
 
         static List<Range> Split(ReadOnlySpan<char> arguments, char separator)
         {
@@ -161,11 +213,8 @@ public class InteractionService<TContext> : IService where TContext : IInteracti
         }
     }
 
-    private InteractionInfo<TContext> GetInteractionInfo(ReadOnlyMemory<char> customId)
+    private bool TryGetInteractionInfo(ReadOnlyMemory<char> customId, [MaybeNullWhen(false)] out InteractionInfo<TContext> result)
     {
-        if (_interactions.TryGetValue(customId, out var interactionInfo))
-            return interactionInfo;
-
-        throw new InteractionNotFoundException();
+        return _interactions.TryGetValue(customId, out result);
     }
 }

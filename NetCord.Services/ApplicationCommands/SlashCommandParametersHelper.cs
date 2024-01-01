@@ -23,10 +23,8 @@ internal static class SlashCommandParametersHelper
         return result;
     }
 
-    public static async ValueTask<object?[]> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) where TContext : IApplicationCommandContext
+    public static async ValueTask<IExecutionResult> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider, object?[] parametersToPass) where TContext : IApplicationCommandContext
     {
-        int parametersCount = parameters.Count;
-        var parametersToPass = new object?[parametersCount];
         int optionsCount = options.Count;
         int parameterIndex = 0;
         for (int optionIndex = 0; optionIndex < optionsCount; parameterIndex++)
@@ -36,8 +34,26 @@ internal static class SlashCommandParametersHelper
             object? value;
             if (parameter.Name == option.Name)
             {
-                value = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
-                await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+                TypeReaderResult typeReaderResult;
+                try
+                {
+                    typeReaderResult = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    return new TypeReaderExceptionResult(ex);
+                }
+
+                if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                    return typeReaderResult;
+
+                value = typeReaderSuccessResult.Value;
+
+                var preconditionResult = await parameter.EnsureCanExecuteAsync(value, context, serviceProvider).ConfigureAwait(false);
+
+                if (preconditionResult is IFailResult)
+                    return preconditionResult;
+
                 optionIndex++;
             }
             else
@@ -45,6 +61,7 @@ internal static class SlashCommandParametersHelper
 
             parametersToPass[parameterIndex] = value;
         }
+        int parametersCount = parameters.Count;
         while (parameterIndex < parametersCount)
         {
             var parameter = parameters[parameterIndex];
@@ -52,6 +69,6 @@ internal static class SlashCommandParametersHelper
             parameterIndex++;
         }
 
-        return parametersToPass;
+        return SuccessResult.Instance;
     }
 }

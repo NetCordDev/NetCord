@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using NetCord;
 using NetCord.Gateway;
@@ -23,7 +24,8 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseApplicationCommandService<UserCommandInteraction, UserCommandContext>()
     .UseApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
     .UseInteractionService<ButtonInteraction, ButtonInteractionContext>()
-    .UseCommandService<CommandContext>();
+    .UseCommandService<CommandContext>()
+    .ConfigureLogging(b => b.SetMinimumLevel(LogLevel.Trace));
 
 builder.ConfigureServices(services =>
 {
