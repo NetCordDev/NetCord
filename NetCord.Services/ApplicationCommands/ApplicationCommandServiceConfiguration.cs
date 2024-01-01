@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -75,6 +76,7 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
     /// <summary>
     /// {0} - parameter name
     /// </summary>
+    [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
     public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
 
     public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new ApplicationCommandResultResolverProvider<TContext>();

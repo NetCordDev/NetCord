@@ -1,4 +1,6 @@
-﻿using NetCord.Services.Interactions;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using NetCord.Services.Interactions;
 
 namespace NetCord.Services;
 
@@ -9,7 +11,7 @@ public class InteractionRequireBotChannelPermissionsAttribute<TContext> : Precon
 
     /// <param name="channelPermissions"></param>
     /// <param name="format">{0} - missing permissions</param>
-    public InteractionRequireBotChannelPermissionsAttribute(Permissions channelPermissions, string format = "Required bot channel permissions: {0}.")
+    public InteractionRequireBotChannelPermissionsAttribute(Permissions channelPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format = "Required bot channel permissions: {0}.")
     {
         ChannelPermissions = channelPermissions;
         Format = format;

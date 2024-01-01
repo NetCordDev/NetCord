@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services;
 
 public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext, IGatewayClientContext
 {
@@ -9,7 +11,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
 
     /// <param name="guildPermissions"></param>
     /// <param name="guildPermissionsFormat">{0} - missing guild permissions</param>
-    public RequireBotPermissionsAttribute(Permissions guildPermissions, string guildPermissionsFormat = "Required bot permissions: {0}.")
+    public RequireBotPermissionsAttribute(Permissions guildPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required bot permissions: {0}.")
     {
         GuildPermissions = guildPermissions;
         GuildPermissionsFormat = guildPermissionsFormat;
@@ -19,7 +21,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
     /// <param name="channelPermissions"></param>
     /// <param name="guildPermissionsFormat">{0} - missing guild permissions</param>
     /// <param name="channelPermissionsFormat">{0} - missing channel permissions</param>
-    public RequireBotPermissionsAttribute(Permissions guildPermissions, Permissions channelPermissions, string guildPermissionsFormat = "Required bot permissions: {0}.", string channelPermissionsFormat = "Required bot channel permissions: {0}.") : this(guildPermissions, guildPermissionsFormat)
+    public RequireBotPermissionsAttribute(Permissions guildPermissions, Permissions channelPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required bot permissions: {0}.", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required bot channel permissions: {0}.") : this(guildPermissions, guildPermissionsFormat)
     {
         ChannelPermissions = channelPermissions;
         ChannelPermissionsFormat = channelPermissionsFormat;

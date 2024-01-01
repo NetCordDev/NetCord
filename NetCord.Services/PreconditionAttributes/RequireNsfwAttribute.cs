@@ -1,10 +1,12 @@
-﻿namespace NetCord.Services;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services;
 
 public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
     private readonly RequiredNsfwResult _failResult;
 
-    public RequireNsfwAttribute(string message = "Required nsfw channel.")
+    public RequireNsfwAttribute([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message = "Required nsfw channel.")
     {
         _failResult = new(message);
     }

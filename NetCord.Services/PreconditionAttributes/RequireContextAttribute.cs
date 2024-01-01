@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services;
 
 public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
@@ -8,7 +10,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
 
     /// <param name="requiredContext"></param>
     /// <param name="format">{0} - required context</param>
-    public RequireContextAttribute(RequiredContext requiredContext, string format = "Required context: {0}.")
+    public RequireContextAttribute(RequiredContext requiredContext, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format = "Required context: {0}.")
     {
         if (!Enum.IsDefined(requiredContext))
             throw new System.ComponentModel.InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext));

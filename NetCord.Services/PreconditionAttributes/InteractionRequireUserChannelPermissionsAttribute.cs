@@ -1,4 +1,6 @@
-﻿namespace NetCord.Services;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord.Services;
 
 /// <summary>
 /// Efficiently checks user channel permissions.
@@ -10,7 +12,7 @@ public class InteractionRequireUserChannelPermissionsAttribute<TContext> : Preco
 
     /// <param name="channelPermissions"></param>
     /// <param name="format">{0} - missing permissions</param>
-    public InteractionRequireUserChannelPermissionsAttribute(Permissions channelPermissions, string format = "Required user channel permissions: {0}.")
+    public InteractionRequireUserChannelPermissionsAttribute(Permissions channelPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format = "Required user channel permissions: {0}.")
     {
         ChannelPermissions = channelPermissions;
         Format = format;
