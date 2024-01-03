@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Rest;
+using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -50,18 +51,14 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        var baseType = typeof(BaseApplicationCommandModule<TContext>);
-        foreach (var type in assembly.GetTypes())
-        {
-            if (type.IsAssignableTo(baseType))
-                AddModuleCore(type);
-        }
+        foreach (var type in ServiceHelpers.GetModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
+            AddModuleCore(type);
     }
 
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseApplicationCommandModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from '{nameof(ApplicationCommandModule<TContext>)}'.");
+            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseApplicationCommandModule<TContext>)}'.");
 
         AddModuleCore(type);
     }

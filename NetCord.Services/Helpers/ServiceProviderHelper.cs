@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace NetCord.Services;
+namespace NetCord.Services.Helpers;
 
 internal static class ServiceProviderHelper
 {

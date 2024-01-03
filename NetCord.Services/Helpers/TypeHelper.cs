@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
-namespace NetCord.Services;
+namespace NetCord.Services.Helpers;
 
 internal static class TypeHelper
 {

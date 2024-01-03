@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-using NetCord.Services;
+using NetCord.Services.Helpers;
 
 namespace NetCord.Hosting.Services;
 

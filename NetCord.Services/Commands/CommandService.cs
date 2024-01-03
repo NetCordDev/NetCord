@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
+using NetCord.Services.Helpers;
+
 namespace NetCord.Services.Commands;
 
 public partial class CommandService<TContext> : IService where TContext : ICommandContext
@@ -23,12 +25,8 @@ public partial class CommandService<TContext> : IService where TContext : IComma
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        var baseType = typeof(BaseCommandModule<TContext>);
-        foreach (var type in assembly.GetTypes())
-        {
-            if (type.IsAssignableTo(baseType))
-                AddModuleCore(type);
-        }
+        foreach (var type in ServiceHelpers.GetModules(typeof(BaseCommandModule<TContext>), assembly))
+            AddModuleCore(type);
     }
 
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
