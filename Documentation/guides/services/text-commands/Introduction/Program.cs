@@ -1,5 +1,6 @@
 ﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Services;
 using NetCord.Services.Commands;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
@@ -12,24 +13,23 @@ commandService.AddModules(typeof(Program).Assembly);
 
 client.MessageCreate += async message =>
 {
-    if (message.Content.StartsWith("!"))
+    if (!message.Content.StartsWith('!') || message.Author.IsBot)
+        return;
+
+    var result = await commandService.ExecuteAsync(prefixLength: 1, new CommandContext(message, client));
+
+    if (result is not IFailResult failResult)
+        return;
+
+    try
     {
-        try
-        {
-            await commandService.ExecuteAsync(prefixLength: 1, new CommandContext(message, client));
-        }
-        catch (Exception ex)
-        {
-            try
-            {
-                await message.ReplyAsync($"Error: {ex.Message}");
-            }
-            catch
-            {
-            }
-        }
+        await message.ReplyAsync(failResult.Message);
+    }
+    catch
+    {
     }
 };
+
 client.Log += message =>
 {
     Console.WriteLine(message);

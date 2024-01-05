@@ -1,6 +1,7 @@
 ﻿using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
@@ -15,7 +16,7 @@ ApplicationCommandServiceManager manager = new();
 manager.AddService(slashCommandService);
 manager.AddService(messageCommandService);
 
-var assembly = System.Reflection.Assembly.GetEntryAssembly()!;
+var assembly = typeof(Program).Assembly;
 slashCommandService.AddModules(assembly);
 messageCommandService.AddModules(assembly);
 
@@ -30,24 +31,22 @@ await manager.CreateCommandsAsync(client.Rest, client.ApplicationId);
 
 client.InteractionCreate += async interaction =>
 {
+    var result = await (interaction switch
+    {
+        SlashCommandInteraction slashCommandInteraction => slashCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client)),
+        MessageCommandInteraction messageCommandInteraction => messageCommandService.ExecuteAsync(new MessageCommandContext(messageCommandInteraction, client)),
+        _ => throw new("Invalid interaction."),
+    });
+
+    if (result is not IFailResult failResult)
+        return;
+
     try
     {
-        await (interaction switch
-        {
-            SlashCommandInteraction slashCommandInteraction => slashCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client)),
-            MessageCommandInteraction messageCommandInteraction => messageCommandService.ExecuteAsync(new MessageCommandContext(messageCommandInteraction, client)),
-            _ => throw new("Invalid interaction.")
-        });
+        await interaction.SendResponseAsync(InteractionCallback.Message(failResult.Message));
     }
-    catch (Exception ex)
+    catch
     {
-        try
-        {
-            await interaction.SendResponseAsync(InteractionCallback.Message($"Error: {ex.Message}"));
-        }
-        catch
-        {
-        }
     }
 };
 await Task.Delay(-1);

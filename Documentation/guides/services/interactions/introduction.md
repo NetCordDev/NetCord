@@ -7,14 +7,14 @@ With hosting, adding interactions is very easy. Use @NetCord.Hosting.Services.In
 
 ## [Without Hosting](#tab/without-hosting)
 
-First, add the following line to the using section.
-[!code-cs[Program.cs](Introduction/Program.cs#L4)]
+First, add the following lines to the using section.
+[!code-cs[Program.cs](Introduction/Program.cs#L4-L5)]
 
 Now, it's time to create @NetCord.Services.Interactions.InteractionService`1 instance and add modules to it. In this example, we will use @NetCord.Services.Interactions.ButtonInteractionContext.
-[!code-cs[Program.cs](Introduction/Program.cs#L11-L12)]
+[!code-cs[Program.cs](Introduction/Program.cs#L12-L13)]
 
 We can add an interaction handler now.
-[!code-cs[Program.cs](Introduction/Program.cs#L14-L33)]
+[!code-cs[Program.cs](Introduction/Program.cs#L15-L32)]
 
 ### The Final Product
 

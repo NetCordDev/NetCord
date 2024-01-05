@@ -12,14 +12,14 @@ You can specify a prefix in the configuration. You can for example use `appsetti
 
 ## [Without Hosting](#tab/without-hosting)
 
-First, add the following line to the using section.
-[!code-cs[Program.cs](Introduction/Program.cs#L3)]
+First, add the following lines to the using section.
+[!code-cs[Program.cs](Introduction/Program.cs#L3-L4)]
 
 Now, it's time to create @NetCord.Services.Commands.CommandService`1 instance and add modules to it.
-[!code-cs[Program.cs](Introduction/Program.cs#L10-L11)]
+[!code-cs[Program.cs](Introduction/Program.cs#L11-L12)]
 
 We can add a command handler now.
-[!code-cs[Program.cs](Introduction/Program.cs#L13-L32)]
+[!code-cs[Program.cs](Introduction/Program.cs#L14-L31)]
 
 ### The Final Product
 

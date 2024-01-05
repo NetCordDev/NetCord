@@ -1,6 +1,7 @@
 ﻿using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
@@ -23,22 +24,21 @@ await applicationCommandService.CreateCommandsAsync(client.Rest, client.Applicat
 
 client.InteractionCreate += async interaction =>
 {
-    if (interaction is SlashCommandInteraction slashCommandInteraction)
+    if (interaction is not SlashCommandInteraction slashCommandInteraction)
+        return;
+
+    var result = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
+
+    if (result is not IFailResult failResult)
+        return;
+
+    try
     {
-        try
-        {
-            await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
-        }
-        catch (Exception ex)
-        {
-            try
-            {
-                await interaction.SendResponseAsync(InteractionCallback.Message($"Error: {ex.Message}"));
-            }
-            catch
-            {
-            }
-        }
+        await interaction.SendResponseAsync(InteractionCallback.Message(failResult.Message));
+    }
+    catch
+    {
     }
 };
+
 await Task.Delay(-1);

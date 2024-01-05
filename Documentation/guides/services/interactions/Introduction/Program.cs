@@ -1,6 +1,7 @@
 ﻿using NetCord;
 using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.Interactions;
 
 GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
@@ -9,28 +10,27 @@ GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Develope
 });
 
 InteractionService<ButtonInteractionContext> interactionService = new();
-interactionService.AddModules(System.Reflection.Assembly.GetEntryAssembly()!);
+interactionService.AddModules(typeof(Program).Assembly);
 
 client.InteractionCreate += async interaction =>
 {
-    if (interaction is ButtonInteraction buttonInteraction)
+    if (interaction is not ButtonInteraction buttonInteraction)
+        return;
+
+    var result = await interactionService.ExecuteAsync(new ButtonInteractionContext(buttonInteraction, client));
+
+    if (result is not IFailResult failResult)
+        return;
+
+    try
     {
-        try
-        {
-            await interactionService.ExecuteAsync(new ButtonInteractionContext(buttonInteraction, client));
-        }
-        catch (Exception ex)
-        {
-            try
-            {
-                await interaction.SendResponseAsync(InteractionCallback.Message($"Error: {ex.Message}"));
-            }
-            catch
-            {
-            }
-        }
+        await interaction.SendResponseAsync(InteractionCallback.Message(failResult.Message));
+    }
+    catch
+    {
     }
 };
+
 client.Log += message =>
 {
     Console.WriteLine(message);
