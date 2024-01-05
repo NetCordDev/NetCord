@@ -32,7 +32,7 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
             RequiredContext.DM => channel is not DMChannel,
             _ => throw new InvalidOperationException(),
         })
-            return new(new InvalidContextException(string.Format(Format, requiredContext), requiredContext));
+            return new(new InvalidContextResult(string.Format(Format, requiredContext), requiredContext));
 
         return new(PreconditionResult.Success);
     }
@@ -45,11 +45,11 @@ public enum RequiredContext
     DM,
 }
 
-public class InvalidContextException : PreconditionFailResult
+public class InvalidContextResult : PreconditionFailResult
 {
     public RequiredContext MissingContext { get; }
 
-    public InvalidContextException(string message, RequiredContext missingContext) : base(message)
+    public InvalidContextResult(string message, RequiredContext missingContext) : base(message)
     {
         MissingContext = missingContext;
     }
