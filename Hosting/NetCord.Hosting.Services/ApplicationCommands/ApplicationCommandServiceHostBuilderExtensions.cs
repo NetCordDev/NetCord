@@ -82,6 +82,8 @@ public static class ApplicationCommandServiceHostBuilderExtensions
                 .AddOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>()
                 .Configure(configureOptions);
 
+            services.AddSingleton<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>>(services => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>());
+
             services.AddSingleton(services =>
             {
                 var options = services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>().Value;
