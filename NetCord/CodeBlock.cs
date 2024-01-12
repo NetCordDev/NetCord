@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
@@ -13,6 +14,7 @@ public class CodeBlock
         Formatter = formatter;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that strictMode branches can be eliminated if it is a constant
     public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock, bool strictMode = true)
     {
         codeBlock = null;
