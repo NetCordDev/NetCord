@@ -17,9 +17,11 @@ public class CodeBlock
     [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that strictMode branches can be eliminated if it is a constant
     public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock, bool strictMode = true)
     {
+        const string prefixSuffix = "```";
+        
         codeBlock = null;
-
-        var isCodeBlock = text.StartsWith("```") && text.EndsWith("```") && text.Length >= "```\n```".Length;
+        
+        var isCodeBlock = text.StartsWith(prefixSuffix) && text.EndsWith(prefixSuffix) && text.Length >= "```\n```".Length;
         
         if (!isCodeBlock)
         {
@@ -27,7 +29,7 @@ public class CodeBlock
         }
         
         string? formatter = null;
-        text = text[3..^3];
+        text = text[prefixSuffix.Length..^prefixSuffix.Length];
         var firstNewLine = text.IndexOf('\n');
             
         if (firstNewLine != -1)
