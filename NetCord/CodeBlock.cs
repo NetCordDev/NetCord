@@ -21,7 +21,7 @@ public class CodeBlock
         
         codeBlock = null;
         
-        var isCodeBlock = text.StartsWith(prefixSuffix) && text.EndsWith(prefixSuffix) && text.Length >= $"{prefixSuffix}\n{prefixSuffix}".Length;
+        var isCodeBlock = text.Length >= $"{prefixSuffix}\n{prefixSuffix}".Length && text.StartsWith(prefixSuffix) && text.EndsWith(prefixSuffix);
         
         if (!isCodeBlock)
         {
