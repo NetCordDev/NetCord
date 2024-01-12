@@ -13,34 +13,55 @@ public class CodeBlock
         Formatter = formatter;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock)
+    public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock, bool strictMode = true)
     {
-        if (text.StartsWith("```") && text.EndsWith("```"))
+        codeBlock = null;
+
+        var isCodeBlock = text.StartsWith("```") && text.EndsWith("```") && text.Length >= "```\n```".Length;
+        
+        if (!isCodeBlock)
         {
-            text = text[3..^3];
-            int i = text.IndexOf('\n');
-            if (i != -1)
+            goto Ret;
+        }
+        
+        string? formatter = null;
+        text = text[3..^3];
+        var firstNewLine = text.IndexOf('\n');
+            
+        if (firstNewLine != -1)
+        {                
+            ReadOnlySpan<char> formatterSpan = text[..firstNewLine];
+                
+            foreach (var c in formatterSpan)
             {
-                ReadOnlySpan<char> formatter = text[..i];
-                foreach (var c in formatter)
+                var isAsciiAlphaNumeric = char.IsAsciiLetterOrDigit(c);
+                    
+                if (isAsciiAlphaNumeric || c == '+' || c == '-')
                 {
-                    if (c is not ((>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '+' or '-'))
-                    {
-                        codeBlock = new(text.ToString());
-                        return true;
-                    }
+                    continue;
                 }
-                codeBlock = new(text[(formatter.Length + 1)..].ToString(), formatter.ToString());
-                return true;
+                    
+                goto Success;
             }
+            
+            text = text[(formatterSpan.Length + 1)..];
+            
+            if (!strictMode || !text.IsWhiteSpace())
+            {
+                formatter = formatterSpan.ToString();
+            }
+				
             else
             {
-                codeBlock = new(text.ToString());
-                return true;
+                text = formatterSpan;
             }
         }
-        codeBlock = null;
-        return false;
+        
+        Success:
+        codeBlock = new(text.ToString(), formatter);
+        
+        Ret:
+        return isCodeBlock;
     }
 
     public static CodeBlock Parse(ReadOnlySpan<char> text)
