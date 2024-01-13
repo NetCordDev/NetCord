@@ -49,6 +49,8 @@ public class Role : ClientEntity, IJsonModel<JsonRole>
 
     public override string ToString() => $"<@&{Id}>";
 
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Role left, Role right) => left.Position > right.Position;
 

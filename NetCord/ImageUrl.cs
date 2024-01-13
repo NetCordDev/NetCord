@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ImageUrl
+public class ImageUrl : ISpanFormattable
 {
     private readonly string _url;
 
@@ -16,6 +16,63 @@ public class ImageUrl
     public override string ToString() => _url;
 
     public virtual string ToString(int size) => $"{_url}?size={size}";
+
+    public string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        if (string.IsNullOrEmpty(format))
+            return _url;
+
+        if (IsSizetValid(format))
+            return $"{_url}?size={format}";
+
+        throw new FormatException("Format specifier was invalid.");
+    }
+
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+    {
+        if (format.IsEmpty)
+        {
+            var url = _url;
+            if (!url.TryCopyTo(destination))
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            charsWritten = url.Length;
+            return true;
+        }
+
+        if (IsSizetValid(format))
+        {
+            var url = _url;
+            var requiredLength = url.Length + format.Length + 6;
+            if (destination.Length < requiredLength)
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            url.CopyTo(destination);
+            "?size=".CopyTo(destination[url.Length..]);
+            format.CopyTo(destination[(url.Length + 6)..]);
+
+            charsWritten = requiredLength;
+            return true;
+        }
+
+        throw new FormatException("Format specifier was invalid.");
+    }
+
+    private protected virtual bool IsSizetValid(ReadOnlySpan<char> format)
+    {
+        for (int i = 0; i < format.Length; i++)
+        {
+            if (!char.IsAsciiDigit(format[i]))
+                return false;
+        }
+        return true;
+    }
 
     private static string GetExtension(string hash, ImageFormat? format)
     {
@@ -199,5 +256,7 @@ public class ImageUrl
         {
             throw new NotSupportedException("Guild widgets do not support setting size.");
         }
+
+        private protected override bool IsSizetValid(ReadOnlySpan<char> format) => false;
     }
 }

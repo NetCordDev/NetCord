@@ -17,4 +17,8 @@ public abstract class Entity : IEntity
     public override int GetHashCode() => Id.GetHashCode();
 
     public override string ToString() => Id.ToString();
+
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+    public virtual bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Id.TryFormat(destination, out charsWritten);
 }

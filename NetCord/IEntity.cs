@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public interface IEntity
+public interface IEntity : ISpanFormattable
 {
     /// <summary>
     /// The unique identifier for this object.

@@ -62,13 +62,12 @@ public readonly struct GuildNavigation : IEquatable<GuildNavigation>
 
     public override string ToString()
     {
-        return $"<id:{Type switch
+        return Type switch
         {
-            GuildNavigationType.Customize => "customize",
-            GuildNavigationType.Browse => "browse",
-            GuildNavigationType.Guide => "guide",
+            GuildNavigationType.Customize => "<id:customize>",
+            GuildNavigationType.Browse => "<id:browse>",
+            GuildNavigationType.Guide => "<id:guide>",
             _ => throw new System.ComponentModel.InvalidEnumArgumentException($"Invalid '{nameof(GuildNavigationType)}'."),
-        }}>";
+        };
     }
-
 }

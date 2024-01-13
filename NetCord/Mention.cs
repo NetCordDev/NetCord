@@ -150,4 +150,33 @@ public static class Mention
         else
             throw new FormatException("Cannot parse the mention.");
     }
+
+    public static bool TryFormatUser(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<@", ">");
+    }
+
+    public static bool TryFormatChannel(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<#", ">");
+    }
+
+    public static bool TryFormatRole(Span<char> destination, out int charsWritten, ulong id)
+    {
+        return TryFormat(destination, out charsWritten, id, "<@&", ">");
+    }
+
+    private static bool TryFormat(Span<char> destination, out int charsWritten, ulong id, ReadOnlySpan<char> prefix, ReadOnlySpan<char> suffix)
+    {
+        if (destination.Length <= prefix.Length + suffix.Length || !id.TryFormat(destination[prefix.Length..^suffix.Length], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        prefix.CopyTo(destination);
+        suffix.CopyTo(destination[(prefix.Length + length)..]);
+        charsWritten = prefix.Length + length + suffix.Length;
+        return true;
+    }
 }

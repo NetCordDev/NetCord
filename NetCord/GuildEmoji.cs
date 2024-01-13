@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class GuildEmoji : Emoji
+public class GuildEmoji : Emoji, ISpanFormattable
 {
     private protected readonly RestClient _client;
 
@@ -33,6 +33,43 @@ public class GuildEmoji : Emoji
     public ulong GuildId { get; }
 
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
+
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+    {
+        var name = Name;
+        if (Animated)
+        {
+            if (destination.Length < 6 + name.Length || !Id.TryFormat(destination[(4 + name.Length)..^1], out int length))
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            "<a:".CopyTo(destination);
+            name.CopyTo(destination[3..]);
+            destination[3 + name.Length] = ':';
+            destination[4 + name.Length + length] = '>';
+            charsWritten = 5 + name.Length + length;
+            return true;
+        }
+        else
+        {
+            if (destination.Length < 5 + name.Length || !Id.TryFormat(destination[(3 + name.Length)..^1], out int length))
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            "<:".CopyTo(destination);
+            name.CopyTo(destination[2..]);
+            destination[2 + name.Length] = ':';
+            destination[3 + name.Length + length] = '>';
+            charsWritten = 4 + name.Length + length;
+            return true;
+        }
+    }
 
     #region Guild
     public Task<GuildEmoji> ModifyAsync(Action<GuildEmojiOptions> action, RequestProperties? properties = null) => _client.ModifyGuildEmojiAsync(GuildId, Id, action, properties);

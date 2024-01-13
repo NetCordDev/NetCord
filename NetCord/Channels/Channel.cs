@@ -20,6 +20,8 @@ public class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChanne
 
     public override string ToString() => $"<#{Id}>";
 
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatChannel(destination, out charsWritten, Id);
+
     public static Channel CreateFromJson(JsonChannel jsonChannel, RestClient client)
     {
         return jsonChannel.Type switch
