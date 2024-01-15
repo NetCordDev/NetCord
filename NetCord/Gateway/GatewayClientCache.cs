@@ -18,7 +18,7 @@ public record GatewayClientCache : IGatewayClientCache
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
-        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => (DMChannel)Channel.CreateFromJson(c, client));
+        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => DMChannel.CreateFromJson(c, client));
         _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, client));
     }
 
@@ -171,8 +171,9 @@ public record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheGuildChannel(ulong guildId, IGuildChannel channel)
+    public IGatewayClientCache CacheGuildChannel(IGuildChannel channel)
     {
+        var guildId = channel.GuildId;
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {

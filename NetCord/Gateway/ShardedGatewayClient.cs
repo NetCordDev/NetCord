@@ -496,8 +496,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelCreateLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelCreate;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelCreate
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelCreate;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelCreate
     {
         add
         {
@@ -510,8 +510,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelUpdateLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelUpdate;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelUpdate
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelUpdate;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelUpdate
     {
         add
         {
@@ -524,8 +524,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelDeleteLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelDelete;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelDelete
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelDelete;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelDelete
     {
         add
         {

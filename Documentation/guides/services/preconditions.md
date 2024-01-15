@@ -7,8 +7,6 @@ Preconditions determine whether a command or interaction can be invoked. They ar
 > [!NOTE]
 > The attributes are generic. Generic attributes are supported since C# 11.
 
-- @NetCord.Services.InteractionRequireUserChannelPermissionsAttribute`1
-- @NetCord.Services.InteractionRequireBotChannelPermissionsAttribute`1
 - @NetCord.Services.RequireUserPermissionsAttribute`1
 - @NetCord.Services.RequireBotPermissionsAttribute`1
 - @NetCord.Services.RequireContextAttribute`1

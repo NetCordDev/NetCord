@@ -23,13 +23,13 @@ public class Guild : RestGuild
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
-        VoiceStates = _jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, client));
-        Users = _jsonModel.Users.ToImmutableDictionaryOrEmpty(u => new GuildUser(u, Id, client));
-        Channels = _jsonModel.Channels.ToImmutableDictionaryOrEmpty(c => (IGuildChannel)Channel.CreateFromJson(c, client));
-        ActiveThreads = _jsonModel.ActiveThreads.ToImmutableDictionaryOrEmpty(t => (GuildThread)Channel.CreateFromJson(t, client));
-        StageInstances = _jsonModel.StageInstances.ToImmutableDictionaryOrEmpty(i => new StageInstance(i, client));
-        Presences = _jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, Id, client));
-        ScheduledEvents = _jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
+        VoiceStates = jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, client));
+        Users = jsonModel.Users.ToImmutableDictionaryOrEmpty(u => new GuildUser(u, Id, client));
+        Channels = jsonModel.Channels.ToImmutableDictionaryOrEmpty(c => IGuildChannel.CreateFromJson(c, jsonModel.Id, client));
+        ActiveThreads = jsonModel.ActiveThreads.ToImmutableDictionaryOrEmpty(t => GuildThread.CreateFromJson(t, client));
+        StageInstances = jsonModel.StageInstances.ToImmutableDictionaryOrEmpty(i => new StageInstance(i, client));
+        Presences = jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, Id, client));
+        ScheduledEvents = jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
     }
 
     public Guild(JsonGuild jsonModel, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)

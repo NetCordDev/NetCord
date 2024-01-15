@@ -23,8 +23,8 @@ public class GuildCommandsModule : ApplicationCommandModule<SlashCommandContext>
             return RespondAsync(InteractionCallback.Message($"Name: {Context.Guild!.Name}"));
         }
 
-        [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.ManageGuild)]
-        [InteractionRequireBotChannelPermissions<SlashCommandContext>(Permissions.ManageGuild)]
+        [RequireUserPermissions<SlashCommandContext>(Permissions.ManageGuild)]
+        [RequireBotPermissions<SlashCommandContext>(Permissions.ManageGuild)]
         [SubSlashCommand("set", "Set guild name")]
         public async Task SetNameAsync(string name)
         {

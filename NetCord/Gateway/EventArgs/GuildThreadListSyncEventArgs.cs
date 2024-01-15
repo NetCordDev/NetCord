@@ -12,7 +12,7 @@ public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.Json
     public GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => (GuildThread)Channel.CreateFromJson(t, client));
+        Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => GuildThread.CreateFromJson(t, client));
         Users = jsonModel.Users.Select(u => new ThreadUser(u, client)).ToArray();
     }
 

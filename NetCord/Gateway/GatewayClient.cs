@@ -25,9 +25,9 @@ public partial class GatewayClient : WebSocketClient
     public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleUpdate;
     public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleDelete;
     public event Func<AutoModerationActionExecutionEventArgs, ValueTask>? AutoModerationActionExecution;
-    public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelCreate;
-    public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelUpdate;
-    public event Func<GuildChannelEventArgs, ValueTask>? GuildChannelDelete;
+    public event Func<IGuildChannel, ValueTask>? GuildChannelCreate;
+    public event Func<IGuildChannel, ValueTask>? GuildChannelUpdate;
+    public event Func<IGuildChannel, ValueTask>? GuildChannelDelete;
     public event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
     public event Func<GuildThreadCreateEventArgs, ValueTask>? GuildThreadCreate;
     public event Func<GuildThread, ValueTask>? GuildThreadUpdate;
@@ -367,25 +367,22 @@ public partial class GatewayClient : WebSocketClient
             case "CHANNEL_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelCreate, () => new(channel, guildId), () => Cache = Cache.CacheGuildChannel(guildId, channel)).ConfigureAwait(false);
+                    var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
+                    await InvokeEventAsync(GuildChannelCreate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelUpdate, () => new(channel, guildId), () => Cache = Cache.CacheGuildChannel(guildId, channel)).ConfigureAwait(false);
+                    var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
+                    await InvokeEventAsync(GuildChannelUpdate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var channel = (IGuildChannel)Channel.CreateFromJson(json, Rest);
-                    var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildChannelDelete, () => new(channel, guildId), () => Cache = Cache.RemoveGuildChannel(guildId, channel.Id)).ConfigureAwait(false);
+                    var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
+                    await InvokeEventAsync(GuildChannelDelete, channel, channel => Cache = Cache.RemoveGuildChannel(channel.GuildId, channel.Id)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
@@ -396,14 +393,14 @@ public partial class GatewayClient : WebSocketClient
             case "THREAD_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
+                    var thread = GuildThread.CreateFromJson(json, Rest);
                     await InvokeEventAsync(GuildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () => Cache = Cache.CacheGuildThread(thread)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var thread = (GuildThread)Channel.CreateFromJson(json, Rest);
+                    var thread = GuildThread.CreateFromJson(json, Rest);
                     await InvokeEventAsync(GuildThreadUpdate, thread, t => Cache = Cache.CacheGuildThread(t)).ConfigureAwait(false);
                 }
                 break;
