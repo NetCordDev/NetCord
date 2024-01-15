@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -87,8 +86,6 @@ public partial class GatewayClient : WebSocketClient
     /// <summary>
     /// The cache of the <see cref="GatewayClient"/>.
     /// </summary>
-    /// <remarks>It is <see langword="null"/> before starting of the <see cref="GatewayClient"/>.</remarks>
-    [AllowNull]
     public IGatewayClientCache Cache { get; private set; }
 
     /// <summary>
@@ -134,6 +131,7 @@ public partial class GatewayClient : WebSocketClient
         _configuration = configuration;
         var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
         _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
+        Cache = configuration.Cache ?? new GatewayClientCache();
         Rest = rest;
 
         if (configuration.CacheDMChannels)
@@ -166,15 +164,9 @@ public partial class GatewayClient : WebSocketClient
     /// Starts the <see cref="GatewayClient"/>.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
-    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null, IGatewayClientCache? cache = null)
+    public async Task StartAsync(PresenceProperties? presence = null)
     {
-        if (cache is null)
-            Cache ??= new GatewayClientCache();
-        else
-            Cache = cache;
-
         await ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync(presence).ConfigureAwait(false);
     }
@@ -184,17 +176,11 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     /// <param name="sessionId">The session to resume.</param>
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
-    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public Task ResumeAsync(string sessionId, int sequenceNumber, IGatewayClientCache? cache = null)
+    public Task ResumeAsync(string sessionId, int sequenceNumber)
     {
         SessionId = sessionId;
         SequenceNumber = sequenceNumber;
-
-        if (cache is null)
-            Cache ??= new GatewayClientCache();
-        else
-            Cache = cache;
 
         return TryResumeAsync();
     }
