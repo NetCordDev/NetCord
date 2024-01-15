@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace NetCord.Gateway.Voice.Encryption;
 
@@ -25,7 +26,7 @@ public class XSalsa20Poly1305SuffixEncryption : IVoiceEncryption
     public void Encrypt(ReadOnlySpan<byte> plaintext, Span<byte> datagram)
     {
         var nonce = datagram[^Libsodium.NonceBytes..];
-        Random.Shared.NextBytes(nonce);
+        RandomNumberGenerator.Fill(nonce);
 
         var result = Libsodium.CryptoSecretboxEasy(ref MemoryMarshal.GetReference(datagram[12..]), ref MemoryMarshal.GetReference(plaintext), (ulong)plaintext.Length, ref MemoryMarshal.GetReference(nonce), ref MemoryMarshal.GetArrayDataReference(_key!));
 

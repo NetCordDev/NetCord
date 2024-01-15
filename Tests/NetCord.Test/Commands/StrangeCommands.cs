@@ -222,7 +222,7 @@ public class StrangeCommands : CommandModule<CommandContext>
             tasks[i] = Task.Run(async () =>
             {
                 await slim.WaitAsync();
-                await SendAsync(names[new Random().Next(2)]);
+                await SendAsync(names[Random.Shared.Next(2)]);
                 slim.Release();
             });
         await Task.WhenAll(tasks);

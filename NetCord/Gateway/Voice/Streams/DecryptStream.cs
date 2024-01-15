@@ -12,7 +12,7 @@ internal class DecryptStream : RewritingStream
     private bool _used;
     private ushort _sequenceNumber;
 
-    public DecryptStream(Stream next, IVoiceEncryption encryption, VoiceClient client) : base(next)
+    public DecryptStream(Stream next, IVoiceEncryption encryption) : base(next)
     {
         _encryption = encryption;
         _expansion = encryption.Expansion + 12;

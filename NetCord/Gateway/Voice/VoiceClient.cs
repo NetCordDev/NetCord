@@ -173,7 +173,7 @@ public class VoiceClient : WebSocketClient
                     Cache = Cache.CacheUser(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    DecryptStream decryptStream = new(voiceInStream, _encryption, this);
+                    DecryptStream decryptStream = new(voiceInStream, _encryption);
                     if (_inputStreams.Remove(ssrc, out var stream))
                         stream.Dispose();
                     _inputStreams[ssrc] = decryptStream;

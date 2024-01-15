@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 
 using NetCord.Gateway.Voice.Encryption;
 
@@ -18,8 +19,8 @@ internal class EncryptStream : RewritingStream
         _encryption = encryption;
         _expansion = encryption.Expansion + 12;
         _client = client;
-        _sequenceNumber = (ushort)Random.Shared.Next(ushort.MaxValue);
-        _timestamp = (uint)Random.Shared.Next(int.MinValue, int.MaxValue);
+        _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
+        _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
