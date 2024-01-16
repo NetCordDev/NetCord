@@ -4,95 +4,107 @@ public class RateLimitManager : IRateLimitManager
 {
     private readonly object _lock = new();
     private readonly GlobalRateLimiter _globalRateLimiter = new();
-    private readonly Dictionary<Route, IRouteRateLimiter> _routeRateLimiters;
-    private readonly Dictionary<BucketInfo, IRouteRateLimiter> _bucketRateLimiters;
+    private readonly Dictionary<Route, ITrackingRouteRateLimiter> _routeRateLimiters;
+    private readonly Dictionary<BucketInfo, ITrackingRouteRateLimiter> _bucketRateLimiters;
     private readonly int _cacheSize;
-    private readonly int _cacheCleanupFrequency;
-    private int _routeCacheCounter;
-    private int _bucketCacheCounter;
+    private readonly int _cacheCleanupCount;
 
-    public RateLimitManager(int cacheSize = 9103, int cacheCleanupFrequency = 1000)
+    public RateLimitManager(int cacheSize = 10103, int cacheCleanupCount = 5000)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan(cacheSize, 0);
-        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(cacheCleanupFrequency, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(cacheCleanupCount, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(cacheCleanupCount, cacheSize);
 
-        var maxSize = (_cacheSize = cacheSize) + (_cacheCleanupFrequency = cacheCleanupFrequency);
-        _routeRateLimiters = new(maxSize);
-        _bucketRateLimiters = new(maxSize);
+        _cacheSize = cacheSize;
+        _cacheCleanupCount = cacheCleanupCount;
+
+        _routeRateLimiters = new(cacheSize);
+        _bucketRateLimiters = new(cacheSize);
     }
 
     public ValueTask<IGlobalRateLimiter> GetGlobalRateLimiterAsync() => new(_globalRateLimiter);
 
     public ValueTask<IRouteRateLimiter> GetRouteRateLimiterAsync(Route route)
     {
-        IRouteRateLimiter? rateLimiter;
+        ITrackingRouteRateLimiter? rateLimiter;
 
         lock (_lock)
         {
             var routeRateLimiters = _routeRateLimiters;
 
             if (routeRateLimiters.TryGetValue(route, out rateLimiter))
+                rateLimiter.IndicateAccess();
+            else
             {
-                var bucket = rateLimiter.BucketInfo;
-                if (bucket is not null && _bucketRateLimiters.TryAdd(bucket, rateLimiter!))
-                    TrimRateLimiters(_bucketRateLimiters, ref _bucketCacheCounter);
-
-                return new(rateLimiter);
+                CleanupRateLimiters();
+                routeRateLimiters[route] = rateLimiter = new UnknownRouteRateLimiter();
             }
-
-            routeRateLimiters[route] = rateLimiter = new UnknownRouteRateLimiter();
-
-            TrimRateLimiters(routeRateLimiters, ref _routeCacheCounter);
         }
 
         return new(rateLimiter);
     }
 
-    public async ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo)
+    public async ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo, BucketInfo? previousBucketInfo)
     {
         if (rateLimitInfo is null)
         {
             lock (_lock)
             {
-                _routeRateLimiters[route] = new UnknownRouteRateLimiter();
-
-                TrimRateLimiters(_routeRateLimiters, ref _routeCacheCounter);
+                CleanupRateLimiters();
+                _routeRateLimiters[route] = new NoRateLimitRouteRateLimiter();
             }
 
             return;
         }
 
-        bool update;
-        IRouteRateLimiter? rateLimiter;
-        var bucketInfo = rateLimitInfo.BucketInfo;
+        ITrackingRouteRateLimiter? rateLimiter;
+
+        var bucketRateLimiters = _bucketRateLimiters;
         lock (_lock)
         {
-            if (update = _bucketRateLimiters.TryGetValue(bucketInfo, out rateLimiter))
-                _routeRateLimiters[route] = rateLimiter!;
+            if (previousBucketInfo is not null)
+                bucketRateLimiters.Remove(previousBucketInfo);
+
+            var bucketInfo = rateLimitInfo.BucketInfo;
+            if (bucketRateLimiters.TryGetValue(bucketInfo, out rateLimiter))
+            {
+                rateLimiter.IndicateAccess();
+                CleanupRateLimiters();
+                if (bucketRateLimiters.ContainsKey(bucketInfo))
+                    _routeRateLimiters[route] = rateLimiter;
+            }
             else
             {
-                _bucketRateLimiters[bucketInfo] = _routeRateLimiters[route] = new RouteRateLimiter(rateLimitInfo);
-
-                TrimRateLimiters(_bucketRateLimiters, ref _bucketCacheCounter);
+                CleanupRateLimiters();
+                bucketRateLimiters[bucketInfo] = _routeRateLimiters[route] = new RouteRateLimiter(rateLimitInfo);
+                return;
             }
         }
 
-        if (update)
-            await rateLimiter!.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
+        await rateLimiter.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
     }
 
-    private void TrimRateLimiters<TKey>(Dictionary<TKey, IRouteRateLimiter> cache, ref int counter) where TKey : notnull
+    private void CleanupRateLimiters()
     {
-        var toRemove = cache.Count - _cacheSize;
-        if (toRemove > 0 && ++counter == _cacheCleanupFrequency)
-        {
-            counter = 0;
-            foreach (var pair in cache)
-            {
-                cache.Remove(pair.Key);
+        var routeRateLimiters = _routeRateLimiters;
+        if (routeRateLimiters.Count != _cacheSize)
+            return;
 
-                if (--toRemove == 0)
-                    break;
+        var bucketRateLimiters = _bucketRateLimiters;
+
+        foreach (var group in routeRateLimiters.GroupBy(pair => pair.Value, pair => pair.Key)
+                                               .OrderBy(pair => pair.Key.LastAccess)
+                                               .Take(_cacheCleanupCount))
+        {
+            foreach (var route in group)
+                routeRateLimiters.Remove(route);
+
+            var rateLimiter = group.Key;
+            if (rateLimiter.HasBucketInfo)
+            {
+                var bucketInfo = rateLimiter.BucketInfo;
+                if (bucketInfo is not null)
+                    bucketRateLimiters.Remove(bucketInfo);
             }
         }
     }

@@ -6,5 +6,5 @@ public interface IRateLimitManager : IDisposable
 
     public ValueTask<IRouteRateLimiter> GetRouteRateLimiterAsync(Route route);
 
-    public ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo);
+    public ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo, BucketInfo? previousBucketInfo);
 }

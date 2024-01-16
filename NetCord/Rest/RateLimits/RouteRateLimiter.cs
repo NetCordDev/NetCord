@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class RouteRateLimiter : IRouteRateLimiter
+internal class RouteRateLimiter : ITrackingRouteRateLimiter
 {
     private readonly object _lock = new();
 
@@ -9,7 +9,11 @@ internal class RouteRateLimiter : IRouteRateLimiter
     private int _remaining;
     private readonly int _limit;
 
+    public bool HasBucketInfo => true;
+
     public BucketInfo BucketInfo { get; }
+
+    public long LastAccess { get; private set; } = Environment.TickCount64;
 
     public RouteRateLimiter(RateLimitInfo rateLimitInfo)
     {
@@ -73,4 +77,9 @@ internal class RouteRateLimiter : IRouteRateLimiter
     }
 
     public ValueTask IndicateExchangeAsync(long timestamp) => CancelAcquireAsync(timestamp);
+
+    public void IndicateAccess()
+    {
+        LastAccess = Environment.TickCount64;
+    }
 }

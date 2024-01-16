@@ -1,9 +1,12 @@
-﻿
-namespace NetCord.Rest.RateLimits;
+﻿namespace NetCord.Rest.RateLimits;
 
-internal class NoRateLimitRouteRateLimiter : IRouteRateLimiter
+internal class NoRateLimitRouteRateLimiter : ITrackingRouteRateLimiter
 {
+    public bool HasBucketInfo => true;
+
     public BucketInfo? BucketInfo => null;
+
+    public long LastAccess { get; private set; } = Environment.TickCount64;
 
     public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {
@@ -23,5 +26,10 @@ internal class NoRateLimitRouteRateLimiter : IRouteRateLimiter
     public ValueTask IndicateExchangeAsync(long timestamp)
     {
         return default;
+    }
+
+    public void IndicateAccess()
+    {
+        LastAccess = Environment.TickCount64;
     }
 }
