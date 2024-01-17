@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
@@ -51,51 +52,68 @@ public class CodeBlock : ISpanFormattable, ISpanParsable<CodeBlock>
         return true;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> s, [MaybeNullWhen(false)] out CodeBlock result)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that 'strictMode' branches can be eliminated if it is a constant
+    public static bool TryParse(ReadOnlySpan<char> s, bool strictMode, [MaybeNullWhen(false)] out CodeBlock result)
     {
-        if (s.StartsWith("```") && s.EndsWith("```"))
-        {
-            s = s[3..^3];
-            int i = s.IndexOf('\n');
-            if (i != -1)
-            {
-                var formatter = s[..i];
-                foreach (var c in formatter)
-                {
-                    if (c is not ((>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '+' or '-'))
-                    {
-                        result = new(s.ToString());
-                        return true;
-                    }
-                }
+        //                It needs to start and end with 3 backticks and have at least 1 character in between
+        //                3 + 1 + 3 = 7
+        var isCodeBlock = s.Length >= 7 && s.StartsWith("```") && s.EndsWith("```");
 
-                result = new(s[(formatter.Length + 1)..].ToString(), formatter.ToString());
-                return true;
-            }
-            else
-            {
-                result = new(s.ToString());
-                return true;
-            }
+        if (!isCodeBlock)
+        {
+            result = null;
+            goto Ret;
         }
 
-        result = null;
-        return false;
+        string? formatter = null;
+        s = s[3..^3];
+        var firstNewLine = s.IndexOf('\n');
+
+        if (firstNewLine > 0)
+        {
+            var formatterSpan = s[..firstNewLine];
+
+            foreach (var c in formatterSpan)
+            {
+                if (char.IsAsciiLetterOrDigit(c) || c == '+' || c == '-')
+                    continue;
+
+                goto Success;
+            }
+
+            s = s[(firstNewLine + 1)..];
+
+            if (strictMode && s.IsWhiteSpace())
+                s = formatterSpan;
+            else
+                formatter = formatterSpan.ToString();
+        }
+
+        Success:
+        result = new(s.ToString(), formatter);
+
+        Ret:
+        return isCodeBlock;
     }
 
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s, out result);
+    public static bool TryParse(ReadOnlySpan<char> s, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s, true, out result);
 
-    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s.AsSpan(), out result);
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s, true, out result);
 
-    public static CodeBlock Parse(ReadOnlySpan<char> s)
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s.AsSpan(), true, out result);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that 'strictMode' branches can be eliminated if it is a constant
+    public static CodeBlock Parse(ReadOnlySpan<char> s, bool strictMode)
     {
-        if (TryParse(s, out var result))
+        if (TryParse(s, strictMode, out var result))
             return result;
 
         throw new FormatException($"Cannot parse '{nameof(CodeBlock)}'.");
     }
 
-    public static CodeBlock Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => Parse(s);
+    public static CodeBlock Parse(ReadOnlySpan<char> s) => Parse(s, true);
 
-    public static CodeBlock Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), provider);
+    public static CodeBlock Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => Parse(s, true);
+
+    public static CodeBlock Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), true);
 }
