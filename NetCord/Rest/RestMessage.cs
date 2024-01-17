@@ -55,7 +55,7 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
 
         var startedThread = jsonModel.StartedThread;
         if (startedThread is not null)
-            StartedThread = (GuildThread)Channel.CreateFromJson(startedThread, client);
+            StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
         Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));

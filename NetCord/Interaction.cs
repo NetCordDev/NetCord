@@ -23,7 +23,7 @@ public abstract class Interaction : ClientEntity, IInteraction
             User = new(jsonModel.User!, client);
 
         Guild = guild;
-        Channel = (TextChannel)NetCord.Channel.CreateFromJson(jsonModel.Channel!, client);
+        Channel = TextChannel.CreateFromJson(jsonModel.Channel!, client);
         Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
 
         _sendResponseAsync = sendResponseAsync;

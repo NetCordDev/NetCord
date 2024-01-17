@@ -3,10 +3,10 @@
 public class MissingPermissionsResult : PreconditionFailResult
 {
     public Permissions MissingPermissions { get; }
-    public PermissionsExceptionEntityType EntityType { get; }
-    public PermissionsExceptionPermissionType PermissionType { get; }
+    public MissingPermissionsResultEntityType EntityType { get; }
+    public MissingPermissionsResultPermissionType PermissionType { get; }
 
-    public MissingPermissionsResult(string message, Permissions missingPermissions, PermissionsExceptionEntityType entityType, PermissionsExceptionPermissionType permissionType) : base(message)
+    public MissingPermissionsResult(string message, Permissions missingPermissions, MissingPermissionsResultEntityType entityType, MissingPermissionsResultPermissionType permissionType) : base(message)
     {
         MissingPermissions = missingPermissions;
         EntityType = entityType;
@@ -14,13 +14,13 @@ public class MissingPermissionsResult : PreconditionFailResult
     }
 }
 
-public enum PermissionsExceptionEntityType
+public enum MissingPermissionsResultEntityType
 {
     User,
     Bot,
 }
 
-public enum PermissionsExceptionPermissionType
+public enum MissingPermissionsResultPermissionType
 {
     Guild,
     Channel,

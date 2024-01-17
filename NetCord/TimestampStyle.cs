@@ -1,12 +1,12 @@
 ﻿namespace NetCord;
 
-public enum TimestampStyle
+public enum TimestampStyle : short
 {
-    ShortTime = 't',
-    LongTime = 'T',
-    ShortDate = 'd',
-    LongDate = 'D',
-    ShortDateTime = 'f',
-    LongDateTime = 'F',
-    RelativeTime = 'R'
+    ShortTime = (short)'t',
+    LongTime = (short)'T',
+    ShortDate = (short)'d',
+    LongDate = (short)'D',
+    ShortDateTime = (short)'f',
+    LongDateTime = (short)'F',
+    RelativeTime = (short)'R',
 }

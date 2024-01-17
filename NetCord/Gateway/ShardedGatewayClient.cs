@@ -35,11 +35,12 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
                 WebSocketFactory = _ => null,
                 ReconnectTimerFactory = _ => null,
                 LatencyTimerFactory = _ => null,
+                VersionFactory = _ => ApiVersion.V10,
+                CacheFactory = _ => null,
                 CompressionFactory = _ => null,
+                IntentsFactory = _ => GatewayIntents.AllNonPrivileged,
                 Hostname = null,
                 ConnectionPropertiesFactory = _ => null,
-                VersionFactory = _ => ApiVersion.V10,
-                IntentsFactory = _ => GatewayIntents.AllNonPrivileged,
                 LargeThresholdFactory = _ => null,
                 PresenceFactory = _ => null,
                 ShardCount = null,
@@ -52,11 +53,12 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
             WebSocketFactory = configuration.WebSocketFactory ?? (_ => null),
             ReconnectTimerFactory = configuration.ReconnectTimerFactory ?? (_ => null),
             LatencyTimerFactory = configuration.LatencyTimerFactory ?? (_ => null),
+            VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
+            CacheFactory = configuration.CacheFactory ?? (_ => null),
             CompressionFactory = configuration.CompressionFactory ?? (_ => null),
+            IntentsFactory = configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
             Hostname = configuration.Hostname,
             ConnectionPropertiesFactory = configuration.ConnectionPropertiesFactory ?? (_ => null),
-            VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
-            IntentsFactory = configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
             LargeThresholdFactory = configuration.LargeThresholdFactory ?? (_ => null),
             PresenceFactory = configuration.PresenceFactory ?? (_ => null),
             ShardCount = configuration.ShardCount,
@@ -80,7 +82,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
 
     public int Count => _clients!.Count;
 
-    public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null, Func<Shard, IGatewayClientCache?>? cacheFactory = null)
+    public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null)
     {
         CancellationTokenSource startCancellationTokenSource;
         lock (_startLock)
@@ -96,7 +98,6 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         _initialized = false;
 
         presenceFactory ??= _ => null;
-        cacheFactory ??= _ => null;
 
         try
         {
@@ -174,7 +175,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
                         clients[shardId] = client = new(botToken, rest, gatewayClientConfiguration);
                     }
                     HookEvents(client);
-                    await client.StartAsync(presenceFactory(shard), cacheFactory(shard)).ConfigureAwait(false);
+                    await client.StartAsync(presenceFactory(shard)).ConfigureAwait(false);
                 }
             }
         }
@@ -207,11 +208,12 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
             WebSocket = configuration.WebSocketFactory!(shard),
             ReconnectTimer = configuration.ReconnectTimerFactory!(shard),
             LatencyTimer = configuration.LatencyTimerFactory!(shard),
+            Version = configuration.VersionFactory!(shard),
+            Cache = configuration.CacheFactory!(shard),
             Compression = configuration.CompressionFactory!(shard),
+            Intents = configuration.IntentsFactory!(shard),
             Hostname = configuration.Hostname,
             ConnectionProperties = configuration.ConnectionPropertiesFactory!(shard),
-            Version = configuration.VersionFactory!(shard),
-            Intents = configuration.IntentsFactory!(shard),
             LargeThreshold = configuration.LargeThresholdFactory!(shard),
             Presence = configuration.PresenceFactory!(shard),
             Shard = shard,
@@ -496,8 +498,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelCreateLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelCreate;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelCreate
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelCreate;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelCreate
     {
         add
         {
@@ -510,8 +512,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelUpdateLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelUpdate;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelUpdate
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelUpdate;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelUpdate
     {
         add
         {
@@ -524,8 +526,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
     }
 
     private readonly object _guildChannelDeleteLock = new();
-    private Func<GatewayClient, GuildChannelEventArgs, ValueTask>? _guildChannelDelete;
-    public event Func<GatewayClient, GuildChannelEventArgs, ValueTask>? GuildChannelDelete
+    private Func<GatewayClient, IGuildChannel, ValueTask>? _guildChannelDelete;
+    public event Func<GatewayClient, IGuildChannel, ValueTask>? GuildChannelDelete
     {
         add
         {

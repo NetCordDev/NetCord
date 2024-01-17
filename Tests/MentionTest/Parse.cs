@@ -1,9 +1,9 @@
 using NetCord;
 
-namespace MentionUtilsTest;
+namespace MentionTest;
 
 [TestClass]
-public unsafe class Test
+public unsafe class Parse
 {
     private const ulong Id = 859359702012788756;
 

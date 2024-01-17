@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
 using System.Net.Sockets;
 
 using NetCord.Gateway.JsonModels;
@@ -31,8 +30,6 @@ public class VoiceClient : WebSocketClient
     /// <summary>
     /// The cache of the <see cref="VoiceClient"/>.
     /// </summary>
-    /// <remarks>It is <see langword="null"/> before starting of the <see cref="VoiceClient"/>.</remarks>
-    [AllowNull]
     public IVoiceClientCache Cache { get; private set; }
 
     private readonly Dictionary<uint, Stream> _inputStreams = [];
@@ -49,8 +46,9 @@ public class VoiceClient : WebSocketClient
         Token = token;
 
         _udpSocket = configuration.UdpSocket ?? new UdpSocket();
-        RedirectInputStreams = configuration.RedirectInputStreams;
+        Cache = configuration.Cache ?? new VoiceClientCache();
         _encryption = configuration.Encryption ?? new XSalsa20Poly1305Encryption();
+        RedirectInputStreams = configuration.RedirectInputStreams;
     }
 
     private ValueTask SendIdentifyAsync()
@@ -63,15 +61,9 @@ public class VoiceClient : WebSocketClient
     /// <summary>
     /// Starts the <see cref="VoiceClient"/>.
     /// </summary>
-    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public async Task StartAsync(IVoiceClientCache? cache = null)
+    public async Task StartAsync()
     {
-        if (cache is null)
-            Cache ??= new VoiceClientCache();
-        else
-            Cache = cache;
-
         await ConnectAsync(_url).ConfigureAwait(false);
         await SendIdentifyAsync().ConfigureAwait(false);
     }
@@ -79,17 +71,8 @@ public class VoiceClient : WebSocketClient
     /// <summary>
     /// Resumes a session.
     /// </summary>
-    /// <param name="cache">The cache to use.</param>
     /// <returns></returns>
-    public Task ResumeAsync(IVoiceClientCache? cache = null)
-    {
-        if (cache is null)
-            Cache ??= new VoiceClientCache();
-        else
-            Cache = cache;
-
-        return TryResumeAsync();
-    }
+    public Task ResumeAsync() => TryResumeAsync();
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
@@ -190,7 +173,7 @@ public class VoiceClient : WebSocketClient
                     Cache = Cache.CacheUser(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    DecryptStream decryptStream = new(voiceInStream, _encryption, this);
+                    DecryptStream decryptStream = new(voiceInStream, _encryption);
                     if (_inputStreams.Remove(ssrc, out var stream))
                         stream.Dispose();
                     _inputStreams[ssrc] = decryptStream;

@@ -4,7 +4,7 @@ namespace NetCord;
 
 public class AnnouncementGuildChannel : TextGuildChannel
 {
-    public AnnouncementGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    public AnnouncementGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {
     }
 

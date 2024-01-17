@@ -77,6 +77,24 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
 
     public override string ToString() => $"</{Name}:{Id}>";
 
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+    {
+        var requiredLength = 5 + Name.Length;
+        if (destination.Length < requiredLength || !Id.TryFormat(destination[(3 + Name.Length)..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        Name.CopyTo(destination[2..]);
+        destination[2 + Name.Length] = ':';
+        destination[3 + Name.Length + length] = '>';
+
+        charsWritten = 4 + Name.Length + length;
+        return true;
+    }
+
     #region Interactions.ApplicationCommands
     public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
     public virtual Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGlobalApplicationCommandAsync(ApplicationId, Id, properties);

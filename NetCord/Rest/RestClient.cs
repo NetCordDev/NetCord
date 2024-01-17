@@ -111,11 +111,21 @@ public partial class RestClient : IDisposable
             {
                 BucketInfo bucketInfo = new(bucket, route.ResourceInfo);
                 RateLimitInfo rateLimitInfo = new(timestamp, resetAfter, remaining, limit, bucketInfo);
-                if (rateLimiter.BucketInfo == bucketInfo)
-                    await rateLimiter.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
+
+                if (rateLimiter.HasBucketInfo)
+                {
+                    var rateLimiterBucketInfo = rateLimiter.BucketInfo;
+                    if (rateLimiterBucketInfo == bucketInfo)
+                        await rateLimiter.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
+                    else
+                    {
+                        await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, rateLimitInfo, rateLimiterBucketInfo).ConfigureAwait(false);
+                        await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
+                    }
+                }
                 else
                 {
-                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, rateLimitInfo).ConfigureAwait(false);
+                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, rateLimitInfo, null).ConfigureAwait(false);
                     await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
                 }
 
@@ -146,7 +156,7 @@ public partial class RestClient : IDisposable
                 }
                 else
                 {
-                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null).ConfigureAwait(false);
+                    await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null, null).ConfigureAwait(false);
                     await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
 
                     if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
@@ -162,7 +172,7 @@ public partial class RestClient : IDisposable
             }
             else
             {
-                await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null).ConfigureAwait(false);
+                await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null, null).ConfigureAwait(false);
                 await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
             }
 

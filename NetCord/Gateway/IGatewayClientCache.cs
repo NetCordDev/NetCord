@@ -18,7 +18,7 @@ public interface IGatewayClientCache : IDisposable
     public IGatewayClientCache CacheGuildEmojis(ulong guildId, ImmutableDictionary<ulong, GuildEmoji> emojis);
     public IGatewayClientCache CacheGuildStickers(ulong guildId, ImmutableDictionary<ulong, GuildSticker> stickers);
     public IGatewayClientCache CacheGuildThread(GuildThread thread);
-    public IGatewayClientCache CacheGuildChannel(ulong guildId, IGuildChannel channel);
+    public IGatewayClientCache CacheGuildChannel(IGuildChannel channel);
     public IGatewayClientCache CacheStageInstance(StageInstance stageInstance);
     public IGatewayClientCache CacheCurrentUser(CurrentUser user);
     public IGatewayClientCache CacheVoiceState(ulong guildId, VoiceState voiceState);

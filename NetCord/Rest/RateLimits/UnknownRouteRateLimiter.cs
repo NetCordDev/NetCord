@@ -1,11 +1,15 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class UnknownRouteRateLimiter : IRouteRateLimiter
+internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
 {
     private bool _retry;
     private readonly SemaphoreSlim _semaphore = new(1);
 
-    public BucketInfo? BucketInfo => null;
+    public bool HasBucketInfo => false;
+
+    public BucketInfo? BucketInfo => throw new InvalidOperationException();
+
+    public long LastAccess { get; private set; } = Environment.TickCount64;
 
     public async ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {
@@ -40,5 +44,10 @@ internal class UnknownRouteRateLimiter : IRouteRateLimiter
         _semaphore.Release(int.MaxValue);
 
         return default;
+    }
+
+    public void IndicateAccess()
+    {
+        LastAccess = Environment.TickCount64;
     }
 }

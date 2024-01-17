@@ -132,7 +132,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntroductionHosting", "Docu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShardingHosting", "Documentation\guides\advanced\ShardingHosting\ShardingHosting.csproj", "{D2D21E34-7F3D-4BAE-8CE7-0692C0E79094}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpInteractions", "Documentation\guides\advanced\HttpInteractions\HttpInteractions.csproj", "{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpInteractions", "Documentation\guides\advanced\HttpInteractions\HttpInteractions.csproj", "{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

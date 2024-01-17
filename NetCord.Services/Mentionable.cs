@@ -27,6 +27,13 @@ public class Mentionable : Entity
         MentionableType.Role => Role!.ToString(),
         _ => throw new ArgumentOutOfRangeException(),
     };
+
+    public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Type switch
+    {
+        MentionableType.User => User!.TryFormat(destination, out charsWritten, format, provider),
+        MentionableType.Role => Role!.TryFormat(destination, out charsWritten, format, provider),
+        _ => throw new ArgumentOutOfRangeException(),
+    };
 }
 
 public enum MentionableType : byte

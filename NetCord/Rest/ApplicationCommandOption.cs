@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>
+public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>, ISpanFormattable
 {
     JsonModels.JsonApplicationCommandOption IJsonModel<JsonModels.JsonApplicationCommandOption>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonApplicationCommandOption _jsonModel;
@@ -97,4 +97,24 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     }
 
     public override string ToString() => $"</{_fullName}:{_parentId}>";
+
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+    {
+        var requiredLength = 5 + _fullName.Length;
+        if (destination.Length < requiredLength || !_parentId.TryFormat(destination[(3 + _fullName.Length)..^1], out int length))
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        "</".CopyTo(destination);
+        _fullName.CopyTo(destination[2..]);
+        destination[2 + _fullName.Length] = ':';
+        destination[3 + _fullName.Length + length] = '>';
+
+        charsWritten = 4 + _fullName.Length + length;
+        return true;
+    }
 }

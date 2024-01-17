@@ -5,8 +5,9 @@ namespace NetCord;
 
 public class ForumGuildChannel : Channel, IGuildChannel
 {
-    public ForumGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    public ForumGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
     {
+        GuildId = guildId;
         PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
         AvailableTags = jsonModel.AvailableTags.SelectOrEmpty(t => new ForumTag(t)).ToArray();
 
@@ -15,8 +16,8 @@ public class ForumGuildChannel : Channel, IGuildChannel
             DefaultReactionEmoji = new(defaultReactionEmoji);
     }
 
-    public ulong? GuildId => _jsonModel.GuildId;
-    public int Position => _jsonModel.Position.GetValueOrDefault();
+    public ulong GuildId { get; }
+    public int? Position => _jsonModel.Position;
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
     public string Name => _jsonModel.Name!;
     public string? Topic => _jsonModel.Topic;

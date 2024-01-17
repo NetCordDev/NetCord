@@ -187,7 +187,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{percentage}%"));
     }
 
-    [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.BanUsers), RequireBotPermissions<SlashCommandContext>(Permissions.BanUsers)]
+    [RequireUserPermissions<SlashCommandContext>(Permissions.BanUsers), RequireBotPermissions<SlashCommandContext>(Permissions.BanUsers)]
     [SlashCommand("ban", "Bans a user")]
     public async Task BanAsync([SlashCommandParameter(Description = "User to ban")] User user, [SlashCommandParameter(Name = "delete_messages", Description = "Delete messages")] DeleteMessagesDays deleteMessages = DeleteMessagesDays.DontRemove, [MustContain("wzium")] string reason = "no reason")
     {
@@ -198,7 +198,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"**{user} got banned**", AllowedMentions = AllowedMentionsProperties.None }));
     }
 
-    [InteractionRequireUserChannelPermissions<SlashCommandContext>(Permissions.ModerateUsers), RequireBotPermissions<SlashCommandContext>(Permissions.ModerateUsers)]
+    [RequireUserPermissions<SlashCommandContext>(Permissions.ModerateUsers), RequireBotPermissions<SlashCommandContext>(Permissions.ModerateUsers)]
     [SlashCommand("mute", "Mutes a user")]
     public async Task MuteAsync([SlashCommandParameter(Description = "User to mute")] User user, double days, string reason = "no reason")
     {

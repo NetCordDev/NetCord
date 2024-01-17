@@ -8,7 +8,7 @@ namespace NetCord.Test.Hosting;
 [GatewayEvent(nameof(GatewayClient.GuildChannelCreate))]
 [GatewayEvent(nameof(GatewayClient.GuildChannelUpdate))]
 [GatewayEvent(nameof(GatewayClient.GuildChannelDelete))]
-internal class ChannelCreateUpdateDeleteHandler : IGatewayEventHandler<GuildChannelEventArgs>
+internal class ChannelCreateUpdateDeleteHandler : IGatewayEventHandler<IGuildChannel>
 {
     private readonly ILogger<ChannelCreateUpdateDeleteHandler> _logger;
 
@@ -17,9 +17,9 @@ internal class ChannelCreateUpdateDeleteHandler : IGatewayEventHandler<GuildChan
         _logger = logger;
     }
 
-    public ValueTask HandleAsync(GuildChannelEventArgs args)
+    public ValueTask HandleAsync(IGuildChannel channel)
     {
-        _logger.LogInformation("GuildId: {GuildId}, ChannelId: {ChannelId}", args.GuildId, args.Channel.Id);
+        _logger.LogInformation("GuildId: {GuildId}, ChannelId: {ChannelId}", channel.GuildId, channel.Id);
 
         return default;
     }

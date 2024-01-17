@@ -4,8 +4,14 @@ namespace NetCord;
 
 public class TextGuildChannel : TextChannel, IGuildChannel
 {
-    public ulong? GuildId => _jsonModel.GuildId;
-    public int Position => _jsonModel.Position.GetValueOrDefault();
+    public TextGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
+    {
+        GuildId = guildId;
+        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+    }
+
+    public ulong GuildId { get; }
+    public int? Position => _jsonModel.Position;
     public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
     public string Name => _jsonModel.Name!;
     public string? Topic => _jsonModel.Topic;
@@ -14,11 +20,6 @@ public class TextGuildChannel : TextChannel, IGuildChannel
     public ulong? ParentId => _jsonModel.ParentId;
     public int? DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration;
     public int DefaultThreadSlowmode => _jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
-
-    public TextGuildChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
-    }
 
     #region Channel
     public async Task<IGuildChannel> ModifyAsync(Action<GuildChannelOptions> action, RequestProperties? properties = null) => (IGuildChannel)await _client.ModifyGuildChannelAsync(Id, action, properties).ConfigureAwait(false);

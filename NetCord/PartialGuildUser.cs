@@ -25,11 +25,5 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
         _jsonModel = jsonModel;
     }
 
-    public IEnumerable<Role> GetRoles(RestGuild guild)
-    {
-        var roles = guild.Roles;
-        return RoleIds.Select(r => roles[r]);
-    }
-
     public bool HasGuildAvatar => GuildAvatarHash is not null;
 }

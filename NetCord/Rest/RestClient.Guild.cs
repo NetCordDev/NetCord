@@ -33,7 +33,7 @@ public partial class RestClient
     public async Task<IGuildChannel> CreateGuildChannelAsync(ulong guildId, GuildChannelProperties channelProperties, RequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<GuildChannelProperties>(channelProperties, Serialization.Default.GuildChannelProperties))
-            return (IGuildChannel)Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/channels", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
+            return IGuildChannel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/channels", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), guildId, this);
     }
 
     public async Task ModifyGuildChannelPositionsAsync(ulong guildId, IEnumerable<GuildChannelPositionProperties> positions, RequestProperties? properties = null)

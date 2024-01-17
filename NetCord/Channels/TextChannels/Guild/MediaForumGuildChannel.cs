@@ -5,7 +5,7 @@ namespace NetCord;
 
 public class MediaForumGuildChannel : ForumGuildChannel
 {
-    public MediaForumGuildChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    public MediaForumGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {
     }
 }

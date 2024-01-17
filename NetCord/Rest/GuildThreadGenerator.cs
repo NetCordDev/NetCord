@@ -10,7 +10,7 @@ internal static class GuildThreadGenerator
             if (users.TryGetValue(t.Id, out var user))
                 t.CurrentUser = user;
 
-            return (GuildThread)Channel.CreateFromJson(t, client);
+            return GuildThread.CreateFromJson(t, client);
         });
     }
 
@@ -22,7 +22,7 @@ internal static class GuildThreadGenerator
             if (users.TryGetValue(t.Id, out var user))
                 t.CurrentUser = user;
 
-            yield return (GuildThread)Channel.CreateFromJson(t, client);
+            yield return GuildThread.CreateFromJson(t, client);
         }
     }
 }

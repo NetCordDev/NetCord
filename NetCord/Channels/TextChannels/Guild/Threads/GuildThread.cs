@@ -2,29 +2,33 @@
 
 namespace NetCord;
 
-public abstract class GuildThread : TextChannel, INamedChannel
+public abstract class GuildThread : TextGuildChannel
 {
-    public ulong GuildId => _jsonModel.GuildId.GetValueOrDefault();
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
-    public string Name => _jsonModel.Name!;
-    public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
     public ulong OwnerId => _jsonModel.OwnerId.GetValueOrDefault();
-    public ulong ParentId => _jsonModel.ParentId.GetValueOrDefault();
     public int MessageCount => _jsonModel.MessageCount.GetValueOrDefault();
     public int UserCount => _jsonModel.UserCount.GetValueOrDefault();
     public GuildThreadMetadata Metadata { get; }
     public ThreadCurrentUser? CurrentUser { get; }
     public int TotalMessageSent => _jsonModel.TotalMessageSent.GetValueOrDefault();
 
-    protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    protected GuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, jsonModel.GuildId.GetValueOrDefault(), client)
     {
         Metadata = new(jsonModel.Metadata!);
 
         var jsonCurrentUser = jsonModel.CurrentUser;
         if (jsonCurrentUser is not null)
             CurrentUser = new(jsonCurrentUser);
+    }
 
-        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
+    public static new GuildThread CreateFromJson(JsonModels.JsonChannel jsonChannel, RestClient client)
+    {
+        return jsonChannel.Type switch
+        {
+            ChannelType.AnnouncementGuildThread => new AnnouncementGuildThread(jsonChannel, client),
+            ChannelType.PublicGuildThread => new PublicGuildThread(jsonChannel, client),
+            ChannelType.PrivateGuildThread => new PrivateGuildThread(jsonChannel, client),
+            _ => new UnknownGuildThread(jsonChannel, client),
+        };
     }
 
     #region Channel

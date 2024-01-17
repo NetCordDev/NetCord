@@ -10,4 +10,27 @@ public class DMChannel : TextChannel
     {
         Users = jsonModel.Users.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
     }
+
+    public static new DMChannel CreateFromJson(JsonModels.JsonChannel jsonModel, RestClient client)
+    {
+        return jsonModel.Type switch
+        {
+            ChannelType.DMChannel => new DMChannel(jsonModel, client),
+            ChannelType.GroupDMChannel => new GroupDMChannel(jsonModel, client),
+            _ => new UnknownDMChannel(jsonModel, client),
+        };
+    }
+}
+
+public interface IUnknownDMChannel : IUnknownTextChannel
+{
+}
+
+internal class UnknownDMChannel : DMChannel, IUnknownDMChannel
+{
+    public UnknownDMChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
+    {
+    }
+
+    public ChannelType Type => _jsonModel.Type;
 }

@@ -2,6 +2,8 @@
 
 public interface IRouteRateLimiter : IRateLimiter
 {
+    public bool HasBucketInfo { get; }
+
     public BucketInfo? BucketInfo { get; }
 
     public ValueTask CancelAcquireAsync(long timestamp);

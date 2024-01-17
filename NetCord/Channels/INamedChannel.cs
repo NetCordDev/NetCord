@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public interface INamedChannel
+public interface INamedChannel : IEntity
 {
     public string Name { get; }
 
