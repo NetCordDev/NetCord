@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
-public class CodeBlock
+public class CodeBlock : ISpanFormattable, ISpanParsable<CodeBlock>
 {
     public string Code { get; }
     public string? Formatter { get; }
@@ -14,67 +14,106 @@ public class CodeBlock
         Formatter = formatter;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that strictMode branches can be eliminated if it is a constant
-    public static bool TryParse(ReadOnlySpan<char> text, [NotNullWhen(true)] out CodeBlock? codeBlock, bool strictMode = true)
+    public override string ToString() => $"```{Formatter}\n{Code}```";
+
+    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
     {
-        const string prefixSuffix = "```";
-        
-        codeBlock = null;
-        
-        var isCodeBlock = text.Length >= $"{prefixSuffix}\n{prefixSuffix}".Length && text.StartsWith(prefixSuffix) && text.EndsWith(prefixSuffix);
-        
+        var code = Code;
+        var formatter = Formatter;
+
+        int requiredLength = formatter is null ? (code.Length + 7) : (code.Length + formatter.Length + 7);
+        if (destination.Length < requiredLength)
+        {
+            charsWritten = 0;
+            return false;
+        }
+
+        int written = 0;
+
+        "```".CopyTo(destination);
+        written += 3;
+
+        if (formatter is not null)
+        {
+            formatter.CopyTo(destination[written..]);
+            written += formatter.Length;
+        }
+
+        destination[written++] = '\n';
+
+        code.CopyTo(destination[written..]);
+        written += code.Length;
+
+        "```".CopyTo(destination[written..]);
+
+        charsWritten = requiredLength;
+        return true;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that 'strictMode' branches can be eliminated if it is a constant
+    public static bool TryParse(ReadOnlySpan<char> s, bool strictMode, [MaybeNullWhen(false)] out CodeBlock result)
+    {
+        //                It needs to start and end with 3 backticks and have at least 1 character in between
+        //                3 + 1 + 3 = 7
+        var isCodeBlock = s.Length >= 7 && s.StartsWith("```") && s.EndsWith("```");
+
         if (!isCodeBlock)
         {
+            result = null;
             goto Ret;
         }
-        
+
         string? formatter = null;
-        text = text[prefixSuffix.Length..^prefixSuffix.Length];
-        var firstNewLine = text.IndexOf('\n');
-            
-        if (firstNewLine != -1)
-        {                
-            ReadOnlySpan<char> formatterSpan = text[..firstNewLine];
-                
+        s = s[3..^3];
+        var firstNewLine = s.IndexOf('\n');
+
+        if (firstNewLine > 0)
+        {
+            var formatterSpan = s[..firstNewLine];
+
             foreach (var c in formatterSpan)
             {
-                var isAsciiAlphaNumeric = char.IsAsciiLetterOrDigit(c);
-                    
-                if (isAsciiAlphaNumeric || c == '+' || c == '-')
-                {
+                if (char.IsAsciiLetterOrDigit(c) || c == '+' || c == '-')
                     continue;
-                }
-                    
+
                 goto Success;
             }
-            
-            text = text[(formatterSpan.Length + 1)..];
-            
-            if (!strictMode || !text.IsWhiteSpace())
-            {
-                formatter = formatterSpan.ToString();
-            }
-				
+
+            s = s[(firstNewLine + 1)..];
+
+            if (strictMode && s.IsWhiteSpace())
+                s = formatterSpan;
             else
-            {
-                text = formatterSpan;
-            }
+                formatter = formatterSpan.ToString();
         }
-        
+
         Success:
-        codeBlock = new(text.ToString(), formatter);
-        
+        result = new(s.ToString(), formatter);
+
         Ret:
         return isCodeBlock;
     }
 
-    public static CodeBlock Parse(ReadOnlySpan<char> text)
+    public static bool TryParse(ReadOnlySpan<char> s, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s, true, out result);
+
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s, true, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CodeBlock result) => TryParse(s.AsSpan(), true, out result);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)] // Inline so that 'strictMode' branches can be eliminated if it is a constant
+    public static CodeBlock Parse(ReadOnlySpan<char> s, bool strictMode)
     {
-        if (TryParse(text, out var codeBlock))
-            return codeBlock;
-        else
-            throw new FormatException($"Cannot parse '{nameof(CodeBlock)}'.");
+        if (TryParse(s, strictMode, out var result))
+            return result;
+
+        throw new FormatException($"Cannot parse '{nameof(CodeBlock)}'.");
     }
 
-    public override string ToString() => $"```{Formatter}\n{Code}```";
+    public static CodeBlock Parse(ReadOnlySpan<char> s) => Parse(s, true);
+
+    public static CodeBlock Parse(ReadOnlySpan<char> s, IFormatProvider? provider) => Parse(s, true);
+
+    public static CodeBlock Parse(string s, IFormatProvider? provider) => Parse(s.AsSpan(), true);
 }
