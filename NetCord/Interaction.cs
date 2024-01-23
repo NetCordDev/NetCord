@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class Interaction : ClientEntity, IInteraction
+public abstract partial class Interaction : ClientEntity, IInteraction
 {
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonInteraction _jsonModel;
@@ -87,19 +87,5 @@ public abstract class Interaction : ClientEntity, IInteraction
         return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties), client);
     }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _sendResponseAsync(this, interactionCallback, properties);
-
-    public Task<RestMessage> GetResponseAsync(RequestProperties? properties = null) => _client.GetInteractionResponseAsync(ApplicationId, Token, properties);
-
-    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionResponseAsync(ApplicationId, Token, action, properties);
-
-    public Task DeleteResponseAsync(RequestProperties? properties = null) => _client.DeleteInteractionResponseAsync(ApplicationId, Token, properties);
-
-    public Task<RestMessage> SendFollowupMessageAsync(InteractionMessageProperties message, RequestProperties? properties = null) => _client.SendInteractionFollowupMessageAsync(ApplicationId, Token, message, properties);
-
-    public Task<RestMessage> GetFollowupMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.GetInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
-
-    public Task<RestMessage> ModifyFollowupMessageAsync(ulong messageId, Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyInteractionFollowupMessageAsync(ApplicationId, Token, messageId, action, properties);
-
-    public Task DeleteFollowupMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.DeleteInteractionFollowupMessageAsync(ApplicationId, Token, messageId, properties);
+    public Task SendResponseAsync(InteractionCallback callback, RequestProperties? properties = null) => _sendResponseAsync(this, callback, properties);
 }

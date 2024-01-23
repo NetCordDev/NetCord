@@ -25,10 +25,10 @@ internal static class CollectionsUtils
                 ((List<TSource>)list).Add(s);
             else
             {
-                list = new List<TSource>(1)
-                {
+                list =
+                [
                     s
-                };
+                ];
                 result.Add(key, list);
             }
         }
@@ -46,10 +46,10 @@ internal static class CollectionsUtils
                 ((List<TElement>)list).Add(element);
             else
             {
-                list = new List<TElement>(1)
-                {
+                list =
+                [
                     element
-                };
+                ];
                 result.Add(key, list);
             }
         }

@@ -360,14 +360,14 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return InteractionCallback.Message(new()
         {
             Content = "Button:",
-            Components = new ComponentProperties[]
-            {
-                new ActionRowProperties(new List<ButtonProperties>
-                {
+            Components =
+            [
+                new ActionRowProperties(
+                [
                     new ActionButtonProperties("id", new EmojiProperties(942818016222138399), ButtonStyle.Success),
                     new LinkButtonProperties(new("https://google.com"), new EmojiProperties(942818016222138399)),
-                }),
-            },
+                ]),
+            ],
         });
     }
 

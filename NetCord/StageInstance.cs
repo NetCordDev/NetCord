@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstance>
+public partial class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstance>
 {
     JsonModels.JsonStageInstance IJsonModel<JsonModels.JsonStageInstance>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonStageInstance _jsonModel;
@@ -18,9 +18,4 @@ public class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstan
     {
         _jsonModel = jsonModel;
     }
-
-    #region StageInstance
-    public Task<StageInstance> ModifyAsync(Action<StageInstanceOptions> action, RequestProperties? properties = null) => _client.ModifyStageInstanceAsync(ChannelId, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteStageInstanceAsync(ChannelId, properties);
-    #endregion
 }

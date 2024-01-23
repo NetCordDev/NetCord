@@ -34,5 +34,5 @@ public class PingInteraction : Entity, IInteraction
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null) => _sendResponseAsync(this, interactionCallback, properties);
+    public Task SendResponseAsync(InteractionCallback callback, RequestProperties? properties = null) => _sendResponseAsync(this, callback, properties);
 }

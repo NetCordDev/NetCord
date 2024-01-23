@@ -1,13 +1,17 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
+    [GenerateAlias(typeof(CurrentUser))]
     public async Task<CurrentUser> GetCurrentUserAsync(RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonUser).ConfigureAwait(false), this);
 
     public async Task<User> GetUserAsync(ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/{userId}", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonUser).ConfigureAwait(false), this);
 
+    [GenerateAlias(typeof(CurrentUser))]
     public async Task<CurrentUser> ModifyCurrentUserAsync(Action<CurrentUserOptions> action, RequestProperties? properties = null)
     {
         CurrentUserOptions currentUserOptions = new();
@@ -37,9 +41,11 @@ public partial class RestClient
     public async Task<GuildUser> GetCurrentUserGuildUserAsync(ulong guildId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds/{guildId}/member", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildUser).ConfigureAwait(false), guildId, this);
 
+    [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public Task LeaveGuildAsync(ulong guildId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/users/@me/guilds/{guildId}", null, null, properties);
 
+    [GenerateAlias(typeof(User), nameof(User.Id))]
     public async Task<DMChannel> GetDMChannelAsync(ulong userId, RequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<DMChannelProperties>(new(userId), Serialization.Default.DMChannelProperties))

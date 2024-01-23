@@ -1,7 +1,10 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Gateway;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
+    [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, GuildAuditLogPaginationProperties? guildAuditLogPaginationProperties = null, RequestProperties? properties = null)
     {
         ulong? userId;

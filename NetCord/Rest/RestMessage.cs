@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessage>
+public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessage>
 {
     NetCord.JsonModels.JsonMessage IJsonModel<NetCord.JsonModels.JsonMessage>.JsonModel => _jsonModel;
     private protected readonly NetCord.JsonModels.JsonMessage _jsonModel;
@@ -103,19 +103,4 @@ public class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.JsonMessa
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RequestProperties? properties = null)
         => SendAsync(replyMessage.ToMessageProperties(Id), properties);
-
-    public Task<RestMessage> SendAsync(MessageProperties message, RequestProperties? properties = null)
-        => _client.SendMessageAsync(ChannelId, message, properties);
-
-    #region Channel
-    public Task<RestMessage> CrosspostAsync(RequestProperties? properties = null) => _client.CrosspostMessageAsync(ChannelId, Id, properties);
-    public Task<RestMessage> ModifyAsync(Action<MessageOptions> action, RequestProperties? properties = null) => _client.ModifyMessageAsync(ChannelId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteMessageAsync(ChannelId, Id, properties);
-    public Task AddReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.AddMessageReactionAsync(ChannelId, Id, emoji, properties);
-    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, properties);
-    public Task DeleteReactionAsync(ReactionEmojiProperties emoji, ulong userId, RequestProperties? properties = null) => _client.DeleteMessageReactionAsync(ChannelId, Id, emoji, userId, properties);
-    public IAsyncEnumerable<User> GetReactionsAsync(ReactionEmojiProperties emoji, PaginationProperties<ulong>? paginationProperties = null, RequestProperties? properties = null) => _client.GetMessageReactionsAsync(ChannelId, Id, emoji, paginationProperties, properties);
-    public Task DeleteAllReactionsAsync(ReactionEmojiProperties emoji, RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, emoji, properties);
-    public Task DeleteAllReactionsAsync(RequestProperties? properties = null) => _client.DeleteAllMessageReactionsAsync(ChannelId, Id, properties);
-    #endregion
 }

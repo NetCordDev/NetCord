@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
+public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
 {
     JsonWebhook IJsonModel<JsonWebhook>.JsonModel => _jsonModel;
     private protected readonly JsonWebhook _jsonModel;
@@ -51,9 +51,4 @@ public class Webhook : ClientEntity, IJsonModel<JsonWebhook>
         WebhookType.Incoming => new IncomingWebhook(jsonModel, client),
         _ => new(jsonModel, client),
     };
-
-    #region Webhook
-    public Task<Webhook> ModifyAsync(Action<WebhookOptions> action, RequestProperties? properties = null) => _client.ModifyWebhookAsync(Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteWebhookAsync(Id, properties);
-    #endregion
 }

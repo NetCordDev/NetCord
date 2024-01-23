@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
+public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
 {
     JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
@@ -45,10 +45,4 @@ public class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuild
         if (creator is not null)
             Creator = new(creator, client);
     }
-
-    #region GuildScheduledEvent
-    public Task<GuildScheduledEvent> ModifyAsync(Action<GuildScheduledEventOptions> action, RequestProperties? properties = null) => _client.ModifyGuildScheduledEventAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildScheduledEventAsync(GuildId, Id, properties);
-    public IAsyncEnumerable<GuildScheduledEventUser> GetUsersAsync(OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null) => _client.GetGuildScheduledEventUsersAsync(GuildId, Id, optionalGuildUsersPaginationProperties, properties);
-    #endregion
 }

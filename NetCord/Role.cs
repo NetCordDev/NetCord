@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class Role : ClientEntity, IJsonModel<JsonRole>
+public partial class Role : ClientEntity, IJsonModel<JsonRole>
 {
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
@@ -62,11 +62,6 @@ public class Role : ClientEntity, IJsonModel<JsonRole>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <=(Role left, Role right) => left.Position <= right.Position;
-
-    #region Guild
-    public Task<Role> ModifyAsync(Action<RoleOptions> action, RequestProperties? properties = null) => _client.ModifyRoleAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteRoleAsync(GuildId, Id, properties);
-    #endregion
 }
 
 public class RoleTags : IJsonModel<JsonRoleTags>

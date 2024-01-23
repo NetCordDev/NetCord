@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MediaForumGuildChannel : ForumGuildChannel
+public partial class MediaForumGuildChannel : ForumGuildChannel
 {
     public MediaForumGuildChannel(JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {

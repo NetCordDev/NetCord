@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
+public partial class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
 {
     JsonModels.JsonRestGuildInvite IJsonModel<JsonModels.JsonRestGuildInvite>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonRestGuildInvite _jsonModel;
@@ -71,8 +71,4 @@ public class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
 
         _client = client;
     }
-
-    #region Invite
-    public Task<RestGuildInvite> DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildInviteAsync(Code, properties);
-    #endregion
 }

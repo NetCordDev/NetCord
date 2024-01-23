@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class GuildThreadUser : ThreadUser
+public partial class GuildThreadUser : ThreadUser
 {
     public GuildThreadUser(JsonThreadUser jsonModel, RestClient client) : base(jsonModel, client)
     {

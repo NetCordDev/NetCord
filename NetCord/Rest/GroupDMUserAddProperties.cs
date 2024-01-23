@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class GroupDMUserAddProperties
+public partial class GroupDMChannelUserAddProperties
 {
     [JsonPropertyName("access_token")]
     public string AccessToken { get; set; }
@@ -10,7 +10,7 @@ public partial class GroupDMUserAddProperties
     [JsonPropertyName("nick")]
     public string? Nickname { get; set; }
 
-    public GroupDMUserAddProperties(string accessToken)
+    public GroupDMChannelUserAddProperties(string accessToken)
     {
         AccessToken = accessToken;
     }

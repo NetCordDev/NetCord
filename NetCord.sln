@@ -134,6 +134,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShardingHosting", "Document
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpInteractions", "Documentation\guides\advanced\HttpInteractions\HttpInteractions.csproj", "{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClientMethodAliasesGenerator", "SourceGenerators\RestClientMethodAliasesGenerator\RestClientMethodAliasesGenerator.csproj", "{941F7A6C-313B-481E-9EBC-2B82972F8649}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -332,6 +334,10 @@ Global
 		{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -394,6 +400,7 @@ Global
 		{8EFD716E-8715-422D-BBC3-8FCA2ED9164A} = {4EC1FB11-D5A6-48ED-B46A-0C5769E2F962}
 		{D2D21E34-7F3D-4BAE-8CE7-0692C0E79094} = {6D8C2163-1B05-48A5-AF31-811A93D55FED}
 		{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C} = {6D8C2163-1B05-48A5-AF31-811A93D55FED}
+		{941F7A6C-313B-481E-9EBC-2B82972F8649} = {0A9D75D2-B760-43E3-8A18-1BF2F629D0FB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}

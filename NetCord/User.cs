@@ -4,7 +4,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
+public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 {
     JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonUser _jsonModel;
@@ -49,8 +49,4 @@ public class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     public override string ToString() => $"<@{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatUser(destination, out charsWritten, Id);
-
-    #region User
-    public Task<DMChannel> GetDMChannelAsync() => _client.GetDMChannelAsync(Id);
-    #endregion
 }

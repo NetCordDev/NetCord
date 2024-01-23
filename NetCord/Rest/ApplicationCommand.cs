@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplicationCommand>
+public partial class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplicationCommand>
 {
     JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonApplicationCommand _jsonModel;
@@ -94,11 +94,4 @@ public class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplic
         charsWritten = 4 + Name.Length + length;
         return true;
     }
-
-    #region Interactions.ApplicationCommands
-    public virtual Task<ApplicationCommand> ModifyAsync(Action<ApplicationCommandOptions> action, RequestProperties? properties = null) => _client.ModifyGlobalApplicationCommandAsync(ApplicationId, Id, action, properties);
-    public virtual Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGlobalApplicationCommandAsync(ApplicationId, Id, properties);
-    public Task<ApplicationCommandGuildPermissions> GetGuildPermissionsAsync(ulong guildId, RequestProperties? properties = null) => _client.GetApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, properties);
-    public Task<ApplicationCommandGuildPermissions> OverwriteGuildPermissionsAsync(ulong guildId, IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions, RequestProperties? properties = null) => _client.OverwriteApplicationCommandGuildPermissionsAsync(ApplicationId, guildId, Id, newPermissions, properties);
-    #endregion
 }

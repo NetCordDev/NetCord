@@ -2,9 +2,11 @@
 
 public partial class RestClient
 {
+    [GenerateAlias(typeof(CurrentApplication))]
     public async Task<CurrentApplication> GetCurrentApplicationAsync(RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplication).ConfigureAwait(false), this);
 
+    [GenerateAlias(typeof(CurrentApplication))]
     public async Task<CurrentApplication> ModifyCurrentApplicationAsync(Action<CurrentApplicationOptions> action, RequestProperties? properties = null)
     {
         CurrentApplicationOptions currentApplicationOptions = new();

@@ -83,4 +83,24 @@ public partial class GuildChannelOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_forum_layout")]
     public ForumLayoutType? DefaultForumLayout { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("archived")]
+    public bool? Archived { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("auto_archive_duration")]
+    public int? AutoArchiveDuration { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("locked")]
+    public bool? Locked { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("invitable")]
+    public bool? Invitable { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("applied_tags")]
+    public IEnumerable<ulong>? AppliedTags { get; set; }
 }

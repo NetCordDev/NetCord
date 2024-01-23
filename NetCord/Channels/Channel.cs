@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChannel
+public abstract partial class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteractionChannel
 {
     JsonChannel IJsonModel<JsonChannel>.JsonModel => _jsonModel;
     private protected JsonChannel _jsonModel;
@@ -42,8 +42,4 @@ public abstract class Channel : ClientEntity, IJsonModel<JsonChannel>, IInteract
             _ => new UnknownChannel(jsonChannel, client),
         };
     }
-
-    #region Channel
-    public async Task<Channel> DeleteAsync(RequestProperties? properties = null) => await _client.DeleteChannelAsync(Id, properties).ConfigureAwait(false);
-    #endregion
 }

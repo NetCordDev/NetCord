@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class DMChannel : TextChannel
+public partial class DMChannel : TextChannel
 {
     public IReadOnlyDictionary<ulong, User> Users { get; }
 
@@ -20,17 +20,4 @@ public class DMChannel : TextChannel
             _ => new UnknownDMChannel(jsonModel, client),
         };
     }
-}
-
-public interface IUnknownDMChannel : IUnknownTextChannel
-{
-}
-
-internal class UnknownDMChannel : DMChannel, IUnknownDMChannel
-{
-    public UnknownDMChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
-
-    public ChannelType Type => _jsonModel.Type;
 }

@@ -20,8 +20,4 @@ public class ThreadUser : ClientEntity, ISpanFormattable, IJsonModel<JsonModels.
     public override string ToString() => $"<@{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatUser(destination, out charsWritten, Id);
-
-    #region Channel
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildThreadUserAsync(ThreadId, Id, properties);
-    #endregion
 }

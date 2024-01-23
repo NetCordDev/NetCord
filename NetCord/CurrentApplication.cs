@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class CurrentApplication : Application
+public partial class CurrentApplication : Application
 {
     private readonly RestClient _client;
 
@@ -10,8 +10,4 @@ public class CurrentApplication : Application
     {
         _client = client;
     }
-
-    #region Application
-    public Task<CurrentApplication> ModifyAsync(Action<CurrentApplicationOptions> action, RequestProperties? properties = null) => _client.ModifyCurrentApplicationAsync(action, properties);
-    #endregion
 }

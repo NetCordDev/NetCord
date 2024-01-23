@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class GuildSticker : Sticker
+public partial class GuildSticker : Sticker
 {
     private readonly RestClient _client;
 
@@ -20,9 +20,4 @@ public class GuildSticker : Sticker
         if (creator is not null)
             Creator = new(creator, client);
     }
-
-    #region Sticker
-    public Task<GuildSticker> ModifyAsync(Action<GuildStickerOptions> action, RequestProperties? properties = null) => _client.ModifyGuildStickerAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildStickerAsync(GuildId, Id, properties);
-    #endregion
 }

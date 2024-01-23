@@ -8,7 +8,6 @@ internal class TypingReminder : IDisposable
     private readonly RequestProperties? _properties;
     private readonly CancellationTokenSource _tokenSource;
 
-
     public TypingReminder(ulong channelId, RestClient client, RequestProperties? properties)
     {
         ChannelId = channelId;

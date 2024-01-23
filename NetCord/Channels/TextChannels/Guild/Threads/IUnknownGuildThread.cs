@@ -1,5 +1,5 @@
 ﻿namespace NetCord;
 
-public interface IUnknownGuildThread : IUnknownGuildChannel
+public partial interface IUnknownGuildThread : IUnknownGuildChannel
 {
 }

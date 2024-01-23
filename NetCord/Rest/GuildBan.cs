@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
+public partial class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
 {
     JsonModels.JsonGuildBan IJsonModel<JsonModels.JsonGuildBan>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildBan _jsonModel;
@@ -20,8 +20,4 @@ public class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
         GuildId = guildId;
         _client = client;
     }
-
-    #region Guild
-    public Task RemoveAsync(RequestProperties? properties = null) => _client.UnbanGuildUserAsync(GuildId, User.Id, properties);
-    #endregion
 }

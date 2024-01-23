@@ -114,10 +114,10 @@ public class NormalCommands : CommandModule<CommandContext>
         };
         MessageProperties message = new()
         {
-            Embeds = new List<EmbedProperties>()
-            {
+            Embeds =
+            [
                 embed
-            },
+            ],
             MessageReference = new(Context.Message.Id, false),
             AllowedMentions = new()
             {

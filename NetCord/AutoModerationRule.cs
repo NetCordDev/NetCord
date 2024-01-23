@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRule>
+public partial class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRule>
 {
     JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => _jsonModel;
     private readonly JsonAutoModerationRule _jsonModel;
@@ -36,9 +36,4 @@ public class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRul
     public IReadOnlyList<ulong> ExemptRoles => _jsonModel.ExemptRoles;
 
     public IReadOnlyList<ulong> ExemptChannels => _jsonModel.ExemptChannels;
-
-    #region AutoModeration
-    public Task<AutoModerationRule> ModifyAsync(Action<AutoModerationRuleOptions> action, RequestProperties? properties = null) => _client.ModifyAutoModerationRuleAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteAutoModerationRuleAsync(GuildId, Id, properties);
-    #endregion
 }

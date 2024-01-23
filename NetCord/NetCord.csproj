@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\SourceGenerators\UserAgentHeaderGenerator\UserAgentHeaderGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerators\RestClientMethodAliasesGenerator\RestClientMethodAliasesGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     <ProjectReference Include="..\SourceGenerators\Shared\Shared.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 

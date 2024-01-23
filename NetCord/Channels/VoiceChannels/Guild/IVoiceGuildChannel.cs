@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public interface IVoiceGuildChannel : IGuildChannel
+public partial interface IVoiceGuildChannel : IGuildChannel
 {
     public bool Nsfw { get; }
     public int Bitrate { get; }

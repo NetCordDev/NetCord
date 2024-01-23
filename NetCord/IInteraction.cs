@@ -20,5 +20,5 @@ public interface IInteraction : IEntity, IJsonModel<JsonModels.JsonInteraction>
         return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
     }
 
-    public Task SendResponseAsync(InteractionCallback interactionCallback, RequestProperties? properties = null);
+    public Task SendResponseAsync(InteractionCallback callback, RequestProperties? properties = null);
 }

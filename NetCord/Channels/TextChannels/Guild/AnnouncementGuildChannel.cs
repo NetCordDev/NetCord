@@ -2,14 +2,9 @@
 
 namespace NetCord;
 
-public class AnnouncementGuildChannel : TextGuildChannel
+public partial class AnnouncementGuildChannel : TextGuildChannel
 {
     public AnnouncementGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, guildId, client)
     {
     }
-
-    #region Channel
-    public Task<RestMessage> CrosspostMessageAsync(ulong messageId, RequestProperties? properties = null) => _client.CrosspostMessageAsync(Id, messageId, properties);
-    public Task<FollowedChannel> FollowAsync(ulong targetChannelId, RequestProperties? properties = null) => _client.FollowAnnouncementGuildChannelAsync(Id, targetChannelId, properties);
-    #endregion
 }

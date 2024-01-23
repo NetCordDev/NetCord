@@ -3,9 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class GuildEmoji : Emoji, ISpanFormattable
+public partial class GuildEmoji : Emoji, ISpanFormattable
 {
-    private protected readonly RestClient _client;
+    private readonly RestClient _client;
 
     public GuildEmoji(JsonEmoji jsonModel, ulong guildId, RestClient client) : base(jsonModel)
     {
@@ -70,9 +70,4 @@ public class GuildEmoji : Emoji, ISpanFormattable
             return true;
         }
     }
-
-    #region Guild
-    public Task<GuildEmoji> ModifyAsync(Action<GuildEmojiOptions> action, RequestProperties? properties = null) => _client.ModifyGuildEmojiAsync(GuildId, Id, action, properties);
-    public Task DeleteAsync(RequestProperties? properties = null) => _client.DeleteGuildEmojiAsync(GuildId, Id, properties);
-    #endregion
 }

@@ -7,7 +7,7 @@ internal static partial class TimeSpanTypeReaderHelper
 {
     public static TypeReaderResult Read(string input, bool ignoreCase, CultureInfo cultureInfo, string parameterName)
     {
-        var timeSpan = GetRegex(ignoreCase).Match(input.ToString());
+        var timeSpan = GetRegex(ignoreCase).Match(input);
         if (timeSpan.Success)
         {
             var groups = timeSpan.Groups;

@@ -21,10 +21,10 @@ public class BanCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = Format.Bold($"{userId} got banned").ToString(),
-            Components = new List<ComponentProperties>()
-                {
+            Components =
+                [
                     actionRow
-                },
+                ],
             MessageReference = new(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None,
         };
