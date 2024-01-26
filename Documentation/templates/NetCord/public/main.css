@@ -183,6 +183,7 @@ article, .main {
 
 .icon:before {
     display: inline-grid;
+    white-space: nowrap;
     vertical-align: bottom;
     justify-content: center;
     width: var(--bs-btn-font-size);
