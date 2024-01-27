@@ -15,10 +15,7 @@ public class UInt64Converter : JsonConverter<ulong>
 
     public override void Write(Utf8JsonWriter writer, ulong value, JsonSerializerOptions options)
     {
-        if (value == default)
-            writer.WriteNullValue();
-        else
-            writer.WriteNumberValue(value);
+        writer.WriteNumberValue(value);
     }
 
     public override ulong ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => Read(ref reader, typeToConvert, options);

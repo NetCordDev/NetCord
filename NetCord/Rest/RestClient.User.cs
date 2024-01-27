@@ -20,20 +20,18 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/users/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonUser).ConfigureAwait(false), this);
     }
 
-    public IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(GuildsPaginationProperties? guildsPaginationProperties = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<RestGuild> GetCurrentUserGuildsAsync(GuildsPaginationProperties? paginationProperties = null, RequestProperties? properties = null)
     {
-        var withCounts = guildsPaginationProperties is not null && guildsPaginationProperties.WithCounts;
+        paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 200);
 
-        var paginationProperties = PaginationProperties<ulong>.Prepare(guildsPaginationProperties, 0, long.MaxValue, PaginationDirection.After, 200);
-
-        return new PaginationAsyncEnumerable<RestGuild, ulong>(
+        return new QueryPaginationAsyncEnumerable<RestGuild, ulong>(
             this,
             paginationProperties,
             async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildArray).ConfigureAwait(false)).Select(g => new RestGuild(g, this)),
             g => g.Id,
             HttpMethod.Get,
             $"/users/@me/guilds",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), $"?with_counts={withCounts}&"),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_counts={paginationProperties.WithCounts}&"),
             null,
             properties);
     }

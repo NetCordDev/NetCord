@@ -13,7 +13,7 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord;
 
-[JsonSourceGenerationOptions(Converters = [typeof(UInt64Converter), typeof(CultureInfoConverter), typeof(PermissionsConverter)])]
+[JsonSourceGenerationOptions(Converters = [typeof(UInt64Converter), typeof(NullableInt64Converter), typeof(CultureInfoConverter), typeof(PermissionsConverter)])]
 [JsonSerializable(typeof(JsonMessage))]
 [JsonSerializable(typeof(VoicePayloadProperties<int>))]
 [JsonSerializable(typeof(VoicePayloadProperties<ProtocolProperties>))]
@@ -218,6 +218,12 @@ namespace NetCord;
 [JsonSerializable(typeof(IRestErrorGroup))]
 [JsonSerializable(typeof(RestError))]
 [JsonSerializable(typeof(IReadOnlyDictionary<string, IRestErrorGroup>))]
+[JsonSerializable(typeof(UserIdsGuildUsersSearchQuery))]
+[JsonSerializable(typeof(UsernamesGuildUsersSearchQuery))]
+[JsonSerializable(typeof(SafetySignalsGuildUsersSearchQuery))]
+[JsonSerializable(typeof(GuildUsersSearchTimestamp))]
+[JsonSerializable(typeof(JsonGuildUserSearchResult))]
+[JsonSerializable(typeof(GuildUsersSearchPaginationProperties))]
 internal partial class Serialization : JsonSerializerContext
 {
 }

@@ -37,25 +37,23 @@ public partial class RestClient
 
     [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     [GenerateAlias(typeof(GuildScheduledEvent), nameof(GuildScheduledEvent.GuildId), nameof(GuildScheduledEvent.Id))]
-    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong guildId, ulong scheduledEventId, OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<GuildScheduledEventUser> GetGuildScheduledEventUsersAsync(ulong guildId, ulong scheduledEventId, OptionalGuildUsersPaginationProperties? paginationProperties = null, RequestProperties? properties = null)
     {
-        var withGuildUsers = optionalGuildUsersPaginationProperties is not null && optionalGuildUsersPaginationProperties.WithGuildUsers;
+        paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
 
-        var paginationProperties = PaginationProperties<ulong>.Prepare(optionalGuildUsersPaginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
-
-        return new PaginationAsyncEnumerable<GuildScheduledEventUser, ulong>(
+        return new QueryPaginationAsyncEnumerable<GuildScheduledEventUser, ulong>(
             this,
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
                 PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).Select(u => new GuildScheduledEventUser(u, guildId, this)),
                 PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildScheduledEventUserArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(u => new GuildScheduledEventUser(u, guildId, this)),
-                _ => throw new ArgumentException($"The value of '{nameof(optionalGuildUsersPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(optionalGuildUsersPaginationProperties)),
+                _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
             },
             u => u.User.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={paginationProperties.WithGuildUsers}&"),
             new(guildId),
             properties);
     }

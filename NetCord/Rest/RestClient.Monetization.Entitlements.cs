@@ -4,14 +4,14 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public IAsyncEnumerable<Entitlement> GetEntitlementsAsync(ulong applicationId, EntitlementsPaginationProperties? entitlementsPaginationProperties = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<Entitlement> GetEntitlementsAsync(ulong applicationId, EntitlementsPaginationProperties? paginationProperties = null, RequestProperties? properties = null)
     {
-        var userId = entitlementsPaginationProperties?.UserId;
-        var skuIds = entitlementsPaginationProperties?.SkuIds;
-        var guildId = entitlementsPaginationProperties?.GuildId;
-        var excludeEnded = entitlementsPaginationProperties?.ExcludeEnded;
+        paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
 
-        var paginationProperties = PaginationProperties<ulong>.Prepare(entitlementsPaginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
+        var userId = paginationProperties.UserId;
+        var skuIds = paginationProperties.SkuIds;
+        var guildId = paginationProperties.GuildId;
+        var excludeEnded = paginationProperties.ExcludeEnded;
 
         string baseQuery;
         StringBuilder stringBuilder = new("?");
@@ -27,19 +27,19 @@ public partial class RestClient
 
         baseQuery = stringBuilder.ToString();
 
-        return new PaginationAsyncEnumerable<Entitlement, ulong>(
+        return new QueryPaginationAsyncEnumerable<Entitlement, ulong>(
             this,
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
                 PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
                 PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e)),
-                _ => throw new ArgumentException($"The value of '{nameof(entitlementsPaginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(entitlementsPaginationProperties)),
+                _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
             },
             e => e.Id,
             HttpMethod.Get,
             $"/applications/{applicationId}/entitlements",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), baseQuery),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), baseQuery),
             null,
             properties);
     }

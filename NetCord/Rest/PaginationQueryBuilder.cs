@@ -2,35 +2,31 @@
 
 namespace NetCord.Rest;
 
-internal class PaginationQueryBuilder<T> where T : struct
+internal class PaginationQueryBuilder<T>(int limit, PaginationDirection direction, Func<T, string> toString, string baseQuery = "?") where T : struct
 {
-    public PaginationQueryBuilder(int limit, Func<T, string> toString, string baseQuery = "?")
+    private readonly string _direction = direction switch
     {
-        _builder = new StringBuilder(baseQuery).Append("limit=").Append(limit);
-        _toString = toString;
-    }
+        PaginationDirection.Before => "before",
+        PaginationDirection.After => "after",
+        _ => throw new ArgumentException($"The value of '{nameof(direction)}' is invalid."),
+    };
 
-    private readonly StringBuilder _builder;
-    private readonly Func<T, string> _toString;
+    private readonly StringBuilder _builder = new StringBuilder(baseQuery).Append("limit=").Append(limit);
 
     public override string ToString() => _builder.ToString();
 
-    public string ToString(T? from, PaginationDirection direction)
+    public string ToString(T? from)
     {
         var builder = _builder;
 
         if (from.HasValue)
         {
-            var length = builder.Length;
+            int length = builder.Length;
+
             builder.Append('&')
-                   .Append(direction switch
-                   {
-                       PaginationDirection.Before => "before",
-                       PaginationDirection.After => "after",
-                       _ => throw new ArgumentException($"The value of '{nameof(direction)}' is invalid."),
-                   })
+                   .Append(_direction)
                    .Append('=')
-                   .Append(_toString(from.GetValueOrDefault()));
+                   .Append(toString(from.GetValueOrDefault()));
 
             var result = builder.ToString();
 

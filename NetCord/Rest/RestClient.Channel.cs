@@ -33,10 +33,10 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.Before, 100);
 
-        return new PaginationAsyncEnumerable<RestMessage, ulong>(
+        return new QueryPaginationAsyncEnumerable<RestMessage, ulong>(
             this,
             paginationProperties,
-            paginationProperties.Direction switch
+            paginationProperties.Direction.GetValueOrDefault() switch
             {
                 PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).Select(json => new RestMessage(json, this)),
                 PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(json => new RestMessage(json, this)),
@@ -45,7 +45,7 @@ public partial class RestClient
             m => m.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }
@@ -95,14 +95,14 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
 
-        return new PaginationAsyncEnumerable<User, ulong>(
+        return new QueryPaginationAsyncEnumerable<User, ulong>(
             this,
             paginationProperties,
             async s => (await s.ToObjectAsync(Serialization.Default.JsonUserArray).ConfigureAwait(false)).Select(u => new User(u, this)),
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }
@@ -164,7 +164,7 @@ public partial class RestClient
         var ids = new ulong[100];
         int c = 0;
         List<Task> tasks = [];
-        await foreach (var id in messageIds)
+        await foreach (var id in messageIds.ConfigureAwait(false))
         {
             ids[c] = id;
             if (c == 99)
@@ -304,13 +304,13 @@ public partial class RestClient
     }
 
     [GenerateAlias(typeof(GuildThread), nameof(GuildThread.Id))]
-    public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, OptionalGuildUsersPaginationProperties? optionalGuildUsersPaginationProperties = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<ThreadUser> GetGuildThreadUsersAsync(ulong threadId, OptionalGuildUsersPaginationProperties? paginationProperties = null, RequestProperties? properties = null)
     {
-        var withGuildUsers = optionalGuildUsersPaginationProperties is not null && optionalGuildUsersPaginationProperties.WithGuildUsers;
+        paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
 
-        var paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(optionalGuildUsersPaginationProperties, PaginationDirection.After, 100);
+        var withGuildUsers = paginationProperties.WithGuildUsers;
 
-        return new PaginationAsyncEnumerable<ThreadUser, ulong>(
+        return new QueryPaginationAsyncEnumerable<ThreadUser, ulong>(
             this,
             paginationProperties,
             withGuildUsers
@@ -319,7 +319,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{threadId}/thread-members",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
             new(threadId),
             properties);
     }
@@ -329,7 +329,7 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
             this,
             paginationProperties,
             async s =>
@@ -340,7 +340,7 @@ public partial class RestClient
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/public",
-            new(paginationProperties.Limit.GetValueOrDefault(), t => t.ToString("s")),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
             new(channelId),
             properties);
     }
@@ -350,7 +350,7 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<DateTimeOffset>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
+        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, DateTimeOffset>(
             this,
             paginationProperties,
             async s =>
@@ -361,7 +361,7 @@ public partial class RestClient
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/private",
-            new(paginationProperties.Limit.GetValueOrDefault(), t => t.ToString("s")),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
             new(channelId),
             properties);
     }
@@ -371,7 +371,7 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.Before, 100);
 
-        return new OptimizedPaginationAsyncEnumerable<GuildThread, ulong>(
+        return new OptimizedQueryPaginationAsyncEnumerable<GuildThread, ulong>(
             this,
             paginationProperties,
             async s =>
@@ -382,7 +382,7 @@ public partial class RestClient
             t => t.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/private",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }

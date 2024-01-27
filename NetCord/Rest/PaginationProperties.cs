@@ -1,28 +1,24 @@
 ﻿namespace NetCord.Rest;
 
-public partial record PaginationProperties<T> where T : struct
+public partial record PaginationProperties<T> : IPaginationProperties<T, PaginationProperties<T>> where T : struct
 {
-    /// <summary>
-    /// The starting point for pagination.
-    /// </summary>
     public T? From { get; set; }
 
-    /// <summary>
-    /// The direction of pagination.
-    /// </summary>
     public PaginationDirection? Direction { get; set; }
 
-    /// <summary>
-    /// The number of items to download at once.
-    /// </summary>
     public int? Limit { get; set; }
 
-    internal static PaginationProperties<T> Prepare(PaginationProperties<T>? paginationProperties, T minValue, T maxValue, PaginationDirection defaultDirection, int defaultLimit)
+    internal static TProperties Prepare<TProperties>(TProperties? paginationProperties, T minValue, T maxValue, PaginationDirection defaultDirection, int defaultLimit) where TProperties : IPaginationProperties<T, TProperties>
     {
         if (paginationProperties is null)
-            return new() { Direction = defaultDirection, Limit = defaultLimit };
+        {
+            var properties = TProperties.Create();
+            properties.Direction = defaultDirection;
+            properties.Limit = defaultLimit;
+            return properties;
+        }
 
-        PaginationProperties<T> result = new(paginationProperties);
+        var result = TProperties.Create(paginationProperties);
 
         var direction = result.Direction;
         if (direction.HasValue)
@@ -48,12 +44,17 @@ public partial record PaginationProperties<T> where T : struct
         return result;
     }
 
-    internal static PaginationProperties<T> PrepareWithDirectionValidation(PaginationProperties<T>? paginationProperties, PaginationDirection requiredDirection, int defaultLimit)
+    internal static TProperties PrepareWithDirectionValidation<TProperties>(TProperties? paginationProperties, PaginationDirection requiredDirection, int defaultLimit) where TProperties : IPaginationProperties<T, TProperties>
     {
         if (paginationProperties is null)
-            return new() { Direction = requiredDirection, Limit = defaultLimit };
+        {
+            var properties = TProperties.Create();
+            properties.Direction = requiredDirection;
+            properties.Limit = defaultLimit;
+            return properties;
+        }
 
-        PaginationProperties<T> result = new(paginationProperties);
+        var result = TProperties.Create(paginationProperties);
 
         var direction = result.Direction;
         if (direction.HasValue)
@@ -70,4 +71,7 @@ public partial record PaginationProperties<T> where T : struct
 
         return result;
     }
+
+    static PaginationProperties<T> IPaginationProperties<T, PaginationProperties<T>>.Create() => new();
+    static PaginationProperties<T> IPaginationProperties<T, PaginationProperties<T>>.Create(PaginationProperties<T> properties) => new(properties);
 }

@@ -65,14 +65,14 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 1000);
 
-        return new PaginationAsyncEnumerable<GuildUser, ulong>(
+        return new QueryPaginationAsyncEnumerable<GuildUser, ulong>(
             this,
             paginationProperties,
             async s => (await s.ToObjectAsync(Serialization.Default.JsonGuildUserArray).ConfigureAwait(false)).Select(u => new GuildUser(u, guildId, this)),
             u => u.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/members",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }
@@ -132,7 +132,7 @@ public partial class RestClient
     {
         paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 1000);
 
-        return new PaginationAsyncEnumerable<GuildBan, ulong>(
+        return new QueryPaginationAsyncEnumerable<GuildBan, ulong>(
             this,
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
@@ -144,7 +144,7 @@ public partial class RestClient
             b => b.User.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/bans",
-            new(paginationProperties.Limit.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }
