@@ -2,7 +2,7 @@
 
 public partial class RestClient
 {
-    [GenerateAlias(typeof(CurrentApplication))]
+    [GenerateAlias(typeof(CurrentApplication), CastType = typeof(Application), Modifiers = ["override"])]
     public async Task<CurrentApplication> GetCurrentApplicationAsync(RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/@me", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplication).ConfigureAwait(false), this);
 

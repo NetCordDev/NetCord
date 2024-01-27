@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
+public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonApplication>
 {
     JsonModels.JsonApplication IJsonModel<JsonModels.JsonApplication>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonApplication _jsonModel;
@@ -34,7 +34,7 @@ public class Application : Entity, IJsonModel<JsonModels.JsonApplication>
     public ApplicationInstallParams? InstallParams { get; }
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
 
-    public Application(JsonModels.JsonApplication jsonModel, RestClient client)
+    public Application(JsonModels.JsonApplication jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 

@@ -7,10 +7,7 @@ ulong channelId = 857933275112800266;
 var bucketName = "file.txt";
 
 // Creating Google Cloud Platform Storage Bucket
-var buckets = await client.CreateGoogleCloudPlatformStorageBucketAsync(channelId, new GoogleCloudPlatformStorageBucketProperties[]
-{
-    new(bucketName),
-});
+var buckets = await client.CreateGoogleCloudPlatformStorageBucketsAsync(channelId, [new(bucketName)]);
 var bucket = buckets.First();
 
 using (HttpContent fileContent = new StringContent("File content"))
