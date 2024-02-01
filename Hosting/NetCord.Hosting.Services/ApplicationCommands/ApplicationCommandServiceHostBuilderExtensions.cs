@@ -49,7 +49,7 @@ public static class ApplicationCommandServiceHostBuilderExtensions
             services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
             services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
 
-            services.TryAddApplicationCommandServiceHostedService();
+            services.AddHostedService<ApplicationCommandServiceHostedService>();
         });
         return builder;
     }
@@ -103,19 +103,8 @@ public static class ApplicationCommandServiceHostBuilderExtensions
             services.AddShardedGatewayEventHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
             services.AddHttpInteractionHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
 
-            services.TryAddApplicationCommandServiceHostedService();
+            services.AddHostedService<ApplicationCommandServiceHostedService>();
         });
         return builder;
-    }
-
-    private static void TryAddApplicationCommandServiceHostedService(this IServiceCollection services)
-    {
-        var count = services.Count;
-        var type = typeof(ApplicationCommandServiceHostedService);
-        for (var i = 0; i < count; i++)
-            if (services[i].ImplementationType == type)
-                return;
-
-        services.AddHostedService<ApplicationCommandServiceHostedService>();
     }
 }
