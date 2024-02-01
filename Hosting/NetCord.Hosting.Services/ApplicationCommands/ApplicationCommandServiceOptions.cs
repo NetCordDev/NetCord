@@ -38,13 +38,12 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompl
         if (result is not IFailResult failResult)
             return default;
 
-        var parameterName = interaction.Data.Options.First(o => o.Focused).Name;
         var commandName = interaction.Data.Name;
 
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an autocomplete for parameter '{Parameter}' of application command of name '{Name}' failed with an exception", parameterName, commandName);
+            logger.LogError(exceptionResult.Exception, "Execution of an autocomplete for application command of name '{Name}' failed with an exception", commandName);
         else
-            logger.LogDebug("Execution of an autocomplete for parameter '{Parameter}' of application command of name '{Name}' failed with '{Message}'", parameterName, commandName, failResult.Message);
+            logger.LogDebug("Execution of an autocomplete for application command of name '{Name}' failed with '{Message}'", commandName, failResult.Message);
 
         return default;
     };
