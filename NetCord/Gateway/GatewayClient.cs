@@ -8,9 +8,8 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
 
-public partial class GatewayClient : WebSocketClient
+public partial class GatewayClient : WebSocketClient, IEntity
 {
-    private readonly string _botToken;
     private readonly GatewayClientConfiguration _configuration;
     private readonly Uri _url;
     private readonly object? _DMsLock;
@@ -84,6 +83,11 @@ public partial class GatewayClient : WebSocketClient
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     /// <summary>
+    /// The token of the <see cref="GatewayClient"/>.
+    /// </summary>
+    public Token Token { get; }
+
+    /// <summary>
     /// The cache of the <see cref="GatewayClient"/>.
     /// </summary>
     public IGatewayClientCache Cache { get; private set; }
@@ -104,12 +108,6 @@ public partial class GatewayClient : WebSocketClient
     public Shard? Shard => _configuration.Shard;
 
     /// <summary>
-    /// The application id of the <see cref="GatewayClient"/>.
-    /// </summary>
-    public ulong ApplicationId => _applicationId;
-    private ulong _applicationId;
-
-    /// <summary>
     /// The application flags of the <see cref="GatewayClient"/>.
     /// </summary>
     public ApplicationFlags ApplicationFlags { get; private set; }
@@ -119,6 +117,10 @@ public partial class GatewayClient : WebSocketClient
     /// </summary>
     public Rest.RestClient Rest { get; }
 
+    public ulong Id => Token.Id;
+
+    public DateTimeOffset CreatedAt => Token.CreatedAt;
+
     public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
     {
         _disposeRest = true;
@@ -126,7 +128,7 @@ public partial class GatewayClient : WebSocketClient
 
     internal GatewayClient(Token token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
-        _botToken = token.RawToken;
+        Token = token;
 
         _configuration = configuration;
         var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
@@ -148,7 +150,7 @@ public partial class GatewayClient : WebSocketClient
 
     private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
     {
-        var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(_botToken)
+        var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
         {
             ConnectionProperties = _configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default,
             LargeThreshold = _configuration.LargeThreshold,
@@ -192,7 +194,7 @@ public partial class GatewayClient : WebSocketClient
     {
         await ConnectAsync(_url).ConfigureAwait(false);
 
-        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(_botToken, SessionId!, SequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
+        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, SessionId!, SequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
         await SendPayloadAsync(serializedPayload).ConfigureAwait(false);
     }
@@ -303,7 +305,6 @@ public partial class GatewayClient : WebSocketClient
                         Cache = cache;
 
                         SessionId = args.SessionId;
-                        Interlocked.Exchange(ref _applicationId, args.ApplicationId);
                         ApplicationFlags = args.ApplicationFlags;
 
                         _readyCompletionSource.TrySetResult();

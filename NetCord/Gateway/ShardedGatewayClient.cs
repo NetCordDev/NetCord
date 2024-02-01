@@ -4,9 +4,8 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
+public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisposable
 {
-    private readonly Token _botToken;
     private readonly ShardedGatewayClientConfiguration _configuration;
     private readonly ShardedGatewayClientEventManager _eventManager;
 
@@ -20,7 +19,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
 
     public ShardedGatewayClient(Token token, ShardedGatewayClientConfiguration? configuration = null)
     {
-        _botToken = token;
+        Token = token;
         _configuration = configuration = CreateConfiguration(configuration);
         _eventManager = new();
         Rest = new(token, configuration.RestClientConfiguration);
@@ -67,7 +66,19 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         };
     }
 
+    /// <summary>
+    /// The <see cref="Token"/> of the <see cref="ShardedGatewayClient"/>.
+    /// </summary>
+    public Token Token { get; }
+
+    /// <summary>
+    /// The <see cref="RestClient"/> of the <see cref="ShardedGatewayClient"/>.
+    /// </summary>
     public RestClient Rest { get; }
+
+    public ulong Id => Token.Id;
+
+    public DateTimeOffset CreatedAt => Token.CreatedAt;
 
     public GatewayClient this[int shardId] => _clients![shardId];
 
@@ -80,6 +91,9 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
         }
     }
 
+    /// <summary>
+    /// The count of shards of the <see cref="ShardedGatewayClient"/>.
+    /// </summary>
     public int Count => _clients!.Count;
 
     public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null)
@@ -92,7 +106,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
 
             startCancellationTokenSource = _startCancellationTokenSource = new();
         }
-        var token = startCancellationTokenSource.Token;
+        var cancellationToken = startCancellationTokenSource.Token;
 
         var oldInitialized = _initialized;
         _initialized = false;
@@ -126,13 +140,13 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
 
             var tasks = new Task[maxConcurrency];
 
-            var botToken = _botToken;
+            var token = Token;
 
             await ConnectBucketAsync(0).ConfigureAwait(false);
 
             for (int bucket = maxConcurrency; bucket < shardCount; bucket += maxConcurrency)
             {
-                await Task.Delay(5000, token).ConfigureAwait(false);
+                await Task.Delay(5000, cancellationToken).ConfigureAwait(false);
                 await ConnectBucketAsync(bucket).ConfigureAwait(false);
             }
 
@@ -156,7 +170,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
                     {
                         TimeSpan elapsed = new((Environment.TickCount64 - now) * TimeSpan.TicksPerMillisecond);
                         if (elapsed < resetAfter)
-                            await Task.Delay(resetAfter - elapsed, token).ConfigureAwait(false);
+                            await Task.Delay(resetAfter - elapsed, cancellationToken).ConfigureAwait(false);
 
                         remaining = total - 1;
                     }
@@ -171,8 +185,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IDisposable
                     GatewayClient client;
                     lock (clientsLock)
                     {
-                        token.ThrowIfCancellationRequested();
-                        clients[shardId] = client = new(botToken, rest, gatewayClientConfiguration);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        clients[shardId] = client = new(token, rest, gatewayClientConfiguration);
                     }
                     HookEvents(client);
                     await client.StartAsync(presenceFactory(shard)).ConfigureAwait(false);

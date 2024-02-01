@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial interface IGuildChannel : IEntity, INamedChannel
+public partial interface IGuildChannel : INamedChannel
 {
     public ulong GuildId { get; }
     public int? Position { get; }

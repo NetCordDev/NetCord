@@ -27,7 +27,7 @@ client.Log += message =>
 };
 await client.StartAsync();
 await client.ReadyAsync;
-await manager.CreateCommandsAsync(client.Rest, client.ApplicationId);
+await manager.CreateCommandsAsync(client.Rest, client.Id);
 
 client.InteractionCreate += async interaction =>
 {

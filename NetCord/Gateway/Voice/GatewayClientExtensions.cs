@@ -6,15 +6,16 @@ public static class GatewayClientExtensions
     /// Joins a voice channel.
     /// </summary>
     /// <param name="client">The <see cref="GatewayClient"/> instance.</param>
-    /// <param name="userId">The id of the user represented by <see cref="GatewayClient"/>.</param>
     /// <param name="guildId">The id of the guild containing the channel.</param>
     /// <param name="channelId">The id of the voice channel to join.</param>
     /// <param name="configuration">Configuration settings for the <see cref="VoiceClient"/>.</param>
     /// <param name="cancellationToken">Cancellation token for the operation. If not cancellable, the default timeout of 2 seconds is used.</param>
     /// <remarks>This method is not thread safe and should not be used concurrently for the same <paramref name="guildId"/>.</remarks>
     /// <returns>A task, the result of which is an unconnected <see cref="VoiceClient"/> instance.</returns>
-    public static async Task<VoiceClient> JoinVoiceChannelAsync(this GatewayClient client, ulong userId, ulong guildId, ulong channelId, VoiceClientConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public static async Task<VoiceClient> JoinVoiceChannelAsync(this GatewayClient client, ulong guildId, ulong channelId, VoiceClientConfiguration? configuration = null, CancellationToken cancellationToken = default)
     {
+        var userId = client.Id;
+
         TaskCompletionSource<VoiceState> stateTaskCompletionSource = new();
         TaskCompletionSource<VoiceServerUpdateEventArgs> serverTaskCompletionSource = new();
 

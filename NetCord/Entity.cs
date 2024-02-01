@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public abstract class Entity : IEntity
+public abstract class Entity : IEntity, ISpanFormattable
 {
     public abstract ulong Id { get; }
 

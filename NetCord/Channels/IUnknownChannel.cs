@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public interface IUnknownChannel : IEntity
+public interface IUnknownChannel : IEntity, ISpanFormattable
 {
     public ChannelType Type { get; }
 }

@@ -1,37 +1,49 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
-public class Token
+public class Token : IEntity
 {
     public Token(TokenType type, string token)
     {
         if (string.IsNullOrEmpty(token))
             throw new ArgumentException($"'{nameof(token)}' cannot be null or empty.", nameof(token));
 
+        Id = GetId(token);
         Type = type;
         RawToken = token;
     }
+
+    public ulong Id { get; }
 
     public TokenType Type { get; }
 
     public string RawToken { get; }
 
-    public ulong Id
-    {
-        get
-        {
-            int index = RawToken.IndexOf('.');
-            if (index != -1)
-            {
-                var idBase64 = RawToken[..index];
-                var idConverted = Convert.FromBase64String(idBase64.PadRight((idBase64.Length + 3) / 4 * 4, '='));
-                if (Snowflake.TryParse(idConverted, out ulong id))
-                    return id;
-            }
+    public DateTimeOffset CreatedAt => Snowflake.CreatedAt(Id);
 
-            throw new InvalidOperationException("Invalid token provided.");
+    [SkipLocalsInit]
+    public static ulong GetId(string token)
+    {
+        const int MaxSnowflakeLength = 19;
+        const int MaxBase64Length = ((MaxSnowflakeLength * 4) + 2) / 3;
+        const int MaxBase64LengthWithPadding = (MaxSnowflakeLength + 2) * 4 / 3;
+
+        int index = token.IndexOf('.');
+
+        if (index is >= 0 and <= MaxBase64Length)
+        {
+            var chars = (stackalloc char[MaxBase64LengthWithPadding])[..((index + 3) / 4 * 4)];
+            token.AsSpan(0, index).CopyTo(chars);
+            chars[index..].Fill('=');
+
+            Span<byte> bytes = stackalloc byte[MaxSnowflakeLength];
+
+            if (Convert.TryFromBase64Chars(chars, bytes, out int bytesWritten) && Snowflake.TryParse(bytes[..bytesWritten], out ulong id))
+                return id;
         }
+
+        throw new ArgumentException("Invalid token provided.", nameof(token));
     }
 
     public string ToHttpHeader() => Type switch
@@ -40,14 +52,6 @@ public class Token
         TokenType.Bearer => $"Bearer {RawToken}",
         _ => RawToken,
     };
-
-    public static bool operator ==(Token? left, Token? right) => left is null ? right is null : right is not null && left.Type == right.Type && left.RawToken == right.RawToken;
-
-    public static bool operator !=(Token? left, Token? right) => !(left == right);
-
-    public override bool Equals([NotNullWhen(true)] object? obj) => obj is Token token && Type == token.Type && RawToken == token.RawToken;
-
-    public override int GetHashCode() => RawToken.GetHashCode();
 
     public override string ToString() => RawToken;
 }

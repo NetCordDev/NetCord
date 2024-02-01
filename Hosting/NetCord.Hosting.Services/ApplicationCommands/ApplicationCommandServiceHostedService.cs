@@ -27,8 +27,10 @@ internal class ApplicationCommandServiceHostedService : IHostedService
 
         var client = _services.GetRequiredService<RestClient>();
 
+        var token = client.Token ?? throw new InvalidOperationException("The token is required to create application commands.");
+
         _logger.LogInformation("Creating application commands...");
-        var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, (await client.GetCurrentApplicationAsync().ConfigureAwait(false)).Id, true).ConfigureAwait(false);
+        var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true).ConfigureAwait(false);
         _logger.LogInformation("{count} application command(s) created", commands.Count);
     }
 

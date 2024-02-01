@@ -88,7 +88,7 @@ internal static class Program
         await _client.ReadyAsync;
         try
         {
-            await manager.CreateCommandsAsync(_client.Rest, _client.ApplicationId, true);
+            await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
         }
         catch (RestException ex)
         {

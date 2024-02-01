@@ -15,6 +15,11 @@ public partial class RestClient : IDisposable
     private readonly RequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
 
+    /// <summary>
+    /// The token of the <see cref="RestClient"/>.
+    /// </summary>
+    public Token? Token { get; }
+
     public RestClient(RestClientConfiguration? configuration = null)
     {
         configuration ??= new();
@@ -32,6 +37,7 @@ public partial class RestClient : IDisposable
 
     public RestClient(Token token, RestClientConfiguration? configuration = null)
     {
+        Token = token;
         configuration ??= new();
 
         _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";

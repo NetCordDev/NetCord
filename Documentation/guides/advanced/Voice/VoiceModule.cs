@@ -27,7 +27,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         // If so, you should use an existing 'VoiceClient' instance instead of creating a new one.
         // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
         var voiceClient = await client.JoinVoiceChannelAsync(
-            client.ApplicationId,
             guild.Id,
             voiceState.ChannelId.GetValueOrDefault());
 
@@ -117,7 +116,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         // If so, you should use an existing 'VoiceClient' instance instead of creating a new one.
         // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
         var voiceClient = await client.JoinVoiceChannelAsync(
-            client.ApplicationId,
             guild.Id,
             voiceState.ChannelId.GetValueOrDefault(),
             new() { RedirectInputStreams = true /* Required to receive voice */ });

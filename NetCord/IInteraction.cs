@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public interface IInteraction : IEntity, IJsonModel<JsonModels.JsonInteraction>
+public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels.JsonInteraction>
 {
     public ulong ApplicationId { get; }
 

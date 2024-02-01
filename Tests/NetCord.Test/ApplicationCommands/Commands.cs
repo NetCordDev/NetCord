@@ -80,7 +80,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await semaphore.WaitAsync();
         try
         {
-            voiceClient = await client.JoinVoiceChannelAsync(client.ApplicationId, guild.Id, state.ChannelId.GetValueOrDefault(), new()
+            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
             {
                 RedirectInputStreams = true,
             });

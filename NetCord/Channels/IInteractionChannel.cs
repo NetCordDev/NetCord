@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public interface IInteractionChannel : IEntity
+public interface IInteractionChannel : IEntity, ISpanFormattable
 {
     public Permissions Permissions { get; }
 
