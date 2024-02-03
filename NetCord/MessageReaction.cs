@@ -13,13 +13,7 @@ public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
 
     public bool MeBurst => _jsonModel.MeBurst;
 
-    public ulong? Id => _jsonModel.Emoji.Id;
-
-    public string? Name => _jsonModel.Emoji.Name;
-
-    public bool Animated => _jsonModel.Emoji.Animated;
-
-    public bool IsStandard => !_jsonModel.Emoji.Id.HasValue;
+    public MessageReactionEmoji Emoji { get; }
 
     public IReadOnlyList<Color> BurstColors => _jsonModel.BurstColors;
 
@@ -27,5 +21,6 @@ public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
     {
         _jsonModel = jsonModel;
         CountDetails = new(jsonModel.CountDetails);
+        Emoji = new(jsonModel.Emoji);
     }
 }
