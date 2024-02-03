@@ -3,7 +3,7 @@ using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
-GatewayClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"), new GatewayClientConfiguration()
+GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
 {
     Intents = GatewayIntents.Guilds,
 });

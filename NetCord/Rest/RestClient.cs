@@ -18,7 +18,7 @@ public partial class RestClient : IDisposable
     /// <summary>
     /// The token of the <see cref="RestClient"/>.
     /// </summary>
-    public Token? Token { get; }
+    public IToken? Token { get; }
 
     public RestClient(RestClientConfiguration? configuration = null)
     {
@@ -35,7 +35,7 @@ public partial class RestClient : IDisposable
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
-    public RestClient(Token token, RestClientConfiguration? configuration = null)
+    public RestClient(IToken token, RestClientConfiguration? configuration = null)
     {
         Token = token;
         configuration ??= new();
@@ -44,7 +44,7 @@ public partial class RestClient : IDisposable
 
         var httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
         httpClient.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
-        httpClient.AddDefaultRequestHeader("Authorization", token.ToHttpHeader());
+        httpClient.AddDefaultRequestHeader("Authorization", token.HttpHeaderValue);
         _httpClient = httpClient;
 
         _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();

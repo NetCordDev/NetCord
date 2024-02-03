@@ -1,7 +1,7 @@
 ﻿using NetCord;
 using NetCord.Rest;
 
-using RestClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"));
+using RestClient client = new(new BotToken("Token from Discord Developer Portal"));
 
 ulong channelId = 857933275112800266;
 var bucketName = "file.txt";

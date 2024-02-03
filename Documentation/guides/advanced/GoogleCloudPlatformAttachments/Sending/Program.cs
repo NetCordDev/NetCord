@@ -1,7 +1,7 @@
 ﻿using NetCord;
 using NetCord.Rest;
 
-using RestClient client = new(new Token(TokenType.Bot, "Token from Discord Developer Portal"));
+using RestClient client = new(new BotToken("Token from Discord Developer Portal"));
 
 ulong channelId = 864636357821726730; // Note that it doesn't need to be the same channel id as channel id used to upload
 var fileName = "file.txt";

@@ -85,7 +85,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// The token of the <see cref="GatewayClient"/>.
     /// </summary>
-    public Token Token { get; }
+    public IEntityToken Token { get; }
 
     /// <summary>
     /// The cache of the <see cref="GatewayClient"/>.
@@ -121,12 +121,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     public DateTimeOffset CreatedAt => Token.CreatedAt;
 
-    public GatewayClient(Token token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
+    public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
     {
         _disposeRest = true;
     }
 
-    internal GatewayClient(Token token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
+    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
     {
         Token = token;
 

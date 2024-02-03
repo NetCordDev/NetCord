@@ -1,27 +1,24 @@
-﻿namespace NetCord.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace NetCord.Hosting;
 
 internal static class ConfigurationHelper
 {
-    public static Token ParseToken(string token)
+    public static IToken ParseToken(string token, IServiceProvider services)
     {
+        var factory = services.GetService<ITokenFactory>();
+        if (factory is not null)
+            return factory.CreateToken(token);
+
         var spaceIndex = token.IndexOf(' ');
-        TokenType tokenType;
-        string tokenString;
-        if (spaceIndex == -1)
+        if (spaceIndex < 0)
+            return new BotToken(token);
+
+        return token.AsSpan(0, spaceIndex) switch
         {
-            tokenType = TokenType.Bot;
-            tokenString = token;
-        }
-        else
-        {
-            tokenType = token.AsSpan(0, spaceIndex) switch
-            {
-                "Bot" => TokenType.Bot,
-                "Bearer" => TokenType.Bearer,
-                _ => (TokenType)(-1),
-            };
-            tokenString = token[(spaceIndex + 1)..];
-        }
-        return new(tokenType, tokenString);
+            "Bot" => new BotToken(token[(spaceIndex + 1)..]),
+            "Bearer" => new BearerToken(token[(spaceIndex + 1)..]),
+            _ => throw new ArgumentException("Unknown token type.", nameof(token)),
+        };
     }
 }

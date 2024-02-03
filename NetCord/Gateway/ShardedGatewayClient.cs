@@ -17,7 +17,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
 
     private bool _initialized;
 
-    public ShardedGatewayClient(Token token, ShardedGatewayClientConfiguration? configuration = null)
+    public ShardedGatewayClient(IEntityToken token, ShardedGatewayClientConfiguration? configuration = null)
     {
         Token = token;
         _configuration = configuration = CreateConfiguration(configuration);
@@ -69,7 +69,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
     /// <summary>
     /// The <see cref="Token"/> of the <see cref="ShardedGatewayClient"/>.
     /// </summary>
-    public Token Token { get; }
+    public IEntityToken Token { get; }
 
     /// <summary>
     /// The <see cref="RestClient"/> of the <see cref="ShardedGatewayClient"/>.

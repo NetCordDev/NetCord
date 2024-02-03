@@ -33,8 +33,8 @@ public static class RestClientHostBuilderExtensions
             {
                 var options = services.GetRequiredService<IOptions<RestClientOptions>>().Value;
 
-                var tokenString = options.Token;
-                return tokenString is null ? new(options.Configuration) : new(ConfigurationHelper.ParseToken(tokenString), options.Configuration);
+                var token = options.Token;
+                return token is null ? new(options.Configuration) : new(ConfigurationHelper.ParseToken(token, services), options.Configuration);
             });
         });
         return builder;

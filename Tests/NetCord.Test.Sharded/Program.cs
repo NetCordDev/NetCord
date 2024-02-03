@@ -19,7 +19,7 @@ var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
 
-Token token = new(TokenType.Bot, Environment.GetEnvironmentVariable("token")!);
+BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()
 {
     ShardCount = 1,

@@ -20,17 +20,20 @@ internal class ApplicationCommandServiceHostedService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        var client = _services.GetRequiredService<RestClient>();
+
+        if (client.Token is not IEntityToken token)
+            throw new InvalidOperationException($"'{nameof(IEntityToken)}' is required to create application commands.");
+
+        _logger.LogInformation("Creating application commands...");
+
         ApplicationCommandServiceManager applicationCommandServiceManager = new();
 
         foreach (var service in _services.GetServices<IApplicationCommandService>())
             applicationCommandServiceManager.AddService(service);
 
-        var client = _services.GetRequiredService<RestClient>();
-
-        var token = client.Token ?? throw new InvalidOperationException("The token is required to create application commands.");
-
-        _logger.LogInformation("Creating application commands...");
         var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true).ConfigureAwait(false);
+
         _logger.LogInformation("{count} application command(s) created", commands.Count);
     }
 
