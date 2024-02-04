@@ -21,11 +21,11 @@ First, add the following lines to using the section.
 Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add application commands to it. You can do it by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddSlashCommand*, @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddUserCommand* or @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddMessageCommand* to add an application command using the ASP.NET Core minimal APIs way and/or by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddModules(System.Reflection.Assembly) to add modules from an assembly. You can use a context of your choice, it can be for example @NetCord.Services.ApplicationCommands.SlashCommandContext, @NetCord.Services.ApplicationCommands.UserCommandContext or @NetCord.Services.ApplicationCommands.MessageCommandContext. In this example, we will use @NetCord.Services.ApplicationCommands.SlashCommandContext.
 [!code-cs[Program.cs](Introduction/Program.cs#L12-L14)]
 
-Now, we should send the commands to Discord, to make them usable. Add the following lines under `await client.StartAsync();` line:
-[!code-cs[Program.cs](Introduction/Program.cs#L22-L23)]
-
 We can add a command handler now. If you used other context than @NetCord.Services.ApplicationCommands.SlashCommandContext, you should change the interaction type of the handler to the appropriate one.
-[!code-cs[Program.cs](Introduction/Program.cs#L25-L42)]
+[!code-cs[Program.cs](Introduction/Program.cs#L16-L33)]
+
+Now, we should send the commands to Discord, to make them usable. Add the following line under the handler:
+[!code-cs[Program.cs](Introduction/Program.cs#L35)]
 
 ### The Final Product
 

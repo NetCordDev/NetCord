@@ -20,15 +20,6 @@ var assembly = typeof(Program).Assembly;
 slashCommandService.AddModules(assembly);
 messageCommandService.AddModules(assembly);
 
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
-await client.StartAsync();
-await client.ReadyAsync;
-await manager.CreateCommandsAsync(client.Rest, client.Id);
-
 client.InteractionCreate += async interaction =>
 {
     var result = await (interaction switch
@@ -49,4 +40,14 @@ client.InteractionCreate += async interaction =>
     {
     }
 };
+
+await manager.CreateCommandsAsync(client.Rest, client.Id);
+
+client.Log += message =>
+{
+    Console.WriteLine(message);
+    return default;
+};
+
+await client.StartAsync();
 await Task.Delay(-1);
