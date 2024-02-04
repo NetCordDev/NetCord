@@ -89,7 +89,15 @@ public abstract class WebSocketClient : IDisposable
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
-    public TimeSpan Latency => _latency;
+    public TimeSpan Latency
+    {
+        get
+        {
+            var latency = Interlocked.Read(ref Unsafe.As<TimeSpan, long>(ref _latency));
+            return Unsafe.As<long, TimeSpan>(ref latency);
+        }
+    }
+
     private TimeSpan _latency;
 
     public event Func<TimeSpan, ValueTask>? LatencyUpdate;
