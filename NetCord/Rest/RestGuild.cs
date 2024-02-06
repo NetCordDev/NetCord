@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>
+public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
 {
     NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
     internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
@@ -61,5 +61,44 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
         var welcomeScreen = jsonModel.WelcomeScreen;
         if (welcomeScreen is not null)
             WelcomeScreen = new(welcomeScreen);
+    }
+
+    public int Compare(PartialGuildUser? x, PartialGuildUser? y)
+    {
+        if (ReferenceEquals(x, y))
+            return 0;
+
+        if (x is null)
+            return -1;
+
+        if (y is null)
+            return 1;
+
+        var (xId, yId) = (x.Id, y.Id);
+
+        if (xId == yId)
+            return 0;
+
+        var ownerId = OwnerId;
+        if (xId == ownerId)
+            return 1;
+
+        if (yId == ownerId)
+            return -1;
+
+        return GetHighestRolePosition(x).CompareTo(GetHighestRolePosition(y));
+
+        int GetHighestRolePosition(PartialGuildUser user)
+        {
+            int highestPosition = 0;
+            foreach (var role in user.GetRoles(this))
+            {
+                var position = role.Position;
+                if (position > highestPosition)
+                    highestPosition = position;
+            }
+
+            return highestPosition;
+        }
     }
 }

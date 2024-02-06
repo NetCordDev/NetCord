@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class Role : ClientEntity, IJsonModel<JsonRole>
+public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role>
 {
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
@@ -50,6 +50,14 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     public override string ToString() => $"<@&{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
+
+    public int CompareTo(Role? other)
+    {
+        if (other is null)
+            return 1;
+
+        return Position.CompareTo(other.Position);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator >(Role left, Role right) => left.Position > right.Position;
