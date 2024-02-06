@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
-using NetCord.Rest.HttpClients;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;
@@ -11,7 +10,7 @@ namespace NetCord.Rest;
 public partial class RestClient : IDisposable
 {
     private readonly string _baseUrl;
-    private readonly IHttpClient _httpClient;
+    private readonly IRestMessageHandler _messageHandler;
     private readonly RequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
 
@@ -26,9 +25,9 @@ public partial class RestClient : IDisposable
 
         _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
 
-        var httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
-        httpClient.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
-        _httpClient = httpClient;
+        var messageHandler = configuration.MessageHandler ?? new RestMessageHandler();
+        messageHandler.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
+        _messageHandler = messageHandler;
 
         _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
 
@@ -42,10 +41,10 @@ public partial class RestClient : IDisposable
 
         _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
 
-        var httpClient = configuration.HttpClient ?? new HttpClients.HttpClient();
-        httpClient.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
-        httpClient.AddDefaultRequestHeader("Authorization", token.HttpHeaderValue);
-        _httpClient = httpClient;
+        var messageHandler = configuration.MessageHandler ?? new RestMessageHandler();
+        messageHandler.AddDefaultRequestHeader("User-Agent", UserAgentHeader);
+        messageHandler.AddDefaultRequestHeader("Authorization", token.HttpHeaderValue);
+        _messageHandler = messageHandler;
 
         _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
 
@@ -98,7 +97,7 @@ public partial class RestClient : IDisposable
             HttpResponseMessage response;
             try
             {
-                response = await _httpClient.SendAsync(message).ConfigureAwait(false);
+                response = await _messageHandler.SendAsync(message).ConfigureAwait(false);
             }
             catch
             {
@@ -312,7 +311,7 @@ public partial class RestClient : IDisposable
 
     public void Dispose()
     {
-        _httpClient.Dispose();
+        _messageHandler.Dispose();
         _rateLimitManager.Dispose();
     }
 }

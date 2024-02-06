@@ -1,6 +1,6 @@
-﻿namespace NetCord.Rest.HttpClients;
+﻿namespace NetCord.Rest;
 
-public interface IHttpClient : IDisposable
+public interface IRestMessageHandler : IDisposable
 {
     public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
 
