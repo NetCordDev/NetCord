@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Hosting;
 
 using NetCord;
 using NetCord.Gateway;
@@ -15,25 +12,38 @@ using NetCord.Services.Commands;
 using NetCord.Services.Interactions;
 using NetCord.Test.Hosting;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway(o => o.Configuration = new()
+//var builder = Host.CreateDefaultBuilder(args)
+//    .UseDiscordGateway(o => o.Configuration = new()
+//    {
+//        Intents = GatewayIntents.All,
+//    })
+//    .UseApplicationCommandService<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
+//    .UseApplicationCommandService<UserCommandInteraction, UserCommandContext>()
+//    .UseApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
+//    .UseInteractionService<ButtonInteraction, ButtonInteractionContext>()
+//    .UseCommandService<CommandContext>();
+
+//builder.ConfigureServices(services =>
+//{
+//    //services.AddGatewayEventHandler<MessageReactionAddHandler>();
+//    //services.AddGatewayEventHandler<ConnectHandler>();
+//    //services.AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>();
+//    services.AddGatewayEventHandlers(typeof(Program).Assembly);
+//});
+
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway(o => o.Configuration = new()
     {
         Intents = GatewayIntents.All,
     })
-    .UseApplicationCommandService<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
-    .UseApplicationCommandService<UserCommandInteraction, UserCommandContext>()
-    .UseApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
-    .UseInteractionService<ButtonInteraction, ButtonInteractionContext>()
-    .UseCommandService<CommandContext>()
-    .ConfigureLogging(b => b.SetMinimumLevel(LogLevel.Trace));
-
-builder.ConfigureServices(services =>
-{
-    //services.AddGatewayEventHandler<MessageReactionAddHandler>();
-    //services.AddGatewayEventHandler<ConnectHandler>();
-    //services.AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>();
-    services.AddGatewayEventHandlers(Assembly.GetEntryAssembly()!);
-});
+    .AddApplicationCommandService<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
+    .AddApplicationCommandService<UserCommandInteraction, UserCommandContext>()
+    .AddApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
+    .AddInteractionService<ButtonInteraction, ButtonInteractionContext>()
+    .AddCommandService<CommandContext>()
+    .AddGatewayEventHandlers(typeof(Program).Assembly);
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
