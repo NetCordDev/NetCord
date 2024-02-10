@@ -7,11 +7,11 @@ namespace Shared;
 public static class TypeSymbolExtensions
 {
     private static readonly SymbolDisplayFormat _qualifiedNameFormat = new(
-        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-        parameterOptions: SymbolDisplayParameterOptions.IncludeType);
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
     public static string ToQualifiedName(this INamedTypeSymbol symbol)
     {
+        symbol = symbol.OriginalDefinition;
         var arity = symbol.Arity;
         return arity == 0
             ? symbol.ToDisplayString(_qualifiedNameFormat)

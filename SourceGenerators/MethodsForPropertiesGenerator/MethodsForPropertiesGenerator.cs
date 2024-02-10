@@ -19,6 +19,10 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
 
     private const string AttributeUsageAttributeQualifiedName = "System.AttributeUsageAttribute";
 
+    private const string BooleanQualifiedName = "System.Boolean";
+
+    private const string NullableQualifiedName = "System.Nullable`1";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var typeSymbols = context.SyntaxProvider.CreateSyntaxProvider(FilterNodes, (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!);
@@ -101,9 +105,14 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.Write(" With");
         stringWriter.Write(propertyName);
         stringWriter.Write("(");
-        stringWriter.Write(symbol.Type.ToDisplayString());
+
+        var type = symbol.Type;
+        stringWriter.Write(type.ToDisplayString());
         stringWriter.Write(" ");
         stringWriter.Write(parameterName);
+
+        WriteDefaultParameterValue(stringWriter, type);
+
         stringWriter.WriteLine(")");
 
         stringWriter.WriteIndentation(1);
@@ -261,6 +270,24 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
             name.AsSpan(1).CopyTo(copy[1..]);
             copy[0] = char.ToLowerInvariant(name[0]);
             return copy;
+        }
+    }
+
+    private void WriteDefaultParameterValue(StringWriter stringWriter, ITypeSymbol type)
+    {
+        while (type is INamedTypeSymbol namedTypeSymbol)
+        {
+            switch (namedTypeSymbol.ToQualifiedName())
+            {
+                case BooleanQualifiedName:
+                    stringWriter.Write(" = true");
+                    return;
+                case NullableQualifiedName:
+                    type = namedTypeSymbol.TypeArguments[0];
+                    break;
+                default:
+                    return;
+            }
         }
     }
 }
