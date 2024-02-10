@@ -7,16 +7,18 @@ public class VoiceState : IJsonModel<JsonModels.JsonVoiceState>
     JsonModels.JsonVoiceState IJsonModel<JsonModels.JsonVoiceState>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonVoiceState _jsonModel;
 
-    public VoiceState(JsonModels.JsonVoiceState jsonModel, RestClient client)
+    public VoiceState(JsonModels.JsonVoiceState jsonModel, ulong guildId, RestClient client)
     {
         _jsonModel = jsonModel;
+
+        GuildId = guildId;
 
         var user = jsonModel.User;
         if (user is not null)
             User = new(user, _jsonModel.GuildId.GetValueOrDefault(), client);
     }
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong GuildId { get; }
 
     public ulong? ChannelId => _jsonModel.ChannelId;
 

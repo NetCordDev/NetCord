@@ -23,12 +23,13 @@ public class Guild : RestGuild
 
     public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
     {
-        VoiceStates = jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, client));
-        Users = jsonModel.Users.ToImmutableDictionaryOrEmpty(u => new GuildUser(u, Id, client));
-        Channels = jsonModel.Channels.ToImmutableDictionaryOrEmpty(c => IGuildChannel.CreateFromJson(c, jsonModel.Id, client));
+        var guildId = jsonModel.Id;
+        VoiceStates = jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, guildId, client));
+        Users = jsonModel.Users.ToImmutableDictionaryOrEmpty(u => new GuildUser(u, guildId, client));
+        Channels = jsonModel.Channels.ToImmutableDictionaryOrEmpty(c => IGuildChannel.CreateFromJson(c, guildId, client));
         ActiveThreads = jsonModel.ActiveThreads.ToImmutableDictionaryOrEmpty(t => GuildThread.CreateFromJson(t, client));
         StageInstances = jsonModel.StageInstances.ToImmutableDictionaryOrEmpty(i => new StageInstance(i, client));
-        Presences = jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, Id, client));
+        Presences = jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, guildId, client));
         ScheduledEvents = jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
     }
 

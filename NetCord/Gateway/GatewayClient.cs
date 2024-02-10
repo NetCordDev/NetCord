@@ -685,12 +685,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "VOICE_STATE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonVoiceState);
-                    await InvokeEventAsync(VoiceStateUpdate, new(json, Rest), voiceState =>
+                    await InvokeEventAsync(VoiceStateUpdate, new(json, json.GuildId.GetValueOrDefault(), Rest), voiceState =>
                     {
                         if (voiceState.ChannelId.HasValue)
-                            Cache = Cache.CacheVoiceState(voiceState.GuildId.GetValueOrDefault(), voiceState);
+                            Cache = Cache.CacheVoiceState(voiceState.GuildId, voiceState);
                         else
-                            Cache = Cache.RemoveVoiceState(voiceState.GuildId.GetValueOrDefault(), voiceState.UserId);
+                            Cache = Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
                     }).ConfigureAwait(false);
                 }
                 break;
