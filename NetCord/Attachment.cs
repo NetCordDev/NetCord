@@ -51,6 +51,8 @@ public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
 
     public AttachmentFlags Flags => _jsonModel.Flags;
 
+    public AttachmentExpirationInfo GetExpirationInfo() => new(Url);
+
     public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
     {
         if (jsonModel.Width.HasValue)
