@@ -56,7 +56,7 @@ public partial class RestClient
         => GuildThreadGenerator.CreateThreads(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/threads/active", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildThreadResult).ConfigureAwait(false), this);
 
     [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias(typeof(GuildUser), nameof(GuildUser.GuildId), nameof(GuildUser.Id))]
+    [GenerateAlias(typeof(GuildUser), nameof(GuildUser.GuildId), nameof(GuildUser.Id), Modifiers = ["new"])]
     public async Task<GuildUser> GetGuildUserAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/members/{userId}", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildUser).ConfigureAwait(false), guildId, this);
 
