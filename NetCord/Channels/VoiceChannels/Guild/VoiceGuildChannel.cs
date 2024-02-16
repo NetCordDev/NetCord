@@ -2,17 +2,11 @@
 
 namespace NetCord;
 
-public partial class VoiceGuildChannel : TextChannel, IVoiceGuildChannel
+public partial class VoiceGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : TextChannel(jsonModel, client), IVoiceGuildChannel
 {
-    public VoiceGuildChannel(JsonModels.JsonChannel jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
-    {
-        GuildId = guildId;
-        PermissionOverwrites = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
-    }
-
-    public ulong GuildId { get; }
+    public ulong GuildId { get; } = guildId;
     public int? Position => _jsonModel.Position;
-    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; }
+    public IReadOnlyDictionary<ulong, PermissionOverwrite> PermissionOverwrites { get; } = jsonModel.PermissionOverwrites.ToDictionaryOrEmpty(p => p.Id, p => new PermissionOverwrite(p));
     public string Name => _jsonModel.Name!;
     public bool Nsfw => _jsonModel.Nsfw.GetValueOrDefault();
     public int Bitrate => _jsonModel.Bitrate.GetValueOrDefault();

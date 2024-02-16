@@ -2,13 +2,8 @@
 
 namespace NetCord.Rest;
 
-internal class GuildMfaLevelProperties
+internal class GuildMfaLevelProperties(MfaLevel level)
 {
-    public GuildMfaLevelProperties(MfaLevel level)
-    {
-        Level = level;
-    }
-
     [JsonPropertyName("level")]
-    public MfaLevel Level { get; set; }
+    public MfaLevel Level { get; set; } = level;
 }

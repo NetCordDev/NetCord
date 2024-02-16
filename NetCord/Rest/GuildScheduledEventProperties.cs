@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildScheduledEventProperties
+public partial class GuildScheduledEventProperties(string name, GuildScheduledEventPrivacyLevel privacyLevel, DateTimeOffset scheduledStartTime, GuildScheduledEventEntityType entityType)
 {
     [JsonPropertyName("channel_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -13,13 +13,13 @@ public partial class GuildScheduledEventProperties
     public GuildScheduledEventMetadataProperties? Metadata { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonPropertyName("privacy_level")]
-    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; }
+    public GuildScheduledEventPrivacyLevel PrivacyLevel { get; set; } = privacyLevel;
 
     [JsonPropertyName("scheduled_start_time")]
-    public DateTimeOffset ScheduledStartTime { get; set; }
+    public DateTimeOffset ScheduledStartTime { get; set; } = scheduledStartTime;
 
     [JsonPropertyName("scheduled_end_time")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -30,17 +30,9 @@ public partial class GuildScheduledEventProperties
     public string? Description { get; set; }
 
     [JsonPropertyName("entity_type")]
-    public GuildScheduledEventEntityType EntityType { get; set; }
+    public GuildScheduledEventEntityType EntityType { get; set; } = entityType;
 
     [JsonPropertyName("image")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ImageProperties? Image { get; set; }
-
-    public GuildScheduledEventProperties(string name, GuildScheduledEventPrivacyLevel privacyLevel, DateTimeOffset scheduledStartTime, GuildScheduledEventEntityType entityType)
-    {
-        Name = name;
-        PrivacyLevel = privacyLevel;
-        ScheduledStartTime = scheduledStartTime;
-        EntityType = entityType;
-    }
 }

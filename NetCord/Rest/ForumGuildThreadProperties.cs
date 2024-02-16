@@ -2,15 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class ForumGuildThreadProperties : GuildThreadFromMessageProperties, IHttpSerializable
+public partial class ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : GuildThreadFromMessageProperties(name), IHttpSerializable
 {
-    public ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : base(name)
-    {
-        Message = message;
-    }
-
     [JsonPropertyName("message")]
-    public ForumGuildThreadMessageProperties Message { get; set; }
+    public ForumGuildThreadMessageProperties Message { get; set; } = message;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("applied_tags")]

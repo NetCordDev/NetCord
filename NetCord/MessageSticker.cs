@@ -2,19 +2,13 @@
 
 namespace NetCord;
 
-public class MessageSticker : ClientEntity, IJsonModel<JsonModels.JsonMessageSticker>
+public class MessageSticker(JsonModels.JsonMessageSticker jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonMessageSticker>
 {
-    JsonModels.JsonMessageSticker IJsonModel<JsonModels.JsonMessageSticker>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonMessageSticker _jsonModel;
+    JsonModels.JsonMessageSticker IJsonModel<JsonModels.JsonMessageSticker>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
-    public StickerFormat Format => _jsonModel.Format;
-
-    public MessageSticker(JsonModels.JsonMessageSticker jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-    }
+    public StickerFormat Format => jsonModel.Format;
 }

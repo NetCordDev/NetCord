@@ -2,20 +2,14 @@
 
 namespace NetCord;
 
-public partial class StageInstance : ClientEntity, IJsonModel<JsonModels.JsonStageInstance>
+public partial class StageInstance(JsonModels.JsonStageInstance jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonStageInstance>
 {
-    JsonModels.JsonStageInstance IJsonModel<JsonModels.JsonStageInstance>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonStageInstance _jsonModel;
+    JsonModels.JsonStageInstance IJsonModel<JsonModels.JsonStageInstance>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
-    public ulong GuildId => _jsonModel.GuildId;
-    public ulong ChannelId => _jsonModel.ChannelId;
-    public string Topic => _jsonModel.Topic;
-    public StageInstancePrivacyLevel PrivacyLevel => _jsonModel.PrivacyLevel;
-    public bool DiscoverableDisabled => _jsonModel.DiscoverableDisabled;
-
-    public StageInstance(JsonModels.JsonStageInstance jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-    }
+    public override ulong Id => jsonModel.Id;
+    public ulong GuildId => jsonModel.GuildId;
+    public ulong ChannelId => jsonModel.ChannelId;
+    public string Topic => jsonModel.Topic;
+    public StageInstancePrivacyLevel PrivacyLevel => jsonModel.PrivacyLevel;
+    public bool DiscoverableDisabled => jsonModel.DiscoverableDisabled;
 }

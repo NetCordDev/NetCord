@@ -2,21 +2,16 @@
 
 namespace NetCord.Gateway;
 
-public class UnknownEventEventArgs
+public class UnknownEventEventArgs(string name, JsonElement data)
 {
-    public UnknownEventEventArgs(string name, JsonElement data)
-    {
-        Name = name;
-        Data = data;
-    }
 
     /// <summary>
     /// Event name.
     /// </summary>
-    public string Name { get; }
+    public string Name { get; } = name;
 
     /// <summary>
     /// Event data.
     /// </summary>
-    public JsonElement Data { get; }
+    public JsonElement Data { get; } = data;
 }

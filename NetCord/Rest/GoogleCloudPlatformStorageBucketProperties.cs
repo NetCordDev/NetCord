@@ -2,23 +2,17 @@
 
 namespace NetCord.Rest;
 
-public partial class GoogleCloudPlatformStorageBucketProperties
+public partial class GoogleCloudPlatformStorageBucketProperties(string fileName, long fileSize)
 {
     public GoogleCloudPlatformStorageBucketProperties(string fileName) : this(fileName, 1)
     {
     }
 
-    public GoogleCloudPlatformStorageBucketProperties(string fileName, long fileSize)
-    {
-        FileName = fileName;
-        FileSize = fileSize;
-    }
-
     [JsonPropertyName("filename")]
-    public string FileName { get; set; }
+    public string FileName { get; set; } = fileName;
 
     [JsonPropertyName("file_size")]
-    public long FileSize { get; set; }
+    public long FileSize { get; set; } = fileSize;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("id")]

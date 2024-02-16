@@ -7,36 +7,29 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="format">The format of the image.</param>
+/// <param name="data">The data of the image.</param>
+/// <param name="isBase64">Whether <paramref name="data"/> is in Base64 format.</param>
 [JsonConverter(typeof(ImagePropertiesConverter))]
-public partial struct ImageProperties
+public partial struct ImageProperties(ImageFormat format, ReadOnlyMemory<byte> data, bool isBase64 = false)
 {
     /// <summary>
     /// The format of the image.
     /// </summary>
-    public ImageFormat Format { get; set; }
+    public ImageFormat Format { get; set; } = format;
 
     /// <summary>
     /// The data of the image.
     /// </summary>
-    public ReadOnlyMemory<byte> Data { get; set; }
+    public ReadOnlyMemory<byte> Data { get; set; } = data;
 
     /// <summary>
     /// Whether <see cref="Data"/> is in Base64 format.
     /// </summary>
-    public bool IsBase64 { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="format">The format of the image.</param>
-    /// <param name="data">The data of the image.</param>
-    /// <param name="isBase64">Whether <paramref name="data"/> is in Base64 format.</param>
-    public ImageProperties(ImageFormat format, ReadOnlyMemory<byte> data, bool isBase64 = false)
-    {
-        Format = format;
-        Data = data;
-        IsBase64 = isBase64;
-    }
+    public bool IsBase64 { get; set; } = isBase64;
 
     /// <summary>
     /// An empty <see cref="ImageProperties"/> instance.

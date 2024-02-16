@@ -3,23 +3,18 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// 
+/// </summary>
+/// <param name="type">Type of the component.</param>
 [JsonConverter(typeof(ComponentConverter))]
-public abstract partial class ComponentProperties
+public abstract partial class ComponentProperties(ComponentType type)
 {
     /// <summary>
     /// Type of the component.
     /// </summary>
     [JsonPropertyName("type")]
-    public ComponentType ComponentType { get; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="type">Type of the component.</param>
-    protected ComponentProperties(ComponentType type)
-    {
-        ComponentType = type;
-    }
+    public ComponentType ComponentType { get; } = type;
 
     public class ComponentConverter : JsonConverter<ComponentProperties>
     {

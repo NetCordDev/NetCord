@@ -1,8 +1,5 @@
 ﻿namespace NetCord.Services.ApplicationCommands;
 
-public class MessageCommandAttribute : ApplicationCommandAttribute
+public class MessageCommandAttribute(string name) : ApplicationCommandAttribute(name)
 {
-    public MessageCommandAttribute(string name) : base(name)
-    {
-    }
 }

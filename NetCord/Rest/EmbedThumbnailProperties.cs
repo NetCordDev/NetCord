@@ -2,23 +2,18 @@
 
 namespace NetCord.Rest;
 
-public partial class EmbedThumbnailProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="url">Url of the thumbnail.</param>
+public partial class EmbedThumbnailProperties(string? url)
 {
     /// <summary>
     /// Url of the thumbnail.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("url")]
-    public string? Url { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="url">Url of the thumbnail.</param>
-    public EmbedThumbnailProperties(string? url)
-    {
-        Url = url;
-    }
+    public string? Url { get; set; } = url;
 
     public static implicit operator EmbedThumbnailProperties(string? url) => new(url);
 }

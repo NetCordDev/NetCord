@@ -2,17 +2,11 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class ProtocolProperties
+internal class ProtocolProperties(string protocol, ProtocolDataProperties data)
 {
-    public ProtocolProperties(string protocol, ProtocolDataProperties data)
-    {
-        Protocol = protocol;
-        Data = data;
-    }
-
     [JsonPropertyName("protocol")]
-    public string Protocol { get; set; }
+    public string Protocol { get; set; } = protocol;
 
     [JsonPropertyName("data")]
-    public ProtocolDataProperties Data { get; set; }
+    public ProtocolDataProperties Data { get; set; } = data;
 }

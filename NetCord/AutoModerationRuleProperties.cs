@@ -2,31 +2,23 @@
 
 namespace NetCord;
 
-public partial class AutoModerationRuleProperties
+public partial class AutoModerationRuleProperties(string name, AutoModerationRuleEventType eventType, AutoModerationRuleTriggerType triggerType, IEnumerable<AutoModerationActionProperties> actions)
 {
-    public AutoModerationRuleProperties(string name, AutoModerationRuleEventType eventType, AutoModerationRuleTriggerType triggerType, IEnumerable<AutoModerationActionProperties> actions)
-    {
-        Name = name;
-        EventType = eventType;
-        TriggerType = triggerType;
-        Actions = actions;
-    }
-
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonPropertyName("event_type")]
-    public AutoModerationRuleEventType EventType { get; set; }
+    public AutoModerationRuleEventType EventType { get; set; } = eventType;
 
     [JsonPropertyName("trigger_type")]
-    public AutoModerationRuleTriggerType TriggerType { get; set; }
+    public AutoModerationRuleTriggerType TriggerType { get; set; } = triggerType;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("trigger_metadata")]
     public AutoModerationRuleTriggerMetadataProperties? TriggerMetadata { get; set; }
 
     [JsonPropertyName("actions")]
-    public IEnumerable<AutoModerationActionProperties> Actions { get; set; }
+    public IEnumerable<AutoModerationActionProperties> Actions { get; set; } = actions;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("enabled")]

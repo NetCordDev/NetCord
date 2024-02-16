@@ -1,20 +1,14 @@
 ﻿namespace NetCord;
 
-public class SlashCommandMention : Entity
+public class SlashCommandMention(ulong id, string name) : Entity
 {
-    public override ulong Id { get; }
+    public override ulong Id { get; } = id;
 
-    public string Name { get; }
+    public string Name { get; } = name;
 
     public string? SubCommandGroupName { get; }
 
     public string? SubCommandName { get; }
-
-    public SlashCommandMention(ulong id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
 
     public SlashCommandMention(ulong id, string name, string subCommandName) : this(id, name)
     {

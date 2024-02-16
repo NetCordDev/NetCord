@@ -2,21 +2,14 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class ProtocolDataProperties
+internal class ProtocolDataProperties(string address, ushort port, string mode)
 {
-    public ProtocolDataProperties(string address, ushort port, string mode)
-    {
-        Address = address;
-        Port = port;
-        Mode = mode;
-    }
-
     [JsonPropertyName("address")]
-    public string Address { get; set; }
+    public string Address { get; set; } = address;
 
     [JsonPropertyName("port")]
-    public ushort Port { get; set; }
+    public ushort Port { get; set; } = port;
 
     [JsonPropertyName("mode")]
-    public string Mode { get; set; }
+    public string Mode { get; set; } = mode;
 }

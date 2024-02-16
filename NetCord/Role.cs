@@ -72,25 +72,19 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role
     public static bool operator <=(Role left, Role right) => left.Position <= right.Position;
 }
 
-public class RoleTags : IJsonModel<JsonRoleTags>
+public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
 {
-    JsonRoleTags IJsonModel<JsonRoleTags>.JsonModel => _jsonModel;
-    private readonly JsonRoleTags _jsonModel;
+    JsonRoleTags IJsonModel<JsonRoleTags>.JsonModel => jsonModel;
 
-    public ulong? BotId => _jsonModel.BotId;
+    public ulong? BotId => jsonModel.BotId;
 
-    public ulong? IntegrationId => _jsonModel.IntegrationId;
+    public ulong? IntegrationId => jsonModel.IntegrationId;
 
-    public bool IsPremiumSubscriber => _jsonModel.IsPremiumSubscriber;
+    public bool IsPremiumSubscriber => jsonModel.IsPremiumSubscriber;
 
-    public ulong? SubscriptionListingId => _jsonModel.SubscriptionListingId;
+    public ulong? SubscriptionListingId => jsonModel.SubscriptionListingId;
 
-    public bool IsAvailableForPurchase => _jsonModel.IsAvailableForPurchase;
+    public bool IsAvailableForPurchase => jsonModel.IsAvailableForPurchase;
 
-    public bool GuildConnections => _jsonModel.GuildConnections;
-
-    public RoleTags(JsonRoleTags jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public bool GuildConnections => jsonModel.GuildConnections;
 }

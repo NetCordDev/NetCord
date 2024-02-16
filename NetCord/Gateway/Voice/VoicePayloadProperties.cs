@@ -4,19 +4,13 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoicePayloadProperties<T>
+internal class VoicePayloadProperties<T>(VoiceOpcode opcode, T d)
 {
     [JsonPropertyName("op")]
-    public VoiceOpcode Opcode { get; set; }
+    public VoiceOpcode Opcode { get; set; } = opcode;
 
     [JsonPropertyName("d")]
-    public T D { get; set; }
-
-    public VoicePayloadProperties(VoiceOpcode opcode, T d)
-    {
-        Opcode = opcode;
-        D = d;
-    }
+    public T D { get; set; } = d;
 
     public byte[] Serialize(JsonTypeInfo<VoicePayloadProperties<T>> jsonTypeInfo) => JsonSerializer.SerializeToUtf8Bytes(this, jsonTypeInfo);
 }

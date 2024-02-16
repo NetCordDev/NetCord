@@ -2,20 +2,14 @@
 
 namespace NetCord.Rest;
 
-public class ApplicationRoleConnectionMetadata : IJsonModel<JsonModels.JsonApplicationRoleConnectionMetadata>
+public class ApplicationRoleConnectionMetadata(JsonModels.JsonApplicationRoleConnectionMetadata jsonModel) : IJsonModel<JsonModels.JsonApplicationRoleConnectionMetadata>
 {
-    JsonModels.JsonApplicationRoleConnectionMetadata IJsonModel<JsonModels.JsonApplicationRoleConnectionMetadata>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationRoleConnectionMetadata _jsonModel;
+    JsonModels.JsonApplicationRoleConnectionMetadata IJsonModel<JsonModels.JsonApplicationRoleConnectionMetadata>.JsonModel => jsonModel;
 
-    public ApplicationRoleConnectionMetadata(JsonModels.JsonApplicationRoleConnectionMetadata jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
-    public ApplicationRoleConnectionMetadataType Type => _jsonModel.Type;
-    public string Key => _jsonModel.Key;
-    public string Name => _jsonModel.Name;
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
-    public string Description => _jsonModel.Description;
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
+    public ApplicationRoleConnectionMetadataType Type => jsonModel.Type;
+    public string Key => jsonModel.Key;
+    public string Name => jsonModel.Name;
+    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => jsonModel.NameLocalizations;
+    public string Description => jsonModel.Description;
+    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => jsonModel.DescriptionLocalizations;
 }

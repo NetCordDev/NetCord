@@ -2,13 +2,8 @@
 
 namespace NetCord.Gateway;
 
-public partial class PresenceProperties
+public partial class PresenceProperties(UserStatusType statusType)
 {
-    public PresenceProperties(UserStatusType statusType)
-    {
-        StatusType = statusType;
-    }
-
     [JsonConverter(typeof(JsonConverters.MillisecondsNullableUnixDateTimeOffsetConverter))]
     [JsonPropertyName("since")]
     public DateTimeOffset? Since { get; set; }
@@ -17,7 +12,7 @@ public partial class PresenceProperties
     public IEnumerable<UserActivityProperties>? Activities { get; set; }
 
     [JsonPropertyName("status")]
-    public UserStatusType StatusType { get; set; }
+    public UserStatusType StatusType { get; set; } = statusType;
 
     [JsonPropertyName("afk")]
     public bool Afk { get; set; }

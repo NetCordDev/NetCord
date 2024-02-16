@@ -1,12 +1,7 @@
 ﻿namespace NetCord.Hosting.Gateway;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-public class GatewayEventAttribute : Attribute
+public class GatewayEventAttribute(string name) : Attribute
 {
-    public GatewayEventAttribute(string name)
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
+    public string Name { get; } = name;
 }

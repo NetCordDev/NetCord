@@ -4,17 +4,11 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(JsonShardConverter))]
-public readonly struct Shard
+public readonly struct Shard(int id, int count)
 {
-    public Shard(int id, int count)
-    {
-        Id = id;
-        Count = count;
-    }
+    public int Id { get; } = id;
 
-    public int Id { get; }
-
-    public int Count { get; }
+    public int Count { get; } = count;
 
     public class JsonShardConverter : JsonConverter<Shard>
     {

@@ -1,18 +1,12 @@
 ﻿namespace NetCord;
 
-public class ApplicationCommandPermission : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
+public class ApplicationCommandPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel) : Entity, IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>
 {
-    JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandGuildPermission _jsonModel;
+    JsonModels.JsonApplicationCommandGuildPermission IJsonModel<JsonModels.JsonApplicationCommandGuildPermission>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
-    public ApplicationCommandGuildPermissionType Type => _jsonModel.Type;
+    public ApplicationCommandGuildPermissionType Type => jsonModel.Type;
 
-    public bool Permission => _jsonModel.Permission;
-
-    public ApplicationCommandPermission(JsonModels.JsonApplicationCommandGuildPermission jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public bool Permission => jsonModel.Permission;
 }

@@ -3,24 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class RestError
+public class RestError(int code, string message, IRestErrorGroup? error)
 {
     [JsonPropertyName("code")]
-    public int Code { get; }
+    public int Code { get; } = code;
 
     [JsonPropertyName("message")]
-    public string Message { get; }
+    public string Message { get; } = message;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("errors")]
-    public IRestErrorGroup? Error { get; }
-
-    public RestError(int code, string message, IRestErrorGroup? error)
-    {
-        Code = code;
-        Message = message;
-        Error = error;
-    }
+    public IRestErrorGroup? Error { get; } = error;
 }
 
 [JsonConverter(typeof(IRestErrorGroupConverter))]
@@ -84,37 +77,21 @@ public interface IRestErrorGroup
     }
 }
 
-public class RestErrorGroup : IRestErrorGroup
+public class RestErrorGroup(IReadOnlyDictionary<string, IRestErrorGroup> errors) : IRestErrorGroup
 {
-    public IReadOnlyDictionary<string, IRestErrorGroup> Errors { get; }
-
-    public RestErrorGroup(IReadOnlyDictionary<string, IRestErrorGroup> errors)
-    {
-        Errors = errors;
-    }
+    public IReadOnlyDictionary<string, IRestErrorGroup> Errors { get; } = errors;
 }
 
-public class RestErrorDetailGroup : IRestErrorGroup
+public class RestErrorDetailGroup(IReadOnlyList<RestErrorDetail> errors) : IRestErrorGroup
 {
-    public IReadOnlyList<RestErrorDetail> Errors { get; }
-
-    public RestErrorDetailGroup(IReadOnlyList<RestErrorDetail> errors)
-    {
-        Errors = errors;
-    }
+    public IReadOnlyList<RestErrorDetail> Errors { get; } = errors;
 }
 
-public class RestErrorDetail
+public class RestErrorDetail(string code, string message)
 {
     [JsonPropertyName("code")]
-    public string Code { get; }
+    public string Code { get; } = code;
 
     [JsonPropertyName("message")]
-    public string Message { get; }
-
-    public RestErrorDetail(string code, string message)
-    {
-        Code = code;
-        Message = message;
-    }
+    public string Message { get; } = message;
 }

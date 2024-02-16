@@ -3,17 +3,13 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
-public class RestAuditLogEntry : AuditLogEntry
+public class RestAuditLogEntry(JsonAuditLogEntry jsonModel, RestAuditLogEntryData data) : AuditLogEntry(jsonModel)
 {
-    public RestAuditLogEntry(JsonAuditLogEntry jsonModel, RestAuditLogEntryData data) : base(jsonModel)
-    {
-        Data = data;
-    }
 
     /// <summary>
     /// Data of objects referenced in the audit log.
     /// </summary>
-    public RestAuditLogEntryData Data { get; }
+    public RestAuditLogEntryData Data { get; } = data;
 
     /// <summary>
     /// User that made the changes.

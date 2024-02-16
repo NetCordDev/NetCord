@@ -3,12 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class SlashCommandInteraction : ApplicationCommandInteraction
+public class SlashCommandInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : ApplicationCommandInteraction(jsonModel, guild, sendResponseAsync, client)
 {
-    public SlashCommandInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
-    {
-        Data = new(jsonModel.Data!, jsonModel.GuildId, client);
-    }
-
-    public override SlashCommandInteractionData Data { get; }
+    public override SlashCommandInteractionData Data { get; } = new(jsonModel.Data!, jsonModel.GuildId, client);
 }

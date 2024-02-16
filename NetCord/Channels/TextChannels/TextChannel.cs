@@ -3,12 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract partial class TextChannel : Channel
+public abstract partial class TextChannel(JsonChannel jsonModel, RestClient client) : Channel(jsonModel, client)
 {
-    private protected TextChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
-
     public ulong? LastMessageId => _jsonModel.LastMessageId;
     public DateTimeOffset? LastPin => _jsonModel.LastPin;
 

@@ -2,17 +2,11 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildApplicationCommandPermissionsProperties
+public partial class GuildApplicationCommandPermissionsProperties(ulong commandId, IEnumerable<ApplicationCommandGuildPermissionProperties> permissions)
 {
     [JsonPropertyName("id")]
-    public ulong CommandId { get; set; }
+    public ulong CommandId { get; set; } = commandId;
 
     [JsonPropertyName("permissions")]
-    public IEnumerable<ApplicationCommandGuildPermissionProperties> Permissions { get; set; }
-
-    public GuildApplicationCommandPermissionsProperties(ulong commandId, IEnumerable<ApplicationCommandGuildPermissionProperties> permissions)
-    {
-        CommandId = commandId;
-        Permissions = permissions;
-    }
+    public IEnumerable<ApplicationCommandGuildPermissionProperties> Permissions { get; set; } = permissions;
 }

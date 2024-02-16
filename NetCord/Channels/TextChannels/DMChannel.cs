@@ -2,14 +2,9 @@
 
 namespace NetCord;
 
-public partial class DMChannel : TextChannel
+public partial class DMChannel(JsonModels.JsonChannel jsonModel, RestClient client) : TextChannel(jsonModel, client)
 {
-    public IReadOnlyDictionary<ulong, User> Users { get; }
-
-    public DMChannel(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-        Users = jsonModel.Users.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
-    }
+    public IReadOnlyDictionary<ulong, User> Users { get; } = jsonModel.Users.ToDictionaryOrEmpty(u => u.Id, u => new User(u, client));
 
     public static new DMChannel CreateFromJson(JsonModels.JsonChannel jsonModel, RestClient client)
     {

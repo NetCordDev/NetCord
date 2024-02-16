@@ -2,13 +2,8 @@
 
 namespace NetCord.Rest;
 
-internal class ApplicationCommandGuildPermissionsProperties
+internal class ApplicationCommandGuildPermissionsProperties(IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions)
 {
     [JsonPropertyName("permissions")]
-    public IEnumerable<ApplicationCommandGuildPermissionProperties> NewPermissions { get; set; }
-
-    public ApplicationCommandGuildPermissionsProperties(IEnumerable<ApplicationCommandGuildPermissionProperties> newPermissions)
-    {
-        NewPermissions = newPermissions;
-    }
+    public IEnumerable<ApplicationCommandGuildPermissionProperties> NewPermissions { get; set; } = newPermissions;
 }

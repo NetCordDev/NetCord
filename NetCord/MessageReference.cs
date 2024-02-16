@@ -1,17 +1,11 @@
 ﻿namespace NetCord;
 
-public class MessageReference : IJsonModel<JsonModels.JsonMessageReference>
+public class MessageReference(JsonModels.JsonMessageReference jsonModel) : IJsonModel<JsonModels.JsonMessageReference>
 {
-    JsonModels.JsonMessageReference IJsonModel<JsonModels.JsonMessageReference>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonMessageReference _jsonModel;
+    JsonModels.JsonMessageReference IJsonModel<JsonModels.JsonMessageReference>.JsonModel => jsonModel;
 
-    public ulong MessageId => _jsonModel.MessageId.GetValueOrDefault();
-    public ulong ChannelId => _jsonModel.ChannelId.GetValueOrDefault();
-    public ulong? GuildId => _jsonModel.GuildId;
-    public bool? FailIfNotExists => _jsonModel.FailIfNotExists;
-
-    public MessageReference(JsonModels.JsonMessageReference jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public ulong MessageId => jsonModel.MessageId.GetValueOrDefault();
+    public ulong ChannelId => jsonModel.ChannelId.GetValueOrDefault();
+    public ulong? GuildId => jsonModel.GuildId;
+    public bool? FailIfNotExists => jsonModel.FailIfNotExists;
 }

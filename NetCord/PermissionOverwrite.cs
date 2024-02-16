@@ -1,20 +1,14 @@
 ﻿namespace NetCord;
 
-public class PermissionOverwrite : Entity, IJsonModel<JsonModels.JsonPermissionOverwrite>
+public class PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel) : Entity, IJsonModel<JsonModels.JsonPermissionOverwrite>
 {
-    JsonModels.JsonPermissionOverwrite IJsonModel<JsonModels.JsonPermissionOverwrite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonPermissionOverwrite _jsonModel;
+    JsonModels.JsonPermissionOverwrite IJsonModel<JsonModels.JsonPermissionOverwrite>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
-    public PermissionOverwriteType Type => _jsonModel.Type;
+    public PermissionOverwriteType Type => jsonModel.Type;
 
-    public Permissions Allowed => _jsonModel.Allowed;
+    public Permissions Allowed => jsonModel.Allowed;
 
-    public Permissions Denied => _jsonModel.Denied;
-
-    public PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public Permissions Denied => jsonModel.Denied;
 }

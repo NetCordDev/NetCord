@@ -2,13 +2,8 @@
 
 namespace NetCord.Rest;
 
-internal class GoogleCloudPlatformStorageBucketsProperties
+internal class GoogleCloudPlatformStorageBucketsProperties(IEnumerable<GoogleCloudPlatformStorageBucketProperties> buckets)
 {
-    public GoogleCloudPlatformStorageBucketsProperties(IEnumerable<GoogleCloudPlatformStorageBucketProperties> buckets)
-    {
-        Buckets = buckets;
-    }
-
     [JsonPropertyName("files")]
-    public IEnumerable<GoogleCloudPlatformStorageBucketProperties> Buckets { get; set; }
+    public IEnumerable<GoogleCloudPlatformStorageBucketProperties> Buckets { get; set; } = buckets;
 }

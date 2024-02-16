@@ -2,15 +2,10 @@
 
 namespace NetCord;
 
-public partial class AutoModerationActionProperties
+public partial class AutoModerationActionProperties(AutoModerationActionType type)
 {
-    public AutoModerationActionProperties(AutoModerationActionType type)
-    {
-        Type = type;
-    }
-
     [JsonPropertyName("type")]
-    public AutoModerationActionType Type { get; set; }
+    public AutoModerationActionType Type { get; set; } = type;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("metadata")]

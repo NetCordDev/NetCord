@@ -1,18 +1,12 @@
 ﻿namespace NetCord.Gateway;
 
-public class VoiceServerUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>
+public class VoiceServerUpdateEventArgs(JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>
 {
-    JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs>.JsonModel => jsonModel;
 
-    public VoiceServerUpdateEventArgs(JsonModels.EventArgs.JsonVoiceServerUpdateEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public string Token => jsonModel.Token;
 
-    public string Token => _jsonModel.Token;
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public string? Endpoint => _jsonModel.Endpoint;
+    public string? Endpoint => jsonModel.Endpoint;
 }

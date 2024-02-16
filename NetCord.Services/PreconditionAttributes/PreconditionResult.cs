@@ -11,22 +11,12 @@ public class PreconditionSuccessResult : PreconditionResult
 {
 }
 
-public class PreconditionFailResult : PreconditionResult, IFailResult
+public class PreconditionFailResult(string message) : PreconditionResult, IFailResult
 {
-    public PreconditionFailResult(string message)
-    {
-        Message = message;
-    }
-
-    public string Message { get; }
+    public string Message { get; } = message;
 }
 
-public class PreconditionExceptionResult : PreconditionFailResult, IExceptionResult
+public class PreconditionExceptionResult(Exception exception) : PreconditionFailResult(exception.Message), IExceptionResult
 {
-    public PreconditionExceptionResult(Exception exception) : base(exception.Message)
-    {
-        Exception = exception;
-    }
-
-    public Exception Exception { get; }
+    public Exception Exception { get; } = exception;
 }

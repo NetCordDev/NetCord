@@ -1,26 +1,18 @@
 ﻿namespace NetCord;
 
-public class MessageReaction : IJsonModel<JsonModels.JsonMessageReaction>
+public class MessageReaction(JsonModels.JsonMessageReaction jsonModel) : IJsonModel<JsonModels.JsonMessageReaction>
 {
-    JsonModels.JsonMessageReaction IJsonModel<JsonModels.JsonMessageReaction>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonMessageReaction _jsonModel;
+    JsonModels.JsonMessageReaction IJsonModel<JsonModels.JsonMessageReaction>.JsonModel => jsonModel;
 
-    public int Count => _jsonModel.Count;
+    public int Count => jsonModel.Count;
 
-    public MessageReactionCountDetails CountDetails { get; }
+    public MessageReactionCountDetails CountDetails { get; } = new(jsonModel.CountDetails);
 
-    public bool Me => _jsonModel.Me;
+    public bool Me => jsonModel.Me;
 
-    public bool MeBurst => _jsonModel.MeBurst;
+    public bool MeBurst => jsonModel.MeBurst;
 
-    public MessageReactionEmoji Emoji { get; }
+    public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 
-    public IReadOnlyList<Color> BurstColors => _jsonModel.BurstColors;
-
-    public MessageReaction(JsonModels.JsonMessageReaction jsonModel)
-    {
-        _jsonModel = jsonModel;
-        CountDetails = new(jsonModel.CountDetails);
-        Emoji = new(jsonModel.Emoji);
-    }
+    public IReadOnlyList<Color> BurstColors => jsonModel.BurstColors;
 }

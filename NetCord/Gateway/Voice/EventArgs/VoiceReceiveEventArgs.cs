@@ -1,20 +1,13 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public class VoiceReceiveEventArgs
+public class VoiceReceiveEventArgs(uint ssrc, ulong userId, ReadOnlyMemory<byte> frame)
 {
-    public VoiceReceiveEventArgs(uint ssrc, ulong userId, ReadOnlyMemory<byte> frame)
-    {
-        Ssrc = ssrc;
-        UserId = userId;
-        Frame = frame;
-    }
+    public uint Ssrc { get; } = ssrc;
 
-    public uint Ssrc { get; }
-
-    public ulong UserId { get; }
+    public ulong UserId { get; } = userId;
 
     /// <summary>
     /// Opus frame.
     /// </summary>
-    public ReadOnlyMemory<byte> Frame { get; }
+    public ReadOnlyMemory<byte> Frame { get; } = frame;
 }

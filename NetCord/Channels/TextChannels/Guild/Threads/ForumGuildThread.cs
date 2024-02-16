@@ -3,12 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class ForumGuildThread : PublicGuildThread
+public partial class ForumGuildThread(JsonChannel jsonModel, RestClient client) : PublicGuildThread(jsonModel, client)
 {
-    public ForumGuildThread(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-        Message = new(jsonModel.Message!, client);
-    }
-
-    public RestMessage Message { get; }
+    public RestMessage Message { get; } = new(jsonModel.Message!, client);
 }

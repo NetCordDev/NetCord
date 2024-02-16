@@ -1,11 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public class NotFoundResult : IFailResult
+public class NotFoundResult(string message) : IFailResult
 {
-    public NotFoundResult(string message)
-    {
-        Message = message;
-    }
-
-    public string Message { get; }
+    public string Message { get; } = message;
 }

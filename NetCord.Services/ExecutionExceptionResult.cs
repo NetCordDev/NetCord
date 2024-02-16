@@ -1,13 +1,8 @@
 ﻿namespace NetCord.Services;
 
-public class ExecutionExceptionResult : IExceptionResult
+public class ExecutionExceptionResult(Exception exception) : IExceptionResult
 {
-    public ExecutionExceptionResult(Exception exception)
-    {
-        Exception = exception;
-    }
-
-    public Exception Exception { get; }
+    public Exception Exception { get; } = exception;
 
     public string Message => Exception.Message;
 }

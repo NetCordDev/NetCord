@@ -2,18 +2,11 @@
 
 namespace NetCord.Gateway;
 
-public class GuildUserRemoveEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>
+public class GuildUserRemoveEventArgs(JsonModels.EventArgs.JsonGuildUserRemoveEventArgs jsonModel, RestClient client) : IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildUserRemoveEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildUserRemoveEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildUserRemoveEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildUserRemoveEventArgs>.JsonModel => jsonModel;
 
-    public GuildUserRemoveEventArgs(JsonModels.EventArgs.JsonGuildUserRemoveEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        User = new(jsonModel.User, client);
-    }
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public User User { get; }
+    public User User { get; } = new(jsonModel.User, client);
 }

@@ -9,32 +9,17 @@ public abstract class TypeReaderResult : IExecutionResult
     public static TypeReaderResult ParseFail(string parameterName) => Fail($"Failed to parse '{parameterName}'.");
 }
 
-public class TypeReaderSuccessResult : TypeReaderResult
+public class TypeReaderSuccessResult(object value) : TypeReaderResult
 {
-    public TypeReaderSuccessResult(object value)
-    {
-        Value = value;
-    }
-
-    public object Value { get; }
+    public object Value { get; } = value;
 }
 
-public class TypeReaderFailResult : TypeReaderResult, IFailResult
+public class TypeReaderFailResult(string message) : TypeReaderResult, IFailResult
 {
-    public TypeReaderFailResult(string message)
-    {
-        Message = message;
-    }
-
-    public string Message { get; }
+    public string Message { get; } = message;
 }
 
-public class TypeReaderExceptionResult : TypeReaderFailResult
+public class TypeReaderExceptionResult(Exception exception) : TypeReaderFailResult(exception.Message)
 {
-    public TypeReaderExceptionResult(Exception exception) : base(exception.Message)
-    {
-        Exception = exception;
-    }
-
-    public Exception Exception { get; }
+    public Exception Exception { get; } = exception;
 }

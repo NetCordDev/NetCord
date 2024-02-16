@@ -5,11 +5,8 @@ using NetCord.JsonConverters;
 
 namespace NetCord.Rest;
 
-public partial class RoleMenuProperties : MenuProperties
+public partial class RoleMenuProperties(string customId) : MenuProperties(customId, ComponentType.RoleMenu)
 {
-    public RoleMenuProperties(string customId) : base(customId, ComponentType.RoleMenu)
-    {
-    }
 
     /// <summary>
     /// Default values for auto-populated select menu components.

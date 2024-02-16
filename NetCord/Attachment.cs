@@ -2,15 +2,10 @@
 
 namespace NetCord;
 
-public class Attachment : Entity, IJsonModel<JsonModels.JsonAttachment>
+public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonModel<JsonModels.JsonAttachment>
 {
     JsonModels.JsonAttachment IJsonModel<JsonModels.JsonAttachment>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonAttachment _jsonModel;
-
-    public Attachment(JsonModels.JsonAttachment jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    private protected readonly JsonModels.JsonAttachment _jsonModel = jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 

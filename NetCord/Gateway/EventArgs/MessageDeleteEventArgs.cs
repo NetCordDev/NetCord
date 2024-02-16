@@ -1,18 +1,12 @@
 ﻿namespace NetCord.Gateway;
 
-public class MessageDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>
+public class MessageDeleteEventArgs(JsonModels.EventArgs.JsonMessageDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>
 {
-    JsonModels.EventArgs.JsonMessageDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonMessageDeleteEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonMessageDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageDeleteEventArgs>.JsonModel => jsonModel;
 
-    public MessageDeleteEventArgs(JsonModels.EventArgs.JsonMessageDeleteEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public ulong MessageId => jsonModel.MessageId;
 
-    public ulong MessageId => _jsonModel.MessageId;
+    public ulong ChannelId => jsonModel.ChannelId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
-
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong? GuildId => jsonModel.GuildId;
 }

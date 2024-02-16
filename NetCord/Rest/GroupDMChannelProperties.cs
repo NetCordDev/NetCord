@@ -2,15 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class GroupDMChannelProperties
+public partial class GroupDMChannelProperties(IEnumerable<string> accessTokens)
 {
-    public GroupDMChannelProperties(IEnumerable<string> accessTokens)
-    {
-        AccessTokens = accessTokens;
-    }
-
     [JsonPropertyName("access_tokens")]
-    public IEnumerable<string> AccessTokens { get; set; }
+    public IEnumerable<string> AccessTokens { get; set; } = accessTokens;
 
     [JsonPropertyName("nicks")]
     public IReadOnlyDictionary<ulong, string>? Nicknames { get; set; }

@@ -40,6 +40,8 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                     public string[]? Modifiers { get; init; }
 
                     public Type? CastType { get; init; }
+
+                    public string? ClientName { get; init; }
                 }
 
                 """, Encoding.UTF8));
@@ -75,9 +77,10 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
             var cast = GetCast(attribute);
             var modifiers = GetModifiers(attribute);
             var castType = GetCastType(attribute);
+            var clientName = GetClientName(attribute);
             var parameters = GetParameters(methodSymbol, parameterAliases);
             var documentation = GetDocumentation(methodSymbol, parameters);
-            WriteMethodsForType(context, typeSymbol, methodName, methodSymbol, parameters, cast, modifiers, castType, documentation);
+            WriteMethodsForType(context, typeSymbol, methodName, methodSymbol, parameters, cast, modifiers, castType, clientName, documentation);
         }
     }
 
@@ -116,19 +119,20 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                             bool cast,
                                             string[]? modifiers,
                                             INamedTypeSymbol? castType,
+                                            string clientName,
                                             string documentation)
     {
-        WriteMethods(context, currentTypeSymbol, null, methodSymbol, parameters, methodName, cast, false, modifiers, castType, documentation);
+        WriteMethods(context, currentTypeSymbol, null, methodSymbol, parameters, methodName, cast, false, modifiers, castType, clientName, documentation);
 
         if (currentTypeSymbol.TypeKind is TypeKind.Interface)
         {
             if (cast)
-                ImplementInterfaceWithCasting(context, currentTypeSymbol, methodSymbol, parameters, methodName, documentation, modifiers, castType);
+                ImplementInterfaceWithCasting(context, currentTypeSymbol, methodSymbol, parameters, methodName, documentation, modifiers, castType, clientName);
             else
-                ImplementInterface(context, currentTypeSymbol, methodSymbol, parameters, methodName, false, false, documentation, modifiers, castType);
+                ImplementInterface(context, currentTypeSymbol, methodSymbol, parameters, methodName, false, false, documentation, modifiers, castType, clientName);
         }
         else if (cast)
-            WriteCastingMethodsForChildren(context, currentTypeSymbol, methodSymbol, parameters, methodName, documentation, modifiers, castType);
+            WriteCastingMethodsForChildren(context, currentTypeSymbol, methodSymbol, parameters, methodName, documentation, modifiers, castType, clientName);
     }
 
     private static void ImplementInterfaceWithCasting(SourceProductionContext context,
@@ -138,7 +142,8 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                                       string methodName,
                                                       string documentation,
                                                       string[]? modifiers,
-                                                      INamedTypeSymbol? castType)
+                                                      INamedTypeSymbol? castType,
+                                                      string clientName)
     {
         foreach (var type in GetAllNamespaceTypes(GetGlobalNamespace(currentTypeSymbol)))
         {
@@ -146,15 +151,15 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
             {
                 if (type.TypeKind is TypeKind.Interface)
                 {
-                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, documentation);
-                    ImplementInterface(context, type, methodSymbol, parameters, methodName, true, true, documentation, modifiers, castType);
+                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, clientName, documentation);
+                    ImplementInterface(context, type, methodSymbol, parameters, methodName, true, true, documentation, modifiers, castType, clientName);
                 }
                 else if (IsInterfaceImplemented(type, currentTypeSymbol))
-                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, documentation);
+                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, clientName, documentation);
                 else
                 {
-                    WriteMethods(context, type, currentTypeSymbol, methodSymbol, parameters, methodName, true, false, modifiers, castType, documentation);
-                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, false, modifiers, castType, documentation);
+                    WriteMethods(context, type, currentTypeSymbol, methodSymbol, parameters, methodName, true, false, modifiers, castType, clientName, documentation);
+                    WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, false, modifiers, castType, clientName, documentation);
                 }
             }
         }
@@ -169,14 +174,15 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                            bool @explicit,
                                            string documentation,
                                            string[]? modifiers,
-                                           INamedTypeSymbol? castType)
+                                           INamedTypeSymbol? castType,
+                                           string clientName)
     {
         foreach (var type in GetAllNamespaceTypes(GetGlobalNamespace(interfaceSymbol)))
         {
             if (type.AllInterfaces.Contains(interfaceSymbol, SymbolEqualityComparer.Default))
             {
                 if (type.TypeKind is not TypeKind.Interface && !IsInterfaceImplemented(type, interfaceSymbol))
-                    WriteMethods(context, type, @explicit ? interfaceSymbol : null, methodSymbol, parameters, methodName, cast, false, modifiers, castType, documentation);
+                    WriteMethods(context, type, @explicit ? interfaceSymbol : null, methodSymbol, parameters, methodName, cast, false, modifiers, castType, clientName, documentation);
             }
         }
     }
@@ -188,12 +194,13 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                                        string methodName,
                                                        string documentation,
                                                        string[]? modifiers,
-                                                       INamedTypeSymbol? castType)
+                                                       INamedTypeSymbol? castType,
+                                                       string clientName)
     {
         foreach (var type in GetAllNamespaceTypes(GetGlobalNamespace(currentTypeSymbol)))
         {
             if (InheritsFrom(type, currentTypeSymbol))
-                WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, documentation);
+                WriteMethods(context, type, null, methodSymbol, parameters, methodName, true, true, modifiers, castType, clientName, documentation);
         }
     }
 
@@ -207,6 +214,7 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                      bool hides,
                                      string[]? modifiers,
                                      INamedTypeSymbol? castType,
+                                     string clientName,
                                      string documentation)
     {
         StringWriter stringWriter = new();
@@ -233,7 +241,7 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
             stringWriter.WriteLine();
             stringWriter.WriteIndentation(1);
             stringWriter.WriteLine('{');
-            WriteMethodBody(typeSymbol, interfaceToImplementSymbol, methodSymbol, parameters, stringWriter, cast, castType);
+            WriteMethodBody(typeSymbol, interfaceToImplementSymbol, methodSymbol, parameters, stringWriter, cast, castType, clientName);
             stringWriter.WriteIndentation(1);
             stringWriter.WriteLine('}');
         }
@@ -341,7 +349,8 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                                         ParameterInfo[] parameters,
                                         StringWriter stringWriter,
                                         bool cast,
-                                        INamedTypeSymbol? castType)
+                                        INamedTypeSymbol? castType,
+                                        string clientName)
     {
         stringWriter.WriteIndentation(2);
 
@@ -353,10 +362,15 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
             stringWriter.Write((castType ?? interfaceToImplementSymbol ?? typeSymbol).ToDisplayString());
             stringWriter.Write(')');
 
-            stringWriter.Write("await _client.");
+            stringWriter.Write("await ");
+            stringWriter.Write(clientName);
+            stringWriter.Write('.');
         }
         else
-            stringWriter.Write("_client.");
+        {
+            stringWriter.Write(clientName);
+            stringWriter.Write('.');
+        }
 
         stringWriter.Write(methodSymbol.Name);
         stringWriter.Write('(');
@@ -457,6 +471,21 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
         }
 
         return null;
+    }
+
+    private static string GetClientName(AttributeData attribute)
+    {
+        var namedArguments = attribute.NamedArguments;
+        var length = namedArguments.Length;
+        for (int i = 0; i < length; i++)
+        {
+            var argument = namedArguments[i];
+
+            if (argument.Key == "ClientName")
+                return (string?)argument.Value.Value ?? "_client";
+        }
+
+        return "_client";
     }
 
     private static string GetDocumentation(IMethodSymbol methodSymbol, ParameterInfo[] parameters)

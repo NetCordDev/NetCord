@@ -2,18 +2,10 @@
 
 namespace NetCord;
 
-public class MessageInteraction : Entity
+public class MessageInteraction(JsonModels.JsonMessageInteraction jsonModel, RestClient client) : Entity
 {
-    private readonly JsonModels.JsonMessageInteraction _jsonModel;
-
-    public override ulong Id => _jsonModel.Id;
-    public InteractionType Type => _jsonModel.Type;
-    public string Name => _jsonModel.Name;
-    public User User { get; }
-
-    public MessageInteraction(JsonModels.JsonMessageInteraction jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        User = new(jsonModel.User, client);
-    }
+    public override ulong Id => jsonModel.Id;
+    public InteractionType Type => jsonModel.Type;
+    public string Name => jsonModel.Name;
+    public User User { get; } = new(jsonModel.User, client);
 }

@@ -2,15 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class WebhookProperties
+public partial class WebhookProperties(string name)
 {
-    public WebhookProperties(string name)
-    {
-        Name = name;
-    }
-
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("avatar")]

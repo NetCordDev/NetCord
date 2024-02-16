@@ -1,17 +1,12 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public abstract class RewritingStream : Stream
+/// <summary>
+/// 
+/// </summary>
+/// <param name="next">The stream that this stream is writing to.</param>
+public abstract class RewritingStream(Stream next) : Stream
 {
-    private protected readonly Stream _next;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="next">The stream that this stream is writing to.</param>
-    protected RewritingStream(Stream next)
-    {
-        _next = next;
-    }
+    private protected readonly Stream _next = next;
 
     public override bool CanRead => false;
     public override bool CanSeek => false;

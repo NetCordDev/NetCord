@@ -162,7 +162,7 @@ public partial class RestClient
     }
 
     [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias(typeof(GuildBan), nameof(GuildBan.GuildId), $"{nameof(GuildBan.User)}.{nameof(GuildBan.User.Id)}", NameOverride = "DeleteAsync")]
+    [GenerateAlias(typeof(GuildBan), nameof(GuildBan.GuildId), $"{nameof(GuildBan.User)}.{nameof(GuildBan.User.Id)}", NameOverride = "DeleteAsync", ClientName = "client")]
     [GenerateAlias(typeof(GuildUser), nameof(GuildUser.GuildId), nameof(GuildUser.Id))]
     public Task UnbanGuildUserAsync(ulong guildId, ulong userId, RequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/bans/{userId}", null, new(guildId), properties);

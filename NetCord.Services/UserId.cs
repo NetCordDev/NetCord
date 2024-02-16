@@ -1,18 +1,13 @@
 ﻿namespace NetCord.Services;
 
-public class UserId : Entity, ISpanFormattable
+public class UserId(ulong id) : Entity, ISpanFormattable
 {
-    public override ulong Id { get; }
+    public override ulong Id { get; } = id;
     public User? User { get; }
 
     public UserId(ulong id, User? user) : this(id)
     {
         User = user;
-    }
-
-    public UserId(ulong id)
-    {
-        Id = id;
     }
 
     public override string ToString() => $"<@{Id}>";

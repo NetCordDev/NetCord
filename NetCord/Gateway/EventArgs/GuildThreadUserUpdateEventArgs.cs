@@ -1,14 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildThreadUserUpdateEventArgs
+public class GuildThreadUserUpdateEventArgs(ThreadUser user, ulong guildId)
 {
-    public GuildThreadUserUpdateEventArgs(ThreadUser user, ulong guildId)
-    {
-        User = user;
-        GuildId = guildId;
-    }
+    public ThreadUser User { get; } = user;
 
-    public ThreadUser User { get; }
-
-    public ulong GuildId { get; }
+    public ulong GuildId { get; } = guildId;
 }

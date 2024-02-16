@@ -5,15 +5,10 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class AuditLogChange : IJsonModel<JsonAuditLogChange>
+public class AuditLogChange(JsonAuditLogChange jsonModel) : IJsonModel<JsonAuditLogChange>
 {
     JsonAuditLogChange IJsonModel<JsonAuditLogChange>.JsonModel => _jsonModel;
-    private protected readonly JsonAuditLogChange _jsonModel;
-
-    public AuditLogChange(JsonAuditLogChange jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    private protected readonly JsonAuditLogChange _jsonModel = jsonModel;
 
     /// <summary>
     /// Name of the changed entity, with a few exceptions.

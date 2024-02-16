@@ -2,14 +2,9 @@
 
 namespace NetCord.Services;
 
-public class InvalidDefinitionException : Exception
+public class InvalidDefinitionException(string? message, MemberInfo member) : Exception($"{message} | {GetMemberName(member)}")
 {
-    public MemberInfo Member { get; }
-
-    public InvalidDefinitionException(string? message, MemberInfo member) : base($"{message} | {GetMemberName(member)}")
-    {
-        Member = member;
-    }
+    public MemberInfo Member { get; } = member;
 
     private static string GetMemberName(MemberInfo member)
     {

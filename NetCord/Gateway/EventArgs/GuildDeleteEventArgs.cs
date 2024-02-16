@@ -1,14 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildDeleteEventArgs
+public class GuildDeleteEventArgs(ulong guildId, bool isUserDeleted)
 {
-    public GuildDeleteEventArgs(ulong guildId, bool isUserDeleted)
-    {
-        GuildId = guildId;
-        IsUserDeleted = isUserDeleted;
-    }
+    public ulong GuildId { get; } = guildId;
 
-    public ulong GuildId { get; }
-
-    public bool IsUserDeleted { get; }
+    public bool IsUserDeleted { get; } = isUserDeleted;
 }

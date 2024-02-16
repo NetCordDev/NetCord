@@ -2,16 +2,12 @@
 
 namespace NetCord.Rest;
 
-internal partial class DMChannelProperties
+internal partial class DMChannelProperties(ulong userId)
 {
-    public DMChannelProperties(ulong userId)
-    {
-        UserId = userId;
-    }
 
     /// <summary>
     /// The recipient to open a DM channel with.
     /// </summary>
     [JsonPropertyName("recipient_id")]
-    public ulong UserId { get; set; }
+    public ulong UserId { get; set; } = userId;
 }

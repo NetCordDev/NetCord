@@ -1,24 +1,14 @@
 ﻿namespace NetCord.Rest;
 
-internal class TypingReminder : IDisposable
+internal class TypingReminder(ulong channelId, RestClient client, RequestProperties? properties) : IDisposable
 {
-    public ulong ChannelId { get; }
+    public ulong ChannelId { get; } = channelId;
 
-    private readonly RestClient _client;
-    private readonly RequestProperties? _properties;
-    private readonly CancellationTokenSource _tokenSource;
-
-    public TypingReminder(ulong channelId, RestClient client, RequestProperties? properties)
-    {
-        ChannelId = channelId;
-        _client = client;
-        _properties = properties;
-        _tokenSource = new();
-    }
+    private readonly CancellationTokenSource _tokenSource = new();
 
     public async Task StartAsync()
     {
-        await _client.TriggerTypingStateAsync(ChannelId).ConfigureAwait(false);
+        await client.TriggerTypingStateAsync(ChannelId).ConfigureAwait(false);
         _ = RunAsync();
     }
 
@@ -29,7 +19,7 @@ internal class TypingReminder : IDisposable
         while (true)
         {
             await timer.WaitForNextTickAsync(token).ConfigureAwait(false);
-            await _client.TriggerTypingStateAsync(ChannelId, _properties).ConfigureAwait(false);
+            await client.TriggerTypingStateAsync(ChannelId, properties).ConfigureAwait(false);
         }
     }
 

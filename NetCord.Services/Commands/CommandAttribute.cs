@@ -1,13 +1,8 @@
 ﻿namespace NetCord.Services.Commands;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class CommandAttribute : Attribute
+public class CommandAttribute(params string[] aliases) : Attribute
 {
-    public string[] Aliases { get; }
+    public string[] Aliases { get; } = aliases;
     public int Priority { get; init; }
-
-    public CommandAttribute(params string[] aliases)
-    {
-        Aliases = aliases;
-    }
 }

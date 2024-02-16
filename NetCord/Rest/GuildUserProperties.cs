@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildUserProperties
+public partial class GuildUserProperties(string accessToken)
 {
     [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; }
+    public string AccessToken { get; set; } = accessToken;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("nick")]
@@ -22,9 +22,4 @@ public partial class GuildUserProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("deaf")]
     public bool? Deafened { get; set; }
-
-    public GuildUserProperties(string accessToken)
-    {
-        AccessToken = accessToken;
-    }
 }

@@ -1,14 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildCreateEventArgs
+public class GuildCreateEventArgs(ulong guildId, Guild? guild)
 {
-    public GuildCreateEventArgs(ulong guildId, Guild? guild)
-    {
-        GuildId = guildId;
-        Guild = guild;
-    }
+    public ulong GuildId { get; } = guildId;
 
-    public ulong GuildId { get; }
-
-    public Guild? Guild { get; }
+    public Guild? Guild { get; } = guild;
 }

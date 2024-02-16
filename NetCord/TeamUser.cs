@@ -2,17 +2,11 @@
 
 namespace NetCord;
 
-public class TeamUser : User, IJsonModel<JsonModels.JsonTeamUser>
+public class TeamUser(JsonModels.JsonTeamUser jsonModel, RestClient client) : User(jsonModel.User, client), IJsonModel<JsonModels.JsonTeamUser>
 {
-    JsonModels.JsonTeamUser IJsonModel<JsonModels.JsonTeamUser>.JsonModel => _jsonTeamModel;
-    private readonly JsonModels.JsonTeamUser _jsonTeamModel;
+    JsonModels.JsonTeamUser IJsonModel<JsonModels.JsonTeamUser>.JsonModel => jsonModel;
 
-    public MembershipState MembershipState => _jsonTeamModel.MembershipState;
-    public ulong TeamId => _jsonTeamModel.TeamId;
-    public TeamRole Role => _jsonTeamModel.Role;
-
-    public TeamUser(JsonModels.JsonTeamUser jsonModel, RestClient client) : base(jsonModel.User, client)
-    {
-        _jsonTeamModel = jsonModel;
-    }
+    public MembershipState MembershipState => jsonModel.MembershipState;
+    public ulong TeamId => jsonModel.TeamId;
+    public TeamRole Role => jsonModel.Role;
 }

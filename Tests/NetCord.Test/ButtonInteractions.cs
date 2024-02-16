@@ -3,12 +3,8 @@ using NetCord.Services.Interactions;
 
 namespace NetCord.Test;
 
-public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
+public class ButtonInteractions(string wzium) : InteractionModule<ButtonInteractionContext>
 {
-    public ButtonInteractions(string wzium)
-    {
-    }
-
     [Interaction("click it")]
     public Task ClickIt()
     {
@@ -19,7 +15,7 @@ public class ButtonInteractions : InteractionModule<ButtonInteractionContext>
         //};
         //return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
 
-        return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", "Wzium user", new TextInputProperties[]
+        return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", $"Wzium user {wzium}", new TextInputProperties[]
         {
             new("reason", TextInputStyle.Paragraph, "Reason")
             {

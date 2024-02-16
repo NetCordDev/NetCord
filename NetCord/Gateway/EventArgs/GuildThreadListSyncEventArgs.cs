@@ -4,23 +4,15 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildThreadListSyncEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>
+public class GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs jsonModel, RestClient client) : IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs>.JsonModel => jsonModel;
 
-    public GuildThreadListSyncEventArgs(JsonModels.EventArgs.JsonGuildThreadListSyncEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Threads = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => GuildThread.CreateFromJson(t, client));
-        Users = jsonModel.Users.Select(u => new ThreadUser(u, client)).ToArray();
-    }
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
+    public IReadOnlyList<ulong>? ChannelIds => jsonModel.ChannelIds;
 
-    public IReadOnlyList<ulong>? ChannelIds => _jsonModel.ChannelIds;
+    public ImmutableDictionary<ulong, GuildThread> Threads { get; } = jsonModel.Threads.ToImmutableDictionary(t => t.Id, t => GuildThread.CreateFromJson(t, client));
 
-    public ImmutableDictionary<ulong, GuildThread> Threads { get; }
-
-    public IReadOnlyList<ThreadUser> Users { get; }
+    public IReadOnlyList<ThreadUser> Users { get; } = jsonModel.Users.Select(u => new ThreadUser(u, client)).ToArray();
 }

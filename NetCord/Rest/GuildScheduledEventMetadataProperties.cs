@@ -2,13 +2,8 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildScheduledEventMetadataProperties
+public partial class GuildScheduledEventMetadataProperties(string location)
 {
     [JsonPropertyName("location")]
-    public string Location { get; set; }
-
-    public GuildScheduledEventMetadataProperties(string location)
-    {
-        Location = location;
-    }
+    public string Location { get; set; } = location;
 }

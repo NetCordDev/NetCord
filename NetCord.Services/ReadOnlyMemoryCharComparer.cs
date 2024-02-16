@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace NetCord.Services;
 
-internal class ReadOnlyMemoryCharComparer : IComparer<ReadOnlyMemory<char>>, IEqualityComparer<ReadOnlyMemory<char>>
+internal class ReadOnlyMemoryCharComparer(CompareInfo compareInfo, CompareOptions compareOptions) : IComparer<ReadOnlyMemory<char>>, IEqualityComparer<ReadOnlyMemory<char>>
 {
     public static ReadOnlyMemoryCharComparer InvariantCulture { get; } = new(CultureInfo.InvariantCulture.CompareInfo, CompareOptions.None);
 
@@ -17,18 +17,9 @@ internal class ReadOnlyMemoryCharComparer : IComparer<ReadOnlyMemory<char>>, IEq
 
     public static ReadOnlyMemoryCharComparer OrdinalIgnoreCase { get; } = new(CultureInfo.InvariantCulture.CompareInfo, CompareOptions.OrdinalIgnoreCase);
 
-    private readonly CompareInfo _compareInfo;
-    private readonly CompareOptions _compareOptions;
-
-    public ReadOnlyMemoryCharComparer(CompareInfo compareInfo, CompareOptions compareOptions)
-    {
-        _compareInfo = compareInfo;
-        _compareOptions = compareOptions;
-    }
-
     public int Compare(ReadOnlyMemory<char> x, ReadOnlyMemory<char> y)
     {
-        return _compareInfo.Compare(x.Span, y.Span, _compareOptions);
+        return compareInfo.Compare(x.Span, y.Span, compareOptions);
     }
 
     public bool Equals(ReadOnlyMemory<char> x, ReadOnlyMemory<char> y)
@@ -38,6 +29,6 @@ internal class ReadOnlyMemoryCharComparer : IComparer<ReadOnlyMemory<char>>, IEq
 
     public int GetHashCode([DisallowNull] ReadOnlyMemory<char> obj)
     {
-        return _compareInfo.GetHashCode(obj.Span, _compareOptions);
+        return compareInfo.GetHashCode(obj.Span, compareOptions);
     }
 }

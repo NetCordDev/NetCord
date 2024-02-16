@@ -1,19 +1,12 @@
 ﻿namespace NetCord.Rest;
 
-public class GatewayBot : IJsonModel<JsonModels.JsonGatewayBot>
+public class GatewayBot(JsonModels.JsonGatewayBot jsonModel) : IJsonModel<JsonModels.JsonGatewayBot>
 {
-    JsonModels.JsonGatewayBot IJsonModel<JsonModels.JsonGatewayBot>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGatewayBot _jsonModel;
+    JsonModels.JsonGatewayBot IJsonModel<JsonModels.JsonGatewayBot>.JsonModel => jsonModel;
 
-    public GatewayBot(JsonModels.JsonGatewayBot jsonModel)
-    {
-        _jsonModel = jsonModel;
-        SessionStartLimit = new(jsonModel.SessionStartLimit);
-    }
+    public string Url => jsonModel.Url;
 
-    public string Url => _jsonModel.Url;
+    public int ShardCount => jsonModel.ShardCount;
 
-    public int ShardCount => _jsonModel.ShardCount;
-
-    public GatewaySessionStartLimit SessionStartLimit { get; }
+    public GatewaySessionStartLimit SessionStartLimit { get; } = new(jsonModel.SessionStartLimit);
 }

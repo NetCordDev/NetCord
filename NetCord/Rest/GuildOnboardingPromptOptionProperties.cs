@@ -2,20 +2,14 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildOnboardingPromptOptionProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="channelIds">Ids for channels a member is added to when the option is selected.</param>
+/// <param name="roleIds">Ids for roles assigned to a member when the option is selected.</param>
+/// <param name="title">Title of the option.</param>
+public partial class GuildOnboardingPromptOptionProperties(IEnumerable<ulong>? channelIds, IEnumerable<ulong>? roleIds, string title)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="channelIds">Ids for channels a member is added to when the option is selected.</param>
-    /// <param name="roleIds">Ids for roles assigned to a member when the option is selected.</param>
-    /// <param name="title">Title of the option.</param>
-    public GuildOnboardingPromptOptionProperties(IEnumerable<ulong>? channelIds, IEnumerable<ulong>? roleIds, string title)
-    {
-        ChannelIds = channelIds;
-        RoleIds = roleIds;
-        Title = title;
-    }
 
     /// <summary>
     /// Id of the option.
@@ -27,13 +21,13 @@ public partial class GuildOnboardingPromptOptionProperties
     /// Ids for channels a member is added to when the option is selected.
     /// </summary>
     [JsonPropertyName("channel_ids")]
-    public IEnumerable<ulong>? ChannelIds { get; set; }
+    public IEnumerable<ulong>? ChannelIds { get; set; } = channelIds;
 
     /// <summary>
     /// Ids for roles assigned to a member when the option is selected.
     /// </summary>
     [JsonPropertyName("role_ids")]
-    public IEnumerable<ulong>? RoleIds { get; set; }
+    public IEnumerable<ulong>? RoleIds { get; set; } = roleIds;
 
     /// <summary>
     /// Emoji Id of the option.
@@ -57,7 +51,7 @@ public partial class GuildOnboardingPromptOptionProperties
     /// Title of the option.
     /// </summary>
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = title;
 
     /// <summary>
     /// 	Description of the option.

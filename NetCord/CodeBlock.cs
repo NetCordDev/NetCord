@@ -3,16 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
-public class CodeBlock : ISpanFormattable, ISpanParsable<CodeBlock>
+public class CodeBlock(string code, string? formatter = null) : ISpanFormattable, ISpanParsable<CodeBlock>
 {
-    public string Code { get; }
-    public string? Formatter { get; }
-
-    public CodeBlock(string code, string? formatter = null)
-    {
-        Code = code;
-        Formatter = formatter;
-    }
+    public string Code { get; } = code;
+    public string? Formatter { get; } = formatter;
 
     public override string ToString() => $"```{Formatter}\n{Code}```";
 

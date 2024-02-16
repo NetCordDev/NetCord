@@ -2,20 +2,14 @@
 
 namespace NetCord;
 
-public class ThreadUser : ClientEntity, ISpanFormattable, IJsonModel<JsonModels.JsonThreadUser>
+public class ThreadUser(JsonModels.JsonThreadUser jsonModel, RestClient client) : ClientEntity(client), ISpanFormattable, IJsonModel<JsonModels.JsonThreadUser>
 {
-    JsonModels.JsonThreadUser IJsonModel<JsonModels.JsonThreadUser>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonThreadUser _jsonModel;
+    JsonModels.JsonThreadUser IJsonModel<JsonModels.JsonThreadUser>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.UserId;
-    public ulong ThreadId => _jsonModel.ThreadId;
-    public DateTimeOffset JoinTimestamp => _jsonModel.JoinTimestamp;
-    public int Flags => _jsonModel.Flags;
-
-    public ThreadUser(JsonModels.JsonThreadUser jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-    }
+    public override ulong Id => jsonModel.UserId;
+    public ulong ThreadId => jsonModel.ThreadId;
+    public DateTimeOffset JoinTimestamp => jsonModel.JoinTimestamp;
+    public int Flags => jsonModel.Flags;
 
     public override string ToString() => $"<@{Id}>";
 

@@ -3,32 +3,27 @@
 /// <summary>
 /// Contains information used for the rendering and display of videos in embeds.
 /// </summary>
-public class EmbedVideo : IJsonModel<JsonModels.JsonEmbedVideo>
+public class EmbedVideo(JsonModels.JsonEmbedVideo jsonModel) : IJsonModel<JsonModels.JsonEmbedVideo>
 {
-    JsonModels.JsonEmbedVideo IJsonModel<JsonModels.JsonEmbedVideo>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonEmbedVideo _jsonModel;
-    public EmbedVideo(JsonModels.JsonEmbedVideo jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    JsonModels.JsonEmbedVideo IJsonModel<JsonModels.JsonEmbedVideo>.JsonModel => jsonModel;
 
     /// <summary>
     /// The URL of the video displayed in the embed.
     /// </summary>
-    public string? Url => _jsonModel.Url;
+    public string? Url => jsonModel.Url;
 
     /// <summary>
     /// The URL of the video displayed in the embed, proxied by the Discord CDN server.
     /// </summary>
-    public string? ProxyUrl => _jsonModel.ProxyUrl;
+    public string? ProxyUrl => jsonModel.ProxyUrl;
 
     /// <summary>
     /// The height of the video in pixels.
     /// </summary>
-    public int? Height => _jsonModel.Height;
+    public int? Height => jsonModel.Height;
 
     /// <summary>
     /// The width of the video in pixels.
     /// </summary>
-    public int? Width => _jsonModel.Width;
+    public int? Width => jsonModel.Width;
 }

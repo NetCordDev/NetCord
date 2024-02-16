@@ -1,12 +1,7 @@
 ﻿namespace NetCord.Services.Interactions;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class InteractionAttribute : Attribute
+public class InteractionAttribute(string customId) : Attribute
 {
-    public string CustomId { get; }
-
-    public InteractionAttribute(string customId)
-    {
-        CustomId = customId;
-    }
+    public string CustomId { get; } = customId;
 }

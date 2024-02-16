@@ -45,12 +45,7 @@ public enum RequiredContext
     DM,
 }
 
-public class InvalidContextResult : PreconditionFailResult
+public class InvalidContextResult(string message, RequiredContext missingContext) : PreconditionFailResult(message)
 {
-    public RequiredContext MissingContext { get; }
-
-    public InvalidContextResult(string message, RequiredContext missingContext) : base(message)
-    {
-        MissingContext = missingContext;
-    }
+    public RequiredContext MissingContext { get; } = missingContext;
 }

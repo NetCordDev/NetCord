@@ -2,19 +2,14 @@
 
 namespace NetCord.Rest;
 
-public partial class ForumTagProperties
+public partial class ForumTagProperties(string name)
 {
-    public ForumTagProperties(string name)
-    {
-        Name = name;
-    }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("moderated")]

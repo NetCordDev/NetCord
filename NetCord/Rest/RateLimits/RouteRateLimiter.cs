@@ -1,28 +1,19 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-internal class RouteRateLimiter : ITrackingRouteRateLimiter
+internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRateLimiter
 {
     private readonly object _lock = new();
 
-    private long _reset;
-    private int _maxResetAfter;
-    private int _remaining;
-    private readonly int _limit;
+    private long _reset = rateLimitInfo.Reset;
+    private int _maxResetAfter = rateLimitInfo.ResetAfter;
+    private int _remaining = rateLimitInfo.Remaining;
+    private readonly int _limit = rateLimitInfo.Limit;
 
     public bool HasBucketInfo => true;
 
-    public BucketInfo BucketInfo { get; }
+    public BucketInfo BucketInfo { get; } = rateLimitInfo.BucketInfo;
 
     public long LastAccess { get; private set; } = Environment.TickCount64;
-
-    public RouteRateLimiter(RateLimitInfo rateLimitInfo)
-    {
-        _reset = rateLimitInfo.Reset;
-        _maxResetAfter = rateLimitInfo.ResetAfter;
-        _remaining = rateLimitInfo.Remaining;
-        _limit = rateLimitInfo.Limit;
-        BucketInfo = rateLimitInfo.BucketInfo;
-    }
 
     public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {

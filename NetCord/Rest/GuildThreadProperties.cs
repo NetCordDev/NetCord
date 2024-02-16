@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildThreadProperties : GuildThreadFromMessageProperties
+public partial class GuildThreadProperties(string name) : GuildThreadFromMessageProperties(name)
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("type")]
@@ -11,8 +11,4 @@ public partial class GuildThreadProperties : GuildThreadFromMessageProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("invitable")]
     public bool? Invitable { get; set; }
-
-    public GuildThreadProperties(string name) : base(name)
-    {
-    }
 }

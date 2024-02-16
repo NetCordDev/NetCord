@@ -3,11 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace NetCord.Services.Commands;
 
-internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
+internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOnlyList<T>
 {
-    private T[] _items;
-    private readonly Comparison<T> _comparison;
-    private int _size;
+    private T[] _items = [];
+    private int _size = 0;
 
     public T this[int index] => _items[index];
 
@@ -33,13 +32,6 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         }
     }
 
-    public SortedList(Comparison<T> comparison)
-    {
-        _items = [];
-        _size = 0;
-        _comparison = comparison;
-    }
-
     public int Count => _size;
 
     public bool IsReadOnly => false;
@@ -57,7 +49,7 @@ internal class SortedList<T> : ICollection<T>, IReadOnlyList<T>
         {
             for (var i = 0; i < _size; i++)
             {
-                if (_comparison(item, _items[i]) < 0)
+                if (comparison(item, _items[i]) < 0)
                 {
                     Array.Copy(_items, i, _items, i + 1, _size - i);
                     _items[i] = item;

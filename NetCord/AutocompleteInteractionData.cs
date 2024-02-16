@@ -2,9 +2,6 @@
 
 namespace NetCord;
 
-public class AutocompleteInteractionData : SlashCommandInteractionData
+public class AutocompleteInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : SlashCommandInteractionData(jsonModel, guildId, client)
 {
-    public AutocompleteInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel, guildId, client)
-    {
-    }
 }

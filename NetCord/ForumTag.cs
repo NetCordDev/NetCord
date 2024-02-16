@@ -2,20 +2,13 @@
 
 namespace NetCord;
 
-public class ForumTag : Entity, IJsonModel<JsonForumTag>
+public class ForumTag(JsonForumTag jsonModel) : Entity, IJsonModel<JsonForumTag>
 {
-    private readonly JsonForumTag _jsonModel;
+    JsonForumTag IJsonModel<JsonForumTag>.JsonModel => jsonModel;
 
-    public ForumTag(JsonForumTag jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
-    JsonForumTag IJsonModel<JsonForumTag>.JsonModel => _jsonModel;
-
-    public override ulong Id => _jsonModel.Id;
-    public string Name => _jsonModel.Name;
-    public bool Moderated => _jsonModel.Moderated;
-    public ulong? EmojiId => _jsonModel.EmojiId;
-    public string? EmojiName => _jsonModel.EmojiName;
+    public override ulong Id => jsonModel.Id;
+    public string Name => jsonModel.Name;
+    public bool Moderated => jsonModel.Moderated;
+    public ulong? EmojiId => jsonModel.EmojiId;
+    public string? EmojiName => jsonModel.EmojiName;
 }

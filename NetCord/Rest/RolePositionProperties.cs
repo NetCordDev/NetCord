@@ -2,17 +2,12 @@
 
 namespace NetCord.Rest;
 
-public partial class RolePositionProperties
+public partial class RolePositionProperties(ulong id)
 {
     [JsonPropertyName("id")]
-    public ulong Id { get; set; }
+    public ulong Id { get; set; } = id;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("position")]
     public int? Position { get; set; }
-
-    public RolePositionProperties(ulong id)
-    {
-        Id = id;
-    }
 }

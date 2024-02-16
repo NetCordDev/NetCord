@@ -3,9 +3,6 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class ChannelMenuInteraction : EntityMenuInteraction
+public class ChannelMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : EntityMenuInteraction(jsonModel, guild, sendResponseAsync, client)
 {
-    public ChannelMenuInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
-    {
-    }
 }

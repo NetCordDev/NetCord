@@ -1,8 +1,5 @@
 ﻿namespace NetCord;
 
-public class ButtonInteractionData : MessageComponentInteractionData
+public class ButtonInteractionData(JsonModels.JsonInteractionData jsonModel) : MessageComponentInteractionData(jsonModel)
 {
-    public ButtonInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
-    {
-    }
 }

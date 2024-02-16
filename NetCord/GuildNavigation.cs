@@ -2,14 +2,9 @@
 
 namespace NetCord;
 
-public readonly struct GuildNavigation : IEquatable<GuildNavigation>
+public readonly struct GuildNavigation(GuildNavigationType type) : IEquatable<GuildNavigation>
 {
-    public GuildNavigationType Type { get; }
-
-    public GuildNavigation(GuildNavigationType type)
-    {
-        Type = type;
-    }
+    public GuildNavigationType Type { get; } = type;
 
     public static bool TryParse(ReadOnlySpan<char> value, out GuildNavigation guildNavigation)
     {

@@ -3,19 +3,25 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class ApplicationCommandOptionProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="type">Type of the option.</param>
+/// <param name="name">Name of the option (1-32 characters).</param>
+/// <param name="description">Description of the option (1-100 characters).</param>
+public partial class ApplicationCommandOptionProperties(ApplicationCommandOptionType type, string name, string description)
 {
     /// <summary>
     /// Type of the option.
     /// </summary>
     [JsonPropertyName("type")]
-    public ApplicationCommandOptionType Type { get; set; }
+    public ApplicationCommandOptionType Type { get; set; } = type;
 
     /// <summary>
     /// Name of the option (1-32 characters).
     /// </summary>
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     /// <summary>
     /// Translations of <see cref="Name"/> (1-32 characters each).
@@ -28,7 +34,7 @@ public partial class ApplicationCommandOptionProperties
     /// Description of the option (1-100 characters).
     /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = description;
 
     /// <summary>
     /// Translations of <see cref="Description"/> (1-100 characters each).
@@ -99,17 +105,4 @@ public partial class ApplicationCommandOptionProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("autocomplete")]
     public bool? Autocomplete { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="type">Type of the option.</param>
-    /// <param name="name">Name of the option (1-32 characters).</param>
-    /// <param name="description">Description of the option (1-100 characters).</param>
-    public ApplicationCommandOptionProperties(ApplicationCommandOptionType type, string name, string description)
-    {
-        Type = type;
-        Name = name;
-        Description = description;
-    }
 }

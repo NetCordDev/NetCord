@@ -63,17 +63,13 @@ public partial class AttachmentProperties : IHttpSerializable
     }
 }
 
-public partial class Base64AttachmentProperties : AttachmentProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
+/// <param name="stream">Content of the file encoded in Base64.</param>
+public partial class Base64AttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-    /// <param name="stream">Content of the file encoded in Base64.</param>
-    public Base64AttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
-    {
-    }
-
     public override HttpContent Serialize()
     {
         var content = base.Serialize();
@@ -82,17 +78,13 @@ public partial class Base64AttachmentProperties : AttachmentProperties
     }
 }
 
-public partial class QuotedPrintableAttachmentProperties : AttachmentProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
+/// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
+public partial class QuotedPrintableAttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-    /// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
-    public QuotedPrintableAttachmentProperties(string fileName, Stream stream) : base(fileName, stream)
-    {
-    }
-
     public override HttpContent Serialize()
     {
         var content = base.Serialize();
@@ -101,22 +93,18 @@ public partial class QuotedPrintableAttachmentProperties : AttachmentProperties
     }
 }
 
-public partial class GoogleCloudPlatformAttachmentProperties : AttachmentProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
+/// <param name="uploadedFileName">Name of the upload.</param>
+public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
-    /// <param name="uploadedFileName">Name of the upload.</param>
-    public GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : base(fileName)
-    {
-        UploadedFileName = uploadedFileName;
-    }
 
     /// <summary>
     /// Name of the upload.
     /// </summary>
-    public string UploadedFileName { get; set; }
+    public string UploadedFileName { get; set; } = uploadedFileName;
 
     public override bool SupportsHttpSerialization => false;
 

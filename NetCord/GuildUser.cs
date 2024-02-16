@@ -3,14 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class GuildUser : PartialGuildUser
+public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClient client) : PartialGuildUser(jsonModel, client)
 {
-    public ulong GuildId { get; }
-
-    public GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClient client) : base(jsonModel, client)
-    {
-        GuildId = guildId;
-    }
+    public ulong GuildId { get; } = guildId;
 
     public ImageUrl GetGuildAvatarUrl(ImageFormat? format = null) => ImageUrl.GuildUserAvatar(GuildId, Id, GuildAvatarHash!, format);
 

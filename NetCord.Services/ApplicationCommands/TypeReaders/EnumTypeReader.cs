@@ -28,19 +28,12 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public override IChoicesProvider<TContext>? ChoicesProvider { get; }
 
-    private class EnumChoicesProvider : IChoicesProvider<TContext>
+    private class EnumChoicesProvider(EnumTypeReaderManager<SlashCommandEnumTypeReader, Type, SlashCommandParameter<TContext>, ApplicationCommandServiceConfiguration<TContext>?> enumInfoManager) : IChoicesProvider<TContext>
     {
-        private readonly EnumTypeReaderManager<SlashCommandEnumTypeReader, Type, SlashCommandParameter<TContext>, ApplicationCommandServiceConfiguration<TContext>?> _enumInfoManager;
-
-        public EnumChoicesProvider(EnumTypeReaderManager<SlashCommandEnumTypeReader, Type, SlashCommandParameter<TContext>, ApplicationCommandServiceConfiguration<TContext>?> enumInfoManager)
-        {
-            _enumInfoManager = enumInfoManager;
-        }
-
         [UnconditionalSuppressMessage("Trimming", "IL2075:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "Literal fields on enums can never be trimmed")]
         public IEnumerable<ApplicationCommandOptionChoiceProperties>? GetChoices(SlashCommandParameter<TContext> parameter)
         {
-            return _enumInfoManager.GetTypeReader(parameter, null).GetChoices();
+            return enumInfoManager.GetTypeReader(parameter, null).GetChoices();
         }
     }
 }

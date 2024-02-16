@@ -2,14 +2,9 @@
 
 namespace NetCord.Services;
 
-public class ParameterCountMismatchResult : IFailResult
+public class ParameterCountMismatchResult(ParameterCountMismatchType type) : IFailResult
 {
-    public ParameterCountMismatchResult(ParameterCountMismatchType type)
-    {
-        Type = type;
-    }
-
-    public ParameterCountMismatchType Type { get; }
+    public ParameterCountMismatchType Type { get; } = type;
 
     public string Message => Type switch
     {

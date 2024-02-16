@@ -3,10 +3,10 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
+public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User(jsonModel.User, client), IJsonModel<JsonGuildUser>
 {
     JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
-    private protected new readonly JsonGuildUser _jsonModel;
+    private protected new readonly JsonGuildUser _jsonModel = jsonModel;
 
     public string? Nickname => _jsonModel.Nickname;
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
@@ -19,11 +19,6 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     public GuildUserFlags GuildFlags => _jsonModel.GuildFlags;
     public bool? IsPending => _jsonModel.IsPending;
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
-
-    public PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : base(jsonModel.User, client)
-    {
-        _jsonModel = jsonModel;
-    }
 
     public bool HasGuildAvatar => GuildAvatarHash is not null;
 }

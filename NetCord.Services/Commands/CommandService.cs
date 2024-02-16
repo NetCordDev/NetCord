@@ -6,21 +6,14 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.Commands;
 
-public partial class CommandService<TContext> : IService where TContext : ICommandContext
+public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : IService where TContext : ICommandContext
 {
-    private readonly CommandServiceConfiguration<TContext> _configuration;
-    private readonly char[] _parameterSeparators;
-    private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands;
+    private readonly CommandServiceConfiguration<TContext> _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
+    private readonly char[] _parameterSeparators = configuration.ParameterSeparators.ToArray();
+    private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
 
     public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
         => new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(c.Key, c.Value.ToArray())));
-
-    public CommandService(CommandServiceConfiguration<TContext>? configuration = null)
-    {
-        _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
-        _parameterSeparators = configuration.ParameterSeparators.ToArray();
-        _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
-    }
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)

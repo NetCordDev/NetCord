@@ -2,15 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildTemplateProperties
+public partial class GuildTemplateProperties(string name)
 {
-    public GuildTemplateProperties(string name)
-    {
-        Name = name;
-    }
-
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]

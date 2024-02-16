@@ -2,14 +2,9 @@
 
 namespace NetCord.Services;
 
-public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
+public class RequireNsfwAttribute<TContext>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message = "Required nsfw channel.") : PreconditionAttribute<TContext> where TContext : IChannelContext
 {
-    private readonly RequiredNsfwResult _failResult;
-
-    public RequireNsfwAttribute([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string message = "Required nsfw channel.")
-    {
-        _failResult = new(message);
-    }
+    private readonly RequiredNsfwResult _failResult = new(message);
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
@@ -20,9 +15,6 @@ public class RequireNsfwAttribute<TContext> : PreconditionAttribute<TContext> wh
     }
 }
 
-public class RequiredNsfwResult : PreconditionFailResult
+public class RequiredNsfwResult(string message) : PreconditionFailResult(message)
 {
-    public RequiredNsfwResult(string message) : base(message)
-    {
-    }
 }

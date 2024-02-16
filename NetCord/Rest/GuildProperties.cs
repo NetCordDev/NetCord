@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildProperties
+public partial class GuildProperties(string name)
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("icon")]
@@ -46,9 +46,4 @@ public partial class GuildProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("system_channel_flags")]
     public SystemChannelFlags? SystemChannelFlags { get; set; }
-
-    public GuildProperties(string name)
-    {
-        Name = name;
-    }
 }

@@ -1,22 +1,16 @@
 ﻿namespace NetCord;
 
-public class MessageReactionCountDetails : IJsonModel<JsonModels.JsonMessageReactionCountDetails>
+public class MessageReactionCountDetails(JsonModels.JsonMessageReactionCountDetails jsonModel) : IJsonModel<JsonModels.JsonMessageReactionCountDetails>
 {
-    JsonModels.JsonMessageReactionCountDetails IJsonModel<JsonModels.JsonMessageReactionCountDetails>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonMessageReactionCountDetails _jsonModel;
-
-    public MessageReactionCountDetails(JsonModels.JsonMessageReactionCountDetails jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    JsonModels.JsonMessageReactionCountDetails IJsonModel<JsonModels.JsonMessageReactionCountDetails>.JsonModel => jsonModel;
 
     /// <summary>
     /// Count of super reactions.
     /// </summary>
-    public int Burst => _jsonModel.Burst;
+    public int Burst => jsonModel.Burst;
 
     /// <summary>
     /// Count of normal reactions.
     /// </summary>
-    public int Normal => _jsonModel.Normal;
+    public int Normal => jsonModel.Normal;
 }

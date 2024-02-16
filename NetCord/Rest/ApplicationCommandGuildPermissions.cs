@@ -1,33 +1,26 @@
 ﻿namespace NetCord.Rest;
 
-public class ApplicationCommandGuildPermissions : IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>
+public class ApplicationCommandGuildPermissions(JsonModels.JsonApplicationCommandGuildPermissions jsonModel) : IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>
 {
-    JsonModels.JsonApplicationCommandGuildPermissions IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandGuildPermissions _jsonModel;
+    JsonModels.JsonApplicationCommandGuildPermissions IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>.JsonModel => jsonModel;
 
     /// <summary>
     /// Id of the command.
     /// </summary>
-    public ulong CommandId => _jsonModel.CommandId;
+    public ulong CommandId => jsonModel.CommandId;
 
     /// <summary>
     /// Id of the application the command belongs to.
     /// </summary>
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
     /// Id of the guild.
     /// </summary>
-    public ulong GuildId => _jsonModel.GuildId;
+    public ulong GuildId => jsonModel.GuildId;
 
     /// <summary>
     /// Permissions for the command in the guild (max 100).
     /// </summary>
-    public IReadOnlyDictionary<ulong, ApplicationCommandPermission> Permissions { get; }
-
-    public ApplicationCommandGuildPermissions(JsonModels.JsonApplicationCommandGuildPermissions jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Permissions = jsonModel.Permissions.ToDictionary(p => p.Id, p => new ApplicationCommandPermission(p));
-    }
+    public IReadOnlyDictionary<ulong, ApplicationCommandPermission> Permissions { get; } = jsonModel.Permissions.ToDictionary(p => p.Id, p => new ApplicationCommandPermission(p));
 }

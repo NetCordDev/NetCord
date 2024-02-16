@@ -1,23 +1,16 @@
 ﻿namespace NetCord;
 
-public class ApplicationCommandInteractionDataOption : IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>
+public class ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonModel) : IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>
 {
-    JsonModels.JsonApplicationCommandInteractionDataOption IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationCommandInteractionDataOption _jsonModel;
+    JsonModels.JsonApplicationCommandInteractionDataOption IJsonModel<JsonModels.JsonApplicationCommandInteractionDataOption>.JsonModel => jsonModel;
 
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
-    public ApplicationCommandOptionType Type => _jsonModel.Type;
+    public ApplicationCommandOptionType Type => jsonModel.Type;
 
-    public string? Value => _jsonModel.Value;
+    public string? Value => jsonModel.Value;
 
-    public IReadOnlyList<ApplicationCommandInteractionDataOption>? Options { get; }
+    public IReadOnlyList<ApplicationCommandInteractionDataOption>? Options { get; } = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToArray();
 
-    public bool Focused => _jsonModel.Focused;
-
-    public ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationCommandInteractionDataOption jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandInteractionDataOption(o)).ToArray();
-    }
+    public bool Focused => jsonModel.Focused;
 }

@@ -2,20 +2,14 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildOnboardingPromptProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="type">Type of the prompt.</param>
+/// <param name="options">Options available within the prompt.</param>
+/// <param name="title">Title of the prompt.</param>
+public partial class GuildOnboardingPromptProperties(GuildOnboardingPromptType type, IEnumerable<GuildOnboardingPromptOptionProperties> options, string title)
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="type">Type of the prompt.</param>
-    /// <param name="options">Options available within the prompt.</param>
-    /// <param name="title">Title of the prompt.</param>
-    public GuildOnboardingPromptProperties(GuildOnboardingPromptType type, IEnumerable<GuildOnboardingPromptOptionProperties> options, string title)
-    {
-        Type = type;
-        Options = options;
-        Title = title;
-    }
 
     /// <summary>
     /// Id of the prompt.
@@ -27,19 +21,19 @@ public partial class GuildOnboardingPromptProperties
     /// Type of the prompt.
     /// </summary>
     [JsonPropertyName("type")]
-    public GuildOnboardingPromptType Type { get; set; }
+    public GuildOnboardingPromptType Type { get; set; } = type;
 
     /// <summary>
     /// Options available within the prompt.
     /// </summary>
     [JsonPropertyName("options")]
-    public IEnumerable<GuildOnboardingPromptOptionProperties> Options { get; set; }
+    public IEnumerable<GuildOnboardingPromptOptionProperties> Options { get; set; } = options;
 
     /// <summary>
     /// Title of the prompt.
     /// </summary>
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = title;
 
     /// <summary>
     /// Indicates whether users are limited to selecting one option for the prompt.

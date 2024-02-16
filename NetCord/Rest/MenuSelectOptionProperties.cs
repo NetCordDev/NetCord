@@ -2,13 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class StringMenuSelectOptionProperties
+public partial class StringMenuSelectOptionProperties(string label, string value)
 {
     [JsonPropertyName("label")]
-    public string Label { get; set; }
+    public string Label { get; set; } = label;
 
     [JsonPropertyName("value")]
-    public string Value { get; set; }
+    public string Value { get; set; } = value;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description")]
@@ -21,10 +21,4 @@ public partial class StringMenuSelectOptionProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("default")]
     public bool Default { get; set; }
-
-    public StringMenuSelectOptionProperties(string label, string value)
-    {
-        Label = label;
-        Value = value;
-    }
 }

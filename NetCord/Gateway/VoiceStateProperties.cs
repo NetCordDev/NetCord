@@ -2,13 +2,13 @@
 
 namespace NetCord.Gateway;
 
-public partial class VoiceStateProperties
+public partial class VoiceStateProperties(ulong guildId, ulong? channelId)
 {
     [JsonPropertyName("guild_id")]
-    public ulong GuildId { get; set; }
+    public ulong GuildId { get; set; } = guildId;
 
     [JsonPropertyName("channel_id")]
-    public ulong? ChannelId { get; set; }
+    public ulong? ChannelId { get; set; } = channelId;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("self_mute")]
@@ -17,10 +17,4 @@ public partial class VoiceStateProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("self_deaf")]
     public bool? SelfDeaf { get; set; }
-
-    public VoiceStateProperties(ulong guildId, ulong? channelId)
-    {
-        GuildId = guildId;
-        ChannelId = channelId;
-    }
 }

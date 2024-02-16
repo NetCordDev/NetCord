@@ -1,18 +1,12 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildInviteDeleteEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>
+public class GuildInviteDeleteEventArgs(JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs>.JsonModel => jsonModel;
 
-    public GuildInviteDeleteEventArgs(JsonModels.EventArgs.JsonGuildInviteDeleteEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public ulong InviteChannelId => jsonModel.InviteChannelId;
 
-    public ulong InviteChannelId => _jsonModel.InviteChannelId;
+    public ulong? GuildId => jsonModel.GuildId;
 
-    public ulong? GuildId => _jsonModel.GuildId;
-
-    public string InviteCode => _jsonModel.InviteCode;
+    public string InviteCode => jsonModel.InviteCode;
 }

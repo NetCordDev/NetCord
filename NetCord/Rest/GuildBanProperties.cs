@@ -2,14 +2,9 @@
 
 namespace NetCord.Rest;
 
-internal class GuildBanProperties
+internal class GuildBanProperties(int deleteMessageSeconds)
 {
-    public GuildBanProperties(int deleteMessageSeconds)
-    {
-        DeleteMessageSeconds = deleteMessageSeconds;
-    }
-
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("delete_message_seconds")]
-    public int DeleteMessageSeconds { get; set; }
+    public int DeleteMessageSeconds { get; set; } = deleteMessageSeconds;
 }

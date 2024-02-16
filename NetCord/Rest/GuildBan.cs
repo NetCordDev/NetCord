@@ -1,23 +1,12 @@
 ﻿namespace NetCord.Rest;
 
-public partial class GuildBan : IJsonModel<JsonModels.JsonGuildBan>
+public partial class GuildBan(JsonModels.JsonGuildBan jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonModels.JsonGuildBan>
 {
-    JsonModels.JsonGuildBan IJsonModel<JsonModels.JsonGuildBan>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildBan _jsonModel;
+    JsonModels.JsonGuildBan IJsonModel<JsonModels.JsonGuildBan>.JsonModel => jsonModel;
 
-    private readonly RestClient _client;
+    public string? Reason => jsonModel.Reason;
 
-    public string? Reason => _jsonModel.Reason;
+    public User User { get; } = new(jsonModel.User, client);
 
-    public User User { get; }
-
-    public ulong GuildId { get; }
-
-    public GuildBan(JsonModels.JsonGuildBan jsonModel, ulong guildId, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        User = new(jsonModel.User, client);
-        GuildId = guildId;
-        _client = client;
-    }
+    public ulong GuildId { get; } = guildId;
 }

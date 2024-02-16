@@ -2,11 +2,8 @@
 
 namespace NetCord;
 
-public class VoiceAttachment : Attachment
+public class VoiceAttachment(JsonAttachment jsonModel) : Attachment(jsonModel)
 {
-    public VoiceAttachment(JsonAttachment jsonModel) : base(jsonModel)
-    {
-    }
 
     /// <summary>
     /// The duration of the audio file.

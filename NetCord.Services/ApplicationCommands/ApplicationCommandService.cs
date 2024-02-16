@@ -7,12 +7,8 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ApplicationCommands;
 
-public class ApplicationCommandService<TContext, TAutocompleteContext> : ApplicationCommandService<TContext> where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
+public class ApplicationCommandService<TContext, TAutocompleteContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : ApplicationCommandService<TContext>(configuration) where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : base(configuration)
-    {
-    }
-
     public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         var interaction = context.Interaction;
@@ -29,9 +25,9 @@ public class ApplicationCommandService<TContext, TAutocompleteContext> : Applica
     }
 }
 
-public class ApplicationCommandService<TContext> : IApplicationCommandService, IService where TContext : IApplicationCommandContext
+public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : IApplicationCommandService, IService where TContext : IApplicationCommandContext
 {
-    private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
+    private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration = configuration ?? ApplicationCommandServiceConfiguration<TContext>.Default;
     private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>> _commands = FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>.Empty;
 
     internal readonly List<ApplicationCommandInfo<TContext>> _globalCommandsToCreate = [];
@@ -42,11 +38,6 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService, I
     IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => _commands;
-
-    public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
-    {
-        _configuration = configuration ?? ApplicationCommandServiceConfiguration<TContext>.Default;
-    }
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)

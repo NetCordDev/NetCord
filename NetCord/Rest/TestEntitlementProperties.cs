@@ -2,21 +2,14 @@
 
 namespace NetCord.Rest;
 
-public partial class TestEntitlementProperties
+public partial class TestEntitlementProperties(ulong skuId, ulong ownerId, TestEntitlementOwnerType ownerType)
 {
-    public TestEntitlementProperties(ulong skuId, ulong ownerId, TestEntitlementOwnerType ownerType)
-    {
-        SkuId = skuId;
-        OwnerId = ownerId;
-        OwnerType = ownerType;
-    }
-
     [JsonPropertyName("sku_id")]
-    public ulong SkuId { get; set; }
+    public ulong SkuId { get; set; } = skuId;
 
     [JsonPropertyName("owner_id")]
-    public ulong OwnerId { get; set; }
+    public ulong OwnerId { get; set; } = ownerId;
 
     [JsonPropertyName("owner_type")]
-    public TestEntitlementOwnerType OwnerType { get; set; }
+    public TestEntitlementOwnerType OwnerType { get; set; } = ownerType;
 }

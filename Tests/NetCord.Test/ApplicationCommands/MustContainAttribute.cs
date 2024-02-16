@@ -3,14 +3,9 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.SlashCommands;
 
-internal class MustContainAttribute : ParameterPreconditionAttribute<SlashCommandContext>
+internal class MustContainAttribute(string value) : ParameterPreconditionAttribute<SlashCommandContext>
 {
-    private readonly string _value;
-
-    public MustContainAttribute(string value)
-    {
-        _value = value;
-    }
+    private readonly string _value = value;
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(object? value, SlashCommandContext context, IServiceProvider? serviceProvider)
     {

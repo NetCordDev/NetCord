@@ -2,17 +2,11 @@
 
 namespace NetCord.Gateway;
 
-public partial class UserActivityButtonProperties
+public partial class UserActivityButtonProperties(string label, string url)
 {
-    public UserActivityButtonProperties(string label, string url)
-    {
-        Label = label;
-        Url = url;
-    }
-
     [JsonPropertyName("label")]
-    public string Label { get; set; }
+    public string Label { get; set; } = label;
 
     [JsonPropertyName("url")]
-    public string Url { get; set; }
+    public string Url { get; set; } = url;
 }

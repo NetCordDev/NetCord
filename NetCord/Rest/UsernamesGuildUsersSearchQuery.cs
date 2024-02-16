@@ -3,17 +3,12 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class UsernamesGuildUsersSearchQuery : IGuildUsersSearchQuery
+public class UsernamesGuildUsersSearchQuery(IEnumerable<string> usernames) : IGuildUsersSearchQuery
 {
     private static readonly JsonEncodedText _usernames = JsonEncodedText.Encode("usernames");
 
-    public UsernamesGuildUsersSearchQuery(IEnumerable<string> usernames)
-    {
-        Usernames = usernames;
-    }
-
     [JsonPropertyName("or_query")]
-    public IEnumerable<string> Usernames { get; set; }
+    public IEnumerable<string> Usernames { get; set; } = usernames;
 
     public void Serialize(Utf8JsonWriter writer)
     {

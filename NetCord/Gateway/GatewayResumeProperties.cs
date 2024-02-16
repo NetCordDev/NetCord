@@ -2,21 +2,14 @@
 
 namespace NetCord.Gateway;
 
-internal class GatewayResumeProperties
+internal class GatewayResumeProperties(string token, string sessionId, int sequenceNumber)
 {
-    public GatewayResumeProperties(string token, string sessionId, int sequenceNumber)
-    {
-        Token = token;
-        SessionId = sessionId;
-        SequenceNumber = sequenceNumber;
-    }
-
     [JsonPropertyName("token")]
-    public string Token { get; set; }
+    public string Token { get; set; } = token;
 
     [JsonPropertyName("session_id")]
-    public string SessionId { get; set; }
+    public string SessionId { get; set; } = sessionId;
 
     [JsonPropertyName("seq")]
-    public int SequenceNumber { get; set; }
+    public int SequenceNumber { get; set; } = sequenceNumber;
 }

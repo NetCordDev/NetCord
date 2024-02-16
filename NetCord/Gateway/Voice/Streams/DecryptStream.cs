@@ -5,18 +5,11 @@ using NetCord.Gateway.Voice.Encryption;
 
 namespace NetCord.Gateway.Voice;
 
-internal class DecryptStream : RewritingStream
+internal class DecryptStream(Stream next, IVoiceEncryption encryption) : RewritingStream(next)
 {
-    private readonly IVoiceEncryption _encryption;
-    private readonly int _expansion;
+    private readonly int _expansion = encryption.Expansion + 12;
     private bool _used;
     private ushort _sequenceNumber;
-
-    public DecryptStream(Stream next, IVoiceEncryption encryption) : base(next)
-    {
-        _encryption = encryption;
-        _expansion = encryption.Expansion + 12;
-    }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
@@ -75,7 +68,7 @@ internal class DecryptStream : RewritingStream
                 var bufferSpan = buffer.Span;
                 var plaintextSpan = plaintext.Span;
 
-                _encryption.Decrypt(bufferSpan, plaintextSpan);
+                encryption.Decrypt(bufferSpan, plaintextSpan);
                 return (bufferSpan[0] & 0b10000) == 0 ? plaintext
                                                       : plaintext[(4 * (BinaryPrimitives.ReadUInt16BigEndian(plaintextSpan[2..]) + 1))..];
             }
@@ -117,7 +110,7 @@ internal class DecryptStream : RewritingStream
         int plaintextLen = buffer.Length - _expansion;
         using var owner = MemoryPool<byte>.Shared.Rent(plaintextLen);
         var plaintext = owner.Memory.Span[..plaintextLen];
-        _encryption.Decrypt(buffer, plaintext);
+        encryption.Decrypt(buffer, plaintext);
         _next.Write((buffer[0] & 0b10000) == 0 ? plaintext
                                                : plaintext[(4 * (BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1))..]);
     }

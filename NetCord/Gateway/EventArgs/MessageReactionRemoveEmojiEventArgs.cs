@@ -1,21 +1,14 @@
 ﻿namespace NetCord.Gateway;
 
-public class MessageReactionRemoveEmojiEventArgs : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>
+public class MessageReactionRemoveEmojiEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>
 {
-    JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs IJsonModel<JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs>.JsonModel => jsonModel;
 
-    public MessageReactionRemoveEmojiEventArgs(JsonModels.EventArgs.JsonMessageReactionRemoveEmojiEventArgs jsonModel)
-    {
-        _jsonModel = jsonModel;
-        Emoji = new(jsonModel.Emoji);
-    }
+    public ulong ChannelId => jsonModel.ChannelId;
 
-    public ulong ChannelId => _jsonModel.ChannelId;
+    public ulong? GuildId => jsonModel.GuildId;
 
-    public ulong? GuildId => _jsonModel.GuildId;
+    public ulong MessageId => jsonModel.MessageId;
 
-    public ulong MessageId => _jsonModel.MessageId;
-
-    public MessageReactionEmoji Emoji { get; }
+    public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 }

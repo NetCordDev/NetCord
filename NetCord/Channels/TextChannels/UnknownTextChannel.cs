@@ -3,11 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-internal partial class UnknownTextChannel : TextChannel, IUnknownTextChannel
+internal partial class UnknownTextChannel(JsonChannel jsonModel, RestClient client) : TextChannel(jsonModel, client), IUnknownTextChannel
 {
-    public UnknownTextChannel(JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
-
     public ChannelType Type => _jsonModel.Type;
 }

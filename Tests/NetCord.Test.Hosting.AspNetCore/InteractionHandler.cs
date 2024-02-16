@@ -2,18 +2,11 @@
 
 namespace NetCord.Test.Hosting.AspNetCore;
 
-internal class InteractionHandler : IHttpInteractionHandler
+internal class InteractionHandler(ILogger<InteractionHandler> logger) : IHttpInteractionHandler
 {
-    private readonly ILogger<InteractionHandler> _logger;
-
-    public InteractionHandler(ILogger<InteractionHandler> logger)
-    {
-        _logger = logger;
-    }
-
     public ValueTask HandleAsync(Interaction interaction)
     {
-        _logger.LogInformation("Interaction received: {Interaction}", interaction);
+        logger.LogInformation("Interaction received: {Interaction}", interaction);
 
         return default;
     }

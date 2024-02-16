@@ -44,14 +44,9 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     }
 }
 
-public class Commands : ApplicationCommandModule<SlashCommandContext>
+public class Commands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private readonly Dictionary<ulong, SemaphoreSlim> _joinSemaphores;
-
-    public Commands(Dictionary<ulong, SemaphoreSlim> joinSemaphores)
-    {
-        _joinSemaphores = joinSemaphores;
-    }
+    private readonly Dictionary<ulong, SemaphoreSlim> _joinSemaphores = joinSemaphores;
 
     [SlashCommand("enum", "Enum!")]
     public void Enum(ChannelFlags @enum)

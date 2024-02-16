@@ -2,13 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class PermissionOverwriteProperties
+public partial class PermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
 {
     [JsonPropertyName("id")]
-    public ulong Id { get; set; }
+    public ulong Id { get; set; } = id;
 
     [JsonPropertyName("type")]
-    public PermissionOverwriteType Type { get; set; }
+    public PermissionOverwriteType Type { get; set; } = type;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("allow")]
@@ -17,10 +17,4 @@ public partial class PermissionOverwriteProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("deny")]
     public Permissions? Denied { get; set; }
-
-    public PermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
-    {
-        Id = id;
-        Type = type;
-    }
 }

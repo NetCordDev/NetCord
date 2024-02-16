@@ -2,11 +2,7 @@
 
 namespace NetCord;
 
-public partial class UnknownGuildThread : GuildThread, IUnknownGuildThread
+public partial class UnknownGuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : GuildThread(jsonModel, client), IUnknownGuildThread
 {
-    public UnknownGuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
-
     public ChannelType Type => _jsonModel.Type;
 }

@@ -2,16 +2,10 @@
 
 namespace NetCord;
 
-public class ForumGuildChannelDefaultReaction : IJsonModel<JsonForumGuildChannelDefaultReaction>
+public class ForumGuildChannelDefaultReaction(JsonForumGuildChannelDefaultReaction jsonModel) : IJsonModel<JsonForumGuildChannelDefaultReaction>
 {
-    private readonly JsonForumGuildChannelDefaultReaction _jsonModel;
-    JsonForumGuildChannelDefaultReaction IJsonModel<JsonForumGuildChannelDefaultReaction>.JsonModel => _jsonModel;
+    JsonForumGuildChannelDefaultReaction IJsonModel<JsonForumGuildChannelDefaultReaction>.JsonModel => jsonModel;
 
-    public ForumGuildChannelDefaultReaction(JsonForumGuildChannelDefaultReaction jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
-    public ulong? EmojiId => _jsonModel.EmojiId;
-    public string? EmojiName => _jsonModel.EmojiName;
+    public ulong? EmojiId => jsonModel.EmojiId;
+    public string? EmojiName => jsonModel.EmojiName;
 }

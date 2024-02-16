@@ -1,20 +1,14 @@
 ﻿namespace NetCord;
 
-public class GuildWelcomeScreenChannel : Entity, IJsonModel<JsonModels.JsonWelcomeScreenChannel>
+public class GuildWelcomeScreenChannel(JsonModels.JsonWelcomeScreenChannel jsonModel) : Entity, IJsonModel<JsonModels.JsonWelcomeScreenChannel>
 {
-    JsonModels.JsonWelcomeScreenChannel IJsonModel<JsonModels.JsonWelcomeScreenChannel>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonWelcomeScreenChannel _jsonModel;
+    JsonModels.JsonWelcomeScreenChannel IJsonModel<JsonModels.JsonWelcomeScreenChannel>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.ChannelId;
+    public override ulong Id => jsonModel.ChannelId;
 
-    public string Description => _jsonModel.Description;
+    public string Description => jsonModel.Description;
 
-    public ulong? EmojiId => _jsonModel.EmojiId;
+    public ulong? EmojiId => jsonModel.EmojiId;
 
-    public string? EmojiName => _jsonModel.EmojiName;
-
-    public GuildWelcomeScreenChannel(JsonModels.JsonWelcomeScreenChannel jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public string? EmojiName => jsonModel.EmojiName;
 }

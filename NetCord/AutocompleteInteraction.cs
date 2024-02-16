@@ -3,12 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class AutocompleteInteraction : Interaction
+public class AutocompleteInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : Interaction(jsonModel, guild, sendResponseAsync, client)
 {
-    public AutocompleteInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
-    {
-        Data = new(jsonModel.Data!, jsonModel.GuildId, client);
-    }
-
-    public override AutocompleteInteractionData Data { get; }
+    public override AutocompleteInteractionData Data { get; } = new(jsonModel.Data!, jsonModel.GuildId, client);
 }

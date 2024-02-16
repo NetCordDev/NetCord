@@ -4,10 +4,10 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
+public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonUser>
 {
     JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonUser _jsonModel;
+    private protected readonly JsonModels.JsonUser _jsonModel = jsonModel;
 
     public override ulong Id => _jsonModel.Id;
     public string Username => _jsonModel.Username;
@@ -26,11 +26,6 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     public PremiumType? PremiumType => _jsonModel.PremiumType;
     public UserFlags? PublicFlags => _jsonModel.PublicFlags;
     public string? AvatarDecorationHash => _jsonModel.AvatarDecorationHash;
-
-    public User(JsonModels.JsonUser jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-    }
 
     public bool HasAvatar => AvatarHash is not null;
 

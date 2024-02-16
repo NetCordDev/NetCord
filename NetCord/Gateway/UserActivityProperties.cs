@@ -2,19 +2,13 @@
 
 namespace NetCord.Gateway;
 
-public partial class UserActivityProperties
+public partial class UserActivityProperties(string name, UserActivityType type)
 {
-    public UserActivityProperties(string name, UserActivityType type)
-    {
-        Name = name;
-        Type = type;
-    }
-
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonPropertyName("type")]
-    public UserActivityType Type { get; set; }
+    public UserActivityType Type { get; set; } = type;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("url")]

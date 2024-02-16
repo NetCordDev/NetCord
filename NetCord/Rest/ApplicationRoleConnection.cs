@@ -1,16 +1,10 @@
 ﻿namespace NetCord.Rest;
 
-public class ApplicationRoleConnection : IJsonModel<JsonModels.JsonApplicationRoleConnection>
+public class ApplicationRoleConnection(JsonModels.JsonApplicationRoleConnection jsonModel) : IJsonModel<JsonModels.JsonApplicationRoleConnection>
 {
-    JsonModels.JsonApplicationRoleConnection IJsonModel<JsonModels.JsonApplicationRoleConnection>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonApplicationRoleConnection _jsonModel;
+    JsonModels.JsonApplicationRoleConnection IJsonModel<JsonModels.JsonApplicationRoleConnection>.JsonModel => jsonModel;
 
-    public ApplicationRoleConnection(JsonModels.JsonApplicationRoleConnection jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
-    public string? PlatformName => _jsonModel.PlatformName;
-    public string? PlatformUsername => _jsonModel.PlatformUsername;
-    public IReadOnlyDictionary<string, string> Metadata => _jsonModel.Metadata;
+    public string? PlatformName => jsonModel.PlatformName;
+    public string? PlatformUsername => jsonModel.PlatformUsername;
+    public IReadOnlyDictionary<string, string> Metadata => jsonModel.Metadata;
 }

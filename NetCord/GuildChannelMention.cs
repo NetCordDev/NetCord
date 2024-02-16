@@ -1,16 +1,9 @@
 ﻿namespace NetCord;
 
-public class GuildChannelMention : Entity
+public class GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel) : Entity
 {
-    private readonly JsonModels.JsonGuildChannelMention _jsonModel;
-
-    public override ulong Id => _jsonModel.Id;
-    public ulong GuildId => _jsonModel.GuildId;
-    public ChannelType Type => _jsonModel.Type;
-    public string Name => _jsonModel.Name;
-
-    public GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public override ulong Id => jsonModel.Id;
+    public ulong GuildId => jsonModel.GuildId;
+    public ChannelType Type => jsonModel.Type;
+    public string Name => jsonModel.Name;
 }

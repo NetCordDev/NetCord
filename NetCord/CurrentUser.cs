@@ -2,9 +2,6 @@
 
 namespace NetCord;
 
-public partial class CurrentUser : User
+public partial class CurrentUser(JsonModels.JsonUser jsonModel, RestClient client) : User(jsonModel, client)
 {
-    public CurrentUser(JsonModels.JsonUser jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
 }

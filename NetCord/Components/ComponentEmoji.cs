@@ -1,9 +1,8 @@
 ﻿namespace NetCord;
 
-public class ComponentEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
+public class ComponentEmoji(JsonModels.JsonEmoji jsonModel) : Entity, IJsonModel<JsonModels.JsonEmoji>
 {
-    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonEmoji _jsonModel;
+    JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => jsonModel;
 
     public override ulong Id
     {
@@ -11,18 +10,13 @@ public class ComponentEmoji : Entity, IJsonModel<JsonModels.JsonEmoji>
         {
             if (IsStandard)
                 throw new InvalidOperationException("This emoji has no id.");
-            return _jsonModel.Id.GetValueOrDefault();
+            return jsonModel.Id.GetValueOrDefault();
         }
     }
 
-    public bool IsStandard => !_jsonModel.Id.HasValue;
+    public bool IsStandard => !jsonModel.Id.HasValue;
 
-    public string Name => _jsonModel.Name!;
+    public string Name => jsonModel.Name!;
 
-    public bool Animated => _jsonModel.Animated;
-
-    public ComponentEmoji(JsonModels.JsonEmoji jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public bool Animated => jsonModel.Animated;
 }

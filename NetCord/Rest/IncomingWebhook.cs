@@ -2,11 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class IncomingWebhook : Webhook
+public partial class IncomingWebhook(JsonWebhook jsonModel, RestClient client) : Webhook(jsonModel, client)
 {
-    public IncomingWebhook(JsonWebhook jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
-
     public string Token => _jsonModel.Token!;
 }

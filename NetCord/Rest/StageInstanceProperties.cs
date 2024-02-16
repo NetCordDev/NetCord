@@ -2,19 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class StageInstanceProperties
+public partial class StageInstanceProperties(ulong channelId, string topic)
 {
-    public StageInstanceProperties(ulong channelId, string topic)
-    {
-        ChannelId = channelId;
-        Topic = topic;
-    }
-
     [JsonPropertyName("channel_id")]
-    public ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; } = channelId;
 
     [JsonPropertyName("topic")]
-    public string Topic { get; set; }
+    public string Topic { get; set; } = topic;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("privacy_level")]

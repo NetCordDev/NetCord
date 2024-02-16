@@ -4,18 +4,11 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class GuildStickersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>
+public class GuildStickersUpdateEventArgs(JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs jsonModel, RestClient client) : IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>
 {
-    JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs>.JsonModel => jsonModel;
 
-    public GuildStickersUpdateEventArgs(JsonModels.EventArgs.JsonGuildStickersUpdateEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Stickers = jsonModel.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
-    }
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; }
+    public ImmutableDictionary<ulong, GuildSticker> Stickers { get; } = jsonModel.Stickers.ToImmutableDictionary(s => s.Id, s => new GuildSticker(s, client));
 }

@@ -3,14 +3,9 @@
 namespace NetCord.Services.ApplicationCommands;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
-public class SlashCommandAttribute : ApplicationCommandAttribute
+public class SlashCommandAttribute(string name, string description) : ApplicationCommandAttribute(name)
 {
-    public SlashCommandAttribute(string name, string description) : base(name)
-    {
-        Description = description;
-    }
-
-    public string Description { get; }
+    public string Description { get; } = description;
 
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type? DescriptionTranslationsProviderType { get; init; }

@@ -2,15 +2,10 @@
 
 namespace NetCord.Gateway;
 
-internal class GatewayIdentifyProperties
+internal class GatewayIdentifyProperties(string token)
 {
-    public GatewayIdentifyProperties(string token)
-    {
-        Token = token;
-    }
-
     [JsonPropertyName("token")]
-    public string Token { get; set; }
+    public string Token { get; set; } = token;
 
     [JsonPropertyName("properties")]
     public ConnectionPropertiesProperties? ConnectionProperties { get; set; }

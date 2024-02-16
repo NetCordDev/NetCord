@@ -3,23 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class GuildWelcomeScreenChannelProperties
+public partial class GuildWelcomeScreenChannelProperties(ulong channelId, string description)
 {
     [JsonPropertyName("channel_id")]
-    public ulong ChannelId { get; set; }
+    public ulong ChannelId { get; set; } = channelId;
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = description;
 
     [JsonPropertyName("emoji_id")]
     [JsonConverter(typeof(EmojiPropertiesConverter))]
     public EmojiProperties? Emoji { get; set; }
-
-    public GuildWelcomeScreenChannelProperties(ulong channelId, string description)
-    {
-        ChannelId = channelId;
-        Description = description;
-    }
 
     public class EmojiPropertiesConverter : JsonConverter<EmojiProperties>
     {

@@ -1,14 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildIntegrationEventArgs
+public class GuildIntegrationEventArgs(Integration integration, ulong guildId)
 {
-    public GuildIntegrationEventArgs(Integration integration, ulong guildId)
-    {
-        Integration = integration;
-        GuildId = guildId;
-    }
+    public Integration Integration { get; } = integration;
 
-    public Integration Integration { get; }
-
-    public ulong GuildId { get; }
+    public ulong GuildId { get; } = guildId;
 }

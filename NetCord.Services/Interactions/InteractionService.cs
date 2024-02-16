@@ -5,17 +5,12 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionService<TContext> : IService where TContext : IInteractionContext
+public class InteractionService<TContext>(InteractionServiceConfiguration<TContext>? configuration = null) : IService where TContext : IInteractionContext
 {
-    private readonly InteractionServiceConfiguration<TContext> _configuration;
+    private readonly InteractionServiceConfiguration<TContext> _configuration = configuration ?? InteractionServiceConfiguration<TContext>.Default;
     private readonly Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
     public IReadOnlyDictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>> GetInteractions() => new Dictionary<ReadOnlyMemory<char>, InteractionInfo<TContext>>(_interactions);
-
-    public InteractionService(InteractionServiceConfiguration<TContext>? configuration = null)
-    {
-        _configuration = configuration ?? InteractionServiceConfiguration<TContext>.Default;
-    }
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)

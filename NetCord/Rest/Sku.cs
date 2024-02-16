@@ -1,39 +1,33 @@
 ﻿namespace NetCord.Rest;
 
-public class Sku : Entity, IJsonModel<JsonModels.JsonSku>
+public class Sku(JsonModels.JsonSku jsonModel) : Entity, IJsonModel<JsonModels.JsonSku>
 {
-    JsonModels.JsonSku IJsonModel<JsonModels.JsonSku>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonSku _jsonModel;
+    JsonModels.JsonSku IJsonModel<JsonModels.JsonSku>.JsonModel => jsonModel;
 
-    public Sku(JsonModels.JsonSku jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
-
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
     /// <summary>
     /// Type of the SKU.
     /// </summary>
-    public SkuType Type => _jsonModel.Type;
+    public SkuType Type => jsonModel.Type;
 
     /// <summary>
     /// Id of the parent application.
     /// </summary>
-    public ulong ApplicationId => _jsonModel.ApplicationId;
+    public ulong ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
     /// Customer-facing name of your premium offering.
     /// </summary>
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
     /// <summary>
     /// System-generated URL slug based on the SKU's name.
     /// </summary>
-    public string Slug => _jsonModel.Slug;
+    public string Slug => jsonModel.Slug;
 
     /// <summary>
     /// Flags of the SKU.
     /// </summary>
-    public SkuFlags Flags => _jsonModel.Flags;
+    public SkuFlags Flags => jsonModel.Flags;
 }

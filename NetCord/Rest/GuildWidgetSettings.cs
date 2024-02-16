@@ -1,16 +1,10 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildWidgetSettings : IJsonModel<JsonModels.JsonGuildWidgetSettings>
+public class GuildWidgetSettings(JsonModels.JsonGuildWidgetSettings jsonModel) : IJsonModel<JsonModels.JsonGuildWidgetSettings>
 {
-    JsonModels.JsonGuildWidgetSettings IJsonModel<JsonModels.JsonGuildWidgetSettings>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildWidgetSettings _jsonModel;
+    JsonModels.JsonGuildWidgetSettings IJsonModel<JsonModels.JsonGuildWidgetSettings>.JsonModel => jsonModel;
 
-    public bool Enabled => _jsonModel.Enabled;
+    public bool Enabled => jsonModel.Enabled;
 
-    public ulong? ChannelId => _jsonModel.ChannelId;
-
-    public GuildWidgetSettings(JsonModels.JsonGuildWidgetSettings jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public ulong? ChannelId => jsonModel.ChannelId;
 }

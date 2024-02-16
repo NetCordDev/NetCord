@@ -2,13 +2,17 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildChannelPositionProperties
+/// <summary>
+/// 
+/// </summary>
+/// <param name="id">Channel id.</param>
+public partial class GuildChannelPositionProperties(ulong id)
 {
     /// <summary>
     /// Channel id.
     /// </summary>
     [JsonPropertyName("id")]
-    public ulong Id { get; set; }
+    public ulong Id { get; set; } = id;
 
     /// <summary>
     /// Sorting position of the channel.
@@ -30,13 +34,4 @@ public partial class GuildChannelPositionProperties
     [JsonPropertyName("parent_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ulong? ParentId { get; set; }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="id">Channel id.</param>
-    public GuildChannelPositionProperties(ulong id)
-    {
-        Id = id;
-    }
 }

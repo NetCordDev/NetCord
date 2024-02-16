@@ -1,13 +1,9 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-internal class SpeedNormalizingStream : RewritingStream
+internal class SpeedNormalizingStream(Stream next) : RewritingStream(next)
 {
     private bool _used;
     private int _startTick;
-
-    public SpeedNormalizingStream(Stream next) : base(next)
-    {
-    }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {

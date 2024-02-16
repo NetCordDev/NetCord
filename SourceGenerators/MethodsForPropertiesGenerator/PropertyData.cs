@@ -2,18 +2,11 @@
 
 namespace MethodsForPropertiesGenerator;
 
-internal class PropertyData
+internal class PropertyData(IPropertySymbol symbol, INamedTypeSymbol containingType, bool inherited)
 {
-    public PropertyData(IPropertySymbol symbol, INamedTypeSymbol containingType, bool inherited)
-    {
-        Symbol = symbol;
-        ContainingType = containingType;
-        Inherited = inherited;
-    }
+    public IPropertySymbol Symbol { get; } = symbol;
 
-    public IPropertySymbol Symbol { get; }
+    public INamedTypeSymbol ContainingType { get; } = containingType;
 
-    public INamedTypeSymbol ContainingType { get; }
-
-    public bool Inherited { get; }
+    public bool Inherited { get; } = inherited;
 }

@@ -2,22 +2,15 @@
 
 namespace NetCord.Rest;
 
-public partial class ModalProperties
+public partial class ModalProperties(string customId, string title, IEnumerable<TextInputProperties> components)
 {
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public string CustomId { get; set; } = customId;
 
     [JsonPropertyName("title")]
-    public string Title { get; set; }
+    public string Title { get; set; } = title;
 
     [JsonConverter(typeof(JsonConverters.TextInputPropertiesIEnumerableConverter))]
     [JsonPropertyName("components")]
-    public IEnumerable<TextInputProperties> Components { get; set; }
-
-    public ModalProperties(string customId, string title, IEnumerable<TextInputProperties> components)
-    {
-        CustomId = customId;
-        Title = title;
-        Components = components;
-    }
+    public IEnumerable<TextInputProperties> Components { get; set; } = components;
 }

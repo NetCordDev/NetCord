@@ -6,22 +6,11 @@ using NetCord.Gateway.Voice.Encryption;
 
 namespace NetCord.Gateway.Voice;
 
-internal class EncryptStream : RewritingStream
+internal class EncryptStream(Stream next, IVoiceEncryption encryption, VoiceClient client) : RewritingStream(next)
 {
-    private readonly IVoiceEncryption _encryption;
-    private readonly int _expansion;
-    private readonly VoiceClient _client;
-    private ushort _sequenceNumber;
-    private uint _timestamp;
-
-    public EncryptStream(Stream next, IVoiceEncryption encryption, VoiceClient client) : base(next)
-    {
-        _encryption = encryption;
-        _expansion = encryption.Expansion + 12;
-        _client = client;
-        _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
-        _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
-    }
+    private readonly int _expansion = encryption.Expansion + 12;
+    private ushort _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
+    private uint _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
@@ -62,7 +51,7 @@ internal class EncryptStream : RewritingStream
     private void WriteDatagram(ReadOnlySpan<byte> buffer, Span<byte> datagram)
     {
         WriteRtpHeader(datagram);
-        _encryption.Encrypt(buffer, datagram);
+        encryption.Encrypt(buffer, datagram);
     }
 
     private void WriteRtpHeader(Span<byte> datagram)
@@ -71,6 +60,6 @@ internal class EncryptStream : RewritingStream
         datagram[1] = 0b1111000;
         BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], ++_sequenceNumber);
         BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += Opus.SamplesPerChannel);
-        BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], _client.Cache.Ssrc);
+        BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], client.Cache.Ssrc);
     }
 }

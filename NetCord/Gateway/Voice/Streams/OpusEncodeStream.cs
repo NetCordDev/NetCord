@@ -3,20 +3,16 @@ using System.ComponentModel;
 
 namespace NetCord.Gateway.Voice;
 
-public class OpusEncodeStream : RewritingStream
+/// <summary>
+/// 
+/// </summary>
+/// <param name="next">The stream that this stream is writing to.</param>
+/// <param name="format">The PCM format to encode from.</param>
+/// <param name="channels">Number of channels in input signal.</param>
+/// <param name="application">Opus coding mode.</param>
+/// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
+public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment = true) : RewritingStream(CreateNextStream(next, format, channels, application, segment))
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="next">The stream that this stream is writing to.</param>
-    /// <param name="format">The PCM format to encode from.</param>
-    /// <param name="channels">Number of channels in input signal.</param>
-    /// <param name="application">Opus coding mode.</param>
-    /// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
-    public OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment = true) : base(CreateNextStream(next, format, channels, application, segment))
-    {
-    }
-
     private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment)
     {
         OpusEncodeStreamInternal encodeStream = new(next, format, channels, application);

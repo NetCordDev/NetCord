@@ -1,13 +1,8 @@
 ﻿namespace NetCord;
 
-public class ModalSubmitInteractionData : InteractionData, ICustomIdInteractionData
+public class ModalSubmitInteractionData(JsonModels.JsonInteractionData jsonModel) : InteractionData(jsonModel), ICustomIdInteractionData
 {
-    public ModalSubmitInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
-    {
-        Components = jsonModel.Components!.Select(c => new TextInput(c)).ToArray();
-    }
-
     public string CustomId => _jsonModel.CustomId!;
 
-    public IReadOnlyList<TextInput> Components { get; }
+    public IReadOnlyList<TextInput> Components { get; } = jsonModel.Components!.Select(c => new TextInput(c)).ToArray();
 }

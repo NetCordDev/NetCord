@@ -2,13 +2,8 @@
 
 namespace NetCord.Rest;
 
-public partial class StringMenuProperties : MenuProperties
+public partial class StringMenuProperties(string customId, IEnumerable<StringMenuSelectOptionProperties> options) : MenuProperties(customId, ComponentType.StringMenu)
 {
     [JsonPropertyName("options")]
-    public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; }
-
-    public StringMenuProperties(string customId, IEnumerable<StringMenuSelectOptionProperties> options) : base(customId, ComponentType.StringMenu)
-    {
-        Options = options;
-    }
+    public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
 }

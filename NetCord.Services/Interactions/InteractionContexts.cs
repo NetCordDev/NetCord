@@ -3,71 +3,41 @@ using NetCord.Rest;
 
 namespace NetCord.Services.Interactions;
 
-public class InteractionContext : IInteractionContext
+public class InteractionContext(Interaction interaction) : IInteractionContext
 {
-    public InteractionContext(Interaction interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public virtual Interaction Interaction { get; }
+    public virtual Interaction Interaction { get; } = interaction;
 }
 
-public class BaseButtonInteractionContext : InteractionContext
+public class BaseButtonInteractionContext(ButtonInteraction interaction) : InteractionContext(interaction)
 {
-    public BaseButtonInteractionContext(ButtonInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override ButtonInteraction Interaction { get; }
+    public override ButtonInteraction Interaction { get; } = interaction;
 }
 
-public class ButtonInteractionContext : BaseButtonInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+public class ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : BaseButtonInteractionContext(interaction), IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
-    public ButtonInteractionContext(ButtonInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
 }
 
-public class HttpButtonInteractionContext : BaseButtonInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpButtonInteractionContext(ButtonInteraction interaction, RestClient client) : BaseButtonInteractionContext(interaction), IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
-    public HttpButtonInteractionContext(ButtonInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
 }
 
-public class BaseStringMenuInteractionContext : InteractionContext
+public class BaseStringMenuInteractionContext(StringMenuInteraction interaction) : InteractionContext(interaction)
 {
-    public BaseStringMenuInteractionContext(StringMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override StringMenuInteraction Interaction { get; }
+    public override StringMenuInteraction Interaction { get; } = interaction;
 }
 
-public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+public class StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : BaseStringMenuInteractionContext(interaction), IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
-    public StringMenuInteractionContext(StringMenuInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
@@ -75,38 +45,23 @@ public class StringMenuInteractionContext : BaseStringMenuInteractionContext, IG
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class HttpStringMenuInteractionContext : BaseStringMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpStringMenuInteractionContext(StringMenuInteraction interaction, RestClient client) : BaseStringMenuInteractionContext(interaction), IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
-    public HttpStringMenuInteractionContext(StringMenuInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class BaseEntityMenuInteractionContext : InteractionContext
+public class BaseEntityMenuInteractionContext(EntityMenuInteraction interaction) : InteractionContext(interaction)
 {
-    public BaseEntityMenuInteractionContext(EntityMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override EntityMenuInteraction Interaction { get; }
+    public override EntityMenuInteraction Interaction { get; } = interaction;
 }
 
-public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
+public class EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : BaseEntityMenuInteractionContext(interaction), IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
 {
-    public EntityMenuInteractionContext(EntityMenuInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
@@ -114,28 +69,18 @@ public class EntityMenuInteractionContext : BaseEntityMenuInteractionContext, IG
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class HttpEntityMenuInteractionContext : BaseEntityMenuInteractionContext, IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
+public class HttpEntityMenuInteractionContext(EntityMenuInteraction interaction, RestClient client) : BaseEntityMenuInteractionContext(interaction), IRestClientContext, IRestMessageContext, IUserContext, IChannelContext
 {
-    public HttpEntityMenuInteractionContext(EntityMenuInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 }
 
-public class BaseUserMenuInteractionContext : BaseEntityMenuInteractionContext
+public class BaseUserMenuInteractionContext(UserMenuInteraction interaction) : BaseEntityMenuInteractionContext(interaction)
 {
-    public BaseUserMenuInteractionContext(UserMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override UserMenuInteraction Interaction { get; }
+    public override UserMenuInteraction Interaction { get; } = interaction;
 }
 
 public class UserMenuInteractionContext : BaseUserMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -187,14 +132,9 @@ public class HttpUserMenuInteractionContext : BaseUserMenuInteractionContext, IR
     public IReadOnlyList<User> SelectedUsers { get; }
 }
 
-public class BaseRoleMenuInteractionContext : BaseEntityMenuInteractionContext
+public class BaseRoleMenuInteractionContext(RoleMenuInteraction interaction) : BaseEntityMenuInteractionContext(interaction)
 {
-    public BaseRoleMenuInteractionContext(RoleMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override RoleMenuInteraction Interaction { get; }
+    public override RoleMenuInteraction Interaction { get; } = interaction;
 }
 
 public class RoleMenuInteractionContext : BaseRoleMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -246,14 +186,9 @@ public class HttpRoleMenuInteractionContext : BaseRoleMenuInteractionContext, IR
     public IReadOnlyList<Role> SelectedRoles { get; }
 }
 
-public class BaseMentionableMenuInteractionContext : BaseEntityMenuInteractionContext
+public class BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : BaseEntityMenuInteractionContext(interaction)
 {
-    public BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override MentionableMenuInteraction Interaction { get; }
+    public override MentionableMenuInteraction Interaction { get; } = interaction;
 }
 
 public class MentionableMenuInteractionContext : BaseMentionableMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -319,14 +254,9 @@ public class HttpMentionableMenuInteractionContext : BaseMentionableMenuInteract
     public IReadOnlyList<Mentionable> SelectedMentionables { get; }
 }
 
-public class BaseChannelMenuInteractionContext : BaseEntityMenuInteractionContext
+public class BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction) : BaseEntityMenuInteractionContext(interaction)
 {
-    public BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override ChannelMenuInteraction Interaction { get; }
+    public override ChannelMenuInteraction Interaction { get; } = interaction;
 }
 
 public class ChannelMenuInteractionContext : BaseChannelMenuInteractionContext, IGatewayClientContext, IRestMessageContext, IUserContext, IGuildContext, IChannelContext
@@ -378,38 +308,23 @@ public class HttpChannelMenuInteractionContext : BaseChannelMenuInteractionConte
     public IReadOnlyList<Channel> SelectedChannels { get; }
 }
 
-public class BaseModalSubmitInteractionContext : InteractionContext
+public class BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction) : InteractionContext(interaction)
 {
-    public BaseModalSubmitInteractionContext(ModalSubmitInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override ModalSubmitInteraction Interaction { get; }
+    public override ModalSubmitInteraction Interaction { get; } = interaction;
 }
 
-public class ModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
+public class ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : BaseModalSubmitInteractionContext(interaction), IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
 {
-    public ModalSubmitInteractionContext(ModalSubmitInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 }
 
-public class HttpModalSubmitInteractionContext : BaseModalSubmitInteractionContext, IRestClientContext, IUserContext, IChannelContext
+public class HttpModalSubmitInteractionContext(ModalSubmitInteraction interaction, RestClient client) : BaseModalSubmitInteractionContext(interaction), IRestClientContext, IUserContext, IChannelContext
 {
-    public HttpModalSubmitInteractionContext(ModalSubmitInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;

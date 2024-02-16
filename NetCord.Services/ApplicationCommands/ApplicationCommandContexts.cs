@@ -4,120 +4,70 @@ using NetCord.Services.Interactions;
 
 namespace NetCord.Services.ApplicationCommands;
 
-public class ApplicationCommandContext : InteractionContext, IApplicationCommandContext
+public class ApplicationCommandContext(ApplicationCommandInteraction interaction) : InteractionContext(interaction), IApplicationCommandContext
 {
-    public ApplicationCommandContext(ApplicationCommandInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override ApplicationCommandInteraction Interaction { get; }
+    public override ApplicationCommandInteraction Interaction { get; } = interaction;
 }
 
-public class BaseSlashCommandContext : ApplicationCommandContext
+public class BaseSlashCommandContext(SlashCommandInteraction interaction) : ApplicationCommandContext(interaction)
 {
-    public BaseSlashCommandContext(SlashCommandInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override SlashCommandInteraction Interaction { get; }
+    public override SlashCommandInteraction Interaction { get; } = interaction;
 }
 
-public class SlashCommandContext : BaseSlashCommandContext, IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
+public class SlashCommandContext(SlashCommandInteraction interaction, GatewayClient client) : BaseSlashCommandContext(interaction), IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
 {
-    public SlashCommandContext(SlashCommandInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
 }
 
-public class HttpSlashCommandContext : BaseSlashCommandContext, IRestClientContext, IChannelContext, IUserContext
+public class HttpSlashCommandContext(SlashCommandInteraction interaction, RestClient client) : BaseSlashCommandContext(interaction), IRestClientContext, IChannelContext, IUserContext
 {
-    public HttpSlashCommandContext(SlashCommandInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
 }
 
-public class BaseUserCommandContext : ApplicationCommandContext
+public class BaseUserCommandContext(UserCommandInteraction interaction) : ApplicationCommandContext(interaction)
 {
-    public BaseUserCommandContext(UserCommandInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override UserCommandInteraction Interaction { get; }
+    public override UserCommandInteraction Interaction { get; } = interaction;
 }
 
-public class UserCommandContext : BaseUserCommandContext, IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
+public class UserCommandContext(UserCommandInteraction interaction, GatewayClient client) : BaseUserCommandContext(interaction), IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
 {
-    public UserCommandContext(UserCommandInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public User Target => Interaction.Data.TargetUser;
 }
 
-public class HttpUserCommandContext : BaseUserCommandContext, IRestClientContext, IChannelContext, IUserContext
+public class HttpUserCommandContext(UserCommandInteraction interaction, RestClient client) : BaseUserCommandContext(interaction), IRestClientContext, IChannelContext, IUserContext
 {
-    public HttpUserCommandContext(UserCommandInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public User Target => Interaction.Data.TargetUser;
 }
 
-public class BaseMessageCommandContext : ApplicationCommandContext
+public class BaseMessageCommandContext(MessageCommandInteraction interaction) : ApplicationCommandContext(interaction)
 {
-    public BaseMessageCommandContext(MessageCommandInteraction interaction) : base(interaction)
-    {
-        Interaction = interaction;
-    }
-
-    public override MessageCommandInteraction Interaction { get; }
+    public override MessageCommandInteraction Interaction { get; } = interaction;
 }
 
-public class MessageCommandContext : BaseMessageCommandContext, IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
+public class MessageCommandContext(MessageCommandInteraction interaction, GatewayClient client) : BaseMessageCommandContext(interaction), IGatewayClientContext, IGuildContext, IChannelContext, IUserContext
 {
-    public MessageCommandContext(MessageCommandInteraction interaction, GatewayClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public GatewayClient Client { get; }
+    public GatewayClient Client { get; } = client;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public RestMessage Target => Interaction.Data.TargetMessage;
 }
 
-public class HttpMessageCommandContext : BaseMessageCommandContext, IRestClientContext, IChannelContext, IUserContext
+public class HttpMessageCommandContext(MessageCommandInteraction interaction, RestClient client) : BaseMessageCommandContext(interaction), IRestClientContext, IChannelContext, IUserContext
 {
-    public HttpMessageCommandContext(MessageCommandInteraction interaction, RestClient client) : base(interaction)
-    {
-        Client = client;
-    }
-
-    public RestClient Client { get; }
+    public RestClient Client { get; } = client;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public RestMessage Target => Interaction.Data.TargetMessage;

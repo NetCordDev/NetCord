@@ -2,19 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildEmojiProperties
+public partial class GuildEmojiProperties(string name, ImageProperties image)
 {
-    public GuildEmojiProperties(string name, ImageProperties image)
-    {
-        Name = name;
-        Image = image;
-    }
-
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonPropertyName("image")]
-    public ImageProperties Image { get; set; }
+    public ImageProperties Image { get; set; } = image;
 
     [JsonPropertyName("roles")]
     public IEnumerable<ulong>? AllowedRoles { get; set; }

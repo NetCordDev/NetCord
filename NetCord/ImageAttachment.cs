@@ -1,10 +1,7 @@
 ﻿namespace NetCord;
 
-public class ImageAttachment : Attachment
+public class ImageAttachment(JsonModels.JsonAttachment jsonModel) : Attachment(jsonModel)
 {
-    public ImageAttachment(JsonModels.JsonAttachment jsonModel) : base(jsonModel)
-    {
-    }
 
     /// <summary>
     /// Height of file.

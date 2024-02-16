@@ -2,13 +2,13 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildChannelProperties
+public partial class GuildChannelProperties(string name, ChannelType type)
 {
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string Name { get; set; } = name;
 
     [JsonPropertyName("type")]
-    public ChannelType Type { get; set; }
+    public ChannelType Type { get; set; } = type;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("topic")]
@@ -73,10 +73,4 @@ public partial class GuildChannelProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_thread_rate_limit_per_user")]
     public int? DefaultThreadSlowmode { get; set; }
-
-    public GuildChannelProperties(string name, ChannelType type)
-    {
-        Name = name;
-        Type = type;
-    }
 }

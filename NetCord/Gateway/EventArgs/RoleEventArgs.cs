@@ -2,18 +2,11 @@
 
 namespace NetCord.Gateway;
 
-public class RoleEventArgs : IJsonModel<JsonModels.EventArgs.JsonRoleEventArgs>
+public class RoleEventArgs(JsonModels.EventArgs.JsonRoleEventArgs jsonModel, RestClient client) : IJsonModel<JsonModels.EventArgs.JsonRoleEventArgs>
 {
-    JsonModels.EventArgs.JsonRoleEventArgs IJsonModel<JsonModels.EventArgs.JsonRoleEventArgs>.JsonModel => _jsonModel;
-    private readonly JsonModels.EventArgs.JsonRoleEventArgs _jsonModel;
+    JsonModels.EventArgs.JsonRoleEventArgs IJsonModel<JsonModels.EventArgs.JsonRoleEventArgs>.JsonModel => jsonModel;
 
-    public RoleEventArgs(JsonModels.EventArgs.JsonRoleEventArgs jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-        Role = new(jsonModel.Role, jsonModel.GuildId, client);
-    }
+    public ulong GuildId => jsonModel.GuildId;
 
-    public ulong GuildId => _jsonModel.GuildId;
-
-    public Role Role { get; }
+    public Role Role { get; } = new(jsonModel.Role, jsonModel.GuildId, client);
 }

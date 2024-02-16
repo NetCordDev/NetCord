@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.JsonApplicationCommand>
+public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonApplicationCommand>
 {
     JsonModels.JsonApplicationCommand IJsonModel<JsonModels.JsonApplicationCommand>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonApplicationCommand _jsonModel;
+    private protected readonly JsonModels.JsonApplicationCommand _jsonModel = jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 
@@ -52,7 +52,7 @@ public partial class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.Js
     /// <summary>
     /// Parameters for the command (max 25).
     /// </summary>
-    public IReadOnlyList<ApplicationCommandOption> Options { get; }
+    public IReadOnlyList<ApplicationCommandOption> Options { get; } = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id)).ToArray();
 
     /// <summary>
     /// Indicates whether the command is enabled by default when the app is added to a guild.
@@ -68,12 +68,6 @@ public partial class ApplicationCommand : ClientEntity, IJsonModel<JsonModels.Js
     /// Autoincrementing version identifier updated during substantial record changes.
     /// </summary>
     public ulong Version => _jsonModel.Version;
-
-    public ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        Options = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id)).ToArray();
-    }
 
     public override string ToString() => $"</{Name}:{Id}>";
 

@@ -2,10 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildPruneProperties
+public partial class GuildPruneProperties(int days)
 {
     [JsonPropertyName("days")]
-    public int Days { get; set; }
+    public int Days { get; set; } = days;
 
     [JsonPropertyName("compute_prune_count")]
     public bool ComputePruneCount { get; set; } = true;
@@ -13,9 +13,4 @@ public partial class GuildPruneProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("include_roles")]
     public IEnumerable<ulong>? Roles { get; set; }
-
-    public GuildPruneProperties(int days)
-    {
-        Days = days;
-    }
 }

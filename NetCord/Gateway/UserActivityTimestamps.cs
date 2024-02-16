@@ -1,15 +1,9 @@
 ﻿namespace NetCord.Gateway;
 
-public class UserActivityTimestamps : IJsonModel<JsonModels.JsonUserActivityTimestamps>
+public class UserActivityTimestamps(JsonModels.JsonUserActivityTimestamps jsonModel) : IJsonModel<JsonModels.JsonUserActivityTimestamps>
 {
-    JsonModels.JsonUserActivityTimestamps IJsonModel<JsonModels.JsonUserActivityTimestamps>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonUserActivityTimestamps _jsonModel;
+    JsonModels.JsonUserActivityTimestamps IJsonModel<JsonModels.JsonUserActivityTimestamps>.JsonModel => jsonModel;
 
-    public DateTimeOffset? StartTime => _jsonModel.StartTime;
-    public DateTimeOffset? EndTime => _jsonModel.EndTime;
-
-    public UserActivityTimestamps(JsonModels.JsonUserActivityTimestamps jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public DateTimeOffset? StartTime => jsonModel.StartTime;
+    public DateTimeOffset? EndTime => jsonModel.EndTime;
 }

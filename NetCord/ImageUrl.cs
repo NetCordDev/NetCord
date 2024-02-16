@@ -222,12 +222,8 @@ public class ImageUrl : ISpanFormattable
         return new GuildWidgetUrl(guildId, style, hostname, version);
     }
 
-    private class GuildWidgetUrl : ImageUrl
+    private class GuildWidgetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version) : ImageUrl(GetUrl(guildId, style, hostname, version))
     {
-        public GuildWidgetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version) : base(GetUrl(guildId, style, hostname, version))
-        {
-        }
-
         private static string GetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version)
         {
             return version.HasValue

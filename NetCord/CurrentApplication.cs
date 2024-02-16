@@ -2,9 +2,6 @@
 
 namespace NetCord;
 
-public partial class CurrentApplication : Application
+public partial class CurrentApplication(JsonModels.JsonApplication jsonModel, RestClient client) : Application(jsonModel, client)
 {
-    public CurrentApplication(JsonModels.JsonApplication jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
 }

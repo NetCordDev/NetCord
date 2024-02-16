@@ -1,18 +1,12 @@
 ﻿namespace NetCord.Rest;
 
-public class GuildWidgetChannel : Entity, IJsonModel<JsonModels.JsonGuildWidgetChannel>
+public class GuildWidgetChannel(JsonModels.JsonGuildWidgetChannel jsonModel) : Entity, IJsonModel<JsonModels.JsonGuildWidgetChannel>
 {
-    JsonModels.JsonGuildWidgetChannel IJsonModel<JsonModels.JsonGuildWidgetChannel>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildWidgetChannel _jsonModel;
+    JsonModels.JsonGuildWidgetChannel IJsonModel<JsonModels.JsonGuildWidgetChannel>.JsonModel => jsonModel;
 
-    public override ulong Id => _jsonModel.Id;
+    public override ulong Id => jsonModel.Id;
 
-    public string Name => _jsonModel.Name;
+    public string Name => jsonModel.Name;
 
-    public int Position => _jsonModel.Position;
-
-    public GuildWidgetChannel(JsonModels.JsonGuildWidgetChannel jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public int Position => jsonModel.Position;
 }

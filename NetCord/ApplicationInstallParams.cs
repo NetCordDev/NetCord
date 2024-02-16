@@ -2,17 +2,11 @@
 
 namespace NetCord;
 
-public class ApplicationInstallParams : IJsonModel<JsonApplicationInstallParams>
+public class ApplicationInstallParams(JsonApplicationInstallParams jsonModel) : IJsonModel<JsonApplicationInstallParams>
 {
-    JsonApplicationInstallParams IJsonModel<JsonApplicationInstallParams>.JsonModel => _jsonModel;
-    private readonly JsonApplicationInstallParams _jsonModel;
+    JsonApplicationInstallParams IJsonModel<JsonApplicationInstallParams>.JsonModel => jsonModel;
 
-    public ApplicationInstallParams(JsonApplicationInstallParams jsonModel)
-    {
-        _jsonModel = jsonModel;
-    }
+    public IReadOnlyList<string> Scopes => jsonModel.Scopes;
 
-    public IReadOnlyList<string> Scopes => _jsonModel.Scopes;
-
-    public Permissions Permissions => _jsonModel.Permissions;
+    public Permissions Permissions => jsonModel.Permissions;
 }

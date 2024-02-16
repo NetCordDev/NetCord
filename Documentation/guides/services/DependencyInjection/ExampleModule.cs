@@ -2,18 +2,11 @@
 
 namespace MyBot;
 
-public class ExampleModule : CommandModule<CommandContext>
+public class ExampleModule(string botName) : CommandModule<CommandContext>
 {
-    private readonly string _botName;
-
-    public ExampleModule(string botName)
-    {
-        _botName = botName;
-    }
-
     [Command("name")]
     public Task NameAsync()
     {
-        return ReplyAsync(_botName);
+        return ReplyAsync(botName);
     }
 }

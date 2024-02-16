@@ -3,14 +3,8 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class Message : RestMessage
+public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : RestMessage(jsonModel, client)
 {
-    public Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : base(jsonModel, client)
-    {
-        Guild = guild;
-        Channel = channel;
-    }
-
     public static Message CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
         Guild? guild;
@@ -40,6 +34,6 @@ public class Message : RestMessage
     }
 
     public ulong? GuildId => _jsonModel.GuildId;
-    public Guild? Guild { get; }
-    public TextChannel? Channel { get; }
+    public Guild? Guild { get; } = guild;
+    public TextChannel? Channel { get; } = channel;
 }

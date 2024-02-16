@@ -2,12 +2,7 @@
 
 namespace NetCord;
 
-public class MessageCommandInteractionData : ApplicationCommandInteractionData
+public class MessageCommandInteractionData(JsonModels.JsonInteractionData jsonModel, RestClient client) : ApplicationCommandInteractionData(jsonModel)
 {
-    public MessageCommandInteractionData(JsonModels.JsonInteractionData jsonModel, RestClient client) : base(jsonModel)
-    {
-        TargetMessage = new(jsonModel.ResolvedData!.Messages![jsonModel.TargetId.GetValueOrDefault()], client);
-    }
-
-    public RestMessage TargetMessage { get; }
+    public RestMessage TargetMessage { get; } = new(jsonModel.ResolvedData!.Messages![jsonModel.TargetId.GetValueOrDefault()], client);
 }

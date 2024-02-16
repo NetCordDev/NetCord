@@ -2,9 +2,6 @@
 
 namespace NetCord;
 
-public partial class PrivateGuildThread : GuildThread
+public partial class PrivateGuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : GuildThread(jsonModel, client)
 {
-    public PrivateGuildThread(JsonModels.JsonChannel jsonModel, RestClient client) : base(jsonModel, client)
-    {
-    }
 }

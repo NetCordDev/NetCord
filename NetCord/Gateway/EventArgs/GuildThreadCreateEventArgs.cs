@@ -1,14 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
-public class GuildThreadCreateEventArgs
+public class GuildThreadCreateEventArgs(GuildThread thread, bool newlyCreated)
 {
-    public GuildThreadCreateEventArgs(GuildThread thread, bool newlyCreated)
-    {
-        Thread = thread;
-        NewlyCreated = newlyCreated;
-    }
+    public GuildThread Thread { get; } = thread;
 
-    public GuildThread Thread { get; }
-
-    public bool NewlyCreated { get; }
+    public bool NewlyCreated { get; } = newlyCreated;
 }
