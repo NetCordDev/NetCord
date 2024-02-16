@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 
-using NetCord.Gateway.Voice;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
@@ -44,73 +42,12 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     }
 }
 
-public class Commands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
+public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
-    private readonly Dictionary<ulong, SemaphoreSlim> _joinSemaphores = joinSemaphores;
-
     [SlashCommand("enum", "Enum!")]
     public void Enum(ChannelFlags @enum)
     {
         //return RespondAsync(InteractionCallback.Message(@enum.ToString()));
-    }
-
-    [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync()
-    {
-        var guild = Context.Guild!;
-        if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
-            throw new("You are not in a voice channel!");
-
-        var client = Context.Client;
-
-        var guildId = guild.Id;
-        var joinSemaphores = _joinSemaphores;
-        SemaphoreSlim? semaphore;
-        lock (joinSemaphores)
-        {
-            if (!joinSemaphores.TryGetValue(guildId, out semaphore))
-                joinSemaphores[guildId] = semaphore = new SemaphoreSlim(1, 1);
-        }
-        VoiceClient voiceClient;
-        await semaphore.WaitAsync();
-        try
-        {
-            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
-            {
-                RedirectInputStreams = true,
-            });
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-        voiceClient.Log += m =>
-        {
-            Console.WriteLine(m);
-            return default;
-        };
-        await voiceClient.StartAsync();
-        await voiceClient.ReadyAsync;
-
-        var outputStream = voiceClient.CreateOutputStream(/*false*/);
-        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
-
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
-        //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
-        await RespondAsync(InteractionCallback.Message($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
-        var ffmpeg = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ffmpeg",
-            Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
-            RedirectStandardOutput = true,
-        })!;
-
-        await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream);
-        await opusEncodeStream.FlushAsync();
-
-        //voiceClient.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
     }
 
     [SlashCommand("c", "C")]
