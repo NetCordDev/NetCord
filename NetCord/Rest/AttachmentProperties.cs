@@ -100,7 +100,6 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 /// <param name="uploadedFileName">Name of the upload.</param>
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
-
     /// <summary>
     /// Name of the upload.
     /// </summary>

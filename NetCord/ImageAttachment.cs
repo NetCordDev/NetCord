@@ -2,7 +2,6 @@
 
 public class ImageAttachment(JsonModels.JsonAttachment jsonModel) : Attachment(jsonModel)
 {
-
     /// <summary>
     /// Height of file.
     /// </summary>

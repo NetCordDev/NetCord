@@ -54,7 +54,6 @@ public partial class RestClient
     public async Task<IReadOnlyDictionary<ulong, RestMessage>> GetMessagesAroundAsync(ulong channelId, ulong messageId, int? limit = null, RequestProperties? properties = null)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit={limit.GetValueOrDefault(100)}&around={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
 
-
     [GenerateAlias(typeof(TextChannel), nameof(TextChannel.Id))]
     [GenerateAlias(typeof(RestMessage), nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public async Task<RestMessage> GetMessageAsync(ulong channelId, ulong messageId, RequestProperties? properties = null)

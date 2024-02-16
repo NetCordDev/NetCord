@@ -10,7 +10,6 @@ namespace NetCord.Rest;
 /// <param name="title">Title of the prompt.</param>
 public partial class GuildOnboardingPromptProperties(GuildOnboardingPromptType type, IEnumerable<GuildOnboardingPromptOptionProperties> options, string title)
 {
-
     /// <summary>
     /// Id of the prompt.
     /// </summary>

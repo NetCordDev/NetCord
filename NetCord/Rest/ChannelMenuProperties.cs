@@ -11,7 +11,6 @@ namespace NetCord.Rest;
 /// <param name="customId">Id for the menu (max 100 characters).</param>
 public partial class ChannelMenuProperties(string customId) : MenuProperties(customId, ComponentType.ChannelMenu)
 {
-
     /// <summary>
     /// Default values for auto-populated select menu components.
     /// </summary>

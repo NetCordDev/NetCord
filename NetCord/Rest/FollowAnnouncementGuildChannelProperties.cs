@@ -8,7 +8,6 @@ namespace NetCord.Rest;
 /// <param name="webhookChannelId"></param>
 internal class FollowAnnouncementGuildChannelProperties(ulong webhookChannelId)
 {
-
     /// <summary>
     /// Id of target channel.
     /// </summary>

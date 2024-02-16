@@ -5,7 +5,6 @@ namespace NetCord.Rest;
 
 public class RestAuditLogEntry(JsonAuditLogEntry jsonModel, RestAuditLogEntryData data) : AuditLogEntry(jsonModel)
 {
-
     /// <summary>
     /// Data of objects referenced in the audit log.
     /// </summary>

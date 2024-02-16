@@ -7,7 +7,6 @@ namespace NetCord.Rest;
 
 public partial class UserMenuProperties(string customId) : MenuProperties(customId, ComponentType.UserMenu)
 {
-
     /// <summary>
     /// Default values for auto-populated select menu components.
     /// </summary>

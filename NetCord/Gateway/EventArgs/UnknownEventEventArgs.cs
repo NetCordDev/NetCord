@@ -4,7 +4,6 @@ namespace NetCord.Gateway;
 
 public class UnknownEventEventArgs(string name, JsonElement data)
 {
-
     /// <summary>
     /// Event name.
     /// </summary>

@@ -10,7 +10,6 @@ namespace NetCord.Rest;
 /// <param name="title">Title of the option.</param>
 public partial class GuildOnboardingPromptOptionProperties(IEnumerable<ulong>? channelIds, IEnumerable<ulong>? roleIds, string title)
 {
-
     /// <summary>
     /// Id of the option.
     /// </summary>
