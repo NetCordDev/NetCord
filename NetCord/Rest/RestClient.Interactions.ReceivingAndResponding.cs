@@ -5,7 +5,7 @@ public partial class RestClient
     public async Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RequestProperties? properties = null)
     {
         using (HttpContent content = callback.Serialize())
-            await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", null, new(interactionId), properties, false).ConfigureAwait(false);
+            await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", null, new(interactionId, interactionToken), properties, false).ConfigureAwait(false);
     }
 
     [GenerateAlias(typeof(Interaction), nameof(Interaction.ApplicationId), nameof(Interaction.Token))]
