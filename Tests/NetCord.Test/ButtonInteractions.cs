@@ -15,8 +15,8 @@ public class ButtonInteractions(string wzium) : InteractionModule<ButtonInteract
         //};
         //return Context.Interaction.SendResponseAsync(InteractionCallback.ChannelMessageWithSource(interactionMessage));
 
-        return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", $"Wzium user {wzium}", new TextInputProperties[]
-        {
+        return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", $"Wzium user {wzium}",
+        [
             new("reason", TextInputStyle.Paragraph, "Reason")
             {
                 Placeholder = "Because of not wziumming",
@@ -24,7 +24,7 @@ public class ButtonInteractions(string wzium) : InteractionModule<ButtonInteract
                 MinLength = 5,
                 MaxLength = 20,
             },
-        })));
+        ])));
     }
 
     [Interaction("test")]

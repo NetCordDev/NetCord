@@ -6,18 +6,6 @@ namespace NetCord.Test.Commands;
 
 public class NormalCommands : CommandModule<CommandContext>
 {
-    private readonly string? _wzium;
-
-    public NormalCommands(string wzium)
-    {
-        _wzium = wzium;
-    }
-
-    public NormalCommands()
-    {
-        _wzium = "12";
-    }
-
     [Command("channel")]
     public Task ChannelAsync(GroupDMChannel channel)
     {
@@ -57,7 +45,7 @@ public class NormalCommands : CommandModule<CommandContext>
             MessageProperties message = new()
             {
                 Content = "Select roles",
-                Components = new ComponentProperties[] { menu },
+                Components = [menu],
             };
             await SendAsync(message);
         }

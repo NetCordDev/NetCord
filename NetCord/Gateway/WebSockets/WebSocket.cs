@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.WebSockets;
 
-public class WebSocket : IWebSocket
+public sealed class WebSocket : IWebSocket
 {
     private const int DefaultBufferSize = 4096;
 
@@ -21,8 +21,7 @@ public class WebSocket : IWebSocket
 
     public async Task ConnectAsync(Uri uri)
     {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(WebSocket));
+        ObjectDisposedException.ThrowIf(_disposed, typeof(WebSocket));
         Connecting?.Invoke();
         _webSocket?.Dispose();
         await (_webSocket = new()).ConnectAsync(uri, default).ConfigureAwait(false);
@@ -99,9 +98,8 @@ public class WebSocket : IWebSocket
 
     private void ThrowIfInvalid()
     {
-        if (_disposed)
-            throw new ObjectDisposedException(nameof(WebSocket));
-        else if (!IsConnected)
+        ObjectDisposedException.ThrowIf(_disposed, typeof(WebSocket));
+        if (!IsConnected)
             throw new WebSocketException("WebSocket was not connected.");
     }
 }

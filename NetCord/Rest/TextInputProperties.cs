@@ -5,7 +5,9 @@ namespace NetCord.Rest;
 public partial class TextInputProperties(string customId, TextInputStyle style, string label)
 {
     [JsonPropertyName("type")]
+#pragma warning disable CA1822 // Mark members as static
     public ComponentType ComponentType => ComponentType.TextInput;
+#pragma warning restore CA1822 // Mark members as static
 
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; } = customId;

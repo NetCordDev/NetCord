@@ -33,7 +33,9 @@ internal class DecryptStream(Stream next, IVoiceEncryption encryption) : Rewriti
                         var tasks = new ValueTask[max];
                         int i = 0;
                         do
+#pragma warning disable CA2012 // Use ValueTasks correctly
                             tasks[i] = _next.WriteAsync(null, cancellationToken);
+#pragma warning restore CA2012 // Use ValueTasks correctly
                         while (++i < max);
 
                         var actual = ActualWriteAsync();

@@ -160,10 +160,9 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
         var parameterExpression = memberAccessExpression.Parameters[0];
         var memberInfo = MatchSimpleMemberAccess<TMemberInfo>(parameterExpression, memberAccessExpression.Body);
 
-        if (memberInfo is null)
-            throw new ArgumentException($"The expression '{nameof(memberAccessExpression)}' is not a valid member access expression. The expression should represent a simple property or field access: 't => t.MyProperty'.", nameof(memberAccessExpression));
-
-        return memberInfo;
+        return memberInfo is null
+            ? throw new ArgumentException($"The expression '{nameof(memberAccessExpression)}' is not a valid member access expression. The expression should represent a simple property or field access: 't => t.MyProperty'.", nameof(memberAccessExpression))
+            : memberInfo;
     }
 
     private static TMemberInfo? MatchSimpleMemberAccess<TMemberInfo>(
@@ -176,7 +175,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
         return memberInfos?.Count == 1 ? memberInfos[0] : null;
     }
 
-    private static IReadOnlyList<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
+    private static List<TMemberInfo>? MatchMemberAccess<TMemberInfo>(
         Expression parameterExpression,
         Expression memberAccessExpression)
         where TMemberInfo : MemberInfo

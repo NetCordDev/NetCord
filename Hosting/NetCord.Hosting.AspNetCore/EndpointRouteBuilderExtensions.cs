@@ -95,7 +95,9 @@ public static class EndpointRouteBuilderExtensions
         int length = handlers.Length;
 
         for (int i = 0; i < length; i++)
+#pragma warning disable CA2012 // Use ValueTasks correctly
             tasks[i] = handlers[i].HandleAsync(interaction);
+#pragma warning restore CA2012 // Use ValueTasks correctly
 
         for (int i = 0; i < length; i++)
             await tasks[i].ConfigureAwait(false);

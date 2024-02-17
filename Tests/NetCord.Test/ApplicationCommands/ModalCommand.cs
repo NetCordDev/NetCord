@@ -8,8 +8,8 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("wzium", "Wziums user")]
     public Task WziumAsync(User user)
     {
-        return RespondAsync(InteractionCallback.Modal(new($"wzium:{user.Id}", "Wzium user", new TextInputProperties[]
-        {
+        return RespondAsync(InteractionCallback.Modal(new($"wzium:{user.Id}", "Wzium user",
+        [
             new("reason", TextInputStyle.Paragraph, "Reason")
             {
                 Placeholder = "Because of not wziumming",
@@ -17,6 +17,6 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
                 MinLength = 5,
                 MaxLength = 20,
             },
-        })));
+        ])));
     }
 }

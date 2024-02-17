@@ -5,7 +5,7 @@ namespace NetCord.Services.EnumTypeReaders;
 
 internal class EnumNameTypeReader : IEnumTypeReader
 {
-    private readonly IReadOnlyDictionary<ReadOnlyMemory<char>, object> _namesDictionary;
+    private readonly Dictionary<ReadOnlyMemory<char>, object> _namesDictionary;
 
     [UnconditionalSuppressMessage("Trimming", "IL2070:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "Literal fields on enums can never be trimmed")]
     internal EnumNameTypeReader(Type enumType, bool ignoreCase) : this(enumType, enumType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic), ignoreCase)

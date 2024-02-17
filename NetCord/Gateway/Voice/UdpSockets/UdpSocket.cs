@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice.UdpSockets;
 
-public class UdpSocket : IUdpSocket
+public sealed class UdpSocket : IUdpSocket
 {
     private UdpClient? _udpClient;
 

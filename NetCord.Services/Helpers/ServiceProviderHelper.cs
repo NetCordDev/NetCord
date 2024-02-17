@@ -13,13 +13,13 @@ internal static class ServiceProviderHelper
         var parameterType = parameter.ParameterType;
         var argRet = Expression.Label(parameterType);
         if (parameter.IsOptional)
-            return Expression.Block(new[] { parameterValueVariable },
+            return Expression.Block([parameterValueVariable],
                 Expression.Assign(parameterValueVariable, Expression.Call(serviceProvider, _getServiceMethod, Expression.Constant(parameterType, typeof(Type)))),
                 Expression.IfThen(Expression.NotEqual(parameterValueVariable, Expression.Constant(null, typeof(object))),
                     Expression.Return(argRet, Expression.Convert(parameterValueVariable, parameterType))),
                 Expression.Label(argRet, ParametersHelper.GetParameterDefaultValueExpression(parameterType, parameter)));
         else
-            return Expression.Block(new[] { parameterValueVariable },
+            return Expression.Block([parameterValueVariable],
                 Expression.Assign(parameterValueVariable, Expression.Call(serviceProvider, _getServiceMethod, Expression.Constant(parameterType, typeof(Type)))),
                 Expression.IfThenElse(Expression.Equal(parameterValueVariable, Expression.Constant(null, typeof(object))),
                     serviceNotFound,

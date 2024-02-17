@@ -15,7 +15,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
     {
         MethodHelper.EnsureNoParameters(method);
 
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
@@ -41,7 +41,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
         MethodHelper.EnsureNoParameters(split.Parameters, method);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, Enumerable.Empty<Type>(), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 

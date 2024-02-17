@@ -14,10 +14,10 @@ public class BanCommands : CommandModule<CommandContext>
     {
         await Context.Guild!.BanUserAsync(userId.Id, (int)deleteMessagesTime.TotalSeconds, new() { AuditLogReason = reason });
 
-        ActionRowProperties actionRow = new(new ButtonProperties[]
-            {
+        ActionRowProperties actionRow = new(
+            [
                 new ActionButtonProperties($"unban:{userId.Id}", "Unban", ButtonStyle.Danger),
-            });
+            ]);
         MessageProperties message = new()
         {
             Content = Format.Bold($"{userId} got banned").ToString(),

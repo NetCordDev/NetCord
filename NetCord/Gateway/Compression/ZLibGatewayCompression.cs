@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace NetCord.Gateway.Compression;
 
-public class ZLibGatewayCompression : IGatewayCompression
+public sealed class ZLibGatewayCompression : IGatewayCompression
 {
     private const int DefaultBufferSize = 8192;
 

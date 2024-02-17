@@ -259,12 +259,15 @@ public class VoiceClient : WebSocketClient
         return stream;
     }
 
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        base.Dispose();
-        _udpSocket.Dispose();
-        Cache.Dispose();
-        foreach (var stream in _inputStreams.Values)
-            stream.Dispose();
+        if (disposing)
+        {
+            _udpSocket.Dispose();
+            Cache.Dispose();
+            foreach (var stream in _inputStreams.Values)
+                stream.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

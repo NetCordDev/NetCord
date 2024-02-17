@@ -172,7 +172,8 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
         protected override void Dispose(bool disposing)
         {
-            _encoder.Dispose();
+            if (disposing)
+                _encoder.Dispose();
             base.Dispose(disposing);
         }
     }

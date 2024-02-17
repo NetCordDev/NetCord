@@ -63,7 +63,8 @@ public partial class OpusDecodeStream
 
     protected override void Dispose(bool disposing)
     {
-        _decoder.Dispose();
+        if (disposing)
+            _decoder.Dispose();
         base.Dispose(disposing);
     }
 }

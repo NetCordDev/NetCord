@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-public static class Opus
+public static partial class Opus
 {
     public const int SamplingRate = 48_000;
     public const int FrameDuration = 20;
@@ -18,27 +18,35 @@ public static class Opus
     /// <returns></returns>
     public static int GetFrameSize(PcmFormat format, VoiceChannels channels) => SamplesPerChannel * (byte)format * (byte)channels;
 
-    [DllImport("opus", EntryPoint = "opus_encoder_create", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
+    [LibraryImport("opus", EntryPoint = "opus_encoder_create")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
 
-    [DllImport("opus", EntryPoint = "opus_encoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void OpusEncoderDestroy(nint st);
+    [LibraryImport("opus", EntryPoint = "opus_encoder_destroy")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial void OpusEncoderDestroy(nint st);
 
-    [DllImport("opus", EntryPoint = "opus_encode", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int OpusEncode(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
+    [LibraryImport("opus", EntryPoint = "opus_encode")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial int OpusEncode(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
 
-    [DllImport("opus", EntryPoint = "opus_encode_float", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int OpusEncodeFloat(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
+    [LibraryImport("opus", EntryPoint = "opus_encode_float")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial int OpusEncodeFloat(OpusEncoderHandle st, ref byte pcm, int frame_size, ref byte data, int max_data_bytes);
 
-    [DllImport("opus", EntryPoint = "opus_decoder_create", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern OpusDecoderHandle OpusDecoderCreate(int Fs, VoiceChannels channels, out OpusError error);
+    [LibraryImport("opus", EntryPoint = "opus_decoder_create")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial OpusDecoderHandle OpusDecoderCreate(int Fs, VoiceChannels channels, out OpusError error);
 
-    [DllImport("opus", EntryPoint = "opus_decoder_destroy", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern void OpusDecoderDestroy(nint st);
+    [LibraryImport("opus", EntryPoint = "opus_decoder_destroy")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial void OpusDecoderDestroy(nint st);
 
-    [DllImport("opus", EntryPoint = "opus_decode", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int OpusDecode(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
+    [LibraryImport("opus", EntryPoint = "opus_decode")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial int OpusDecode(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
 
-    [DllImport("opus", EntryPoint = "opus_decode_float", CallingConvention = CallingConvention.Cdecl)]
-    internal static extern int OpusDecodeFloat(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
+    [LibraryImport("opus", EntryPoint = "opus_decode_float")]
+    [UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+    internal static partial int OpusDecodeFloat(OpusDecoderHandle st, ref byte data, int len, ref byte pcm, int frame_size, int decode_fec);
 }

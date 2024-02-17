@@ -7,7 +7,7 @@ using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;
 
-public partial class RestClient : IDisposable
+public sealed partial class RestClient : IDisposable
 {
     private readonly string _baseUrl;
     private readonly IRestRequestHandler _requestHandler;

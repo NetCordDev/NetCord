@@ -15,9 +15,9 @@ internal static class RoutePatternHelper
     private static string TrimPrefix(string routePattern)
     {
         if (routePattern.StartsWith("~/", StringComparison.Ordinal))
-            return routePattern.Substring(2);
+            return routePattern[2..];
         else if (routePattern.StartsWith('/'))
-            return routePattern.Substring(1);
+            return routePattern[1..];
         else if (routePattern.StartsWith('~'))
             throw new RoutePatternException(routePattern, "The route template cannot start with a '~' character unless followed by a '/'.");
 

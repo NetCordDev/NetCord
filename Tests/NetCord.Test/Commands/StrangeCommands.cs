@@ -6,7 +6,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
-public class StrangeCommands : CommandModule<CommandContext>
+public partial class StrangeCommands : CommandModule<CommandContext>
 {
     [Command("x")]
     public Task TestXAsync(nint wsz = default)
@@ -42,7 +42,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task React(string emoji)
     {
         ReactionEmojiProperties reaction;
-        if (System.Text.RegularExpressions.Regex.IsMatch(emoji, "(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])"))
+        if (EmojiRegex().IsMatch(emoji))
             reaction = new(emoji);
         else
         {
@@ -60,17 +60,17 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task Button()
     {
         ActionButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
-        ActionRowProperties actionRow = new(new ButtonProperties[] { button });
+        ActionRowProperties actionRow = new([button]);
         MessageProperties messageBuilder = new()
         {
             Content = "This is button:",
-            Components = new ComponentProperties[] { actionRow },
+            Components = [actionRow],
             MessageReference = new(Context.Message.Id),
             AllowedMentions = new()
             {
                 ReplyMention = false
             },
-            Embeds = new EmbedProperties[] { new() { Title = "Wzium" } },
+            Embeds = [new() { Title = "Wzium" }],
         };
         return SendAsync(messageBuilder);
     }
@@ -78,16 +78,16 @@ public class StrangeCommands : CommandModule<CommandContext>
     [Command("link")]
     public Task Link([CommandParameter(Remainder = true)] Uri url)
     {
-        ActionRowProperties actionRow = new(new ButtonProperties[]
-        {
+        ActionRowProperties actionRow = new(
+        [
             new LinkButtonProperties(url.AbsoluteUri, "Link"),
-        });
+        ]);
         MessageProperties message = new()
         {
-            Components = new ComponentProperties[]
-            {
+            Components =
+            [
                 actionRow
-            },
+            ],
             Content = "This is the message with the link",
             MessageReference = new(Context.Message.Id),
             AllowedMentions = new()
@@ -113,7 +113,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         AttachmentProperties file = new("dżejuś.gif", File.OpenRead("C:/Users/Kuba/Downloads/dżejuś.gif")) { Description = "Dżejuś" };
         MessageProperties message = new()
         {
-            Attachments = new AttachmentProperties[] { file },
+            Attachments = [file],
             MessageReference = new(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None
         };
@@ -172,7 +172,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         };
         MessageProperties message = new()
         {
-            Embeds = new EmbedProperties[] { embed }
+            Embeds = [embed]
         };
         return SendAsync(message);
     }
@@ -184,7 +184,7 @@ public class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = "Here is your menu:",
-            Components = new ComponentProperties[] { new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length } },
+            Components = [new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length }],
             MessageReference = new(Context.Message.Id)
         };
         return SendAsync(message);
@@ -200,9 +200,7 @@ public class StrangeCommands : CommandModule<CommandContext>
     public Task BotAvatar()
     {
         var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
-        if (newAvatar is null)
-            throw new("Give an url or attachment");
-        return BotAvatar(new(newAvatar.Url));
+        return newAvatar is null ? throw new("Give an url or attachment") : BotAvatar(new(newAvatar.Url));
     }
 
     [Command("bot-avatar")]
@@ -253,9 +251,9 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         EmbedProperties embedBuilder = new()
         {
-            Fields = new EmbedFieldProperties[] { new() { Name = "xd", Value = "wzium" } }
+            Fields = [new() { Name = "xd", Value = "wzium" }]
         };
-        return SendAsync(new MessageProperties() { Embeds = new EmbedProperties[] { embedBuilder } });
+        return SendAsync(new MessageProperties() { Embeds = [embedBuilder] });
     }
 
     [Command("reverse")]
@@ -270,8 +268,8 @@ public class StrangeCommands : CommandModule<CommandContext>
         AttachmentProperties attachment = new("dzejus.gif", File.OpenRead("C:/Users/Kuba/Downloads/dżejuś.gif")) { Description = "Dżejuś" };
         return SendAsync(new()
         {
-            Attachments = new AttachmentProperties[] { attachment },
-            Embeds = new EmbedProperties[] { new() { Image = attachment } }
+            Attachments = [attachment],
+            Embeds = [new() { Image = attachment }]
         });
     }
 
@@ -301,15 +299,18 @@ public class StrangeCommands : CommandModule<CommandContext>
     {
         return SendAsync(new()
         {
-            Components = new ComponentProperties[]
-            {
-                new ActionRowProperties(new ButtonProperties[]
-                {
+            Components =
+            [
+                new ActionRowProperties(
+                [
                     new ActionButtonProperties(customId, "Button", ButtonStyle.Success),
-                }),
-            },
+                ]),
+            ],
         });
     }
+
+    [System.Text.RegularExpressions.GeneratedRegex("(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])")]
+    private static partial System.Text.RegularExpressions.Regex EmojiRegex();
 }
 
 public enum Wzium

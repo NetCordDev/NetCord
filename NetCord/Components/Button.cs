@@ -5,7 +5,9 @@ public abstract class Button : IJsonModel<JsonModels.JsonComponent>
     JsonModels.JsonComponent IJsonModel<JsonModels.JsonComponent>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonComponent _jsonModel;
 
+#pragma warning disable CA1822 // Mark members as static
     public ComponentType ComponentType => ComponentType.Button;
+#pragma warning restore CA1822 // Mark members as static
 
     public string? Label => _jsonModel.Label;
 

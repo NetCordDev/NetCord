@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest.RateLimits;
 
-public class RateLimitManager : IRateLimitManager
+public sealed class RateLimitManager : IRateLimitManager
 {
     private readonly object _lock = new();
     private readonly GlobalRateLimiter _globalRateLimiter = new();

@@ -25,7 +25,7 @@ internal static class CollectionsUtils
     public static IEnumerable<TResult> SelectOrEmpty<TSource, TResult>(this IEnumerable<TSource>? source, Func<TSource, TResult> selector)
     {
         if (source is null)
-            return Enumerable.Empty<TResult>();
+            return [];
         else
             return source.Select(selector);
     }
@@ -90,7 +90,7 @@ internal static class CollectionsUtils
     public static IEnumerable<TResult> SelectOrEmpty<TSource, TResult>(this ImmutableArray<TSource> source, Func<TSource, TResult> selector)
     {
         if (source.IsDefaultOrEmpty)
-            return Enumerable.Empty<TResult>();
+            return [];
         else
             return source.Select(selector);
     }

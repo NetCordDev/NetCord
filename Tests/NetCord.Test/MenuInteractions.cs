@@ -22,6 +22,7 @@ public class MenuInteractions : BaseInteractionModule<StringMenuInteractionConte
     [Interaction("menu")]
     public Task Menu([NotEmpty] string s)
     {
+        _ = s;
         InteractionMessageProperties interactionMessage = new()
         {
             Flags = MessageFlags.Ephemeral,

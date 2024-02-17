@@ -4,13 +4,13 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisposable
+public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisposable
 {
     private readonly ShardedGatewayClientConfiguration _configuration;
     private readonly ShardedGatewayClientEventManager _eventManager;
 
     private readonly object _clientsLock = new();
-    private IReadOnlyList<GatewayClient>? _clients;
+    private GatewayClient[]? _clients;
 
     private CancellationTokenSource? _startCancellationTokenSource;
     private readonly object _startLock = new();
@@ -87,14 +87,14 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
         get
         {
             var clients = _clients!;
-            return clients[Snowflake.ShardId(guildId, clients.Count)];
+            return clients[Snowflake.ShardId(guildId, clients.Length)];
         }
     }
 
     /// <summary>
     /// The count of shards of the <see cref="ShardedGatewayClient"/>.
     /// </summary>
-    public int Count => _clients!.Count;
+    public int Count => _clients!.Length;
 
     public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null)
     {
@@ -199,7 +199,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
             _clients = null;
             if (clients is not null)
             {
-                int count = clients.Count;
+                int count = clients.Length;
                 for (int i = 0; i < count; i++)
                 {
                     var client = clients[i];
@@ -251,8 +251,8 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
         _startCancellationTokenSource = null;
     }
 
-    public IEnumerator<GatewayClient> GetEnumerator() => _clients!.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_clients!).GetEnumerator();
+    public IEnumerator<GatewayClient> GetEnumerator() => ((IEnumerable<GatewayClient>)_clients!).GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _clients!.GetEnumerator();
 
     private void HookEvents(GatewayClient client)
     {
@@ -1359,7 +1359,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
                 if (clients is not null)
                 {
                     var eventManager = _eventManager;
-                    int count = clients.Count;
+                    int count = clients.Length;
                     for (int i = 0; i < count; i++)
                     {
                         var client = clients[i];
@@ -1387,7 +1387,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
                 if (clients is not null)
                 {
                     var eventManager = _eventManager;
-                    int count = clients.Count;
+                    int count = clients.Length;
                     for (int i = 0; i < count; i++)
                     {
                         var client = clients[i];
@@ -1414,7 +1414,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
                 if (clients is not null)
                 {
                     var eventManager = _eventManager;
-                    int count = clients.Count;
+                    int count = clients.Length;
                     for (int i = 0; i < count; i++)
                     {
                         var client = clients[i];
@@ -1441,7 +1441,7 @@ public class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisp
                 if (clients is not null)
                 {
                     var eventManager = _eventManager;
-                    int count = clients.Count;
+                    int count = clients.Length;
                     for (int i = 0; i < count; i++)
                     {
                         var client = clients[i];

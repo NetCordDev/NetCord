@@ -92,7 +92,7 @@ public class UserMenuInteractionContext : BaseUserMenuInteractionContext, IGatew
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedUsers = Array.Empty<User>();
+            SelectedUsers = [];
         else
         {
             var users = resolvedData.Users!;
@@ -117,7 +117,7 @@ public class HttpUserMenuInteractionContext : BaseUserMenuInteractionContext, IR
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedUsers = Array.Empty<User>();
+            SelectedUsers = [];
         else
         {
             var users = resolvedData.Users!;
@@ -146,7 +146,7 @@ public class RoleMenuInteractionContext : BaseRoleMenuInteractionContext, IGatew
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedRoles = Array.Empty<Role>();
+            SelectedRoles = [];
         else
         {
             var roles = resolvedData.Roles!;
@@ -171,7 +171,7 @@ public class HttpRoleMenuInteractionContext : BaseRoleMenuInteractionContext, IR
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedRoles = Array.Empty<Role>();
+            SelectedRoles = [];
         else
         {
             var roles = resolvedData.Roles!;
@@ -200,14 +200,14 @@ public class MentionableMenuInteractionContext : BaseMentionableMenuInteractionC
         var data = Interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedMentionables = Array.Empty<Mentionable>();
+            SelectedMentionables = [];
         else
         {
             var users = resolvedData.Users;
             var roles = resolvedData.Roles;
             SelectedMentionables = users is null
                 ? roles is null
-                    ? Array.Empty<Mentionable>()
+                    ? []
                     : data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray()
                 : roles is null
                     ? data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray()
@@ -232,14 +232,14 @@ public class HttpMentionableMenuInteractionContext : BaseMentionableMenuInteract
         var data = Interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedMentionables = Array.Empty<Mentionable>();
+            SelectedMentionables = [];
         else
         {
             var users = resolvedData.Users;
             var roles = resolvedData.Roles;
             SelectedMentionables = users is null
                 ? roles is null
-                    ? Array.Empty<Mentionable>()
+                    ? []
                     : data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray()
                 : roles is null
                     ? data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray()
@@ -268,7 +268,7 @@ public class ChannelMenuInteractionContext : BaseChannelMenuInteractionContext, 
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedChannels = Array.Empty<Channel>();
+            SelectedChannels = [];
         else
         {
             var channels = resolvedData.Channels!;
@@ -293,7 +293,7 @@ public class HttpChannelMenuInteractionContext : BaseChannelMenuInteractionConte
         var data = interaction.Data;
         var resolvedData = data.ResolvedData;
         if (resolvedData is null)
-            SelectedChannels = Array.Empty<Channel>();
+            SelectedChannels = [];
         else
         {
             var channels = resolvedData.Channels!;

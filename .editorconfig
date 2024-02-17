@@ -268,4 +268,4 @@ dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:sug
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:suggestion
 
 [Json*.cs]
-dotnet_diagnostic.CS8618.severity=none
+dotnet_diagnostic.CS8618.severity = none

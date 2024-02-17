@@ -16,7 +16,9 @@ public abstract partial class ButtonProperties
     /// Type of the component.
     /// </summary>
     [JsonPropertyName("type")]
+#pragma warning disable CA1822 // Mark members as static
     public ComponentType ComponentType => ComponentType.Button;
+#pragma warning restore CA1822 // Mark members as static
 
     /// <summary>
     /// Text that appears on the button (max 80 characters).

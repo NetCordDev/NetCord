@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.ReconnectTimers;
 
-public class ReconnectTimer : IReconnectTimer
+public sealed class ReconnectTimer : IReconnectTimer
 {
     private int _delay;
     private CancellationTokenSource? _internalTokenSource;

@@ -6,7 +6,9 @@ namespace NetCord.Services.Commands;
 internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOnlyList<T>
 {
     private T[] _items = [];
+#pragma warning disable IDE0032 // Use auto property
     private int _size = 0;
+#pragma warning restore IDE0032 // Use auto property
 
     public T this[int index] => _items[index];
 
@@ -15,8 +17,7 @@ internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOn
         get => _items.Length;
         set
         {
-            if (value < _size)
-                throw new ArgumentOutOfRangeException(nameof(value));
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, _size);
             if (value != _items.Length)
             {
                 if (value > 0)
@@ -27,7 +28,7 @@ internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOn
                     _items = newItems;
                 }
                 else
-                    _items = Array.Empty<T>();
+                    _items = [];
             }
         }
     }
@@ -76,7 +77,7 @@ internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOn
 
     public void Clear()
     {
-        _items = Array.Empty<T>();
+        _items = [];
         _size = 0;
     }
 
@@ -100,8 +101,7 @@ internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOn
 
     public void RemoveAt(int index)
     {
-        if (index >= _size)
-            throw new ArgumentOutOfRangeException(nameof(index));
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _size);
         _size--;
         if (index < _size)
             Array.Copy(_items, index + 1, _items, index, _items.Length - index);

@@ -41,7 +41,7 @@ internal class EncryptStream(Stream next, IVoiceEncryption encryption, VoiceClie
 
     public override void Flush()
     {
-        ReadOnlySpan<byte> bytes = stackalloc byte[] { 0xF8, 0xFF, 0xFE };
+        ReadOnlySpan<byte> bytes = [0xF8, 0xFF, 0xFE];
         for (int i = 0; i < 5; i++)
             Write(bytes);
 

@@ -26,13 +26,13 @@ ShardedGatewayClient client = new(token, new()
     IntentsFactory = shard => GatewayIntents.All,
     PresenceFactory = shard => new(UserStatusType.Online)
     {
-        Activities = new UserActivityProperties[]
-        {
+        Activities =
+        [
             new("c", UserActivityType.Custom)
             {
                 State = $"Shard #{shard.Id}",
             },
-        },
+        ],
     },
 });
 client.Log += (client, message) =>

@@ -14,12 +14,14 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     [SubSlashCommand("add", "Permission add")]
     public Task AddAsync(int i, Permissions permission)
     {
+        _ = i;
         return RespondAsync(InteractionCallback.Message(permission.ToString()));
     }
 
     [SubSlashCommand("remove", "Permission remove")]
     public static InteractionCallback Remove(int i, Permissions permission)
     {
+        _ = i;
         return InteractionCallback.Message(permission.ToString());
     }
 
@@ -31,12 +33,14 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
         [SubSlashCommand("user", "Permission list user")]
         public static InteractionCallback User(int i, Permissions permission)
         {
+            _ = i;
             return InteractionCallback.Message(permission.ToString());
         }
 
         [SubSlashCommand("role", "Permission list role")]
         public Task RoleAsync(int i, Permissions permission)
         {
+            _ = i;
             return RespondAsync(InteractionCallback.Message(permission.ToString()));
         }
     }
@@ -45,8 +49,9 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("enum", "Enum!")]
-    public void Enum(ChannelFlags @enum)
+    public static void Enum(ChannelFlags @enum)
     {
+        _ = @enum;
         //return RespondAsync(InteractionCallback.Message(@enum.ToString()));
     }
 
@@ -262,7 +267,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("test2", "This is test")]
+#pragma warning disable IDE0060 // Remove unused parameter
     public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, Int128 i8, nint i9, sbyte i10, float i11, ushort i12, uint i13, ulong i14, UInt128 i15, nuint i16)
+#pragma warning restore IDE0060 // Remove unused parameter
     {
         return RespondAsync(InteractionCallback.Message("Wzium"));
     }
@@ -273,10 +280,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         await RespondAsync(InteractionCallback.Message(new()
         {
             Content = "You sent it:",
-            Attachments = new AttachmentProperties[]
-            {
+            Attachments =
+            [
                 new(attachment.FileName, await new HttpClient().GetStreamAsync(attachment.Url))
-            }
+            ]
         }));
     }
 
@@ -361,37 +368,37 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     {
         return RespondAsync(InteractionCallback.Message(new()
         {
-            Components = new ComponentProperties[]
-            {
+            Components =
+            [
                 new UserMenuProperties("users")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
-                    DefaultValues = new ulong[] { 855528385677885470 },
+                    DefaultValues = [855528385677885470],
                 },
                 new RoleMenuProperties("roles")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
-                    DefaultValues = new ulong[] { 862347766324002827 },
+                    DefaultValues = [862347766324002827],
                 },
                 new MentionableMenuProperties("mentionables")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
-                    DefaultValues = new MentionableValueProperties[]
-                    {
+                    DefaultValues =
+                    [
                         new(803230269111926786, MentionableValueType.User),
                         new(913370324689633341, MentionableValueType.Role),
-                    },
+                    ],
                 },
                 new ChannelMenuProperties("channels")
                 {
                     MinValues = minValues,
                     MaxValues = maxValues,
-                    DefaultValues = new ulong[] { 994276824584573038 },
+                    DefaultValues = [994276824584573038],
                 },
-            }
+            ]
         }));
     }
 }

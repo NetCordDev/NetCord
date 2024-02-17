@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public record GatewayClientCache : IGatewayClientCache
+public sealed record GatewayClientCache : IGatewayClientCache
 {
     public GatewayClientCache()
     {
@@ -26,7 +26,9 @@ public record GatewayClientCache : IGatewayClientCache
     public IReadOnlyDictionary<ulong, DMChannel> DMChannels => _DMChannels;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
+#pragma warning disable IDE0032 // Use auto property
     private CurrentUser? _user;
+#pragma warning restore IDE0032 // Use auto property
     private ImmutableDictionary<ulong, DMChannel> _DMChannels;
     private ImmutableDictionary<ulong, Guild> _guilds;
 

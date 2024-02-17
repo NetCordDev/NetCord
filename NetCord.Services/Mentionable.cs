@@ -32,7 +32,7 @@ public class Mentionable : Entity
     {
         MentionableType.User => User!.TryFormat(destination, out charsWritten, format, provider),
         MentionableType.Role => Role!.TryFormat(destination, out charsWritten, format, provider),
-        _ => throw new ArgumentOutOfRangeException(),
+        _ => throw new InvalidOperationException(),
     };
 }
 

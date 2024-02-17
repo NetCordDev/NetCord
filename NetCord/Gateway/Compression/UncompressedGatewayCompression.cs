@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.Compression;
 
-public class UncompressedGatewayCompression : IGatewayCompression
+public sealed class UncompressedGatewayCompression : IGatewayCompression
 {
     public string Name => "uncompressed";
 

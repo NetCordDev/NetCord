@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public static class Format
+public static partial class Format
 {
     public static string Bold(ReadOnlySpan<char> text) => $"**{text}**";
     public static string Italic(ReadOnlySpan<char> text) => $"*{text}*";
@@ -15,5 +15,8 @@ public static class Format
     public static string CodeBlock(ReadOnlySpan<char> code, ReadOnlySpan<char> formatter = default) => $"```{formatter}\n{code}```";
     public static string Timestamp(DateTimeOffset dateTime, TimestampStyle? style) => new Timestamp(dateTime, style).ToString();
     public static string Quote(ReadOnlySpan<char> text) => $">>> {text}";
-    public static string Escape(string text) => Regex.Replace(text, @"[\*_~`.:/>|]", @"\$0", RegexOptions.Compiled);
+    public static string Escape(string text) => EscapeRegex().Replace(text, @"\$0");
+
+    [GeneratedRegex(@"[\*_~`.:/>|]")]
+    private static partial Regex EscapeRegex();
 }

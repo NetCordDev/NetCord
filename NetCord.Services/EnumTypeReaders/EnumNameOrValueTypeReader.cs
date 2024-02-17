@@ -5,7 +5,7 @@ namespace NetCord.Services.EnumTypeReaders;
 
 internal class EnumNameOrValueTypeReader : IEnumTypeReader
 {
-    private readonly IEnumTypeReader _nameTypeReader;
+    private readonly EnumNameTypeReader _nameTypeReader;
     private readonly IEnumTypeReader _valueTypeReader;
 
     internal EnumNameOrValueTypeReader(Type enumType, bool ignoreCase, CultureInfo cultureInfo)

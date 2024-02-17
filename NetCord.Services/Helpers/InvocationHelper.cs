@@ -17,7 +17,7 @@ internal class InvocationHelper
         else
         {
             var module = Expression.Variable(declaringType);
-            instance = Expression.Block(new[] { module },
+            instance = Expression.Block([module],
                                         Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
                                         Expression.Call(module, typeof(IBaseModule<TContext>).GetMethod(nameof(IBaseModule<TContext>.SetContext), BindingFlags.Instance | BindingFlags.NonPublic)!, context),
                                         module);

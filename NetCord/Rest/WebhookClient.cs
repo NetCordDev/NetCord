@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public partial class WebhookClient : IDisposable
+public sealed partial class WebhookClient : IDisposable
 {
     public ulong Id { get; }
 
@@ -13,13 +13,13 @@ public partial class WebhookClient : IDisposable
     {
         Id = webhookId;
         Token = webhookToken;
-        if (configuration is null || configuration.Client is null)
+        if (configuration is { Client: RestClient client })
+            _client = client;
+        else
         {
             _dispose = true;
             _client = new();
         }
-        else
-            _client = configuration.Client;
     }
 
     public void Dispose()

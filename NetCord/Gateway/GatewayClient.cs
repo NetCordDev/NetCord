@@ -744,17 +744,15 @@ public partial class GatewayClient : WebSocketClient, IEntity
         }
     }
 
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        base.Dispose();
-        _compression.Dispose();
-        if (_disposeRest)
-            Rest.Dispose();
-        Cache?.Dispose();
-        if (_configuration.CacheDMChannels)
+        if (disposing)
         {
-            foreach (var semaphore in _DMSemaphores!.Values)
-                semaphore.Dispose();
+            _compression.Dispose();
+            if (_disposeRest)
+                Rest.Dispose();
+            Cache?.Dispose();
         }
+        base.Dispose(disposing);
     }
 }

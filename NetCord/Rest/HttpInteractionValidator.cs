@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NetCord.Rest;
 
-public class HttpInteractionValidator
+public partial class HttpInteractionValidator
 {
     private readonly byte[] _publicKey;
 
@@ -138,8 +138,9 @@ public class HttpInteractionValidator
 
     private static bool ValidateSignature(ReadOnlySpan<byte> signature) => signature.Length is 64;
 
-    [DllImport("libsodium", EntryPoint = "crypto_sign_ed25519_verify_detached", CallingConvention = CallingConvention.Cdecl)]
-    private static extern int CryptoSignEd25519VerifyDetached(ref byte sig, ref byte m, ulong mlen, ref byte pk);
+    [LibraryImport("libsodium", EntryPoint = "crypto_sign_ed25519_verify_detached")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    private static partial int CryptoSignEd25519VerifyDetached(ref byte sig, ref byte m, ulong mlen, ref byte pk);
 
     #region From https://github.com/dotnet/runtime/blob/release/6.0/src/libraries/Common/src/System/HexConverter.cs
     private static bool TryDecodeFromUtf16(ReadOnlySpan<char> chars, Span<byte> bytes)
@@ -184,8 +185,8 @@ public class HttpInteractionValidator
     }
 
     /// <summary>Map from an ASCII char to its hex value, e.g. arr['b'] == 11. 0xFF means it's not a hex digit.</summary>
-    private static ReadOnlySpan<byte> CharToHexLookup => new byte[]
-    {
+    private static ReadOnlySpan<byte> CharToHexLookup =>
+    [
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 15
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 31
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 47
@@ -202,6 +203,6 @@ public class HttpInteractionValidator
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 223
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // 239
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF  // 255
-    };
+    ];
     #endregion
 }

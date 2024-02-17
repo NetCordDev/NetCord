@@ -82,7 +82,7 @@ public record CommandServiceConfiguration<TContext> where TContext : ICommandCon
     /// <summary>
     /// Default = ' ', '\n'
     /// </summary>
-    public IEnumerable<char> ParameterSeparators { get; init; } = new char[] { ' ', '\n' };
+    public IEnumerable<char> ParameterSeparators { get; init; } = [' ', '\n'];
 
     /// <summary>
     /// Default = <see langword="true"/>

@@ -39,7 +39,7 @@ public partial class AllowedMentionsProperties
             {
                 Everyone = false,
             };
-            result.AllowedRoles = result.AllowedUsers = Enumerable.Empty<ulong>();
+            result.AllowedRoles = result.AllowedUsers = [];
             return result;
         }
     }

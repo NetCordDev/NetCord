@@ -33,7 +33,7 @@ public class TryFormat
 
     private static readonly IReadOnlyList<ImageUrl> _imageUrls = _ids.Select(id => NetCord.ImageUrl.CustomEmoji(id, ImageFormat.Png)).ToArray();
 
-    private static readonly IReadOnlyList<string> _imageUrlSizes = new[] { "16", "32", "64", "128", "256", "512", "1024", "2048", "4096" };
+    private static readonly IReadOnlyList<string> _imageUrlSizes = ["16", "32", "64", "128", "256", "512", "1024", "2048", "4096"];
 
     private static readonly IReadOnlyList<GuildEmoji> _emojis = [
         .._ids
@@ -49,18 +49,18 @@ public class TryFormat
                 Animated = true,
             }, id, null!))];
 
-    private static readonly IReadOnlyList<LogMessage> _messages = new[]
-    {
+    private static readonly IReadOnlyList<LogMessage> _messages =
+    [
         NetCord.Gateway.LogMessage.Info("message"),
         NetCord.Gateway.LogMessage.Info("message", "description"),
         NetCord.Gateway.LogMessage.Error(new("message")),
-    };
+    ];
 
-    private static readonly IReadOnlyList<CodeBlock> _codeBlocks = new CodeBlock[]
-    {
+    private static readonly IReadOnlyList<CodeBlock> _codeBlocks =
+    [
         new("code"),
         new("code", "language"),
-    };
+    ];
 
     private static readonly IReadOnlyList<ApplicationCommand> _applicationCommands = _ids.Select(id => new ApplicationCommand(new()
     {

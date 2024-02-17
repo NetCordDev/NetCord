@@ -33,6 +33,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MethodsForPropertiesGenerator", "SourceGenerators\MethodsForPropertiesGenerator\MethodsForPropertiesGenerator.csproj", "{0B949510-7B18-4CC4-8CC8-5E1B115777F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{956FC770-6623-43F6-B74B-000B7587A287}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\.editorconfig = Documentation\.editorconfig
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "guides", "guides", "{FDFF38F4-A459-4809-BA63-01A2BEC131ED}"
 EndProject
@@ -134,7 +137,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShardingHosting", "Document
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpInteractions", "Documentation\guides\advanced\HttpInteractions\HttpInteractions.csproj", "{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClientMethodAliasesGenerator", "SourceGenerators\RestClientMethodAliasesGenerator\RestClientMethodAliasesGenerator.csproj", "{941F7A6C-313B-481E-9EBC-2B82972F8649}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestClientMethodAliasesGenerator", "SourceGenerators\RestClientMethodAliasesGenerator\RestClientMethodAliasesGenerator.csproj", "{941F7A6C-313B-481E-9EBC-2B82972F8649}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

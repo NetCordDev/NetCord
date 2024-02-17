@@ -449,21 +449,30 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    public virtual void Dispose()
+    public void Dispose()
     {
-        _webSocket.Dispose();
-        var disconnectedTokenSource = _disconnectedTokenSource;
-        if (disconnectedTokenSource is not null && !disconnectedTokenSource.IsCancellationRequested)
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
         {
-            disconnectedTokenSource.Cancel();
-            disconnectedTokenSource.Dispose();
+            _webSocket.Dispose();
+            var disconnectedTokenSource = _disconnectedTokenSource;
+            if (disconnectedTokenSource is not null && !disconnectedTokenSource.IsCancellationRequested)
+            {
+                disconnectedTokenSource.Cancel();
+                disconnectedTokenSource.Dispose();
+            }
+            var closedTokenSource = _closedTokenSource;
+            if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
+            {
+                closedTokenSource.Cancel();
+                closedTokenSource.Dispose();
+            }
+            _reconnectTimer.Dispose();
         }
-        var closedTokenSource = _closedTokenSource;
-        if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
-        {
-            closedTokenSource.Cancel();
-            closedTokenSource.Dispose();
-        }
-        _reconnectTimer.Dispose();
     }
 }

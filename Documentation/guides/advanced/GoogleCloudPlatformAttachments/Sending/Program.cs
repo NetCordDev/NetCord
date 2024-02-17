@@ -9,8 +9,5 @@ var uploadFileName = "cc7c13c1-a13d-4b3a-b978-e2c003466155/file.txt"; // It's re
 
 await client.SendMessageAsync(channelId, new()
 {
-    Attachments = new AttachmentProperties[]
-    {
-        new GoogleCloudPlatformAttachmentProperties(fileName, uploadFileName),
-    },
+    Attachments = [new GoogleCloudPlatformAttachmentProperties(fileName, uploadFileName)]
 });

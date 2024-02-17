@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-internal class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : IBufferWriter<T>, IDisposable
+internal sealed class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : IBufferWriter<T>, IDisposable
 {
     private int _index;
     private T[] _buffer = ArrayPool<T>.Shared.Rent(minimumInitialCapacity);

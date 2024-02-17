@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class RestRequestHandler : IRestRequestHandler
+public sealed class RestRequestHandler : IRestRequestHandler
 {
     private readonly HttpClient _httpClient;
 

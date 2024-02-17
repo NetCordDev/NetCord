@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-public class OpusEncoder : IDisposable
+public sealed class OpusEncoder : IDisposable
 {
     private readonly OpusEncoderHandle _encoder;
 

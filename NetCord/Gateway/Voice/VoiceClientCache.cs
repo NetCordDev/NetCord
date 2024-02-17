@@ -2,13 +2,15 @@
 
 namespace NetCord.Gateway.Voice;
 
-public record VoiceClientCache : IVoiceClientCache
+public sealed record VoiceClientCache : IVoiceClientCache
 {
     public uint Ssrc => _ssrc;
     public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
     public IReadOnlyDictionary<uint, ulong> Users => _users;
 
+#pragma warning disable IDE0032 // Use auto property
     private uint _ssrc;
+#pragma warning restore IDE0032 // Use auto property
     private ImmutableDictionary<ulong, uint> _ssrcs;
     private ImmutableDictionary<uint, ulong> _users;
 

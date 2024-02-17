@@ -40,6 +40,7 @@ public abstract class RewritingStream(Stream next) : Stream
 
     protected override void Dispose(bool disposing)
     {
-        _next.Dispose();
+        if (disposing)
+            _next.Dispose();
     }
 }

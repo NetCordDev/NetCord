@@ -12,8 +12,8 @@ public class StringEnumConverterWithErrorHandling<T> : JsonConverter<T> where T 
     private static readonly JsonEncodedText _unknownName = JsonEncodedText.Encode(default(ReadOnlySpan<byte>));
     private static readonly T _unknownValue = (T)(object)-1;
 
-    private readonly IReadOnlyDictionary<ReadOnlyMemory<byte>, T> _namesDictionary;
-    private readonly IReadOnlyDictionary<T, JsonEncodedText> _valuesDictionary;
+    private readonly Dictionary<ReadOnlyMemory<byte>, T> _namesDictionary;
+    private readonly Dictionary<T, JsonEncodedText> _valuesDictionary;
 
     [UnconditionalSuppressMessage("Trimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.", Justification = "<Pending>")]
     public StringEnumConverterWithErrorHandling()
