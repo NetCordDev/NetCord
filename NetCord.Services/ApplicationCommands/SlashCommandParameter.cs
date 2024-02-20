@@ -47,7 +47,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
             (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-            var name = Name = slashCommandParameterAttribute.Name ?? parameter.Name!;
+            var name = Name = slashCommandParameterAttribute.Name ?? configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
             Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
 
             var nameTranslationsProviderType = slashCommandParameterAttribute.NameTranslationsProviderType;
@@ -91,7 +91,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         {
             (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
 
-            var name = Name = parameter.Name!;
+            var name = Name = configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
             NameTranslationsProvider = TypeReader.NameTranslationsProvider;
             Description = string.Format(configuration.DefaultParameterDescriptionFormat, name);
             DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;

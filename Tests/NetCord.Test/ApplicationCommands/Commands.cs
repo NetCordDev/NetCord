@@ -69,9 +69,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider), MaxLength = 500)] string query)
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider), MaxLength = 500)] string searchQuery)
     {
-        return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(query)}"));
+        return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}"));
     }
 
     private class SearchNameTranslationsProvider : ITranslationsProvider

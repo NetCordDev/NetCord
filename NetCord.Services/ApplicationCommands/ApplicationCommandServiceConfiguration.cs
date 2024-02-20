@@ -73,6 +73,8 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public bool DefaultDMPermission { get; init; } = true;
 
+    public ISlashCommandParameterNameProcessor<TContext> ParameterNameProcessor { get; init; } = new SnakeCaseSlashCommandParameterNameProcessor<TContext>();
+
     /// <summary>
     /// {0} - parameter name
     /// </summary>

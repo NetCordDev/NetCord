@@ -42,6 +42,7 @@ internal static class Program
         configuration = configuration with
         {
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader()),
+            ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
         };
         _slashCommandService = new(configuration);
 
