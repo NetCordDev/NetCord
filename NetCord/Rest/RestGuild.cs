@@ -13,9 +13,10 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
 
     public override ulong Id => _jsonModel.Id;
     public string Name => _jsonModel.Name;
-    public string? IconHash => _jsonModel.IconHash ?? _jsonModel.IconHashTemplate;
+    public string? IconHash => _jsonModel.IconHash;
     public string? SplashHash => _jsonModel.SplashHash;
     public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
+    public virtual bool IsOwner => _jsonModel.IsOwner;
     public ulong OwnerId => _jsonModel.OwnerId;
     public Permissions? Permissions => _jsonModel.Permissions;
     public ulong? AfkChannelId => _jsonModel.AfkChannelId;
@@ -47,7 +48,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
     public GuildWelcomeScreen? WelcomeScreen { get; }
     public NsfwLevel NsfwLevel => _jsonModel.NsfwLevel;
-    public bool PremiumProgressBarEnabled => _jsonModel.PremiumPropressBarEnabled;
+    public bool PremiumProgressBarEnabled => _jsonModel.PremiumProgressBarEnabled;
     public ulong? SafetyAlertsChannelId => _jsonModel.SafetyAlertsChannelId;
 
     public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)

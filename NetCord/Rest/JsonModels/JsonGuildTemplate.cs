@@ -1,6 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NetCord.JsonModels;
+using NetCord.JsonModels;
+
+namespace NetCord.Rest.JsonModels;
 
 public class JsonGuildTemplate
 {
@@ -32,7 +34,7 @@ public class JsonGuildTemplate
     public ulong SourceGuildId { get; set; }
 
     [JsonPropertyName("serialized_source_guild")]
-    public JsonGuild SerializedSourceGuild { get; set; }
+    public JsonGuild Preview { get; set; }
 
     [JsonPropertyName("is_dirty")]
     public bool? IsDirty { get; set; }

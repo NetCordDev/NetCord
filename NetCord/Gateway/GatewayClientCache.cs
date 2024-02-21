@@ -13,13 +13,13 @@ public sealed record GatewayClientCache : IGatewayClientCache
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
-    public GatewayClientCache(JsonGatewayClientCache jsonModel, RestClient client)
+    public GatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
         _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => DMChannel.CreateFromJson(c, client));
-        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, client));
+        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, clientId, client));
     }
 
     public CurrentUser? User => _user;

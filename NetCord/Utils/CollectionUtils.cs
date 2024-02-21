@@ -6,6 +6,14 @@ namespace NetCord;
 internal static class CollectionsUtils
 {
     #region IEnumerable<out T>
+    public static Dictionary<TKey, TElement> ToDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>>? source, Func<TSource, TElement> elementSelector) where TKey : notnull
+    {
+        if (source is null)
+            return [];
+        else
+            return source.ToDictionary(p => p.Key, p => elementSelector(p.Value));
+    }
+
     public static Dictionary<TKey, TSource> ToDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
         if (source is null)

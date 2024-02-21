@@ -24,7 +24,7 @@ public class JsonGuild : JsonEntity
     public string? DiscoverySplashHash { get; set; }
 
     [JsonPropertyName("owner")]
-    public bool? IsOwner { get; set; }
+    public bool IsOwner { get; set; }
 
     [JsonPropertyName("owner_id")]
     public ulong OwnerId { get; set; }
@@ -167,7 +167,7 @@ public class JsonGuild : JsonEntity
     public ImmutableDictionary<ulong, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
-    public bool PremiumPropressBarEnabled { get; set; }
+    public bool PremiumProgressBarEnabled { get; set; }
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }

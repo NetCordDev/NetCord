@@ -16,12 +16,13 @@ public class Guild : RestGuild
     public ImmutableDictionary<ulong, Presence> Presences { get; set; }
     public ImmutableDictionary<ulong, GuildScheduledEvent> ScheduledEvents { get; set; }
 
+    public override bool IsOwner { get; }
     public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
     public bool IsLarge => _jsonModel.IsLarge;
     public bool IsUnavailable => _jsonModel.IsUnavailable;
     public int UserCount => _jsonModel.UserCount;
 
-    public Guild(JsonGuild jsonModel, RestClient client) : base(jsonModel, client)
+    public Guild(JsonGuild jsonModel, ulong clientId, RestClient client) : base(jsonModel, client)
     {
         var guildId = jsonModel.Id;
         VoiceStates = jsonModel.VoiceStates.ToImmutableDictionaryOrEmpty(s => new VoiceState(s, guildId, client));
@@ -31,9 +32,10 @@ public class Guild : RestGuild
         StageInstances = jsonModel.StageInstances.ToImmutableDictionaryOrEmpty(i => new StageInstance(i, client));
         Presences = jsonModel.Presences.ToImmutableDictionaryOrEmpty(p => new Presence(p, guildId, client));
         ScheduledEvents = jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
+        IsOwner = jsonModel.OwnerId == clientId;
     }
 
-    public Guild(JsonGuild jsonModel, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)
+    public Guild(JsonGuild jsonModel, ulong clientId, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)
     {
         VoiceStates = oldGuild.VoiceStates;
         Users = oldGuild.Users;
@@ -42,6 +44,7 @@ public class Guild : RestGuild
         StageInstances = oldGuild.StageInstances;
         Presences = oldGuild.Presences;
         ScheduledEvents = oldGuild.ScheduledEvents;
+        IsOwner = jsonModel.OwnerId == clientId;
     }
 
     private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)
