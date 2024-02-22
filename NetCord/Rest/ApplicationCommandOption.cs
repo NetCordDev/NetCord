@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>, ISpanFormattable
 {
@@ -20,7 +18,7 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// <summary>
     /// Translations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
     /// <summary>
     /// Description of the option (1-100 characters).
@@ -30,7 +28,7 @@ public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCom
     /// <summary>
     /// Translations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
     /// <summary>
     /// If the parameter is required or optional.

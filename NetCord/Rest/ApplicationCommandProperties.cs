@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -30,7 +29,7 @@ public abstract partial class ApplicationCommandProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     /// <summary>
     /// Default required permissions to use the command.

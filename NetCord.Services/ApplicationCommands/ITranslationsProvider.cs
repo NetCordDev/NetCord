@@ -1,8 +1,6 @@
-﻿using System.Globalization;
-
-namespace NetCord.Services.ApplicationCommands;
+﻿namespace NetCord.Services.ApplicationCommands;
 
 public interface ITranslationsProvider
 {
-    public IReadOnlyDictionary<CultureInfo, string>? Translations { get; }
+    public IReadOnlyDictionary<string, string>? Translations { get; }
 }

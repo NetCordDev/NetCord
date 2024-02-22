@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -18,7 +17,7 @@ public partial class ApplicationCommandOptionChoiceProperties
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     /// <summary>
     /// String value for the choice (max 100 characters).
@@ -67,7 +66,7 @@ public partial class ApplicationCommandOptionChoiceProperties
             if (nameLocalizations is not null)
             {
                 writer.WritePropertyName(_nameLocalizations);
-                JsonSerializer.Serialize(writer, nameLocalizations, Serialization.Default.IReadOnlyDictionaryCultureInfoString);
+                JsonSerializer.Serialize(writer, nameLocalizations, Serialization.Default.IReadOnlyDictionaryStringString);
             }
 
             writer.WritePropertyName(_value);

@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonApplicationCommand>
 {
@@ -27,7 +25,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Translations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
     /// <summary>
     /// Description of the command (1-100 characters).
@@ -37,7 +35,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Translations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 
     /// <summary>
     /// Default required permissions to use the command.

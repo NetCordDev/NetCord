@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
@@ -76,10 +74,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class SearchNameTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "szukaj"
             }
         };
@@ -87,10 +85,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class SearchDescriptionTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "Szuka używając DuckDuckGo"
             }
         };
@@ -98,10 +96,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class SearchQueryNameTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "fraza"
             }
         };
@@ -109,10 +107,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class SearchQueryDescriptionTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "Flaza do szukania"
             }
         };
@@ -312,10 +310,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class ButtonNameTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "guzik"
             }
         };
@@ -323,10 +321,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     private class ButtonDescriptionTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>()
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
         {
             {
-                new("pl"),
+                "pl",
                 "Wysyła guzik"
             }
         };
@@ -425,10 +423,10 @@ public enum DeleteMessagesDays
 
 public class DeleteMessagesDaysLastWeekTranslationsProvider : ITranslationsProvider
 {
-    public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+    public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
     {
         {
-            new("pl"),
+            "pl",
             "Ostatni tydzień"
         }
     };

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -36,10 +35,10 @@ public class JsonInteraction : JsonEntity
     public Permissions? AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
-    public CultureInfo? UserLocale { get; set; }
+    public string? UserLocale { get; set; }
 
     [JsonPropertyName("guild_locale")]
-    public CultureInfo? GuildLocale { get; set; }
+    public string? GuildLocale { get; set; }
 
     [JsonPropertyName("entitlements")]
     public JsonEntitlement[] Entitlements { get; set; }

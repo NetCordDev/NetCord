@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace NetCord.Rest;
 
@@ -16,7 +15,7 @@ public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicat
     /// <summary>
     /// Translations of <see cref="Name"/> (1-100 characters each).
     /// </summary>
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => _jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
     /// <summary>
     /// String value for the choice.

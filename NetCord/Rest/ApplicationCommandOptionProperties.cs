@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -28,7 +27,7 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     /// <summary>
     /// Description of the option (1-100 characters).
@@ -41,7 +40,7 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
 
     /// <summary>
     /// If the parameter is required or optional, default <see langword="false"/>.

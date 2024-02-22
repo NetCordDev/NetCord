@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord;
 
@@ -19,7 +17,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public bool? MfaEnabled => _jsonModel.MfaEnabled;
     public string? BannerHash => _jsonModel.BannerHash;
     public Color? AccentColor => _jsonModel.AccentColor;
-    public CultureInfo? Locale => _jsonModel.Locale;
+    public string? Locale => _jsonModel.Locale;
     public bool? Verified => _jsonModel.Verified;
     public string? Email => _jsonModel.Email;
     public UserFlags? Flags => _jsonModel.Flags;

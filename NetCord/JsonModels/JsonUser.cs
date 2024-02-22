@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -34,7 +33,7 @@ public class JsonUser : JsonEntity
     public Color? AccentColor { get; set; }
 
     [JsonPropertyName("locale")]
-    public CultureInfo? Locale { get; set; }
+    public string? Locale { get; set; }
 
     [JsonPropertyName("verified")]
     public bool? Verified { get; set; }

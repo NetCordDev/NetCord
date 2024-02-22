@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest.JsonModels;
@@ -10,7 +9,7 @@ public class JsonApplicationCommandOptionChoice
     public string Name { get; set; }
 
     [JsonPropertyName("name_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? NameLocalizations { get; set; }
 
     [JsonPropertyName("value")]
     public JsonElement Value { get; set; }

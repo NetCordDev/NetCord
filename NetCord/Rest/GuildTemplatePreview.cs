@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
@@ -14,7 +12,7 @@ public class GuildTemplatePreview(JsonGuild jsonModel, RestClient client) : IJso
     public VerificationLevel VerificationLevel => jsonModel.VerificationLevel;
     public DefaultMessageNotificationLevel DefaultMessageNotificationLevel => jsonModel.DefaultMessageNotificationLevel;
     public ContentFilter ContentFilter => jsonModel.ContentFilter;
-    public CultureInfo PreferredLocale => jsonModel.PreferredLocale;
+    public string PreferredLocale => jsonModel.PreferredLocale;
     public ulong? AfkChannelId => jsonModel.AfkChannelId;
     public int AfkTimeout => jsonModel.AfkTimeout;
     public ulong? SystemChannelId => jsonModel.SystemChannelId;

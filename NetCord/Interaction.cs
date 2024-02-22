@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Gateway;
+﻿using NetCord.Gateway;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -45,9 +43,9 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public Permissions? AppPermissions => _jsonModel.AppPermissions;
 
-    public CultureInfo UserLocale => _jsonModel.UserLocale!;
+    public string UserLocale => _jsonModel.UserLocale!;
 
-    public CultureInfo? GuildLocale => _jsonModel.GuildLocale;
+    public string? GuildLocale => _jsonModel.GuildLocale;
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 

@@ -40,7 +40,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public string? BannerHash => _jsonModel.BannerHash;
     public int PremiumTier => _jsonModel.PremiumTier;
     public int? PremiumSubscriptionCount => _jsonModel.PremiumSubscriptionCount;
-    public System.Globalization.CultureInfo PreferredLocale => _jsonModel.PreferredLocale;
+    public string PreferredLocale => _jsonModel.PreferredLocale;
     public ulong? PublicUpdatesChannelId => _jsonModel.PublicUpdatesChannelId;
     public int? MaxVideoChannelUsers => _jsonModel.MaxVideoChannelUsers;
     public int? MaxStageVideoChannelUsers => _jsonModel.MaxStageVideoChannelUsers;

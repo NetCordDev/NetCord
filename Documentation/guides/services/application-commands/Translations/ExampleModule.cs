@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
@@ -33,73 +31,73 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
 
     public class NameTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "zwierzę" },
-            { new("es-ES"), "animal" }
+            { "pl", "zwierzę" },
+            { "es-ES", "animal" }
         };
     }
 
     public class DescriptionTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Wysyła zwierzę, które wybrałeś" },
-            { new("es-ES"), "Envía el animal que seleccionaste" }
+            { "pl", "Wysyła zwierzę, które wybrałeś" },
+            { "es-ES", "Envía el animal que seleccionaste" }
         };
     }
 
     public class AnimalNameTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "zwierzę" },
-            { new("es-ES"), "animal" }
+            { "pl", "zwierzę" },
+            { "es-ES", "animal" }
         };
     }
 
     public class AnimalDescriptionTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Zwierzę do wysłania" },
-            { new("es-ES"), "Animal para enviar" }
+            { "pl", "Zwierzę do wysłania" },
+            { "es-ES", "Animal para enviar" }
         };
     }
 
     public class AnimalDogTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Pies" },
-            { new("es-ES"), "Perro/a" }
+            { "pl", "Pies" },
+            { "es-ES", "Perro/a" }
         };
     }
 
     public class AnimalCatTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Kot" },
-            { new("es-ES"), "Gato/a" }
+            { "pl", "Kot" },
+            { "es-ES", "Gato/a" }
         };
     }
 
     public class AnimalFishTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Ryba" },
-            { new("es-ES"), "Pez" }
+            { "pl", "Ryba" },
+            { "es-ES", "Pez" }
         };
     }
 
     public class AnimalGuineaPigTranslationsProvider : ITranslationsProvider
     {
-        public IReadOnlyDictionary<CultureInfo, string>? Translations => new Dictionary<CultureInfo, string>
+        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
         {
-            { new("pl"), "Świnka morska" },
-            { new("es-ES"), "Cobayo/a" }
+            { "pl", "Świnka morska" },
+            { "es-ES", "Cobayo/a" }
         };
     }
 }

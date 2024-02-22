@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public class ApplicationRoleConnectionMetadata(JsonModels.JsonApplicationRoleConnectionMetadata jsonModel) : IJsonModel<JsonModels.JsonApplicationRoleConnectionMetadata>
 {
@@ -9,7 +7,7 @@ public class ApplicationRoleConnectionMetadata(JsonModels.JsonApplicationRoleCon
     public ApplicationRoleConnectionMetadataType Type => jsonModel.Type;
     public string Key => jsonModel.Key;
     public string Name => jsonModel.Name;
-    public IReadOnlyDictionary<CultureInfo, string>? NameLocalizations => jsonModel.NameLocalizations;
+    public IReadOnlyDictionary<string, string>? NameLocalizations => jsonModel.NameLocalizations;
     public string Description => jsonModel.Description;
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations => jsonModel.DescriptionLocalizations;
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations => jsonModel.DescriptionLocalizations;
 }

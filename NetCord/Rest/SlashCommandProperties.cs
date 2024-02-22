@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -21,7 +20,7 @@ public partial class SlashCommandProperties(string name, string description) : A
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]
-    public IReadOnlyDictionary<CultureInfo, string>? DescriptionLocalizations { get; set; }
+    public IReadOnlyDictionary<string, string>? DescriptionLocalizations { get; set; }
 
     /// <summary>
     /// Parameters for the command (max 25).

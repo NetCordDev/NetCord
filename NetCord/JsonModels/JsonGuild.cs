@@ -132,7 +132,7 @@ public class JsonGuild : JsonEntity
     public int? PremiumSubscriptionCount { get; set; }
 
     [JsonPropertyName("preferred_locale")]
-    public System.Globalization.CultureInfo PreferredLocale { get; set; }
+    public string PreferredLocale { get; set; }
 
     [JsonPropertyName("public_updates_channel_id")]
     public ulong? PublicUpdatesChannelId { get; set; }

@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 using NetCord.Gateway;
 using NetCord.Gateway.JsonModels;
@@ -13,7 +12,7 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord;
 
-[JsonSourceGenerationOptions(Converters = [typeof(UInt64Converter), typeof(NullableInt64Converter), typeof(CultureInfoConverter), typeof(PermissionsConverter)])]
+[JsonSourceGenerationOptions(Converters = [typeof(UInt64Converter), typeof(NullableInt64Converter), typeof(PermissionsConverter)])]
 [JsonSerializable(typeof(JsonMessage))]
 [JsonSerializable(typeof(VoicePayloadProperties<int>))]
 [JsonSerializable(typeof(VoicePayloadProperties<ProtocolProperties>))]
@@ -91,7 +90,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonEntity[]))]
 [JsonSerializable(typeof(TextInputProperties))]
 [JsonSerializable(typeof(IEnumerable<ulong>))]
-[JsonSerializable(typeof(IReadOnlyDictionary<CultureInfo, string>))]
+[JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]
 [JsonSerializable(typeof(SlashCommandProperties))]
 [JsonSerializable(typeof(UserCommandProperties))]
 [JsonSerializable(typeof(MessageCommandProperties))]
