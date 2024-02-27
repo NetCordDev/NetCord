@@ -2,7 +2,7 @@
 
 ## [Hosting](#tab/hosting)
 
-With hosting, adding interactions is very easy. Use @NetCord.Hosting.Services.Interactions.InteractionServiceHostBuilderExtensions.UseInteractionService``2(Microsoft.Extensions.Hosting.IHostBuilder) to add an interaction service to your host builder. Then, use @NetCord.Hosting.Services.Interactions.InteractionServiceHostExtensions.AddInteraction* to add an interaction using the ASP.NET Core minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
+With hosting, adding component interactions is very easy. Use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceHostBuilderExtensions.UseComponentInteractions``2(Microsoft.Extensions.Hosting.IHostBuilder) to add a component interaction service to your host builder. Then, use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceHostExtensions.AddComponentInteraction* to add a component interaction using the ASP.NET Core minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
 [!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=11-17,20-28)]
 
 ## [Without Hosting](#tab/without-hosting)
@@ -10,7 +10,7 @@ With hosting, adding interactions is very easy. Use @NetCord.Hosting.Services.In
 First, add the following lines to the using section.
 [!code-cs[Program.cs](Introduction/Program.cs#L4-L5)]
 
-Now, it's time to create @NetCord.Services.Interactions.InteractionService`1 instance and add modules to it. In this example, we will use @NetCord.Services.Interactions.ButtonInteractionContext.
+Now, it's time to create @NetCord.Services.ComponentInteractions.ComponentInteractionService`1 instance and add modules to it. In this example, we will use @NetCord.Services.ComponentInteractions.ButtonInteractionContext.
 [!code-cs[Program.cs](Introduction/Program.cs#L12-L13)]
 
 We can add an interaction handler now.

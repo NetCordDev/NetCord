@@ -30,12 +30,12 @@
           href: services/application-commands/permissions.md
         - name: Translations
           href: services/application-commands/translations.md
-    - name: Interactions
+    - name: Component Interactions
       items:
         - name: Introduction
-          href: services/interactions/introduction.md
+          href: services/component-interactions/introduction.md
         - name: Parameters
-          href: services/interactions/parameters.md
+          href: services/component-interactions/parameters.md
     - name: Text Commands
       items:
         - name: Introduction
