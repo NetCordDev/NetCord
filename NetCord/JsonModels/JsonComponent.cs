@@ -28,8 +28,14 @@ public class JsonComponent
     [JsonPropertyName("options")]
     public JsonMenuSelectOption[] Options { get; set; }
 
+    [JsonPropertyName("channel_types")]
+    public ChannelType[]? ChannelTypes { get; set; }
+
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
+
+    [JsonPropertyName("default_values")]
+    public JsonSelectMenuDefaultValue[]? DefaultValues { get; set; }
 
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }

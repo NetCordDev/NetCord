@@ -7,7 +7,6 @@ public class TextInput(JsonComponent jsonModel) : IComponent, IJsonModel<JsonCom
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private readonly JsonComponent _jsonModel = jsonModel.Components[0];
 
-    public ComponentType ComponentType => ComponentType.TextInput;
     public string CustomId => _jsonModel.CustomId!;
     public string Value => _jsonModel.Value!;
 }

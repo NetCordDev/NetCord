@@ -1,9 +1,23 @@
-﻿namespace NetCord;
+﻿using NetCord.JsonModels;
 
-public class LinkButton(JsonModels.JsonComponent jsonModel) : Button(jsonModel)
+namespace NetCord;
+
+public class LinkButton : IButton, IJsonModel<JsonComponent>
 {
-#pragma warning disable CA1822 // Mark members as static
-    public ButtonStyle Style => (ButtonStyle)5;
-#pragma warning restore CA1822 // Mark members as static
+    JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
+    private readonly JsonComponent _jsonModel;
+
     public string Url => _jsonModel.Url!;
+    public string? Label => _jsonModel.Label;
+    public ComponentEmoji? Emoji { get; }
+    public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
+
+    public LinkButton(JsonComponent jsonModel)
+    {
+        _jsonModel = jsonModel;
+
+        var emoji = jsonModel.Emoji;
+        if (emoji is not null)
+            Emoji = new(emoji);
+    }
 }
