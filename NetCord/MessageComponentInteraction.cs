@@ -4,7 +4,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public abstract class MessageComponentInteraction : Interaction
+public abstract class MessageComponentInteraction : ComponentInteraction
 {
     private protected MessageComponentInteraction(JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {

@@ -73,7 +73,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.ApplicationCommandAutocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
-            InteractionType.ModalSubmit => new ModalSubmitInteraction(jsonModel, guild, sendResponseAsync, client),
+            InteractionType.ModalSubmit => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
             _ => throw new InvalidOperationException(),
         };
     }

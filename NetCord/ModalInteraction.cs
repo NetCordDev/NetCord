@@ -3,9 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class ModalSubmitInteraction : Interaction
+public class ModalInteraction : ComponentInteraction
 {
-    public ModalSubmitInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
+    public ModalInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
         var message = jsonModel.Message;
         if (message is not null)
@@ -22,5 +22,5 @@ public class ModalSubmitInteraction : Interaction
     /// </summary>
     public Message? Message { get; }
 
-    public override ModalSubmitInteractionData Data { get; }
+    public override ModalInteractionData Data { get; }
 }
