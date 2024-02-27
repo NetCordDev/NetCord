@@ -10,7 +10,7 @@ using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
@@ -23,13 +23,13 @@ internal static class Program
     });
 
     private static readonly CommandService<CommandContext> _commandService = new();
-    private static readonly InteractionService<ButtonInteractionContext> _buttonInteractionService = new();
-    private static readonly InteractionService<StringMenuInteractionContext> _stringMenuInteractionService = new();
-    private static readonly InteractionService<UserMenuInteractionContext> _userMenuInteractionService = new();
-    private static readonly InteractionService<RoleMenuInteractionContext> _roleMenuInteractionService = new();
-    private static readonly InteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
-    private static readonly InteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
-    private static readonly InteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
+    private static readonly ComponentInteractionService<ButtonInteractionContext> _buttonInteractionService = new();
+    private static readonly ComponentInteractionService<StringMenuInteractionContext> _stringMenuInteractionService = new();
+    private static readonly ComponentInteractionService<UserMenuInteractionContext> _userMenuInteractionService = new();
+    private static readonly ComponentInteractionService<RoleMenuInteractionContext> _roleMenuInteractionService = new();
+    private static readonly ComponentInteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
+    private static readonly ComponentInteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
+    private static readonly ComponentInteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
     private static readonly ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
@@ -75,7 +75,7 @@ internal static class Program
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 
-        _messageCommandService.AddMessageCommand("wziummm", InteractionMessageProperties (MessageCommandContext context) => new() { Components = [new ActionRowProperties([new ActionButtonProperties("wziummm", "WZIUM", ButtonStyle.Success)])] });
+        _messageCommandService.AddMessageCommand("wziummm", InteractionMessageProperties (MessageCommandContext context) => new() { Components = [new ActionRowProperties([new ButtonProperties("wziummm", "WZIUM", ButtonStyle.Success)])] });
 
         _userCommandService.AddModules(assembly);
 
@@ -110,6 +110,51 @@ internal static class Program
         }
     }
 
+    private static void A(params ComponentProperties[] e)
+    {
+    }
+
+    private static void A(IEnumerable<ComponentProperties> e)
+    {
+    }
+
+    private static void A(params ActionRowProperties[] e)
+    {
+    }
+
+    private static void A(IEnumerable<ActionRowProperties> e)
+    {
+    }
+
+    private static void X()
+    {
+        MessageProperties messageProperties = new();
+
+        messageProperties.AddComponents(
+            (ActionRowProperties)(
+            [
+                new ButtonProperties("d", "d", ButtonStyle.Danger),
+                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
+                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
+            ]));
+
+        messageProperties.AddComponents(
+            new ActionRowProperties(
+            [
+                new ButtonProperties("d", "d", ButtonStyle.Danger),
+                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
+                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
+            ]));
+
+        messageProperties.AddComponents(
+            new ActionRowProperties()
+            {
+                new ButtonProperties("d", "d", ButtonStyle.Danger),
+                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
+                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
+            });
+    }
+
     private static async ValueTask Client_InteractionCreate(Interaction interaction)
     {
         var result = await (interaction switch
@@ -124,7 +169,7 @@ internal static class Program
             ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
             ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
             AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
-            ModalSubmitInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
+            ModalInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
             _ => throw new("Invalid interaction."),
         });
         if (result is IFailResult failResult)

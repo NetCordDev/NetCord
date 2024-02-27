@@ -1,11 +1,11 @@
 ﻿using NetCord.Rest;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class ButtonInteractions(string wzium) : InteractionModule<ButtonInteractionContext>
+public class ButtonInteractions(string wzium) : ComponentInteractionModule<ButtonInteractionContext>
 {
-    [Interaction("click it")]
+    [ComponentInteraction("click it")]
     public Task ClickIt()
     {
         //InteractionMessageProperties interactionMessage = new()
@@ -27,13 +27,13 @@ public class ButtonInteractions(string wzium) : InteractionModule<ButtonInteract
         ])));
     }
 
-    [Interaction("test")]
+    [ComponentInteraction("test")]
     public Task TestAsync(string s, string s2)
     {
         return RespondAsync(InteractionCallback.Message($"{s}\n{s2}"));
     }
 
-    [Interaction("enum")]
+    [ComponentInteraction("enum")]
     public Task EnumAsync(PaginationDirection paginationDirection)
     {
         return RespondAsync(InteractionCallback.Message(paginationDirection.ToString()));

@@ -1,13 +1,13 @@
 ﻿using NetCord.Rest;
 using NetCord.Services;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractionContext>
+public class AdministrativeInteractions : BaseComponentInteractionModule<ButtonInteractionContext>
 {
     [RequireUserPermissions<ButtonInteractionContext>(Permissions.BanUsers), RequireBotPermissions<ButtonInteractionContext>(Permissions.BanUsers)]
-    [Interaction("unban")]
+    [ComponentInteraction("unban")]
     public async Task UnbanAsync(ulong userId)
     {
         await Context.Guild!.UnbanUserAsync(userId);
@@ -15,7 +15,7 @@ public class AdministrativeInteractions : BaseInteractionModule<ButtonInteractio
     }
 
     [RequireUserPermissions<ButtonInteractionContext>(Permissions.ModerateUsers), RequireBotPermissions<ButtonInteractionContext>(Permissions.ModerateUsers)]
-    [Interaction("unmute")]
+    [ComponentInteraction("unmute")]
     public async Task UnmuteAsync(ulong userId)
     {
         await Context.Client.Rest.ModifyGuildUserAsync(Context.Guild!.Id, userId, u => u.TimeOutUntil = default(DateTimeOffset));

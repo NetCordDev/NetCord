@@ -2,14 +2,14 @@
 using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
 {
     Intents = default,
 });
 
-InteractionService<ButtonInteractionContext> interactionService = new();
+ComponentInteractionService<ButtonInteractionContext> interactionService = new();
 interactionService.AddModules(typeof(Program).Assembly);
 
 client.InteractionCreate += async interaction =>

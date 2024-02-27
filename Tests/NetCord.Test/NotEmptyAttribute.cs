@@ -1,5 +1,5 @@
 ﻿using NetCord.Services;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 

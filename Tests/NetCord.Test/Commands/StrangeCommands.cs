@@ -59,7 +59,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     [Command("button")]
     public Task Button()
     {
-        ActionButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
+        ButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
         ActionRowProperties actionRow = new([button]);
         MessageProperties messageBuilder = new()
         {
@@ -303,7 +303,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
             [
                 new ActionRowProperties(
                 [
-                    new ActionButtonProperties(customId, "Button", ButtonStyle.Success),
+                    new ButtonProperties(customId, "Button", ButtonStyle.Success),
                 ]),
             ],
         });

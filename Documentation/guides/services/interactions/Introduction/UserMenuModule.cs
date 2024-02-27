@@ -1,11 +1,11 @@
 ﻿using NetCord.Rest;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace MyBot;
 
-public class UserMenuModule : InteractionModule<UserMenuInteractionContext>
+public class UserMenuModule : ComponentInteractionModule<UserMenuInteractionContext>
 {
-    [Interaction("menu")]
+    [ComponentInteraction("menu")]
     public Task MenuAsync()
     {
         return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedUsers)}"));

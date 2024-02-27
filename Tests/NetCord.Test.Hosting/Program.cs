@@ -5,11 +5,11 @@ using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.Commands;
-using NetCord.Hosting.Services.Interactions;
+using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 using NetCord.Test.Hosting;
 
 //var builder = Host.CreateDefaultBuilder(args)
@@ -41,7 +41,7 @@ builder.Services
     .AddApplicationCommandService<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
     .AddApplicationCommandService<UserCommandInteraction, UserCommandContext>()
     .AddApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
-    .AddInteractionService<ButtonInteraction, ButtonInteractionContext>()
+    .AddComponentInteractionService<ButtonInteraction, ButtonInteractionContext>()
     .AddCommandService<CommandContext>()
     .AddGatewayEventHandlers(typeof(Program).Assembly);
 
@@ -52,15 +52,15 @@ var host = builder.Build()
     {
         return new InteractionMessageProperties()
         {
-            Components = [new ActionRowProperties([new ActionButtonProperties("button", "Button!", ButtonStyle.Primary)])],
+            Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
         };
     })
     .AddSlashCommand<SlashCommandContext>("exception", "Exception!", (Action<string>)((string s) => throw new("Exception!")))
-    .AddSlashCommand<SlashCommandContext>("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ActionButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
+    .AddSlashCommand<SlashCommandContext>("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
     .AddUserCommand<UserCommandContext>("ping", () => "Pong!")
     .AddMessageCommand<MessageCommandContext>("ping", () => "Pong!")
-    .AddInteraction<ButtonInteractionContext>("button", () => "Button!")
-    .AddInteraction<ButtonInteractionContext>("exception", (Action)(() => throw new("Exception!")))
+    .AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!")
+    .AddComponentInteraction<ButtonInteractionContext>("exception", (Action)(() => throw new("Exception!")))
     .AddCommand<CommandContext>(["ping"], () => "Pong!")
     .AddCommand<CommandContext>(["exception"], (Action)(() => throw new("Exception!")))
     //.AddModules(Assembly.GetEntryAssembly()!)

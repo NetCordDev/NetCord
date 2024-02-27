@@ -14,7 +14,7 @@ public class MuteCommands : CommandModule<CommandContext>
 
         ActionRowProperties actionRow = new(
         [
-            new ActionButtonProperties($"unmute:{user.Id}", "Unmute", ButtonStyle.Danger),
+            new ButtonProperties($"unmute:{user.Id}", "Unmute", ButtonStyle.Danger),
         ]);
         MessageProperties message = new()
         {

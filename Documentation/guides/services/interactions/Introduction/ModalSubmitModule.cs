@@ -1,11 +1,11 @@
 ﻿using NetCord.Rest;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace MyBot;
 
-public class ModalSubmitModule : InteractionModule<ModalSubmitInteractionContext>
+public class ModalSubmitModule : ComponentInteractionModule<ModalSubmitInteractionContext>
 {
-    [Interaction("modal")]
+    [ComponentInteraction("modal")]
     public Task ModalAsync()
     {
         return RespondAsync(InteractionCallback.Message(string.Join('\n', Context.Components.Select(c => $"{c.CustomId}: {c.Value}"))));

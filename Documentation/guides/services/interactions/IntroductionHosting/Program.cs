@@ -3,27 +3,27 @@
 using NetCord;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
-using NetCord.Hosting.Services.Interactions;
-using NetCord.Services.Interactions;
+using NetCord.Hosting.Services.ComponentInteractions;
+using NetCord.Services.ComponentInteractions;
 
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseInteractionService<ButtonInteraction, ButtonInteractionContext>()
-    .UseInteractionService<StringMenuInteraction, StringMenuInteractionContext>()
-    .UseInteractionService<UserMenuInteraction, UserMenuInteractionContext>()
-    .UseInteractionService<RoleMenuInteraction, RoleMenuInteractionContext>()
-    .UseInteractionService<MentionableMenuInteraction, MentionableMenuInteractionContext>()
-    .UseInteractionService<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .UseInteractionService<ModalSubmitInteraction, ModalSubmitInteractionContext>();
+    .UseComponentInteractionService<ButtonInteraction, ButtonInteractionContext>()
+    .UseComponentInteractionService<StringMenuInteraction, StringMenuInteractionContext>()
+    .UseComponentInteractionService<UserMenuInteraction, UserMenuInteractionContext>()
+    .UseComponentInteractionService<RoleMenuInteraction, RoleMenuInteractionContext>()
+    .UseComponentInteractionService<MentionableMenuInteraction, MentionableMenuInteractionContext>()
+    .UseComponentInteractionService<ChannelMenuInteraction, ChannelMenuInteractionContext>()
+    .UseComponentInteractionService<ModalInteraction, ModalSubmitInteractionContext>();
 
 var host = builder.Build()
-    .AddInteraction<ButtonInteractionContext>("ping", () => "Pong!")
-    .AddInteraction<StringMenuInteractionContext>("string", (StringMenuInteractionContext context) => string.Join("\n", context.SelectedValues))
-    .AddInteraction<UserMenuInteractionContext>("user", (UserMenuInteractionContext context) => string.Join("\n", context.SelectedUsers))
-    .AddInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedRoles))
-    .AddInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedMentionables))
-    .AddInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedChannels))
-    .AddInteraction<ModalSubmitInteractionContext>("modal", (ModalSubmitInteractionContext context) => context.Components[0].Value)
+    .AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!")
+    .AddComponentInteraction<StringMenuInteractionContext>("string", (StringMenuInteractionContext context) => string.Join("\n", context.SelectedValues))
+    .AddComponentInteraction<UserMenuInteractionContext>("user", (UserMenuInteractionContext context) => string.Join("\n", context.SelectedUsers))
+    .AddComponentInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedRoles))
+    .AddComponentInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedMentionables))
+    .AddComponentInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedChannels))
+    .AddComponentInteraction<ModalSubmitInteractionContext>("modal", (ModalSubmitInteractionContext context) => context.Components[0].Value)
     .AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();
 

@@ -1,11 +1,11 @@
 ﻿using NetCord.Rest;
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace MyBot;
 
-public class ButtonModule : InteractionModule<ButtonInteractionContext>
+public class ButtonModule : ComponentInteractionModule<ButtonInteractionContext>
 {
-    [Interaction("button")]
+    [ComponentInteraction("button")]
     public Task ButtonAsync()
     {
         return RespondAsync(InteractionCallback.Message("You clicked a button!"));
