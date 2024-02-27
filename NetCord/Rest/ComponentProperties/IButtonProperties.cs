@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(MessageButtonConverter))]
+[JsonConverter(typeof(IButtonConverter))]
 public partial interface IButtonProperties
 {
     /// <summary>
@@ -31,7 +31,7 @@ public partial interface IButtonProperties
     /// </summary>
     public bool Disabled { get; set; }
 
-    public class MessageButtonConverter : JsonConverter<IButtonProperties>
+    public class IButtonConverter : JsonConverter<IButtonProperties>
     {
         public override IButtonProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 

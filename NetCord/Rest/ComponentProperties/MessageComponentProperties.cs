@@ -15,40 +15,42 @@ public abstract partial class MessageComponentProperties : ComponentProperties
 
         public override void Write(Utf8JsonWriter writer, MessageComponentProperties component, JsonSerializerOptions options)
         {
-            if (component is ActionRowProperties actionRowProperties)
-            {
-                JsonSerializer.Serialize(writer, actionRowProperties, Serialization.Default.ActionRowProperties);
-                return;
-            }
-
             writer.WriteStartObject();
 
             writer.WriteNumber(_type, 1);
 
-            writer.WriteStartArray(_components);
-
-            switch (component)
+            if (component is ActionRowProperties actionRowProperties)
             {
-                case StringMenuProperties stringMenuProperties:
-                    JsonSerializer.Serialize(writer, stringMenuProperties, Serialization.Default.StringMenuProperties);
-                    break;
-                case UserMenuProperties userMenuProperties:
-                    JsonSerializer.Serialize(writer, userMenuProperties, Serialization.Default.UserMenuProperties);
-                    break;
-                case RoleMenuProperties roleMenuProperties:
-                    JsonSerializer.Serialize(writer, roleMenuProperties, Serialization.Default.RoleMenuProperties);
-                    break;
-                case MentionableMenuProperties mentionableMenuProperties:
-                    JsonSerializer.Serialize(writer, mentionableMenuProperties, Serialization.Default.MentionableMenuProperties);
-                    break;
-                case ChannelMenuProperties channelMenuProperties:
-                    JsonSerializer.Serialize(writer, channelMenuProperties, Serialization.Default.ChannelMenuProperties);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Invalid {nameof(MessageComponentProperties)} value.");
+                writer.WritePropertyName(_components);
+                JsonSerializer.Serialize(writer, actionRowProperties.Buttons, Serialization.Default.IEnumerableIButtonProperties);
             }
+            else
+            {
+                writer.WriteStartArray(_components);
 
-            writer.WriteEndArray();
+                switch (component)
+                {
+                    case StringMenuProperties stringMenuProperties:
+                        JsonSerializer.Serialize(writer, stringMenuProperties, Serialization.Default.StringMenuProperties);
+                        break;
+                    case UserMenuProperties userMenuProperties:
+                        JsonSerializer.Serialize(writer, userMenuProperties, Serialization.Default.UserMenuProperties);
+                        break;
+                    case RoleMenuProperties roleMenuProperties:
+                        JsonSerializer.Serialize(writer, roleMenuProperties, Serialization.Default.RoleMenuProperties);
+                        break;
+                    case MentionableMenuProperties mentionableMenuProperties:
+                        JsonSerializer.Serialize(writer, mentionableMenuProperties, Serialization.Default.MentionableMenuProperties);
+                        break;
+                    case ChannelMenuProperties channelMenuProperties:
+                        JsonSerializer.Serialize(writer, channelMenuProperties, Serialization.Default.ChannelMenuProperties);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Invalid {nameof(MessageComponentProperties)} value.");
+                }
+
+                writer.WriteEndArray();
+            }
 
             writer.WriteEndObject();
         }

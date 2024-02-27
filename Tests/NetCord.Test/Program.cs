@@ -110,51 +110,6 @@ internal static class Program
         }
     }
 
-    private static void A(params ComponentProperties[] e)
-    {
-    }
-
-    private static void A(IEnumerable<ComponentProperties> e)
-    {
-    }
-
-    private static void A(params ActionRowProperties[] e)
-    {
-    }
-
-    private static void A(IEnumerable<ActionRowProperties> e)
-    {
-    }
-
-    private static void X()
-    {
-        MessageProperties messageProperties = new();
-
-        messageProperties.AddComponents(
-            (ActionRowProperties)(
-            [
-                new ButtonProperties("d", "d", ButtonStyle.Danger),
-                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
-                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
-            ]));
-
-        messageProperties.AddComponents(
-            new ActionRowProperties(
-            [
-                new ButtonProperties("d", "d", ButtonStyle.Danger),
-                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
-                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
-            ]));
-
-        messageProperties.AddComponents(
-            new ActionRowProperties()
-            {
-                new ButtonProperties("d", "d", ButtonStyle.Danger),
-                new ButtonProperties("d2", "d2", ButtonStyle.Danger),
-                new ButtonProperties("d3", "d3", ButtonStyle.Danger),
-            });
-    }
-
     private static async ValueTask Client_InteractionCreate(Interaction interaction)
     {
         var result = await (interaction switch
