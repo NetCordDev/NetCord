@@ -1,6 +1,8 @@
 ﻿namespace NetCord.Services.ApplicationCommands;
 
-public interface IAutocompleteInteractionContext
+public interface IAutocompleteInteractionContext : IInteractionContext
 {
-    public AutocompleteInteraction Interaction { get; }
+    public new AutocompleteInteraction Interaction { get; }
+
+    Interaction IInteractionContext.Interaction => Interaction;
 }

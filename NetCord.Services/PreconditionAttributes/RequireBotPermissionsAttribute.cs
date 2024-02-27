@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using NetCord.Services.Interactions;
+using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Services;
 
@@ -36,7 +36,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        if (context is IInteractionContext interactionContext)
+        if (context is IComponentInteractionContext interactionContext)
         {
             var interactionPermissions = interactionContext.Interaction.AppPermissions;
 

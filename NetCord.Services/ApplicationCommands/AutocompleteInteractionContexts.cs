@@ -1,11 +1,10 @@
 ﻿using NetCord.Gateway;
-using NetCord.Services.Interactions;
 
 namespace NetCord.Services.ApplicationCommands;
 
-public class BaseAutocompleteInteractionContext(AutocompleteInteraction interaction) : InteractionContext(interaction), IAutocompleteInteractionContext
+public class BaseAutocompleteInteractionContext(AutocompleteInteraction interaction) : IAutocompleteInteractionContext
 {
-    public override AutocompleteInteraction Interaction { get; } = interaction;
+    public virtual AutocompleteInteraction Interaction { get; } = interaction;
 }
 
 public class AutocompleteInteractionContext(AutocompleteInteraction interaction, GatewayClient client) : BaseAutocompleteInteractionContext(interaction), IGatewayClientContext, IGuildContext, IChannelContext, IUserContext

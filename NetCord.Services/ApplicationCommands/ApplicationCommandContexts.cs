@@ -1,12 +1,11 @@
 ﻿using NetCord.Gateway;
 using NetCord.Rest;
-using NetCord.Services.Interactions;
 
 namespace NetCord.Services.ApplicationCommands;
 
-public class ApplicationCommandContext(ApplicationCommandInteraction interaction) : InteractionContext(interaction), IApplicationCommandContext
+public class ApplicationCommandContext(ApplicationCommandInteraction interaction) : IApplicationCommandContext
 {
-    public override ApplicationCommandInteraction Interaction { get; } = interaction;
+    public virtual ApplicationCommandInteraction Interaction { get; } = interaction;
 }
 
 public class BaseSlashCommandContext(SlashCommandInteraction interaction) : ApplicationCommandContext(interaction)

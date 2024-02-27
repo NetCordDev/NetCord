@@ -1,6 +1,8 @@
 ﻿namespace NetCord.Services.ApplicationCommands;
 
-public interface IApplicationCommandContext
+public interface IApplicationCommandContext : IInteractionContext
 {
-    public ApplicationCommandInteraction Interaction { get; }
+    public new ApplicationCommandInteraction Interaction { get; }
+
+    Interaction IInteractionContext.Interaction => Interaction;
 }
