@@ -8,9 +8,9 @@ using NetCord.Services.ApplicationCommands;
 
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseApplicationCommandService<SlashCommandInteraction, SlashCommandContext>()
-    .UseApplicationCommandService<UserCommandInteraction, UserCommandContext>()
-    .UseApplicationCommandService<MessageCommandInteraction, MessageCommandContext>();
+    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
+    .UseApplicationCommands<UserCommandInteraction, UserCommandContext>()
+    .UseApplicationCommands<MessageCommandInteraction, MessageCommandContext>();
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", () => "Pong!")

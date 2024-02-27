@@ -9,22 +9,22 @@ namespace NetCord.Hosting.Services.ApplicationCommands;
 
 public static class ApplicationCommandServiceServiceCollectionExtensions
 {
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext>(this IServiceCollection services)
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
-        return services.AddApplicationCommandService<TInteraction, TContext>((_, _) => { });
+        return services.AddApplicationCommands<TInteraction, TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext>(this IServiceCollection services,
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
                                                                                                 Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
-        return services.AddApplicationCommandService<TInteraction, TContext>((options, _) => configureOptions(options));
+        return services.AddApplicationCommands<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext>(this IServiceCollection services,
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
                                                                                                 Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
@@ -51,23 +51,23 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services)
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
     {
-        return services.AddApplicationCommandService<TInteraction, TContext, TAutocompleteContext>((_, _) => { });
+        return services.AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
                                                                                                                      Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
     {
-        return services.AddApplicationCommandService<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
+        return services.AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddApplicationCommandService<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
+    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
                                                                                                                             Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext

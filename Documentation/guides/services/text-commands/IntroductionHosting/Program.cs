@@ -7,7 +7,7 @@ using NetCord.Services.Commands;
 
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseCommandService<CommandContext>();
+    .UseCommands<CommandContext>();
 
 var host = builder.Build()
     .AddCommand<CommandContext>(["ping"], () => "Pong!")

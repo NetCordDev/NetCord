@@ -39,9 +39,9 @@ This snippet showcases a Discord bot with a minimal API-style `/ping` command re
 using Microsoft.Extensions.Hosting;
 
 using NetCord;
+using NetCord.Services.ApplicationCommands;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services.ApplicationCommands;
-using NetCord.Services.ApplicationCommands;
 ```
 
 </details>
@@ -49,7 +49,7 @@ using NetCord.Services.ApplicationCommands;
 ```cs
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseApplicationCommandService<SlashCommandInteraction, SlashCommandContext>();
+    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", () => "Pong!")

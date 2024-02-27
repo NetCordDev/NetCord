@@ -38,11 +38,11 @@ builder.Services
     {
         Intents = GatewayIntents.All,
     })
-    .AddApplicationCommandService<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
-    .AddApplicationCommandService<UserCommandInteraction, UserCommandContext>()
-    .AddApplicationCommandService<MessageCommandInteraction, MessageCommandContext>()
-    .AddComponentInteractionService<ButtonInteraction, ButtonInteractionContext>()
-    .AddCommandService<CommandContext>()
+    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
+    .AddApplicationCommands<UserCommandInteraction, UserCommandContext>()
+    .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>()
+    .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
+    .AddCommands<CommandContext>()
     .AddGatewayEventHandlers(typeof(Program).Assembly);
 
 var host = builder.Build()

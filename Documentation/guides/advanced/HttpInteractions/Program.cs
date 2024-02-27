@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host
     .UseDiscordRest()
-    .UseApplicationCommandService<SlashCommandInteraction, HttpSlashCommandContext>();
+    .UseApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>();
 
 var app = builder.Build();
 

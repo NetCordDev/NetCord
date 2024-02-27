@@ -9,22 +9,22 @@ namespace NetCord.Hosting.Services.ComponentInteractions;
 
 public static class ComponentInteractionServiceServiceCollectionExtensions
 {
-    public static IServiceCollection AddComponentInteractionService<TInteraction, TContext>(this IServiceCollection services)
+    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
-        return services.AddComponentInteractionService<TInteraction, TContext>((_, _) => { });
+        return services.AddComponentInteractions<TInteraction, TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddComponentInteractionService<TInteraction, TContext>(this IServiceCollection services,
+    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
                                                                                             Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
-        return services.AddComponentInteractionService<TInteraction, TContext>((options, _) => configureOptions(options));
+        return services.AddComponentInteractions<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddComponentInteractionService<TInteraction, TContext>(this IServiceCollection services,
+    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
                                                                                             Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext

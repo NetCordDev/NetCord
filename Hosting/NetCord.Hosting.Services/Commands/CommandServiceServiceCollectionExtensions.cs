@@ -9,20 +9,20 @@ namespace NetCord.Hosting.Services.Commands;
 
 public static class CommandServiceServiceCollectionExtensions
 {
-    public static IServiceCollection AddCommandService<TContext>(this IServiceCollection services)
+    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services)
         where TContext : ICommandContext
     {
-        return services.AddCommandService<TContext>((_, _) => { });
+        return services.AddCommands<TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddCommandService<TContext>(this IServiceCollection services,
+    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
                                                                       Action<CommandServiceOptions<TContext>> configureOptions)
         where TContext : ICommandContext
     {
-        return services.AddCommandService<TContext>((options, _) => configureOptions(options));
+        return services.AddCommands<TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddCommandService<TContext>(this IServiceCollection services,
+    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
                                                                              Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
         where TContext : ICommandContext
     {

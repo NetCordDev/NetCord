@@ -13,8 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host
     .UseDiscordRest()
-    .UseApplicationCommandService<SlashCommandInteraction, HttpSlashCommandContext>()
-    .UseComponentInteractionService<ButtonInteraction, HttpButtonInteractionContext>();
+    .UseApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>()
+    .UseComponentInteractions<ButtonInteraction, HttpButtonInteractionContext>();
 
 builder.Services
     .AddHttpInteractionHandler<InteractionHandler>();

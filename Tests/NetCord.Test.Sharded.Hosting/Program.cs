@@ -14,8 +14,8 @@ var builder = Host.CreateDefaultBuilder(args)
         ShardCount = 2,
         IntentsFactory = _ => GatewayIntents.All,
     })
-    .UseApplicationCommandService<SlashCommandInteraction, SlashCommandContext>()
-    .UseCommandService<CommandContext>();
+    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
+    .UseCommands<CommandContext>();
 
 var host = builder.Build();
 

@@ -8,13 +8,13 @@ using NetCord.Services.ComponentInteractions;
 
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseComponentInteractionService<ButtonInteraction, ButtonInteractionContext>()
-    .UseComponentInteractionService<StringMenuInteraction, StringMenuInteractionContext>()
-    .UseComponentInteractionService<UserMenuInteraction, UserMenuInteractionContext>()
-    .UseComponentInteractionService<RoleMenuInteraction, RoleMenuInteractionContext>()
-    .UseComponentInteractionService<MentionableMenuInteraction, MentionableMenuInteractionContext>()
-    .UseComponentInteractionService<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .UseComponentInteractionService<ModalInteraction, ModalSubmitInteractionContext>();
+    .UseComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
+    .UseComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
+    .UseComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
+    .UseComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
+    .UseComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
+    .UseComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
+    .UseComponentInteractions<ModalInteraction, ModalSubmitInteractionContext>();
 
 var host = builder.Build()
     .AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!")
