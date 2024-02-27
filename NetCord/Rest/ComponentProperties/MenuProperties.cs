@@ -6,8 +6,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">Id for the menu (max 100 characters).</param>
-/// <param name="type">Type of the component.</param>
-public abstract partial class MenuProperties(string customId, ComponentType type) : ComponentProperties(type)
+public abstract partial class MenuProperties(string customId) : MessageComponentProperties
 {
     /// <summary>
     /// Id for the menu (max 100 characters).

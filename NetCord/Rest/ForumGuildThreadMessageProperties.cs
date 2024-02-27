@@ -18,7 +18,7 @@ public partial class ForumGuildThreadMessageProperties
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
-    public IEnumerable<ComponentProperties>? Components { get; set; }
+    public IEnumerable<MessageComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("sticker_ids")]

@@ -2,8 +2,10 @@
 
 namespace NetCord.Rest;
 
-public partial class MentionableMenuProperties(string customId) : MenuProperties(customId, ComponentType.MentionableMenu)
+public partial class MentionableMenuProperties(string customId) : EntityMenuProperties(customId)
 {
+    public override ComponentType ComponentType => ComponentType.MentionableMenu;
+
     /// <summary>
     /// Default values for auto-populated select menu components.
     /// </summary>

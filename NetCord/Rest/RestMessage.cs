@@ -57,7 +57,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         if (startedThread is not null)
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
-        Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
+        Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
@@ -95,7 +95,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public RestMessage? ReferencedMessage { get; }
     public MessageInteraction? Interaction { get; }
     public GuildThread? StartedThread { get; }
-    public IReadOnlyList<IComponent> Components { get; }
+    public IReadOnlyList<IMessageComponent> Components { get; }
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
     public int? Position => _jsonModel.Position;
     public RoleSubscriptionData? RoleSubscriptionData { get; }

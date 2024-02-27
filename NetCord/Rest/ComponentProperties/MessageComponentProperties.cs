@@ -3,27 +3,17 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-/// <summary>
-/// 
-/// </summary>
-/// <param name="type">Type of the component.</param>
-[JsonConverter(typeof(ComponentConverter))]
-public abstract partial class ComponentProperties(ComponentType type)
+[JsonConverter(typeof(MessageComponentConverter))]
+public abstract partial class MessageComponentProperties : ComponentProperties
 {
-    /// <summary>
-    /// Type of the component.
-    /// </summary>
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType { get; } = type;
-
-    public class ComponentConverter : JsonConverter<ComponentProperties>
+    public class MessageComponentConverter : JsonConverter<MessageComponentProperties>
     {
         private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
         private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");
 
-        public override ComponentProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
+        public override MessageComponentProperties Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
 
-        public override void Write(Utf8JsonWriter writer, ComponentProperties component, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, MessageComponentProperties component, JsonSerializerOptions options)
         {
             if (component is ActionRowProperties actionRowProperties)
             {
@@ -55,7 +45,7 @@ public abstract partial class ComponentProperties(ComponentType type)
                     JsonSerializer.Serialize(writer, channelMenuProperties, Serialization.Default.ChannelMenuProperties);
                     break;
                 default:
-                    throw new InvalidOperationException($"Invalid {nameof(ComponentProperties)} value.");
+                    throw new InvalidOperationException($"Invalid {nameof(MessageComponentProperties)} value.");
             }
 
             writer.WriteEndArray();
