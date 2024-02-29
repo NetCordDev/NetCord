@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public partial class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite>
+public partial class RestGuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonRestGuildInvite>
 {
     JsonModels.JsonRestGuildInvite IJsonModel<JsonModels.JsonRestGuildInvite>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonRestGuildInvite _jsonModel;
@@ -31,7 +31,19 @@ public partial class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite
 
     public GuildScheduledEvent? GuildScheduledEvent { get; }
 
-    public GuildInviteMetadata? Metadata { get; }
+    public int? Uses => _jsonModel.Uses;
+
+    public int? MaxUses => _jsonModel.MaxUses;
+
+    public int? MaxAge => _jsonModel.MaxAge;
+
+    public bool? Temporary => _jsonModel.Temporary;
+
+    public DateTimeOffset? CreatedAt => _jsonModel.CreatedAt;
+
+    ulong? IGuildInvite.GuildId => Guild?.Id;
+
+    ulong? IGuildInvite.ChannelId => Channel?.Id;
 
     public RestGuildInvite(JsonModels.JsonRestGuildInvite jsonModel, RestClient client)
     {
@@ -64,10 +76,6 @@ public partial class RestGuildInvite : IJsonModel<JsonModels.JsonRestGuildInvite
         var guildScheduledEvent = jsonModel.GuildScheduledEvent;
         if (guildScheduledEvent is not null)
             GuildScheduledEvent = new(guildScheduledEvent, client);
-
-        var metadata = jsonModel.Metadata;
-        if (metadata is not null)
-            Metadata = new(metadata);
 
         _client = client;
     }

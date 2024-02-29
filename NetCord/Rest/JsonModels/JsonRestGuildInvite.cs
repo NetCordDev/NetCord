@@ -42,6 +42,18 @@ public class JsonRestGuildInvite
     [JsonPropertyName("guild_scheduled_event")]
     public JsonGuildScheduledEvent? GuildScheduledEvent { get; set; }
 
-    [JsonPropertyName("metadata")]
-    public JsonRestGuildInviteMetadata? Metadata { get; set; }
+    [JsonPropertyName("uses")]
+    public int? Uses { get; set; }
+
+    [JsonPropertyName("max_uses")]
+    public int? MaxUses { get; set; }
+
+    [JsonPropertyName("max_age")]
+    public int? MaxAge { get; set; }
+
+    [JsonPropertyName("temporary")]
+    public bool? Temporary { get; set; }
+
+    [JsonPropertyName("created_at")]
+    public DateTimeOffset? CreatedAt { get; set; }
 }

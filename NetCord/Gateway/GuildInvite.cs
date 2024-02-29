@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-public class GuildInvite : IJsonModel<JsonModels.JsonGuildInvite>
+public class GuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonGuildInvite>
 {
     JsonModels.JsonGuildInvite IJsonModel<JsonModels.JsonGuildInvite>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildInvite _jsonModel;
@@ -47,4 +47,16 @@ public class GuildInvite : IJsonModel<JsonModels.JsonGuildInvite>
     public bool Temporary => _jsonModel.Temporary;
 
     public int Uses => _jsonModel.Uses;
+
+    ulong? IGuildInvite.ChannelId => ChannelId;
+
+    int? IGuildInvite.MaxAge => MaxAge;
+
+    int? IGuildInvite.MaxUses => MaxUses;
+
+    bool? IGuildInvite.Temporary => Temporary;
+
+    int? IGuildInvite.Uses => Uses;
+
+    DateTimeOffset? IGuildInvite.CreatedAt => CreatedAt;
 }
