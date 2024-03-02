@@ -41,11 +41,17 @@ jobs:
           dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
           dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
+      - name: Setup Node
+        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
+        uses: actions/setup-node@v4
+
       - name: Build Documentation
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'
+        working-directory: Documentation
         run: |
-          dotnet tool install docfx -g --version 2.70.0
-          docfx Documentation/docfx.json
+          dotnet tool install docfx -g --version 2.75.3
+          npm install
+          npm run build
 
       - name: Stop Apache2
         if: github.ref_name == 'stable' || github.ref_name == 'alpha'

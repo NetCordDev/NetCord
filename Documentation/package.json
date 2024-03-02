@@ -1,0 +1,56 @@
+{
+  "name": "documentation",
+  "version": "0.0.0",
+  "description": "Documentation",
+  "author": {
+    "name": ""
+  },
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "build-templates": "node build-templates.js",
+    "serve": "docfx serve _site"
+  },
+  "eslintConfig": {},
+  "dependencies": {
+    "@default/anchor-js": "npm:anchor-js@5.0.0",
+    "@default/bootstrap": "npm:bootstrap@5.3.3",
+    "@default/highlight.js": "npm:highlight.js@11.9.0",
+    "@default/lunr": "npm:lunr@2.3.9",
+    "@default/mark.js": "npm:mark.js@8.11.1",
+    "@default/twbs-pagination": "josecebe/twbs-pagination#1.4.2",
+    "@default/url": "npm:@websanova/url@2.6.3",
+    "@websanova/url": "^2.6.3",
+    "anchor-js": "^5.0.0",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "esbuild-plugin-copy": "^2.1.1",
+    "highlight.js": "^11.9.0",
+    "idb-keyval": "^6.2.1",
+    "jquery": "3.7.1",
+    "lit-html": "^3.1.2",
+    "lunr": "2.3.9",
+    "lunr-languages": "^1.14.0",
+    "mathjax": "^3.2.2",
+    "mermaid": "^10.8.0"
+  },
+  "devDependencies": {
+    "@types/anchor-js": "^5.0.3",
+    "@types/jest": "^29.5.12",
+    "@types/lunr": "^2.3.7",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "browser-sync": "^3.0.2",
+    "esbuild": "~0.20.1",
+    "esbuild-sass-plugin": "~3.1.0",
+    "eslint": "^8.57.0",
+    "eslint-config-standard": "^17.1.0",
+    "jest": "^29.7.0",
+    "stylelint": "^16.2.1",
+    "stylelint-config-standard-scss": "^13.0.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "^5.3.3",
+    "yargs": "^17.7.2"
+  }
+}

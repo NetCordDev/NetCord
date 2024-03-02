@@ -1,4 +1,21 @@
 # Building
-1. Open `Documentation` folder in terminal.
-2. Build the documentation using `docfx`.
-3. Use `docfx serve _site` to preview the site locally.
+
+## Installing dependencies
+```bash
+npm install
+```
+
+## Building the documentation
+```bash
+npm run build
+```
+
+## Building templates only
+```bash
+npm run build-templates
+```
+
+## Serving the documentation
+```bash
+npm run serve
+```
