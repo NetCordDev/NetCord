@@ -23,12 +23,10 @@
 
 :root,
 [data-bs-theme="light"] {
-  --tooltip-bg-color: white;
   --tooltip-color: black;
 }
 
 [data-bs-theme="dark"] {
-  --tooltip-bg-color: black;
   --tooltip-color: white;
 }
 
@@ -44,18 +42,6 @@
   --bs-btn-hover-color: var(--blurple);
   --bs-btn-active-color: var(--blurple);
   --bs-btn-font-size: 1.05rem;
-}
-
-.dropdown-item {
-  --bs-dropdown-link-color: var(--bs-emphasis-color);
-  --bs-dropdown-link-hover-color: var(--blurple);
-  --bs-dropdown-link-active-color: var(--bs-white);
-  --bs-dropdown-link-active-bg: var(--blurple);
-}
-
-.dropdown-menu[data-bs-popper] {
-  left: unset;
-  right: 0;
 }
 
 :root[ligatures="1"] {
