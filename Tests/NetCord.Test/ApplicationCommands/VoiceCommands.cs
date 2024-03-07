@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 
 using NetCord.Gateway.Voice;
+using NetCord.Gateway.Voice.Encryption;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
@@ -8,7 +10,7 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync()
+    private async Task<VoiceClient> JoinAsync(VoiceEncryption encryption, Func<bool, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
         if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
@@ -30,6 +32,13 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
             {
                 RedirectInputStreams = true,
+                Encryption = encryption switch
+                {
+                    VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
+                    VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
+                    VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
+                    _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
+                },
             });
         }
         finally
@@ -41,6 +50,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             Console.WriteLine(m);
             return default;
         };
+        voiceClient.Disconnect += disconnectHandler;
+
         await voiceClient.StartAsync();
         await voiceClient.ReadyAsync;
 
@@ -50,9 +61,17 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync()
+    public async Task PlayAsync(VoiceEncryption encryption = VoiceEncryption.XSalsa20Poly1305)
     {
-        using var voiceClient = await JoinAsync();
+        using CancellationTokenSource cancellationTokenSource = new();
+
+        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        {
+            if (!reconnect)
+                cancellationTokenSource.Cancel();
+
+            return default;
+        });
 
         var outputStream = voiceClient.CreateOutputStream();
         using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
@@ -67,20 +86,45 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             RedirectStandardOutput = true,
         })!;
 
-        await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream);
-        await opusEncodeStream.FlushAsync();
+        var token = cancellationTokenSource.Token;
+        try
+        {
+            await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
+            await opusEncodeStream.FlushAsync(token);
+            await Task.Delay(-1, token);
+        }
+        catch (OperationCanceledException)
+        {
+            ffmpeg.Kill();
+            return;
+        }
     }
 
     [SlashCommand("echo", "Echo!")]
-    public async Task EchoAsync()
+    public async Task EchoAsync(VoiceEncryption encryption = VoiceEncryption.XSalsa20Poly1305)
     {
-        using var voiceClient = await JoinAsync();
+        TaskCompletionSource taskCompletionSource = new();
+
+        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        {
+            if (!reconnect)
+                taskCompletionSource.TrySetResult();
+
+            return default;
+        });
 
         using var outputStream = voiceClient.CreateOutputStream(false);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
 
-        await Task.Delay(TimeSpan.FromMinutes(10));
+        await taskCompletionSource.Task;
+    }
+
+    public enum VoiceEncryption : byte
+    {
+        XSalsa20Poly1305,
+        XSalsa20Poly1305Lite,
+        XSalsa20Poly1305Suffix,
     }
 }
