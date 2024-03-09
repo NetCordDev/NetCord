@@ -8,25 +8,29 @@ namespace NetCord;
 [JsonConverter(typeof(ColorConverter))]
 public readonly struct Color : IEquatable<Color>
 {
-    public int RawValue { get; }
+    public int RawValue => (Red << 16) | (Green << 8) | Blue;
 
-    public byte Red => (byte)(RawValue >> 16);
+    public byte Red { get; }
 
-    public byte Green => (byte)(RawValue >> 8);
+    public byte Green { get; }
 
-    public byte Blue => (byte)RawValue;
+    public byte Blue { get; }
 
-    public Color(byte r, byte g, byte b)
+    public Color(byte red, byte green, byte blue)
     {
-        RawValue = (r << 16) | (g << 8) | b;
+        Red = red;
+        Green = green;
+        Blue = blue;
     }
 
     public Color(int rgb)
     {
-        RawValue = rgb;
+        Red = (byte)(rgb >> 16);
+        Green = (byte)(rgb >> 8);
+        Blue = (byte)rgb;
     }
 
-    public bool Equals(Color other) => RawValue == other.RawValue;
+    public bool Equals(Color other) => ((Red ^ other.Red) | (Green ^ other.Green) | (Blue ^ other.Blue)) == 0;
 
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
 
@@ -34,7 +38,7 @@ public readonly struct Color : IEquatable<Color>
 
     public static bool operator !=(Color left, Color right) => !(left == right);
 
-    public override int GetHashCode() => RawValue.GetHashCode();
+    public override int GetHashCode() => RawValue;
 
     public override string ToString() => $"#{RawValue:X6}";
 
@@ -58,14 +62,14 @@ public readonly struct Color : IEquatable<Color>
 
             for (int i = 5; i >= 0; i--)
             {
-                int shift = i * 4;
-                int byteValue = GetByteValue(bytes[5 - i]);
-                result |= byteValue << shift;
+                var character = bytes[5 - i];
+
+                int numericValue = character <= '9' ? character - '0' : character - ('a' - 10);
+
+                result |= numericValue << (i * 4);
             }
 
             return new(result);
-
-            static int GetByteValue(byte b) => b <= '9' ? b - '0' : b - 'a' + 10;
         }
 
         public override void Write(Utf8JsonWriter writer, Color value, JsonSerializerOptions options)
