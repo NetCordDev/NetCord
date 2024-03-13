@@ -1,0 +1,60 @@
+﻿{
+  "commands": {
+    "animal": {
+      "name": "zwierzę",
+      "description": "Wysyła zwierzę, które wybrałeś",
+      "parameters": {
+        "animal": {
+          "name": "zwierzę",
+          "description": "Zwierzę do wysłania"
+        }
+      }
+    },
+    "permissions": {
+      "name": "uprawnienia",
+      "description": "Zarządza uprawnieniami",
+      "subcommands": {
+        "user": {
+          "name": "użytkownik",
+          "description": "Zarządza uprawnienia użytkownika",
+          "subcommands": {
+            "show": {
+              "name": "pokaż",
+              "description": "Pokazuje uprawnienia użytkownika",
+              "parameters": {
+                "user": {
+                  "name": "użytkownik",
+                  "description": "Użytkownik, którego uprawnienia chcesz zobaczyć"
+                }
+              }
+            }
+          }
+        },
+        "role": {
+          "name": "rola",
+          "description": "Zarządza uprawnieniami roli",
+          "subcommands": {
+            "show": {
+              "name": "pokaż",
+              "description": "Pokazuje uprawnienia roli",
+              "parameters": {
+                "role": {
+                  "name": "rola",
+                  "description": "Rola, której uprawnienia chcesz zobaczyć"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "enums": {
+    "MyBot.Animal": {
+      "Dog": "Pies",
+      "Cat": "Kot",
+      "Fish": "Ryba",
+      "GuineaPig": "Świnka morska"
+    }
+  }
+}

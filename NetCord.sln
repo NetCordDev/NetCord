@@ -71,7 +71,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "application-commands", "app
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultipleServices", "Documentation\guides\services\application-commands\MultipleServices\MultipleServices.csproj", "{B1E5260D-9EE1-46C1-A4D7-344D1BFF274E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Translations", "Documentation\guides\services\application-commands\Translations\Translations.csproj", "{23DEB462-E841-4006-A99A-8592B9EA9470}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Localizations", "Documentation\guides\services\application-commands\Localizations\Localizations.csproj", "{23DEB462-E841-4006-A99A-8592B9EA9470}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Parameters", "Documentation\guides\services\application-commands\Parameters\Parameters.csproj", "{DB557D48-F1E6-4D9D-97CB-7C4EFFBA55A8}"
 EndProject
@@ -138,6 +138,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpInteractions", "Documentation\guides\advanced\HttpInteractions\HttpInteractions.csproj", "{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestClientMethodAliasesGenerator", "SourceGenerators\RestClientMethodAliasesGenerator\RestClientMethodAliasesGenerator.csproj", "{941F7A6C-313B-481E-9EBC-2B82972F8649}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationsHosting", "Documentation\guides\services\application-commands\LocalizationsHosting\LocalizationsHosting.csproj", "{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -341,6 +343,10 @@ Global
 		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{941F7A6C-313B-481E-9EBC-2B82972F8649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -404,6 +410,7 @@ Global
 		{D2D21E34-7F3D-4BAE-8CE7-0692C0E79094} = {6D8C2163-1B05-48A5-AF31-811A93D55FED}
 		{311AF3BA-6AE3-4BBA-A4B1-8CD0901FFA9C} = {6D8C2163-1B05-48A5-AF31-811A93D55FED}
 		{941F7A6C-313B-481E-9EBC-2B82972F8649} = {0A9D75D2-B760-43E3-8A18-1BF2F629D0FB}
+		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF} = {46E6F97B-83C3-4B66-8B0F-226D02DEC5A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}

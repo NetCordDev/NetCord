@@ -4,12 +4,16 @@ using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
-GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
+GatewayClient client = new(new BotToken(Environment.GetEnvironmentVariable("token")! /*"Token from Discord Developer Portal"*/), new GatewayClientConfiguration()
 {
     Intents = default,
 });
 
-ApplicationCommandService<SlashCommandContext> applicationCommandService = new();
+ApplicationCommandService<SlashCommandContext> applicationCommandService = new(ApplicationCommandServiceConfiguration<SlashCommandContext>.Default with
+{
+    LocalizationsProvider = new JsonLocalizationsProvider(),
+});
+
 applicationCommandService.AddModules(typeof(Program).Assembly);
 
 client.InteractionCreate += async interaction =>

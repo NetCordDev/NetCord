@@ -13,4 +13,10 @@
     <ProjectReference Include="..\..\..\..\..\NetCord.Services\NetCord.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Localizations\pl.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

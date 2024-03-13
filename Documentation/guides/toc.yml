@@ -28,8 +28,8 @@
           href: services/application-commands/subcommands.md
         - name: Permissions
           href: services/application-commands/permissions.md
-        - name: Translations
-          href: services/application-commands/translations.md
+        - name: Localizations
+          href: services/application-commands/localizations.md
     - name: Component Interactions
       items:
         - name: Introduction
