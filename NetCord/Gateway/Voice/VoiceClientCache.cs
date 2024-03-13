@@ -1,5 +1,7 @@
 ﻿using System.Collections.Immutable;
 
+using NetCord.Gateway.Voice.JsonModels;
+
 namespace NetCord.Gateway.Voice;
 
 public sealed record VoiceClientCache : IVoiceClientCache

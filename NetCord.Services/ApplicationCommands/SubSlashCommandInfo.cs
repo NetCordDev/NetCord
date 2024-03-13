@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -9,21 +10,17 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
+    internal SubSlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
         Name = attribute.Name!;
 
-        var nameTranslationsProviderType = attribute.NameTranslationsProviderType;
-        if (nameTranslationsProviderType is not null)
-            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
+        var localizationPath = LocalizationsPath = path.Add(new SubSlashCommandLocalizationPathSegment(Name));
+
+        LocalizationsProvider = configuration.LocalizationsProvider;
 
         Description = attribute.Description!;
 
-        var descriptionTranslationsProviderType = attribute.DescriptionTranslationsProviderType;
-        if (descriptionTranslationsProviderType is not null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
-
-        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
+        var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
@@ -31,9 +28,9 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
     }
 
     public string Name { get; }
-    public ITranslationsProvider? NameTranslationsProvider { get; }
+    public ILocalizationsProvider? LocalizationsProvider { get; }
+    public ImmutableList<LocalizationPathSegment> LocalizationsPath { get; }
     public string Description { get; }
-    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
@@ -63,13 +60,20 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         return SuccessResult.Instance;
     }
 
-    public ApplicationCommandOptionProperties GetRawValue()
+    public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync()
     {
+        var parameters = Parameters;
+        var count = parameters.Count;
+
+        var options = new ApplicationCommandOptionProperties[count];
+        for (int i = 0; i < count; i++)
+            options[i] = await parameters[i].GetRawValueAsync().ConfigureAwait(false);
+
         return new(ApplicationCommandOptionType.SubCommand, Name, Description)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
-            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
-            Options = Parameters.Select(p => p.GetRawValue())
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            Options = options,
         };
     }
 

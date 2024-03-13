@@ -16,11 +16,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     {
         Description = attribute.Description;
 
-        var descriptionTranslationsProviderType = attribute.DescriptionTranslationsProviderType;
-        if (descriptionTranslationsProviderType is not null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
-
-        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration);
+        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, LocalizationPath);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
@@ -31,15 +27,12 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     internal SlashCommandInfo(string name,
                               string description,
                               Delegate handler,
-                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType,
-                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? descriptionTranslationsProviderType,
                               Permissions? defaultGuildUserPermissions,
                               bool? dMPermission,
                               bool defaultPermission,
                               bool nsfw,
                               ulong? guildId,
                               ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                     nameTranslationsProviderType,
                                                                                                      defaultGuildUserPermissions,
                                                                                                      dMPermission,
                                                                                                      defaultPermission,
@@ -49,14 +42,11 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     {
         Description = description;
 
-        if (descriptionTranslationsProviderType is not null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
-
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
-        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration);
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
@@ -65,12 +55,13 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     }
 
     public string Description { get; }
-    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
+
+    public override LocalizationPathSegment LocalizationPathSegment => new ApplicationCommandLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
@@ -95,18 +86,25 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         return SuccessResult.Instance;
     }
 
-    public override ApplicationCommandProperties GetRawValue()
+    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync()
     {
+        var parameters = Parameters;
+        var count = parameters.Count;
+
+        var options = new ApplicationCommandOptionProperties[count];
+        for (int i = 0; i < count; i++)
+            options[i] = await parameters[i].GetRawValueAsync().ConfigureAwait(false);
+
 #pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
             Nsfw = Nsfw,
-            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
-            Options = Parameters.Select(p => p.GetRawValue()),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            Options = options,
         };
 #pragma warning restore CS0618 // Type or member is obsolete
     }

@@ -2,7 +2,7 @@
 
 using NetCord.JsonModels;
 
-namespace NetCord.Gateway;
+namespace NetCord.Gateway.JsonModels;
 
 public class JsonGatewayClientCache
 {

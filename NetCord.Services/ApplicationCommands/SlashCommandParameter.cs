@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -18,9 +19,9 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public object? DefaultValue { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Name { get; }
-    public ITranslationsProvider? NameTranslationsProvider { get; }
+    public ILocalizationsProvider? LocalizationsProvider { get; }
+    public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public string Description { get; }
-    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
 
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public Type? AutocompleteProviderType { get; }
@@ -34,11 +35,12 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
     private Delegate? _invokeAutocompleteAsync;
 
-    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration)
+    internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
         HasDefaultValue = parameter.HasDefaultValue;
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedFrozenDictionary(a => a.GetType());
+        LocalizationsProvider = configuration.LocalizationsProvider;
 
         var type = Type = parameter.ParameterType;
 
@@ -50,25 +52,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             var name = Name = slashCommandParameterAttribute.Name ?? configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
             Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
 
-            var nameTranslationsProviderType = slashCommandParameterAttribute.NameTranslationsProviderType;
-            if (nameTranslationsProviderType is null)
-                NameTranslationsProvider = TypeReader.NameTranslationsProvider;
-            else
-            {
-                if (!nameTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{nameTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-                NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
-            }
-
-            var descriptionTranslationsProviderType = slashCommandParameterAttribute.DescriptionTranslationsProviderType;
-            if (descriptionTranslationsProviderType is null)
-                DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
-            else
-            {
-                if (!descriptionTranslationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{descriptionTranslationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-                DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
-            }
+            LocalizationPath = path.Add(new SlashCommandParameterLocalizationPathSegment(name));
 
             var choicesProviderType = slashCommandParameterAttribute.ChoicesProviderType;
             if (choicesProviderType is null)
@@ -92,9 +76,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
 
             var name = Name = configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
-            NameTranslationsProvider = TypeReader.NameTranslationsProvider;
+            LocalizationPath = path.Add(new SlashCommandParameterLocalizationPathSegment(name));
             Description = string.Format(configuration.DefaultParameterDescriptionFormat, name);
-            DescriptionTranslationsProvider = TypeReader.DescriptionTranslationsProvider;
             ChoicesProvider = TypeReader.ChoicesProvider;
             AutocompleteProviderType = TypeReader.AutocompleteProviderType;
             AllowedChannelTypes = TypeReader.AllowedChannelTypes;
@@ -107,19 +90,19 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    public ApplicationCommandOptionProperties GetRawValue()
+    public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync()
     {
         return new(TypeReader.Type, Name, Description)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
-            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
             MaxValue = MaxValue,
             MinValue = MinValue,
             MaxLength = MaxLength,
             MinLength = MinLength,
             Required = !HasDefaultValue,
             Autocomplete = _invokeAutocompleteAsync is not null,
-            Choices = ChoicesProvider?.GetChoices(this),
+            Choices = ChoicesProvider is null ? null : await ChoicesProvider.GetChoicesAsync(this).ConfigureAwait(false),
             ChannelTypes = AllowedChannelTypes,
         };
     }

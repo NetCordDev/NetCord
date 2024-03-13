@@ -21,10 +21,6 @@ public abstract class SlashCommandTypeReader<TContext> : ISlashCommandTypeReader
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     public virtual Type? AutocompleteProviderType => null;
 
-    public virtual ITranslationsProvider? NameTranslationsProvider => null;
-
-    public virtual ITranslationsProvider? DescriptionTranslationsProvider => null;
-
     public virtual IEnumerable<ChannelType>? AllowedChannelTypes => null;
 }
 

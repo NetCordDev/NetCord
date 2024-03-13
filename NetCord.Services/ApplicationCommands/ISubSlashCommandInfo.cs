@@ -6,5 +6,5 @@ public interface ISubSlashCommandInfo<TContext> : IAutocompleteInfo where TConte
 {
     public ValueTask<IExecutionResult> InvokeAsync(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
 
-    public ApplicationCommandOptionProperties GetRawValue();
+    public ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync();
 }

@@ -7,13 +7,7 @@ public class SlashCommandParameterAttribute : Attribute
 {
     public string? Name { get; init; }
 
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? NameTranslationsProviderType { get; init; }
-
     public string? Description { get; init; }
-
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
-    public Type? DescriptionTranslationsProviderType { get; init; }
 
     public double MaxValue
     {

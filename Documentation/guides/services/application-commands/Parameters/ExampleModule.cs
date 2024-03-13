@@ -30,7 +30,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
         Dog,
         Cat,
         Fish,
-        [SlashCommandChoice(Name = "Guinea Pig")]
+        [SlashCommandChoice("Guinea Pig")]
         GuineaPig,
     }
 }

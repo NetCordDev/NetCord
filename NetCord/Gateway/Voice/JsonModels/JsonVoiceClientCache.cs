@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
-namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice.JsonModels;
 
 public class JsonVoiceClientCache
 {

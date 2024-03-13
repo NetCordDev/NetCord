@@ -23,7 +23,7 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     public string Name { get; set; } = name;
 
     /// <summary>
-    /// Translations of <see cref="Name"/> (1-32 characters each).
+    /// Localizations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
@@ -36,7 +36,7 @@ public partial class ApplicationCommandOptionProperties(ApplicationCommandOption
     public string Description { get; set; } = description;
 
     /// <summary>
-    /// Translations of <see cref="Description"/> (1-100 characters each).
+    /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
 
 using NetCord.Rest;
 
@@ -6,12 +6,19 @@ namespace NetCord.Services.ApplicationCommands;
 
 public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo where TContext : IApplicationCommandContext
 {
-    private protected ApplicationCommandInfo(string name, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType, Permissions? defaultGuildUserPermissions, bool? dMPermission, bool defaultPermission, bool nsfw, ulong? guildId, ApplicationCommandServiceConfiguration<TContext> configuration)
+    private protected ApplicationCommandInfo(string name,
+                                             Permissions? defaultGuildUserPermissions,
+                                             bool? dMPermission,
+                                             bool defaultPermission,
+                                             bool nsfw,
+                                             ulong? guildId,
+                                             ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         Name = name;
 
-        if (nameTranslationsProviderType is not null)
-            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
+        LocalizationsProvider = configuration.LocalizationsProvider;
+
+        LocalizationPath = [new ApplicationCommandLocalizationPathSegment(name)];
 
         DefaultGuildUserPermissions = defaultGuildUserPermissions;
         DMPermission = dMPermission.HasValue ? dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
@@ -21,26 +28,27 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     }
 
     private protected ApplicationCommandInfo(ApplicationCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : this(attribute.Name,
-                                                                                                     attribute.NameTranslationsProviderType,
-                                                                                                     attribute._defaultGuildUserPermissions,
-                                                                                                     attribute._dMPermission,
+                                                                                                                                                           attribute._defaultGuildUserPermissions,
+                                                                                                                                                           attribute._dMPermission,
 #pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                     attribute.DefaultPermission,
+                                                                                                                                                           attribute.DefaultPermission,
 #pragma warning restore CS0618 // Type or member is obsolete
-                                                                                                     attribute.Nsfw,
-                                                                                                     attribute._guildId,
-                                                                                                     configuration)
+                                                                                                                                                           attribute.Nsfw,
+                                                                                                                                                           attribute._guildId,
+                                                                                                                                                           configuration)
     {
     }
 
     public string Name { get; }
-    public ITranslationsProvider? NameTranslationsProvider { get; }
+    public ILocalizationsProvider? LocalizationsProvider { get; }
+    public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public Permissions? DefaultGuildUserPermissions { get; }
     public bool DMPermission { get; }
     public bool DefaultPermission { get; }
     public bool Nsfw { get; }
     public ulong? GuildId { get; }
+    public abstract LocalizationPathSegment LocalizationPathSegment { get; }
 
     public abstract ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
-    public abstract ApplicationCommandProperties GetRawValue();
+    public abstract ValueTask<ApplicationCommandProperties> GetRawValueAsync();
 }

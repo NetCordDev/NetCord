@@ -13,7 +13,7 @@ public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicat
     public string Name => _jsonModel.Name;
 
     /// <summary>
-    /// Translations of <see cref="Name"/> (1-100 characters each).
+    /// Localizations of <see cref="Name"/> (1-100 characters each).
     /// </summary>
     public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
 

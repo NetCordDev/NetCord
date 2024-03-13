@@ -11,22 +11,19 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 {
     [UnconditionalSuppressMessage("Trimming", "IL2062:Value passed to a method parameter annotated with 'DynamicallyAccessedMembersAttribute' cannot be statically determined and may not meet the attribute's requirements.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
     [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
-    internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type, SlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
-                                                                                                                                                                                                                                                                                                                                        attribute.NameTranslationsProviderType,
-                                                                                                                                                                                                                                                                                                                                        attribute._defaultGuildUserPermissions,
-                                                                                                                                                                                                                                                                                                                                        attribute._dMPermission,
+    internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
+                                   SlashCommandAttribute attribute,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
+                                                                                                          attribute._defaultGuildUserPermissions,
+                                                                                                          attribute._dMPermission,
 #pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                                                                                                                                                                                                                                                        attribute.DefaultPermission,
+                                                                                                          attribute.DefaultPermission,
 #pragma warning restore CS0618 // Type or member is obsolete
-                                                                                                                                                                                                                                                                                                                                        attribute.Nsfw,
-                                                                                                                                                                                                                                                                                                                                        attribute._guildId,
-                                                                                                                                                                                                                                                                                                                                        configuration)
+                                                                                                          attribute.Nsfw,
+                                                                                                          attribute._guildId,
+                                                                                                          configuration)
     {
-        Description = attribute.Description!;
-
-        var descriptionTranslationsProviderType = attribute.DescriptionTranslationsProviderType;
-        if (descriptionTranslationsProviderType is not null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
+        Description = attribute.Description;
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
 
@@ -35,7 +32,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration)));
+                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath)));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -45,7 +42,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration)));
+                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath)));
         }
 
         if (subCommands.Count == 0)
@@ -55,9 +52,10 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     }
 
     public string Description { get; }
-    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
+
+    public override LocalizationPathSegment LocalizationPathSegment => new SlashCommandGroupLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
@@ -73,18 +71,25 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
 
-    public override ApplicationCommandProperties GetRawValue()
+    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync()
     {
+        var subCommands = SubCommands;
+
+        var options = new ApplicationCommandOptionProperties[subCommands.Count];
+        int i = 0;
+        foreach (var subCommand in subCommands.Values)
+            options[i++] = await subCommand.GetRawValueAsync().ConfigureAwait(false);
+
 #pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
             Nsfw = Nsfw,
-            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
-            Options = SubCommands.Values.Select(c => c.GetRawValue()),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            Options = options,
         };
 #pragma warning restore CS0618 // Type or member is obsolete
     }

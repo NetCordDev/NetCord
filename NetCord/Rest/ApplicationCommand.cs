@@ -23,7 +23,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     public string Name => _jsonModel.Name;
 
     /// <summary>
-    /// Translations of <see cref="Name"/> (1-32 characters each).
+    /// Localizations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
     public IReadOnlyDictionary<string, string>? NameLocalizations => _jsonModel.NameLocalizations;
 
@@ -33,7 +33,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     public string Description => _jsonModel.Description;
 
     /// <summary>
-    /// Translations of <see cref="Description"/> (1-100 characters each).
+    /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
     public IReadOnlyDictionary<string, string>? DescriptionLocalizations => _jsonModel.DescriptionLocalizations;
 

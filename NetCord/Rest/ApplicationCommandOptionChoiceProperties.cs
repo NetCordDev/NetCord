@@ -13,7 +13,7 @@ public partial class ApplicationCommandOptionChoiceProperties
     public string Name { get; set; }
 
     /// <summary>
-    /// Translations of <see cref="Name"/> (1-100 characters each).
+    /// Localizations of <see cref="Name"/> (1-100 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]

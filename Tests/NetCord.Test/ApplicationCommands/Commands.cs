@@ -66,54 +66,10 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo", NameTranslationsProviderType = typeof(SearchNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchDescriptionTranslationsProvider))]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), NameTranslationsProviderType = typeof(SearchQueryNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(SearchQueryDescriptionTranslationsProvider), MaxLength = 500)] string searchQuery)
+    [SlashCommand("search", "Search using DuckDuckGo")]
+    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}"));
-    }
-
-    private class SearchNameTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "szukaj"
-            }
-        };
-    }
-
-    private class SearchDescriptionTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "Szuka używając DuckDuckGo"
-            }
-        };
-    }
-
-    private class SearchQueryNameTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "fraza"
-            }
-        };
-    }
-
-    private class SearchQueryDescriptionTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "Flaza do szukania"
-            }
-        };
     }
 
     [SlashCommand("percentage", "Show formatted percentage")]
@@ -291,7 +247,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.Message(user.ToString()));
     }
 
-    [SlashCommand("button", "Sends button", NameTranslationsProviderType = typeof(ButtonNameTranslationsProvider), DescriptionTranslationsProviderType = typeof(ButtonDescriptionTranslationsProvider))]
+    [SlashCommand("button", "Sends button")]
     public static InteractionCallback Button()
     {
         return InteractionCallback.Message(new()
@@ -306,28 +262,6 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
                 ]),
             ],
         });
-    }
-
-    private class ButtonNameTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "guzik"
-            }
-        };
-    }
-
-    private class ButtonDescriptionTranslationsProvider : ITranslationsProvider
-    {
-        public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>()
-        {
-            {
-                "pl",
-                "Wysyła guzik"
-            }
-        };
     }
 
     [SlashCommand("user-test", "Test")]
@@ -403,31 +337,20 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
 public enum DeleteMessagesDays
 {
-    [SlashCommandChoice(Name = "Don't remove")]
+    [SlashCommandChoice("Don't remove")]
     DontRemove = 0 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 24 hours")]
+    [SlashCommandChoice("Last 24 hours")]
     Last24Hours = 1 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 2 days")]
+    [SlashCommandChoice("Last 2 days")]
     Last2Days = 2 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 3 days")]
+    [SlashCommandChoice("Last 3 days")]
     Last3Days = 3 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 4 days")]
+    [SlashCommandChoice("Last 4 days")]
     Last4Days = 4 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 5 days")]
+    [SlashCommandChoice("Last 5 days")]
     Last5Days = 5 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last 6 days")]
+    [SlashCommandChoice("Last 6 days")]
     Last6Days = 6 * 24 * 60 * 60,
-    [SlashCommandChoice(Name = "Last week", NameTranslationsProviderType = typeof(DeleteMessagesDaysLastWeekTranslationsProvider))]
+    [SlashCommandChoice("Last week")]
     LastWeek = 7 * 24 * 60 * 60,
-}
-
-public class DeleteMessagesDaysLastWeekTranslationsProvider : ITranslationsProvider
-{
-    public IReadOnlyDictionary<string, string>? Translations => new Dictionary<string, string>
-    {
-        {
-            "pl",
-            "Ostatni tydzień"
-        }
-    };
 }

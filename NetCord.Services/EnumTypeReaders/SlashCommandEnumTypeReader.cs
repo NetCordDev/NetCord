@@ -7,18 +7,12 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Services.EnumTypeReaders;
 
-internal class SlashCommandEnumTypeReader : IEnumTypeReader
+internal class SlashCommandEnumTypeReader<TContext>(Type enumType, FieldInfo[] fields) : IEnumTypeReader, IChoicesProvider<TContext> where TContext : IApplicationCommandContext
 {
-    private readonly FieldInfo[] _fields;
-    private readonly IEnumTypeReader _typeReader;
+    private readonly IEnumTypeReader _typeReader = EnumValueTypeReader.Create(enumType, fields, CultureInfo.InvariantCulture);
 
     internal SlashCommandEnumTypeReader(Type enumType) : this(enumType, EnumHelper.GetFields(enumType))
     {
-    }
-
-    internal SlashCommandEnumTypeReader(Type enumType, FieldInfo[] fields)
-    {
-        _typeReader = EnumValueTypeReader.Create(enumType, _fields = fields, CultureInfo.InvariantCulture);
     }
 
     public bool TryRead(ReadOnlyMemory<char> input, [MaybeNullWhen(false)] out object value)
@@ -26,36 +20,34 @@ internal class SlashCommandEnumTypeReader : IEnumTypeReader
         return _typeReader.TryRead(input, out value);
     }
 
-    public IEnumerable<ApplicationCommandOptionChoiceProperties> GetChoices()
+    public async ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(SlashCommandParameter<TContext> parameter)
     {
-        return _fields.Select(CreateChoice);
-    }
+        var localizationsProvider = parameter.LocalizationsProvider;
 
-    private static ApplicationCommandOptionChoiceProperties CreateChoice(FieldInfo field)
-    {
-        var value = ((IConvertible)field.GetRawConstantValue()!).ToDouble(null);
+        var count = fields.Length;
+        var choices = new ApplicationCommandOptionChoiceProperties[count];
+        for (var i = 0; i < count; i++)
+            choices[i] = await CreateChoiceAsync(fields[i]).ConfigureAwait(false);
 
-        ApplicationCommandOptionChoiceProperties choice;
-        var attribute = field.GetCustomAttribute<SlashCommandChoiceAttribute>();
-        if (attribute is null)
-            choice = new(field.Name, value);
-        else
+        return choices;
+
+        async ValueTask<ApplicationCommandOptionChoiceProperties> CreateChoiceAsync(FieldInfo field)
         {
-            var translationsProviderType = attribute.NameTranslationsProviderType;
-            if (translationsProviderType is null)
-                choice = new(attribute.Name ?? field.Name, value);
-            else
+            var value = ((IConvertible)field.GetRawConstantValue()!).ToDouble(null);
+
+            var attribute = field.GetCustomAttribute<SlashCommandChoiceAttribute>();
+
+            var name = attribute is null ? field.Name : attribute.Name;
+
+            ApplicationCommandOptionChoiceProperties result = new(name, value);
+
+            if (localizationsProvider is not null)
             {
-                if (!translationsProviderType.IsAssignableTo(typeof(ITranslationsProvider)))
-                    throw new InvalidOperationException($"'{translationsProviderType}' is not assignable to '{nameof(ITranslationsProvider)}'.");
-
-                choice = new(attribute.Name ?? field.Name, value)
-                {
-                    NameLocalizations = ((ITranslationsProvider)Activator.CreateInstance(translationsProviderType)!).Translations,
-                };
+                var localizations = await localizationsProvider.GetLocalizationsAsync([new EnumLocalizationPathSegment(enumType), new EnumFieldLocalizationPathSegment(field), NameLocalizationPathSegment.Instance]).ConfigureAwait(false);
+                result.NameLocalizations = localizations;
             }
-        }
 
-        return choice;
+            return result;
+        }
     }
 }

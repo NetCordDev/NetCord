@@ -16,7 +16,7 @@ public partial class SlashCommandProperties(string name, string description) : A
     public string Description { get; set; } = description;
 
     /// <summary>
-    /// Translations of <see cref="Description"/> (1-100 characters each).
+    /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]

@@ -16,7 +16,7 @@ public partial class ApplicationCommandOptions
     public string? Name { get; set; }
 
     /// <summary>
-    /// Translations of <see cref="Name"/> (1-32 characters each).
+    /// Localizations of <see cref="Name"/> (1-32 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("name_localizations")]
@@ -30,7 +30,7 @@ public partial class ApplicationCommandOptions
     public string? Description { get; set; }
 
     /// <summary>
-    /// Translations of <see cref="Description"/> (1-100 characters each).
+    /// Localizations of <see cref="Description"/> (1-100 characters each).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("description_localizations")]

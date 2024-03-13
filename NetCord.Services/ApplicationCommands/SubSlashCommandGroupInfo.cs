@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -9,19 +10,15 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration)
+    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
-        Name = attribute.Name!;
+        var name = Name = attribute.Name!;
 
-        var nameTranslationsProviderType = attribute.NameTranslationsProviderType;
-        if (nameTranslationsProviderType is not null)
-            NameTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(nameTranslationsProviderType)!;
+        var localizationPath = LocalizationPath = path.Add(new SubSlashCommandGroupLocalizationPathSegment(name));
+
+        LocalizationsProvider = configuration.LocalizationsProvider;
 
         Description = attribute.Description!;
-
-        var descriptionTranslationsProviderType = attribute.DescriptionTranslationsProviderType;
-        if (descriptionTranslationsProviderType is not null)
-            DescriptionTranslationsProvider = (ITranslationsProvider)Activator.CreateInstance(descriptionTranslationsProviderType)!;
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
 
@@ -30,7 +27,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration)));
+                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, localizationPath)));
         }
 
         if (subCommands.Count == 0)
@@ -40,9 +37,9 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     }
 
     public string Name { get; }
-    public ITranslationsProvider? NameTranslationsProvider { get; }
+    public ILocalizationsProvider? LocalizationsProvider { get; }
+    public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public string Description { get; }
-    public ITranslationsProvider? DescriptionTranslationsProvider { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
 
@@ -59,13 +56,21 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
 
-    public ApplicationCommandOptionProperties GetRawValue()
+    public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync()
     {
+        var subCommands = SubCommands;
+        var count = subCommands.Count;
+
+        var options = new ApplicationCommandOptionProperties[count];
+        int i = 0;
+        foreach (var subCommand in subCommands.Values)
+            options[i++] = await subCommand.GetRawValueAsync().ConfigureAwait(false);
+
         return new(ApplicationCommandOptionType.SubCommandGroup, Name, Description)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
-            DescriptionLocalizations = DescriptionTranslationsProvider?.Translations,
-            Options = SubCommands.Values.Select(c => c.GetRawValue()),
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            Options = options,
         };
     }
 

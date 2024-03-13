@@ -100,8 +100,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     public void AddSlashCommand(string name,
                                 string description,
                                 Delegate handler,
-                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
-                                [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? descriptionTranslationsProviderType = null,
                                 Permissions? defaultGuildUserPermissions = null,
                                 bool? dMPermission = null,
                                 bool defaultPermission = true,
@@ -111,8 +109,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
         var slashCommandInfo = new SlashCommandInfo<TContext>(name,
                                                               description,
                                                               handler,
-                                                              nameTranslationsProviderType,
-                                                              descriptionTranslationsProviderType,
                                                               defaultGuildUserPermissions,
                                                               dMPermission,
                                                               defaultPermission,
@@ -125,7 +121,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
     public void AddUserCommand(string name,
                                Delegate handler,
-                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
                                Permissions? defaultGuildUserPermissions = null,
                                bool? dMPermission = null,
                                bool defaultPermission = true,
@@ -134,7 +129,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     {
         AddCommandInfo(new UserCommandInfo<TContext>(name,
                                                      handler,
-                                                     nameTranslationsProviderType,
                                                      defaultGuildUserPermissions,
                                                      dMPermission,
                                                      defaultPermission,
@@ -145,7 +139,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
     public void AddMessageCommand(string name,
                                   Delegate handler,
-                                  [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType = null,
                                   Permissions? defaultGuildUserPermissions = null,
                                   bool? dMPermission = null,
                                   bool defaultPermission = true,
@@ -154,7 +147,6 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     {
         AddCommandInfo(new MessageCommandInfo<TContext>(name,
                                                         handler,
-                                                        nameTranslationsProviderType,
                                                         defaultGuildUserPermissions,
                                                         dMPermission,
                                                         defaultPermission,
@@ -187,14 +179,20 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
     public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
     {
+        var globalCommandsToCreate = _globalCommandsToCreate;
+        int globalCount = globalCommandsToCreate.Count;
+        var globalProperties = new ApplicationCommandProperties[globalCount];
+
+        for (int i = 0; i < globalCount; i++)
+            globalProperties[i] = await globalCommandsToCreate[i].GetRawValueAsync().ConfigureAwait(false);
+
+        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
+
         int count = ((IApplicationCommandService)this).GetApproximateCommandsCount(includeGuildCommands);
         List<KeyValuePair<ulong, ApplicationCommandInfo<TContext>>> commands = new(count);
         List<ApplicationCommand> result = new(count);
 
-        var globalProperties = _globalCommandsToCreate.Select(c => c.GetRawValue());
-        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
-
-        foreach (var (command, commandInfo) in created.Zip(_globalCommandsToCreate))
+        foreach (var (command, commandInfo) in created.Zip(globalCommandsToCreate))
         {
             commands.Add(new(command.Key, commandInfo));
             result.Add(command.Value);
@@ -205,7 +203,11 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
             foreach (var guildCommandsPair in _guildCommandsToCreate)
             {
                 var guildCommands = guildCommandsPair.Value;
-                var guildProperties = guildCommands.Select(v => v.GetRawValue());
+                var guildCount = guildCommands.Count;
+                var guildProperties = new ApplicationCommandProperties[guildCount];
+
+                for (int i = 0; i < guildCount; i++)
+                    guildProperties[i] = await guildCommands[i].GetRawValueAsync().ConfigureAwait(false);
 
                 var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties).ConfigureAwait(false);
                 foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))

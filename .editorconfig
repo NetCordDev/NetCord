@@ -267,5 +267,5 @@ dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:suggesti
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:suggestion
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:suggestion
 
-[Json*.cs]
+[**/JsonModels{/**,}/Json*.cs]
 dotnet_diagnostic.CS8618.severity = none

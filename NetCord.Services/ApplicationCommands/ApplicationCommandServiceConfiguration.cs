@@ -82,4 +82,6 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
     public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
 
     public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new ApplicationCommandResultResolverProvider<TContext>();
+
+    public ILocalizationsProvider? LocalizationsProvider { get; init; }
 }

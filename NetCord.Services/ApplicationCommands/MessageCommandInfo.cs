@@ -21,14 +21,12 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     internal MessageCommandInfo(string name,
                              Delegate handler,
-                             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? nameTranslationsProviderType,
                              Permissions? defaultGuildUserPermissions,
                              bool? dMPermission,
                              bool defaultPermission,
                              bool nsfw,
                              ulong? guildId,
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                    nameTranslationsProviderType,
                                                                                                     defaultGuildUserPermissions,
                                                                                                     dMPermission,
                                                                                                     defaultPermission,
@@ -49,6 +47,8 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
+    public override LocalizationPathSegment LocalizationPathSegment => new ApplicationCommandLocalizationPathSegment(Name);
+
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
@@ -67,12 +67,12 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         return SuccessResult.Instance;
     }
 
-    public override ApplicationCommandProperties GetRawValue()
+    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync()
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         return new MessageCommandProperties(Name)
         {
-            NameLocalizations = NameTranslationsProvider?.Translations,
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
