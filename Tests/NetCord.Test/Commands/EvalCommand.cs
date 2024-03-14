@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,6 +13,8 @@ namespace NetCord.Test.Commands;
 
 public class EvalCommand : CommandModule<CommandContext>
 {
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new(Discord.SerializerOptions) { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+
     [Command("eval", Priority = 0)]
     public async Task Eval([CommandParameter(Remainder = true)] string code)
     {
@@ -37,7 +40,7 @@ public class EvalCommand : CommandModule<CommandContext>
         catch (RestException ex)
         {
             var error = ex.Error;
-            throw new($"{ex.Message}\n{(error is null ? "No error returned." : new CodeBlock(JsonSerializer.Serialize(error, Discord.SerializerOptions), "json"))}");
+            throw new($"{ex.Message}\n{(error is null ? "No error returned." : new CodeBlock(JsonSerializer.Serialize(error, _jsonSerializerOptions), "json"))}");
         }
         if (value is not null)
         {

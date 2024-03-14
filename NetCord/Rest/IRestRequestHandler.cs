@@ -4,5 +4,5 @@ public interface IRestRequestHandler : IDisposable
 {
     public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request);
 
-    public void AddDefaultHeader(string name, string? value);
+    public void AddDefaultHeader(string name, IEnumerable<string> values);
 }

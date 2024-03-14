@@ -1,7 +1,7 @@
 ﻿namespace NetCord.Rest;
 
 [Flags]
-public enum RateLimitHandling : sbyte
+public enum RestRateLimitHandling : sbyte
 {
     NoRetry = 0,
     RetryUser = 1 << 0,

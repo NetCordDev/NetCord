@@ -21,9 +21,9 @@ public sealed class RestRequestHandler : IRestRequestHandler
 
     public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request) => _httpClient.SendAsync(request);
 
-    public void AddDefaultHeader(string name, string? value)
+    public void AddDefaultHeader(string name, IEnumerable<string> values)
     {
-        _httpClient.DefaultRequestHeaders.Add(name, value);
+        _httpClient.DefaultRequestHeaders.Add(name, values);
     }
 
     public void Dispose()

@@ -25,30 +25,24 @@ public sealed partial class RestClient : IDisposable
 
         _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
 
-        var requestHandler = configuration.RequestHandler ?? new RestRequestHandler();
-        requestHandler.AddDefaultHeader("User-Agent", UserAgentHeader);
-        _requestHandler = requestHandler;
+        var requestHandler = _requestHandler = configuration.RequestHandler ?? new RestRequestHandler();
 
-        _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
+        requestHandler.AddDefaultHeader("User-Agent", [UserAgentHeader]);
+
+        var defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
+
+        foreach (var header in defaultRequestProperties.GetHeaders())
+            requestHandler.AddDefaultHeader(header.Name, header.Values);
+
+        _defaultRequestProperties = defaultRequestProperties.WithoutHeaders();
 
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
-    public RestClient(IToken token, RestClientConfiguration? configuration = null)
+    public RestClient(IToken token, RestClientConfiguration? configuration = null) : this(configuration)
     {
         Token = token;
-        configuration ??= new();
-
-        _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
-
-        var requestHandler = configuration.RequestHandler ?? new RestRequestHandler();
-        requestHandler.AddDefaultHeader("User-Agent", UserAgentHeader);
-        requestHandler.AddDefaultHeader("Authorization", token.HttpHeaderValue);
-        _requestHandler = requestHandler;
-
-        _defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
-
-        _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
+        _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
     }
 
     public async Task<Stream> SendRequestAsync(HttpMethod method, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
@@ -59,7 +53,11 @@ public sealed partial class RestClient : IDisposable
         var response = await SendRequestAsync(new(method, endpoint.Format, resourceInfo), global, () =>
         {
             HttpRequestMessage requestMessage = new(method, url);
-            properties.AddHeaders(requestMessage.Headers);
+
+            var headers = requestMessage.Headers;
+            foreach (var header in properties.GetHeaders())
+                headers.TryAddWithoutValidation(header.Name, header.Values);
+
             return requestMessage;
         }, properties).ConfigureAwait(false);
 
@@ -77,7 +75,11 @@ public sealed partial class RestClient : IDisposable
             {
                 Content = content,
             };
-            properties.AddHeaders(requestMessage.Headers);
+
+            var headers = requestMessage.Headers;
+            foreach (var header in properties.GetHeaders())
+                headers.TryAddWithoutValidation(header.Name, header.Values);
+
             return requestMessage;
         }, properties).ConfigureAwait(false);
 
@@ -136,7 +138,7 @@ public sealed partial class RestClient : IDisposable
 
                 if (rateLimited)
                 {
-                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
                             await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault()).ConfigureAwait(false);
@@ -156,7 +158,7 @@ public sealed partial class RestClient : IDisposable
 
                     await rateLimiter.CancelAcquireAsync(timestamp).ConfigureAwait(false);
 
-                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                         continue;
                 }
                 else
@@ -164,7 +166,7 @@ public sealed partial class RestClient : IDisposable
                     await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null, null).ConfigureAwait(false);
                     await rateLimiter.IndicateExchangeAsync(timestamp).ConfigureAwait(false);
 
-                    if (properties.RateLimitHandling.HasFlag((RateLimitHandling)scope))
+                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
                             await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault()).ConfigureAwait(false);
@@ -211,7 +213,7 @@ public sealed partial class RestClient : IDisposable
             var info = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
             if (info.RateLimited)
             {
-                if (properties.RateLimitHandling.HasFlag(RateLimitHandling.RetryGlobal))
+                if (properties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryGlobal))
                     await Task.Delay(info.ResetAfter).ConfigureAwait(false);
                 else
                     throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.Global);
@@ -231,7 +233,7 @@ public sealed partial class RestClient : IDisposable
             var info = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
             if (info.RateLimited)
             {
-                if (properties.RateLimitHandling.HasFlag(RateLimitHandling.RetryUser))
+                if (properties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryUser))
                     await Task.Delay(info.ResetAfter).ConfigureAwait(false);
                 else
                     throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.User);
