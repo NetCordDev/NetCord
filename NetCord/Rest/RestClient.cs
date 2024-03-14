@@ -94,12 +94,11 @@ public sealed partial class RestClient : IDisposable
 
             var rateLimiter = await AcquireRouteRateLimiterAsync(route, properties).ConfigureAwait(false);
 
-            var message = messageFunc();
             var timestamp = Environment.TickCount64;
             HttpResponseMessage response;
             try
             {
-                response = await _requestHandler.SendAsync(message).ConfigureAwait(false);
+                response = await _requestHandler.SendAsync(messageFunc()).ConfigureAwait(false);
             }
             catch
             {
