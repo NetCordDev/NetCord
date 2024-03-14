@@ -4,7 +4,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public IAsyncEnumerable<Entitlement> GetEntitlementsAsync(ulong applicationId, EntitlementsPaginationProperties? paginationProperties = null, RequestProperties? properties = null)
+    public IAsyncEnumerable<Entitlement> GetEntitlementsAsync(ulong applicationId, EntitlementsPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
 
@@ -44,12 +44,12 @@ public partial class RestClient
             properties);
     }
 
-    public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RequestProperties? properties = null)
+    public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RestRequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, Serialization.Default.TestEntitlementProperties))
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false));
     }
 
-    public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RequestProperties? properties = null)
+    public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties);
 }

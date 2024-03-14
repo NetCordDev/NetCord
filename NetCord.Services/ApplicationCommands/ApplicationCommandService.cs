@@ -177,7 +177,7 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
             _globalCommandsToCreate.Add(applicationCommandInfo);
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null)
     {
         var globalCommandsToCreate = _globalCommandsToCreate;
         int globalCount = globalCommandsToCreate.Count;

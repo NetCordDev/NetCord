@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-internal sealed class TypingReminder(ulong channelId, RestClient client, RequestProperties? properties) : IDisposable
+internal sealed class TypingReminder(ulong channelId, RestClient client, RestRequestProperties? properties) : IDisposable
 {
     private readonly CancellationTokenSource _tokenSource = new();
 

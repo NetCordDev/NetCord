@@ -11,7 +11,7 @@ public sealed partial class RestClient : IDisposable
 {
     private readonly string _baseUrl;
     private readonly IRestRequestHandler _requestHandler;
-    private readonly RequestProperties _defaultRequestProperties;
+    private readonly RestRequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
 
     /// <summary>
@@ -51,7 +51,7 @@ public sealed partial class RestClient : IDisposable
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RequestProperties? properties = null, bool global = true)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
     {
         properties ??= _defaultRequestProperties;
         string url = $"{_baseUrl}{endpoint}{query}";
@@ -66,7 +66,7 @@ public sealed partial class RestClient : IDisposable
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RequestProperties? properties = null, bool global = true)
+    public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
     {
         properties ??= _defaultRequestProperties;
         string url = $"{_baseUrl}{endpoint}{query}";
@@ -84,7 +84,7 @@ public sealed partial class RestClient : IDisposable
         return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
     }
 
-    private async Task<HttpResponseMessage> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RequestProperties properties)
+    private async Task<HttpResponseMessage> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties)
     {
         while (true)
         {
@@ -203,7 +203,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(RequestProperties properties)
+    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(RestRequestProperties properties)
     {
         while (true)
         {
@@ -223,7 +223,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async ValueTask<IRouteRateLimiter> AcquireRouteRateLimiterAsync(Route route, RequestProperties properties)
+    private async ValueTask<IRouteRateLimiter> AcquireRouteRateLimiterAsync(Route route, RestRequestProperties properties)
     {
         while (true)
         {

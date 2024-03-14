@@ -101,6 +101,6 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public RoleSubscriptionData? RoleSubscriptionData { get; }
     public InteractionResolvedData? ResolvedData { get; }
 
-    public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RequestProperties? properties = null)
+    public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
         => SendAsync(replyMessage.ToMessageProperties(Id), properties);
 }

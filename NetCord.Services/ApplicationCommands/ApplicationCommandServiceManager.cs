@@ -11,7 +11,7 @@ public class ApplicationCommandServiceManager
         _services.Add(service);
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RequestProperties? properties = null)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null)
     {
         var services = _services.ToArray();
         var serviceCommands = services.Select(s => (Service: s, Commands: new List<KeyValuePair<ulong, IApplicationCommandInfo>>(s.GetApproximateCommandsCount(includeGuildCommands)))).ToArray();

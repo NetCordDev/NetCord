@@ -6,7 +6,7 @@ namespace NetCord;
 
 public abstract class MessageComponentInteraction : ComponentInteraction
 {
-    private protected MessageComponentInteraction(JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
+    private protected MessageComponentInteraction(JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
         var message = jsonModel.Message!;
         message.GuildId = jsonModel.GuildId;

@@ -9,7 +9,7 @@ internal class OptimizedQueryPaginationAsyncEnumerable<T, TFrom>(
     FormattableString endpoint,
     PaginationQueryBuilder<TFrom> queryBuilder,
     TopLevelResourceInfo? resourceInfo,
-    RequestProperties? properties,
+    RestRequestProperties? properties,
     bool global = true) : IAsyncEnumerable<T> where TFrom : struct
 {
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)

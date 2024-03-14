@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class RequestProperties
+public partial class RestRequestProperties
 {
     public string? AuditLogReason { get; set; }
     public RateLimitHandling RateLimitHandling { get; set; } = RateLimitHandling.Retry;
