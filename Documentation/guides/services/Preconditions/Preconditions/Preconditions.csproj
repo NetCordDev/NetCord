@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <AssemblyName>MyBot</AssemblyName>
+    <RootNamespace>MyBot</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
