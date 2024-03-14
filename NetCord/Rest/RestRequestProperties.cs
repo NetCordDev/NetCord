@@ -1,12 +1,10 @@
-﻿using System.Net.Http.Headers;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestRequestProperties
 {
     public RestRateLimitHandling RateLimitHandling { get; set; } = RestRateLimitHandling.Retry;
     public string? AuditLogReason { get; set; }
-    public IEnumerable<StringWithQualityHeaderValue>? ErrorLanguage { get; set; }
+    public string? ErrorLocalization { get; set; }
 
     internal record struct RestRequestHeaderInfo(string Name, IEnumerable<string> Values);
 
@@ -16,9 +14,9 @@ public partial class RestRequestProperties
         if (auditLogReason is not null)
             yield return new("X-Audit-Log-Reason", [Uri.EscapeDataString(auditLogReason)]);
 
-        var errorLanguage = ErrorLanguage;
-        if (errorLanguage is not null)
-            yield return new("Accept-Language", errorLanguage.Select(l => l.ToString()));
+        var errorLocalization = ErrorLocalization;
+        if (errorLocalization is not null)
+            yield return new("Accept-Language", [Uri.EscapeDataString(errorLocalization)]);
     }
 
     internal RestRequestProperties WithoutHeaders()
