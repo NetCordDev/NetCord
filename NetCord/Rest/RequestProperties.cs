@@ -6,10 +6,20 @@ public partial class RequestProperties
 {
     public string? AuditLogReason { get; set; }
     public RateLimitHandling RateLimitHandling { get; set; } = RateLimitHandling.Retry;
+    public IEnumerable<StringWithQualityHeaderValue>? ErrorLanguage { get; set; }
 
     internal void AddHeaders(HttpRequestHeaders headers)
     {
-        if (AuditLogReason is not null)
-            headers.Add("X-Audit-Log-Reason", Uri.EscapeDataString(AuditLogReason));
+        var auditLogReason = AuditLogReason;
+        if (auditLogReason is not null)
+            headers.Add("X-Audit-Log-Reason", Uri.EscapeDataString(auditLogReason));
+
+        var errorLanguage = ErrorLanguage;
+        if (errorLanguage is not null)
+        {
+            var acceptLanguage = headers.AcceptLanguage;
+            foreach (var language in errorLanguage)
+                acceptLanguage.Add(language);
+        }
     }
 }
