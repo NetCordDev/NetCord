@@ -15,4 +15,8 @@ public partial class CurrentUserOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("avatar")]
     public ImageProperties? Avatar { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("banner")]
+    public ImageProperties? Banner { get; set; }
 }
