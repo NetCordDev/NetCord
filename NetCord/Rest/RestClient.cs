@@ -45,12 +45,15 @@ public sealed partial class RestClient : IDisposable
         _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
+    public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
     {
         properties ??= _defaultRequestProperties;
-        string url = $"{_baseUrl}{endpoint}{query}";
 
-        var response = await SendRequestAsync(new(method, endpoint.Format, resourceInfo), global, () =>
+        var url = $"{_baseUrl}{route}{query}";
+
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties);
+
+        HttpRequestMessage CreateMessage()
         {
             HttpRequestMessage requestMessage = new(method, url);
 
@@ -59,17 +62,18 @@ public sealed partial class RestClient : IDisposable
                 headers.Add(header.Name, header.Values);
 
             return requestMessage;
-        }, properties).ConfigureAwait(false);
-
-        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        }
     }
 
-    public async Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString endpoint, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
+    public Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
     {
         properties ??= _defaultRequestProperties;
-        string url = $"{_baseUrl}{endpoint}{query}";
 
-        var response = await SendRequestAsync(new(method, endpoint.Format, resourceInfo), global, () =>
+        var url = $"{_baseUrl}{route}{query}";
+
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties);
+
+        HttpRequestMessage CreateMessage()
         {
             HttpRequestMessage requestMessage = new(method, url)
             {
@@ -81,12 +85,10 @@ public sealed partial class RestClient : IDisposable
                 headers.Add(header.Name, header.Values);
 
             return requestMessage;
-        }, properties).ConfigureAwait(false);
-
-        return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+        }
     }
 
-    private async Task<HttpResponseMessage> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties)
+    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties)
     {
         while (true)
         {
@@ -183,7 +185,7 @@ public sealed partial class RestClient : IDisposable
             }
 
             if (response.IsSuccessStatusCode)
-                return response;
+                return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
             var content = response.Content;
             if (content.Headers.ContentType is { MediaType: "application/json" })

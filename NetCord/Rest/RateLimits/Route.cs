@@ -2,16 +2,16 @@
 
 public record Route
 {
-    public Route(HttpMethod method, string endpoint, TopLevelResourceInfo? resourceInfo = null)
+    public Route(HttpMethod method, string endPoint, TopLevelResourceInfo? resourceInfo = null)
     {
         Method = method;
-        Endpoint = endpoint;
+        EndPoint = endPoint;
         ResourceInfo = resourceInfo;
     }
 
     public HttpMethod Method { get; }
 
-    public string Endpoint { get; }
+    public string EndPoint { get; }
 
     public TopLevelResourceInfo? ResourceInfo { get; }
 }
