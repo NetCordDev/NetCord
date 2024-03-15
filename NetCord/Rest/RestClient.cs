@@ -56,7 +56,7 @@ public sealed partial class RestClient : IDisposable
 
             var headers = requestMessage.Headers;
             foreach (var header in properties.GetHeaders())
-                headers.TryAddWithoutValidation(header.Name, header.Values);
+                headers.Add(header.Name, header.Values);
 
             return requestMessage;
         }, properties).ConfigureAwait(false);
@@ -78,7 +78,7 @@ public sealed partial class RestClient : IDisposable
 
             var headers = requestMessage.Headers;
             foreach (var header in properties.GetHeaders())
-                headers.TryAddWithoutValidation(header.Name, header.Values);
+                headers.Add(header.Name, header.Values);
 
             return requestMessage;
         }, properties).ConfigureAwait(false);
