@@ -208,7 +208,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
 
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)
     {
         switch ((GatewayOpcode)payload.Opcode)
@@ -242,7 +241,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
-                BeginHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                _ = HeartbeatAsync(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
@@ -283,7 +282,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private async Task ProcessEventAsync(JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();

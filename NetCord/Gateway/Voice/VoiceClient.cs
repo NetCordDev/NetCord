@@ -186,7 +186,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    BeginHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                    _ = HeartbeatAsync(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:

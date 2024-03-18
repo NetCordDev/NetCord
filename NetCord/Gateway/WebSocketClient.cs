@@ -6,6 +6,8 @@ using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectTimers;
 using NetCord.Gateway.WebSockets;
 
+using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
+
 namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
@@ -16,60 +18,12 @@ public abstract class WebSocketClient : IDisposable
         reconnectTimer ??= new ReconnectTimer();
         latencyTimer ??= new LatencyTimer();
 
-        webSocket.Connecting += async () =>
-        {
-            InvokeLog(LogMessage.Info("Connecting"));
-            await InvokeEventAsync(Connecting).ConfigureAwait(false);
-        };
-        webSocket.Connected += async () =>
-        {
-            _disconnectedToken = (_disconnectedTokenSource = new()).Token;
+        webSocket.Connecting += HandleConnecting;
+        webSocket.Connected += HandleConnected;
+        webSocket.Disconnected += HandleDisconnected;
+        webSocket.Closed += HandleClosed;
+        webSocket.MessageReceived += HandleMessageReceived;
 
-            OnConnected();
-            InvokeLog(LogMessage.Info("Connected"));
-            await InvokeEventAsync(Connect).ConfigureAwait(false);
-        };
-        webSocket.Disconnected += async (closeStatus, description) =>
-        {
-            var disconnectedTokenSource = _disconnectedTokenSource!;
-            disconnectedTokenSource.Cancel();
-            disconnectedTokenSource.Dispose();
-
-            InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
-            var reconnect = Reconnect(closeStatus, description);
-            var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
-            if (reconnect)
-                await ReconnectAsync().ConfigureAwait(false);
-            else
-                _readyCompletionSource.TrySetCanceled();
-
-            await disconnectTask.ConfigureAwait(false);
-        };
-        webSocket.Closed += async () =>
-        {
-            var disconnectedTokenSource = _disconnectedTokenSource!;
-            disconnectedTokenSource.Cancel();
-            disconnectedTokenSource.Dispose();
-
-            InvokeLog(LogMessage.Info("Closed"));
-            var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
-
-            _readyCompletionSource.TrySetCanceled();
-
-            await closeTask;
-        };
-        webSocket.MessageReceived += async data =>
-        {
-            try
-            {
-                var payload = CreatePayload(data);
-                await ProcessPayloadAsync(payload).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-            }
-        };
         _webSocket = webSocket;
         _reconnectTimer = reconnectTimer;
         _latencyTimer = latencyTimer;
@@ -108,6 +62,65 @@ public abstract class WebSocketClient : IDisposable
     public event Func<ValueTask>? Close;
     public event Func<LogMessage, ValueTask>? Log;
 
+    private async void HandleConnecting()
+    {
+        InvokeLog(LogMessage.Info("Connecting"));
+        await InvokeEventAsync(Connecting).ConfigureAwait(false);
+    }
+
+    private async void HandleConnected()
+    {
+        _disconnectedToken = (_disconnectedTokenSource = new()).Token;
+
+        OnConnected();
+        InvokeLog(LogMessage.Info("Connected"));
+        await InvokeEventAsync(Connect).ConfigureAwait(false);
+    }
+
+    private async void HandleDisconnected(WebSocketCloseStatus? closeStatus, string? description)
+    {
+        var disconnectedTokenSource = _disconnectedTokenSource!;
+        disconnectedTokenSource.Cancel();
+        disconnectedTokenSource.Dispose();
+
+        InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
+        var reconnect = Reconnect(closeStatus, description);
+        var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
+        if (reconnect)
+            await ReconnectAsync().ConfigureAwait(false);
+        else
+            _readyCompletionSource.TrySetCanceled();
+
+        await disconnectTask.ConfigureAwait(false);
+    }
+
+    private async void HandleClosed()
+    {
+        var disconnectedTokenSource = _disconnectedTokenSource!;
+        disconnectedTokenSource.Cancel();
+        disconnectedTokenSource.Dispose();
+
+        InvokeLog(LogMessage.Info("Closed"));
+        var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
+
+        _readyCompletionSource.TrySetCanceled();
+
+        await closeTask;
+    }
+
+    private async void HandleMessageReceived(ReadOnlyMemory<byte> data)
+    {
+        try
+        {
+            var payload = CreatePayload(data);
+            await ProcessPayloadAsync(payload).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
+        }
+    }
+
     private protected Task ConnectAsync(Uri uri)
     {
         var closedTokenSource = _closedTokenSource;
@@ -121,7 +134,7 @@ public abstract class WebSocketClient : IDisposable
     /// </summary>
     /// <param name="status">The status to close with.</param>
     /// <returns></returns>
-    public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
+    public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure)
     {
         var closedTokenSource = _closedTokenSource;
         if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
@@ -143,7 +156,7 @@ public abstract class WebSocketClient : IDisposable
     {
     }
 
-    private protected async Task CloseAndReconnectAsync(System.Net.WebSockets.WebSocketCloseStatus status)
+    private protected async Task CloseAndReconnectAsync(WebSocketCloseStatus status)
     {
         try
         {
@@ -160,7 +173,7 @@ public abstract class WebSocketClient : IDisposable
     public ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         => _webSocket.SendAsync(buffer, cancellationToken);
 
-    private protected abstract bool Reconnect(System.Net.WebSockets.WebSocketCloseStatus? status, string? description);
+    private protected abstract bool Reconnect(WebSocketCloseStatus? status, string? description);
 
     private protected async ValueTask ReconnectAsync()
     {
@@ -188,7 +201,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract Task TryResumeAsync();
 
-    private protected async void BeginHeartbeating(double interval)
+    private protected async Task HeartbeatAsync(double interval)
     {
         using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(interval));
         while (true)
