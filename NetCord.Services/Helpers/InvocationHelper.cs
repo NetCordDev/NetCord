@@ -40,7 +40,7 @@ internal class InvocationHelper
         var context = Expression.Parameter(typeof(TContext));
         var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
 
-        var serviceExpressions = serviceParameters.Select(p => ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, Expression.Throw(GetServiceNotFoundExceptionExpression(p))));
+        var serviceExpressions = serviceParameters.Select(p => ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, Expression.Throw(ServiceProviderHelper.GetServiceNotFoundExceptionExpression(p))));
         var parameterExpressions = parameterTypes.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i, typeof(int))), p));
 
         var arguments = hasContext ? serviceExpressions.Append(context).Concat(parameterExpressions) : serviceExpressions.Concat(parameterExpressions);
@@ -54,11 +54,6 @@ internal class InvocationHelper
 
         var lambda = Expression.Lambda<Func<object?[]?, TContext, IServiceProvider?, ValueTask>>(invokeResolver, parameters, context, serviceProvider);
         return lambda.Compile();
-    }
-
-    private static NewExpression GetServiceNotFoundExceptionExpression(ParameterInfo p)
-    {
-        return Expression.New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Expression.Constant($"No service for type '{p.ParameterType}' has been registered.", typeof(string)));
     }
 
     private static Func<object?, TContext, ValueTask> GetResolver<TContext>(MethodInfo method, IResultResolverProvider<TContext> resultResolverProvider)

@@ -18,6 +18,18 @@ public static class GatewayEventHandlerServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddGatewayEventHandler(this IServiceCollection services, string name, Delegate handler)
+    {
+        services.AddSingleton<IGatewayEventHandlerBase>(services => new DelegateGatewayEventHandler(name, services, handler));
+        return services;
+    }
+
+    public static IServiceCollection AddGatewayEventHandler<T>(this IServiceCollection services, string name, Delegate handler)
+    {
+        services.AddSingleton<IGatewayEventHandlerBase>(services => new DelegateGatewayEventHandler<T>(name, services, handler));
+        return services;
+    }
+
     public static IServiceCollection AddGatewayEventHandlers(this IServiceCollection services, Assembly assembly)
     {
         var handlerBase = typeof(IGatewayEventHandlerBase);
@@ -43,6 +55,18 @@ public static class GatewayEventHandlerServiceCollectionExtensions
     public static IServiceCollection AddShardedGatewayEventHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory) where T : class, IShardedGatewayEventHandlerBase
     {
         services.AddSingleton<IShardedGatewayEventHandlerBase, T>(implementationFactory);
+        return services;
+    }
+
+    public static IServiceCollection AddShardedGatewayEventHandler(this IServiceCollection services, string name, Delegate handler)
+    {
+        services.AddSingleton<IShardedGatewayEventHandlerBase>(services => new DelegateShardedGatewayEventHandler(name, services, handler));
+        return services;
+    }
+
+    public static IServiceCollection AddShardedGatewayEventHandler<T>(this IServiceCollection services, string name, Delegate handler)
+    {
+        services.AddSingleton<IShardedGatewayEventHandlerBase>(services => new DelegateShardedGatewayEventHandler<T>(name, services, handler));
         return services;
     }
 

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using NetCord.Gateway;
@@ -42,25 +40,23 @@ public static class GatewayEventHandlerHostExtensions
 
         foreach (var handler in services.GetServices<IGatewayEventHandlerBase>())
         {
-            var handlerType = handler.GetType();
-
-            var attributes = handlerType.GetCustomAttributes<GatewayEventAttribute>();
-
-            foreach (var attribute in attributes)
+            foreach (var eventName in handler.GetEvents())
             {
-                if (!events.TryGetValue(attribute.Name, out var @event))
-                    throw new InvalidOperationException($"Event '{attribute.Name}' does not exist for '{nameof(GatewayClient)}'.");
+                if (!events.TryGetValue(eventName, out var @event))
+                    throw new InvalidOperationException($"Event '{eventName}' does not exist for '{nameof(GatewayClient)}'.");
 
                 var eventTypeArguments = @event.EventHandlerType!.GenericTypeArguments;
                 if (handler is IGatewayEventHandler gatewayEventHandler)
                 {
                     if (eventTypeArguments.Length != 1)
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
+                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not match the type arguments of the '{@event.Name}' event.");
 
                     @event.AddEventHandler(client, gatewayEventHandler.HandleAsync);
                 }
                 else
                 {
+                    var handlerType = handler.GetType();
+
                     if (eventTypeArguments.Length != 2)
                         throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
 
@@ -84,25 +80,23 @@ public static class GatewayEventHandlerHostExtensions
 
         foreach (var handler in services.GetServices<IShardedGatewayEventHandlerBase>())
         {
-            var handlerType = handler.GetType();
-
-            var attributes = handlerType.GetCustomAttributes<GatewayEventAttribute>();
-
-            foreach (var attribute in attributes)
+            foreach (var eventName in handler.GetEvents())
             {
-                if (!events.TryGetValue(attribute.Name, out var @event))
-                    throw new InvalidOperationException($"Event '{attribute.Name}' does not exist for '{nameof(ShardedGatewayClient)}'.");
+                if (!events.TryGetValue(eventName, out var @event))
+                    throw new InvalidOperationException($"Event '{eventName}' does not exist for '{nameof(ShardedGatewayClient)}'.");
 
                 var eventTypeArguments = @event.EventHandlerType!.GenericTypeArguments;
                 if (handler is IShardedGatewayEventHandler shardedGatewayEventHandler)
                 {
                     if (eventTypeArguments.Length != 2)
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
+                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not match the type arguments of the '{@event.Name}' event.");
 
                     @event.AddEventHandler(client, shardedGatewayEventHandler.HandleAsync);
                 }
                 else
                 {
+                    var handlerType = handler.GetType();
+
                     if (eventTypeArguments.Length != 3)
                         throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
 

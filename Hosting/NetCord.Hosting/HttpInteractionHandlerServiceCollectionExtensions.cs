@@ -15,4 +15,10 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
         services.AddSingleton<IHttpInteractionHandler, T>(implementationFactory);
         return services;
     }
+
+    public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, Delegate handler)
+    {
+        services.AddSingleton<IHttpInteractionHandler>(services => new DelegateHttpInteractionHandler(services, handler));
+        return services;
+    }
 }

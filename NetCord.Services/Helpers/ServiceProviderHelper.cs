@@ -17,7 +17,7 @@ internal static class ServiceProviderHelper
                 Expression.Assign(parameterValueVariable, Expression.Call(serviceProvider, _getServiceMethod, Expression.Constant(parameterType, typeof(Type)))),
                 Expression.IfThen(Expression.NotEqual(parameterValueVariable, Expression.Constant(null, typeof(object))),
                     Expression.Return(argRet, Expression.Convert(parameterValueVariable, parameterType))),
-                Expression.Label(argRet, ParametersHelper.GetParameterDefaultValueExpression(parameterType, parameter)));
+                Expression.Label(argRet, ParameterHelper.GetParameterDefaultValueExpression(parameterType, parameter)));
         else
             return Expression.Block([parameterValueVariable],
                 Expression.Assign(parameterValueVariable, Expression.Call(serviceProvider, _getServiceMethod, Expression.Constant(parameterType, typeof(Type)))),
@@ -25,5 +25,10 @@ internal static class ServiceProviderHelper
                     serviceNotFound,
                     Expression.Return(argRet, Expression.Convert(parameterValueVariable, parameterType))),
                 Expression.Label(argRet, Expression.Default(parameterType)));
+    }
+
+    public static NewExpression GetServiceNotFoundExceptionExpression(ParameterInfo p)
+    {
+        return Expression.New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Expression.Constant($"No service for type '{p.ParameterType}' has been registered.", typeof(string)));
     }
 }

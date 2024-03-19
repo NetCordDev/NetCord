@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using NetCord;
 using NetCord.Gateway;
@@ -43,6 +44,7 @@ builder.Services
     .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddCommands<CommandContext>()
+    .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
     .AddGatewayEventHandlers(typeof(Program).Assembly);
 
 var host = builder.Build()

@@ -17,7 +17,8 @@ builder.Host
     .UseComponentInteractions<ButtonInteraction, HttpButtonInteractionContext>();
 
 builder.Services
-    .AddHttpInteractionHandler<InteractionHandler>();
+    .AddHttpInteractionHandler<InteractionHandler>()
+    .AddHttpInteractionHandler((Interaction interaction, ILogger<Interaction> logger) => logger.LogInformation("Id: {}", interaction.Id));
 
 var app = builder.Build();
 
