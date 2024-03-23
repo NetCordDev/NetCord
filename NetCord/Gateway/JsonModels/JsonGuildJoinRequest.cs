@@ -15,7 +15,7 @@ public class JsonGuildJoinRequest : JsonEntity
     public ulong GuildId { get; set; }
 
     [JsonPropertyName("last_seen")]
-    public DateTimeOffset LastSeen { get; set; }
+    public DateTimeOffset LastSeenAt { get; set; }
 
     [JsonPropertyName("rejection_reason")]
     public string? RejectionReason { get; set; }
