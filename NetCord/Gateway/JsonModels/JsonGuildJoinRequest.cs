@@ -3,6 +3,7 @@
 using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
+
 public class JsonGuildJoinRequest : JsonEntity
 {
     [JsonPropertyName("application_status")]
