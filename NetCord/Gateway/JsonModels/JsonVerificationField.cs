@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.JsonModels;
+
 public partial class JsonVerificationField
 {
     [JsonPropertyName("field_type")]
