@@ -1,6 +1,7 @@
 ﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
+
 public class GuildJoinRequest : IJsonModel<JsonModels.JsonGuildJoinRequest>
 {
     private readonly JsonModels.JsonGuildJoinRequest _jsonModel;
