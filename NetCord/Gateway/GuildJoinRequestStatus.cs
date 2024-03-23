@@ -12,5 +12,5 @@ public enum GuildJoinRequestStatus
     [JsonPropertyName("REJECTED")]
     Rejected,
     [JsonPropertyName("APPROVED")]
-    Approved
+    Approved,
 }
