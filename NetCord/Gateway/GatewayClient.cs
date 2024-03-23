@@ -80,9 +80,9 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Entitlement, ValueTask>? EntitlementCreate;
     public event Func<Entitlement, ValueTask>? EntitlementUpdate;
     public event Func<Entitlement, ValueTask>? EntitlementDelete;
-    public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
     public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
     public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
+    public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     /// <summary>
     /// The token of the <see cref="GatewayClient"/>.
