@@ -15,6 +15,7 @@ public class GuildJoinRequest : IJsonModel<JsonModels.JsonGuildJoinRequest>
     public IReadOnlyList<VerificationField> FormResponses { get; }
     public User ActionedByUser { get; }
     public ulong ActionedAt => _jsonModel.ActionedAt;
+    
     public GuildJoinRequest(JsonModels.JsonGuildJoinRequest jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
