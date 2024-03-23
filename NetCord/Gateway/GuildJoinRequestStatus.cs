@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway;
+
 [JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<GuildJoinRequestStatus>))]
 public enum GuildJoinRequestStatus
 {
