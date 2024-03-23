@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway;
+
 [JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<VerificationFieldType>))]
 public enum VerificationFieldType
 {
@@ -11,9 +12,9 @@ public enum VerificationFieldType
     [JsonPropertyName("PARAGRAPH")]
     Paragraph,
     [JsonPropertyName("MULTIPLE_CHOICE")]
-    MultipleChoise,
+    MultipleChoice,
     [JsonPropertyName("VERIFICATION")]
     Verification,
     [JsonPropertyName("FILE_UPLOAD")]
-    FileUpload
+    FileUpload,
 }
