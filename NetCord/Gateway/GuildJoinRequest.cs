@@ -2,12 +2,13 @@
 
 namespace NetCord.Gateway;
 
-public class GuildJoinRequest(JsonModels.JsonGuildJoinRequest jsonModel, RestClient client) : IJsonModel<JsonModels.JsonGuildJoinRequest>
+public class GuildJoinRequest(JsonModels.JsonGuildJoinRequest jsonModel, RestClient client) : Entity, IJsonModel<JsonModels.JsonGuildJoinRequest>
 {
     JsonModels.JsonGuildJoinRequest IJsonModel<JsonModels.JsonGuildJoinRequest>.JsonModel => jsonModel;
-    
+
+    public override ulong Id => jsonModel.Id;
     public GuildJoinRequestStatus ApplicationStatus => jsonModel.ApplicationStatus;
-    public DateTimeOffset CreatedAt => jsonModel.CreatedAt;
+    //public DateTimeOffset CreatedAt => jsonModel.CreatedAt;
     public ulong GuildId => jsonModel.GuildId;
     public DateTimeOffset LastSeenAt => jsonModel.LastSeenAt;
     public string? RejectionReason => jsonModel.RejectionReason;

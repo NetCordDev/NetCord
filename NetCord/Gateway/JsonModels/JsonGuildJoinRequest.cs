@@ -9,8 +9,8 @@ public class JsonGuildJoinRequest : JsonEntity
     [JsonPropertyName("application_status")]
     public GuildJoinRequestStatus ApplicationStatus { get; set; }
 
-    [JsonPropertyName("created_at")]
-    public DateTimeOffset CreatedAt { get; set; }
+    //[JsonPropertyName("created_at")]
+    //public DateTimeOffset CreatedAt { get; set; }
 
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }
