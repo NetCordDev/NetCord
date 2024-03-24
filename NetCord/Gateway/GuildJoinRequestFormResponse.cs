@@ -3,7 +3,7 @@
 public class GuildJoinRequestFormResponse(JsonModels.JsonGuildJoinRequestFormResponse jsonModel) : IJsonModel<JsonModels.JsonGuildJoinRequestFormResponse>
 {
     JsonModels.JsonGuildJoinRequestFormResponse IJsonModel<JsonModels.JsonGuildJoinRequestFormResponse>.JsonModel => jsonModel;
-    
+
     public GuildJoinRequestFormResponseFieldType FieldType => jsonModel.FieldType;
     public string Label => jsonModel.Label;
     public bool Required => jsonModel.Required;
