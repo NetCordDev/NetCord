@@ -80,6 +80,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Entitlement, ValueTask>? EntitlementCreate;
     public event Func<Entitlement, ValueTask>? EntitlementUpdate;
     public event Func<Entitlement, ValueTask>? EntitlementDelete;
+    public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
+    public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     /// <summary>
@@ -713,6 +715,16 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "ENTITLEMENT_DELETE":
                 {
                     await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                }
+                break;
+            case "GUILD_JOIN_REQUEST_UPDATE":
+                {
+                    await InvokeEventAsync(GuildJoinRequestUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestUpdateEventArgs), Rest)).ConfigureAwait(false);
+                }
+                break;
+            case "GUILD_JOIN_REQUEST_DELETE":
+                {
+                    await InvokeEventAsync(GuildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             default:

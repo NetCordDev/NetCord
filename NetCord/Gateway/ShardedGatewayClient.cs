@@ -326,6 +326,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _entitlementCreateLock, ref _entitlementCreate, a => _entitlementCreate!(client, a), (c, e) => c.EntitlementCreate += e);
         HookEvent(client, _entitlementUpdateLock, ref _entitlementUpdate, a => _entitlementUpdate!(client, a), (c, e) => c.EntitlementUpdate += e);
         HookEvent(client, _entitlementDeleteLock, ref _entitlementDelete, a => _entitlementDelete!(client, a), (c, e) => c.EntitlementDelete += e);
+        HookEvent(client, _guildJoinRequestUpdateLock, ref _guildJoinRequestUpdate, a => _guildJoinRequestUpdate!(client, a), (c, e) => c.GuildJoinRequestUpdate += e);
+        HookEvent(client, _guildJoinRequestDeleteLock, ref _guildJoinRequestDelete, a => _guildJoinRequestDelete!(client, a), (c, e) => c.GuildJoinRequestDelete += e);
         HookEvent(client, _unknownEventLock, ref _unknownEvent, a => _unknownEvent!(client, a), (c, e) => c.UnknownEvent += e);
     }
 
@@ -1306,6 +1308,34 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         remove
         {
             UnhookEvent(_entitlementDeleteLock, value, ref _entitlementDelete, (c, e) => c.EntitlementDelete -= e);
+        }
+    }
+
+    private readonly object _guildJoinRequestUpdateLock = new();
+    private Func<GatewayClient, GuildJoinRequestUpdateEventArgs, ValueTask>? _guildJoinRequestUpdate;
+    public event Func<GatewayClient, GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate
+    {
+        add
+        {
+            HookEvent(_guildJoinRequestUpdateLock, value, ref _guildJoinRequestUpdate, client => a => _guildJoinRequestUpdate!(client, a), (c, e) => c.GuildJoinRequestUpdate += e);
+        }
+        remove
+        {
+            UnhookEvent(_guildJoinRequestUpdateLock, value, ref _guildJoinRequestUpdate, (c, e) => c.GuildJoinRequestUpdate -= e);
+        }
+    }
+
+    private readonly object _guildJoinRequestDeleteLock = new();
+    private Func<GatewayClient, GuildJoinRequestDeleteEventArgs, ValueTask>? _guildJoinRequestDelete;
+    public event Func<GatewayClient, GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete
+    {
+        add
+        {
+            HookEvent(_guildJoinRequestDeleteLock, value, ref _guildJoinRequestDelete, client => a => _guildJoinRequestDelete!(client, a), (c, e) => c.GuildJoinRequestDelete += e);
+        }
+        remove
+        {
+            UnhookEvent(_guildJoinRequestDeleteLock, value, ref _guildJoinRequestDelete, (c, e) => c.GuildJoinRequestDelete -= e);
         }
     }
 

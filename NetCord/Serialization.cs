@@ -223,6 +223,8 @@ namespace NetCord;
 [JsonSerializable(typeof(GuildUsersSearchTimestamp))]
 [JsonSerializable(typeof(JsonGuildUserSearchResult))]
 [JsonSerializable(typeof(GuildUsersSearchPaginationProperties))]
+[JsonSerializable(typeof(JsonGuildJoinRequestUpdateEventArgs))]
+[JsonSerializable(typeof(JsonGuildJoinRequestDeleteEventArgs))]
 internal partial class Serialization : JsonSerializerContext
 {
 }
