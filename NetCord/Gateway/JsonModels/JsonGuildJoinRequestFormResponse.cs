@@ -10,6 +10,9 @@ public partial class JsonGuildJoinRequestFormResponse
     [JsonPropertyName("label")]
     public string Label { get; set; }
 
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
     [JsonPropertyName("required")]
     public bool Required { get; set; }
 
