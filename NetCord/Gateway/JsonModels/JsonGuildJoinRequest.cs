@@ -28,7 +28,7 @@ public class JsonGuildJoinRequest : JsonEntity
     public JsonUser User { get; set; }
 
     [JsonPropertyName("form_responses")]
-    public IReadOnlyList<JsonVerificationField> FormResponses { get; set; }
+    public IReadOnlyList<JsonGuildJoinRequestFormResponse> FormResponses { get; set; }
 
     [JsonPropertyName("actioned_by_user")]
     public JsonUser ActionedByUser { get; set; }

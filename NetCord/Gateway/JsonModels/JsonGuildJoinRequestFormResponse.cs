@@ -2,10 +2,10 @@
 
 namespace NetCord.Gateway.JsonModels;
 
-public partial class JsonVerificationField
+public partial class JsonGuildJoinRequestFormResponse
 {
     [JsonPropertyName("field_type")]
-    public VerificationFieldType FieldType { get; set; }
+    public GuildJoinRequestFormResponseFieldType FieldType { get; set; }
 
     [JsonPropertyName("label")]
     public string Label { get; set; }
