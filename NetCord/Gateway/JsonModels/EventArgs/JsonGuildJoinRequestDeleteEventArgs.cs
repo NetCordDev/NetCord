@@ -5,7 +5,7 @@ namespace NetCord.Gateway.JsonModels.EventArgs;
 public class JsonGuildJoinRequestDeleteEventArgs
 {
     [JsonPropertyName("id")]
-    public ulong Id { get; set; }
+    public ulong JoinRequestId { get; set; }
     
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }

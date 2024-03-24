@@ -4,7 +4,7 @@ public class GuildJoinRequestDeleteEventArgs(JsonModels.EventArgs.JsonGuildJoinR
 {
     JsonModels.EventArgs.JsonGuildJoinRequestDeleteEventArgs IJsonModel<JsonModels.EventArgs.JsonGuildJoinRequestDeleteEventArgs>.JsonModel => jsonModel;
 
-    public ulong JoinRequestId => jsonModel.Id;
+    public ulong JoinRequestId => jsonModel.JoinRequestId;
 
     public ulong UserId => jsonModel.UserId;
 
