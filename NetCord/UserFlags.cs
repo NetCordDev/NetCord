@@ -33,7 +33,6 @@ public enum UserFlags : ulong
     /// </summary>
     PremiumPromoDismissed = (ulong)1 << 5,
 
-
     // HypeSquad House Flags
 
     /// <summary>
