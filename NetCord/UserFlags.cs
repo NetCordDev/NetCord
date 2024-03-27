@@ -4,12 +4,12 @@
 public enum UserFlags : ulong
 {
     /// <summary>
-    /// User is a discord employee.
+    /// User is a Discord employee.
     /// </summary>
     Staff = 1uL << 0,
 
     /// <summary>
-    /// User is a discord partner.
+    /// User is a Discord partner.
     /// </summary>
     Partner = 1uL << 1,
 
@@ -73,7 +73,7 @@ public enum UserFlags : ulong
     /// <summary>
     /// Undocumented and Private. User has unread messages from Discord.
     /// </summary>
-    Has_Unread_Urgent_Messages = 1uL << 13,
+    HasUnreadUrgentMessages = 1uL << 13,
 
     /// <summary>
     /// User has the 'Golden Bug Hunter' badge.
