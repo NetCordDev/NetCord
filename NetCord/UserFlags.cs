@@ -6,188 +6,188 @@ public enum UserFlags : ulong
     /// <summary>
     /// User is a discord employee.
     /// </summary>
-    Staff = (ulong)1 << 0,
+    Staff = 1uL << 0,
 
     /// <summary>
     /// User is a discord partner.
     /// </summary>
-    Partner = (ulong)1 << 1,
+    Partner = 1uL << 1,
 
     /// <summary>
     /// User has the 'HypeSquad Events' badge.
     /// </summary>
-    HypeSquad = (ulong)1 << 2,
+    HypeSquad = 1uL << 2,
 
     /// <summary>
     /// User has the 'Bug Hunter' badge.
     /// </summary>
-    BugHunterLevel1 = (ulong)1 << 3,
+    BugHunterLevel1 = 1uL << 3,
 
     /// <summary>
     /// Undocumented and Private. User has SMS recovery for 2FA enabled.
     /// </summary>
-    MfaSms = (ulong)1 << 4,
+    MfaSms = 1uL << 4,
 
     /// <summary>
     /// Undocumented and Private. User dismissed the Nitro promotion.
     /// </summary>
-    PremiumPromoDismissed = (ulong)1 << 5,
+    PremiumPromoDismissed = 1uL << 5,
 
     // HypeSquad House Flags
 
     /// <summary>
     /// User is a House of Bravery Member.
     /// </summary>
-    HypeSquadOnlineHouse1 = (ulong)1 << 6,
+    HypeSquadOnlineHouse1 = 1uL << 6,
 
     /// <summary>
     /// User is a House of Brilliance Member.
     /// </summary>
-    HypeSquadOnlineHouse = (ulong)1 << 7,
+    HypeSquadOnlineHouse = 1uL << 7,
 
     /// <summary>
     /// User is a House of Balance Member.
     /// </summary>
-    HypeSquadOnlineHouse3 = (ulong)1 << 8,
+    HypeSquadOnlineHouse3 = 1uL << 8,
 
     /// <summary>
     /// User has the 'Early Supporter' badge.
     /// </summary>
-    PremiumEarlySupporter = (ulong)1 << 9,
+    PremiumEarlySupporter = 1uL << 9,
 
     /// <summary>
     /// User is a team. See <see href="https://discord.com/developers/docs/topics/teams"/>.
     /// </summary>
-    TeamPseudoUser = (ulong)1 << 10,
+    TeamPseudoUser = 1uL << 10,
 
     /// <summary>
     /// Undocumented and Private. User has a pending partner/verification application.
     /// </summary>
-    InternalApplication = (ulong)1 << 11,
+    InternalApplication = 1uL << 11,
 
     /// <summary>
     /// Undocumented. User is the SYSTEM account.
     /// </summary>
-    System = (ulong)1 << 12,
+    System = 1uL << 12,
 
     /// <summary>
     /// Undocumented and Private. User has unread messages from Discord.
     /// </summary>
-    Has_Unread_Urgent_Messages = (ulong)1 << 13,
+    Has_Unread_Urgent_Messages = 1uL << 13,
 
     /// <summary>
     /// User has the 'Golden Bug Hunter' badge.
     /// </summary>
-    BugHunterLevel2 = (ulong)1 << 14,
+    BugHunterLevel2 = 1uL << 14,
 
     /// <summary>
     /// Undocumented and Private. User is pending deletion for being underage in DOB prompt.
     /// </summary>
-    UnderageDeleted = (ulong)1 << 15,
+    UnderageDeleted = 1uL << 15,
 
     // Verification Flags
 
     /// <summary>
     /// User is a verified bot. See <see href="https://support.discord.com/hc/articles/360040720412"/>.
     /// </summary>
-    VerifiedBot = (ulong)1 << 16,
+    VerifiedBot = 1uL << 16,
 
     /// <summary>
     /// User has the 'Early Verified Developer' badge.
     /// </summary>
-    VerifiedDeveloper = (ulong)1 << 17,
+    VerifiedDeveloper = 1uL << 17,
 
     /// <summary>
     /// User has the 'Moderator Program Alumni' badge.
     /// </summary>
-    CertifiedModerator = (ulong)1 << 18,
+    CertifiedModerator = 1uL << 18,
 
     /// <summary>
     /// Undocumented. User is a bot with an interactions endpoint.
     /// </summary>
-    BotHttpInteractions = (ulong)1 << 19,
+    BotHttpInteractions = 1uL << 19,
 
     /// <summary>
     /// Undocumented. User's account is disabled for spam.
     /// </summary>
-    Spammer = (ulong)1 << 20,
+    Spammer = 1uL << 20,
 
     /// <summary>
     /// Undocumented and Private. User's Nitro features are disabled.
     /// </summary>
-    DisablePremium = (ulong)1 << 21,
+    DisablePremium = 1uL << 21,
 
     /// <summary>
     /// User has the 'Active Developer' badge. See <see href="https://support-dev.discord.com/hc/articles/10113997751447"/>.
     /// </summary>
-    ActiveDeveloper = (ulong)1 << 22,
+    ActiveDeveloper = 1uL << 22,
 
     /// <summary>
     /// Undocumented and Private. User's account has a high global rate limit.
     /// </summary>
-    HighGlobalRateLimit = (ulong)1 << 33,
+    HighGlobalRateLimit = 1uL << 33,
 
     /// <summary>
     /// Undocumented and Private. User's account is deleted.
     /// </summary>
-    Deleted = (ulong)1 << 34,
+    Deleted = 1uL << 34,
 
     /// <summary>
     /// Undocumented and Private. User's account is disabled for suspicious activity.
     /// </summary>
-    DisabledSuspiciousActivity = (ulong)1 << 35,
+    DisabledSuspiciousActivity = 1uL << 35,
 
     /// <summary>
     /// Undocumented and Private. User's account was manually deleted.
     /// </summary>
-    SelfDeleted = (ulong)1 << 36,
+    SelfDeleted = 1uL << 36,
 
     /// <summary>
     /// Undocumented. User has a manually selected discriminator.
     /// </summary>
-    PremiumDiscriminator = (ulong)1 << 37,
+    PremiumDiscriminator = 1uL << 37,
 
     // Client Usage Flags
     
     /// <summary>
     /// Undocumented. User has used the desktop client.
     /// </summary>
-    UsedDesktopClient = (ulong)1 << 38,
+    UsedDesktopClient = 1uL << 38,
 
     /// <summary>
     /// Undocumented. User has used the web client.
     /// </summary>
-    UsedWebClient = (ulong)1 << 39,
+    UsedWebClient = 1uL << 39,
 
     /// <summary>
     /// Undocumented. User has used the mobile client.
     /// </summary>
-    UsedMobileClient = (ulong)1 << 40,
+    UsedMobileClient = 1uL << 40,
 
     /// <summary>
     /// Undocumented and Private. User's account is temporarily or permanently disabled.
     /// </summary>
-    Disabled = (ulong)1 << 41,
+    Disabled = 1uL << 41,
 
     /// <summary>
     /// Undocumented. User has a verified email.
     /// </summary>
-    VerifiedEmail = (ulong)1 << 43,
+    VerifiedEmail = 1uL << 43,
 
     /// <summary>
     /// Undocumented and Private. User is quarantined. See <see href="https://support.discord.com/hc/articles/6461420677527"/>.
     /// </summary>
-    Quarantined = (ulong)1 << 44,
+    Quarantined = 1uL << 44,
 
     // Collaborator Flags
 	
     /// <summary>
     /// Undocumented. User is a collaborator and has staff permissions.
     /// </summary>
-    Collaborator = (ulong)1 << 50,
+    Collaborator = 1uL << 50,
 
     /// <summary>
     /// Undocumented. User is a restricted collaborator and has staff permissions.
     /// </summary>
-    RestrictedCollaborator = (ulong)1 << 51,
+    RestrictedCollaborator = 1uL << 51,
 }
