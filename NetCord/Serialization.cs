@@ -152,6 +152,8 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildBan[]))]
 [JsonSerializable(typeof(JsonGuildBan))]
 [JsonSerializable(typeof(GuildBanProperties))]
+[JsonSerializable(typeof(JsonGuildBulkBan))]
+[JsonSerializable(typeof(GuildBulkBanProperties))]
 [JsonSerializable(typeof(JsonRole))]
 [JsonSerializable(typeof(RoleProperties))]
 [JsonSerializable(typeof(IEnumerable<RolePositionProperties>))]

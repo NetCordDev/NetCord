@@ -162,6 +162,13 @@ public partial class RestClient
     }
 
     [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
+    public async Task<GuildBulkBan> BanGuildUsersAsync(ulong guildId, IEnumerable<ulong> userIds, int deleteMessageSeconds = 0, RestRequestProperties? properties = null)
+    {
+        using (HttpContent content = new JsonContent<GuildBulkBanProperties>(new(userIds, deleteMessageSeconds), Serialization.Default.GuildBulkBanProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/guilds/{guildId}/bulk-ban", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildBulkBan).ConfigureAwait(false));
+    }
+
+    [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     [GenerateAlias(typeof(GuildBan), nameof(GuildBan.GuildId), $"{nameof(GuildBan.User)}.{nameof(GuildBan.User.Id)}", NameOverride = "DeleteAsync", ClientName = "client")]
     [GenerateAlias(typeof(GuildUser), nameof(GuildUser.GuildId), nameof(GuildUser.Id))]
     public Task UnbanGuildUserAsync(ulong guildId, ulong userId, RestRequestProperties? properties = null)
