@@ -24,12 +24,12 @@ public enum UserFlags : ulong
     BugHunterLevel1 = 1uL << 3,
 
     /// <summary>
-    /// Undocumented and Private. User has SMS recovery for 2FA enabled.
+    /// Undocumented and private. User has SMS recovery for 2FA enabled.
     /// </summary>
     MfaSms = 1uL << 4,
 
     /// <summary>
-    /// Undocumented and Private. User dismissed the Nitro promotion.
+    /// Undocumented and private. User dismissed the Nitro promotion.
     /// </summary>
     PremiumPromoDismissed = 1uL << 5,
 
@@ -61,7 +61,7 @@ public enum UserFlags : ulong
     TeamPseudoUser = 1uL << 10,
 
     /// <summary>
-    /// Undocumented and Private. User has a pending partner/verification application.
+    /// Undocumented and private. User has a pending partner/verification application.
     /// </summary>
     InternalApplication = 1uL << 11,
 
@@ -71,7 +71,7 @@ public enum UserFlags : ulong
     System = 1uL << 12,
 
     /// <summary>
-    /// Undocumented and Private. User has unread messages from Discord.
+    /// Undocumented and private. User has unread messages from Discord.
     /// </summary>
     HasUnreadUrgentMessages = 1uL << 13,
 
@@ -81,7 +81,7 @@ public enum UserFlags : ulong
     BugHunterLevel2 = 1uL << 14,
 
     /// <summary>
-    /// Undocumented and Private. User is pending deletion for being underage in DOB prompt.
+    /// Undocumented and private. User is pending deletion for being underage in DOB prompt.
     /// </summary>
     UnderageDeleted = 1uL << 15,
 
@@ -113,7 +113,7 @@ public enum UserFlags : ulong
     Spammer = 1uL << 20,
 
     /// <summary>
-    /// Undocumented and Private. User's Nitro features are disabled.
+    /// Undocumented and private. User's Nitro features are disabled.
     /// </summary>
     DisablePremium = 1uL << 21,
 
@@ -123,22 +123,22 @@ public enum UserFlags : ulong
     ActiveDeveloper = 1uL << 22,
 
     /// <summary>
-    /// Undocumented and Private. User's account has a high global rate limit.
+    /// Undocumented and private. User's account has a high global rate limit.
     /// </summary>
     HighGlobalRateLimit = 1uL << 33,
 
     /// <summary>
-    /// Undocumented and Private. User's account is deleted.
+    /// Undocumented and private. User's account is deleted.
     /// </summary>
     Deleted = 1uL << 34,
 
     /// <summary>
-    /// Undocumented and Private. User's account is disabled for suspicious activity.
+    /// Undocumented and private. User's account is disabled for suspicious activity.
     /// </summary>
     DisabledSuspiciousActivity = 1uL << 35,
 
     /// <summary>
-    /// Undocumented and Private. User's account was manually deleted.
+    /// Undocumented and private. User's account was manually deleted.
     /// </summary>
     SelfDeleted = 1uL << 36,
 
@@ -165,7 +165,7 @@ public enum UserFlags : ulong
     UsedMobileClient = 1uL << 40,
 
     /// <summary>
-    /// Undocumented and Private. User's account is temporarily or permanently disabled.
+    /// Undocumented and private. User's account is temporarily or permanently disabled.
     /// </summary>
     Disabled = 1uL << 41,
 
@@ -175,7 +175,7 @@ public enum UserFlags : ulong
     VerifiedEmail = 1uL << 43,
 
     /// <summary>
-    /// Undocumented and Private. User is quarantined. See <see href="https://support.discord.com/hc/articles/6461420677527"/>.
+    /// Undocumented and private. User is quarantined. See <see href="https://support.discord.com/hc/articles/6461420677527"/>.
     /// </summary>
     Quarantined = 1uL << 44,
 
