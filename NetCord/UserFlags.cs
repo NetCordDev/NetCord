@@ -66,7 +66,7 @@ public enum UserFlags : ulong
     InternalApplication = 1uL << 11,
 
     /// <summary>
-    /// Undocumented. User is the SYSTEM account.
+    /// Undocumented. User is an Official Discord System user (part of the urgent message system).
     /// </summary>
     System = 1uL << 12,
 
