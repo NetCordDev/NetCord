@@ -108,7 +108,7 @@ public enum UserFlags : ulong
     BotHttpInteractions = 1uL << 19,
 
     /// <summary>
-    /// Undocumented. User's account is disabled for spam.
+    /// Undocumented. User's account is flagged for spamming.
     /// </summary>
     Spammer = 1uL << 20,
 
