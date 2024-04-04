@@ -31,7 +31,7 @@ public enum UserFlags : ulong
     /// <summary>
     /// Undocumented and private. User dismissed the Nitro promotion.
     /// </summary>
-    PremiumPromoDismissed = 1uL << 5,
+    PremiumPromotionDismissed = 1uL << 5,
 
     // HypeSquad House Flags
 
