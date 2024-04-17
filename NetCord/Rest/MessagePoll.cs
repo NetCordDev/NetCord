@@ -1,10 +1,24 @@
-﻿using System.Text.Json.Serialization;
+﻿using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public partial class MessagePoll : MessagePollBase
+public partial class MessagePoll : IJsonModel<JsonMessagePoll>
 {
+    public JsonMessagePoll JsonModel { get; }
+    public MessagePollMedia Question { get; set; } = null!;
+    public MessagePollAnswer[] Answers { get; }
+    public bool AllowMultiselect { get; set; }
+    public MessagePollLayoutType LayoutType { get; set; }
     // Non-expiring posts are possible in the future, see: https://github.com/discord/discord-api-docs/blob/e4bdf50f11f9ca61ace2636285e029a2b3dfd0ec/docs/resources/Poll.md#poll-object
-    [JsonPropertyName("expiry")]
-    public DateTimeOffset? Expiry { get; set; }
+    public DateTimeOffset? ExpireAt { get; }
+    
+    public MessagePoll(JsonMessagePoll jsonModel, ulong guildId, RestClient client)
+    {
+        JsonModel = jsonModel;
+        Question = new(jsonModel.Question, guildId, client);
+        Answers = jsonModel.Answers.Select(x => new MessagePollAnswer(x, guildId, client)).ToArray();
+        AllowMultiselect = jsonModel.AllowMultiselect;
+        LayoutType = jsonModel.LayoutType;
+        ExpireAt = jsonModel.ExpireAt;
+    }
 }

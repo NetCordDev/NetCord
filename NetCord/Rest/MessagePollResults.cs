@@ -1,16 +1,21 @@
-﻿using System.Text.Json.Serialization;
-
-using NetCord.JsonModels;
+﻿using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public partial class MessagePollResults : JsonEntity
+public partial class MessagePollResults : IJsonModel<JsonMessagePollResults>
 {
-    [JsonPropertyName("is_finalized")]
-    public required bool IsFinalized { get; set; }
+    public JsonMessagePollResults JsonModel { get; }
     
-    [JsonPropertyName("answer_counts")]
-    public MessagePollAnswerCount[]? Answers { get; set; }
+    public bool IsFinalized { get; }
+    
+    public MessagePollAnswerCount[]? Answers { get; }
 
     public bool ContainsAnswers => Answers != null;
+
+    public MessagePollResults(JsonMessagePollResults jsonModel)
+    {
+        JsonModel = jsonModel;
+        IsFinalized = jsonModel.IsFinalized;
+        Answers = jsonModel.Answers;
+    }
 }

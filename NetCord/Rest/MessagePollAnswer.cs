@@ -1,14 +1,20 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics.CodeAnalysis;
 
-using NetCord.JsonModels;
+using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public partial class MessagePollAnswer : JsonEntity
+public partial class MessagePollAnswer : IJsonModel<JsonMessagePollAnswer>
 {
-    [JsonPropertyName("answer_id")]
+    public JsonMessagePollAnswer JsonModel { get; }
     public ulong AnswerId { get; set; }
-    
-    [JsonPropertyName("poll_media")]
     public required MessagePollMedia PollMedia { get; set; }
+
+    [SetsRequiredMembers]
+    public MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client)
+    {
+        JsonModel = jsonModel;
+        AnswerId = jsonModel.AnswerId;
+        PollMedia = new(jsonModel.PollMedia, guildId, client);
+    }
 }

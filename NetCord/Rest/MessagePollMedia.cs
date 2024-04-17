@@ -1,14 +1,22 @@
-﻿using System.Text.Json.Serialization;
-
-using NetCord.JsonModels;
+using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
-public class MessagePollMedia : JsonEntity
+public class MessagePollMedia : IJsonModel<JsonMessagePollMedia>
 {
-    [JsonPropertyName("text")]
-    public string? Text { get; set; }
+    public JsonMessagePollMedia JsonModel { get; }
     
-    [JsonPropertyName("emoji")]
-    public Emoji? Emoji { get; set; }
+    public string? Text { get; }
+    
+    public Emoji? Emoji { get; }
+
+    public MessagePollMedia(JsonMessagePollMedia jsonModel, ulong guildId, RestClient client)
+    {
+        JsonModel = jsonModel;
+        Text = jsonModel.Text;
+
+        var emoji = jsonModel.Emoji;
+        if (emoji != null)
+            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
+    }
 }

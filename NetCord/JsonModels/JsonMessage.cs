@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
+using NetCord.Rest.JsonModels;
+
 namespace NetCord.JsonModels;
 
 public class JsonMessage : JsonEntity
@@ -100,4 +102,7 @@ public class JsonMessage : JsonEntity
 
     [JsonPropertyName("resolved")]
     public JsonInteractionResolvedData? ResolvedData { get; set; }
+    
+    [JsonPropertyName("poll")]
+    public JsonMessagePoll? Poll { get; set; }
 }
