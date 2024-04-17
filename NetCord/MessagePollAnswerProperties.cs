@@ -9,4 +9,9 @@ public partial class MessagePollAnswerProperties
     
     [JsonPropertyName("poll_media")]
     public MessagePollMediaProperties PollMedia { get; set; }
+
+    public MessagePollAnswerProperties(MessagePollMediaProperties pollMedia)
+    {
+        PollMedia = pollMedia;
+    }
 }
