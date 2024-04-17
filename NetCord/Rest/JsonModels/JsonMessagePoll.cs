@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public partial class JsonMessagePoll: JsonEntity
+public partial class JsonMessagePoll : JsonEntity
 {
     [JsonPropertyName("question")]
     public JsonMessagePollMedia Question { get; set; }
