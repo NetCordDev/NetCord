@@ -7,10 +7,10 @@ namespace NetCord.Rest.JsonModels;
 public partial class JsonMessagePoll: JsonEntity
 {
     [JsonPropertyName("question")]
-    public JsonMessagePollMedia Question { get; set; } = null!;
+    public JsonMessagePollMedia Question { get; set; }
     
     [JsonPropertyName("answers")]
-    public JsonMessagePollAnswer[] Answers { get; set; } = null!;
+    public JsonMessagePollAnswer[] Answers { get; set; }
 
     [JsonPropertyName("allow_multiselect")]
     public bool AllowMultiselect { get; set; }
