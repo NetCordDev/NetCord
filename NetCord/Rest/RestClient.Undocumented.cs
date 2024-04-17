@@ -40,4 +40,13 @@ public partial class RestClient
             new(guildId),
             properties);
     }
+    
+    [GenerateAlias(typeof(RestMessage), nameof(RestMessage.Id))]
+    [GenerateAlias(typeof(TextChannel), nameof(TextChannel.Id))]
+    public async Task<RestMessage> ExpirePollAsync(ulong messageId, ulong channelId, RestRequestProperties? properties = null)
+    {
+        var stream = await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire").ConfigureAwait(false);
+        
+        return new(await stream.ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
+    }
 }
