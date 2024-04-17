@@ -1,15 +1,12 @@
-﻿using NetCord.Rest.JsonModels;
+﻿using NetCord.JsonModels;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public partial class MessagePollResults : IJsonModel<JsonMessagePollResults>
 {
     public JsonMessagePollResults JsonModel { get; }
-    
     public bool IsFinalized { get; }
-    
     public MessagePollAnswerCount[]? Answers { get; }
-
     public bool ContainsAnswers => Answers != null;
 
     public MessagePollResults(JsonMessagePollResults jsonModel)

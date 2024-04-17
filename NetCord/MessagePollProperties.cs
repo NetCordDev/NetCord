@@ -1,9 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
-using NetCord.Rest.JsonModels;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public partial class MessagePollProperties : JsonEntity
 {

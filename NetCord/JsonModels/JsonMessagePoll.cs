@@ -1,8 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
-
-namespace NetCord.Rest.JsonModels;
+namespace NetCord.JsonModels;
 
 public partial class JsonMessagePoll : JsonEntity
 {
@@ -21,4 +19,7 @@ public partial class JsonMessagePoll : JsonEntity
     // Non-expiring posts are possible in the future, see: https://github.com/discord/discord-api-docs/blob/e4bdf50f11f9ca61ace2636285e029a2b3dfd0ec/docs/resources/Poll.md#poll-object
     [JsonPropertyName("expiry")]
     public DateTimeOffset? ExpireAt { get; set; }
+    
+    [JsonPropertyName("results")]
+    public JsonMessagePollResults Results { get; set; }
 }

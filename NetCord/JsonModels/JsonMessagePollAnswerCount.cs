@@ -1,8 +1,6 @@
 using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
-
-namespace NetCord.Rest.JsonModels;
+namespace NetCord.JsonModels;
 
 public partial class JsonMessagePollAnswerCount : JsonEntity
 {

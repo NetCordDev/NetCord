@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.Rest.JsonModels;
-
 namespace NetCord.JsonModels;
 
 public class JsonMessage : JsonEntity

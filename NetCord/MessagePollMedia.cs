@@ -1,6 +1,7 @@
-using NetCord.Rest.JsonModels;
+using NetCord.JsonModels;
+using NetCord.Rest;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public class MessagePollMedia : IJsonModel<JsonMessagePollMedia>
 {

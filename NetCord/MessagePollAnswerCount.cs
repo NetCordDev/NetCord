@@ -1,6 +1,6 @@
-﻿using NetCord.Rest.JsonModels;
+﻿using NetCord.JsonModels;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public partial class MessagePollAnswerCount(JsonMessagePollAnswerCount jsonModel) : IJsonModel<JsonMessagePollAnswerCount>
 {

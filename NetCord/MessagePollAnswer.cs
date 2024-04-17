@@ -1,8 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using NetCord.Rest.JsonModels;
+using NetCord.JsonModels;
+using NetCord.Rest;
 
-namespace NetCord.Rest;
+namespace NetCord;
 
 public partial class MessagePollAnswer : IJsonModel<JsonMessagePollAnswer>
 {
