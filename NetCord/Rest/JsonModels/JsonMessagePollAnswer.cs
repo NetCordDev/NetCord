@@ -10,5 +10,5 @@ public partial class JsonMessagePollAnswer : JsonEntity
     public ulong AnswerId { get; set; }
     
     [JsonPropertyName("poll_media")]
-    public required JsonMessagePollMedia PollMedia { get; set; }
+    public JsonMessagePollMedia PollMedia { get; set; }
 }
