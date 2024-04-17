@@ -1,18 +1,16 @@
 ﻿using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
-
 namespace NetCord;
 
 public partial class MessagePollProperties
 {
     [JsonPropertyName("question")]
-    public JsonMessagePollMedia Question { get; set; }
+    public MessagePollMediaProperties Question { get; set; }
 
     [JsonPropertyName("answers")]
-    public JsonMessagePollAnswer[] Answers { get; set; }
+    public MessagePollAnswerProperties[] Answers { get; set; }
 
-    public MessagePollProperties(JsonMessagePollMedia question, JsonMessagePollAnswer[] answers)
+    public MessagePollProperties(MessagePollMediaProperties question, MessagePollAnswerProperties[] answers)
     {
         Question = question;
         Answers = answers;
