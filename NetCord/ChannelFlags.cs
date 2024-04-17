@@ -71,5 +71,5 @@ public enum ChannelFlags
     /// <summary>
     /// Channel has no download options for media, media channel exclusive.
     /// </summary>
-    HideMediaDownloadOptions = 1 << 15
+    HideMediaDownloadOptions = 1 << 15,
 }
