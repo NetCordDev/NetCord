@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 
-using NetCord.JsonModels;
-
 namespace NetCord;
 
 public partial class MessagePollMediaProperties
