@@ -4,13 +4,19 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public partial class MessagePollProperties : JsonEntity
+public partial class MessagePollProperties
 {
     [JsonPropertyName("question")]
-    public JsonMessagePollMedia Question { get; set; } = null!;
+    public JsonMessagePollMedia Question { get; set; }
 
     [JsonPropertyName("answers")]
-    public JsonMessagePollAnswer[] Answers { get; set; } = null!;
+    public JsonMessagePollAnswer[] Answers { get; set; }
+
+    public MessagePollProperties(JsonMessagePollMedia question, JsonMessagePollAnswer[] answers)
+    {
+        Question = question;
+        Answers = answers;
+    }
     
     [JsonPropertyName("allow_multiselect")]
     public bool AllowMultiselect { get; set; }
