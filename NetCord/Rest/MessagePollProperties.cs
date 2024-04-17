@@ -8,10 +8,10 @@ namespace NetCord.Rest;
 public partial class MessagePollProperties : JsonEntity
 {
     [JsonPropertyName("question")]
-    public required JsonMessagePollMedia Question { get; set; }
-    
+    public JsonMessagePollMedia Question { get; set; } = null!;
+
     [JsonPropertyName("answers")]
-    public required JsonMessagePollAnswer[] Answers { get; set; }
+    public JsonMessagePollAnswer[] Answers { get; set; } = null!;
     
     [JsonPropertyName("allow_multiselect")]
     public bool AllowMultiselect { get; set; }
@@ -20,5 +20,5 @@ public partial class MessagePollProperties : JsonEntity
     public MessagePollLayoutType LayoutType { get; set; }
     
     [JsonPropertyName("duration")]
-    public required int DurationInHours { get; set; }
+    public int DurationInHours { get; set; }
 }
