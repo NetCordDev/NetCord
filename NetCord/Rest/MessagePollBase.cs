@@ -7,10 +7,10 @@ namespace NetCord.Rest;
 public abstract partial class MessagePollBase : JsonEntity
 {
     [JsonPropertyName("question")]
-    public MessagePollMedia Question { get; set; }
+    public required MessagePollMedia Question { get; set; }
     
     [JsonPropertyName("answers")]
-    public MessagePollAnswer[] Answers { get; set; }
+    public required MessagePollAnswer[] Answers { get; set; }
     
     [JsonPropertyName("allow_multiselect")]
     public bool AllowMultiselect { get; set; }

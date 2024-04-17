@@ -5,5 +5,5 @@ namespace NetCord.Rest;
 public partial class MessagePollProperties : MessagePollBase
 {
     [JsonPropertyName("duration")]
-    public int DurationInHours { get; set; }
+    public required int DurationInHours { get; set; }
 }

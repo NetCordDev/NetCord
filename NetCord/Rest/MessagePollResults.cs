@@ -7,8 +7,10 @@ namespace NetCord.Rest;
 public partial class MessagePollResults : JsonEntity
 {
     [JsonPropertyName("is_finalized")]
-    public bool IsFinalized { get; set; }
+    public required bool IsFinalized { get; set; }
     
     [JsonPropertyName("answer_counts")]
-    public MessagePollAnswerCount[] AnswerCounts { get; set; }
+    public MessagePollAnswerCount[]? Answers { get; set; }
+
+    public bool ContainsAnswers => Answers != null;
 }
