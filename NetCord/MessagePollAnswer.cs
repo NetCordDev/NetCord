@@ -3,7 +3,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePollAnswer>
+public class MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePollAnswer>
 {
     JsonMessagePollAnswer IJsonModel<JsonMessagePollAnswer>.JsonModel => jsonModel;
     public ulong AnswerId => jsonModel.AnswerId;

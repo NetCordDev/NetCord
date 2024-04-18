@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessagePoll : JsonEntity
+public class JsonMessagePoll : JsonEntity
 {
     [JsonPropertyName("question")]
     public JsonMessagePollMedia Question { get; set; }

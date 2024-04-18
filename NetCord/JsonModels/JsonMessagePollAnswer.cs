@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessagePollAnswer : JsonEntity
+public class JsonMessagePollAnswer : JsonEntity
 {
     [JsonPropertyName("answer_id")]
     public ulong AnswerId { get; set; }

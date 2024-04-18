@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public partial class JsonMessagePollResults : JsonEntity
+public class JsonMessagePollResults : JsonEntity
 {
     [JsonPropertyName("is_finalized")]
     public bool IsFinalized { get; set; }

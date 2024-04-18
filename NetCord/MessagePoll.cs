@@ -5,7 +5,7 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class MessagePoll(JsonMessagePoll jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePoll>
+public class MessagePoll(JsonMessagePoll jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePoll>
 {
     JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => jsonModel;
     public MessagePollMedia Question = new(jsonModel.Question, guildId, client);
