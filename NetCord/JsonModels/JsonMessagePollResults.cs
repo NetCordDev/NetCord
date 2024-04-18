@@ -9,6 +9,4 @@ public partial class JsonMessagePollResults : JsonEntity
     
     [JsonPropertyName("answer_counts")]
     public MessagePollAnswerCount[]? Answers { get; set; }
-
-    public bool ContainsAnswers => Answers != null;
 }
