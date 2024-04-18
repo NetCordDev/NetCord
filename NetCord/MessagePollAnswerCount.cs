@@ -4,8 +4,8 @@ namespace NetCord;
 
 public partial class MessagePollAnswerCount(JsonMessagePollAnswerCount jsonModel) : IJsonModel<JsonMessagePollAnswerCount>
 {
-    public JsonMessagePollAnswerCount JsonModel { get; } = jsonModel;
-    public ulong AnswerId => JsonModel.Id;
-    public int Count => JsonModel.Count;
-    public bool MeVoted => JsonModel.MeVoted;
+    JsonMessagePollAnswerCount IJsonModel<JsonMessagePollAnswerCount>.JsonModel => jsonModel;
+    public ulong AnswerId => jsonModel.Id;
+    public int Count => jsonModel.Count;
+    public bool MeVoted => jsonModel.MeVoted;
 }

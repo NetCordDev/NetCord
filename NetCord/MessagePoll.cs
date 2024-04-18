@@ -5,6 +5,8 @@ namespace NetCord;
 
 public partial class MessagePoll : IJsonModel<JsonMessagePoll>
 {
+    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => _jsonModel;
+    private protected readonly JsonMessagePoll _jsonModel;
     public JsonMessagePoll JsonModel { get; }
     public MessagePollMedia Question { get; }
     public MessagePollAnswer[] Answers { get; }
@@ -16,7 +18,7 @@ public partial class MessagePoll : IJsonModel<JsonMessagePoll>
     
     public MessagePoll(JsonMessagePoll jsonModel, ulong guildId, RestClient client)
     {
-        JsonModel = jsonModel;
+        _jsonModel = jsonModel;
         Question = new(jsonModel.Question, guildId, client);
         Answers = jsonModel.Answers.Select(x => new MessagePollAnswer(x, guildId, client)).ToArray();
         AllowMultiselect = jsonModel.AllowMultiselect;

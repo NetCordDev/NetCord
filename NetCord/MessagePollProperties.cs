@@ -2,20 +2,14 @@
 
 namespace NetCord;
 
-public partial class MessagePollProperties
+public partial class MessagePollProperties(MessagePollMediaProperties question, MessagePollAnswerProperties[] answers)
 {
     [JsonPropertyName("question")]
-    public MessagePollMediaProperties Question { get; set; }
+    public MessagePollMediaProperties Question { get; set; } = question;
 
     [JsonPropertyName("answers")]
-    public MessagePollAnswerProperties[] Answers { get; set; }
+    public MessagePollAnswerProperties[] Answers { get; set; } = answers;
 
-    public MessagePollProperties(MessagePollMediaProperties question, MessagePollAnswerProperties[] answers)
-    {
-        Question = question;
-        Answers = answers;
-    }
-    
     [JsonPropertyName("allow_multiselect")]
     public bool AllowMultiselect { get; set; }
     

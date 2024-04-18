@@ -2,17 +2,10 @@
 
 namespace NetCord;
 
-public partial class MessagePollResults : IJsonModel<JsonMessagePollResults>
+public partial class MessagePollResults(JsonMessagePollResults jsonModel) : IJsonModel<JsonMessagePollResults>
 {
-    public JsonMessagePollResults JsonModel { get; }
-    public bool IsFinalized { get; }
-    public MessagePollAnswerCount[]? Answers { get; }
+    JsonMessagePollResults IJsonModel<JsonMessagePollResults>.JsonModel => jsonModel;
+    public bool IsFinalized => jsonModel.IsFinalized;
+    public MessagePollAnswerCount[]? Answers => jsonModel.Answers;
     public bool ContainsAnswers => Answers != null;
-
-    public MessagePollResults(JsonMessagePollResults jsonModel)
-    {
-        JsonModel = jsonModel;
-        IsFinalized = jsonModel.IsFinalized;
-        Answers = jsonModel.Answers;
-    }
 }

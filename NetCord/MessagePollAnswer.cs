@@ -1,20 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class MessagePollAnswer : IJsonModel<JsonMessagePollAnswer>
+public partial class MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePollAnswer>
 {
-    public JsonMessagePollAnswer JsonModel { get; }
-    public ulong AnswerId { get; }
-    public MessagePollMedia PollMedia { get; }
-    
-    public MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client)
-    {
-        JsonModel = jsonModel;
-        AnswerId = jsonModel.AnswerId;
-        PollMedia = new(jsonModel.PollMedia, guildId, client);
-    }
+    JsonMessagePollAnswer IJsonModel<JsonMessagePollAnswer>.JsonModel => jsonModel;
+    public ulong AnswerId => jsonModel.AnswerId;
+    public MessagePollMedia PollMedia { get; } = new(jsonModel.PollMedia, guildId, client);
 }
