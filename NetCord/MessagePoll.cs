@@ -6,7 +6,7 @@ namespace NetCord;
 public partial class MessagePoll : IJsonModel<JsonMessagePoll>
 {
     public JsonMessagePoll JsonModel { get; }
-    public MessagePollMedia Question { get; set; } = null!;
+    public MessagePollMedia Question { get; set; }
     public MessagePollAnswer[] Answers { get; }
     public bool AllowMultiselect { get; set; }
     public MessagePollLayoutType LayoutType { get; set; }
