@@ -14,7 +14,7 @@ public partial class MessagePollProperties(MessagePollMediaProperties question, 
     public bool AllowMultiselect { get; set; }
     
     [JsonPropertyName("layout_type")]
-    public MessagePollLayoutType LayoutType { get; set; }
+    public MessagePollLayoutType? LayoutType { get; set; }
     
     [JsonPropertyName("duration")]
     public int DurationInHours { get; set; }
