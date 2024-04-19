@@ -2,8 +2,11 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
-public class JsonMessagePollAnswerCount : JsonEntity
+public class JsonMessagePollAnswerCount
 {
+    [JsonPropertyName("id")]
+    public uint AnswerId { get; set; }
+    
     [JsonPropertyName("count")]
     public int Count { get; set; }
     
