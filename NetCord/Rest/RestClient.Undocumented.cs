@@ -50,7 +50,7 @@ public partial class RestClient
     }
     
     [GenerateAlias(typeof(RestMessage), nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
-    public async Task<IEnumerable<User>> GetPollAnswerVotersAsync(ulong channelId, ulong messageId, int answerId, ulong? afterUserId, int limit = 100, RestRequestProperties? properties = null)
+    public async Task<IEnumerable<User>> GetPollAnswerVotersAsync(ulong channelId, ulong messageId, int answerId, ulong? afterUserId = null, int limit = 100, RestRequestProperties? properties = null)
     {
         var afterUserIdText = afterUserId != null ? $"&after={afterUserId}" : string.Empty;
         var urlParams = $"?limit={limit}{afterUserIdText}";
