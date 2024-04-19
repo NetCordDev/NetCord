@@ -41,9 +41,8 @@ public partial class RestClient
             properties);
     }
     
-    [GenerateAlias(typeof(RestMessage), nameof(RestMessage.Id))]
-    [GenerateAlias(typeof(TextChannel), nameof(TextChannel.Id))]
-    public async Task<RestMessage> ExpirePollAsync(ulong messageId, ulong channelId, RestRequestProperties? properties = null)
+    [GenerateAlias(typeof(RestMessage), nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
+    public async Task<RestMessage> ExpirePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
     {
         var stream = await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire").ConfigureAwait(false);
         
