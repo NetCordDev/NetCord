@@ -9,4 +9,6 @@ public partial class MessagePollAnswerProperties(MessagePollMediaProperties poll
     
     [JsonPropertyName("poll_media")]
     public MessagePollMediaProperties PollMedia { get; set; } = pollMedia;
+
+    public MessagePollAnswerProperties(string? text = null, EmojiProperties? emoji = null) : this(new(text, emoji)) { }
 }
