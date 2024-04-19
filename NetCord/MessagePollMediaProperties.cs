@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord;
 
-public partial class MessagePollMediaProperties(string? text, EmojiProperties? emoji)
+public partial class MessagePollMediaProperties(string? text = null, EmojiProperties? emoji = null)
 {
     // Despite this being nullable, it should never be null. Discord is weird...
     [JsonPropertyName("text")]
