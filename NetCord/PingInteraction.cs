@@ -32,6 +32,8 @@ public class PingInteraction : Entity, IInteraction
 
     public string Token => _jsonModel.Token;
 
+    public Permissions AppPermissions => _jsonModel.AppPermissions;
+
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
     public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null) => _sendResponseAsync(this, callback, properties);

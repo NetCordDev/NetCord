@@ -45,6 +45,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Indicates whether the command is available in DMs with the app.
     /// </summary>
+    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
     public bool DMPermission => _jsonModel.DMPermission.GetValueOrDefault();
 
     /// <summary>
@@ -55,12 +56,23 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Indicates whether the command is enabled by default when the app is added to a guild.
     /// </summary>
+    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
     public bool DefaultPermission => _jsonModel.DefaultPermission;
 
     /// <summary>
     /// Indicates whether the command is age-restricted.
     /// </summary>
     public bool Nsfw => _jsonModel.Nsfw;
+
+    /// <summary>
+    /// Installation context(s) where the command is available, only for globally-scoped commands.
+    /// </summary>
+    public IReadOnlyList<ApplicationIntegrationType>? IntegrationTypes => _jsonModel.IntegrationTypes;
+
+    /// <summary>
+    /// Interaction context(s) where the command can be used, only for globally-scoped commands.
+    /// </summary>
+    public IReadOnlyList<InteractionContextType>? Contexts => _jsonModel.Contexts;
 
     /// <summary>
     /// Autoincrementing version identifier updated during substantial record changes.

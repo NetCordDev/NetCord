@@ -20,19 +20,23 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
     }
 
     internal MessageCommandInfo(string name,
-                             Delegate handler,
-                             Permissions? defaultGuildUserPermissions,
-                             bool? dMPermission,
-                             bool defaultPermission,
-                             bool nsfw,
-                             ulong? guildId,
-                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                    defaultGuildUserPermissions,
-                                                                                                    dMPermission,
-                                                                                                    defaultPermission,
-                                                                                                    nsfw,
-                                                                                                    guildId,
-                                                                                                    configuration)
+                                Delegate handler,
+                                Permissions? defaultGuildUserPermissions,
+                                bool? dMPermission,
+                                bool defaultPermission,
+                                IEnumerable<ApplicationIntegrationType>? integrationTypes,
+                                IEnumerable<InteractionContextType>? contexts,
+                                bool nsfw,
+                                ulong? guildId,
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
+                                                                                                       defaultGuildUserPermissions,
+                                                                                                       dMPermission,
+                                                                                                       defaultPermission,
+                                                                                                       integrationTypes,
+                                                                                                       contexts,
+                                                                                                       nsfw,
+                                                                                                       guildId,
+                                                                                                       configuration)
     {
         var method = handler.Method;
 
@@ -76,6 +80,8 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
+            IntegrationTypes = IntegrationTypes,
+            Contexts = Contexts,
             Nsfw = Nsfw,
         };
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -8,7 +8,7 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("mention-everyone", "Mentions @everyone",
         DefaultGuildUserPermissions = Permissions.MentionEveryone,
-        DMPermission = false)]
+        Contexts = [InteractionContextType.Guild])]
     public Task MentionEveryoneAsync()
     {
         return RespondAsync(InteractionCallback.Message(new()

@@ -19,6 +19,8 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 #pragma warning disable CS0618 // Type or member is obsolete
                                                                                                           attribute.DefaultPermission,
 #pragma warning restore CS0618 // Type or member is obsolete
+                                                                                                          attribute.IntegrationTypes,
+                                                                                                          attribute.Contexts,
                                                                                                           attribute.Nsfw,
                                                                                                           attribute._guildId,
                                                                                                           configuration)
@@ -87,6 +89,8 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
+            IntegrationTypes = IntegrationTypes,
+            Contexts = Contexts,
             Nsfw = Nsfw,
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
             Options = options,

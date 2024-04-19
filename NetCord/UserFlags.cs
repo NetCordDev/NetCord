@@ -148,7 +148,7 @@ public enum UserFlags : ulong
     PremiumDiscriminator = 1uL << 37,
 
     // Client Usage Flags
-    
+
     /// <summary>
     /// Undocumented. User has used the desktop client.
     /// </summary>
@@ -180,7 +180,7 @@ public enum UserFlags : ulong
     Quarantined = 1uL << 44,
 
     // Collaborator Flags
-	
+
     /// <summary>
     /// Undocumented. User is a collaborator and has staff permissions.
     /// </summary>

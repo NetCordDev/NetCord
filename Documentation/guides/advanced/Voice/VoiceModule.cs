@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 
+using NetCord;
 using NetCord.Gateway.Voice;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
@@ -8,7 +9,7 @@ namespace MyBot;
 
 public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 {
-    [SlashCommand("play", "Plays music", DMPermission = false)]
+    [SlashCommand("play", "Plays music", Contexts = [InteractionContextType.Guild])]
     public async Task PlayAsync(string track)
     {
         // Check if the specified track is a well formed uri
@@ -100,7 +101,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         await stream.FlushAsync();
     }
 
-    [SlashCommand("echo", "Creates echo", DMPermission = false)]
+    [SlashCommand("echo", "Creates echo", Contexts = [InteractionContextType.Guild])]
     public async Task EchoAsync()
     {
         var guild = Context.Guild!;

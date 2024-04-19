@@ -14,11 +14,13 @@ public static class ApplicationCommandServiceHostExtensions
                                                   Permissions? defaultGuildUserPermissions = null,
                                                   bool? dMPermission = null,
                                                   bool defaultPermission = true,
+                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                  IEnumerable<InteractionContextType>? contexts = null,
                                                   bool nsfw = false,
                                                   ulong? guildId = null) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddSlashCommand(name, description, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, nsfw, guildId);
+        service.AddSlashCommand(name, description, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, integrationTypes, contexts, nsfw, guildId);
         return host;
     }
 
@@ -28,11 +30,13 @@ public static class ApplicationCommandServiceHostExtensions
                                                  Permissions? defaultGuildUserPermissions = null,
                                                  bool? dMPermission = null,
                                                  bool defaultPermission = true,
+                                                 IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                 IEnumerable<InteractionContextType>? contexts = null,
                                                  bool nsfw = false,
                                                  ulong? guildId = null) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddUserCommand(name, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, nsfw, guildId);
+        service.AddUserCommand(name, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, integrationTypes, contexts, nsfw, guildId);
         return host;
     }
 
@@ -42,11 +46,13 @@ public static class ApplicationCommandServiceHostExtensions
                                                     Permissions? defaultGuildUserPermissions = null,
                                                     bool? dMPermission = null,
                                                     bool defaultPermission = true,
+                                                    IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                    IEnumerable<InteractionContextType>? contexts = null,
                                                     bool nsfw = false,
                                                     ulong? guildId = null) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddMessageCommand(name, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, nsfw, guildId);
+        service.AddMessageCommand(name, handler, defaultGuildUserPermissions, dMPermission, defaultPermission, integrationTypes, contexts, nsfw, guildId);
         return host;
     }
 

@@ -103,18 +103,22 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                 Permissions? defaultGuildUserPermissions = null,
                                 bool? dMPermission = null,
                                 bool defaultPermission = true,
+                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                IEnumerable<InteractionContextType>? contexts = null,
                                 bool nsfw = false,
                                 ulong? guildId = null)
     {
-        var slashCommandInfo = new SlashCommandInfo<TContext>(name,
-                                                              description,
-                                                              handler,
-                                                              defaultGuildUserPermissions,
-                                                              dMPermission,
-                                                              defaultPermission,
-                                                              nsfw,
-                                                              guildId,
-                                                              _configuration);
+        SlashCommandInfo<TContext> slashCommandInfo = new(name,
+                                                          description,
+                                                          handler,
+                                                          defaultGuildUserPermissions,
+                                                          dMPermission,
+                                                          defaultPermission,
+                                                          integrationTypes,
+                                                          contexts,
+                                                          nsfw,
+                                                          guildId,
+                                                          _configuration);
         OnAutocompleteAdd(slashCommandInfo);
         AddCommandInfo(slashCommandInfo);
     }
@@ -124,6 +128,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                Permissions? defaultGuildUserPermissions = null,
                                bool? dMPermission = null,
                                bool defaultPermission = true,
+                               IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                               IEnumerable<InteractionContextType>? contexts = null,
                                bool nsfw = false,
                                ulong? guildId = null)
     {
@@ -132,6 +138,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                                      defaultGuildUserPermissions,
                                                      dMPermission,
                                                      defaultPermission,
+                                                     integrationTypes,
+                                                     contexts,
                                                      nsfw,
                                                      guildId,
                                                      _configuration));
@@ -142,6 +150,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                   Permissions? defaultGuildUserPermissions = null,
                                   bool? dMPermission = null,
                                   bool defaultPermission = true,
+                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                  IEnumerable<InteractionContextType>? contexts = null,
                                   bool nsfw = false,
                                   ulong? guildId = null)
     {
@@ -150,6 +160,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                                         defaultGuildUserPermissions,
                                                         dMPermission,
                                                         defaultPermission,
+                                                        integrationTypes,
+                                                        contexts,
                                                         nsfw,
                                                         guildId,
                                                         _configuration));

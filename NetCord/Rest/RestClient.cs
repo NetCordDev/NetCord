@@ -188,6 +188,7 @@ public sealed partial class RestClient : IDisposable
                 return await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
 
             var content = response.Content;
+
             if (content.Headers.ContentType is { MediaType: "application/json" })
             {
                 RestError error;

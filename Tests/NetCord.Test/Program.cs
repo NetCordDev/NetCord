@@ -44,6 +44,7 @@ internal static class Program
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader()),
             ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
+            DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
         };
         _slashCommandService = new(configuration);
 

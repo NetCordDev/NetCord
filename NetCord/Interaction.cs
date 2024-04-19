@@ -41,13 +41,17 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public string Token => _jsonModel.Token;
 
-    public Permissions? AppPermissions => _jsonModel.AppPermissions;
+    public Permissions AppPermissions => _jsonModel.AppPermissions;
 
     public string UserLocale => _jsonModel.UserLocale!;
 
     public string? GuildLocale => _jsonModel.GuildLocale;
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
+
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _jsonModel.AuthorizingIntegrationOwners!;
+
+    public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
 
     public abstract InteractionData Data { get; }
 

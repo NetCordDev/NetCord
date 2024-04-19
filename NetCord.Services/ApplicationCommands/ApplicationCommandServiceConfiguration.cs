@@ -73,6 +73,10 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public bool DefaultDMPermission { get; init; } = true;
 
+    public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; init; }
+
+    public IEnumerable<InteractionContextType>? DefaultContexts { get; init; }
+
     public ISlashCommandParameterNameProcessor<TContext> ParameterNameProcessor { get; init; } = new SnakeCaseSlashCommandParameterNameProcessor<TContext>();
 
     /// <summary>

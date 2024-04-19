@@ -21,6 +21,7 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     internal readonly Permissions? _defaultGuildUserPermissions;
 
+    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
     public bool DMPermission
     {
         get => _dMPermission.GetValueOrDefault();
@@ -32,8 +33,12 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     internal readonly bool? _dMPermission;
 
-    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
+    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
     public bool DefaultPermission { get; init; } = true;
+
+    public ApplicationIntegrationType[]? IntegrationTypes { get; init; }
+
+    public InteractionContextType[]? Contexts { get; init; }
 
     public bool Nsfw { get; init; }
 
