@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public partial class MessagePollProperties(MessagePollMediaProperties question, IEnumerable<MessagePollAnswerProperties> answers)
+public partial class MessagePollProperties(MessagePollMediaProperties question, IEnumerable<MessagePollAnswerProperties> answers, int durationInHours = 1)
 {
     [JsonPropertyName("question")]
     public MessagePollMediaProperties Question { get; set; } = question;
@@ -15,7 +15,7 @@ public partial class MessagePollProperties(MessagePollMediaProperties question, 
     
     [JsonPropertyName("layout_type")]
     public MessagePollLayoutType? LayoutType { get; set; }
-    
+
     [JsonPropertyName("duration")]
-    public int DurationInHours { get; set; }
+    public int DurationInHours { get; set; } = durationInHours;
 }
