@@ -5,7 +5,7 @@ namespace NetCord.JsonModels;
 public class JsonMessagePollAnswerCount
 {
     [JsonPropertyName("id")]
-    public uint AnswerId { get; set; }
+    public int AnswerId { get; set; }
     
     [JsonPropertyName("count")]
     public int Count { get; set; }

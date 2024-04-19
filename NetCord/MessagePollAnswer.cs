@@ -6,6 +6,6 @@ namespace NetCord;
 public class MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePollAnswer>
 {
     JsonMessagePollAnswer IJsonModel<JsonMessagePollAnswer>.JsonModel => jsonModel;
-    public uint AnswerId => jsonModel.AnswerId;
+    public int AnswerId => jsonModel.AnswerId;
     public MessagePollMedia PollMedia { get; } = new(jsonModel.PollMedia, guildId, client);
 }
