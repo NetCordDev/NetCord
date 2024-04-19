@@ -55,7 +55,7 @@ public partial class RestClient
         var afterUserIdText = afterUserId != null ? $"&after={afterUserId}" : string.Empty;
         var urlParams = $"?limit={limit}{afterUserIdText}";
         
-        var stream = await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/answers/{answerId}{urlParams}", properties: properties).ConfigureAwait(false);
+        var stream = await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/polls/{messageId}/answers/{answerId}{urlParams}", properties: properties).ConfigureAwait(false);
         
         return (await stream.ToObjectAsync(Serialization.Default.JsonGetPollAnswerVotersResult).ConfigureAwait(false)).Users.Select(x => new User(x, this));
     }
