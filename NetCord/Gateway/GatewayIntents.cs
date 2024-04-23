@@ -1,139 +1,129 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 /// <summary>
-/// Intents are used to configure which events are passed to the bot via the gateway connection. Intents marked as privileged must be enabled in the application developer portal before being passed here, otherwise the connection will terminate with close code <c>4014</c>.
+/// Intents are used to configure which events are passed to the bot via the gateway connection. Intents marked as privileged must be enabled in the application developer portal before being passed here, otherwise the connection will terminate with close code 4014.
 /// </summary>
 [Flags]
 public enum GatewayIntents : uint
 {
     /// <summary>
     /// Associated with the following events:<br/>
-    /// • Guild Events: <c>GUILD_CREATE, GUILD_UPDATE, GUILD_DELETE, GUILD_ROLE_CREATE, GUILD_ROLE_UPDATE, GUILD_ROLE_DELETE<br/></c>
-    /// • Channel Events: <c>CHANNEL_CREATE, CHANNEL_UPDATE, CHANNEL_DELETE, CHANNEL_PINS_UPDATE<br/></c>
-    /// • Thread Events: <c>THREAD_CREATE, THREAD_UPDATE, THREAD_DELETE, THREAD_LIST_SYNC, THREAD_MEMBER_UPDATE, THREAD_MEMBERS_UPDATE<br/></c>
-    /// • Stage Events: <c>STAGE_INSTANCE_CREATE, STAGE_INSTANCE_UPDATE, STAGE_INSTANCE_DELETE</c>
+    /// • Guild Events: <see cref="GatewayClient.GuildCreate"/>, <see cref="GatewayClient.GuildUpdate"/>, <see cref="GatewayClient.GuildDelete"/><br/>
+    /// • Role Events: <see cref="GatewayClient.RoleCreate"/>, <see cref="GatewayClient.RoleUpdate"/>, <see cref="GatewayClient.RoleDelete"/><br/>
+    /// • Channel Events: <see cref="GatewayClient.GuildChannelCreate"/>, <see cref="GatewayClient.GuildChannelUpdate"/>, <see cref="GatewayClient.GuildChannelDelete"/>, <see cref="GatewayClient.ChannelPinsUpdate"/><br/>
+    /// • Thread Events: <see cref="GatewayClient.GuildThreadCreate"/>, <see cref="GatewayClient.GuildThreadUpdate"/>, <see cref="GatewayClient.GuildThreadDelete"/>, <see cref="GatewayClient.GuildThreadListSync"/><br/>
+    /// • Thread User Events: <see cref="GatewayClient.GuildThreadUserUpdate"/>, <see cref="GatewayClient.GuildThreadUsersUpdate"/><br/>
+    /// • Stage Events: <see cref="GatewayClient.StageInstanceCreate"/>, <see cref="GatewayClient.StageInstanceUpdate"/>, <see cref="GatewayClient.StageInstanceDelete"/>
     /// </summary>
     Guilds = 1 << 0,
 
     /// <summary>
     /// Privileged, associated with the following events:<br/>
-    /// <c>GUILD_MEMBER_ADD, GUILD_MEMBER_UPDATE, GUILD_MEMBER_REMOVE, THREAD_MEMBERS_UPDATE</c>
+    /// <see cref="GatewayClient.GuildUserAdd"/>, <see cref="GatewayClient.GuildUserUpdate"/>, <see cref="GatewayClient.GuildUserRemove"/>, <see cref="GatewayClient.GuildThreadUsersUpdate"/>
     /// </summary>
     GuildUsers = 1 << 1,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>GUILD_AUDIT_LOG_ENTRY_CREATE, GUILD_BAN_ADD, GUILD_BAN_REMOVE</c>
+    /// <see cref="GatewayClient.GuildAuditLogEntryCreate"/>, <see cref="GatewayClient.GuildBanAdd"/>, <see cref="GatewayClient.GuildBanRemove"/>
     /// </summary>
     GuildModeration = 1 << 2,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>GUILD_EMOJIS_UPDATE, GUILD_STICKERS_UPDATE</c>
+    /// <see cref="GatewayClient.GuildEmojisUpdate"/>, <see cref="GatewayClient.GuildStickersUpdate"/>
     /// </summary>
     GuildEmojisAndStickers = 1 << 3,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>GUILD_INTEGRATIONS_UPDATE, INTEGRATION_CREATE, INTEGRATION_UPDATE, INTEGRATION_DELETE</c>
+    /// <see cref="GatewayClient.GuildIntegrationsUpdate"/>, <see cref="GatewayClient.GuildIntegrationCreate"/>, <see cref="GatewayClient.GuildIntegrationUpdate"/>, <see cref="GatewayClient.GuildIntegrationDelete"/>
     /// </summary>
     GuildIntegrations = 1 << 4,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>WEBHOOKS_UPDATE</c>
+    /// <see cref="GatewayClient.WebhooksUpdate"/>
     /// </summary>
     GuildWebhooks = 1 << 5,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>INVITE_CREATE, INVITE_DELETE</c>
+    /// <see cref="GatewayClient.GuildInviteCreate"/>, <see cref="GatewayClient.GuildInviteDelete"/>
     /// </summary>
     GuildInvites = 1 << 6,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>VOICE_STATE_UPDATE</c>
+    /// <see cref="GatewayClient.VoiceStateUpdate"/>
     /// </summary>
     GuildVoiceStates = 1 << 7,
 
     /// <summary>
     /// Privileged, ssociated with the following events:<br/>
-    /// <c>PRESENCE_UPDATE</c>
+    /// <see cref="GatewayClient.PresenceUpdate"/>
     /// </summary>
     GuildPresences = 1 << 8,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_DELETE, MESSAGE_DELETE_BULK</c>
+    /// <see cref="GatewayClient.MessageCreate"/>, <see cref="GatewayClient.MessageUpdate"/>, <see cref="GatewayClient.MessageDelete"/>, <see cref="GatewayClient.MessageDeleteBulk"/>
     /// </summary>
     GuildMessages = 1 << 9,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>MESSAGE_REACTION_ADD, MESSAGE_REACTION_REMOVE, MESSAGE_REACTION_REMOVE_ALL, MESSAGE_REACTION_REMOVE_EMOJI</c>
+    /// <see cref="GatewayClient.MessageReactionAdd"/>, <see cref="GatewayClient.MessageReactionRemove"/>, <see cref="GatewayClient.MessageReactionRemoveAll"/>, <see cref="GatewayClient.MessageReactionRemoveEmoji"/>
     /// </summary>
     GuildMessageReactions = 1 << 10,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>TYPING_START</c>
+    /// <see cref="GatewayClient.TypingStart"/>
     /// </summary>
     GuildMessageTyping = 1 << 11,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_DELETE, CHANNEL_PINS_UPDATE</c>
+    /// <see cref="GatewayClient.MessageCreate"/>, <see cref="GatewayClient.MessageUpdate"/>, <see cref="GatewayClient.MessageDelete"/>, <see cref="GatewayClient.ChannelPinsUpdate"/>
     /// </summary>
     DirectMessages = 1 << 12,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>MESSAGE_REACTION_ADD, MESSAGE_REACTION_REMOVE, MESSAGE_REACTION_REMOVE_ALL, MESSAGE_REACTION_REMOVE_EMOJI</c>
+    /// <see cref="GatewayClient.MessageReactionAdd"/>, <see cref="GatewayClient.MessageReactionRemove"/>, <see cref="GatewayClient.MessageReactionRemoveAll"/>, <see cref="GatewayClient.MessageReactionRemoveEmoji"/>
     /// </summary>
     DirectMessageReactions = 1 << 13,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>TYPING_START</c>
+    /// <see cref="GatewayClient.TypingStart"/>
     /// </summary>
     DirectMessageTyping = 1 << 14,
 
     /// <summary>
     /// Privileged, ssociated with the following events:<br/>
-    /// <c>MESSAGE_CREATE, MESSAGE_UPDATE, MESSAGE_DELETE, CHANNEL_PINS_UPDATE</c>
+    /// <see cref="GatewayClient.MessageCreate"/>, <see cref="GatewayClient.MessageUpdate"/>, <see cref="GatewayClient.MessageDelete"/>, <see cref="GatewayClient.ChannelPinsUpdate"/>
     /// </summary>
     MessageContent = 1 << 15,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>GUILD_SCHEDULED_EVENT_CREATE, GUILD_SCHEDULED_EVENT_UPDATE, GUILD_SCHEDULED_EVENT_DELETE, GUILD_SCHEDULED_EVENT_USER_ADD, GUILD_SCHEDULED_EVENT_USER_REMOVE</c>
+    /// <see cref="GatewayClient.GuildScheduledEventCreate"/>, <see cref="GatewayClient.GuildScheduledEventUpdate"/>, <see cref="GatewayClient.GuildScheduledEventDelete"/>, <see cref="GatewayClient.GuildScheduledEventUserAdd"/>, <see cref="GatewayClient.GuildScheduledEventUserRemove"/>
     /// </summary>
     GuildScheduledEvents = 1 << 16,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>AUTO_MODERATION_RULE_CREATE, AUTO_MODERATION_RULE_UPDATE, AUTO_MODERATION_RULE_DELETE</c>
+    /// <see cref="GatewayClient.AutoModerationRuleCreate"/>, <see cref="GatewayClient.AutoModerationRuleUpdate"/>, <see cref="GatewayClient.AutoModerationRuleDelete"/>
     /// </summary>
     AutoModerationConfiguration = 1 << 20,
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <c>AUTO_MODERATION_ACTION_EXECUTION</c>
+    /// <see cref="GatewayClient.AutoModerationActionExecution"/>
     /// </summary>
     AutoModerationExecution = 1 << 21,
-
-    /// <summary>
-    /// Associated with the following events:<br/>
-    /// <c>MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE</c>
-    /// </summary>
-    GuildMessagePolls = 1 << 24,
-
-    /// <summary>
-    /// Associated with the following events:<br/>
-    /// <c>MESSAGE_POLL_VOTE_ADD, MESSAGE_POLL_VOTE_REMOVE</c>
-    /// </summary>
-    DirectMessagePolls = 1 << 25,
 
     /// <summary>
     /// Implies all available intents, excluding privileged intents.
@@ -153,9 +143,7 @@ public enum GatewayIntents : uint
         | DirectMessageTyping
         | GuildScheduledEvents
         | AutoModerationConfiguration
-        | AutoModerationExecution
-        | GuildMessagePolls
-        | DirectMessagePolls,
+        | AutoModerationExecution,
 
     /// <summary>
     /// Implies all available intents, including privileged intents.
