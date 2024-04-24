@@ -8,6 +8,9 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
 
+/// <summary>
+/// The GatewayClient allows the bot to communicate with discord's servers, allowing it to recieve events, opcodes, etc.
+/// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
     private readonly GatewayClientConfiguration _configuration;
