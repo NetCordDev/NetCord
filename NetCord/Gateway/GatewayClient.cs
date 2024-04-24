@@ -94,8 +94,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
 
     /// <summary>
-    /// Sent when the <see cref="GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
-    /// The inner payload is a <see cref="GuildThreadUser"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.
+    /// Sent when the <see cref="Rest.GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
+    /// The inner payload is a <see cref="Rest.GuildThreadUser"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.
     /// </summary>
     public event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
 
