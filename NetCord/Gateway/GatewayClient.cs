@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -129,9 +129,23 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// This event can be sent in three different scenarios (During an outage, the <see cref="Guild"/> object in scenarios 1 and 3 may be marked as unavailable):<br/>
-    /// • To lazily load and backfill information for all unavailable guilds sent in the <see cref="Ready"/> event. Guilds unavailable due to an outage will send a <see cref="GuildDelete"/> event.<br/>
-    /// • When a guild becomes available again to the client.<br/>
-    /// • When the current user joins a new guild.<br/>
+    /// <list type="bullet">
+    ///		<item>
+    ///			<description>
+    ///			To lazily load and backfill information for all unavailable guilds sent in the <see cref="Ready"/> event. Guilds unavailable due to an outage will send a <see cref="GuildDelete"/> event.
+    ///			</description>
+    ///		</item>
+    ///		<item>
+    ///			<description>
+    ///			When a guild becomes available again to the client.
+    ///			</description>
+    ///		</item>
+    ///		<item>
+    ///			<description>
+    ///			When the current user joins a new guild.
+    ///			</description>
+    ///		</item>
+    /// </list>
     /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If your bot does not have the <see cref="GatewayIntents.GuildPresences"/> Intent, or if the guild has over 75k members, members and presences returned in this event will only contain your bot and users in voice channels.
     /// </summary>
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
