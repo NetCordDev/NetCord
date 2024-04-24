@@ -1,5 +1,8 @@
 ﻿namespace NetCord.Gateway;
 
+/// <summary>
+/// Contains all valid opcodes sent/received by the client.
+/// </summary>
 internal enum GatewayOpcode : byte
 {
     /// <summary>
