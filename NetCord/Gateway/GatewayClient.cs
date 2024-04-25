@@ -149,7 +149,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///			</description>
     ///		</item>
     /// </list>
-    /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If your bot does not have the <see cref="GatewayIntents.GuildPresences"/> Intent, or if the guild has over 75k members, members and presences returned in this event will only contain your bot and users in voice channels.
+    /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If your bot does not have the <see cref="GatewayIntents.GuildPresences"/> Intent, or if the guild has over 75k users, users and presences returned in this event will only contain your bot and users in voice channels.
     /// </summary>
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
 
@@ -208,7 +208,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
 
     /// <summary>
-    /// Sent when a guild member is updated. This will also fire when the <see cref="GuildUser"/> object of a guild member changes. Requires the <see cref="GatewayIntents.GuildUsers"/> intent.
+    /// Sent when a guild user is updated. This will also fire when the <see cref="GuildUser"/> object of a guild user changes. Requires the <see cref="GatewayIntents.GuildUsers"/> intent.
     /// </summary>
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
