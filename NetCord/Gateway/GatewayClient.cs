@@ -363,7 +363,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
 
     /// <summary>
-    /// Sent when a user uses an Application Command or Message Component.
+    /// Sent when a user uses an interaction.
     /// Inner payload is an <see cref="Interaction"/>.
     /// </summary>
     public event Func<Interaction, ValueTask>? InteractionCreate;
