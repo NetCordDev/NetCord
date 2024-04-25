@@ -86,7 +86,7 @@ public enum GatewayIntents : uint
     GuildVoiceStates = 1 << 7,
 
     /// <summary>
-    /// Privileged, ssociated with the following events:<br/>
+    /// Privileged, associated with the following events:<br/>
     /// <see cref="GatewayClient.PresenceUpdate"/>
     /// </summary>
     GuildPresences = 1 << 8,
