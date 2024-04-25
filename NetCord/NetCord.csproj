@@ -8,7 +8,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <IsAotCompatible>true</IsAotCompatible>
 
-    <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
+    <RepositoryUrl>https://github.com/NetCordDev/NetCord</RepositoryUrl>
     <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>
     <PackageTags>bot;discord;discord-api</PackageTags>
     <PackageIcon>SmallSquare.png</PackageIcon>
