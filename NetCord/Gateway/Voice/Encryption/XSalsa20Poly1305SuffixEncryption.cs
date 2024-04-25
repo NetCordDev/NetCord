@@ -1,44 +1,50 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace NetCord.Gateway.Voice.Encryption;
 
-public class XSalsa20Poly1305SuffixEncryption : IVoiceEncryption
+public sealed class XSalsa20Poly1305SuffixEncryption : IVoiceEncryption
 {
     private byte[]? _key;
 
     public string Name => "xsalsa20_poly1305_suffix";
 
-    public int Expansion => Libsodium.MacBytes + Libsodium.NonceBytes;
+    public int Expansion => XSalsa20Poly1305.MacBytes + XSalsa20Poly1305.NonceBytes;
 
-    public void Decrypt(ReadOnlySpan<byte> datagram, Span<byte> plaintext)
+    public bool ExtensionEncryption => true;
+
+    public void Decrypt(RtpPacket packet, Span<byte> plaintext)
     {
-        var nonce = datagram[^Libsodium.NonceBytes..];
+        var payload = packet.Payload;
 
-        var ciphertext = datagram[12..^Libsodium.NonceBytes];
+        var nonce = payload[^XSalsa20Poly1305.NonceBytes..];
 
-        int result = Libsodium.CryptoSecretboxOpenEasy(ref MemoryMarshal.GetReference(plaintext),
-                                                       ref MemoryMarshal.GetReference(ciphertext),
-                                                       (ulong)ciphertext.Length,
-                                                       ref MemoryMarshal.GetReference(nonce),
-                                                       ref MemoryMarshal.GetArrayDataReference(_key!));
+        var ciphertext = payload[..^XSalsa20Poly1305.NonceBytes];
+
+        int result = XSalsa20Poly1305.CryptoSecretboxOpenEasy(ref MemoryMarshal.GetReference(plaintext),
+                                                              ref MemoryMarshal.GetReference(ciphertext),
+                                                              (ulong)ciphertext.Length,
+                                                              ref MemoryMarshal.GetReference(nonce),
+                                                              ref MemoryMarshal.GetArrayDataReference(_key!));
 
         if (result != 0)
             throw new LibsodiumException();
     }
 
-    [SkipLocalsInit]
-    public void Encrypt(ReadOnlySpan<byte> plaintext, Span<byte> datagram)
+    public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
     {
-        var nonce = datagram[^Libsodium.NonceBytes..];
+        var payload = packet.Payload;
+
+        var nonce = payload[^XSalsa20Poly1305.NonceBytes..];
         RandomNumberGenerator.Fill(nonce);
 
-        int result = Libsodium.CryptoSecretboxEasy(ref MemoryMarshal.GetReference(datagram[12..]),
-                                                   ref MemoryMarshal.GetReference(plaintext),
-                                                   (ulong)plaintext.Length,
-                                                   ref MemoryMarshal.GetReference(nonce),
-                                                   ref MemoryMarshal.GetArrayDataReference(_key!));
+        var ciphertext = payload[..^XSalsa20Poly1305.NonceBytes];
+
+        int result = XSalsa20Poly1305.CryptoSecretboxEasy(ref MemoryMarshal.GetReference(ciphertext),
+                                                          ref MemoryMarshal.GetReference(plaintext),
+                                                          (ulong)plaintext.Length,
+                                                          ref MemoryMarshal.GetReference(nonce),
+                                                          ref MemoryMarshal.GetArrayDataReference(_key!));
 
         if (result != 0)
             throw new LibsodiumException();
@@ -47,5 +53,9 @@ public class XSalsa20Poly1305SuffixEncryption : IVoiceEncryption
     public void SetKey(byte[] key)
     {
         _key = key;
+    }
+
+    public void Dispose()
+    {
     }
 }

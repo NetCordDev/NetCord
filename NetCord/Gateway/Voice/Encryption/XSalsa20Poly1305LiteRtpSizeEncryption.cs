@@ -3,16 +3,16 @@ using System.Runtime.InteropServices;
 
 namespace NetCord.Gateway.Voice.Encryption;
 
-public sealed class XSalsa20Poly1305LiteEncryption : IVoiceEncryption
+public sealed class XSalsa20Poly1305LiteRtpSizeEncryption : IVoiceEncryption
 {
     private byte[]? _key;
     private int _nonce;
 
-    public string Name => "xsalsa20_poly1305_lite";
+    public string Name => "xsalsa20_poly1305_lite_rtpsize";
 
     public int Expansion => XSalsa20Poly1305.MacBytes + sizeof(int);
 
-    public bool ExtensionEncryption => true;
+    public bool ExtensionEncryption => false;
 
     public void Decrypt(RtpPacket packet, Span<byte> plaintext)
     {
