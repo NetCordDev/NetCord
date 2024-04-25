@@ -192,7 +192,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildStickersUpdateEventArgs, ValueTask>? GuildStickersUpdate;
 
     /// <summary>
-    /// Sent when a guild integration is updated.
+    /// Sent when guild integrations are updated.
     /// </summary>
     public event Func<GuildIntegrationsUpdateEventArgs, ValueTask>? GuildIntegrationsUpdate;
 
