@@ -39,7 +39,7 @@ public sealed record VoiceClientCache : IVoiceClientCache
         };
     }
 
-    public IVoiceClientCache CacheSelfSsrc(uint ssrc)
+    public IVoiceClientCache CacheCurrentSsrc(uint ssrc)
     {
         return this with
         {

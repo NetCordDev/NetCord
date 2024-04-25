@@ -103,7 +103,7 @@ public class VoiceClient : WebSocketClient
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
                     var ssrc = ready.Ssrc;
-                    Cache = Cache.CacheSelfSsrc(ssrc);
+                    Cache = Cache.CacheCurrentSsrc(ssrc);
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
                     if (RedirectInputStreams)
