@@ -336,7 +336,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Presence, ValueTask>? PresenceUpdate;
 
     /// <summary>
-    /// Sent when a user starts typing in a channel.
+    /// Sent when a user starts typing in a channel, and fires again every 10 seconds while they continue typing.
     /// </summary>
     public event Func<TypingStartEventArgs, ValueTask>? TypingStart;
 
