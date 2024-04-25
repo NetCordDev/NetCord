@@ -5,7 +5,7 @@ using NetCord.Gateway.Voice.Encryption;
 namespace VoiceEncryptionTest;
 
 [TestClass]
-public class EncryptionTest
+public class Test
 {
     [TestMethod]
     public void XSalsa20Poly1305EncryptionTest()
