@@ -47,7 +47,7 @@ public class VoiceClient : WebSocketClient
 
         _udpSocket = configuration.UdpSocket ?? new UdpSocket();
         Cache = configuration.Cache ?? new VoiceClientCache();
-        _encryption = configuration.Encryption ?? new XSalsa20Poly1305Encryption();
+        _encryption = configuration.Encryption ?? new Aes256GcmRtpSizeEncryption();
         RedirectInputStreams = configuration.RedirectInputStreams;
     }
 
@@ -103,7 +103,7 @@ public class VoiceClient : WebSocketClient
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
                     var ssrc = ready.Ssrc;
-                    Cache = Cache.CacheSelfSsrc(ssrc);
+                    Cache = Cache.CacheCurrentSsrc(ssrc);
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
                     if (RedirectInputStreams)
@@ -267,6 +267,7 @@ public class VoiceClient : WebSocketClient
             Cache.Dispose();
             foreach (var stream in _inputStreams.Values)
                 stream.Dispose();
+            _encryption.Dispose();
         }
         base.Dispose(disposing);
     }

@@ -3,7 +3,7 @@
 /// <summary>
 /// Voice encryption.
 /// </summary>
-public interface IVoiceEncryption
+public interface IVoiceEncryption : IDisposable
 {
     /// <summary>
     /// The name of the encryption algorithm.
@@ -16,18 +16,23 @@ public interface IVoiceEncryption
     public int Expansion { get; }
 
     /// <summary>
+    /// Whether the encryption algorithm encrypts the extension.
+    /// </summary>
+    public bool ExtensionEncryption { get; }
+
+    /// <summary>
     /// Decrypts a datagram using the encryption algorithm.
     /// </summary>
-    /// <param name="datagram">The datagram to decrypt.</param>
+    /// <param name="packet">The packet to decrypt.</param>
     /// <param name="plaintext">The resulting plaintext.</param>
-    public void Decrypt(ReadOnlySpan<byte> datagram, Span<byte> plaintext);
+    public void Decrypt(RtpPacket packet, Span<byte> plaintext);
 
     /// <summary>
     /// Encrypts plaintext using the encryption algorithm.
     /// </summary>
     /// <param name="plaintext">The plaintext to encrypt.</param>
-    /// <param name="datagram">The resulting datagram.</param>
-    public void Encrypt(ReadOnlySpan<byte> plaintext, Span<byte> datagram);
+    /// <param name="packet">The resulting packet.</param>
+    public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet);
 
     /// <summary>
     /// Sets the key for the encryption algorithm.

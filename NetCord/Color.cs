@@ -30,7 +30,7 @@ public readonly struct Color : IEquatable<Color>
         Blue = (byte)rgb;
     }
 
-    public bool Equals(Color other) => ((Red ^ other.Red) | (Green ^ other.Green) | (Blue ^ other.Blue)) == 0;
+    public bool Equals(Color other) => Red == other.Red && Green == other.Green && Blue == other.Blue;
 
     public override bool Equals(object? obj) => obj is Color color && Equals(color);
 
