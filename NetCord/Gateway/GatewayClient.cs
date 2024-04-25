@@ -98,7 +98,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when the <see cref="Rest.GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
-    /// The inner payload is a <see cref="Rest.GuildThreadUser"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.
+    /// The inner payload is a <see cref="Rest.GuildThreadUserUpdateEventArgs"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.
     /// </summary>
     public event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
 
@@ -325,7 +325,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<MessageReactionRemoveAllEventArgs, ValueTask>? MessageReactionRemoveAll;
 
     /// <summary>
-    /// Sent when a bot removes all instances of a given emoji from the reactions of a message.
+    /// Sent when a user removes all instances of a given emoji from the reactions of a message.
     /// </summary>
     public event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
 
