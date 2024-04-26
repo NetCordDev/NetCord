@@ -142,7 +142,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when anyone is added to or removed from a thread.<br/>
-    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>, <see cref="GatewayIntents.GuildUsers"/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>, <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents:
     /// <list type="bullet">
     ///		<item>
@@ -154,6 +154,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///			</description>
     ///		</item>
     /// </list>
+    /// </br></br>
+    /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
 
@@ -285,22 +287,28 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Sent when a new user joins a guild.
     /// The inner payload is a <see cref="GuildUser"/> object with an extra <c>guild_id</c> key.<br/>
-    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
+    /// </br></br>
+    /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUser, ValueTask>? GuildUserAdd;
 
     /// <summary>
     /// Sent when a user is removed from a guild (leave/kick/ban).<br/>
-    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
+    /// </br></br>
+    /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
 
     /// <summary>
     /// Sent when a guild user is updated. This will also fire when the <see cref="GuildUser"/> object of a guild user changes.<br/>
-    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
+    /// </br></br>
+    /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
