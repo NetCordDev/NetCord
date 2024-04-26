@@ -149,7 +149,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///			</description>
     ///		</item>
     /// </list>
-    /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If your bot does not have the <see cref="GatewayIntents.GuildPresences"/> Intent, or if the guild has over 75k users, users and presences returned in this event will only contain your bot and users in voice channels.
+    /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If your bot does not have the <see cref="GatewayIntents.GuildPresences"/> intent, or if the guild has over 75k users, users and presences returned in this event will only contain your bot and users in voice channels.
     /// </summary>
     public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
 
