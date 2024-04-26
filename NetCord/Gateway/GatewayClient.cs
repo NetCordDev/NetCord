@@ -154,7 +154,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///			</description>
     ///		</item>
     /// </list>
-    /// </br></br>
+    /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
@@ -289,7 +289,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// The inner payload is a <see cref="GuildUser"/> object with an extra <c>guild_id</c> key.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
-    /// </br></br>
+    /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUser, ValueTask>? GuildUserAdd;
@@ -298,7 +298,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Sent when a user is removed from a guild (leave/kick/ban).<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
-    /// </br></br>
+    /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
@@ -307,7 +307,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Sent when a guild user is updated. This will also fire when the <see cref="GuildUser"/> object of a guild user changes.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
     /// <br/> Optional Intents: None
-    /// </br></br>
+    /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </summary>
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
