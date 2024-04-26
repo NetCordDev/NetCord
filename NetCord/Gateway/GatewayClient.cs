@@ -289,7 +289,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when a message is created. Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <c>member</c>.
-    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, <c>member</c> and <c>mentions</c> fields.
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="RestMessage.Author"/> fields.
     /// </summary>
     public event Func<Message, ValueTask>? MessageCreate;
 
