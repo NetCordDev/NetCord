@@ -289,13 +289,13 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when a message is created. Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <c>member</c>.
-    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="RestMessage.Author"/> fields.
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="Rest.RestMessage.Author"/> fields.
     /// </summary>
     public event Func<Message, ValueTask>? MessageCreate;
 
     /// <summary>
     /// Sent when a message is updated. Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <c>member</c>.
-    /// The inner payload is a message object with the same extra fields as <see cref="MessageCreate"/>. Updates may contain only a partial <see cref="Message"/> object (but will always contain an <c>ID</c> and <c>channel_id</c>).
+    /// The inner payload is a message object with the same set fields as <see cref="MessageCreate"/>. Updates may contain only a partial <see cref="Message"/> object, in which case they are not handled by NetCord.
     /// </summary>
     public event Func<Message, ValueTask>? MessageUpdate;
 
