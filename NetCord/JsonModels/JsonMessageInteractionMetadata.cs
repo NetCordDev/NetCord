@@ -7,8 +7,8 @@ public class JsonMessageInteractionMetadata : JsonEntity
     [JsonPropertyName("type")]
     public InteractionType Type { get; set; }
 
-    [JsonPropertyName("user_id")]
-    public ulong UserId { get; set; }
+    [JsonPropertyName("user")]
+    public JsonUser User { get; set; }
 
     [JsonPropertyName("authorizing_integration_owners")]
     public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners { get; set; }

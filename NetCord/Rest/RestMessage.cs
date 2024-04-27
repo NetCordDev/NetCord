@@ -51,7 +51,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var interactionMetadata = jsonModel.InteractionMetadata;
         if (interactionMetadata is not null)
-            InteractionMetadata = new(interactionMetadata);
+            InteractionMetadata = new(interactionMetadata, client);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         var interaction = jsonModel.Interaction;
@@ -122,6 +122,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
 
     public RestMessage? ReferencedMessage { get; }
+
     public MessageInteractionMetadata? InteractionMetadata { get; }
 
     [Obsolete($"Replaced by '{nameof(InteractionMetadata)}'")]
