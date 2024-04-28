@@ -3,7 +3,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace MyBot;
 
-public class ModalSubmitModule : ComponentInteractionModule<ModalSubmitInteractionContext>
+public class ModalModule : ComponentInteractionModule<ModalInteractionContext>
 {
     [ComponentInteraction("modal")]
     public Task ModalAsync()

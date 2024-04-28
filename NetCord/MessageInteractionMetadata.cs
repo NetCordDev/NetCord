@@ -47,7 +47,7 @@ public class MessageInteractionMetadata : Entity, IJsonModel<JsonMessageInteract
     public ulong? InteractedMessageId => _jsonModel.InteractedMessageId;
 
     /// <summary>
-    /// Metadata for the interaction that was used to open the modal, present only on modal submit interactions.
+    /// Metadata for the interaction that was used to open the modal, present only on modal interactions.
     /// </summary>
     public MessageInteractionMetadata? TriggeringInteractionMetadata { get; }
 }
