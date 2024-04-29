@@ -4,7 +4,7 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Test;
 
-public class ModalSubmitInteractions : ComponentInteractionModule<ModalSubmitInteractionContext>
+public class ModalInteractions : ComponentInteractionModule<ModalInteractionContext>
 {
     [ComponentInteraction("wzium")]
     public Task WziumAsync(UserId user)

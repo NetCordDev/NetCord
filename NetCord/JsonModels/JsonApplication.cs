@@ -76,6 +76,9 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("install_params")]
     public JsonApplicationInstallParams? InstallParams { get; set; }
 
+    [JsonPropertyName("integration_types_config")]
+    public IReadOnlyDictionary<ApplicationIntegrationType, JsonApplicationIntegrationTypeConfiguration> IntegrationTypesConfiguration { get; set; }
+
     [JsonPropertyName("custom_install_url")]
     public string? CustomInstallUrl { get; set; }
 }

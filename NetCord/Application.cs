@@ -32,6 +32,7 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;
     public ApplicationInstallParams? InstallParams { get; }
+    public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration>? IntegrationTypesConfiguration { get; }
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
 
     public Application(JsonModels.JsonApplication jsonModel, RestClient client) : base(client)
@@ -57,5 +58,9 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
         var installParams = jsonModel.InstallParams;
         if (installParams is not null)
             InstallParams = new(installParams);
+
+        var integrationTypesConfiguration = jsonModel.IntegrationTypesConfiguration;
+        if (integrationTypesConfiguration is not null)
+            IntegrationTypesConfiguration = integrationTypesConfiguration.ToDictionary(i => i.Key, i => new ApplicationIntegrationTypeConfiguration(i.Value));
     }
 }

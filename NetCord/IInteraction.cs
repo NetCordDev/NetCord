@@ -10,6 +10,8 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
 
     public string Token { get; }
 
+    public Permissions AppPermissions { get; }
+
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
     public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client)

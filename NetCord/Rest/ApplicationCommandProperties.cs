@@ -41,6 +41,7 @@ public abstract partial class ApplicationCommandProperties
     /// <summary>
     /// Indicates whether the command is available in DMs with the app.
     /// </summary>
+    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("dm_permission")]
     public bool? DMPermission { get; set; }
@@ -52,6 +53,20 @@ public abstract partial class ApplicationCommandProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_permission")]
     public bool? DefaultPermission { get; set; }
+
+    /// <summary>
+    /// Installation context(s) where the command is available.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("integration_types")]
+    public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; set; }
+
+    /// <summary>
+    /// Interaction context(s) where the command can be used.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("contexts")]
+    public IEnumerable<InteractionContextType>? Contexts { get; set; }
 
     /// <summary>
     /// Indicates whether the command is age-restricted.

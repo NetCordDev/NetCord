@@ -24,12 +24,16 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                              Permissions? defaultGuildUserPermissions,
                              bool? dMPermission,
                              bool defaultPermission,
+                             IEnumerable<ApplicationIntegrationType>? integrationTypes,
+                             IEnumerable<InteractionContextType>? contexts,
                              bool nsfw,
                              ulong? guildId,
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                     defaultGuildUserPermissions,
                                                                                                     dMPermission,
                                                                                                     defaultPermission,
+                                                                                                    integrationTypes,
+                                                                                                    contexts,
                                                                                                     nsfw,
                                                                                                     guildId,
                                                                                                     configuration)
@@ -76,6 +80,8 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
+            IntegrationTypes = IntegrationTypes,
+            Contexts = Contexts,
             Nsfw = Nsfw,
         };
 #pragma warning restore CS0618 // Type or member is obsolete

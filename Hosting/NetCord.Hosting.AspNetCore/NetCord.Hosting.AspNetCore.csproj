@@ -7,13 +7,13 @@
     <LangVersion>latest</LangVersion>
     <IsAotCompatible>false</IsAotCompatible>
 
-    <RepositoryUrl>https://github.com/KubaZ2/NetCord</RepositoryUrl>
+    <RepositoryUrl>https://github.com/NetCordDev/NetCord</RepositoryUrl>
     <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>
     <PackageTags>bot;discord;discord-api</PackageTags>
     <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.51</VersionSuffix>
+    <VersionSuffix>alpha.61</VersionSuffix>
     <Description>The modern and fully customizable C# Discord library.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

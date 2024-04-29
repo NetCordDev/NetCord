@@ -29,7 +29,7 @@ internal static class Program
     private static readonly ComponentInteractionService<RoleMenuInteractionContext> _roleMenuInteractionService = new();
     private static readonly ComponentInteractionService<MentionableMenuInteractionContext> _mentionableMenuInteractionService = new();
     private static readonly ComponentInteractionService<ChannelMenuInteractionContext> _channelMenuInteractionService = new();
-    private static readonly ComponentInteractionService<ModalSubmitInteractionContext> _modalSubmitInteractionService = new();
+    private static readonly ComponentInteractionService<ModalInteractionContext> _modalInteractionService = new();
     private static readonly ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
@@ -44,6 +44,7 @@ internal static class Program
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader()),
             ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
+            DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
         };
         _slashCommandService = new(configuration);
 
@@ -71,7 +72,7 @@ internal static class Program
         _roleMenuInteractionService.AddModules(assembly);
         _mentionableMenuInteractionService.AddModules(assembly);
         _channelMenuInteractionService.AddModules(assembly);
-        _modalSubmitInteractionService.AddModules(assembly);
+        _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
@@ -125,7 +126,7 @@ internal static class Program
             ChannelMenuInteraction channelMenuInteraction => _channelMenuInteractionService.ExecuteAsync(new(channelMenuInteraction, _client), _serviceProvider),
             ButtonInteraction buttonInteraction => _buttonInteractionService.ExecuteAsync(new(buttonInteraction, _client), _serviceProvider),
             AutocompleteInteraction autocompleteInteraction => _slashCommandService.ExecuteAutocompleteAsync(new(autocompleteInteraction, _client), _serviceProvider),
-            ModalInteraction modalSubmitInteraction => _modalSubmitInteractionService.ExecuteAsync(new(modalSubmitInteraction, _client), _serviceProvider),
+            ModalInteraction modalInteraction => _modalInteractionService.ExecuteAsync(new(modalInteraction, _client), _serviceProvider),
             _ => throw new("Invalid interaction."),
         });
         if (result is IFailResult failResult)

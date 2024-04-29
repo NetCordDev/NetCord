@@ -25,6 +25,10 @@ public partial class CurrentApplicationOptions
     public ApplicationInstallParamsProperties? InstallParams { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("integration_types_config")]
+    public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfigurationProperties>? IntegrationTypesConfiguration { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("flags")]
     public ApplicationFlags? Flags { get; set; }
 

@@ -43,5 +43,5 @@ We can add an interaction handler now.
 #### Channel Menu Module
 [!code-cs[ChannelMenuModule.cs](Introduction/ChannelMenuModule.cs)]
 
-#### Modal Submit Module
-[!code-cs[ModalSubmitModule.cs](Introduction/ModalSubmitModule.cs)]
+#### Modal Module
+[!code-cs[ModalModule.cs](Introduction/ModalModule.cs)]

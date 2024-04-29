@@ -38,19 +38,16 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
     {
         if (context is IComponentInteractionContext interactionContext)
         {
-            var interactionPermissions = interactionContext.Interaction.AppPermissions;
-
-            if (!interactionPermissions.HasValue)
+            if (interactionContext.Interaction.Context is not InteractionContextType.Guild)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
 
-            var interactionPermissionsValue = interactionPermissions.GetValueOrDefault();
-
-            if (interactionPermissionsValue.HasFlag(Permissions.Administrator))
+            var interactionPermissions = interactionContext.Interaction.AppPermissions;
+            if (interactionPermissions.HasFlag(Permissions.Administrator))
                 return new(PreconditionResult.Success);
 
-            if (_permissionsType.HasFlag(PermissionsType.Channel) && !interactionPermissionsValue.HasFlag(ChannelPermissions))
+            if (_permissionsType.HasFlag(PermissionsType.Channel) && !interactionPermissions.HasFlag(ChannelPermissions))
             {
-                var missingPermissions = ChannelPermissions & ~interactionPermissions.GetValueOrDefault();
+                var missingPermissions = ChannelPermissions & ~interactionPermissions;
                 return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Channel));
             }
 

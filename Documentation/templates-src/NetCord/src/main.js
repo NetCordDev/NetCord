@@ -51,7 +51,7 @@ let icons = [
   {
     icon: "bi bi-github",
     tooltip: "GitHub",
-    href: "https://github.com/KubaZ2/NetCord",
+    href: "https://github.com/NetCordDev/NetCord",
   },
   {
     icon: "bi bi-discord",

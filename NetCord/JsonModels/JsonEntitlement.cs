@@ -27,4 +27,7 @@ public class JsonEntitlement : JsonEntity
 
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
+
+    [JsonPropertyName("consumed")]
+    public bool? Consumed { get; set; }
 }

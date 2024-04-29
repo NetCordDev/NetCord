@@ -36,7 +36,11 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 {
                     VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
                     VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
+                    VoiceEncryption.XSalsa20Poly1305LiteRtpSize => new XSalsa20Poly1305LiteRtpSizeEncryption(),
                     VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
+                    VoiceEncryption.Aes256Gcm => new Aes256GcmEncryption(),
+                    VoiceEncryption.Aes256GcmRtpSize => new Aes256GcmRtpSizeEncryption(),
+                    VoiceEncryption.XChaCha20Poly1305RtpSize => new XChaCha20Poly1305RtpSizeEncryption(),
                     _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
                 },
             });
@@ -61,7 +65,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(VoiceEncryption encryption = VoiceEncryption.XSalsa20Poly1305)
+    public async Task PlayAsync(VoiceEncryption encryption = VoiceEncryption.Aes256GcmRtpSize)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -96,12 +100,11 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         catch (OperationCanceledException)
         {
             ffmpeg.Kill();
-            return;
         }
     }
 
     [SlashCommand("echo", "Echo!")]
-    public async Task EchoAsync(VoiceEncryption encryption = VoiceEncryption.XSalsa20Poly1305)
+    public async Task EchoAsync(VoiceEncryption encryption = VoiceEncryption.Aes256GcmRtpSize)
     {
         TaskCompletionSource taskCompletionSource = new();
 
@@ -125,6 +128,10 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         XSalsa20Poly1305,
         XSalsa20Poly1305Lite,
+        XSalsa20Poly1305LiteRtpSize,
         XSalsa20Poly1305Suffix,
+        Aes256Gcm,
+        Aes256GcmRtpSize,
+        XChaCha20Poly1305RtpSize,
     }
 }

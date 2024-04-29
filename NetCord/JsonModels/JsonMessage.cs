@@ -74,6 +74,10 @@ public class JsonMessage : JsonEntity
     [JsonPropertyName("referenced_message")]
     public JsonMessage? ReferencedMessage { get; set; }
 
+    [JsonPropertyName("interaction_metadata")]
+    public JsonMessageInteractionMetadata? InteractionMetadata { get; set; }
+
+    [Obsolete($"Replaced by '{nameof(InteractionMetadata)}'")]
     [JsonPropertyName("interaction")]
     public JsonMessageInteraction? Interaction { get; set; }
 

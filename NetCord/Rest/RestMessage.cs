@@ -49,9 +49,15 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         if (referencedMessage is not null)
             ReferencedMessage = new(referencedMessage, client);
 
+        var interactionMetadata = jsonModel.InteractionMetadata;
+        if (interactionMetadata is not null)
+            InteractionMetadata = new(interactionMetadata, client);
+
+#pragma warning disable CS0618 // Type or member is obsolete
         var interaction = jsonModel.Interaction;
         if (interaction is not null)
             Interaction = new(interaction, client);
+#pragma warning restore CS0618 // Type or member is obsolete
 
         var startedThread = jsonModel.StartedThread;
         if (startedThread is not null)
@@ -74,35 +80,68 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     }
 
     public override ulong Id => _jsonModel.Id;
+
     public ulong ChannelId => _jsonModel.ChannelId;
+
     public User Author { get; }
+
     public string Content => _jsonModel.Content;
+
     //public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+
     public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
+
     public bool IsTts => _jsonModel.IsTts;
+
     public bool MentionEveryone => _jsonModel.MentionEveryone;
+
     public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
+
     public IReadOnlyList<ulong> MentionedRoleIds => _jsonModel.MentionedRoleIds;
+
     public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
+
     public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
+
     public IReadOnlyList<Embed> Embeds { get; }
+
     public IReadOnlyList<MessageReaction> Reactions { get; }
+
     public string? Nonce => _jsonModel.Nonce;
+
     public bool IsPinned => _jsonModel.IsPinned;
+
     public ulong? WebhookId => _jsonModel.WebhookId;
+
     public MessageType Type => _jsonModel.Type;
+
     public MessageActivity? Activity { get; }
+
     public Application? Application { get; }
+
     public ulong? ApplicationId => _jsonModel.ApplicationId;
+
     public MessageReference? MessageReference { get; }
+
     public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+
     public RestMessage? ReferencedMessage { get; }
+
+    public MessageInteractionMetadata? InteractionMetadata { get; }
+
+    [Obsolete($"Replaced by '{nameof(InteractionMetadata)}'")]
     public MessageInteraction? Interaction { get; }
+
     public GuildThread? StartedThread { get; }
+
     public IReadOnlyList<IMessageComponent> Components { get; }
+
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
+
     public int? Position => _jsonModel.Position;
+
     public RoleSubscriptionData? RoleSubscriptionData { get; }
+
     public InteractionResolvedData? ResolvedData { get; }
     public MessagePoll? Poll { get; }
 

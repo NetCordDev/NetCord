@@ -4,5 +4,5 @@ namespace NetCord;
 
 public class MentionableMenu(JsonComponent jsonModel) : EntityMenu(jsonModel)
 {
-    public IReadOnlyList<MentionableMenuDefaultValue> DefaultValues { get; } = jsonModel.DefaultValues!.Select(d => new MentionableMenuDefaultValue(d)).ToArray();
+    public IReadOnlyList<MentionableMenuDefaultValue> DefaultValues { get; } = jsonModel.DefaultValues.SelectOrEmpty(d => new MentionableMenuDefaultValue(d)).ToArray();
 }

@@ -32,7 +32,7 @@ public class JsonInteraction : JsonEntity
     public JsonMessage? Message { get; set; }
 
     [JsonPropertyName("app_permissions")]
-    public Permissions? AppPermissions { get; set; }
+    public Permissions AppPermissions { get; set; }
 
     [JsonPropertyName("locale")]
     public string? UserLocale { get; set; }
@@ -42,4 +42,10 @@ public class JsonInteraction : JsonEntity
 
     [JsonPropertyName("entitlements")]
     public JsonEntitlement[] Entitlements { get; set; }
+
+    [JsonPropertyName("authorizing_integration_owners")]
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong>? AuthorizingIntegrationOwners { get; set; }
+
+    [JsonPropertyName("context")]
+    public InteractionContextType? Context { get; set; }
 }
