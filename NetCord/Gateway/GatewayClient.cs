@@ -9,7 +9,7 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 namespace NetCord.Gateway;
 
 /// <summary>
-/// The <see cref="GatewayClient"/> is the core component for allowing the bot to communicate with discord's servers.
+/// The <see cref="GatewayClient"/> is the core component for allowing the bot to communicate with Discord's servers.
 /// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
@@ -625,12 +625,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<StageInstance, ValueTask>? StageInstanceDelete;
 
     /// <summary>
-    /// Not documented by discord.
+    /// Not documented by Discord.
     /// </summary>
     public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
 
     /// <summary>
-    /// Not documented by discord.
+    /// Not documented by Discord.
     /// </summary>
     public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
 
