@@ -3,14 +3,19 @@
 public sealed class RateLimitManager : IRateLimitManager
 {
     private readonly object _lock = new();
-    private readonly GlobalRateLimiter _globalRateLimiter = new();
+    private readonly GlobalRateLimiter _globalRateLimiter;
     private readonly Dictionary<Route, ITrackingRouteRateLimiter> _routeRateLimiters;
     private readonly Dictionary<BucketInfo, ITrackingRouteRateLimiter> _bucketRateLimiters;
     private readonly int _cacheSize;
     private readonly int _cacheCleanupCount;
 
-    public RateLimitManager(int cacheSize = 10103, int cacheCleanupCount = 5000)
+    public RateLimitManager(RateLimitManagerConfiguration? configuration = null)
     {
+        configuration ??= new();
+
+        int cacheSize = configuration.CacheSize;
+        int cacheCleanupCount = configuration.CacheCleanupCount;
+
         ArgumentOutOfRangeException.ThrowIfLessThan(cacheSize, 0);
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(cacheCleanupCount, 0);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(cacheCleanupCount, cacheSize);
@@ -18,6 +23,7 @@ public sealed class RateLimitManager : IRateLimitManager
         _cacheSize = cacheSize;
         _cacheCleanupCount = cacheCleanupCount;
 
+        _globalRateLimiter = new(configuration.GlobalRateLimit, configuration.GlobalRateLimitDuration);
         _routeRateLimiters = new(cacheSize);
         _bucketRateLimiters = new(cacheSize);
     }
