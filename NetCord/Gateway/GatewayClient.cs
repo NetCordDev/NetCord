@@ -46,8 +46,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
     public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
     public event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
-    public event Func<RoleEventArgs, ValueTask>? RoleCreate;
-    public event Func<RoleEventArgs, ValueTask>? RoleUpdate;
+    public event Func<Role, ValueTask>? RoleCreate;
+    public event Func<Role, ValueTask>? RoleUpdate;
     public event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
     public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
     public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
@@ -509,13 +509,13 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_ROLE_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleCreate, new(json, Rest), args => Cache = Cache.CacheRole(args.GuildId, args.Role)).ConfigureAwait(false);
+                    await InvokeEventAsync(RoleCreate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleUpdate, new(json, Rest), args => Cache = Cache.CacheRole(args.GuildId, args.Role)).ConfigureAwait(false);
+                    await InvokeEventAsync(RoleUpdate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_DELETE":
@@ -686,7 +686,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     await InvokeEventAsync(VoiceStateUpdate, new(json, json.GuildId.GetValueOrDefault(), Rest), voiceState =>
                     {
                         if (voiceState.ChannelId.HasValue)
-                            Cache = Cache.CacheVoiceState(voiceState.GuildId, voiceState);
+                            Cache = Cache.CacheVoiceState(voiceState);
                         else
                             Cache = Cache.RemoveVoiceState(voiceState.GuildId, voiceState.UserId);
                     }).ConfigureAwait(false);

@@ -836,8 +836,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
 
     private readonly object _roleCreateLock = new();
-    private Func<GatewayClient, RoleEventArgs, ValueTask>? _roleCreate;
-    public event Func<GatewayClient, RoleEventArgs, ValueTask>? RoleCreate
+    private Func<GatewayClient, Role, ValueTask>? _roleCreate;
+    public event Func<GatewayClient, Role, ValueTask>? RoleCreate
     {
         add
         {
@@ -850,8 +850,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
 
     private readonly object _roleUpdateLock = new();
-    private Func<GatewayClient, RoleEventArgs, ValueTask>? _roleUpdate;
-    public event Func<GatewayClient, RoleEventArgs, ValueTask>? RoleUpdate
+    private Func<GatewayClient, Role, ValueTask>? _roleUpdate;
+    public event Func<GatewayClient, Role, ValueTask>? RoleUpdate
     {
         add
         {
