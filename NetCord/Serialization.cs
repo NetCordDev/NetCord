@@ -228,6 +228,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildJoinRequestUpdateEventArgs))]
 [JsonSerializable(typeof(JsonGuildJoinRequestDeleteEventArgs))]
 [JsonSerializable(typeof(JsonGetPollAnswerVotersResult))]
+[JsonSerializable(typeof(JsonMessagePollVoteEventArgs))]
 internal partial class Serialization : JsonSerializerContext
 {
 }

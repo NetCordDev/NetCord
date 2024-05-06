@@ -82,6 +82,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Entitlement, ValueTask>? EntitlementDelete;
     public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
     public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     /// <summary>
@@ -725,6 +727,16 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_JOIN_REQUEST_DELETE":
                 {
                     await InvokeEventAsync(GuildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
+                } 
+                break;
+            case "MESSAGE_POLL_VOTE_ADD":
+                {
+                    await InvokeEventAsync(MessagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            case "MESSAGE_POLL_VOTE_REMOVE":
+                {
+                    await InvokeEventAsync(MessagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             default:
