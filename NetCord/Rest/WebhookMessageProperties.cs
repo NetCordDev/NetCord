@@ -48,6 +48,10 @@ public partial class WebhookMessageProperties : IHttpSerializable
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("applied_tags")]
     public IEnumerable<ulong>? AppliedTags { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("poll")]
+    public MessagePollProperties? Poll { get; set; }
 
     public HttpContent Serialize()
     {
