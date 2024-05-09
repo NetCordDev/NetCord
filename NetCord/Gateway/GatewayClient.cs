@@ -9,7 +9,7 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 namespace NetCord.Gateway;
 
 /// <summary>
-/// The WebSocket-based client allows you to receive events from Discord's Gateway and update or request resources, such as updating voice state.
+/// The WebSocket-based client allows you to receive events from the Discord Gateway and update or request resources, such as updating voice state.
 /// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
@@ -23,8 +23,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     #region Events
 
     /// <summary>
-    /// The ready event is dispatched when a client has completed the initial handshake with the gateway (for new sessions).
-    /// The ready event, while generally small in practice, can be the largest and most complex event the gateway will send, as it contains all the state required for a client to begin interacting with the rest of the platform.<br/>
+    /// The ready event is dispatched when a client has completed the initial handshake with the Gateway (for new sessions).
+    /// The ready event, while generally small in practice, can be the largest and most complex event the Gateway will send, as it contains all the state required for a client to begin interacting with the rest of the platform.<br/>
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </summary>
