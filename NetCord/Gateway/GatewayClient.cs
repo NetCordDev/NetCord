@@ -60,7 +60,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildInvite, ValueTask>? GuildInviteCreate;
     public event Func<GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete;
     public event Func<Message, ValueTask>? MessageCreate;
-    public event Func<Message, ValueTask>? MessageUpdate;
+    public event Func<IPartialMessage, ValueTask>? MessageUpdate;
     public event Func<MessageDeleteEventArgs, ValueTask>? MessageDelete;
     public event Func<MessageDeleteBulkEventArgs, ValueTask>? MessageDeleteBulk;
     public event Func<MessageReactionAddEventArgs, ValueTask>? MessageReactionAdd;
@@ -604,7 +604,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     await InvokeEventAsync(
                         MessageUpdate,
                         () => data.ToObject(Serialization.Default.JsonMessage),
-                        json => Message.CreateFromJson(json, Cache, Rest),
+                        json => IPartialMessage.CreateFromJson(json, Cache, Rest),
                         json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {

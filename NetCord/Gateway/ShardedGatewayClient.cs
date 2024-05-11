@@ -1032,8 +1032,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
 
     private readonly object _messageUpdateLock = new();
-    private Func<GatewayClient, Message, ValueTask>? _messageUpdate;
-    public event Func<GatewayClient, Message, ValueTask>? MessageUpdate
+    private Func<GatewayClient, IPartialMessage, ValueTask>? _messageUpdate;
+    public event Func<GatewayClient, IPartialMessage, ValueTask>? MessageUpdate
     {
         add
         {
