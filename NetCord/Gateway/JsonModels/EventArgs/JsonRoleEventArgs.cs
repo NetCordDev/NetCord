@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonRoleEventArgs
+internal class JsonRoleEventArgs
 {
     [JsonPropertyName("guild_id")]
     public ulong GuildId { get; set; }

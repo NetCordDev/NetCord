@@ -4,7 +4,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    [GenerateAlias(typeof(RestGuild), nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
+    [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public IAsyncEnumerable<RestAuditLogEntry> GetGuildAuditLogAsync(ulong guildId, GuildAuditLogPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.Before, 100);

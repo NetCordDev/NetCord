@@ -15,7 +15,7 @@ public class StringEnumConverterWithErrorHandling<T> : JsonConverter<T> where T 
     private readonly Dictionary<ReadOnlyMemory<byte>, T> _namesDictionary;
     private readonly Dictionary<T, JsonEncodedText> _valuesDictionary;
 
-    [UnconditionalSuppressMessage("Trimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.", Justification = "<Pending>")]
+    [UnconditionalSuppressMessage("Trimming", "IL2090:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The generic parameter of the source method or type does not have matching annotations.", Justification = "Literal fields on enums can never be trimmed")]
     public StringEnumConverterWithErrorHandling()
     {
         var enumType = typeof(T);
