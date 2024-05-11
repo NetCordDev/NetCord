@@ -107,7 +107,7 @@ public partial interface IPartialMessage : IEntity
     public int? Position { get; }
 
     public RoleSubscriptionData? RoleSubscriptionData { get; }
-    
+
     public InteractionResolvedData? ResolvedData { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null);
