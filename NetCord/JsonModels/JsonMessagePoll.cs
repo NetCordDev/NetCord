@@ -21,5 +21,5 @@ public class JsonMessagePoll : JsonEntity
     public DateTimeOffset? ExpiresAt { get; set; }
     
     [JsonPropertyName("results")]
-    public JsonMessagePollResults Results { get; set; }
+    public JsonMessagePollResults? Results { get; set; }
 }
