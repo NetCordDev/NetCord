@@ -45,4 +45,9 @@ public class Entitlement(JsonModels.JsonEntitlement jsonModel) : Entity, IJsonMo
     /// Id of the guild that is granted access to the entitlement's SKU.
     /// </summary>
     public ulong? GuildId => jsonModel.GuildId;
+
+    /// <summary>
+    /// For consumable items, whether or not the entitlement has been consumed.
+    /// </summary>
+    public bool? Consumed => jsonModel.Consumed;
 }

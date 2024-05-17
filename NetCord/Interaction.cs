@@ -76,8 +76,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
                 ComponentType.ChannelMenu => new ChannelMenuInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
-            InteractionType.ApplicationCommandAutocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
-            InteractionType.ModalSubmit => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
+            InteractionType.Autocomplete => new AutocompleteInteraction(jsonModel, guild, sendResponseAsync, client),
+            InteractionType.Modal => new ModalInteraction(jsonModel, guild, sendResponseAsync, client),
             _ => throw new InvalidOperationException(),
         };
     }

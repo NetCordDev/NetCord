@@ -44,6 +44,9 @@ public partial class RestClient
             properties);
     }
 
+    public Task ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Post, $"/applications/{applicationId}/entitlements/{entitlementId}/consume", null, null, properties);
+
     public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RestRequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, Serialization.Default.TestEntitlementProperties))

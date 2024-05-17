@@ -11,26 +11,26 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var guildUser = jsonModel.GuildUser;
         if (guildUser is null)
-        {
-            Author = new(jsonModel.Author, client);
-            MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u => new User(u, client));
-        }
+            Author = new(jsonModel.Author!, client);
         else
         {
-            var guildId = jsonModel.GuildId.GetValueOrDefault();
-            guildUser.User = jsonModel.Author;
-            Author = new GuildUser(guildUser, guildId, client);
-            MentionedUsers = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u =>
-            {
-                var guildUser = u.GuildUser!;
-                guildUser.User = u;
-                return (User)new GuildUser(guildUser, guildId, client);
-            });
+            guildUser.User = jsonModel.Author!;
+            Author = new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
         }
 
+        MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u =>
+        {
+            var guildUser = u.GuildUser;
+            if (guildUser is null)
+                return new User(u, client);
+
+            guildUser.User = u;
+            return new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
+        });
+
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
-        Attachments = jsonModel.Attachments.ToDictionary(a => a.Id, Attachment.CreateFromJson);
-        Embeds = jsonModel.Embeds.Select(e => new Embed(e)).ToArray();
+        Attachments = jsonModel.Attachments!.ToDictionary(a => a.Id, Attachment.CreateFromJson);
+        Embeds = jsonModel.Embeds!.Select(e => new Embed(e)).ToArray();
         Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
         var activity = jsonModel.Activity;
@@ -51,7 +51,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var interactionMetadata = jsonModel.InteractionMetadata;
         if (interactionMetadata is not null)
-            InteractionMetadata = new(interactionMetadata);
+            InteractionMetadata = new(interactionMetadata, client);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         var interaction = jsonModel.Interaction;
@@ -81,19 +81,17 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
     public User Author { get; }
 
-    public string Content => _jsonModel.Content;
-
-    //public DateTimeOffset CreatedAt => _jsonModel.CreatedAt;
+    public string Content => _jsonModel.Content!;
 
     public DateTimeOffset? EditedAt => _jsonModel.EditedAt;
 
-    public bool IsTts => _jsonModel.IsTts;
+    public bool IsTts => _jsonModel.IsTts.GetValueOrDefault();
 
-    public bool MentionEveryone => _jsonModel.MentionEveryone;
+    public bool MentionEveryone => _jsonModel.MentionEveryone.GetValueOrDefault();
 
     public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
 
-    public IReadOnlyList<ulong> MentionedRoleIds => _jsonModel.MentionedRoleIds;
+    public IReadOnlyList<ulong> MentionedRoleIds => _jsonModel.MentionedRoleIds!;
 
     public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
 
@@ -105,11 +103,11 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
     public string? Nonce => _jsonModel.Nonce;
 
-    public bool IsPinned => _jsonModel.IsPinned;
+    public bool IsPinned => _jsonModel.IsPinned.GetValueOrDefault();
 
     public ulong? WebhookId => _jsonModel.WebhookId;
 
-    public MessageType Type => _jsonModel.Type;
+    public MessageType Type => _jsonModel.Type.GetValueOrDefault();
 
     public MessageActivity? Activity { get; }
 
@@ -122,6 +120,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
 
     public RestMessage? ReferencedMessage { get; }
+
     public MessageInteractionMetadata? InteractionMetadata { get; }
 
     [Obsolete($"Replaced by '{nameof(InteractionMetadata)}'")]

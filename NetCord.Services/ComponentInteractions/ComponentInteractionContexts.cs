@@ -308,12 +308,12 @@ public class HttpChannelMenuInteractionContext : BaseChannelMenuInteractionConte
     public IReadOnlyList<Channel> SelectedChannels { get; }
 }
 
-public class BaseModalSubmitInteractionContext(ModalInteraction interaction) : ComponentInteractionContext(interaction)
+public class BaseModalInteractionContext(ModalInteraction interaction) : ComponentInteractionContext(interaction)
 {
     public override ModalInteraction Interaction { get; } = interaction;
 }
 
-public class ModalSubmitInteractionContext(ModalInteraction interaction, GatewayClient client) : BaseModalSubmitInteractionContext(interaction), IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
+public class ModalInteractionContext(ModalInteraction interaction, GatewayClient client) : BaseModalInteractionContext(interaction), IGatewayClientContext, IUserContext, IGuildContext, IChannelContext
 {
     public GatewayClient Client { get; } = client;
     public User User => Interaction.User;
@@ -322,7 +322,7 @@ public class ModalSubmitInteractionContext(ModalInteraction interaction, Gateway
     public IReadOnlyList<TextInput> Components => Interaction.Data.Components;
 }
 
-public class HttpModalSubmitInteractionContext(ModalInteraction interaction, RestClient client) : BaseModalSubmitInteractionContext(interaction), IRestClientContext, IUserContext, IChannelContext
+public class HttpModalInteractionContext(ModalInteraction interaction, RestClient client) : BaseModalInteractionContext(interaction), IRestClientContext, IUserContext, IChannelContext
 {
     public RestClient Client { get; } = client;
     public User User => Interaction.User;

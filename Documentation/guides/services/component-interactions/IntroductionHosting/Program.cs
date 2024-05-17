@@ -14,7 +14,7 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
     .UseComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
     .UseComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .UseComponentInteractions<ModalInteraction, ModalSubmitInteractionContext>();
+    .UseComponentInteractions<ModalInteraction, ModalInteractionContext>();
 
 var host = builder.Build()
     .AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!")
@@ -23,7 +23,7 @@ var host = builder.Build()
     .AddComponentInteraction<RoleMenuInteractionContext>("role", (RoleMenuInteractionContext context) => string.Join("\n", context.SelectedRoles))
     .AddComponentInteraction<MentionableMenuInteractionContext>("mentionable", (MentionableMenuInteractionContext context) => string.Join("\n", context.SelectedMentionables))
     .AddComponentInteraction<ChannelMenuInteractionContext>("channel", (ChannelMenuInteractionContext context) => string.Join("\n", context.SelectedChannels))
-    .AddComponentInteraction<ModalSubmitInteractionContext>("modal", (ModalSubmitInteractionContext context) => context.Components[0].Value)
+    .AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => context.Components[0].Value)
     .AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();
 
