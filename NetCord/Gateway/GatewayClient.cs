@@ -638,7 +638,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// An unknown event.
     /// </summary>
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
-    
+
     #endregion
 
     /// <summary>
