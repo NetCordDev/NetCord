@@ -1088,7 +1088,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             UnhookEvent(_messageUpdateLock, value, ref _messageUpdate, (c, e) => c.MessageUpdate -= e);
         }
     }
-    private Func<GatewayClient, Message, ValueTask>? _messageUpdate;
+    private Func<GatewayClient, IPartialMessage, ValueTask>? _messageUpdate;
     private readonly object _messageUpdateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageDelete"/>
