@@ -867,7 +867,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private readonly object _guildUserChunkLock = new();
 
     /// <inheritdoc cref="GatewayClient.RoleCreate"/>
-    public event Func<GatewayClient, RoleEventArgs, ValueTask>? RoleCreate
+    public event Func<GatewayClient, Role, ValueTask>? RoleCreate
     {
         add
         {
@@ -878,11 +878,11 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             UnhookEvent(_roleCreateLock, value, ref _roleCreate, (c, e) => c.RoleCreate -= e);
         }
     }
-    private Func<GatewayClient, RoleEventArgs, ValueTask>? _roleCreate;
+    private Func<GatewayClient, Role, ValueTask>? _roleCreate;
     private readonly object _roleCreateLock = new();
 
     /// <inheritdoc cref="GatewayClient.RoleUpdate"/>
-    public event Func<GatewayClient, RoleEventArgs, ValueTask>? RoleUpdate
+    public event Func<GatewayClient, Role, ValueTask>? RoleUpdate
     {
         add
         {
@@ -893,7 +893,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             UnhookEvent(_roleUpdateLock, value, ref _roleUpdate, (c, e) => c.RoleUpdate -= e);
         }
     }
-    private Func<GatewayClient, RoleEventArgs, ValueTask>? _roleUpdate;
+    private Func<GatewayClient, Role, ValueTask>? _roleUpdate;
     private readonly object _roleUpdateLock = new();
 
     /// <inheritdoc cref="GatewayClient.RoleDelete"/>
@@ -1077,7 +1077,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private readonly object _messageCreateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageUpdate"/>
-    public event Func<GatewayClient, Message, ValueTask>? MessageUpdate
+    public event Func<GatewayClient, IPartialMessage, ValueTask>? MessageUpdate
     {
         add
         {
