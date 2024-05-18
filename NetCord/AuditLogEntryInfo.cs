@@ -7,7 +7,7 @@ public class AuditLogEntryInfo(JsonAuditLogEntryInfo jsonModel) : IJsonModel<Jso
     JsonAuditLogEntryInfo IJsonModel<JsonAuditLogEntryInfo>.JsonModel => jsonModel;
 
     /// <summary>
-    /// Id of the app whose permissions were targeted.
+    /// ID of the app whose permissions were targeted.
     /// </summary>
     public ulong? ApplicationId => jsonModel.ApplicationId;
 
@@ -37,7 +37,7 @@ public class AuditLogEntryInfo(JsonAuditLogEntryInfo jsonModel) : IJsonModel<Jso
     public int? DeleteGuildUserDays => jsonModel.DeleteGuildUserDays;
 
     /// <summary>
-    /// Id of the overwritten entity.
+    /// ID of the overwritten entity.
     /// </summary>
     public ulong? Id => jsonModel.Id;
 
@@ -47,7 +47,7 @@ public class AuditLogEntryInfo(JsonAuditLogEntryInfo jsonModel) : IJsonModel<Jso
     public int? GuildUsersRemoved => jsonModel.GuildUsersRemoved;
 
     /// <summary>
-    /// Id of the message that was targeted.
+    /// ID of the message that was targeted.
     /// </summary>
     public ulong? MessageId => jsonModel.MessageId;
 

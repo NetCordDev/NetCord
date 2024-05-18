@@ -5,13 +5,13 @@ namespace NetCord.Rest;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="id">Id of the role, user, or channel the permission is for. 'GuildId - 1' for all channels.</param>
+/// <param name="id">ID of the role, user, or channel the permission is for. 'GuildId - 1' for all channels.</param>
 /// <param name="type">Type of the permission.</param>
 /// <param name="permission"><see langword="true"/> to allow, <see langword="false"/>, to disallow.</param>
 public partial class ApplicationCommandGuildPermissionProperties(ulong id, ApplicationCommandGuildPermissionType type, bool permission)
 {
     /// <summary>
-    /// Id of the role, user, or channel the permission is for. 'GuildId - 1' for all channels.
+    /// ID of the role, user, or channel the permission is for. 'GuildId - 1' for all channels.
     /// </summary>
     [JsonPropertyName("id")]
     public ulong Id { get; set; } = id;

@@ -547,7 +547,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when a user's presence or info, such as their name or avatar, is updated. Requires the <see cref="GatewayIntents.GuildPresences"/> intent.
-    /// The user object within this event can be partial, with the id being the only required field, everything else is optional. Along with this limitation, no fields are required, and the types of the fields are <b>not validated</b>. You should expect <b>any</b> combination of fields and types within this event.<br/>
+    /// The user object within this event can be partial, with the ID being the only required field, everything else is optional. Along with this limitation, no fields are required, and the types of the fields are <b>not validated</b>. You should expect <b>any</b> combination of fields and types within this event.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildPresences"/>*
     /// <br/> Optional Intents: None
     /// <br/><br/>
@@ -652,7 +652,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public IGatewayClientCache Cache { get; private set; }
 
     /// <summary>
-    /// The session id of the <see cref="GatewayClient"/>.
+    /// The session ID of the <see cref="GatewayClient"/>.
     /// </summary>
     public string? SessionId { get; private set; }
 

@@ -5,11 +5,11 @@ namespace NetCord.Rest;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="id">Channel id.</param>
+/// <param name="id">Channel ID.</param>
 public partial class GuildChannelPositionProperties(ulong id)
 {
     /// <summary>
-    /// Channel id.
+    /// Channel ID.
     /// </summary>
     [JsonPropertyName("id")]
     public ulong Id { get; set; } = id;
@@ -29,7 +29,7 @@ public partial class GuildChannelPositionProperties(ulong id)
     public bool? LockPermissions { get; set; }
 
     /// <summary>
-    /// The new parent id for the channel that is moved.
+    /// The new parent ID for the channel that is moved.
     /// </summary>
     [JsonPropertyName("parent_id")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
