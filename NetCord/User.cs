@@ -29,12 +29,12 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     ///     </item>
     ///     <item>
     ///         <description>
-    ///         Usernames cannot contain the following substrings: <c>"@"</c>, <c>"#"</c>, <c>":"</c>, <c>"```"</c>, <c>"discord"</c>.
+    ///         Usernames cannot contain the following substrings: <c>@</c>, <c>#</c>, <c>:</c>, <c>```</c>, <c>discord</c>.
     ///         </description>
     ///     </item>
     ///     <item>
     ///         <description>
-    ///         Usernames cannot be: <c>"everyone"</c> or <c>"here"</c>.
+    ///         Usernames cannot be: <c>everyone</c> or <c>here</c>.
     ///         </description>
     ///     </item>
     /// </list>
@@ -155,8 +155,10 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public bool HasAvatar => AvatarHash is not null;
 
     /// <summary>
-    /// Returns an <see cref="ImageUrl"/> object representing the user's avatar.
+    /// Gets the <see cref="ImageUrl"/> of the user's avatar.
     /// </summary>
+    /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars) if <see langword="null"/>. </param>
+    /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
     public ImageUrl GetAvatarUrl(ImageFormat? format = null) => ImageUrl.UserAvatar(Id, AvatarHash!, format);
 
     /// <summary>
@@ -165,8 +167,10 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public bool HasBanner => BannerHash is not null;
 
     /// <summary>
-    /// Returns an <see cref="ImageUrl"/> object representing the user's banner.
+    /// Gets the <see cref="ImageUrl"/> of the user's banner.
     /// </summary>
+    /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners) if <see langword="null"/>. </param>
+    /// <returns> An <see cref="ImageUrl"/> pointing to the user's banner. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
     public ImageUrl GetBannerUrl(ImageFormat? format = null) => ImageUrl.UserBanner(Id, BannerHash!, format);
 
     /// <summary>
@@ -175,8 +179,9 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public bool HasAvatarDecoration => AvatarDecorationHash is not null;
 
     /// <summary>
-    /// Returns an <see cref="ImageUrl"/> object representing the user's avatar decoration.
+    /// Gets the <see cref="ImageUrl"/> of the user's avatar decoration URL.
     /// </summary>
+    /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar decoration. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
     public ImageUrl GetAvatarDecorationUrl() => ImageUrl.UserAvatarDecoration(Id, AvatarDecorationHash!);
 
     /// <summary>

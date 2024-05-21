@@ -12,7 +12,7 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     private protected new readonly JsonGuildUser _jsonModel = jsonModel;
 
     /// <summary>
-    /// This user's guild nickname.
+    /// The user's guild nickname.
     /// </summary>
     public string? Nickname => _jsonModel.Nickname;
 
@@ -22,7 +22,7 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
 
     /// <summary>
-    /// Array of role object ids.
+    /// An array of <see cref="ulong"/> IDs representing the user's current roles.
     /// </summary>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
 
@@ -37,7 +37,7 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
 
     /// <summary>
-    /// When the user started boosting the guild.
+    /// When the user started boosting the guild. <see langword="null"/> if the user has never boosted.
     /// </summary>
     public DateTimeOffset? GuildBoostStart => _jsonModel.GuildBoostStart;
 
@@ -52,17 +52,17 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public bool Muted => _jsonModel.Muted;
 
     /// <summary>
-    /// Guild member flags represented as a bit set, defaults to 0.
+    /// The user's current <see cref="GuildUserFlags"/>.
     /// </summary>
     public GuildUserFlags GuildFlags => _jsonModel.GuildFlags;
 
     /// <summary>
-    /// Whether the user has not yet passed the guild's Membership Screening requirements.
+    /// Whether the user has passed the guild's Membership Screening requirements.
     /// </summary>
     public bool? IsPending => _jsonModel.IsPending;
 
     /// <summary>
-    /// When the user's timeout will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out.
+    /// When the user's current timeout will expire, allowing them to communicate in the guild again. <see langword="null"/> or a time in the past if the user is not currently timed out.
     /// </summary>
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
 
