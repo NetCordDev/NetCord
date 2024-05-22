@@ -78,12 +78,12 @@ public enum MessageType
     GuildDiscoveryRequalified = 15,
 
     /// <summary>
-    /// Sent as intial warning during the grace period for Server Disovery disqualification.
+    /// Sent as intial warning during the grace period for Server Discovery disqualification.
     /// </summary>
     GuildDiscoveryGracePeriodInitialWarning = 16,
 
     /// <summary>
-    /// Sent as final warning during the grace period for Server Disovery disqualification.
+    /// Sent as final warning during the grace period for Server Discovery disqualification.
     /// </summary>
     GuildDiscoveryGracePeriodFinalWarning = 17,
 
