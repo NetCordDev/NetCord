@@ -14,13 +14,17 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     private protected readonly JsonModels.JsonUser _jsonModel = jsonModel;
 
     /// <summary>
-    /// The user's ID.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's ID.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
     /// The user's username, not unique across the platform. Restrictions:
+    /// </summary>
+    /// <remarks>
     /// <list type="bullet">
     ///     <item>
     ///         <description>
@@ -39,17 +43,21 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     ///     </item>
     /// </list>
     /// Requires the <c>identify</c> OAuth2 scope.
-    /// </summary>
+    /// </remarks>
     public string Username => _jsonModel.Username;
 
     /// <summary>
-    /// The user's Discord-tag.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's Discord-tag.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public ushort Discriminator => _jsonModel.Discriminator;
 
     /// <summary>
     /// The user's display name, if it is set. For bots, this is the application name. Restrictions:
+    /// </summary>
+    /// <remarks>
     /// <list type="bullet">
     ///     <item>
     ///         <description>
@@ -68,85 +76,111 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     ///     </item>
     /// </list>
     /// Requires the <c>identify</c> OAuth2 scope.
-    /// </summary>
+    /// </remarks>
     public string? GlobalName => _jsonModel.GlobalName;
 
     /// <summary>
-    /// The user's avatar hash.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's avatar hash.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public string? AvatarHash => _jsonModel.AvatarHash;
 
     /// <summary>
-    /// Whether the user belongs to an OAuth2 application.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// Whether the user belongs to an OAuth2 application.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public bool IsBot => _jsonModel.IsBot;
 
     /// <summary>
-    /// Whether the user is an Official Discord System user (part of the urgent message system).<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// Whether the user is an Official Discord System user (part of the urgent message system).
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public bool? IsSystemUser => _jsonModel.IsSystemUser;
 
     /// <summary>
-    /// Whether the user has two factor enabled on their account.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// Whether the user has two factor enabled on their account.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public bool? MfaEnabled => _jsonModel.MfaEnabled;
 
     /// <summary>
-    /// The user's banner hash.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's banner hash.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public string? BannerHash => _jsonModel.BannerHash;
 
     /// <summary>
-    /// The user's banner color encoded as an integer representation of hexadecimal color code.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's banner color encoded as an integer representation of hexadecimal color code.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public Color? AccentColor => _jsonModel.AccentColor;
 
     /// <summary>
-    /// The user's chosen language option.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's chosen language option.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public string? Locale => _jsonModel.Locale;
 
     /// <summary>
-    /// Whether the email on this account has been verified.<br/>
-    /// Requires the <c>email</c> OAuth2 scope.
+    /// Whether the email on this account has been verified.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>email</c> OAuth2 scope.
+    /// </remarks>
     public bool? Verified => _jsonModel.Verified;
 
     /// <summary>
-    /// The user's email.<br/>
-    /// Requires the <c>email</c> OAuth2 scope.
+    /// The user's email.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>email</c> OAuth2 scope.
+    /// </remarks>
     public string? Email => _jsonModel.Email;
 
     /// <summary>
-    /// The flags on a user's account.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The flags on a user's account.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public UserFlags? Flags => _jsonModel.Flags;
 
     /// <summary>
-    /// The type of Nitro subscription on a user's account.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The type of Nitro subscription on a user's account.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public PremiumType? PremiumType => _jsonModel.PremiumType;
 
     /// <summary>
-    /// The public flags on a user's account.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The public flags on a user's account.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public UserFlags? PublicFlags => _jsonModel.PublicFlags;
 
     /// <summary>
-    /// The user's avatar decoration hash.<br/>
-    /// Requires the <c>identify</c> OAuth2 scope.
+    /// The user's avatar decoration hash.
     /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
     public string? AvatarDecorationHash => _jsonModel.AvatarDecorationHash;
 
     /// <summary>
@@ -157,8 +191,8 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's avatar.
     /// </summary>
-    /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars) if <see langword="null"/>. </param>
-    /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's avatar. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetAvatarUrl(ImageFormat? format = null) => AvatarHash is string hash ? ImageUrl.UserAvatar(Id, hash, format) : null;
 
     /// <summary>
@@ -169,8 +203,8 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's banner.
     /// </summary>
-    /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners) if <see langword="null"/>. </param>
-    /// <returns> An <see cref="ImageUrl"/> pointing to the user's banner. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's banner. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetBannerUrl(ImageFormat? format = null) => BannerHash is string hash ? ImageUrl.UserBanner(Id, hash, format) : null;
 
     /// <summary>
@@ -181,7 +215,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's avatar decoration URL.
     /// </summary>
-    /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar decoration. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's avatar decoration. If the user does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetAvatarDecorationUrl() => AvatarDecorationHash is string hash ? ImageUrl.UserAvatarDecoration(Id, hash) : null;
 
     /// <summary>
