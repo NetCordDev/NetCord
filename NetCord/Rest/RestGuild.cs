@@ -4,8 +4,61 @@ using NetCord.Gateway;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Guilds in Discord represent an isolated collection of users and channels, and are often referred to as "servers" in the UI.
+/// </summary>
 public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
 {
+    public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
+        // <see cref="RestGuild"/> emojis always have Id
+        Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
+
+        var welcomeScreen = jsonModel.WelcomeScreen;
+        if (welcomeScreen is not null)
+            WelcomeScreen = new(welcomeScreen);
+    }
+    public int Compare(PartialGuildUser? x, PartialGuildUser? y)
+    {
+        if (ReferenceEquals(x, y))
+            return 0;
+
+        if (x is null)
+            return -1;
+
+        if (y is null)
+            return 1;
+
+        var (xId, yId) = (x.Id, y.Id);
+
+        if (xId == yId)
+            return 0;
+
+        var ownerId = OwnerId;
+        if (xId == ownerId)
+            return 1;
+
+        if (yId == ownerId)
+            return -1;
+
+        return GetHighestRolePosition(x).CompareTo(GetHighestRolePosition(y));
+
+        int GetHighestRolePosition(PartialGuildUser user)
+        {
+            int highestPosition = 0;
+            foreach (var role in user.GetRoles(this))
+            {
+                var position = role.Position;
+                if (position > highestPosition)
+                    highestPosition = position;
+            }
+
+            return highestPosition;
+        }
+    }
     NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
     internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
 
@@ -278,56 +331,4 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// The ID used for @everyone mentions.
     /// </summary>
     public Role EveryoneRole => Roles[Id];
-
-    public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-        Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
-        // <see cref="RestGuild"/> emojis always have Id
-        Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
-
-        var welcomeScreen = jsonModel.WelcomeScreen;
-        if (welcomeScreen is not null)
-            WelcomeScreen = new(welcomeScreen);
-    }
-
-    public int Compare(PartialGuildUser? x, PartialGuildUser? y)
-    {
-        if (ReferenceEquals(x, y))
-            return 0;
-
-        if (x is null)
-            return -1;
-
-        if (y is null)
-            return 1;
-
-        var (xId, yId) = (x.Id, y.Id);
-
-        if (xId == yId)
-            return 0;
-
-        var ownerId = OwnerId;
-        if (xId == ownerId)
-            return 1;
-
-        if (yId == ownerId)
-            return -1;
-
-        return GetHighestRolePosition(x).CompareTo(GetHighestRolePosition(y));
-
-        int GetHighestRolePosition(PartialGuildUser user)
-        {
-            int highestPosition = 0;
-            foreach (var role in user.GetRoles(this))
-            {
-                var position = role.Position;
-                if (position > highestPosition)
-                    highestPosition = position;
-            }
-
-            return highestPosition;
-        }
-    }
 }
