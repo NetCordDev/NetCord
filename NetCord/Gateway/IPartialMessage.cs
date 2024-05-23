@@ -3,6 +3,9 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
+/// <summary>
+/// Represents an incomplete <see cref="Message"/> object, with missing fields. Sent during <see cref="GatewayClient.MessageUpdate"/> events.
+/// </summary>
 public partial interface IPartialMessage : IEntity
 {
     public static IPartialMessage CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
@@ -45,73 +48,113 @@ public partial interface IPartialMessage : IEntity
         return (guild, channel);
     }
 
+    /// <summary>
+    /// The ID of the <see cref="Gateway.Guild"/> the message belongs to.
+    /// </summary>
     public ulong? GuildId { get; }
 
+    /// <summary>
+    /// The <see cref="Gateway.Guild"/> the message belongs to.
+    /// </summary>
     public Guild? Guild { get; }
 
+    /// <summary>
+    /// The <see cref="TextChannel"/> the message was sent in.
+    /// </summary>
     public TextChannel? Channel { get; }
 
+    /// <inheritdoc cref="RestMessage.ChannelId"/>
     public ulong ChannelId { get; }
 
+    /// <inheritdoc cref="RestMessage.Author"/>
     public User? Author { get; }
 
+    /// <inheritdoc cref="RestMessage.Content"/>
     public string? Content { get; }
 
+    /// <inheritdoc cref="RestMessage.EditedAt"/>
     public DateTimeOffset? EditedAt { get; }
 
+    /// <inheritdoc cref="RestMessage.IsTts"/>
     public bool? IsTts { get; }
 
+    /// <inheritdoc cref="RestMessage.MentionEveryone"/>
     public bool? MentionEveryone { get; }
 
+    /// <inheritdoc cref="RestMessage.MentionedUsers"/>
     public IReadOnlyDictionary<ulong, User>? MentionedUsers { get; }
 
+    /// <inheritdoc cref="RestMessage.MentionedRoleIds"/>
     public IReadOnlyList<ulong>? MentionedRoleIds { get; }
 
+    /// <inheritdoc cref="RestMessage.MentionedChannels"/>
     public IReadOnlyDictionary<ulong, GuildChannelMention>? MentionedChannels { get; }
 
+    /// <inheritdoc cref="RestMessage.Attachments"/>
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
+    /// <inheritdoc cref="RestMessage.Embeds"/>
     public IReadOnlyList<Embed>? Embeds { get; }
 
+    /// <inheritdoc cref="RestMessage.Reactions"/>
     public IReadOnlyList<MessageReaction>? Reactions { get; }
 
+    /// <inheritdoc cref="RestMessage.Nonce"/>
     public string? Nonce { get; }
 
+    /// <inheritdoc cref="RestMessage.IsPinned"/>
     public bool? IsPinned { get; }
 
+    /// <inheritdoc cref="RestMessage.WebhookId"/>
     public ulong? WebhookId { get; }
 
+    /// <inheritdoc cref="RestMessage.Type"/>
     public MessageType? Type { get; }
 
+    /// <inheritdoc cref="RestMessage.Activity"/>
     public MessageActivity? Activity { get; }
 
+    /// <inheritdoc cref="RestMessage.Application"/>
     public Application? Application { get; }
 
+    /// <inheritdoc cref="RestMessage.ApplicationId"/>
     public ulong? ApplicationId { get; }
 
+    /// <inheritdoc cref="RestMessage.MessageReference"/>
     public MessageReference? MessageReference { get; }
 
+    /// <inheritdoc cref="RestMessage.Flags"/>
     public MessageFlags? Flags { get; }
 
+    /// <inheritdoc cref="RestMessage.ReferencedMessage"/>
     public RestMessage? ReferencedMessage { get; }
 
+    /// <inheritdoc cref="RestMessage.InteractionMetadata"/>
     public MessageInteractionMetadata? InteractionMetadata { get; }
 
+    /// <inheritdoc cref="RestMessage.Interaction"/>
     [Obsolete($"Replaced by '{nameof(InteractionMetadata)}'")]
     public MessageInteraction? Interaction { get; }
 
+    /// <inheritdoc cref="RestMessage.StartedThread"/>
     public GuildThread? StartedThread { get; }
 
+    /// <inheritdoc cref="RestMessage.Components"/>
     public IReadOnlyList<IMessageComponent>? Components { get; }
 
+    /// <inheritdoc cref="RestMessage.Stickers"/>
     public IReadOnlyDictionary<ulong, MessageSticker>? Stickers { get; }
 
+    /// <inheritdoc cref="RestMessage.Position"/>
     public int? Position { get; }
 
+    /// <inheritdoc cref="RestMessage.RoleSubscriptionData"/>
     public RoleSubscriptionData? RoleSubscriptionData { get; }
 
+    /// <inheritdoc cref="RestMessage.ResolvedData"/>
     public InteractionResolvedData? ResolvedData { get; }
 
+    /// <inheritdoc cref="RestMessage.ReplyAsync(ReplyMessageProperties, RestRequestProperties?)"/>
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null);
 }
 
