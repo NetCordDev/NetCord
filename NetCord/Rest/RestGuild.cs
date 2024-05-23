@@ -9,6 +9,9 @@ namespace NetCord.Rest;
 /// </summary>
 public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
 {
+    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
+    internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
+    
     public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
@@ -59,8 +62,6 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
             return highestPosition;
         }
     }
-    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
 
     /// <summary>
     /// The <see cref="RestGuild"/>'s ID.
