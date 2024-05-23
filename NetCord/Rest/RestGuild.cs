@@ -5,7 +5,7 @@ using NetCord.Gateway;
 namespace NetCord.Rest;
 
 /// <summary>
-/// Guilds in Discord represent an isolated collection of users and channels, and are often referred to as "servers" in the UI.
+/// Represents an isolated collection of users and channels, often referred to as a server in the UI.
 /// </summary>
 public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
 {
