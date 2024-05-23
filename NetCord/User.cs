@@ -159,7 +159,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// </summary>
     /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars) if <see langword="null"/>. </param>
     /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
-    public ImageUrl GetAvatarUrl(ImageFormat? format = null) => ImageUrl.UserAvatar(Id, AvatarHash!, format);
+    public ImageUrl? GetAvatarUrl(ImageFormat? format = null) => AvatarHash is string hash ? ImageUrl.UserAvatar(Id, hash, format) : null;
 
     /// <summary>
     /// Whether the user has a set custom banner image.
@@ -171,7 +171,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// </summary>
     /// <param name="format"> The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners) if <see langword="null"/>. </param>
     /// <returns> An <see cref="ImageUrl"/> pointing to the user's banner. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
-    public ImageUrl GetBannerUrl(ImageFormat? format = null) => ImageUrl.UserBanner(Id, BannerHash!, format);
+    public ImageUrl? GetBannerUrl(ImageFormat? format = null) => BannerHash is string hash ? ImageUrl.UserBanner(Id, hash, format) : null;
 
     /// <summary>
     /// Whether the user has a set avatar decoration.
@@ -182,7 +182,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// Gets the <see cref="ImageUrl"/> of the user's avatar decoration URL.
     /// </summary>
     /// <returns> An <see cref="ImageUrl"/> pointing to the user's avatar decoration. If the user does not have one set, the <see cref="ImageUrl"/> will be invalid. </returns>
-    public ImageUrl GetAvatarDecorationUrl() => ImageUrl.UserAvatarDecoration(Id, AvatarDecorationHash!);
+    public ImageUrl? GetAvatarDecorationUrl() => AvatarDecorationHash is string hash ? ImageUrl.UserAvatarDecoration(Id, hash) : null;
 
     /// <summary>
     /// Returns an <see cref="ImageUrl"/> object representing the user's default avatar.

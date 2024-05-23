@@ -22,7 +22,7 @@ public class ImageUrl : ISpanFormattable
         if (string.IsNullOrEmpty(format))
             return _url;
 
-        if (IsSizetValid(format))
+        if (IsSizeValid(format))
             return $"{_url}?size={format}";
 
         throw new FormatException("Format specifier was invalid.");
@@ -43,7 +43,7 @@ public class ImageUrl : ISpanFormattable
             return true;
         }
 
-        if (IsSizetValid(format))
+        if (IsSizeValid(format))
         {
             var url = _url;
             var requiredLength = url.Length + format.Length + 6;
@@ -64,7 +64,7 @@ public class ImageUrl : ISpanFormattable
         throw new FormatException("Format specifier was invalid.");
     }
 
-    private protected virtual bool IsSizetValid(ReadOnlySpan<char> format)
+    private protected virtual bool IsSizeValid(ReadOnlySpan<char> format)
     {
         for (int i = 0; i < format.Length; i++)
         {
@@ -253,6 +253,6 @@ public class ImageUrl : ISpanFormattable
             throw new NotSupportedException("Guild widgets do not support setting size.");
         }
 
-        private protected override bool IsSizetValid(ReadOnlySpan<char> format) => false;
+        private protected override bool IsSizeValid(ReadOnlySpan<char> format) => false;
     }
 }
