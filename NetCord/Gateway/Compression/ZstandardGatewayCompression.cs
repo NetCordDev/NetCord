@@ -1,15 +1,15 @@
-﻿using static NetCord.Gateway.Compression.ZStandard;
+﻿using static NetCord.Gateway.Compression.Zstandard;
 
 namespace NetCord.Gateway.Compression;
 
-public sealed partial class ZStandardGatewayCompression : IGatewayCompression
+public sealed partial class ZstandardGatewayCompression : IGatewayCompression
 {
     private const int DefaultBufferSize = 8192;
 
     private readonly RentedArrayBufferWriter<byte> _writer;
     private readonly DStreamHandle _zstdStream;
 
-    public ZStandardGatewayCompression()
+    public ZstandardGatewayCompression()
     {
         _writer = new(DefaultBufferSize);
         _zstdStream = CreateDStream();
@@ -26,7 +26,7 @@ public sealed partial class ZStandardGatewayCompression : IGatewayCompression
         int inLength = inBuffer.Length;
         fixed (byte* ptrIn = inBuffer)
         {
-            ZStandard.Buffer input = new()
+            Zstandard.Buffer input = new()
             {
                 Ptr = ptrIn,
                 Size = (nuint)inLength,
@@ -36,7 +36,7 @@ public sealed partial class ZStandardGatewayCompression : IGatewayCompression
             {
                 var outBuffer = writer.GetSpan();
                 int outLength = outBuffer.Length;
-                ZStandard.Buffer output;
+                Zstandard.Buffer output;
                 nuint result;
 
                 fixed (byte* ptrOut = outBuffer)
@@ -51,7 +51,7 @@ public sealed partial class ZStandardGatewayCompression : IGatewayCompression
                 }
 
                 if (IsError(result))
-                    throw new ZStandardException(result);
+                    throw new ZstandardException(result);
 
                 writer.Advance((int)output.Pos);
 

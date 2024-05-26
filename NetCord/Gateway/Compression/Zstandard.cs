@@ -2,11 +2,11 @@
 
 namespace NetCord.Gateway.Compression;
 
-internal static partial class ZStandard
+internal static partial class Zstandard
 {
     public static bool TryLoad()
     {
-        return NativeLibrary.TryLoad("libzstd", typeof(ZStandard).Assembly, null, out _);
+        return NativeLibrary.TryLoad("libzstd", typeof(Zstandard).Assembly, null, out _);
     }
 
     [LibraryImport("libzstd", EntryPoint = "ZSTD_isError")]

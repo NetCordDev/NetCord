@@ -4,7 +4,7 @@ public interface IGatewayCompression : IDisposable
 {
     internal static IGatewayCompression CreateDefault()
     {
-        return ZStandard.TryLoad() ? new ZStandardGatewayCompression() : new ZLibGatewayCompression();
+        return Zstandard.TryLoad() ? new ZstandardGatewayCompression() : new ZLibGatewayCompression();
     }
 
     public string Name { get; }
