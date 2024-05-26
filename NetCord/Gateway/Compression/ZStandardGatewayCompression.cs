@@ -73,6 +73,6 @@ public sealed partial class ZStandardGatewayCompression : IGatewayCompression
     public void Dispose()
     {
         _writer.Dispose();
-        _zstdStream?.Dispose();
+        _zstdStream.Dispose();
     }
 }
