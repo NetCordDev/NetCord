@@ -1,6 +1,6 @@
 ﻿using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
-using NetCord.Gateway.ReconnectTimers;
+using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway;
@@ -8,7 +8,7 @@ namespace NetCord.Gateway;
 public class ShardedGatewayClientConfiguration
 {
     public Func<Shard, IWebSocket?>? WebSocketFactory { get; init; }
-    public Func<Shard, IReconnectTimer?>? ReconnectTimerFactory { get; init; }
+    public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; init; }
     public Func<Shard, ILatencyTimer?>? LatencyTimerFactory { get; init; }
     public Func<Shard, ApiVersion>? VersionFactory { get; init; }
     public Func<Shard, IGatewayClientCache?>? CacheFactory { get; init; }

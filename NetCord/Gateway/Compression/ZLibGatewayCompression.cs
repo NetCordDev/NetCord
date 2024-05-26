@@ -29,9 +29,9 @@ public sealed class ZLibGatewayCompression : IGatewayCompression
         while ((bytesRead = zLibStream.Read(writer.GetSpan())) != 0)
             writer.Advance(bytesRead);
 
-        var result = writer.WrittenMemory;
+        var written = writer.WrittenMemory;
         writer.Clear();
-        return result;
+        return written;
     }
 
     public void Initialize()

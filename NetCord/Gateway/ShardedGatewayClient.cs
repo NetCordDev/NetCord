@@ -32,7 +32,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             return new()
             {
                 WebSocketFactory = _ => null,
-                ReconnectTimerFactory = _ => null,
+                ReconnectStrategyFactory = _ => null,
                 LatencyTimerFactory = _ => null,
                 VersionFactory = _ => ApiVersion.V10,
                 CacheFactory = _ => null,
@@ -50,7 +50,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         return new()
         {
             WebSocketFactory = configuration.WebSocketFactory ?? (_ => null),
-            ReconnectTimerFactory = configuration.ReconnectTimerFactory ?? (_ => null),
+            ReconnectStrategyFactory = configuration.ReconnectStrategyFactory ?? (_ => null),
             LatencyTimerFactory = configuration.LatencyTimerFactory ?? (_ => null),
             VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
             CacheFactory = configuration.CacheFactory ?? (_ => null),
@@ -220,7 +220,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         return new()
         {
             WebSocket = configuration.WebSocketFactory!(shard),
-            ReconnectTimer = configuration.ReconnectTimerFactory!(shard),
+            ReconnectStrategy = configuration.ReconnectStrategyFactory!(shard),
             LatencyTimer = configuration.LatencyTimerFactory!(shard),
             Version = configuration.VersionFactory!(shard),
             Cache = configuration.CacheFactory!(shard),
