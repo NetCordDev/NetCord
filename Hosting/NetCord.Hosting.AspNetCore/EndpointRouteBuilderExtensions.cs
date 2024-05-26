@@ -13,7 +13,7 @@ namespace NetCord.Hosting.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {
-    public static IEndpointRouteBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
+    public static IEndpointConventionBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
         var publicKey = endpoints.ServiceProvider.GetRequiredService<IOptions<IDiscordOptions>>().Value.PublicKey ?? throw new InvalidOperationException($"'{nameof(IDiscordOptions.PublicKey)}' must be set.");
         HttpInteractionValidator validator = new(publicKey);
@@ -25,11 +25,9 @@ public static class EndpointRouteBuilderExtensions
 
         var routePattern = RoutePatternHelper.ParseLiteral(pattern);
 
-        endpoints
+        return endpoints
             .Map(routePattern, context => HandleRequestAsync(context, validator, handlers, tasks, client))
             .WithMetadata(new HttpMethodMetadata([HttpMethods.Post]));
-
-        return endpoints;
     }
 
     private static async Task HandleRequestAsync(HttpContext context, HttpInteractionValidator validator, IHttpInteractionHandler[] handlers, ValueTask[] tasks, RestClient client)
