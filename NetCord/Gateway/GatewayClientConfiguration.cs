@@ -5,7 +5,7 @@ using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway;
 
-public class GatewayClientConfiguration
+public class GatewayClientConfiguration : IWebSocketClientConfiguration
 {
     public IWebSocket? WebSocket { get; init; }
     public IReconnectStrategy? ReconnectStrategy { get; init; }

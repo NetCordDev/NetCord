@@ -689,7 +689,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         _disposeRest = true;
     }
 
-    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectStrategy, configuration.LatencyTimer)
+    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration ??= new())
     {
         Token = token;
 

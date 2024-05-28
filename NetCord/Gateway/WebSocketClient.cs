@@ -12,11 +12,9 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
-    private protected WebSocketClient(IWebSocket? webSocket, IReconnectStrategy? reconnectStrategy, ILatencyTimer? latencyTimer)
+    private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        webSocket ??= new WebSocket();
-        reconnectStrategy ??= new ReconnectStrategy();
-        latencyTimer ??= new LatencyTimer();
+        var webSocket = configuration.WebSocket ?? new WebSocket();
 
         webSocket.Connecting += HandleConnecting;
         webSocket.Connected += HandleConnected;
@@ -25,8 +23,8 @@ public abstract class WebSocketClient : IDisposable
         webSocket.MessageReceived += HandleMessageReceived;
 
         _webSocket = webSocket;
-        _reconnectStrategy = reconnectStrategy;
-        _latencyTimer = latencyTimer;
+        _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
+        _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
     }
 
     private readonly object _eventsLock = new();
