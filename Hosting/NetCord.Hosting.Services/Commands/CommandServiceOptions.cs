@@ -10,6 +10,8 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
 {
     public CommandServiceConfiguration<TContext> Configuration { get; set; } = CommandServiceConfiguration<TContext>.Default;
 
+    public bool UseScopes { get; set; } = true;
+
     public string? Prefix { get; set; }
 
     public IReadOnlyList<string>? Prefixes { get; set; }
