@@ -371,7 +371,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
     /// <summary>
-    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
+    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: None
