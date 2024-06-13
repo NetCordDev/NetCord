@@ -5,6 +5,10 @@
     <b>The modern and fully customizable C# Discord library</b>
 </p>
 
+<p align="center">
+    ⭐ If you like this project, please consider giving it a star! ⭐
+</p>
+
 # Table of Contents
 
 1. [📦 Installation](#1--installation)
@@ -59,6 +63,9 @@ await host.RunAsync();
 ```
 
 ## 3. 🎨 Features
+
+### Fully customizable
+xddd
 
 - **Fully customizable** - NetCord is fully customizable and extensible
 - **Easy to use** - NetCord is easy to use and understand
