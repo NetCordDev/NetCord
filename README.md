@@ -64,9 +64,6 @@ await host.RunAsync();
 
 ## 3. 🎨 Features
 
-### Fully customizable
-xddd
-
 - **Fully customizable** - NetCord is fully customizable and extensible
 - **Easy to use** - NetCord is easy to use and understand
 - **Lightweight** - NetCord is lightweight and performant
