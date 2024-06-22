@@ -5,6 +5,10 @@
     <b>The modern and fully customizable C# Discord library</b>
 </p>
 
+<p align="center">
+    ⭐ If you like this project, please consider giving it a star! ⭐
+</p>
+
 # Table of Contents
 
 1. [📦 Installation](#1--installation)
