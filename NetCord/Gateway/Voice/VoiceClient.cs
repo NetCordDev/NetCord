@@ -32,16 +32,17 @@ public class VoiceClient : WebSocketClient
     /// </summary>
     public IVoiceClientCache Cache { get; private set; }
 
+    private protected override Uri Uri { get; }
+
     private readonly Dictionary<uint, Stream> _inputStreams = [];
-    private readonly Uri _url;
     private readonly IUdpSocket _udpSocket;
     private readonly IVoiceEncryption _encryption;
 
-    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base((configuration ??= new()).WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
+    public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base(configuration ??= new())
     {
         UserId = userId;
         SessionId = sessionId;
-        _url = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version}", UriKind.Absolute);
+        Uri = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version}", UriKind.Absolute);
         GuildId = guildId;
         Token = token;
 
@@ -51,45 +52,48 @@ public class VoiceClient : WebSocketClient
         RedirectInputStreams = configuration.RedirectInputStreams;
     }
 
-    private ValueTask SendIdentifyAsync()
+    private ValueTask SendIdentifyAsync(CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload, cancellationToken);
     }
 
     /// <summary>
     /// Starts the <see cref="VoiceClient"/>.
     /// </summary>
     /// <returns></returns>
-    public async Task StartAsync()
+    public async new Task StartAsync(CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(_url).ConfigureAwait(false);
-        await SendIdentifyAsync().ConfigureAwait(false);
+        await base.StartAsync(cancellationToken).ConfigureAwait(false);
+        await SendIdentifyAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
     /// Resumes a session.
     /// </summary>
     /// <returns></returns>
-    public Task ResumeAsync() => TryResumeAsync();
+    public async Task ResumeAsync(CancellationToken cancellationToken = default)
+    {
+        await ConnectAsync(cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(cancellationToken).ConfigureAwait(false);
+    }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
 
-    private protected override async Task TryResumeAsync()
+    private protected override ValueTask TryResumeAsync(CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(_url).ConfigureAwait(false);
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
-        await SendPayloadAsync(serializedPayload).ConfigureAwait(false);
+        return SendPayloadAsync(serializedPayload, cancellationToken);
     }
 
-    private protected override ValueTask HeartbeatAsync()
+    private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(Serialization.Default.VoicePayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload, cancellationToken);
     }
 
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)
@@ -99,7 +103,6 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.Ready:
                 {
                     var latency = _latencyTimer.Elapsed;
-                    _reconnectTimer.Reset();
                     await UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
                     var ssrc = ready.Ssrc;
@@ -186,13 +189,12 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    _ = HeartbeatAsync(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                    StartHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:
                 {
                     var latency = _latencyTimer.Elapsed;
-                    _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     await InvokeResumeEventAsync().ConfigureAwait(false);
@@ -238,10 +240,10 @@ public class VoiceClient : WebSocketClient
         }
     }
 
-    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0)
+    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0, CancellationToken cancellationToken = default)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Cache.Ssrc));
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties));
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), cancellationToken);
     }
 
     /// <summary>

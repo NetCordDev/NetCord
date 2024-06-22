@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
@@ -9,43 +10,86 @@ using NetCord.Services.ApplicationCommands;
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
 [GatewayEvent(nameof(GatewayClient.InteractionCreate))]
-internal class ApplicationCommandInteractionHandler<TInteraction, TContext> : IGatewayEventHandler<Interaction>, IShardedGatewayEventHandler<Interaction>, IHttpInteractionHandler where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
+internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction, TContext> : IGatewayEventHandler<Interaction>, IShardedGatewayEventHandler<Interaction>, IHttpInteractionHandler where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
 {
-    private readonly IServiceProvider _services;
-    private readonly ILogger<ApplicationCommandInteractionHandler<TInteraction, TContext>> _logger;
+    private IServiceProvider Services { get; }
+
+    private readonly ILogger _logger;
     private readonly ApplicationCommandService<TContext> _applicationCommandService;
-    private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? _createContext;
+    private readonly IServiceScopeFactory? _scopeFactory;
+    private readonly delegate*<ApplicationCommandInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
+    private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
     private readonly Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
     private readonly GatewayClient? _client;
 
-    public ApplicationCommandInteractionHandler(IServiceProvider services, ILogger<ApplicationCommandInteractionHandler<TInteraction, TContext>> logger, ApplicationCommandService<TContext> applicationCommandService, IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>> options, GatewayClient? client = null)
+    public ApplicationCommandInteractionHandler(IServiceProvider services,
+                                                ILogger<ApplicationCommandInteractionHandler<TInteraction, TContext>> logger,
+                                                ApplicationCommandService<TContext> applicationCommandService,
+                                                IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>> options,
+                                                GatewayClient? client = null)
     {
-        _services = services;
+        Services = services;
+
         _logger = logger;
         _applicationCommandService = applicationCommandService;
 
         var optionsValue = options.Value;
+
+        if (optionsValue.UseScopes)
+        {
+            _scopeFactory = services.GetService<IServiceScopeFactory>() ?? throw new InvalidOperationException($"'{nameof(IServiceScopeFactory)}' is not registered in the '{nameof(IServiceProvider)}', but it is required for using scopes.");
+            _handleAsync = &HandleInteractionWithScopeAsync;
+        }
+        else
+            _handleAsync = &HandleInteractionAsync;
+
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>();
         _handleResultAsync = optionsValue.HandleResultAsync;
         _client = client;
     }
 
-    public ValueTask HandleAsync(Interaction interaction) => HandleInteractionAsync(interaction, _client);
+    public ValueTask HandleAsync(Interaction interaction) => _handleAsync(this, interaction, _client);
 
-    public ValueTask HandleAsync(GatewayClient client, Interaction interaction) => HandleInteractionAsync(interaction, client);
+    public ValueTask HandleAsync(GatewayClient client, Interaction interaction) => _handleAsync(this, interaction, client);
+}
 
-    private async ValueTask HandleInteractionAsync(Interaction interaction, GatewayClient? client)
+internal partial class ApplicationCommandInteractionHandler<TInteraction, TContext>
+{
+    private AsyncServiceScope CreateAsyncScope() => _scopeFactory!.CreateAsyncScope();
+
+    private static async ValueTask HandleInteractionWithScopeAsync(ApplicationCommandInteractionHandler<TInteraction, TContext> handler, Interaction interaction, GatewayClient? client)
     {
         if (interaction is not TInteraction tInteraction)
             return;
 
-        var services = _services;
-        var context = _createContext!(tInteraction, client, services);
+        var scope = handler.CreateAsyncScope();
+
+        try
+        {
+            await handler.HandleInteractionAsyncCore(tInteraction, client, scope.ServiceProvider).ConfigureAwait(false);
+        }
+        finally
+        {
+            await scope.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+    private static ValueTask HandleInteractionAsync(ApplicationCommandInteractionHandler<TInteraction, TContext> handler, Interaction interaction, GatewayClient? client)
+    {
+        if (interaction is not TInteraction tInteraction)
+            return default;
+
+        return handler.HandleInteractionAsyncCore(tInteraction, client, handler.Services);
+    }
+
+    private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
+    {
+        var context = _createContext(interaction, client, services);
         var result = await _applicationCommandService.ExecuteAsync(context, services).ConfigureAwait(false);
 
         try
         {
-            await _handleResultAsync(result, tInteraction, client, _logger, services).ConfigureAwait(false);
+            await _handleResultAsync(result, interaction, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {

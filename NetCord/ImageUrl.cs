@@ -4,11 +4,11 @@ public class ImageUrl : ISpanFormattable
 {
     private readonly string _url;
 
-    private ImageUrl(string partialUrl, string extension) : this($"{Discord.CDNUrl}{partialUrl}.{extension}")
+    private ImageUrl(string partialUrl, string extension, string baseUrl = Discord.CDNUrl) : this($"{baseUrl}{partialUrl}.{extension}")
     {
     }
 
-    protected ImageUrl(string url)
+    private ImageUrl(string url)
     {
         _url = url;
     }
@@ -199,7 +199,7 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl Sticker(ulong stickerId, ImageFormat format)
     {
-        return new($"/stickers/{stickerId}", GetFormat(format));
+        return new($"/stickers/{stickerId}", GetFormat(format), Discord.MediaUrl);
     }
 
     public static ImageUrl RoleIcon(ulong roleId, ImageFormat format)

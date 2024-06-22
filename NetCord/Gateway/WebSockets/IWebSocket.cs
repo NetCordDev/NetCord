@@ -13,12 +13,17 @@ public interface IWebSocket : IDisposable
     /// <summary>
     /// Connects to a WebSocket server.
     /// </summary>
-    public Task ConnectAsync(Uri uri);
+    public Task ConnectAsync(Uri uri, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Closes the <see cref="IWebSocket"/>.
     /// </summary>
-    public Task CloseAsync(WebSocketCloseStatus status);
+    public Task CloseAsync(WebSocketCloseStatus status, string? statusDescription, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Aborts the <see cref="IWebSocket"/>.
+    /// </summary>
+    public void Abort();
 
     /// <summary>
     /// Sends a message.

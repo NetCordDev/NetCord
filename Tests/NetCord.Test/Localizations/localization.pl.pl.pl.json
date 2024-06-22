@@ -1,0 +1,71 @@
+﻿{
+  "commands": {
+    "ping": {
+      "description": "Sprawdza czy bot jest aktywny",
+      "parameters": {
+        "s": {
+          "name": "ś",
+          "description": "Wartość do zwrócenia"
+        }
+      }
+    },
+    "permission-nested": {
+      "name": "permisja-zagnieżdżona",
+      "description": "Permisja",
+      "subcommands": {
+        "add": {
+          "name": "dodaj",
+          "description": "Dodaje permisję",
+          "parameters": {
+            "i": {
+              "name": "io"
+            },
+            "permission": {
+              "name": "permisja",
+              "description": "Permisja do dodania"
+            }
+          }
+        },
+        "remove": {
+          "name": "usuń",
+          "description": "Usuwa permisję"
+        },
+        "list": {
+          "name": "lista",
+          "description": "Lista permisji",
+          "subcommands": {
+            "user": {
+              "name": "użytkownik",
+              "description": "Lista permisji użytkownika",
+              "parameters": {
+                "i": {
+                  "name": "io"
+                },
+                "permission": {
+                  "name": "permisja",
+                  "description": "Permisja do dodania"
+                }
+              }
+            },
+            "role": {
+              "name": "rola",
+              "description": "Lista permisji roli"
+            }
+          }
+        }
+      }
+    }
+  },
+  "enums": {
+    "NetCord.Test.SlashCommands.DeleteMessagesDays": {
+      "DontRemove": "Nie usuwaj",
+      "Last24Hours": "Ostatnie 24 godziny",
+      "Last2Days": "Ostatnie 2 dni",
+      "Last3Days": "Ostatnie 3 dni",
+      "Last4Days": "Ostatnie 4 dni",
+      "Last5Days": "Ostatnie 5 dni",
+      "Last6Days": "Ostatnie 6 dni",
+      "LastWeek": "Ostatni tydzień"
+    }
+  }
+}
