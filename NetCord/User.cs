@@ -224,7 +224,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public ImageUrl DefaultAvatarUrl => Discriminator is 0 ? ImageUrl.DefaultUserAvatar(Id) : ImageUrl.DefaultUserAvatar(Discriminator);
 
     /// <summary>
-    /// Converts the ID of this user into its string representation, using Discord's mention syntax (<c><@803169206115237908></c>).
+    /// Converts the ID of this user into its string representation, using Discord's mention syntax (<c>&lt;@803169206115237908&gt;</c>).
     /// </summary>
     public override string ToString() => $"<@{Id}>";
 
