@@ -22,7 +22,7 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
 
     /// <summary>
-    /// An array of <see cref="ulong"/> IDs representing the user's current roles.
+    /// A list of <see cref="ulong"/> IDs representing the user's current roles.
     /// </summary>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
 
@@ -67,7 +67,7 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
 
     /// <summary>
-    /// Whether the user has a set guild avatar.
+    /// Whether the user has a guild avatar set.
     /// </summary>
     public bool HasGuildAvatar => GuildAvatarHash is not null;
 }

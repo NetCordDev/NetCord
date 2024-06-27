@@ -23,6 +23,7 @@ public class Guild : RestGuild
         ScheduledEvents = jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
         IsOwner = jsonModel.OwnerId == clientId;
     }
+    
     public Guild(JsonGuild jsonModel, ulong clientId, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)
     {
         VoiceStates = oldGuild.VoiceStates;
@@ -34,6 +35,7 @@ public class Guild : RestGuild
         ScheduledEvents = oldGuild.ScheduledEvents;
         IsOwner = jsonModel.OwnerId == clientId;
     }
+
     private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)
     {
         var oldJsonModel = oldGuild._jsonModel;
@@ -49,6 +51,7 @@ public class Guild : RestGuild
         jsonModel.ScheduledEvents = oldJsonModel.ScheduledEvents;
         return jsonModel;
     }
+
     public Guild With(Action<Guild> action)
     {
         var cloned = Unsafe.As<Guild>(MemberwiseClone());
@@ -77,7 +80,7 @@ public class Guild : RestGuild
     public int UserCount => _jsonModel.UserCount;
 
     /// <summary>
-    /// A dictionary of <see cref="VoiceState"/> objects, representing the states of <see cref="GuildUser"/>s currently in voice channels. Lacks <see cref="VoiceState.GuildId"/>s.
+    /// A dictionary of <see cref="VoiceState"/> objects, representing the states of <see cref="GuildUser"/>s currently in voice channels.
     /// </summary>
     public ImmutableDictionary<ulong, VoiceState> VoiceStates { get; set; }
 

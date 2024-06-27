@@ -27,7 +27,7 @@ public class GuildUserInfo : IJsonModel<JsonModels.JsonGuildUserInfo>
     public GuildUserJoinSourceType JoinSourceType => _jsonModel.JoinSourceType;
 
     /// <summary>
-    /// The ID of the account that invited the <see cref="User"/> to the guild.
+    /// The ID of the user that invited the <see cref="User"/> to the guild.
     /// </summary>
     public ulong? InviterId => _jsonModel.InviterId;
 }

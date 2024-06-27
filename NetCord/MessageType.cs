@@ -108,7 +108,7 @@ public enum MessageType
     ThreadStarterMessage = 21,
 
     /// <summary>
-    /// 
+    /// Sent as a reminder to invite other users to a guild.
     /// </summary>
     GuildInviteReminder = 22,
 

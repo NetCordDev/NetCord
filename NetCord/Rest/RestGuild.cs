@@ -74,7 +74,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public string Name => _jsonModel.Name;
 
     /// <summary>
-    /// Whether the <see cref="RestGuild"/> has a set icon.
+    /// Whether the <see cref="RestGuild"/> has an icon set.
     /// </summary>
     public bool HasIcon => IconHash is not null;
 
@@ -127,9 +127,6 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <summary>
     /// <see langword="true"/> if the user is the owner of the <see cref="RestGuild"/>.
     /// </summary>
-    /// <remarks>
-    /// Only available in objects returned from <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?)"/>.
-    /// </remarks>
     public virtual bool IsOwner => _jsonModel.IsOwner;
 
     /// <summary>
@@ -181,7 +178,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public ContentFilter ContentFilter => _jsonModel.ContentFilter;
 
     /// <summary>
-    /// A dictionary of <see cref="Role"/> objects indexed by their IDs, representing roles the <see cref="RestGuild"/>'s roles.
+    /// A dictionary of <see cref="Role"/> objects indexed by their IDs, representing the <see cref="RestGuild"/>'s roles.
     /// </summary>
     public ImmutableDictionary<ulong, Role> Roles { get; set; }
 
@@ -268,7 +265,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public int? PremiumSubscriptionCount => _jsonModel.PremiumSubscriptionCount;
 
     /// <summary>
-    /// The preferred locale of a community <see cref="RestGuild"/>, used for the 'Discovery' tab and in notices from Discord, also sent in interactions. Defaults to "en-US".
+    /// The preferred locale of a community <see cref="RestGuild"/>, used for the 'Discovery' tab and in notices from Discord, also sent in interactions. Defaults to <c>en-US</c>.
     /// </summary>
     public string PreferredLocale => _jsonModel.PreferredLocale;
 
@@ -329,7 +326,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public ulong? SafetyAlertsChannelId => _jsonModel.SafetyAlertsChannelId;
 
     /// <summary>
-    /// The ID used for @everyone mentions.
+    /// The guild's base role, applied to all users.
     /// </summary>
     public Role EveryoneRole => Roles[Id];
 }

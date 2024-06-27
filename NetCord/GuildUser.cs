@@ -23,15 +23,15 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     /// <summary>
     /// Applies a timeout to the <see cref="GuildUser"/> for a specified <see cref="DateTimeOffset"/>.
     /// </summary>
-    /// <param name="until"> How long to time the <see cref="GuildUser"/> out for. </param>
-    /// <param name="properties"> Additional properties to apply to the REST request. </param>
+    /// <param name="until">How long to time the <see cref="GuildUser"/> out for, specified as the time to wait until.</param>
+    /// <param name="properties">Additional properties to apply to the REST request.</param>
     /// <returns> A <see cref="GuildUser"/> object updated with the new timeout. </returns>
     public Task<GuildUser> TimeOutAsync(DateTimeOffset until, RestRequestProperties? properties = null) => ModifyAsync(u => u.TimeOutUntil = until, properties);
 
     /// <summary>
     /// Returns a <see cref="GuildUserInfo"/> object representing the <see cref="GuildUser"/>.
     /// </summary>
-    /// <param name="properties"> Additional properties to apply to the REST request. </param>
+    /// <param name="properties">Additional properties to apply to the REST request.</param>
     /// <exception cref="EntityNotFoundException"/>
     public async Task<GuildUserInfo> GetInfoAsync(RestRequestProperties? properties = null)
     {

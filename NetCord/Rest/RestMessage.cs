@@ -180,7 +180,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public Application? Application { get; }
 
     /// <summary>
-    /// If the message is an <see cref="IInteraction"/> or application-owned <see cref="Webhook"/>, this is the ID of the <see cref="NetCord.Application"/>.
+    /// If the message is an <see cref="IInteraction"/> response/followup or an application-owned <see cref="Webhook"/>, the ID of the <see cref="NetCord.Application"/>.
     /// </summary>
     public ulong? ApplicationId => _jsonModel.ApplicationId;
 
@@ -219,12 +219,12 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public GuildThread? StartedThread { get; }
 
     /// <summary>
-    /// A list of <see cref="IMessageComponent"/> objects, sent if the message contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components.
+    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
     /// </summary>
     public IReadOnlyList<IMessageComponent> Components { get; }
 
     /// <summary>
-    /// Sent if the message contains stickers.
+    /// Contains stickers contained in the message, if any.
     /// </summary>
     public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
 

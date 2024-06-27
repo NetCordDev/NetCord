@@ -88,7 +88,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public string? AvatarHash => _jsonModel.AvatarHash;
 
     /// <summary>
-    /// Whether the user belongs to an OAuth2 application.
+    /// Whether the user belongs to an application.
     /// </summary>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
@@ -224,7 +224,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public ImageUrl DefaultAvatarUrl => Discriminator is 0 ? ImageUrl.DefaultUserAvatar(Id) : ImageUrl.DefaultUserAvatar(Discriminator);
 
     /// <summary>
-    /// Converts the ID of this user into its string representation, using Discord's mention syntax.
+    /// Converts the ID of this user into its string representation, using Discord's mention syntax (<c><@803169206115237908></c>).
     /// </summary>
     public override string ToString() => $"<@{Id}>";
 

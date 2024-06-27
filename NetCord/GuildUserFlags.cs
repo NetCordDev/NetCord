@@ -1,7 +1,7 @@
 ﻿namespace NetCord;
 
 /// <summary>
-/// The flags on a <see cref="User"/>'s <see cref="GuildUser"/> object, mostly undocumented by Discord.
+/// The flags on a <see cref="GuildUser"/> object, mostly undocumented by Discord.
 /// </summary>
 [Flags]
 public enum GuildUserFlags
@@ -17,7 +17,7 @@ public enum GuildUserFlags
     CompletedOnboarding = 1 << 1,
 
     /// <summary>
-    /// User bypasses guild verification requirements. Allows a user who does not meet verification requirements to participate in a server.
+    /// User bypasses guild verification requirements. Allows a user who does not meet verification requirements to participate in a guild.
     /// </summary>
     BypassesVerification = 1 << 2,
 
