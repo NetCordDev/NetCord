@@ -11,8 +11,8 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns an <see cref="IEnumerable{Role}"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
-    /// <param name="user"> The <see cref="PartialGuildUser"/> to acquire roles for. </param>
-    /// <param name="guild"> The <see cref="RestGuild"/> to acquire the roles from. </param>
+    /// <param name="user">The <see cref="PartialGuildUser"/> to acquire roles for.</param>
+    /// <param name="guild">The <see cref="RestGuild"/> to acquire the roles from.</param>
     public static IEnumerable<Role> GetRoles(this PartialGuildUser user, RestGuild guild)
     {
         var roles = guild.Roles;
@@ -22,8 +22,8 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns a <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
-    /// <param name="user"> The <see cref="PartialGuildUser"/> to acquire permissions for. </param>
-    /// <param name="guild"> The <see cref="RestGuild"/> to acquire the permissions from. </param>
+    /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
+    /// <param name="guild">The <see cref="RestGuild"/> to acquire the permissions from.</param>
     public static Permissions GetPermissions(this PartialGuildUser user, RestGuild guild)
     {
         if (user.Id == guild.OwnerId)
@@ -43,9 +43,9 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
-    /// <param name="user"> The <see cref="PartialGuildUser"/> to acquire permissions for. </param>
-    /// <param name="guild"> The <see cref="RestGuild"/> to acquire the permissions from. </param>
-    /// <param name="channel"> The <see cref="IGuildChannel"/> to acquire the permissions for. </param>
+    /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
+    /// <param name="guild">The <see cref="RestGuild"/> to acquire the permissions from.</param>
+    /// <param name="channel">The <see cref="IGuildChannel"/> to acquire the permissions for.</param>
     public static Permissions GetChannelPermissions(this PartialGuildUser user, RestGuild guild, IGuildChannel channel)
     {
         var guildPermissions = GetPermissions(user, guild);
@@ -55,9 +55,9 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <see cref="RestGuild"/>.
     /// </summary>
-    /// <param name="user"> The <see cref="PartialGuildUser"/> to acquire permissions for. </param>
-    /// <param name="guild"> The <see cref="RestGuild"/> to acquire the permissions from. </param>
-    /// <param name="channelId"> The ID of the <see cref="IGuildChannel"/> to acquire the permissions for. </param>
+    /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
+    /// <param name="guild">The <see cref="RestGuild"/> to acquire the permissions from.</param>
+    /// <param name="channelId">The ID of the <see cref="IGuildChannel"/> to acquire the permissions for.</param>
     public static Permissions GetChannelPermissions(this PartialGuildUser user, Guild guild, ulong channelId)
     {
         var guildPermissions = GetPermissions(user, guild);
@@ -70,9 +70,9 @@ public static class PartialGuildUserExtensions
     /// <summary>
     /// Returns a <see cref="IGuildChannel"/>-specific <see cref="Permissions"/> object belonging to the <see cref="PartialGuildUser"/> by acquiring it from the specificied <paramref name="guildPermissions"/>.
     /// </summary>
-    /// <param name="user"> The <see cref="PartialGuildUser"/> to acquire permissions for. </param>
-    /// <param name="guildPermissions"> The <see cref="Permissions"/> object to acquire permissions from. </param>
-    /// <param name="channel"> The <see cref="IGuildChannel"/> to acquire the permissions for. </param>
+    /// <param name="user">The <see cref="PartialGuildUser"/> to acquire permissions for.</param>
+    /// <param name="guildPermissions">The <see cref="Permissions"/> object to acquire permissions from.</param>
+    /// <param name="channel">The <see cref="IGuildChannel"/> to acquire the permissions for.</param>
     public static Permissions GetChannelPermissions(this PartialGuildUser user, Permissions guildPermissions, IGuildChannel channel)
     {
         if (guildPermissions.HasFlag(Permissions.Administrator))
