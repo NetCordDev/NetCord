@@ -60,7 +60,7 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
 
 var host = builder.Build()
-    .AddSlashCommand<SlashCommandContext>("sum", "Sum!", (int a, int b) => $"{a} + {b} = {a + b}")
+    .AddSlashCommand<SlashCommandContext>("sum", "Sum", (int a, int b) => $"{a} + {b} = {a + b}")
     .UseGatewayEventHandlers();
 
 await host.RunAsync();
