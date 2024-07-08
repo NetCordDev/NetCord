@@ -3,16 +3,20 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessagePollMedia(JsonMessagePollMedia jsonModel) : IJsonModel<JsonMessagePollMedia>
+public class MessagePollMedia : IJsonModel<JsonMessagePollMedia>
 {
-    JsonMessagePollMedia IJsonModel<JsonMessagePollMedia>.JsonModel => jsonModel;
-    public string? Text => jsonModel.Text;
-    public Emoji? Emoji { get; }
+    JsonMessagePollMedia IJsonModel<JsonMessagePollMedia>.JsonModel => _jsonModel;
+    private readonly JsonMessagePollMedia _jsonModel;
 
-    public MessagePollMedia(JsonMessagePollMedia jsonModel, ulong guildId, RestClient client) : this(jsonModel)
+    public string? Text => _jsonModel.Text;
+    public ComponentEmoji? Emoji { get; }
+
+    public MessagePollMedia(JsonMessagePollMedia jsonModel)
     {
+        _jsonModel = jsonModel;
+
         var emoji = jsonModel.Emoji;
-        if (emoji != null)
-            Emoji = Emoji.CreateFromJson(emoji, guildId, client);
+        if (emoji is not null)
+            Emoji = new(emoji);
     }
 }

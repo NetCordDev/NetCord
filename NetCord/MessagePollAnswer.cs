@@ -1,11 +1,11 @@
 ﻿using NetCord.JsonModels;
-using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessagePollAnswer(JsonMessagePollAnswer jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePollAnswer>
+public class MessagePollAnswer(JsonMessagePollAnswer jsonModel) : IJsonModel<JsonMessagePollAnswer>
 {
     JsonMessagePollAnswer IJsonModel<JsonMessagePollAnswer>.JsonModel => jsonModel;
+
     public int AnswerId => jsonModel.AnswerId;
-    public MessagePollMedia PollMedia { get; } = new(jsonModel.PollMedia, guildId, client);
+    public MessagePollMedia PollMedia { get; } = new(jsonModel.PollMedia);
 }

@@ -203,7 +203,7 @@ internal partial class PartialMessage : ClientEntity, IPartialMessage, IJsonMode
         
         var poll = jsonModel.Poll;
         if (poll is not null)
-            Poll = new(poll, jsonModel.GuildId.GetValueOrDefault(), client);
+            Poll = new(poll);
     }
 
     public override ulong Id => _jsonModel.Id;

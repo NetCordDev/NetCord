@@ -3,14 +3,27 @@ using NetCord.Rest;
 
 namespace NetCord;
 
-public class MessagePoll(JsonMessagePoll jsonModel, ulong guildId, RestClient client) : IJsonModel<JsonMessagePoll>
+public class MessagePoll : IJsonModel<JsonMessagePoll>
 {
-    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => jsonModel;
-    public MessagePollMedia Question = new(jsonModel.Question, guildId, client);
-    public IReadOnlyList<MessagePollAnswer> Answers = jsonModel.Answers.Select(x => new MessagePollAnswer(x, guildId, client)).ToArray();
-    public bool AllowMultiselect => jsonModel.AllowMultiselect;
-    public MessagePollLayoutType LayoutType => jsonModel.LayoutType;
-    // Non-expiring posts are possible in the future, see: https://github.com/discord/discord-api-docs/blob/e4bdf50f11f9ca61ace2636285e029a2b3dfd0ec/docs/resources/Poll.md#poll-object
-    public DateTimeOffset? ExpiresAt => jsonModel.ExpiresAt;
-    public MessagePollResults? Results = jsonModel.Results != null ? new(jsonModel.Results) : null;
+    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => _jsonModel;
+    private readonly JsonMessagePoll _jsonModel;
+
+    public MessagePoll(JsonMessagePoll jsonModel)
+    {
+        _jsonModel = jsonModel;
+
+        Question = new(jsonModel.Question);
+        Answers = jsonModel.Answers.Select(a => new MessagePollAnswer(a)).ToArray();
+        
+        var results = jsonModel.Results;
+        if (results is not null)
+            Results = new(results);
+    }
+
+    public MessagePollMedia Question { get; }
+    public IReadOnlyList<MessagePollAnswer> Answers { get; }
+    public bool AllowMultiselect => _jsonModel.AllowMultiselect;
+    public MessagePollLayoutType LayoutType => _jsonModel.LayoutType;
+    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+    public MessagePollResults? Results { get; }
 }

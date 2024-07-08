@@ -76,7 +76,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var poll = jsonModel.Poll;
         if (poll is not null)
-            Poll = new(poll, jsonModel.GuildId.GetValueOrDefault(), client);
+            Poll = new(poll);
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -141,6 +141,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public RoleSubscriptionData? RoleSubscriptionData { get; }
 
     public InteractionResolvedData? ResolvedData { get; }
+
     public MessagePoll? Poll { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
