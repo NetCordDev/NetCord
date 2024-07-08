@@ -34,7 +34,7 @@ You can install NetCord packages via NuGet package manager:
 
 ## 2. 🚀 Showcase
 
-This snippet showcases a bot with a minimal API-style `/pow` command and includes a module-based `/greet` command.
+This snippet showcases a bot with a minimal API-style `/square` command and includes a module-based `/greet` command.
 
 <details>
 <summary>Required usings omitted for readability, click here to show</summary>
