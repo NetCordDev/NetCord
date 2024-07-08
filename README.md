@@ -34,7 +34,7 @@ You can install NetCord packages via NuGet package manager:
 
 ## 2. 🚀 Showcase
 
-This snippet showcases a bot with a minimal API-style `/sum` command and includes a module-based `/greet` command.
+This snippet showcases a bot with a minimal API-style `/pow` command and includes a module-based `/greet` command.
 
 <details>
 <summary>Required usings omitted for readability, click here to show</summary>
@@ -52,7 +52,7 @@ using NetCord.Hosting.Services.ApplicationCommands;
 
 ### Minimal API-style Bot Example
 
-The following example sets up a bot with a minimal API-style approach for the `/sum` command, which calculates the sum of two numbers:
+The following example sets up a bot with a minimal API-style approach for the `/square` command, which calculates the square of a number:
 
 ```cs
 var builder = Host.CreateDefaultBuilder(args)
@@ -60,7 +60,7 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
 
 var host = builder.Build()
-    .AddSlashCommand<SlashCommandContext>("sum", "Sum", (int a, int b) => $"{a} + {b} = {a + b}")
+    .AddSlashCommand<SlashCommandContext>("square", "Square!", (int a) => $"{a}² = {a * a}")
     .UseGatewayEventHandlers();
 
 await host.RunAsync();
