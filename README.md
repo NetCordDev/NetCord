@@ -41,6 +41,7 @@ This snippet showcases a bot with a minimal API-style `/sum` command and include
 
 ```cs
 using Microsoft.Extensions.Hosting;
+
 using NetCord;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Hosting.Gateway;
