@@ -67,7 +67,7 @@ await host.RunAsync();
 
 ### Module-based Command Example
 
-Moreover, you can enhance your bot with module-based commands. Here's an example of a `/greet` command that greets a specified user:
+Moreover, you can use a module-based approach. Here's an example of a `/greet` command that greets a specified user:
 
 ```cs
 public class GreetingModule : ApplicationCommandModule<SlashCommandContext>
