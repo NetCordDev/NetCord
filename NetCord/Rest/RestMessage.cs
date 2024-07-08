@@ -11,22 +11,22 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var guildUser = jsonModel.GuildUser;
         if (guildUser is null)
-        {
             Author = new(jsonModel.Author!, client);
-            MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u => new User(u, client));
-        }
         else
         {
-            var guildId = jsonModel.GuildId.GetValueOrDefault();
             guildUser.User = jsonModel.Author!;
-            Author = new GuildUser(guildUser, guildId, client);
-            MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u =>
-            {
-                var guildUser = u.GuildUser!;
-                guildUser.User = u;
-                return (User)new GuildUser(guildUser, guildId, client);
-            });
+            Author = new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
         }
+
+        MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u =>
+        {
+            var guildUser = u.GuildUser;
+            if (guildUser is null)
+                return new User(u, client);
+
+            guildUser.User = u;
+            return new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
+        });
 
         MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
         Attachments = jsonModel.Attachments!.ToDictionary(a => a.Id, Attachment.CreateFromJson);

@@ -11,6 +11,8 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInt
 {
     public ApplicationCommandServiceConfiguration<TContext> Configuration { get; set; } = ApplicationCommandServiceConfiguration<TContext>.Default;
 
+    public bool UseScopes { get; set; } = true;
+
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
     public Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, interaction, client, logger, services) =>

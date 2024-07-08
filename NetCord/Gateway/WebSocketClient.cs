@@ -3,7 +3,7 @@ using System.Text.Json;
 
 using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.LatencyTimers;
-using NetCord.Gateway.ReconnectTimers;
+using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
@@ -12,11 +12,9 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
-    private protected WebSocketClient(IWebSocket? webSocket, IReconnectTimer? reconnectTimer, ILatencyTimer? latencyTimer)
+    private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        webSocket ??= new WebSocket();
-        reconnectTimer ??= new ReconnectTimer();
-        latencyTimer ??= new LatencyTimer();
+        var webSocket = configuration.WebSocket ?? new WebSocket();
 
         webSocket.Connecting += HandleConnecting;
         webSocket.Connected += HandleConnected;
@@ -25,21 +23,21 @@ public abstract class WebSocketClient : IDisposable
         webSocket.MessageReceived += HandleMessageReceived;
 
         _webSocket = webSocket;
-        _reconnectTimer = reconnectTimer;
-        _latencyTimer = latencyTimer;
+        _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
+        _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
     }
 
-    private readonly IWebSocket _webSocket;
     private readonly object _eventsLock = new();
+    private readonly IWebSocket _webSocket;
+    private readonly IReconnectStrategy _reconnectStrategy;
 
-    private protected readonly IReconnectTimer _reconnectTimer;
     private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
-    private CancellationTokenSource? _disconnectedTokenSource;
-    private CancellationToken _disconnectedToken;
-    private CancellationTokenSource? _closedTokenSource;
-    private CancellationToken _closedToken;
+    private CancellationTokenProvider? _disconnectedTokenProvider;
+    private CancellationTokenProvider? _closedTokenProvider;
+
+    private protected abstract Uri Uri { get; }
 
     public Task ReadyAsync => _readyCompletionSource.Task;
 
@@ -70,7 +68,7 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleConnected()
     {
-        _disconnectedToken = (_disconnectedTokenSource = new()).Token;
+        Interlocked.Exchange(ref _disconnectedTokenProvider, new())?.Cancel();
 
         OnConnected();
         InvokeLog(LogMessage.Info("Connected"));
@@ -79,9 +77,7 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleDisconnected(WebSocketCloseStatus? closeStatus, string? description)
     {
-        var disconnectedTokenSource = _disconnectedTokenSource!;
-        disconnectedTokenSource.Cancel();
-        disconnectedTokenSource.Dispose();
+        Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
 
         InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
         var reconnect = Reconnect(closeStatus, description);
@@ -96,9 +92,7 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleClosed()
     {
-        var disconnectedTokenSource = _disconnectedTokenSource!;
-        disconnectedTokenSource.Cancel();
-        disconnectedTokenSource.Dispose();
+        Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
 
         InvokeLog(LogMessage.Info("Closed"));
         var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
@@ -112,7 +106,18 @@ public abstract class WebSocketClient : IDisposable
     {
         try
         {
-            var payload = CreatePayload(data);
+            JsonPayload payload;
+            try
+            {
+                payload = CreatePayload(data);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+                await AbortAndReconnectAsync().ConfigureAwait(false);
+                return;
+            }
+
             await ProcessPayloadAsync(payload).ConfigureAwait(false);
         }
         catch (Exception ex)
@@ -121,31 +126,39 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected Task ConnectAsync(Uri uri)
+    private protected Task StartAsync(CancellationToken cancellationToken = default)
     {
-        var closedTokenSource = _closedTokenSource;
-        if (closedTokenSource is null || closedTokenSource.IsCancellationRequested)
-            _closedToken = (_closedTokenSource = new()).Token;
-        return _webSocket.ConnectAsync(uri);
+        CancellationTokenProvider newTokenProvider = new();
+        if (Interlocked.CompareExchange(ref _closedTokenProvider, newTokenProvider, null) is not null)
+        {
+            newTokenProvider.Dispose();
+            throw new InvalidOperationException("Connection already started.");
+        }
+
+        return ConnectAsync(cancellationToken);
+    }
+
+    private protected Task ConnectAsync(CancellationToken cancellationToken = default)
+    {
+        return _webSocket.ConnectAsync(Uri, cancellationToken);
     }
 
     /// <summary>
     /// Closes the <see cref="WebSocketClient"/>.
     /// </summary>
     /// <param name="status">The status to close with.</param>
+    /// <param name="statusDescription">The status description to close with.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure)
+    public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
-        var closedTokenSource = _closedTokenSource;
-        if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
-        {
-            closedTokenSource.Cancel();
-            closedTokenSource.Dispose();
-        }
+        var closedTokenProvider = Interlocked.Exchange(ref _closedTokenProvider, null) ?? throw new InvalidOperationException("Connection not started.");
+
+        closedTokenProvider.Cancel();
 
         try
         {
-            await _webSocket.CloseAsync(status).ConfigureAwait(false);
+            await _webSocket.CloseAsync(status, statusDescription, cancellationToken).ConfigureAwait(false);
         }
         catch
         {
@@ -156,18 +169,18 @@ public abstract class WebSocketClient : IDisposable
     {
     }
 
-    private protected async Task CloseAndReconnectAsync(WebSocketCloseStatus status)
+    private protected ValueTask AbortAndReconnectAsync()
     {
         try
         {
-            await _webSocket.CloseAsync(status).ConfigureAwait(false);
+            _webSocket.Abort();
         }
         catch (Exception ex)
         {
             InvokeLog(LogMessage.Error(ex));
         }
 
-        await ReconnectAsync().ConfigureAwait(false);
+        return ReconnectAsync();
     }
 
     public ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -177,48 +190,80 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async ValueTask ReconnectAsync()
     {
-        while (true)
+        if (_closedTokenProvider is not { Token: var cancellationToken })
+            return;
+
+        foreach (var delay in _reconnectStrategy.GetDelays())
         {
             try
             {
-                await _reconnectTimer.NextAsync(_closedToken).ConfigureAwait(false);
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
             catch
             {
                 return;
             }
+
             try
             {
-                await TryResumeAsync().ConfigureAwait(false);
-                return;
+                await ConnectAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+                continue;
+            }
+
+            try
+            {
+                await TryResumeAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 InvokeLog(LogMessage.Error(ex));
             }
+
+            return;
         }
     }
 
-    private protected abstract Task TryResumeAsync();
+    private protected abstract ValueTask TryResumeAsync(CancellationToken cancellationToken = default);
 
-    private protected async Task HeartbeatAsync(double interval)
+    private protected async void StartHeartbeating(double interval)
     {
-        using PeriodicTimer timer = new(TimeSpan.FromMilliseconds(interval));
-        while (true)
+        if (_disconnectedTokenProvider is not { Token: var cancellationToken })
+            return;
+
+        PeriodicTimer timer;
+
+        try
         {
-            try
+            timer = new(TimeSpan.FromMilliseconds(interval));
+        }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
+            return;
+        }
+
+        using (timer)
+        {
+            while (true)
             {
-                await timer.WaitForNextTickAsync(_disconnectedToken).ConfigureAwait(false);
-                await HeartbeatAsync().ConfigureAwait(false);
-            }
-            catch
-            {
-                return;
+                try
+                {
+                    await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
+                    await HeartbeatAsync(cancellationToken).ConfigureAwait(false);
+                }
+                catch
+                {
+                    return;
+                }
             }
         }
     }
 
-    private protected abstract ValueTask HeartbeatAsync();
+    private protected abstract ValueTask HeartbeatAsync(CancellationToken cancellationToken = default);
 
     private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, Serialization.Default.JsonPayload)!;
 
@@ -473,19 +518,8 @@ public abstract class WebSocketClient : IDisposable
         if (disposing)
         {
             _webSocket.Dispose();
-            var disconnectedTokenSource = _disconnectedTokenSource;
-            if (disconnectedTokenSource is not null && !disconnectedTokenSource.IsCancellationRequested)
-            {
-                disconnectedTokenSource.Cancel();
-                disconnectedTokenSource.Dispose();
-            }
-            var closedTokenSource = _closedTokenSource;
-            if (closedTokenSource is not null && !closedTokenSource.IsCancellationRequested)
-            {
-                closedTokenSource.Cancel();
-                closedTokenSource.Dispose();
-            }
-            _reconnectTimer.Dispose();
+            _disconnectedTokenProvider?.Dispose();
+            _closedTokenProvider?.Dispose();
         }
     }
 }

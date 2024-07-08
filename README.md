@@ -5,10 +5,14 @@
     <b>The modern and fully customizable C# Discord library</b>
 </p>
 
+<p align="center">
+    ⭐ If you like this project, please consider giving it a star! ⭐
+</p>
+
 # Table of Contents
 
 1. [📦 Installation](#1--installation)
-2. [🚀 Example](#2--example)
+2. [🚀 Showcase](#2--showcase)
 3. [🎨 Features](#3--features)
 4. [🥅 Goals](#4--goals)
 5. [📚 Guides](#5--guides)
@@ -28,12 +32,12 @@ You can install NetCord packages via NuGet package manager:
 | **[NetCord.Hosting.Services](https://www.nuget.org/packages/NetCord.Hosting.Services)**     | Provides .NET Generic Host extensions for the NetCord.Services package.      |
 | **[NetCord.Hosting.AspNetCore](https://www.nuget.org/packages/NetCord.Hosting.AspNetCore)** | Provides ASP.NET Core extensions for seamless handling of HTTP interactions. |
 
-## 2. 🚀 Example
+## 2. 🚀 Showcase
 
-This snippet showcases a Discord bot with a minimal API-style `/ping` command responding with `Pong!`.
+This snippet showcases a bot with a minimal API-style `/square` command and includes a module-based `/greet` command.
 
 <details>
-<summary>Usings omitted for readability, click here to show</summary>
+<summary>Required usings omitted for readability, click here to show</summary>
 
 ```cs
 using Microsoft.Extensions.Hosting;
@@ -46,16 +50,32 @@ using NetCord.Hosting.Services.ApplicationCommands;
 
 </details>
 
+### Minimal API-style Bot Example
+
+The following example sets up a bot with a minimal API-style approach for the `/square` command, which calculates the square of a number:
+
 ```cs
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
     .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
 
 var host = builder.Build()
-    .AddSlashCommand<SlashCommandContext>("ping", "Ping!", () => "Pong!")
+    .AddSlashCommand<SlashCommandContext>("square", "Square!", (int a) => $"{a}² = {a * a}")
     .UseGatewayEventHandlers();
 
 await host.RunAsync();
+```
+
+### Module-based Command Example
+
+Moreover, you can use a module-based approach. Here's an example of a `/greet` command that greets a specified user:
+
+```cs
+public class GreetingModule : ApplicationCommandModule<SlashCommandContext>
+{
+    [SlashCommand("greet", "Greet someone!")]
+    public string Greet(User user) => $"{Context.User} greets {user}!";
+}
 ```
 
 ## 3. 🎨 Features

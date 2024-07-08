@@ -23,7 +23,7 @@ builder.Services
 var app = builder.Build();
 
 app
-    .AddSlashCommand<HttpSlashCommandContext>("ping", "Ping!", () => "Pong!")
+    .AddSlashCommand<HttpSlashCommandContext>("ping", "Ping!", (IServiceProvider provider, HttpSlashCommandContext context) => "Pong!")
     .AddSlashCommand<HttpSlashCommandContext>("button", "Button!", (string s) => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties($"button:{s}", "Button!", ButtonStyle.Primary)])))
     .AddComponentInteraction<HttpButtonInteractionContext>("button", (string s) => $"Button! {s}");
 

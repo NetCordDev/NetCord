@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -8,83 +8,640 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
 
+/// <summary>
+/// The WebSocket-based client allows you to receive events from the Discord Gateway and update or request resources, such as updating voice state.
+/// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
     private readonly GatewayClientConfiguration _configuration;
-    private readonly Uri _url;
     private readonly object? _DMsLock;
     private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
     private readonly IGatewayCompression _compression;
     private readonly bool _disposeRest;
 
+    #region Events
+
+    /// <summary>
+    /// The ready event is dispatched when a client has completed the initial handshake with the Gateway (for new sessions).
+    /// The ready event contains all the state required for a client to begin interacting with the rest of the platform.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<ReadyEventArgs, ValueTask>? Ready;
+
+    /// <summary>
+    /// Sent when an application command's permissions are updated.
+    /// The inner payload is an <see cref="ApplicationCommandPermission"/> object.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+
+    /// <summary>
+    /// Sent when a rule is created.
+    /// The inner payload is an <see cref="AutoModerationRule"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleCreate;
+
+    /// <summary>
+    /// Sent when a rule is updated.
+    /// The inner payload is an <see cref="AutoModerationRule"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleUpdate;
+
+    /// <summary>
+    /// Sent when a rule is deleted.
+    /// The inner payload is an <see cref="AutoModerationRule"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleDelete;
+
+    /// <summary>
+    /// Sent when a rule is triggered and an action is executed (e.g. when a message is blocked).<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationExecution"/>
+    /// <br/> Optional Intents:
+    /// <list type="bullet">
+    ///		<item>
+    ///			<term>
+    ///			<see cref="GatewayIntents.MessageContent"/>
+    ///			</term>
+    ///			<description>
+    ///			For receiving <see cref="AutoModerationActionExecutionEventArgs.Content"/> and <see cref="AutoModerationActionExecutionEventArgs.MatchedContent"/>.
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// </summary>
     public event Func<AutoModerationActionExecutionEventArgs, ValueTask>? AutoModerationActionExecution;
+
+    /// <summary>
+    /// Sent when a new guild channel is created, relevant to the bot.
+    /// The inner payload is an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<IGuildChannel, ValueTask>? GuildChannelCreate;
+
+    /// <summary>
+    /// Sent when a channel is updated. This is not sent with new messages, those are tracked by <see cref="MessageCreate"/> and <see cref="GuildThreadCreate"/>. This event may reference roles or guild members that no longer exist in the guild.
+    /// The inner payload is an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<IGuildChannel, ValueTask>? GuildChannelUpdate;
+
+    /// <summary>
+    /// Sent when a channel relevant to the bot is deleted.
+    /// The inner payload is an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<IGuildChannel, ValueTask>? GuildChannelDelete;
-    public event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
+
+    /// <summary>
+    /// Sent when a thread is created, relevant to the bot, or when the current user is added to a thread.
+    /// The inner payload is an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<GuildThreadCreateEventArgs, ValueTask>? GuildThreadCreate;
+
+    /// <summary>
+    /// Sent when a thread is updated. This is not sent with new messages, those are tracked by <see cref="MessageCreate"/>.
+    /// The inner payload is an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<GuildThread, ValueTask>? GuildThreadUpdate;
+
+    /// <summary>
+    /// Sent when a thread relevant to the bot is deleted.
+    /// The inner payload is a subset of an <see cref="IGuildChannel"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<GuildThreadDeleteEventArgs, ValueTask>? GuildThreadDelete;
+
+    /// <summary>
+    /// Sent when the current user gains access to a channel.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
+
+    /// <summary>
+    /// Sent when the <see cref="Rest.GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
+    /// The inner payload is a <see cref="GuildThreadUserUpdateEventArgs"/> object with a set <see cref="GuildThreadUsersUpdateEventArgs.GuildId"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
+
+    /// <summary>
+    /// Sent when anyone is added to or removed from a thread.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>, <see cref="GatewayIntents.GuildUsers"/>*
+    /// <br/> Optional Intents:
+    /// <list type="bullet">
+    ///		<item>
+    ///			<term>
+    ///			<see cref="GatewayIntents.GuildUsers"/>
+    ///			</term>
+    ///			<description>
+    ///			For receiving this event when other users are added / removed, otherwise this event will only fire for the bot's user.
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// <br/><br/>
+    /// *Must also be enabled in the developer portal.
+    /// </summary>
     public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
-    public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
-    public event Func<Guild, ValueTask>? GuildUpdate;
-    public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
-    public event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
-    public event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
-    public event Func<GuildBanEventArgs, ValueTask>? GuildBanRemove;
-    public event Func<GuildEmojisUpdateEventArgs, ValueTask>? GuildEmojisUpdate;
-    public event Func<GuildStickersUpdateEventArgs, ValueTask>? GuildStickersUpdate;
-    public event Func<GuildIntegrationsUpdateEventArgs, ValueTask>? GuildIntegrationsUpdate;
-    public event Func<GuildUser, ValueTask>? GuildUserAdd;
-    public event Func<GuildUser, ValueTask>? GuildUserUpdate;
-    public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
-    public event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
-    public event Func<Role, ValueTask>? RoleCreate;
-    public event Func<Role, ValueTask>? RoleUpdate;
-    public event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventDelete;
-    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserAdd;
-    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserRemove;
-    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationCreate;
-    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationUpdate;
-    public event Func<GuildIntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
-    public event Func<GuildInvite, ValueTask>? GuildInviteCreate;
-    public event Func<GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete;
-    public event Func<Message, ValueTask>? MessageCreate;
-    public event Func<IPartialMessage, ValueTask>? MessageUpdate;
-    public event Func<MessageDeleteEventArgs, ValueTask>? MessageDelete;
-    public event Func<MessageDeleteBulkEventArgs, ValueTask>? MessageDeleteBulk;
-    public event Func<MessageReactionAddEventArgs, ValueTask>? MessageReactionAdd;
-    public event Func<MessageReactionRemoveEventArgs, ValueTask>? MessageReactionRemove;
-    public event Func<MessageReactionRemoveAllEventArgs, ValueTask>? MessageReactionRemoveAll;
-    public event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
-    public event Func<Presence, ValueTask>? PresenceUpdate;
-    public event Func<TypingStartEventArgs, ValueTask>? TypingStart;
-    public event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
-    public event Func<VoiceState, ValueTask>? VoiceStateUpdate;
-    public event Func<VoiceServerUpdateEventArgs, ValueTask>? VoiceServerUpdate;
-    public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
-    public event Func<Interaction, ValueTask>? InteractionCreate;
-    public event Func<StageInstance, ValueTask>? StageInstanceCreate;
-    public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
-    public event Func<StageInstance, ValueTask>? StageInstanceDelete;
+
+    /// <summary>
+    /// Sent when a message is pinned or unpinned in a text channel. This is not sent when a pinned message is deleted.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>, <see cref="GatewayIntents.DirectMessages"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
+
+    /// <summary>
+    /// Sent when an entitlement is created.
+    /// The inner payload is an <see cref="Entitlement"/> object.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<Entitlement, ValueTask>? EntitlementCreate;
+
+    /// <summary>
+    /// Sent when an entitlement is updated. When an entitlement for a subscription is renewed, the <see cref="Entitlement.EndsAt"/> field may have an updated value with the new expiration date.
+    /// The inner payload is an <see cref="Entitlement"/> object.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<Entitlement, ValueTask>? EntitlementUpdate;
+
+    /// <summary>
+    /// Sent when an entitlement is deleted. Entitlements are not deleted when they expire.
+    /// The inner payload is an <see cref="Entitlement"/> object.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
     public event Func<Entitlement, ValueTask>? EntitlementDelete;
+
+    /// <summary>
+    /// This event can be sent in three different scenarios (During an outage, the <see cref="Guild"/> object in scenarios 1 and 3 may be marked as unavailable):<br/>
+    /// <list type="bullet">
+    ///		<item>
+    ///			<description>
+    ///			To lazily load and backfill information for all unavailable guilds sent in the <see cref="Ready"/> event. Guilds unavailable due to an outage will send a <see cref="GuildDelete"/> event.
+    ///			</description>
+    ///		</item>
+    ///		<item>
+    ///			<description>
+    ///			When a guild becomes available again to the client.
+    ///			</description>
+    ///		</item>
+    ///		<item>
+    ///			<description>
+    ///			When the current user joins a new guild.
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// The inner payload can be a <see cref="Guild"/> object with extra fields, or an unavailable <see cref="Guild"/> object. If the guild has over 75k users, users and presences returned in this event will only contain your bot and users in voice channels.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents:
+    /// <list type="bullet">
+    ///		<item>
+    ///			<term>
+    ///			<see cref="GatewayIntents.GuildPresences"/>
+    ///			</term>
+    ///			<description>
+    ///			For receiving users and presences other than the bot's user and users in voice channels (Same as the 75k limit).
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// </summary>
+    public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
+
+    /// <summary>
+    /// Sent when a guild is updated.
+    /// The inner payload is a <see cref="Guild"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<Guild, ValueTask>? GuildUpdate;
+
+    /// <summary>
+    /// Sent when a guild becomes or was already unavailable due to an outage, or when the bot leaves / is removed from a guild.
+    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUserDeleted"/> field is not true, the bot was removed from the guild.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
+
+    /// <summary>
+    /// Sent when a guild audit log entry is created.
+    /// The inner payload is an <see cref="AuditLogEntry"/> object. This event is only sent to bots with the <see cref="Permissions.ViewAuditLog"/> permission.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
+
+    /// <summary>
+    /// Sent when a user is banned from a guild.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
+
+    /// <summary>
+    /// Sent when a user is unbanned from a guild.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildBanEventArgs, ValueTask>? GuildBanRemove;
+
+    /// <summary>
+    /// Sent when a guild's emojis have been updated.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildEmojisAndStickers"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildEmojisUpdateEventArgs, ValueTask>? GuildEmojisUpdate;
+
+    /// <summary>
+    /// Sent when a guild's stickers have been updated.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildEmojisAndStickers"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildStickersUpdateEventArgs, ValueTask>? GuildStickersUpdate;
+
+    /// <summary>
+    /// Sent when guild integrations are updated.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildIntegrationsUpdateEventArgs, ValueTask>? GuildIntegrationsUpdate;
+
+    /// <summary>
+    /// Sent when a new user joins a guild.
+    /// The inner payload is a <see cref="GuildUser"/> object with an extra <c>guild_id</c> key.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
+    /// <br/> Optional Intents: None
+    /// <br/><br/>
+    /// *Must also be enabled in the developer portal.
+    /// </summary>
+    public event Func<GuildUser, ValueTask>? GuildUserAdd;
+
+    /// <summary>
+    /// Sent when a user is removed from a guild (leave/kick/ban).<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
+    /// <br/> Optional Intents: None
+    /// <br/><br/>
+    /// *Must also be enabled in the developer portal.
+    /// </summary>
+    public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
+
+    /// <summary>
+    /// Sent when a guild user is updated. This will also fire when the <see cref="GuildUser"/> object of a guild user changes.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildUsers"/>*
+    /// <br/> Optional Intents: None
+    /// <br/><br/>
+    /// *Must also be enabled in the developer portal.
+    /// </summary>
+    public event Func<GuildUser, ValueTask>? GuildUserUpdate;
+
+    /// <summary>
+    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
+
+    /// <summary>
+    /// Sent when a guild role is created.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<Role, ValueTask>? RoleCreate;
+
+    /// <summary>
+    /// Sent when a guild role is updated.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<Role, ValueTask>? RoleUpdate;
+
+    /// <summary>
+    /// Sent when a guild role is deleted.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
+
+    /// <summary>
+    /// Sent when a guild scheduled event is created.
+    /// The inner payload is a <see cref="GuildScheduledEvent"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
+
+    /// <summary>
+    /// Sent when a guild scheduled event is updated.
+    /// The inner payload is a <see cref="GuildScheduledEvent"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
+
+    /// <summary>
+    /// Sent when a guild scheduled event is deleted.
+    /// The inner payload is a <see cref="GuildScheduledEvent"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventDelete;
+
+    /// <summary>
+    /// Sent when a user has subscribed to a guild scheduled event.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserAdd;
+
+    /// <summary>
+    /// Sent when a user has unsubscribed from a guild scheduled event.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserRemove;
+
+    /// <summary>
+    /// Sent when an integration is created.
+    /// The inner payload is an integration object with a set <see cref="GuildIntegrationEventArgs.GuildId"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationCreate;
+
+    /// <summary>
+    /// Sent when an integration is updated.
+    /// The inner payload is an integration object with a set <see cref="GuildIntegrationEventArgs.GuildId"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationUpdate;
+
+    /// <summary>
+    /// Sent when an integration is deleted.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildIntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
+
+    /// <summary>
+    /// Sent when a new invite to a channel is created. Only sent if the bot has the <see cref="Permissions.ManageChannels"/> permission for the relevant channel.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildInvite, ValueTask>? GuildInviteCreate;
+
+    /// <summary>
+    /// Sent when an invite is deleted. Only sent if the bot has the <see cref="Permissions.ManageChannels"/> permission for the relevant channel.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete;
+
+    /// <summary>
+    /// Sent when a message is created.
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="Rest.RestMessage.Author"/> fields.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>*
+    /// <br/> Optional Intents:
+    /// <list type="bullet">
+    ///		<item>
+    ///			<term>
+    ///			<see cref="GatewayIntents.MessageContent"/>
+    ///			</term>
+    ///			<description>
+    ///			For receiving <see cref="Rest.RestMessage.Content"/>, <see cref="Rest.RestMessage.Embeds"/>, <see cref="Rest.RestMessage.Attachments"/> and <see cref="Rest.RestMessage.Embeds"/>.<br/>
+    ///			This does not apply to:
+    ///				<list type="bullet">
+    ///					<item>
+    ///						<description>
+    ///						Content in messages sent by the bot.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content in DMs with the bot.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content in which the bot is mentioned.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content of messages a message context menu command is used on.
+    ///						</description>
+    ///					</item>
+    ///				</list>
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// <br/><br/>
+    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
+    /// </summary>
+    public event Func<Message, ValueTask>? MessageCreate;
+
+    /// <summary>
+    /// Sent when a message is updated.
+    /// The inner payload is a partial message object, with only the message's ID and Guild ID being guaranteed present, all other fields can be null.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>*
+    /// <br/> Optional Intents:
+    /// <list type="bullet">
+    ///		<item>
+    ///			<term>
+    ///			<see cref="GatewayIntents.MessageContent"/>
+    ///			</term>
+    ///			<description>
+    ///			For receiving <see cref="Rest.RestMessage.Content"/>, <see cref="Rest.RestMessage.Embeds"/>, <see cref="Rest.RestMessage.Attachments"/> and <see cref="Rest.RestMessage.Embeds"/>.<br/>
+    ///			This does not apply to:
+    ///				<list type="bullet">
+    ///					<item>
+    ///						<description>
+    ///						Content in messages sent by the bot.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content in DMs with the bot.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content in which the bot is mentioned.
+    ///						</description>
+    ///					</item>
+    ///					<item>
+    ///						<description>
+    ///						Content of messages a message context menu command is used on.
+    ///						</description>
+    ///					</item>
+    ///				</list>
+    ///			</description>
+    ///		</item>
+    /// </list>
+    /// <br/><br/>
+    /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
+    /// </summary>
+    public event Func<IPartialMessage, ValueTask>? MessageUpdate;
+
+    /// <summary>
+    /// Sent when a message is deleted.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageDeleteEventArgs, ValueTask>? MessageDelete;
+
+    /// <summary>
+    /// Sent when multiple messages are deleted at once.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageDeleteBulkEventArgs, ValueTask>? MessageDeleteBulk;
+
+    /// <summary>
+    /// Sent when a user adds a reaction to a message.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageReactionAddEventArgs, ValueTask>? MessageReactionAdd;
+
+    /// <summary>
+    /// Sent when a user removes a reaction from a message.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageReactionRemoveEventArgs, ValueTask>? MessageReactionRemove;
+
+    /// <summary>
+    /// Sent when a user explicitly removes all reactions from a message.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageReactionRemoveAllEventArgs, ValueTask>? MessageReactionRemoveAll;
+
+    /// <summary>
+    /// Sent when a user removes all instances of a given emoji from the reactions of a message.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
+
+    /// <summary>
+    /// Sent when a user's presence or info, such as their name or avatar, is updated. Requires the <see cref="GatewayIntents.GuildPresences"/> intent.
+    /// The user object within this event can be partial, with the id being the only required field, everything else is optional. Along with this limitation, no fields are required, and the types of the fields are <b>not validated</b>. You should expect <b>any</b> combination of fields and types within this event.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildPresences"/>*
+    /// <br/> Optional Intents: None
+    /// <br/><br/>
+    /// *Must also be enabled in the developer portal.
+    /// </summary>
+    public event Func<Presence, ValueTask>? PresenceUpdate;
+
+    /// <summary>
+    /// Sent when a user starts typing in a channel, and fires again every 10 seconds while they continue typing.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageTyping"/>, <see cref="GatewayIntents.DirectMessageTyping"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<TypingStartEventArgs, ValueTask>? TypingStart;
+
+    /// <summary>
+    /// Sent when properties about the current bot's user change.
+    /// Inner payload is a <see cref="CurrentUser"/> object.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
+
+    /// <summary>
+    /// Sent when someone joins/leaves/moves voice channels.
+    /// Inner payload is a <see cref="VoiceState"/> object.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildVoiceStates"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<VoiceState, ValueTask>? VoiceStateUpdate;
+
+    /// <summary>
+    /// Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<VoiceServerUpdateEventArgs, ValueTask>? VoiceServerUpdate;
+
+    /// <summary>
+    /// Sent when a guild channel's webhook is created, updated, or deleted.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildWebhooks"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
+
+    /// <summary>
+    /// Sent when a user uses an interaction.
+    /// Inner payload is an <see cref="Interaction"/>.<br/>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<Interaction, ValueTask>? InteractionCreate;
+
+    /// <summary>
+    /// Sent when a <see cref="StageInstance"/> is created (i.e. the Stage is now 'live').
+    /// Inner payload is a <see cref="StageInstance"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<StageInstance, ValueTask>? StageInstanceCreate;
+
+    /// <summary>
+    /// Sent when a <see cref="StageInstance"/> is updated.
+    /// Inner payload is a <see cref="StageInstance"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
+
+    /// <summary>
+    /// Sent when a <see cref="StageInstance"/> is deleted (i.e. the Stage has been closed).
+    /// Inner payload is a <see cref="StageInstance"/>.<br/>
+    /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
+    /// <br/> Optional Intents: None
+    /// </summary>
+    public event Func<StageInstance, ValueTask>? StageInstanceDelete;
+
+    /// <summary>
+    /// Not documented by Discord.
+    /// </summary>
     public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
+
+    /// <summary>
+    /// Not documented by Discord.
+    /// </summary>
     public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
+
     public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
     public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
+
+    /// <summary>
+    /// An unknown event.
+    /// </summary>
     public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
+
+    #endregion
 
     /// <summary>
     /// The token of the <see cref="GatewayClient"/>.
@@ -123,20 +680,26 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     public ulong Id => Token.Id;
 
+    private protected override Uri Uri { get; }
+
     public DateTimeOffset CreatedAt => Token.CreatedAt;
 
+    /// <summary>
+    /// Constructs a <see cref="GatewayClient"/> using the given <paramref name="token"/> and <paramref name="configuration"/>.
+    /// </summary>
     public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
     {
         _disposeRest = true;
     }
 
-    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration.WebSocket, configuration.ReconnectTimer, configuration.LatencyTimer)
+    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration ??= new())
     {
         Token = token;
 
         _configuration = configuration;
-        var compression = _compression = configuration.Compression ?? new ZLibGatewayCompression();
-        _url = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
+
+        var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
+        Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
         Cache = configuration.Cache ?? new GatewayClientCache();
         Rest = rest;
 
@@ -152,7 +715,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         _compression.Initialize();
     }
 
-    private ValueTask SendIdentifyAsync(PresenceProperties? presence = null)
+    private ValueTask SendIdentifyAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
         {
@@ -163,18 +726,19 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _configuration.Intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload, cancellationToken);
     }
 
     /// <summary>
     /// Starts the <see cref="GatewayClient"/>.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null)
+    public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(_url).ConfigureAwait(false);
-        await SendIdentifyAsync(presence).ConfigureAwait(false);
+        await StartAsync(cancellationToken).ConfigureAwait(false);
+        await SendIdentifyAsync(presence, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -182,32 +746,34 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// </summary>
     /// <param name="sessionId">The session to resume.</param>
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public Task ResumeAsync(string sessionId, int sequenceNumber)
+    public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        SessionId = sessionId;
-        SequenceNumber = sequenceNumber;
-
-        return TryResumeAsync();
+        await ConnectAsync(cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
 
-    private protected override async Task TryResumeAsync()
+    private protected override ValueTask TryResumeAsync(CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(_url).ConfigureAwait(false);
-
-        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, SessionId!, SequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
-        _latencyTimer.Start();
-        await SendPayloadAsync(serializedPayload).ConfigureAwait(false);
+        return TryResumeAsync(SessionId!, SequenceNumber, cancellationToken);
     }
 
-    private protected override ValueTask HeartbeatAsync()
+    private ValueTask TryResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    {
+        var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
+        _latencyTimer.Start();
+        return SendPayloadAsync(serializedPayload, cancellationToken);
+    }
+
+    private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload);
+        return SendPayloadAsync(serializedPayload, cancellationToken);
     }
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
@@ -231,7 +797,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case GatewayOpcode.Reconnect:
                 InvokeLog(LogMessage.Info("Reconnect request"));
-                await CloseAndReconnectAsync(WebSocketCloseStatus.Empty).ConfigureAwait(false);
+                await AbortAndReconnectAsync().ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
@@ -245,7 +811,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
-                _ = HeartbeatAsync(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                StartHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
@@ -256,34 +822,30 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Joins, moves, or disconnects the app from a voice channel.
     /// </summary>
-    /// <param name="voiceState"></param>
-    /// <returns></returns>
-    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState)
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties));
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), cancellationToken);
     }
 
     /// <summary>
     /// Updates an app's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
-    /// <returns></returns>
-    public ValueTask UpdatePresenceAsync(PresenceProperties presence)
+    /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties));
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), cancellationToken);
     }
 
     /// <summary>
     /// Requests user for a guild.
     /// </summary>
-    /// <param name="requestProperties"></param>
-    /// <returns></returns>
-    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties)
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties));
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), cancellationToken);
     }
 
     private async Task ProcessEventAsync(JsonPayload payload)
@@ -295,7 +857,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "READY":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Ready"));
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
@@ -317,7 +878,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "RESUMED":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    _reconnectTimer.Reset();
                     InvokeLog(LogMessage.Info("Resumed"));
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();

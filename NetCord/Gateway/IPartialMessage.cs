@@ -7,7 +7,7 @@ public partial interface IPartialMessage : IEntity
 {
     public static IPartialMessage CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
-        if (jsonModel.Author is null)
+        if (jsonModel.Content is null || jsonModel.Author is null)
         {
             var (guild, channel) = GetCacheData(jsonModel, cache);
             return new PartialMessage(jsonModel, guild, channel, client);
@@ -16,7 +16,7 @@ public partial interface IPartialMessage : IEntity
         return Message.CreateFromJson(jsonModel, cache, client);
     }
 
-    public static (Guild?, TextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
+    internal static (Guild?, TextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
     {
         Guild? guild;
         TextChannel? channel;
@@ -52,6 +52,8 @@ public partial interface IPartialMessage : IEntity
     public TextChannel? Channel { get; }
 
     public ulong ChannelId { get; }
+
+    public User? Author { get; }
 
     public string? Content { get; }
 
@@ -126,6 +128,19 @@ internal partial class PartialMessage : ClientEntity, IPartialMessage, IJsonMode
 
         Guild = guild;
         Channel = channel;
+
+        var author = jsonModel.Author;
+        if (author is not null)
+        {
+            var guildUser = jsonModel.GuildUser;
+            if (guildUser is null)
+                Author = new(jsonModel.Author!, client);
+            else
+            {
+                guildUser.User = jsonModel.Author!;
+                Author = new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
+            }
+        }
 
         var mentionedUsers = jsonModel.MentionedUsers;
         if (mentionedUsers is not null)
@@ -215,6 +230,8 @@ internal partial class PartialMessage : ClientEntity, IPartialMessage, IJsonMode
     public ulong ChannelId => _jsonModel.ChannelId;
 
     public TextChannel? Channel { get; }
+
+    public User? Author { get; }
 
     public string? Content => _jsonModel.Content;
 
