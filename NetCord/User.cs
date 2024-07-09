@@ -120,7 +120,7 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public string? BannerHash => _jsonModel.BannerHash;
 
     /// <summary>
-    /// The user's banner color encoded as an integer representation of hexadecimal color code.
+    /// The user's banner color.
     /// </summary>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
