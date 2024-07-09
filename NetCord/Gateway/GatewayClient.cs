@@ -591,6 +591,10 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// </summary>
     public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
 
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
+
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
+
     /// <summary>
     /// Sent when a user uses an interaction.
     /// Inner payload is an <see cref="Interaction"/>.<br/>
@@ -1259,6 +1263,16 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "WEBHOOKS_UPDATE":
                 {
                     await InvokeEventAsync(WebhooksUpdate, () => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            case "MESSAGE_POLL_VOTE_ADD":
+                {
+                    await InvokeEventAsync(MessagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            case "MESSAGE_POLL_VOTE_REMOVE":
+                {
+                    await InvokeEventAsync(MessagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_CREATE":

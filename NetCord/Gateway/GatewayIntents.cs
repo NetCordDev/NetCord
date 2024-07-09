@@ -151,6 +151,10 @@ public enum GatewayIntents : uint
     /// </summary>
     AutoModerationExecution = 1 << 21,
 
+    GuildMessagePolls = 1 << 24,
+
+    DirectMessagePolls = 1 << 25,
+
     /// <summary>
     /// Implies all available intents, excluding privileged intents.
     /// </summary>
@@ -169,7 +173,9 @@ public enum GatewayIntents : uint
         | DirectMessageTyping
         | GuildScheduledEvents
         | AutoModerationConfiguration
-        | AutoModerationExecution,
+        | AutoModerationExecution
+        | GuildMessagePolls
+        | DirectMessagePolls,
 
     /// <summary>
     /// Implies all available intents, including privileged intents.

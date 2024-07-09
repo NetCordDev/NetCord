@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class ComponentEmoji(JsonModels.JsonEmoji jsonModel) : IJsonModel<JsonModels.JsonEmoji>
+public class EmojiReference(JsonModels.JsonEmoji jsonModel) : IJsonModel<JsonModels.JsonEmoji>
 {
     JsonModels.JsonEmoji IJsonModel<JsonModels.JsonEmoji>.JsonModel => jsonModel;
 

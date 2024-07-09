@@ -9,7 +9,7 @@ public class LinkButton : IButton, IJsonModel<JsonComponent>
 
     public string Url => _jsonModel.Url!;
     public string? Label => _jsonModel.Label;
-    public ComponentEmoji? Emoji { get; }
+    public EmojiReference? Emoji { get; }
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
 
     public LinkButton(JsonComponent jsonModel)
