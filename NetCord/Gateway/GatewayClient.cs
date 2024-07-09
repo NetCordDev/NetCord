@@ -1298,7 +1298,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_JOIN_REQUEST_DELETE":
                 {
                     await InvokeEventAsync(GuildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
-                } 
+                }
                 break;
             default:
                 {

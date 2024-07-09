@@ -13,7 +13,7 @@ public class MessagePoll : IJsonModel<JsonMessagePoll>
 
         Question = new(jsonModel.Question);
         Answers = jsonModel.Answers.Select(a => new MessagePollAnswer(a)).ToArray();
-        
+
         var results = jsonModel.Results;
         if (results is not null)
             Results = new(results);

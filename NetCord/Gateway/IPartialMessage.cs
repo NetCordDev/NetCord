@@ -111,7 +111,7 @@ public partial interface IPartialMessage : IEntity
     public RoleSubscriptionData? RoleSubscriptionData { get; }
 
     public InteractionResolvedData? ResolvedData { get; }
-    
+
     public MessagePoll? Poll { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null);
@@ -215,7 +215,7 @@ internal partial class PartialMessage : ClientEntity, IPartialMessage, IJsonMode
         var resolvedData = jsonModel.ResolvedData;
         if (resolvedData is not null)
             ResolvedData = new(resolvedData, jsonModel.GuildId, client);
-        
+
         var poll = jsonModel.Poll;
         if (poll is not null)
             Poll = new(poll);
@@ -288,7 +288,7 @@ internal partial class PartialMessage : ClientEntity, IPartialMessage, IJsonMode
     public RoleSubscriptionData? RoleSubscriptionData { get; }
 
     public InteractionResolvedData? ResolvedData { get; }
-    
+
     public MessagePoll? Poll { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)

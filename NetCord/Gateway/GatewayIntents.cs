@@ -150,9 +150,9 @@ public enum GatewayIntents : uint
     /// <see cref="GatewayClient.AutoModerationActionExecution"/>
     /// </summary>
     AutoModerationExecution = 1 << 21,
-    
+
     GuildMessagePolls = 1 << 24,
-    
+
     DirectMessagePolls = 1 << 25,
 
     /// <summary>

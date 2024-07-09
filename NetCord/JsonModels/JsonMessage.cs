@@ -104,7 +104,7 @@ public class JsonMessage : JsonEntity
 
     [JsonPropertyName("resolved")]
     public JsonInteractionResolvedData? ResolvedData { get; set; }
-    
+
     [JsonPropertyName("poll")]
     public JsonMessagePoll? Poll { get; set; }
 }

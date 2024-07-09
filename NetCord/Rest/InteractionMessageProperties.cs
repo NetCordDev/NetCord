@@ -32,7 +32,7 @@ public partial class InteractionMessageProperties : IHttpSerializable
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
-    
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("poll")]
     public MessagePollProperties? Poll { get; set; }

@@ -44,7 +44,7 @@ public partial class MessageProperties : IHttpSerializable
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("flags")]
     public MessageFlags? Flags { get; set; }
-    
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("poll")]
     public MessagePollProperties? Poll { get; set; }
