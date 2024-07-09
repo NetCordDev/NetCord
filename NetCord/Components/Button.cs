@@ -8,7 +8,7 @@ public class Button : IButton, IJsonModel<JsonModels.JsonComponent>
     public string CustomId => _jsonModel.CustomId!;
     public ButtonStyle Style => _jsonModel.Style.GetValueOrDefault();
     public string? Label => _jsonModel.Label;
-    public ComponentEmoji? Emoji { get; }
+    public EmojiReference? Emoji { get; }
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
 
     public Button(JsonModels.JsonComponent jsonModel)

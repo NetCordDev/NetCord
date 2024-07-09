@@ -45,6 +45,10 @@ public partial class MessageProperties : IHttpSerializable
     [JsonPropertyName("flags")]
     public MessageFlags? Flags { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("poll")]
+    public MessagePollProperties? Poll { get; set; }
+
     public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()
