@@ -9,7 +9,7 @@ public class MessagePollMedia : IJsonModel<JsonMessagePollMedia>
     private readonly JsonMessagePollMedia _jsonModel;
 
     public string? Text => _jsonModel.Text;
-    public ComponentEmoji? Emoji { get; }
+    public EmojiReference? Emoji { get; }
 
     public MessagePollMedia(JsonMessagePollMedia jsonModel)
     {

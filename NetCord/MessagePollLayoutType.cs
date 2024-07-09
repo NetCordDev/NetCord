@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum MessagePollLayoutType
+public enum MessagePollLayoutType : byte
 {
     Default = 1,
 }

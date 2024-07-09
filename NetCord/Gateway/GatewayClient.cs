@@ -591,6 +591,10 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// </summary>
     public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
 
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
+
+    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
+
     /// <summary>
     /// Sent when a user uses an interaction.
     /// Inner payload is an <see cref="Interaction"/>.<br/>
@@ -632,9 +636,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Not documented by Discord.
     /// </summary>
     public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
-
-    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
-    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
 
     /// <summary>
     /// An unknown event.
@@ -1264,6 +1265,16 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     await InvokeEventAsync(WebhooksUpdate, () => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
+            case "MESSAGE_POLL_VOTE_ADD":
+                {
+                    await InvokeEventAsync(MessagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                }
+                break;
+            case "MESSAGE_POLL_VOTE_REMOVE":
+                {
+                    await InvokeEventAsync(MessagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                }
+                break;
             case "ENTITLEMENT_CREATE":
                 {
                     await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
@@ -1288,16 +1299,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     await InvokeEventAsync(GuildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
                 } 
-                break;
-            case "MESSAGE_POLL_VOTE_ADD":
-                {
-                    await InvokeEventAsync(MessagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
-                }
-                break;
-            case "MESSAGE_POLL_VOTE_REMOVE":
-                {
-                    await InvokeEventAsync(MessagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
-                }
                 break;
             default:
                 {

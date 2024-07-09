@@ -1,8 +1,10 @@
 using System.Text.Json.Serialization;
 
-namespace NetCord.JsonModels;
+using NetCord.JsonModels;
 
-internal class JsonGetPollAnswerVotersResult
+namespace NetCord.Rest.JsonModels;
+
+internal class JsonMessagePollAnswerVotersResult
 {
     [JsonPropertyName("users")]
     public JsonUser[] Users { get; set; }

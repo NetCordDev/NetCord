@@ -1,5 +1,4 @@
 ﻿using NetCord.JsonModels;
-using NetCord.Rest;
 
 namespace NetCord;
 
@@ -22,8 +21,8 @@ public class MessagePoll : IJsonModel<JsonMessagePoll>
 
     public MessagePollMedia Question { get; }
     public IReadOnlyList<MessagePollAnswer> Answers { get; }
+    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
     public bool AllowMultiselect => _jsonModel.AllowMultiselect;
     public MessagePollLayoutType LayoutType => _jsonModel.LayoutType;
-    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
     public MessagePollResults? Results { get; }
 }

@@ -237,4 +237,9 @@ public enum Permissions : ulong
     /// Allows sending voice messages.
     /// </summary>
     SendVoiceMessages = 1uL << 46,
+
+    /// <summary>
+    /// Allows sending polls.
+    /// </summary>
+    SendPolls = 1uL << 49,
 }

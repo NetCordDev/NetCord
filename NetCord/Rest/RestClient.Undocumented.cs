@@ -40,23 +40,4 @@ public partial class RestClient
             new(guildId),
             properties);
     }
-    
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
-    public async Task<RestMessage> ExpirePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
-    {
-        var stream = await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire", properties: properties).ConfigureAwait(false);
-        
-        return new(await stream.ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
-    }
-    
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
-    public async Task<IEnumerable<User>> GetPollAnswerVotersAsync(ulong channelId, ulong messageId, int answerId, ulong? afterUserId = null, int limit = 100, RestRequestProperties? properties = null)
-    {
-        var afterUserIdText = afterUserId != null ? $"&after={afterUserId}" : string.Empty;
-        var urlParams = $"?limit={limit}{afterUserIdText}";
-        
-        var stream = await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/polls/{messageId}/answers/{answerId}{urlParams}", properties: properties).ConfigureAwait(false);
-        
-        return (await stream.ToObjectAsync(Serialization.Default.JsonGetPollAnswerVotersResult).ConfigureAwait(false)).Users.Select(x => new User(x, this));
-    }
 }

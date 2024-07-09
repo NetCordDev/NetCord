@@ -4,11 +4,6 @@ namespace NetCord;
 
 public partial class MessagePollAnswerProperties(MessagePollMediaProperties pollMedia)
 {
-    // [JsonPropertyName("answer_id")]
-    // public uint AnswerId { get; set; }
-    
     [JsonPropertyName("poll_media")]
     public MessagePollMediaProperties PollMedia { get; set; } = pollMedia;
-
-    public MessagePollAnswerProperties(string? text = null, EmojiProperties? emoji = null) : this(new(text, emoji)) { }
 }
