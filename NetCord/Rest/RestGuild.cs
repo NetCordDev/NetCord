@@ -16,7 +16,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     {
         _jsonModel = jsonModel;
         Roles = jsonModel.Roles.ToImmutableDictionaryOrEmpty(r => new Role(r, Id, client));
-        // <see cref="RestGuild"/> emojis always have Id
+        // Guild emoji always have Id.
         Emojis = jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
         Stickers = jsonModel.Stickers.ToImmutableDictionaryOrEmpty(s => s.Id, s => new GuildSticker(s, client));
 
