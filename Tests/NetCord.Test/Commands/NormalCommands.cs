@@ -97,7 +97,7 @@ public class NormalCommands : CommandModule<CommandContext>
         EmbedProperties embed = new()
         {
             Title = $"Avatar of {user.Username}#{user.Discriminator}",
-            Image = new(user.HasAvatar ? user.GetAvatarUrl().ToString(4096) : user.DefaultAvatarUrl.ToString()),
+            Image = new(user.HasAvatar ? user.GetAvatarUrl()!.ToString(4096) : user.DefaultAvatarUrl.ToString()),
             Color = new(0, 255, 0)
         };
         MessageProperties message = new()

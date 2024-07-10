@@ -25,7 +25,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
-    /// Id of the affected entity.
+    /// ID of the affected entity.
     /// </summary>
     public ulong? TargetId => _jsonModel.TargetId;
 
@@ -35,7 +35,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     public IReadOnlyDictionary<string, AuditLogChange> Changes { get; }
 
     /// <summary>
-    /// Id of user that made the changes.
+    /// ID of user that made the changes.
     /// </summary>
     public ulong? UserId => _jsonModel.UserId;
 

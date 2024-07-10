@@ -5,17 +5,17 @@ public class ApplicationCommandGuildPermissions(JsonModels.JsonApplicationComman
     JsonModels.JsonApplicationCommandGuildPermissions IJsonModel<JsonModels.JsonApplicationCommandGuildPermissions>.JsonModel => jsonModel;
 
     /// <summary>
-    /// Id of the command.
+    /// ID of the command.
     /// </summary>
     public ulong CommandId => jsonModel.CommandId;
 
     /// <summary>
-    /// Id of the application the command belongs to.
+    /// ID of the application the command belongs to.
     /// </summary>
     public ulong ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
-    /// Id of the guild.
+    /// ID of the guild.
     /// </summary>
     public ulong GuildId => jsonModel.GuildId;
 

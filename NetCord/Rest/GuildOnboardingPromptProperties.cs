@@ -11,7 +11,7 @@ namespace NetCord.Rest;
 public partial class GuildOnboardingPromptProperties(GuildOnboardingPromptType type, IEnumerable<GuildOnboardingPromptOptionProperties> options, string title)
 {
     /// <summary>
-    /// Id of the prompt.
+    /// ID of the prompt.
     /// </summary>
     [JsonPropertyName("id")]
     public ulong? Id { get; set; }

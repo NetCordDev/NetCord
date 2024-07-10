@@ -6,8 +6,8 @@ public static class GatewayClientExtensions
     /// Joins a voice channel.
     /// </summary>
     /// <param name="client">The <see cref="GatewayClient"/> instance.</param>
-    /// <param name="guildId">The id of the guild containing the channel.</param>
-    /// <param name="channelId">The id of the voice channel to join.</param>
+    /// <param name="guildId">The ID of the guild containing the channel.</param>
+    /// <param name="channelId">The ID of the voice channel to join.</param>
     /// <param name="configuration">Configuration settings for the <see cref="VoiceClient"/>.</param>
     /// <param name="cancellationToken">Cancellation token for the operation. If not cancellable, the default timeout of 2 seconds is used.</param>
     /// <remarks>This method is not thread safe and should not be used concurrently for the same <paramref name="guildId"/>.</remarks>

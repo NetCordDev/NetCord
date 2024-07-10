@@ -5,11 +5,11 @@ namespace NetCord.Rest;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="customId">Id for the menu (max 100 characters).</param>
+/// <param name="customId">ID for the menu (max 100 characters).</param>
 public abstract partial class MenuProperties(string customId) : MessageComponentProperties
 {
     /// <summary>
-    /// Id for the menu (max 100 characters).
+    /// ID for the menu (max 100 characters).
     /// </summary>
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; } = customId;

@@ -7,17 +7,17 @@ public class Entitlement(JsonModels.JsonEntitlement jsonModel) : Entity, IJsonMo
     public override ulong Id => jsonModel.Id;
 
     /// <summary>
-    /// Id of the SKU.
+    /// ID of the SKU.
     /// </summary>
     public ulong SkuId => jsonModel.SkuId;
 
     /// <summary>
-    /// Id of the parent application.
+    /// ID of the parent application.
     /// </summary>
     public ulong ApplicationId => jsonModel.ApplicationId;
 
     /// <summary>
-    /// Id of the user that is granted access to the entitlement's SKU.
+    /// ID of the user that is granted access to the entitlement's SKU.
     /// </summary>
     public ulong? UserId => jsonModel.UserId;
 
@@ -42,7 +42,7 @@ public class Entitlement(JsonModels.JsonEntitlement jsonModel) : Entity, IJsonMo
     public DateTimeOffset? EndsAt => jsonModel.EndsAt;
 
     /// <summary>
-    /// Id of the guild that is granted access to the entitlement's SKU.
+    /// ID of the guild that is granted access to the entitlement's SKU.
     /// </summary>
     public ulong? GuildId => jsonModel.GuildId;
 
