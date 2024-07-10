@@ -1,0 +1,21 @@
+name: Cleanup Documentation Preview
+
+on:
+  pull_request:
+    types: [closed]
+    paths:
+      - 'Documentation/**'
+
+jobs:
+  documentation-preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cleanup Documentation Preview
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          script: rm -rf ~/NetCord/preview/html/${{ github.event.pull_request.number }}
