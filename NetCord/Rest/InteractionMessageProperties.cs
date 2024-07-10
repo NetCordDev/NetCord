@@ -33,6 +33,10 @@ public partial class InteractionMessageProperties : IHttpSerializable
     [JsonPropertyName("attachments")]
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("poll")]
+    public MessagePollProperties? Poll { get; set; }
+
     public HttpContent Serialize()
     {
         MultipartFormDataContent content = new()

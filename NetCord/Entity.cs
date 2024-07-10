@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public abstract class Entity : IEntity, ISpanFormattable
+public abstract class Entity : IEntity, ISpanFormattable, IEquatable<Entity>
 {
     public abstract ulong Id { get; }
 
@@ -13,6 +13,8 @@ public abstract class Entity : IEntity, ISpanFormattable
     public static bool operator !=(Entity? left, Entity? right) => !(left == right);
 
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is Entity entity && Id == entity.Id;
+
+    public bool Equals([NotNullWhen(true)] Entity? other) => other is not null && Id == other.Id;
 
     public override int GetHashCode() => Id.GetHashCode();
 

@@ -76,6 +76,10 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         var resolvedData = jsonModel.ResolvedData;
         if (resolvedData is not null)
             ResolvedData = new(resolvedData, jsonModel.GuildId, client);
+
+        var poll = jsonModel.Poll;
+        if (poll is not null)
+            Poll = new(poll);
     }
 
     /// <summary>
@@ -243,6 +247,8 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     /// Data for <see cref="User"/>s, <see cref="GuildUser"/>s, <see cref="IGuildChannel"/>s, and <see cref="Role"/>s in the message's auto-populated select <see cref="Menu"/>s.
     /// </summary>
     public InteractionResolvedData? ResolvedData { get; }
+
+    public MessagePoll? Poll { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
         => SendAsync(replyMessage.ToMessageProperties(Id), properties);

@@ -1,16 +1,20 @@
 name: Build and Publish
 
-on: push
+on:
+  push:
+    branches:
+      - stable
+      - alpha
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
@@ -24,7 +28,6 @@ jobs:
         run: dotnet test -c Release --no-build --verbosity normal
 
       - name: Pack
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
@@ -33,7 +36,6 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Publish
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         run: |
           dotnet nuget push NetCord/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
           dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
@@ -42,30 +44,17 @@ jobs:
           dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Setup Node
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         uses: actions/setup-node@v4
 
       - name: Build Documentation
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
         working-directory: Documentation
         run: |
           dotnet tool install docfx -g --version 2.75.3
           npm install
           npm run build
 
-      - name: Stop Apache2
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          username: ${{ secrets.SSH_USERNAME }}
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_KEY }}
-          script: sudo systemctl stop apache2
-
       - name: Deploy Documentation
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        uses: appleboy/scp-action@v0.1.3
+        uses: appleboy/scp-action@v0.1.7
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
@@ -75,13 +64,20 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
-
-      - name: Start Apache2
-        if: github.ref_name == 'stable' || github.ref_name == 'alpha'
-        uses: appleboy/ssh-action@v0.1.7
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          username: ${{ secrets.SSH_USERNAME }}
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_KEY }}
-          script: sudo systemctl start apache2
+          name: Build Artifacts
+          path: |
+            NetCord/bin/Release
+            NetCord.Services/bin/Release
+            Hosting/NetCord.Hosting/bin/Release
+            Hosting/NetCord.Hosting.Services/bin/Release
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Documentation Artifacts
+          path: Documentation/_site
