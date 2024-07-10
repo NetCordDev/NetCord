@@ -58,5 +58,5 @@ jobs:
               issue_number: number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `Preview documentation is available at https://preview.netcord.dev/${number}`,
+              body: `The documentation preview is available at https://preview.netcord.dev/${number}.`,
             })
