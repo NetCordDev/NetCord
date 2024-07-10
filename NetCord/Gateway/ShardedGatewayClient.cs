@@ -319,6 +319,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _voiceStateUpdateLock, ref _voiceStateUpdate, a => _voiceStateUpdate!(client, a), (c, e) => c.VoiceStateUpdate += e);
         HookEvent(client, _voiceServerUpdateLock, ref _voiceServerUpdate, a => _voiceServerUpdate!(client, a), (c, e) => c.VoiceServerUpdate += e);
         HookEvent(client, _webhooksUpdateLock, ref _webhooksUpdate, a => _webhooksUpdate!(client, a), (c, e) => c.WebhooksUpdate += e);
+        HookEvent(client, _messagePollVoteAddLock, ref _messagePollVoteAdd, a => _messagePollVoteAdd!(client, a), (c, e) => c.MessagePollVoteAdd += e);
+        HookEvent(client, _messagePollVoteRemoveLock, ref _messagePollVoteRemove, a => _messagePollVoteRemove!(client, a), (c, e) => c.MessagePollVoteRemove += e);
         HookEvent(client, _interactionCreateLock, ref _interactionCreate, a => _interactionCreate!(client, a), (c, e) => c.InteractionCreate += e);
         HookEvent(client, _stageInstanceCreateLock, ref _stageInstanceCreate, a => _stageInstanceCreate!(client, a), (c, e) => c.StageInstanceCreate += e);
         HookEvent(client, _stageInstanceUpdateLock, ref _stageInstanceUpdate, a => _stageInstanceUpdate!(client, a), (c, e) => c.StageInstanceUpdate += e);
@@ -1270,6 +1272,36 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
     private Func<GatewayClient, WebhooksUpdateEventArgs, ValueTask>? _webhooksUpdate;
     private readonly object _webhooksUpdateLock = new();
+
+    /// <inheritdoc cref="GatewayClient.MessagePollVoteAdd"/>
+    public event Func<GatewayClient, MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd
+    {
+        add
+        {
+            HookEvent(_messagePollVoteAddLock, value, ref _messagePollVoteAdd, client => a => _messagePollVoteAdd!(client, a), (c, e) => c.MessagePollVoteAdd += e);
+        }
+        remove
+        {
+            UnhookEvent(_messagePollVoteAddLock, value, ref _messagePollVoteAdd, (c, e) => c.MessagePollVoteAdd -= e);
+        }
+    }
+    private Func<GatewayClient, MessagePollVoteEventArgs, ValueTask>? _messagePollVoteAdd;
+    private readonly object _messagePollVoteAddLock = new();
+
+    /// <inheritdoc cref="GatewayClient.MessagePollVoteRemove"/>
+    public event Func<GatewayClient, MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove
+    {
+        add
+        {
+            HookEvent(_messagePollVoteRemoveLock, value, ref _messagePollVoteRemove, client => a => _messagePollVoteRemove!(client, a), (c, e) => c.MessagePollVoteRemove += e);
+        }
+        remove
+        {
+            UnhookEvent(_messagePollVoteRemoveLock, value, ref _messagePollVoteRemove, (c, e) => c.MessagePollVoteRemove -= e);
+        }
+    }
+    private Func<GatewayClient, MessagePollVoteEventArgs, ValueTask>? _messagePollVoteRemove;
+    private readonly object _messagePollVoteRemoveLock = new();
 
     /// <inheritdoc cref="GatewayClient.InteractionCreate"/>
     public event Func<GatewayClient, Interaction, ValueTask>? InteractionCreate
