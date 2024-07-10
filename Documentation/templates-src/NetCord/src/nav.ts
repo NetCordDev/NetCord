@@ -188,31 +188,19 @@ function inThisArticle(): TemplateResult {
 
 function findActiveItem(items: (NavItem | NavItemContainer)[]): NavItem {
   const url = new URL(window.location.href);
-  let activeItem: NavItem;
-  let maxPrefix = 1;
   for (const item of items.map((i) => ("items" in i ? i.items : i)).flat()) {
-    if (isExternalHref(item.href)) {
-      continue;
-    }
-    const prefix = commonUrlPrefix(url, item.href);
-    if (prefix > maxPrefix) {
-      maxPrefix = prefix;
-      activeItem = item;
-    }
+    const href = item.href;
+    if (!isExternalHref(href) && commonUrl(url, href))
+      return item;
   }
-  return activeItem;
 }
 
-function commonUrlPrefix(url: URL, base: URL): number {
-  const urlSegments = url.pathname.split("/");
-  const baseSegments = base.pathname.split("/");
-  let i = 1;
-  while (
-    i < urlSegments.length &&
-    i < baseSegments.length &&
-    urlSegments[i] === baseSegments[i]
-  ) {
-    i++;
-  }
-  return i;
+function commonUrl(url: URL, base: URL): boolean {
+  const urlPath = normalizePath(url.pathname);
+  const basePath = normalizePath(base.pathname);
+  return urlPath === basePath;
+}
+
+function normalizePath(url: string): string {
+  return url.replace(/\/(?:index.html)?$/, "/");
 }
