@@ -7,7 +7,7 @@ on:
       - 'Documentation/**'
 
 jobs:
-  build:
+  documentation-preview:
     runs-on: ubuntu-latest
 
     steps:
@@ -44,15 +44,15 @@ jobs:
           rm: true
           source: Documentation/_site
           strip_components: 2
-          target: ~/NetCord/preview/html/${{ github.issue.number }}
+          target: ~/NetCord/preview/html/${{ github.event.pull_request.number }}
 
       - name: Notify Documentation Preview
         uses: actions/github-script@v7
         with:
           script: |
             github.issues.createComment({
-              issue_number: github.issue.number,
+              issue_number: github.event.pull_request.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: Preview documentation is available at https://preview.netcord.dev/{{ github.issue.number }}
+              body: `Preview documentation is available at https://preview.netcord.dev/${github.event.pull_request.number}`,
             })
