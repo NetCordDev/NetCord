@@ -183,7 +183,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     public ImmutableDictionary<ulong, Role> Roles { get; set; }
 
     /// <summary>
-    /// A dictionary of <see cref="GuildEmoji"/> objects, indexed by their IDs, representing the <see cref="RestGuild"/>'s custom emoji.
+    /// A dictionary of <see cref="GuildEmoji"/> objects, indexed by their IDs, representing the <see cref="RestGuild"/>'s custom emojis.
     /// </summary>
     public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; set; }
 
