@@ -1,0 +1,58 @@
+name: Documentation Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'Documentation/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore --warnaserror
+
+      - name: Test
+        run: dotnet test -c Release --no-build --verbosity normal
+
+      - name: Build Documentation
+        working-directory: Documentation
+        run: |
+          dotnet tool install docfx -g --version 2.75.3
+          npm install
+          npm run build
+
+      - name: Deploy Documentation Preview
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          rm: true
+          source: Documentation/_site
+          strip_components: 2
+          target: ~/NetCord/preview/html/${{ github.issue.number }}
+
+      - name: Notify Documentation Preview
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: github.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: Preview documentation is available at https://preview.netcord.dev/{{ github.issue.number }}
+            })
