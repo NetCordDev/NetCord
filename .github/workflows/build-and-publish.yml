@@ -37,11 +37,11 @@ jobs:
 
       - name: Publish
         run: |
-          dotnet nuget push NetCord/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord/bin/Release/NetCord.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Services/bin/Release/NetCord.Services.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/NetCord.Hosting.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/NetCord.Hosting.Services.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/NetCord.Hosting.AspNetCore.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -64,3 +64,20 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
+          
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build Artifacts
+          path: |
+            NetCord/bin/Release
+            NetCord.Services/bin/Release
+            Hosting/NetCord.Hosting/bin/Release
+            Hosting/NetCord.Hosting.Services/bin/Release
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Documentation Artifacts
+          path: Documentation/_site
