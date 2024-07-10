@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
@@ -27,9 +27,34 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
 
+      - name: Pack
+        run: |
+          dotnet pack NetCord -c Release --no-build
+          dotnet pack NetCord.Services -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
+
       - name: Build Documentation
         working-directory: Documentation
         run: |
           dotnet tool install docfx -g --version 2.75.3
           npm install
           npm run build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build Artifacts
+          path: |
+            NetCord/bin/Release
+            NetCord.Services/bin/Release
+            Hosting/NetCord.Hosting/bin/Release
+            Hosting/NetCord.Hosting.Services/bin/Release
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release
+
+      - name: Upload Documentation Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Documentation Artifacts
+          path: Documentation/_site
