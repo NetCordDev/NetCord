@@ -1,6 +1,10 @@
 name: Build
 
-on: pull_request
+on:
+  push:
+    branches-ignore:
+      - stable
+      - alpha
 
 jobs:
   build:
@@ -22,3 +26,10 @@ jobs:
 
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
+
+      - name: Build Documentation
+        working-directory: Documentation
+        run: |
+          dotnet tool install docfx -g --version 2.75.3
+          npm install
+          npm run build
