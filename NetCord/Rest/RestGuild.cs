@@ -24,6 +24,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
         if (welcomeScreen is not null)
             WelcomeScreen = new(welcomeScreen);
     }
+    
     public int Compare(PartialGuildUser? x, PartialGuildUser? y)
     {
         if (ReferenceEquals(x, y))
