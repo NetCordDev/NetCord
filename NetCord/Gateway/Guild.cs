@@ -23,7 +23,7 @@ public class Guild : RestGuild
         ScheduledEvents = jsonModel.ScheduledEvents.ToImmutableDictionaryOrEmpty(e => new GuildScheduledEvent(e, client));
         IsOwner = jsonModel.OwnerId == clientId;
     }
-    
+
     public Guild(JsonGuild jsonModel, ulong clientId, Guild oldGuild) : base(Copy(jsonModel, oldGuild), oldGuild._client)
     {
         VoiceStates = oldGuild.VoiceStates;

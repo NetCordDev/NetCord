@@ -153,9 +153,9 @@ public partial interface IPartialMessage : IEntity
 
     /// <inheritdoc cref="RestMessage.ResolvedData"/>
     public InteractionResolvedData? ResolvedData { get; }
-    
+
     public MessagePoll? Poll { get; }
-    
+
     /// <inheritdoc cref="RestMessage.ReplyAsync(ReplyMessageProperties, RestRequestProperties?)"/>
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null);
 }

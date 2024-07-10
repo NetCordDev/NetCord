@@ -11,7 +11,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
 {
     NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
     internal readonly NetCord.JsonModels.JsonGuild _jsonModel;
-    
+
     public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
@@ -24,7 +24,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
         if (welcomeScreen is not null)
             WelcomeScreen = new(welcomeScreen);
     }
-    
+
     public int Compare(PartialGuildUser? x, PartialGuildUser? y)
     {
         if (ReferenceEquals(x, y))
