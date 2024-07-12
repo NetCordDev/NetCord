@@ -49,13 +49,6 @@ public class TryFormat
                 Animated = true,
             }, id, null!))];
 
-    private static readonly IReadOnlyList<LogMessage> _messages =
-    [
-        NetCord.Gateway.LogMessage.Info("message"),
-        NetCord.Gateway.LogMessage.Info("message", "description"),
-        NetCord.Gateway.LogMessage.Error(new("message")),
-    ];
-
     private static readonly IReadOnlyList<CodeBlock> _codeBlocks =
     [
         new("code"),
@@ -147,14 +140,6 @@ public class TryFormat
         TestTryFormat(TryFormat, _emojis, e => e.ToString());
 
         static bool TryFormat(Span<char> destination, out int charsWritten, GuildEmoji value) => value.TryFormat(destination, out charsWritten);
-    }
-
-    [TestMethod]
-    public void LogMessage()
-    {
-        TestTryFormat(TryFormat, _messages, m => m.ToString());
-
-        static bool TryFormat(Span<char> destination, out int charsWritten, LogMessage value) => value.TryFormat(destination, out charsWritten);
     }
 
     [TestMethod]

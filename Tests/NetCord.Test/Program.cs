@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
 using NetCord.JsonModels;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
@@ -57,7 +58,6 @@ internal static class Program
 
     private static async Task Main()
     {
-        _client.Log += Client_Log;
         _client.MessageCreate += Client_MessageCreate;
         _client.InteractionCreate += Client_InteractionCreate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
@@ -177,13 +177,5 @@ internal static class Program
                 }
             }
         }
-    }
-
-    private static ValueTask Client_Log(LogMessage message)
-    {
-        Console.ForegroundColor = message.Severity == LogSeverity.Info ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
-        Console.WriteLine(message);
-        Console.ResetColor();
-        return default;
     }
 }

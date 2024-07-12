@@ -14,7 +14,8 @@ internal class ShardedGatewayClientHostedService : IHostedService
 
     public ShardedGatewayClientHostedService(ShardedGatewayClient client, ILogger<ShardedGatewayClient> logger)
     {
-        (_client = client).Log += LogAsync;
+        _client = client;
+        //(_client = client).Log += LogAsync;
         _logger = logger;
     }
 
@@ -28,9 +29,9 @@ internal class ShardedGatewayClientHostedService : IHostedService
         return _client.CloseAsync();
     }
 
-    private ValueTask LogAsync(GatewayClient client, LogMessage message)
-    {
-        _logger.Log((LogLevel)message.Severity, new(client.Shard.GetValueOrDefault().Id), message.Exception, message.Message);
-        return default;
-    }
+    //private ValueTask LogAsync(GatewayClient client, LogMessage message)
+    //{
+    //    _logger.Log((Microsoft.Extensions.Logging.LogLevel)message.Severity, new(client.Shard.GetValueOrDefault().Id), message.Exception, message.Message);
+    //    return default;
+    //}
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -808,12 +809,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Constructs a <see cref="GatewayClient"/> using the given <paramref name="token"/> and <paramref name="configuration"/>.
     /// </summary>
-    public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
+    public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, configuration ??= new()), configuration)
     {
         _disposeRest = true;
     }
 
-    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration ??= new())
+    internal GatewayClient(IEntityToken token, Rest.RestClient rest, GatewayClientConfiguration configuration) : base(configuration)
     {
         Token = token;
 
@@ -911,24 +912,24 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    Log(LogLevel.Error, ex, "An error occured while processing event");
                 }
                 break;
             case GatewayOpcode.Heartbeat:
                 break;
             case GatewayOpcode.Reconnect:
-                InvokeLog(LogMessage.Info("Reconnect request"));
+                Log(LogLevel.Information, null, "Reconnect request");
                 await AbortAndReconnectAsync().ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
-                InvokeLog(LogMessage.Info("Invalid session"));
+                Log(LogLevel.Information, null, "Invalid session");
                 try
                 {
                     await SendIdentifyAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    Log(LogLevel.Error, ex, "An error occured while sending identify");
                 }
                 break;
             case GatewayOpcode.Hello:
@@ -978,7 +979,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "READY":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Ready"));
+                    Log(LogLevel.Information, null, "Ready");
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
                     await InvokeEventAsync(Ready, args, data =>
@@ -999,7 +1000,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "RESUMED":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Resumed"));
+                    Log(LogLevel.Information, null, "Resumed");
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 

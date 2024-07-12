@@ -43,11 +43,5 @@ client.InteractionCreate += async interaction =>
 
 await manager.CreateCommandsAsync(client.Rest, client.Id);
 
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
-
 await client.StartAsync();
 await Task.Delay(-1);

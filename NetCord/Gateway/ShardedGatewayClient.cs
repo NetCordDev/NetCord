@@ -263,7 +263,6 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _connectLock, ref _connect, () => _connect!(client), (c, e) => c.Connect += e);
         HookEvent(client, _disconnectLock, ref _disconnect, a => _disconnect!(client, a), (c, e) => c.Disconnect += e);
         HookEvent(client, _closeLock, ref _close, () => _close!(client), (c, e) => c.Close += e);
-        HookEvent(client, _logLock, ref _log, a => _log!(client, a), (c, e) => c.Log += e);
         HookEvent(client, _applicationCommandPermissionsUpdateLock, ref _applicationCommandPermissionsUpdate, a => _applicationCommandPermissionsUpdate!(client, a), (c, e) => c.ApplicationCommandPermissionsUpdate += e);
         HookEvent(client, _autoModerationRuleCreateLock, ref _autoModerationRuleCreate, a => _autoModerationRuleCreate!(client, a), (c, e) => c.AutoModerationRuleCreate += e);
         HookEvent(client, _autoModerationRuleUpdateLock, ref _autoModerationRuleUpdate, a => _autoModerationRuleUpdate!(client, a), (c, e) => c.AutoModerationRuleUpdate += e);
@@ -416,20 +415,6 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
     private Func<GatewayClient, ValueTask>? _close;
     private readonly object _closeLock = new();
-
-    public event Func<GatewayClient, LogMessage, ValueTask>? Log
-    {
-        add
-        {
-            HookEvent(_logLock, value, ref _log, client => a => _log!(client, a), (c, e) => c.Log += e);
-        }
-        remove
-        {
-            UnhookEvent(_logLock, value, ref _log, (c, e) => c.Log -= e);
-        }
-    }
-    private Func<GatewayClient, LogMessage, ValueTask>? _log;
-    private readonly object _logLock = new();
 
     #region Events
 

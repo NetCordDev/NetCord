@@ -31,11 +31,5 @@ client.InteractionCreate += async interaction =>
     }
 };
 
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
-
 await client.StartAsync();
 await Task.Delay(-1);

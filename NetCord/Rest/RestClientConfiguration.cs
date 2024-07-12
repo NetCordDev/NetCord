@@ -4,6 +4,7 @@ namespace NetCord.Rest;
 
 public class RestClientConfiguration
 {
+    public IRestLogger? Logger { get; init; }
     public string? Hostname { get; init; }
     public ApiVersion Version { get; init; } = ApiVersion.V10;
     public IRestRequestHandler? RequestHandler { get; init; }

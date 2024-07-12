@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Gateway.Voice.UdpSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -160,7 +161,7 @@ public class VoiceClient : WebSocketClient
                 {
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
                     _encryption.SetKey(sessionDescription.SecretKey);
-                    InvokeLog(LogMessage.Info("Ready"));
+                    Log(LogLevel.Information, null, "Ready");
                     var readyTask = InvokeEventAsync(Ready);
 
                     _readyCompletionSource.TrySetResult();
@@ -195,7 +196,7 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.Resumed:
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Resumed"));
+                    Log(LogLevel.Information, null, "Resumed");
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     await InvokeResumeEventAsync().ConfigureAwait(false);
                     await updateLatencyTask;
@@ -235,7 +236,7 @@ public class VoiceClient : WebSocketClient
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log(LogLevel.Error, ex, "An error occured while handling received voice data");
             }
         }
     }

@@ -1,109 +1,111 @@
-﻿namespace NetCord.Gateway;
+﻿//using NetCord.Logging;
 
-public class LogMessage : ISpanFormattable
-{
-    private const string ErrorSeverity = "Error";
-    private const string InfoSeverity = "Info";
+//namespace NetCord.Gateway;
 
-    private LogMessage(string message, string? description)
-    {
-        Message = message;
-        Severity = LogSeverity.Info;
-        Description = description;
-    }
+//public class LogMessage : ISpanFormattable
+//{
+//    private const string ErrorSeverity = "Error";
+//    private const string InfoSeverity = "Info";
 
-    private LogMessage(Exception exception)
-    {
-        Message = exception.Message;
-        Exception = exception;
-        Severity = LogSeverity.Error;
-    }
+//    private LogMessage(string message, string? description)
+//    {
+//        Message = message;
+//        Severity = LogLevel.Info;
+//        Description = description;
+//    }
 
-    public static LogMessage Error(Exception exception) => new(exception);
+//    private LogMessage(Exception exception)
+//    {
+//        Message = exception.Message;
+//        Exception = exception;
+//        Severity = LogLevel.Error;
+//    }
 
-    public static LogMessage Info(string message, string? description = null) => new(message, description);
+//    public static LogMessage Error(Exception exception) => new(exception);
 
-    public string Message { get; }
+//    public static LogMessage Info(string message, string? description = null) => new(message, description);
 
-    public LogSeverity Severity { get; }
+//    public string Message { get; }
 
-    public string? Description { get; }
+//    public LogLevel Severity { get; }
 
-    public Exception? Exception { get; }
+//    public string? Description { get; }
 
-    public override string ToString()
-    {
-        if (Severity is LogSeverity.Error)
-            return $"{DateTime.Now:T} {(Severity is LogSeverity.Error ? ErrorSeverity : InfoSeverity)}\t{Exception}";
-        else
-        {
-            var description = Description;
-            if (description is null)
-                return $"{DateTime.Now:T} {(Severity is LogSeverity.Error ? ErrorSeverity : InfoSeverity)}\t{Message}";
-            else
-                return $"{DateTime.Now:T} {(Severity is LogSeverity.Error ? ErrorSeverity : InfoSeverity)}\t{Message}: {description}";
-        }
-    }
+//    public Exception? Exception { get; }
 
-    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+//    public override string ToString()
+//    {
+//        if (Severity is LogLevel.Error)
+//            return $"{DateTime.Now:T} {(Severity is LogLevel.Error ? ErrorSeverity : InfoSeverity)}\t{Exception}";
+//        else
+//        {
+//            var description = Description;
+//            if (description is null)
+//                return $"{DateTime.Now:T} {(Severity is LogLevel.Error ? ErrorSeverity : InfoSeverity)}\t{Message}";
+//            else
+//                return $"{DateTime.Now:T} {(Severity is LogLevel.Error ? ErrorSeverity : InfoSeverity)}\t{Message}: {description}";
+//        }
+//    }
 
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
-    {
-        int written;
+//    public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
 
-        if (Severity is LogSeverity.Error)
-        {
-            var severity = ErrorSeverity;
-            var exceptionString = Exception!.ToString();
+//    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
+//    {
+//        int written;
 
-            int requiredLength = exceptionString.Length + severity.Length + 2;
-            if (destination.Length < requiredLength || !DateTime.Now.TryFormat(destination[..^requiredLength], out var length, "T"))
-            {
-                charsWritten = 0;
-                return false;
-            }
+//        if (Severity is LogLevel.Error)
+//        {
+//            var severity = ErrorSeverity;
+//            var exceptionString = Exception!.ToString();
 
-            written = length;
+//            int requiredLength = exceptionString.Length + severity.Length + 2;
+//            if (destination.Length < requiredLength || !DateTime.Now.TryFormat(destination[..^requiredLength], out var length, "T"))
+//            {
+//                charsWritten = 0;
+//                return false;
+//            }
 
-            destination[written++] = ' ';
-            severity.CopyTo(destination[written..]);
-            written += severity.Length;
-            destination[written++] = '\t';
-            exceptionString.CopyTo(destination[written..]);
-            written += exceptionString.Length;
-        }
-        else
-        {
-            var message = Message;
-            var severity = InfoSeverity;
-            var description = Description;
+//            written = length;
 
-            int requiredLength = description is null ? message.Length + severity.Length + 2 : message.Length + description.Length + severity.Length + 4;
-            if (destination.Length < requiredLength || !DateTime.Now.TryFormat(destination[..^requiredLength], out var length, "T"))
-            {
-                charsWritten = 0;
-                return false;
-            }
+//            destination[written++] = ' ';
+//            severity.CopyTo(destination[written..]);
+//            written += severity.Length;
+//            destination[written++] = '\t';
+//            exceptionString.CopyTo(destination[written..]);
+//            written += exceptionString.Length;
+//        }
+//        else
+//        {
+//            var message = Message;
+//            var severity = InfoSeverity;
+//            var description = Description;
 
-            written = length;
+//            int requiredLength = description is null ? message.Length + severity.Length + 2 : message.Length + description.Length + severity.Length + 4;
+//            if (destination.Length < requiredLength || !DateTime.Now.TryFormat(destination[..^requiredLength], out var length, "T"))
+//            {
+//                charsWritten = 0;
+//                return false;
+//            }
 
-            destination[written++] = ' ';
-            severity.CopyTo(destination[written..]);
-            written += severity.Length;
-            destination[written++] = '\t';
-            message.CopyTo(destination[written..]);
-            written += message.Length;
+//            written = length;
 
-            if (description is not null)
-            {
-                ": ".CopyTo(destination[written..]);
-                written += 2;
-                description.CopyTo(destination[written..]);
-                written += description.Length;
-            }
-        }
+//            destination[written++] = ' ';
+//            severity.CopyTo(destination[written..]);
+//            written += severity.Length;
+//            destination[written++] = '\t';
+//            message.CopyTo(destination[written..]);
+//            written += message.Length;
 
-        charsWritten = written;
-        return true;
-    }
-}
+//            if (description is not null)
+//            {
+//                ": ".CopyTo(destination[written..]);
+//                written += 2;
+//                description.CopyTo(destination[written..]);
+//                written += description.Length;
+//            }
+//        }
+
+//        charsWritten = written;
+//        return true;
+//    }
+//}

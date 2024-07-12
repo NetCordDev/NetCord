@@ -14,23 +14,24 @@ internal class GatewayClientHostedService : IHostedService
 
     public GatewayClientHostedService(GatewayClient client, ILogger<GatewayClient> logger)
     {
-        (_client = client).Log += LogAsync;
+        _client = client;
+        //(_client = client).Log += LogAsync;
         _logger = logger;
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        return _client.StartAsync();
+        return _client.StartAsync(cancellationToken: cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        return _client.CloseAsync();
+        return _client.CloseAsync(cancellationToken: cancellationToken);
     }
 
-    private ValueTask LogAsync(LogMessage message)
-    {
-        _logger.Log((LogLevel)message.Severity, message.Exception, message.Message);
-        return default;
-    }
+    //private ValueTask LogAsync(LogMessage message)
+    //{
+    //    _logger.Log((Microsoft.Extensions.Logging.LogLevel)message.Severity, message.Exception, message.Message);
+    //    return default;
+    //}
 }

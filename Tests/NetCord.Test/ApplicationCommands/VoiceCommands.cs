@@ -49,11 +49,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         {
             semaphore.Release();
         }
-        voiceClient.Log += m =>
-        {
-            Console.WriteLine(m);
-            return default;
-        };
         voiceClient.Disconnect += disconnectHandler;
 
         await voiceClient.StartAsync();

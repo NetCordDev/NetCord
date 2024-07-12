@@ -35,12 +35,6 @@ ShardedGatewayClient client = new(token, new()
         ],
     },
 });
-client.Log += (client, message) =>
-{
-    var shard = client.Shard.GetValueOrDefault();
-    Console.WriteLine($"#{shard.Id}\t{message}");
-    return default;
-};
 client.MessageCreate += async (client, message) =>
 {
     if (message.Author.IsBot)

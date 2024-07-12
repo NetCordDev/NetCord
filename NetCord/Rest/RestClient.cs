@@ -3,12 +3,15 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;
 
 public sealed partial class RestClient : IDisposable
 {
+    private readonly IRestLogger _logger;
     private readonly string _baseUrl;
     private readonly IRestRequestHandler _requestHandler;
     private readonly RestRequestProperties _defaultRequestProperties;
@@ -19,9 +22,9 @@ public sealed partial class RestClient : IDisposable
     /// </summary>
     public IToken? Token { get; }
 
-    public RestClient(RestClientConfiguration? configuration = null)
+    private RestClient(IRestLogger? logger, RestClientConfiguration configuration)
     {
-        configuration ??= new();
+        _logger = logger ?? new ConsoleLogger(LogLevel.Information);
 
         _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
 
@@ -39,10 +42,25 @@ public sealed partial class RestClient : IDisposable
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
     }
 
+    public RestClient(RestClientConfiguration? configuration = null) : this((configuration ??= new()).Logger, configuration)
+    {
+    }
+
     public RestClient(IToken token, RestClientConfiguration? configuration = null) : this(configuration)
     {
         Token = token;
         _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
+    }
+
+    internal RestClient(IToken token, GatewayClientConfiguration configuration) : this(GetLogger(configuration, configuration.RestConfiguration, out var restConfiguration), restConfiguration)
+    {
+        Token = token;
+        _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
+    }
+
+    private static IRestLogger? GetLogger(GatewayClientConfiguration configuration, RestClientConfiguration? nullableRestConfiguration, out RestClientConfiguration restConfiguration)
+    {
+        return (restConfiguration = configuration.RestConfiguration ?? new()).Logger ?? ((IWebSocketClientConfiguration)configuration).Logger as IRestLogger;
     }
 
     public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)

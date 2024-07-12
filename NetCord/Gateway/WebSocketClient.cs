@@ -5,6 +5,7 @@ using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -22,6 +23,7 @@ public abstract class WebSocketClient : IDisposable
         webSocket.Closed += HandleClosed;
         webSocket.MessageReceived += HandleMessageReceived;
 
+        _logger = configuration.Logger;
         _webSocket = webSocket;
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
@@ -31,6 +33,7 @@ public abstract class WebSocketClient : IDisposable
     private readonly IWebSocket _webSocket;
     private readonly IReconnectStrategy _reconnectStrategy;
 
+    private protected readonly IWebSocketLogger _logger;
     private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
@@ -58,11 +61,10 @@ public abstract class WebSocketClient : IDisposable
     public event Func<ValueTask>? Connect;
     public event Func<bool, ValueTask>? Disconnect;
     public event Func<ValueTask>? Close;
-    public event Func<LogMessage, ValueTask>? Log;
 
     private async void HandleConnecting()
     {
-        InvokeLog(LogMessage.Info("Connecting"));
+        Log(LogLevel.Information, null, "Connecting");
         await InvokeEventAsync(Connecting).ConfigureAwait(false);
     }
 
@@ -71,7 +73,7 @@ public abstract class WebSocketClient : IDisposable
         Interlocked.Exchange(ref _disconnectedTokenProvider, new())?.Cancel();
 
         OnConnected();
-        InvokeLog(LogMessage.Info("Connected"));
+        Log(LogLevel.Information, null, "Connected");
         await InvokeEventAsync(Connect).ConfigureAwait(false);
     }
 
@@ -79,7 +81,7 @@ public abstract class WebSocketClient : IDisposable
     {
         Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
 
-        InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
+        Log(LogLevel.Information, null, "Disconnected. Close status: '{0}'. Description: '{1}'", closeStatus, description);
         var reconnect = Reconnect(closeStatus, description);
         var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
         if (reconnect)
@@ -94,7 +96,7 @@ public abstract class WebSocketClient : IDisposable
     {
         Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
 
-        InvokeLog(LogMessage.Info("Closed"));
+        Log(LogLevel.Information, null, "Closed");
         var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
 
         _readyCompletionSource.TrySetCanceled();
@@ -113,7 +115,7 @@ public abstract class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log(LogLevel.Error, ex, "Failed to deserialize payload");
                 await AbortAndReconnectAsync().ConfigureAwait(false);
                 return;
             }
@@ -122,7 +124,7 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log(LogLevel.Error, ex, "Failed to process payload");
         }
     }
 
@@ -177,7 +179,7 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log(LogLevel.Error, ex, "Failed to abort the connection");
         }
 
         return ReconnectAsync();
@@ -210,7 +212,7 @@ public abstract class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log(LogLevel.Error, ex, "Failed to reconnect");
                 continue;
             }
 
@@ -220,7 +222,7 @@ public abstract class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log(LogLevel.Error, ex, "Failed to resume");
             }
 
             return;
@@ -242,7 +244,7 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log(LogLevel.Error, ex, "Failed to create timer");
             return;
         }
 
@@ -269,46 +271,13 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract Task ProcessPayloadAsync(JsonPayload payload);
 
-    private protected async void InvokeLog(LogMessage logMessage)
-    {
-        var log = Log;
-        if (log is not null)
-        {
-            try
-            {
-                ValueTask task;
-                lock (_eventsLock)
-                    task = log(logMessage);
-                await task.ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-    }
-
-    private async void InvokeLogWithoutLock(LogMessage logMessage)
-    {
-        var log = Log;
-        if (log is not null)
-        {
-            try
-            {
-                await log(logMessage).ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-    }
-
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(LatencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
 
     private protected ValueTask InvokeResumeEventAsync()
         => InvokeEventAsync(Resume);
 
-    private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
+    private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -321,18 +290,18 @@ public abstract class WebSocketClient : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    LogEventError(ex, eventName);
                     return default;
                 }
             }
 
-            return AwaitEventAsync(task);
+            return AwaitEventAsync(task, eventName);
         }
         else
             return default;
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -346,18 +315,18 @@ public abstract class WebSocketClient : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    LogEventError(ex, eventName);
                     return default;
                 }
             }
 
-            return AwaitEventAsync(task);
+            return AwaitEventAsync(task, eventName);
         }
         else
             return default;
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -370,18 +339,18 @@ public abstract class WebSocketClient : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    LogEventError(ex, eventName);
                     return default;
                 }
             }
 
-            return AwaitEventAsync(task);
+            return AwaitEventAsync(task, eventName);
         }
         else
             return default;
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -396,12 +365,12 @@ public abstract class WebSocketClient : IDisposable
                 catch (Exception ex)
                 {
                     updateData(data);
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    LogEventError(ex, eventName);
                     return default;
                 }
             }
 
-            return AwaitEventAsync(task);
+            return AwaitEventAsync(task, eventName);
         }
         else
         {
@@ -411,7 +380,7 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
+    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -427,12 +396,12 @@ public abstract class WebSocketClient : IDisposable
                 catch (Exception ex)
                 {
                     updateData();
-                    InvokeLogWithoutLock(LogMessage.Error(ex));
+                    LogEventError(ex, eventName);
                     return default;
                 }
             }
 
-            return AwaitEventAsync(task);
+            return AwaitEventAsync(task, eventName);
         }
         else
         {
@@ -442,7 +411,7 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected async ValueTask InvokeEventAsync<TPartial, T>(Func<T, ValueTask>? @event, Func<TPartial> partialDataFunc, Func<TPartial, T> dataFunc, Func<TPartial, bool> cacheFunc, Func<TPartial, SemaphoreSlim> semaphoreFunc, Func<TPartial, ValueTask> cacheAsyncFunc)
+    private protected async ValueTask InvokeEventAsync<TPartial, T>(Func<T, ValueTask>? @event, Func<TPartial> partialDataFunc, Func<TPartial, T> dataFunc, Func<TPartial, bool> cacheFunc, Func<TPartial, SemaphoreSlim> semaphoreFunc, Func<TPartial, ValueTask> cacheAsyncFunc, [CallerArgumentExpression(nameof(@event))] string? eventName = null)
     {
         if (@event is not null)
         {
@@ -464,7 +433,7 @@ public abstract class WebSocketClient : IDisposable
                         }
                         catch (Exception ex)
                         {
-                            InvokeLogWithoutLock(LogMessage.Error(ex));
+                            LogEventError(ex, eventName);
                             return;
                         }
                     }
@@ -485,17 +454,17 @@ public abstract class WebSocketClient : IDisposable
                     }
                     catch (Exception ex)
                     {
-                        InvokeLogWithoutLock(LogMessage.Error(ex));
+                        LogEventError(ex, eventName);
                         return;
                     }
                 }
             }
 
-            await AwaitEventAsync(task).ConfigureAwait(false);
+            await AwaitEventAsync(task, eventName).ConfigureAwait(false);
         }
     }
 
-    private async ValueTask AwaitEventAsync(ValueTask task)
+    private async ValueTask AwaitEventAsync(ValueTask task, string? eventName)
     {
         try
         {
@@ -503,7 +472,23 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            LogEventError(ex, eventName);
+        }
+    }
+
+    private void LogEventError(Exception ex, string? eventName)
+    {
+        Log(LogLevel.Error, ex, "An exception occured while invoking '{0}' event", eventName);
+    }
+
+    private protected void Log(LogLevel logLevel, Exception? exception, string message, params object?[] args)
+    {
+        try
+        {
+            _logger.Log(logLevel, exception, message, args);
+        }
+        catch
+        {
         }
     }
 

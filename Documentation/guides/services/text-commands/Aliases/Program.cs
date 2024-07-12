@@ -11,12 +11,6 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
 CommandService<CommandContext> commandService = new();
 commandService.AddModules(typeof(Program).Assembly);
 
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
-
 client.MessageCreate += async message =>
 {
     if (!message.Content.StartsWith('!') || message.Author.IsBot)
