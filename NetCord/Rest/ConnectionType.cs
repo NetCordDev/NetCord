@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<ConnectionType>))]
+[JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<ConnectionType>))]
 public enum ConnectionType
 {
     [JsonPropertyName("battlenet")]

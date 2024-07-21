@@ -8,7 +8,7 @@ namespace NetCord;
 /// <remarks>
 /// The Owner role is not represented in the <see cref="TeamRole"/> enum, as it is not represented in <see cref="TeamUser"/>'s <see cref="TeamUser.Role"/> field. Instead, owners can be identified using a <see cref="Team"/>'s <see cref="Team.OwnerId"/> field. They have the most permissive role, and can take destructive, irreversible actions like deleting team-owned apps or the team itself. Teams are limited to 1 owner.
 /// </remarks>
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<TeamRole>))]
+[JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<TeamRole>))]
 public enum TeamRole
 {
     /// <summary>
