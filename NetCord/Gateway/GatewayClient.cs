@@ -1127,7 +1127,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
                 {
-                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry))).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_ADD":

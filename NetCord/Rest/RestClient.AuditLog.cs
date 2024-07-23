@@ -19,7 +19,7 @@ public partial class RestClient
             {
                 var jsonAuditLog = await s.ToObjectAsync(Serialization.Default.JsonAuditLog).ConfigureAwait(false);
                 RestAuditLogEntryData data = new(jsonAuditLog, this);
-                return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data));
+                return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data, guildId));
             },
             e => e.Id,
             HttpMethod.Get,
