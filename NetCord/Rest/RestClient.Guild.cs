@@ -240,8 +240,8 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/regions", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonVoiceRegionArray).ConfigureAwait(false)).Select(r => new VoiceRegion(r));
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IEnumerable<RestGuildInvite>> GetGuildInvitesAsync(ulong guildId, RestRequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/invites", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildInviteArray).ConfigureAwait(false)).Select(i => new RestGuildInvite(i, this));
+    public async Task<IEnumerable<RestInvite>> GetGuildInvitesAsync(ulong guildId, RestRequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/invites", null, new(guildId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInviteArray).ConfigureAwait(false)).Select(i => new RestInvite(i, this));
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<IReadOnlyDictionary<ulong, Integration>> GetGuildIntegrationsAsync(ulong guildId, RestRequestProperties? properties = null)

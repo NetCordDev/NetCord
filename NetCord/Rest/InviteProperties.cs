@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class GuildInviteProperties
+public partial class InviteProperties
 {
     [JsonPropertyName("max_age")]
     public int? MaxAge { get; set; }
@@ -17,7 +17,7 @@ public partial class GuildInviteProperties
     public bool? Unique { get; set; }
 
     [JsonPropertyName("target_type")]
-    public GuildInviteTargetType? TargetType { get; set; }
+    public InviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user_id")]
     public ulong? TargetUserId { get; set; }

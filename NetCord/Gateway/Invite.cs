@@ -2,12 +2,12 @@
 
 namespace NetCord.Gateway;
 
-public class GuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonGuildInvite>
+public class Invite : IInvite, IJsonModel<JsonModels.JsonInvite>
 {
-    JsonModels.JsonGuildInvite IJsonModel<JsonModels.JsonGuildInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonGuildInvite _jsonModel;
+    JsonModels.JsonInvite IJsonModel<JsonModels.JsonInvite>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonInvite _jsonModel;
 
-    public GuildInvite(JsonModels.JsonGuildInvite jsonModel, RestClient client)
+    public Invite(JsonModels.JsonInvite jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
 
@@ -24,6 +24,8 @@ public class GuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonGuildInvite>
             TargetApplication = new(targetApplication, client);
     }
 
+    public InviteType Type => _jsonModel.Type;
+
     public ulong ChannelId => _jsonModel.ChannelId;
 
     public string Code => _jsonModel.Code;
@@ -38,7 +40,7 @@ public class GuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonGuildInvite>
 
     public int MaxUses => _jsonModel.MaxUses;
 
-    public GuildInviteTargetType? TargetType => _jsonModel.TargetType;
+    public InviteTargetType? TargetType => _jsonModel.TargetType;
 
     public User? TargetUser { get; }
 
@@ -48,15 +50,15 @@ public class GuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonGuildInvite>
 
     public int Uses => _jsonModel.Uses;
 
-    ulong? IGuildInvite.ChannelId => ChannelId;
+    ulong? IInvite.ChannelId => ChannelId;
 
-    int? IGuildInvite.MaxAge => MaxAge;
+    int? IInvite.MaxAge => MaxAge;
 
-    int? IGuildInvite.MaxUses => MaxUses;
+    int? IInvite.MaxUses => MaxUses;
 
-    bool? IGuildInvite.Temporary => Temporary;
+    bool? IInvite.Temporary => Temporary;
 
-    int? IGuildInvite.Uses => Uses;
+    int? IInvite.Uses => Uses;
 
-    DateTimeOffset? IGuildInvite.CreatedAt => CreatedAt;
+    DateTimeOffset? IInvite.CreatedAt => CreatedAt;
 }

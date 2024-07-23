@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum GuildInviteTargetType
+public enum InviteTargetType
 {
     Stream = 1,
     EmbeddedApplication = 2,

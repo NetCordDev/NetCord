@@ -1,7 +1,8 @@
 ﻿namespace NetCord;
 
-public interface IGuildInvite
+public interface IInvite
 {
+    public InviteType Type { get; }
     public ulong? GuildId { get; }
     public ulong? ChannelId { get; }
     public string Code { get; }
@@ -10,7 +11,7 @@ public interface IGuildInvite
     public Application? TargetApplication { get; }
     public int? MaxAge { get; }
     public int? MaxUses { get; }
-    public GuildInviteTargetType? TargetType { get; }
+    public InviteTargetType? TargetType { get; }
     public bool? Temporary { get; }
     public int? Uses { get; }
     public DateTimeOffset? CreatedAt { get; }

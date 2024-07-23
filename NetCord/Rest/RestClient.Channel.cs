@@ -197,15 +197,15 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
-    public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildInviteArray).ConfigureAwait(false)).Select(r => new RestGuildInvite(r, this));
+    public async Task<IEnumerable<RestInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInviteArray).ConfigureAwait(false)).Select(r => new RestInvite(r, this));
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
-    public async Task<RestGuildInvite> CreateGuildChannelInviteAsync(ulong channelId, GuildInviteProperties? guildInviteProperties = null, RestRequestProperties? properties = null)
+    public async Task<RestInvite> CreateGuildChannelInviteAsync(ulong channelId, InviteProperties? inviteProperties = null, RestRequestProperties? properties = null)
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
     {
-        using (HttpContent content = new JsonContent<GuildInviteProperties?>(guildInviteProperties, Serialization.Default.GuildInviteProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildInvite).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<InviteProperties?>(inviteProperties, Serialization.Default.InviteProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
     }
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 

@@ -1,11 +1,13 @@
 ﻿namespace NetCord.Rest;
 
-public partial class RestGuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonRestGuildInvite>
+public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 {
-    JsonModels.JsonRestGuildInvite IJsonModel<JsonModels.JsonRestGuildInvite>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonRestGuildInvite _jsonModel;
+    JsonModels.JsonRestInvite IJsonModel<JsonModels.JsonRestInvite>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonRestInvite _jsonModel;
 
     private readonly RestClient _client;
+
+    public InviteType Type => _jsonModel.Type;
 
     public string Code => _jsonModel.Code;
 
@@ -15,7 +17,7 @@ public partial class RestGuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonR
 
     public User? Inviter { get; }
 
-    public GuildInviteTargetType? TargetType => _jsonModel.TargetType;
+    public InviteTargetType? TargetType => _jsonModel.TargetType;
 
     public User? TargetUser { get; }
 
@@ -41,11 +43,11 @@ public partial class RestGuildInvite : IGuildInvite, IJsonModel<JsonModels.JsonR
 
     public DateTimeOffset? CreatedAt => _jsonModel.CreatedAt;
 
-    ulong? IGuildInvite.GuildId => Guild?.Id;
+    ulong? IInvite.GuildId => Guild?.Id;
 
-    ulong? IGuildInvite.ChannelId => Channel?.Id;
+    ulong? IInvite.ChannelId => Channel?.Id;
 
-    public RestGuildInvite(JsonModels.JsonRestGuildInvite jsonModel, RestClient client)
+    public RestInvite(JsonModels.JsonRestInvite jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
 
