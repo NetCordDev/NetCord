@@ -26,10 +26,10 @@ public partial class RestClient
             $"/guilds/{guildId}/audit-logs",
             new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue
                                                                                                                                             ? (actionType.HasValue
-                                                                                                                                                ? $"?user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&"
+                                                                                                                                                ? $"?user_id={userId.GetValueOrDefault()}&action_type={(int)actionType.GetValueOrDefault()}&"
                                                                                                                                                 : $"?user_id={userId.GetValueOrDefault()}&")
                                                                                                                                             : (actionType.HasValue
-                                                                                                                                                ? $"?action_type={actionType.GetValueOrDefault()}&"
+                                                                                                                                                ? $"?action_type={(int)actionType.GetValueOrDefault()}&"
                                                                                                                                                 : "?")),
             new(guildId),
             properties);
