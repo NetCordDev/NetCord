@@ -92,9 +92,11 @@ public partial class RestClient
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
-    public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
+    public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, MessageReactionsPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
+
+        var type = paginationProperties.Type;
 
         return new QueryPaginationAsyncEnumerable<User, ulong>(
             this,
@@ -103,7 +105,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), type.HasValue ? $"?type={(byte)type.GetValueOrDefault()}&" : "?"),
             new(channelId),
             properties);
     }
