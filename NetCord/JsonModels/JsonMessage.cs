@@ -107,4 +107,7 @@ public class JsonMessage : JsonEntity
 
     [JsonPropertyName("poll")]
     public JsonMessagePoll? Poll { get; set; }
+
+    [JsonPropertyName("call")]
+    public JsonMessageCall? Call { get; set; }
 }

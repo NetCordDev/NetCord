@@ -80,6 +80,10 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         var poll = jsonModel.Poll;
         if (poll is not null)
             Poll = new(poll);
+
+        var call = jsonModel.Call;
+        if (call is not null)
+            Call = new(call);
     }
 
     /// <summary>
@@ -249,6 +253,8 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public InteractionResolvedData? ResolvedData { get; }
 
     public MessagePoll? Poll { get; }
+
+    public MessageCall? Call { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
         => SendAsync(replyMessage.ToMessageProperties(Id), properties);
