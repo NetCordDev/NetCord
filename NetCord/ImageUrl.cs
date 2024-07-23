@@ -157,9 +157,9 @@ public class ImageUrl : ISpanFormattable
         return new($"/guilds/{guildId}/users/{userId}/avatars/{avatarHash}", GetExtension(avatarHash, format));
     }
 
-    public static ImageUrl UserAvatarDecoration(ulong userId, string avatarDecorationHash)
+    public static ImageUrl AvatarDecoration(string avatarDecorationHash)
     {
-        return new($"/avatar-decorations/{userId}/{avatarDecorationHash}", "png");
+        return new($"/avatar-decoration-presets/{avatarDecorationHash}", "png");
     }
 
     public static ImageUrl ApplicationIcon(ulong applicationId, string iconHash, ImageFormat format)

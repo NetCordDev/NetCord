@@ -50,8 +50,8 @@ public class JsonUser : JsonEntity
     [JsonPropertyName("public_flags")]
     public UserFlags? PublicFlags { get; set; }
 
-    [JsonPropertyName("avatar_decoration")]
-    public string? AvatarDecorationHash { get; set; }
+    [JsonPropertyName("avatar_decoration_data")]
+    public JsonAvatarDecorationData? AvatarDecorationData { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
