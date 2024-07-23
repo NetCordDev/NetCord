@@ -8,6 +8,12 @@ public enum ConnectionType
     [JsonPropertyName("battlenet")]
     BattleNet,
 
+    [JsonPropertyName("bungie")]
+    Bungie,
+
+    [JsonPropertyName("domain")]
+    Domain,
+
     [JsonPropertyName("ebay")]
     Ebay,
 
