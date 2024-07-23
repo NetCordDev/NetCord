@@ -35,4 +35,6 @@ public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonM
     public bool Burst => _jsonModel.Burst;
 
     public IReadOnlyList<Color> BurstColors => _jsonModel.BurstColors;
+
+    public ReactionType Type => _jsonModel.Type;
 }

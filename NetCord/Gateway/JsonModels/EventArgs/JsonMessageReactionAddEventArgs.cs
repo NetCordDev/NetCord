@@ -32,4 +32,7 @@ public class JsonMessageReactionAddEventArgs
 
     [JsonPropertyName("burst_colors")]
     public Color[] BurstColors { get; set; }
+
+    [JsonPropertyName("type")]
+    public ReactionType Type { get; set; }
 }

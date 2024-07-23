@@ -15,4 +15,6 @@ public class MessageReactionRemoveEventArgs(JsonModels.EventArgs.JsonMessageReac
     public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
 
     public bool Burst => jsonModel.Burst;
+
+    public ReactionType Type => jsonModel.Type;
 }

@@ -23,4 +23,7 @@ public class JsonMessageReactionRemoveEventArgs
 
     [JsonPropertyName("burst")]
     public bool Burst { get; set; }
+
+    [JsonPropertyName("type")]
+    public ReactionType Type { get; set; }
 }
