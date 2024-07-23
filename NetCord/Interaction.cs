@@ -20,6 +20,10 @@ public abstract partial class Interaction : ClientEntity, IInteraction
         else
             User = new(jsonModel.User!, client);
 
+        var guildReference = jsonModel.GuildReference;
+        if (guildReference is not null)
+            GuildReference = new(guildReference);
+
         Guild = guild;
         Channel = TextChannel.CreateFromJson(jsonModel.Channel!, client);
         Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
@@ -33,6 +37,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public ulong? GuildId => _jsonModel.GuildId;
 
+    public InteractionGuildReference? GuildReference { get; }
+    
     public Guild? Guild { get; }
 
     public TextChannel Channel { get; }
