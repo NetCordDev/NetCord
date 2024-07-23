@@ -20,4 +20,7 @@ public class JsonMessageReactionRemoveEventArgs
 
     [JsonPropertyName("emoji")]
     public JsonEmoji Emoji { get; set; }
+
+    [JsonPropertyName("burst")]
+    public bool Burst { get; set; }
 }

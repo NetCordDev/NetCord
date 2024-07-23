@@ -31,4 +31,8 @@ public class MessageReactionAddEventArgs : IJsonModel<JsonModels.EventArgs.JsonM
     public MessageReactionEmoji Emoji { get; }
 
     public ulong? MessageAuthorId => _jsonModel.MessageAuthorId;
+
+    public bool Burst => _jsonModel.Burst;
+
+    public IReadOnlyList<Color> BurstColors => _jsonModel.BurstColors;
 }

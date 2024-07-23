@@ -13,4 +13,6 @@ public class MessageReactionRemoveEventArgs(JsonModels.EventArgs.JsonMessageReac
     public ulong? GuildId => jsonModel.GuildId;
 
     public MessageReactionEmoji Emoji { get; } = new(jsonModel.Emoji);
+
+    public bool Burst => jsonModel.Burst;
 }
