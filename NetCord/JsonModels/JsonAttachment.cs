@@ -8,6 +8,9 @@ public class JsonAttachment : JsonEntity
     [JsonPropertyName("filename")]
     public string FileName { get; set; }
 
+    [JsonPropertyName("title")]
+    public string? Title { get; set; }
+
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
