@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class LinkButtonProperties : IButtonProperties
+public partial class LinkButtonProperties : ICustomizableButtonProperties
 {
     /// <summary>
     /// Url of the button.
@@ -11,7 +11,7 @@ public partial class LinkButtonProperties : IButtonProperties
     public string Url { get; set; }
 
     [JsonPropertyName("style")]
-    public ButtonStyle Style { get; set; }
+    public ButtonStyle Style => (ButtonStyle)5;
 
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.Button;
@@ -37,7 +37,6 @@ public partial class LinkButtonProperties : IButtonProperties
     {
         Url = url;
         Label = label;
-        Style = (ButtonStyle)5;
     }
 
     /// <summary>
@@ -49,7 +48,6 @@ public partial class LinkButtonProperties : IButtonProperties
     {
         Url = url;
         Emoji = emoji;
-        Style = (ButtonStyle)5;
     }
 
     /// <summary>
@@ -63,6 +61,5 @@ public partial class LinkButtonProperties : IButtonProperties
         Url = url;
         Label = label;
         Emoji = emoji;
-        Style = (ButtonStyle)5;
     }
 }

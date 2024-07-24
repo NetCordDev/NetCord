@@ -36,9 +36,4 @@ public enum InteractionCallbackType
     /// Respond to an interaction with a popup modal.
     /// </summary>
     Modal = 9,
-
-    /// <summary>
-    /// Respond to an interaction with an upgrade button, only available for apps with monetization enabled.
-    /// </summary>
-    PremiumRequired = 10,
 }

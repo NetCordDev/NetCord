@@ -9,22 +9,12 @@ public partial interface IButtonProperties
     /// <summary>
     /// Style of the button.
     /// </summary>
-    public ButtonStyle Style { get; set; }
+    public ButtonStyle Style { get; }
 
     /// <summary>
     /// Type of the component.
     /// </summary>
     public ComponentType ComponentType { get; }
-
-    /// <summary>
-    /// Text that appears on the button (max 80 characters).
-    /// </summary>
-    public string? Label { get; set; }
-
-    /// <summary>
-    /// Emoji that appears on the button.
-    /// </summary>
-    public EmojiProperties? Emoji { get; set; }
 
     /// <summary>
     /// Whether the button is disabled.
@@ -39,11 +29,14 @@ public partial interface IButtonProperties
         {
             switch (button)
             {
-                case ButtonProperties actionButton:
-                    JsonSerializer.Serialize(writer, actionButton, Serialization.Default.ButtonProperties);
+                case ButtonProperties buttonProperties:
+                    JsonSerializer.Serialize(writer, buttonProperties, Serialization.Default.ButtonProperties);
                     break;
-                case LinkButtonProperties linkButton:
-                    JsonSerializer.Serialize(writer, linkButton, Serialization.Default.LinkButtonProperties);
+                case LinkButtonProperties linkButtonProperties:
+                    JsonSerializer.Serialize(writer, linkButtonProperties, Serialization.Default.LinkButtonProperties);
+                    break;
+                case PremiumButtonProperties premiumButtonProperties:
+                    JsonSerializer.Serialize(writer, premiumButtonProperties, Serialization.Default.PremiumButtonProperties);
                     break;
                 default:
                     throw new InvalidOperationException($"Invalid {nameof(IButtonProperties)} value.");

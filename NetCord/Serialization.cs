@@ -96,6 +96,7 @@ namespace NetCord;
 [JsonSerializable(typeof(MessageCommandProperties))]
 [JsonSerializable(typeof(ButtonProperties))]
 [JsonSerializable(typeof(LinkButtonProperties))]
+[JsonSerializable(typeof(PremiumButtonProperties))]
 [JsonSerializable(typeof(IEnumerable<IButtonProperties>))]
 [JsonSerializable(typeof(StringMenuProperties))]
 [JsonSerializable(typeof(UserMenuProperties))]
