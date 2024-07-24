@@ -44,6 +44,9 @@ public enum ConnectionType
     [JsonPropertyName("riotgames")]
     RiotGames,
 
+    [JsonPropertyName("roblox")]
+    Roblox,
+
     [JsonPropertyName("spotify")]
     Spotify,
 
