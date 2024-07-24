@@ -269,7 +269,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         return SendAsync(new()
         {
             Attachments = [attachment],
-            Embeds = [new() { Image = attachment }]
+            Embeds = [new() { Image = $"attachment://{attachment.FileName}" }]
         });
     }
 
