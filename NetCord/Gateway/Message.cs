@@ -6,12 +6,41 @@ namespace NetCord.Gateway;
 /// <summary>
 /// Represents a complete <see cref="Message"/> object, with all required fields present.
 /// </summary>
-public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : RestMessage(jsonModel, client), IPartialMessage
+public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, RestClient client) : RestMessage(jsonModel, client)
 {
     public static Message CreateFromJson(JsonMessage jsonModel, IGatewayClientCache cache, RestClient client)
     {
-        var (guild, channel) = IPartialMessage.GetCacheData(jsonModel, cache);
+        var (guild, channel) = GetCacheData(jsonModel, cache);
         return new(jsonModel, guild, channel, client);
+    }
+
+    internal static (Guild?, TextChannel?) GetCacheData(JsonMessage jsonModel, IGatewayClientCache cache)
+    {
+        Guild? guild;
+        TextChannel? channel;
+        var guildId = jsonModel.GuildId;
+        if (guildId.HasValue)
+        {
+            if (cache.Guilds.TryGetValue(guildId.GetValueOrDefault(), out guild))
+            {
+                var channelId = jsonModel.ChannelId;
+                if (guild.Channels.TryGetValue(channelId, out var guildChannel))
+                    channel = (TextChannel)guildChannel;
+                else if (guild.ActiveThreads.TryGetValue(channelId, out var thread))
+                    channel = thread;
+                else
+                    channel = null;
+            }
+            else
+                channel = null;
+        }
+        else
+        {
+            guild = null;
+            channel = cache.DMChannels.GetValueOrDefault(jsonModel.ChannelId);
+        }
+
+        return (guild, channel);
     }
 
     /// <inheritdoc/>
@@ -22,19 +51,4 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
 
     /// <inheritdoc/>
     public TextChannel? Channel { get; } = channel;
-
-    /// <inheritdoc/>
-    bool? IPartialMessage.IsTts => IsTts;
-
-    /// <inheritdoc/>
-    bool? IPartialMessage.MentionEveryone => MentionEveryone;
-
-    /// <inheritdoc/>
-    bool? IPartialMessage.IsPinned => IsPinned;
-
-    /// <inheritdoc/>
-    MessageType? IPartialMessage.Type => Type;
-
-    /// <inheritdoc/>
-    MessageFlags? IPartialMessage.Flags => Flags;
 }

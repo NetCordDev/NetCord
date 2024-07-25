@@ -1079,7 +1079,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private readonly object _messageCreateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageUpdate"/>
-    public event Func<GatewayClient, IPartialMessage, ValueTask>? MessageUpdate
+    public event Func<GatewayClient, Message, ValueTask>? MessageUpdate
     {
         add
         {
@@ -1090,7 +1090,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             UnhookEvent(_messageUpdateLock, value, ref _messageUpdate, (c, e) => c.MessageUpdate -= e);
         }
     }
-    private Func<GatewayClient, IPartialMessage, ValueTask>? _messageUpdate;
+    private Func<GatewayClient, Message, ValueTask>? _messageUpdate;
     private readonly object _messageUpdateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageDelete"/>
