@@ -34,4 +34,35 @@ public partial class RestClient
     [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id))]
     public Task DeleteGuildEmojiAsync(ulong guildId, ulong emojiId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/emojis/{emojiId}", null, new(guildId), properties);
+
+    [GenerateAlias([typeof(Application)], nameof(Application.Id))]
+    public async Task<IReadOnlyDictionary<ulong, ApplicationEmoji>> GetApplicationEmojisAsync(ulong applicationId, RestRequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).ToDictionary(e => e.Id.GetValueOrDefault(), e => new ApplicationEmoji(e, applicationId, this));
+
+    [GenerateAlias([typeof(Application)], nameof(Application.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    public async Task<ApplicationEmoji> GetApplicationEmojiAsync(ulong applicationId, ulong emojiId, RestRequestProperties? properties = null)
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis/{emojiId}", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmoji).ConfigureAwait(false), applicationId, this);
+
+    [GenerateAlias([typeof(Application)], nameof(Application.Id))]
+    public async Task<ApplicationEmoji> CreateApplicationEmojiAsync(ulong applicationId, ApplicationEmojiProperties applicationEmojiProperties, RestRequestProperties? properties = null)
+    {
+        using (HttpContent content = new JsonContent<ApplicationEmojiProperties>(applicationEmojiProperties, Serialization.Default.ApplicationEmojiProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/emojis", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmoji).ConfigureAwait(false), applicationId, this);
+    }
+
+    [GenerateAlias([typeof(Application)], nameof(Application.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    public async Task<ApplicationEmoji> ModifyApplicationEmojiAsync(ulong applicationId, ulong emojiId, Action<ApplicationEmojiOptions> action, RestRequestProperties? properties = null)
+    {
+        ApplicationEmojiOptions applicationEmojiOptions = new();
+        action(applicationEmojiOptions);
+        using (HttpContent content = new JsonContent<ApplicationEmojiOptions>(applicationEmojiOptions, Serialization.Default.ApplicationEmojiOptions))
+            return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/applications/{applicationId}/emojis/{emojiId}", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmoji).ConfigureAwait(false), applicationId, this);
+    }
+
+    [GenerateAlias([typeof(Application)], nameof(Application.Id))]
+    [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]
+    public Task DeleteApplicationEmojiAsync(ulong applicationId, ulong emojiId, RestRequestProperties? properties = null)
+        => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/emojis/{emojiId}", null, null, properties);
 }
