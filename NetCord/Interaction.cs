@@ -38,7 +38,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
     public ulong? GuildId => _jsonModel.GuildId;
 
     public InteractionGuildReference? GuildReference { get; }
-    
+
     public Guild? Guild { get; }
 
     public TextChannel Channel { get; }

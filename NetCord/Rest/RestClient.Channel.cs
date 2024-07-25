@@ -1,6 +1,4 @@
-﻿using NetCord.Gateway;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {
