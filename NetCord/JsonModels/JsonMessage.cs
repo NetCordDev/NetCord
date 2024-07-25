@@ -65,11 +65,14 @@ public class JsonMessage : JsonEntity
     [JsonPropertyName("application_id")]
     public ulong? ApplicationId { get; set; }
 
+    [JsonPropertyName("flags")]
+    public MessageFlags? Flags { get; set; }
+
     [JsonPropertyName("message_reference")]
     public JsonMessageReference? MessageReference { get; set; }
 
-    [JsonPropertyName("flags")]
-    public MessageFlags? Flags { get; set; }
+    [JsonPropertyName("message_snapshots")]
+    public JsonMessageSnapshot[]? MessageSnapshots { get; set; }
 
     [JsonPropertyName("referenced_message")]
     public JsonMessage? ReferencedMessage { get; set; }

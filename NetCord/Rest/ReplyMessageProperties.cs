@@ -23,7 +23,7 @@ public partial class ReplyMessageProperties
             Attachments = Attachments,
             Embeds = Embeds,
             AllowedMentions = AllowedMentions ?? new(),
-            MessageReference = new(messageReferenceId, FailIfNotExists.GetValueOrDefault(true)),
+            MessageReference = MessageReferenceProperties.Reply(messageReferenceId, FailIfNotExists.GetValueOrDefault(true)),
             Components = Components,
             StickerIds = StickerIds,
             Flags = Flags,

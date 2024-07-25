@@ -21,7 +21,7 @@ public class NormalCommands : CommandModule<CommandContext>
     [Command("reply")]
     public Task Reply([CommandParameter(Remainder = true)] string text)
     {
-        return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None, MessageReference = new(Context.Message.Id) });
+        return SendAsync(new MessageProperties() { Content = text, AllowedMentions = AllowedMentionsProperties.None, MessageReference = MessageReferenceProperties.Reply(Context.Message.Id) });
     }
 
     [Command("roles")]
@@ -106,7 +106,7 @@ public class NormalCommands : CommandModule<CommandContext>
             [
                 embed
             ],
-            MessageReference = new(Context.Message.Id, false),
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id, false),
             AllowedMentions = new()
             {
                 ReplyMention = false

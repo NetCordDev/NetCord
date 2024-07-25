@@ -25,7 +25,7 @@ public class BanCommands : CommandModule<CommandContext>
                 [
                     actionRow
                 ],
-            MessageReference = new(Context.Message.Id),
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None,
         };
         await SendAsync(message);
