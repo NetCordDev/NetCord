@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public interface IMessageProperties
+public partial interface IMessageProperties
 {
     public string? Content { get; set; }
 
