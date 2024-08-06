@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public partial class ReplyMessageProperties
+public partial class ReplyMessageProperties : IMessageProperties
 {
     public string? Content { get; set; }
     public NonceProperties? Nonce { get; set; }
