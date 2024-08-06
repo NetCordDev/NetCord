@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class ForumGuildThreadMessageProperties
+public partial class ForumGuildThreadMessageProperties : IMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]
