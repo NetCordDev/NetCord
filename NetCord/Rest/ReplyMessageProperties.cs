@@ -12,6 +12,7 @@ public partial class ReplyMessageProperties : IMessageProperties
     public IEnumerable<MessageComponentProperties>? Components { get; set; }
     public IEnumerable<ulong>? StickerIds { get; set; }
     public MessageFlags? Flags { get; set; }
+    public MessagePollProperties? Poll { get; set; }
 
     public MessageProperties ToMessageProperties(ulong messageReferenceId)
     {
@@ -27,6 +28,7 @@ public partial class ReplyMessageProperties : IMessageProperties
             Components = Components,
             StickerIds = StickerIds,
             Flags = Flags,
+            Poll = Poll,
         };
     }
 
