@@ -44,7 +44,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, TContext
             _handleAsync = &HandleInteractionAsync;
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>();
-        _handleResultAsync = optionsValue.HandleResultAsync;
+        _handleResultAsync = optionsValue.ResultHandler.HandleResultAsync;
         _client = client;
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
 using NetCord.Services;
@@ -20,22 +21,5 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
 
     public Func<Message, GatewayClient, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public Func<IExecutionResult, Message, TContext, GatewayClient, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, message, context, client, logger, services) =>
-    {
-        if (result is not IFailResult failResult)
-            return default;
-
-        string resultMessage = failResult.Message;
-
-        if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of a command with content '{Content}' failed with an exception", message.Content);
-        else
-            logger.LogDebug("Execution of a command with content '{Content}' failed with '{Message}'", message.Content, resultMessage);
-
-        return new(message.ReplyAsync(new()
-        {
-            Content = resultMessage,
-            FailIfNotExists = false,
-        }));
-    };
+    public ICommandResultHandler<TContext> ResultHandler { get; set; } = new CommandResultHandler<TContext>();
 }

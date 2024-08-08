@@ -46,7 +46,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
 
         _getPrefixLengthAsync = GetGetPrefixLengthAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>();
-        _handleResultAsync = optionsValue.HandleResultAsync;
+        _handleResultAsync = optionsValue.ResultHandler.HandleResultAsync;
         _client = client;
     }
 
