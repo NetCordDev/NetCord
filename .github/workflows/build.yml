@@ -5,6 +5,8 @@ on:
     branches-ignore:
       - stable
       - alpha
+  pull_request:
+      branches: [ "alpha" ]
 
 jobs:
   build:
