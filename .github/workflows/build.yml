@@ -6,7 +6,7 @@ on:
       - stable
       - alpha
   pull_request:
-      branches: [ "alpha" ]
+    branches: [ "alpha" ]
 
 jobs:
   build:
