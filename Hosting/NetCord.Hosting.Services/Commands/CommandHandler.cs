@@ -20,7 +20,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
     private readonly delegate*<CommandHandler<TContext>, Message, GatewayClient, ValueTask> _handleAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<int>> _getPrefixLengthAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, TContext> _createContext;
-    private readonly Func<IExecutionResult, Message, GatewayClient, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
+    private readonly Func<IExecutionResult, Message, TContext, GatewayClient, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
     private readonly GatewayClient? _client;
 
     public CommandHandler(IServiceProvider services,
@@ -134,7 +134,7 @@ internal partial class CommandHandler<TContext>
 
         try
         {
-            await _handleResultAsync(result, message, client, _logger, services).ConfigureAwait(false);
+            await _handleResultAsync(result, message, context, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {

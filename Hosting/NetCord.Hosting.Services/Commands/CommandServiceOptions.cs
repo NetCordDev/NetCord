@@ -20,7 +20,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
 
     public Func<Message, GatewayClient, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public Func<IExecutionResult, Message, GatewayClient, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, message, client, logger, services) =>
+    public Func<IExecutionResult, Message, TContext, GatewayClient, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, message, context, client, logger, services) =>
     {
         if (result is not IFailResult failResult)
             return default;
