@@ -7,20 +7,28 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TInteraction, TContext> : IComponentInteractionResultHandler<TInteraction, TContext> where TInteraction : Interaction where TContext : IComponentInteractionContext
+public class ComponentInteractionResultHandler<TContext>(MessageFlags? onFailResultResponseFlags = null) : IComponentInteractionResultHandler<TContext> where TContext : IComponentInteractionContext
 {
-    public virtual ValueTask HandleResultAsync(IExecutionResult result, TInteraction interaction, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
+    public MessageFlags? OnFailResultResponseFlags { get; set; } = onFailResultResponseFlags;
+
+    public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
             return default;
 
-        var message = failResult.Message;
+        var resultMessage = failResult.Message;
 
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", interaction.Id);
+            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", context.Interaction.Id);
         else
-            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", interaction.Id, message);
+            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", context.Interaction.Id, resultMessage);
 
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        var message = new InteractionMessageProperties()
+        {
+            Content = resultMessage,
+            Flags = OnFailResultResponseFlags,
+        };
+
+        return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
     }
 }

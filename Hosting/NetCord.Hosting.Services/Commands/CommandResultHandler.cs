@@ -6,9 +6,11 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
 
-public class CommandResultHandler<TContext> : ICommandResultHandler<TContext> where TContext : ICommandContext
+public class CommandResultHandler<TContext>(MessageFlags? onFailResultResponseFlags = null) : ICommandResultHandler<TContext> where TContext : ICommandContext
 {
-    public virtual ValueTask HandleResultAsync(IExecutionResult result, Message message, TContext context, GatewayClient client, ILogger logger, IServiceProvider services)
+    public MessageFlags? OnFailResultResponseFlags { get; set; } = onFailResultResponseFlags;
+
+    public ValueTask HandleResultAsync(IExecutionResult result, Message message, TContext context, GatewayClient client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
             return default;
@@ -24,6 +26,7 @@ public class CommandResultHandler<TContext> : ICommandResultHandler<TContext> wh
         {
             Content = resultMessage,
             FailIfNotExists = false,
+            Flags = OnFailResultResponseFlags,
         }));
     }
 }

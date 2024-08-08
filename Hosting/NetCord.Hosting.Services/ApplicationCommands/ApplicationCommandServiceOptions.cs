@@ -14,7 +14,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInt
 
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public IApplicationCommandResultHandler<TInteraction, TContext> ResultHandler { get; set; } = new ApplicationCommandResultHandler<TInteraction, TContext>();
+    public IApplicationCommandResultHandler<TContext> ResultHandler { get; set; } = new ApplicationCommandResultHandler<TContext>();
 }
 
 public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext> : ApplicationCommandServiceOptions<TInteraction, TContext> where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext

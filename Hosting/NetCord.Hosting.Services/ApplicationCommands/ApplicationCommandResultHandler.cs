@@ -7,20 +7,28 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class ApplicationCommandResultHandler<TInteraction, TContext> : IApplicationCommandResultHandler<TInteraction, TContext> where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
+public class ApplicationCommandResultHandler<TContext>(MessageFlags? onFailResultResponseFlags = null) : IApplicationCommandResultHandler<TContext> where TContext : IApplicationCommandContext
 {
-    public virtual ValueTask HandleResultAsync(IExecutionResult result, TInteraction interaction, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
+    public MessageFlags? OnFailResultResponseFlags { get; set; } = onFailResultResponseFlags;
+
+    public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
             return default;
 
-        var message = failResult.Message;
+        var resultMessage = failResult.Message;
 
         if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", interaction.Data.Name);
+            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", context.Interaction.Data.Name);
         else
-            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, message);
+            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", context.Interaction.Data.Name, resultMessage);
 
-        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        var message = new InteractionMessageProperties()
+        {
+            Content = resultMessage,
+            Flags = OnFailResultResponseFlags
+        };
+
+        return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
     }
 }

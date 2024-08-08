@@ -11,5 +11,5 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext> where TI
 
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public IComponentInteractionResultHandler<TInteraction, TContext> ResultHandler { get; set; } = new ComponentInteractionResultHandler<TInteraction, TContext>();
+    public IComponentInteractionResultHandler<TContext> ResultHandler { get; set; } = new ComponentInteractionResultHandler<TContext>();
 }

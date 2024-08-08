@@ -7,12 +7,14 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.Hosting;
 
-internal class CustomSlashCommandResultHandler : ApplicationCommandResultHandler<SlashCommandInteraction, SlashCommandContext>
+internal class CustomSlashCommandResultHandler : IApplicationCommandResultHandler<SlashCommandContext>
 {
-    public override ValueTask HandleResultAsync(IExecutionResult result, SlashCommandInteraction interaction, SlashCommandContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
+    private static readonly ApplicationCommandResultHandler<SlashCommandContext> _defaultHandler = new(MessageFlags.Ephemeral);
+
+    public ValueTask HandleResultAsync(IExecutionResult result, SlashCommandContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         logger.LogInformation("Handling result of slash command");
 
-        return base.HandleResultAsync(result, interaction, context, client, logger, services);
+        return _defaultHandler.HandleResultAsync(result, context, client, logger, services);
     }
 }
