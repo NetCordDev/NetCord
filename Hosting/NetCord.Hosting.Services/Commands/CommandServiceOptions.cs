@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-
-using NetCord.Gateway;
-using NetCord.Services;
+﻿using NetCord.Gateway;
 using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
