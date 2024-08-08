@@ -19,7 +19,7 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<ApplicationCommandInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
-    private readonly Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
+    private readonly Func<IExecutionResult, TInteraction, TContext, GatewayClient?, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
     private readonly GatewayClient? _client;
 
     public ApplicationCommandInteractionHandler(IServiceProvider services,
@@ -89,7 +89,7 @@ internal partial class ApplicationCommandInteractionHandler<TInteraction, TConte
 
         try
         {
-            await _handleResultAsync(result, interaction, client, _logger, services).ConfigureAwait(false);
+            await _handleResultAsync(result, interaction, context, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {

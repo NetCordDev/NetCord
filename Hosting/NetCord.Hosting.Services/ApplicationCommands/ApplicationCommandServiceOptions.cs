@@ -15,7 +15,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInt
 
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
-    public Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, interaction, client, logger, services) =>
+    public Func<IExecutionResult, TInteraction, TContext, GatewayClient?, ILogger, IServiceProvider, ValueTask> HandleResultAsync { get; set; } = (result, interaction, context, client, logger, services) =>
     {
         if (result is not IFailResult failResult)
             return default;
