@@ -7,10 +7,8 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class ApplicationCommandResultHandler<TContext>(MessageFlags? onFailResultResponseFlags = null) : IApplicationCommandResultHandler<TContext> where TContext : IApplicationCommandContext
+public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlags = null) : IApplicationCommandResultHandler<TContext> where TContext : IApplicationCommandContext
 {
-    public MessageFlags? OnFailResultResponseFlags { get; set; } = onFailResultResponseFlags;
-
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
@@ -26,7 +24,7 @@ public class ApplicationCommandResultHandler<TContext>(MessageFlags? onFailResul
         var message = new InteractionMessageProperties()
         {
             Content = resultMessage,
-            Flags = OnFailResultResponseFlags
+            Flags = messageFlags
         };
 
         return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));

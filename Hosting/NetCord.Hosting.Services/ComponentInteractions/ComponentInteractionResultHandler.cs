@@ -7,10 +7,8 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TContext>(MessageFlags? onFailResultResponseFlags = null) : IComponentInteractionResultHandler<TContext> where TContext : IComponentInteractionContext
+public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFlags = null) : IComponentInteractionResultHandler<TContext> where TContext : IComponentInteractionContext
 {
-    public MessageFlags? OnFailResultResponseFlags { get; set; } = onFailResultResponseFlags;
-
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
@@ -26,7 +24,7 @@ public class ComponentInteractionResultHandler<TContext>(MessageFlags? onFailRes
         var message = new InteractionMessageProperties()
         {
             Content = resultMessage,
-            Flags = OnFailResultResponseFlags,
+            Flags = messageFlags,
         };
 
         return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
