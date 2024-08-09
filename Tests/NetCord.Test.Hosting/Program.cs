@@ -39,7 +39,10 @@ builder.Services
     {
         Intents = GatewayIntents.All,
     })
-    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>()
+    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>(options =>
+    {
+        options.ResultHandler = new CustomSlashCommandResultHandler();
+    })
     .AddApplicationCommands<UserCommandInteraction, UserCommandContext>()
     .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
