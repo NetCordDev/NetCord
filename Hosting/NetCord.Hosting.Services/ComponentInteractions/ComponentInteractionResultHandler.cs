@@ -16,17 +16,19 @@ public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFl
 
         var resultMessage = failResult.Message;
 
-        if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", context.Interaction.Id);
-        else
-            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", context.Interaction.Id, resultMessage);
+        var interaction = context.Interaction;
 
-        var message = new InteractionMessageProperties()
+        if (failResult is IExceptionResult exceptionResult)
+            logger.LogError(exceptionResult.Exception, "Execution of an interaction of custom ID '{Id}' failed with an exception", interaction.Id);
+        else
+            logger.LogDebug("Execution of an interaction of custom ID '{Id}' failed with '{Message}'", interaction.Id, resultMessage);
+
+        InteractionMessageProperties message = new()
         {
             Content = resultMessage,
             Flags = messageFlags,
         };
 
-        return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
     }
 }

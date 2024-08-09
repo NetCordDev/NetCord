@@ -8,5 +8,5 @@ namespace NetCord.Hosting.Services.Commands;
 
 public interface ICommandResultHandler<TContext> where TContext : ICommandContext
 {
-    public ValueTask HandleResultAsync(IExecutionResult result, Message message, TContext context, GatewayClient client, ILogger logger, IServiceProvider services);
+    public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient client, ILogger logger, IServiceProvider services);
 }

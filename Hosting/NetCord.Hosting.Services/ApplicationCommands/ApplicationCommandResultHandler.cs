@@ -16,17 +16,19 @@ public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlag
 
         var resultMessage = failResult.Message;
 
-        if (failResult is IExceptionResult exceptionResult)
-            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", context.Interaction.Data.Name);
-        else
-            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", context.Interaction.Data.Name, resultMessage);
+        var interaction = context.Interaction;
 
-        var message = new InteractionMessageProperties()
+        if (failResult is IExceptionResult exceptionResult)
+            logger.LogError(exceptionResult.Exception, "Execution of an application command of name '{Name}' failed with an exception", interaction.Data.Name);
+        else
+            logger.LogDebug("Execution of an application command of name '{Name}' failed with '{Message}'", interaction.Data.Name, resultMessage);
+
+        InteractionMessageProperties message = new()
         {
             Content = resultMessage,
-            Flags = messageFlags
+            Flags = messageFlags,
         };
 
-        return new(context.Interaction.SendResponseAsync(InteractionCallback.Message(message)));
+        return new(interaction.SendResponseAsync(InteractionCallback.Message(message)));
     }
 }

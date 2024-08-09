@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
-using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;

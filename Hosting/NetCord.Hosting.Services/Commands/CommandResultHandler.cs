@@ -8,12 +8,14 @@ namespace NetCord.Hosting.Services.Commands;
 
 public class CommandResultHandler<TContext>(MessageFlags? messageFlags = null) : ICommandResultHandler<TContext> where TContext : ICommandContext
 {
-    public ValueTask HandleResultAsync(IExecutionResult result, Message message, TContext context, GatewayClient client, ILogger logger, IServiceProvider services)
+    public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient client, ILogger logger, IServiceProvider services)
     {
         if (result is not IFailResult failResult)
             return default;
 
-        string resultMessage = failResult.Message;
+        var resultMessage = failResult.Message;
+
+        var message = context.Message;
 
         if (failResult is IExceptionResult exceptionResult)
             logger.LogError(exceptionResult.Exception, "Execution of a command with content '{Content}' failed with an exception", message.Content);

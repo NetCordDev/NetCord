@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
-using NetCord.Services;
 using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
@@ -134,7 +133,7 @@ internal partial class CommandHandler<TContext>
 
         try
         {
-            await _resultHandler.HandleResultAsync(result, message, context, client, _logger, services).ConfigureAwait(false);
+            await _resultHandler.HandleResultAsync(result, context, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {
