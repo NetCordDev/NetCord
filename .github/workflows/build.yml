@@ -6,6 +6,7 @@ on:
       - stable
       - alpha
   pull_request:
+    types: [opened, synchronize]
     branches:
       - stable
       - alpha
