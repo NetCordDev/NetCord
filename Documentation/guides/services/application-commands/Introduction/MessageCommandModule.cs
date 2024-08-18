@@ -7,4 +7,3 @@ public class MessageCommandModule : ApplicationCommandModule<MessageCommandConte
     [MessageCommand("Timestamp")]
     public string Timestamp() => Context.Target.CreatedAt.ToString();
 }
-
