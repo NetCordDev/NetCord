@@ -10,9 +10,9 @@ Before we start, you need a token of your bot... so you need to go to the [Disco
 > [!IMPORTANT]
 > You should never give your token to anybody.
 
-## [Hosting](#tab/hosting)
+## [Generic Host](#tab/generic-host)
 
-With hosting, you can just use @NetCord.Hosting.Gateway.GatewayClientHostBuilderExtensions.UseDiscordGateway(Microsoft.Extensions.Hosting.IHostBuilder) to add your bot to the host. Quite easy, right?
+With the generic host, you can just use @NetCord.Hosting.Gateway.GatewayClientHostBuilderExtensions.UseDiscordGateway(Microsoft.Extensions.Hosting.IHostBuilder) to add your bot to the host. Quite easy, right?
 [!code-cs[Program.cs](CodingHosting/Program.cs)]
 
 Also note that the token needs to be stored in the configuration. You can for example use `appsettings.json` file. It should look like this:
@@ -21,7 +21,7 @@ Also note that the token needs to be stored in the configuration. You can for ex
 Now, when you run the code, your bot should be online!
 ![](../../images/coding_BotOnline.png)
 
-## [Without Hosting](#tab/without-hosting)
+## [Bare Bones](#tab/bare-bones)
 
 Add the following lines to file `Program.cs`.
 [!code-cs[Program.cs](Coding/Program.cs#L1-L4)]
