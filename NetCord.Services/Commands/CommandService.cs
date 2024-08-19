@@ -108,7 +108,16 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         var index = fullCommand.Span.IndexOfAny(separators);
         SortedList<CommandInfo<TContext>>? commandInfos;
         ReadOnlyMemory<char> baseArguments;
-        if (index == -1)
+        if (index >= 0)
+        {
+            var command = fullCommand[..index];
+
+            if (!TryGetCommandInfos(command, out commandInfos))
+                return new NotFoundResult("Command not found.");
+
+            baseArguments = fullCommand[(index + 1)..].TrimStart(separators);
+        }
+        else
         {
             var command = fullCommand;
 
@@ -117,17 +126,8 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
 
             baseArguments = default;
         }
-        else
-        {
-            var command = fullCommand[..index];
 
-            if (!TryGetCommandInfos(command, out commandInfos))
-                return new NotFoundResult("Command not found.");
-
-            baseArguments = fullCommand[(index + 1)..];
-        }
         var configuration = _configuration;
-
         var maxIndex = commandInfos.Count - 1;
 
         for (var i = 0; i <= maxIndex; i++)
