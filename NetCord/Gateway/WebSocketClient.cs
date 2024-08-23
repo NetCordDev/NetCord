@@ -12,30 +12,68 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
+    private sealed class State(IWebSocketConnection connection) : IDisposable
+    {
+        public IWebSocketConnection Connection { get; } = connection;
+
+        public CancellationTokenProvider DisconnectedTokenProvider { get; } = new();
+
+        public Task ReadTask => _readCompletionSource.Task;
+
+        public TaskCompletionSource _readCompletionSource = new();
+
+        public Task ReadyTask => _readCompletionSource.Task;
+
+        public TaskCompletionSource _readyCompletionSource = new();
+
+        private int _state;
+
+        public async void StartReading(Func<State, Task> readAsync)
+        {
+            await readAsync(this).ConfigureAwait(false);
+
+            _readCompletionSource.TrySetResult();
+        }
+
+        public bool TryIndicateDisconnecting()
+        {
+            var disconnecting = Interlocked.Exchange(ref _state, 1) is 0;
+
+            if (disconnecting)
+                DisconnectedTokenProvider.Cancel();
+
+            return disconnecting;
+        }
+
+        public void Dispose()
+        {
+            DisconnectedTokenProvider.Dispose();
+            Connection.Dispose();
+        }
+    }
+
+    private const int DefaultBufferSize = 8192;
+
     private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        var webSocket = configuration.WebSocket ?? new WebSocket();
-
-        webSocket.Connecting += HandleConnecting;
-        webSocket.Connected += HandleConnected;
-        webSocket.Disconnected += HandleDisconnected;
-        webSocket.Closed += HandleClosed;
-        webSocket.MessageReceived += HandleMessageReceived;
-
-        _webSocket = webSocket;
+        _connectionProvider = configuration.WebSocketConnectionProvider ?? new WebSocketConnectionProvider();
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
+        _rateLimiter = configuration.RateLimiter ?? NullRateLimiter.Instance;
+        _defaultPayloadProperties = configuration.DefaultPayloadProperties is { } defaultPayloadProperties ? defaultPayloadProperties with { } : new();
     }
 
     private readonly object _eventsLock = new();
-    private readonly IWebSocket _webSocket;
+    private readonly IWebSocketConnectionProvider _connectionProvider;
     private readonly IReconnectStrategy _reconnectStrategy;
+    private readonly IRateLimiter _rateLimiter;
+    private readonly WebSocketPayloadProperties _defaultPayloadProperties;
 
     private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
-    private CancellationTokenProvider? _disconnectedTokenProvider;
     private CancellationTokenProvider? _closedTokenProvider;
+    private State? _state;
 
     private protected abstract Uri Uri { get; }
 
@@ -68,8 +106,6 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleConnected()
     {
-        Interlocked.Exchange(ref _disconnectedTokenProvider, new())?.Cancel();
-
         OnConnected();
         InvokeLog(LogMessage.Info("Connected"));
         await InvokeEventAsync(Connect).ConfigureAwait(false);
@@ -77,9 +113,7 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleDisconnected(WebSocketCloseStatus? closeStatus, string? description)
     {
-        Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
-
-        InvokeLog(string.IsNullOrEmpty(description) ? LogMessage.Info("Disconnected") : LogMessage.Info("Disconnected", description.EndsWith('.') ? description[..^1] : description));
+        InvokeLog(LogMessage.Info("Disconnected", string.IsNullOrEmpty(description) ? null : (description.EndsWith('.') ? description[..^1] : description)));
         var reconnect = Reconnect(closeStatus, description);
         var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
         if (reconnect)
@@ -92,8 +126,6 @@ public abstract class WebSocketClient : IDisposable
 
     private async void HandleClosed()
     {
-        Interlocked.Exchange(ref _disconnectedTokenProvider, null)?.Cancel();
-
         InvokeLog(LogMessage.Info("Closed"));
         var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
 
@@ -138,9 +170,13 @@ public abstract class WebSocketClient : IDisposable
         return ConnectAsync(cancellationToken);
     }
 
-    private protected Task ConnectAsync(CancellationToken cancellationToken = default)
+    private protected async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
-        return _webSocket.ConnectAsync(Uri, cancellationToken);
+        HandleConnecting();
+        var connection = await _connectionProvider.CreateWebSocketConnectionAsync(Uri, cancellationToken).ConfigureAwait(false);
+        var state = _state = new(connection);
+        HandleConnected();
+        state.StartReading(ReadAsync);
     }
 
     /// <summary>
@@ -152,17 +188,82 @@ public abstract class WebSocketClient : IDisposable
     /// <returns></returns>
     public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
-        var closedTokenProvider = Interlocked.Exchange(ref _closedTokenProvider, null) ?? throw new InvalidOperationException("Connection not started.");
+        //var closedTokenProvider = Interlocked.Exchange(ref _closedTokenProvider, null) ?? throw new InvalidOperationException("Connection not started.");
 
-        closedTokenProvider.Cancel();
+        //closedTokenProvider.Cancel();
+
+        var state = Interlocked.Exchange(ref _state, null);
+
+        if (state is null || !state.TryIndicateDisconnecting())
+            throw new InvalidOperationException("Connection not started.");
+
+        var connection = state.Connection;
 
         try
         {
-            await _webSocket.CloseAsync(status, statusDescription, cancellationToken).ConfigureAwait(false);
+            await connection.CloseAsync((int)status, statusDescription, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            connection.Abort();
+            HandleClosed();
+            throw;
+        }
+
+        await state.ReadTask.ConfigureAwait(false);
+
+        HandleClosed();
+    }
+
+    private async Task ReadAsync(State state)
+    {
+        var connection = state.Connection;
+        var token = state.DisconnectedTokenProvider.Token;
+        try
+        {
+            using RentedArrayBufferWriter<byte> writer = new(DefaultBufferSize);
+            while (true)
+            {
+                var result = await connection.ReceiveAsync(writer.GetMemory(), token).ConfigureAwait(false);
+
+                if (result.EndOfMessage)
+                {
+                    if (result.MessageType is WebSocketMessageType.Close)
+                        break;
+
+                    writer.Advance(result.Count);
+                    HandleMessageReceived(writer.WrittenMemory);
+                    writer.Clear();
+                }
+                else
+                    writer.Advance(result.Count);
+            }
         }
         catch
         {
         }
+
+        if (state.TryIndicateDisconnecting())
+        {
+            _state = null;
+            state.Dispose();
+            HandleDisconnected((WebSocketCloseStatus?)connection.CloseStatus, connection.CloseStatusDescription);
+        }
+    }
+
+    public void Abort()
+    {
+        var state = Interlocked.Exchange(ref _state, null);
+
+        if (state is null)
+            return;
+
+        var disconnecting = state.TryIndicateDisconnecting();
+
+        state.Connection.Abort();
+
+        if (disconnecting)
+            HandleClosed();
     }
 
     private protected virtual void OnConnected()
@@ -171,9 +272,14 @@ public abstract class WebSocketClient : IDisposable
 
     private protected ValueTask AbortAndReconnectAsync()
     {
+        var state = Interlocked.Exchange(ref _state, null);
+
+        if (state is null || !state.TryIndicateDisconnecting())
+            return default;
+
         try
         {
-            _webSocket.Abort();
+            state.Connection.Abort();
         }
         catch (Exception ex)
         {
@@ -183,8 +289,57 @@ public abstract class WebSocketClient : IDisposable
         return ReconnectAsync();
     }
 
-    public ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-        => _webSocket.SendAsync(buffer, cancellationToken);
+    public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        properties ??= _defaultPayloadProperties;
+        while (true)
+        {
+            var state = _state;
+
+            if (state is null)
+            {
+                if (_closedTokenProvider is null)
+                    throw new InvalidOperationException("Connection not started.");
+
+                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+                {
+                    await Task.Delay(1000, cancellationToken).ConfigureAwait(false); //
+                    continue;
+                }
+
+                throw new InvalidOperationException($"The {nameof(WebSocketClient)} is reconnecting.");
+            }
+
+            var result = await _rateLimiter.TryAcquireAsync().ConfigureAwait(false);
+
+            if (result.RateLimited)
+            {
+                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
+                {
+                    await Task.Delay(result.ResetAfter, cancellationToken).ConfigureAwait(false);
+                    continue;
+                }
+
+                throw new InvalidOperationException("Rate limit triggered.");
+            }
+
+            try
+            {
+                await state.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (ex is not ArgumentException)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+                    continue;
+
+                throw new InvalidOperationException($"The {nameof(WebSocketClient)} is reconnecting.", ex);
+            }
+
+            return;
+        }
+    }
 
     private protected abstract bool Reconnect(WebSocketCloseStatus? status, string? description);
 
@@ -231,7 +386,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async void StartHeartbeating(double interval)
     {
-        if (_disconnectedTokenProvider is not { Token: var cancellationToken })
+        if (_state is not { DisconnectedTokenProvider.Token: var cancellationToken })
             return;
 
         PeriodicTimer timer;
@@ -253,6 +408,7 @@ public abstract class WebSocketClient : IDisposable
                 try
                 {
                     await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
+                    Console.WriteLine("Sending heartbeat");
                     await HeartbeatAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch
@@ -517,8 +673,8 @@ public abstract class WebSocketClient : IDisposable
     {
         if (disposing)
         {
-            _webSocket.Dispose();
-            _disconnectedTokenProvider?.Dispose();
+            _state?.Dispose();
+            _rateLimiter.Dispose();
             _closedTokenProvider?.Dispose();
         }
     }

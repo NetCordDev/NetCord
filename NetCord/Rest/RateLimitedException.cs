@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest.RateLimits;
+﻿namespace NetCord.Rest;
 
 public class RateLimitedException(long reset, RateLimitScope scope) : Exception("Rate limit triggered.")
 {

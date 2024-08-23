@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
+using NetCord.Gateway.Compression;
 using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services;
@@ -20,6 +21,7 @@ internal static class Program
     {
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
+        Compression = new ZLibGatewayCompression(),
     });
 
     private static readonly CommandService<CommandContext> _commandService = new();
@@ -89,15 +91,25 @@ internal static class Program
 
         await _client.StartAsync();
         await _client.ReadyAsync;
-        try
+        //try
+        //{
+        //    await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
+        //}
+        //catch (RestException ex)
+        //{
+        //    var error = ex.Error;
+        //    Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
+        //}
+
+        for (int i = 0; i < 120; i++)
         {
-            await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
+            await _client.UpdatePresenceAsync(new(UserStatusType.Online)
+            {
+                Activities = [new($"wzium {i}", UserActivityType.Game)],
+            });
+            Console.WriteLine(i);
         }
-        catch (RestException ex)
-        {
-            var error = ex.Error;
-            Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
-        }
+
         await Task.Delay(-1);
     }
 
