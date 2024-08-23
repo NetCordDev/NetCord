@@ -56,7 +56,7 @@ public class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     /// <summary>
@@ -86,14 +86,14 @@ public class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(Serialization.Default.VoicePayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     private protected override async Task ProcessPayloadAsync(JsonPayload payload)
@@ -240,10 +240,10 @@ public class VoiceClient : WebSocketClient
         }
     }
 
-    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0, CancellationToken cancellationToken = default)
+    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay, Cache.Ssrc));
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
     }
 
     /// <summary>

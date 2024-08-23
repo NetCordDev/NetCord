@@ -9,7 +9,7 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 namespace NetCord.Gateway;
 
 /// <summary>
-/// The GatewayClient class allows applications to send and receive data from the Discord Gateway, such as events and resource requests, via a WebSocket client.
+/// The <see cref="GatewayClient"/> class allows applications to send and receive data from the Discord Gateway, such as events and resource requests.
 /// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
@@ -370,7 +370,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
     /// <summary>
-    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
+    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, WebSocketPayloadProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: None
@@ -847,7 +847,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _configuration.Intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     /// <summary>
@@ -887,14 +887,14 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
     }
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
@@ -943,30 +943,31 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Joins, moves, or disconnects the app from a voice channel.
     /// </summary>
-    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, CancellationToken cancellationToken = default)
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), properties, cancellationToken);
     }
 
     /// <summary>
     /// Updates an app's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
+    /// <param name="properties"></param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-    public ValueTask UpdatePresenceAsync(PresenceProperties presence, CancellationToken cancellationToken = default)
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), properties, cancellationToken);
     }
 
     /// <summary>
-    /// Requests user for a guild.
+    /// Requests users for a guild.
     /// </summary>
-    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, CancellationToken cancellationToken = default)
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
     }
 
     private async Task ProcessEventAsync(JsonPayload payload)

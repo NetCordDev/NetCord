@@ -7,7 +7,9 @@ namespace NetCord.Gateway;
 
 public class GatewayClientConfiguration : IWebSocketClientConfiguration
 {
-    public IWebSocket? WebSocket { get; init; }
+    public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; init; }
+    public IRateLimiter? RateLimiter { get; init; }
+    public WebSocketPayloadProperties? DefaultPayloadProperties { get; init; }
     public IReconnectStrategy? ReconnectStrategy { get; init; }
     public ILatencyTimer? LatencyTimer { get; init; }
     public ApiVersion Version { get; init; } = ApiVersion.V10;
@@ -21,4 +23,6 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration
     public Shard? Shard { get; init; }
     public bool CacheDMChannels { get; init; } = true;
     public Rest.RestClientConfiguration? RestClientConfiguration { get; init; }
+
+    IRateLimiter? IWebSocketClientConfiguration.RateLimiter => RateLimiter is { } rateLimiter ? rateLimiter : new GatewayRateLimiter(120, 60_000);
 }
