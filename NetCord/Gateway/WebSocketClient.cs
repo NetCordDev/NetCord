@@ -265,18 +265,6 @@ public abstract class WebSocketClient : IDisposable
         }
 
         return ConnectAsync(state, cancellationToken);
-
-        //CancellationTokenProvider newTokenProvider = new();
-        //if (Interlocked.CompareExchange(ref _closedTokenProvider, newTokenProvider, null) is not null)
-        //{
-        //    newTokenProvider.Dispose();
-        //    throw new InvalidOperationException("Connection already started.");
-        //}
-
-        //if (Interlocked.CompareExchange(ref _state, new(), null) is not null)
-        //    throw new InvalidOperationException("Connection already started.");
-
-        //return ConnectAsync(cancellationToken);
     }
 
     private protected async Task<ConnectionState> ConnectAsync(State state, CancellationToken cancellationToken = default)
@@ -295,12 +283,6 @@ public abstract class WebSocketClient : IDisposable
         HandleConnected(state);
         connectionState.StartReading(state, ReadAsync);
         return connectionState;
-
-        //HandleConnecting();
-        //var connection = await _connectionProvider.CreateWebSocketConnectionAsync(Uri, cancellationToken).ConfigureAwait(false);
-        //var state = _state = new(connection);
-        //HandleConnected();
-        //state.StartReading(ReadAsync);
     }
 
     /// <summary>
@@ -442,51 +424,6 @@ public abstract class WebSocketClient : IDisposable
 
             if (!properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 ThrowConnectionNotStarted();
-
-            //var rateLimiter = connectionState.RateLimiter;
-
-            //if (state is null)
-            //{
-            //    //if (_closedTokenProvider is null)
-            //    //    throw new InvalidOperationException("Connection not started.");
-
-            //    //if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
-            //    //{
-            //    //    await Task.Delay(1000, cancellationToken).ConfigureAwait(false); //
-            //    //    continue;
-            //    //}
-
-            //    //throw new InvalidOperationException($"The {nameof(WebSocketClient)} is reconnecting.");
-            //}
-
-            //var result = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
-
-            //if (result.RateLimited)
-            //{
-            //    if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
-            //    {
-            //        await Task.Delay(result.ResetAfter, cancellationToken).ConfigureAwait(false);
-            //        continue;
-            //    }
-
-            //    throw new InvalidOperationException("Rate limit triggered.");
-            //}
-
-            //try
-            //{
-            //    await connectionState.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, cancellationToken).ConfigureAwait(false);
-            //}
-            //catch (Exception ex) when (ex is not ArgumentException)
-            //{
-            //    cancellationToken.ThrowIfCancellationRequested();
-
-            //    if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
-            //        continue;
-
-            //    throw new InvalidOperationException($"The {nameof(WebSocketClient)} is reconnecting.", ex);
-            //}
-
-            //return;
         }
     }
 
