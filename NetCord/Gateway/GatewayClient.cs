@@ -836,7 +836,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         _compression.Initialize();
     }
 
-    private ValueTask SendIdentifyAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
+    private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
         {
@@ -847,7 +847,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _configuration.Intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -858,8 +858,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        await StartAsync(cancellationToken).ConfigureAwait(false);
-        await SendIdentifyAsync(presence, cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -871,35 +871,35 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(cancellationToken).ConfigureAwait(false);
-        await TryResumeAsync(SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
 
-    private protected override ValueTask TryResumeAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        return TryResumeAsync(SessionId!, SequenceNumber, cancellationToken);
+        return TryResumeAsync(connectionState, SessionId!, SequenceNumber, cancellationToken);
     }
 
-    private ValueTask TryResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    private ValueTask TryResumeAsync(ConnectionState connectionState, string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
 
-    private protected override async Task ProcessPayloadAsync(JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(State state, JsonPayload payload)
     {
         switch ((GatewayOpcode)payload.Opcode)
         {
@@ -907,7 +907,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
                 try
                 {
-                    await ProcessEventAsync(payload).ConfigureAwait(false);
+                    await ProcessEventAsync(state, payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -918,13 +918,13 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case GatewayOpcode.Reconnect:
                 InvokeLog(LogMessage.Info("Reconnect request"));
-                await AbortAndReconnectAsync().ConfigureAwait(false);
+                await AbortAndReconnectAsync(state).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
                 try
                 {
-                    await SendIdentifyAsync().ConfigureAwait(false);
+                    await SendIdentifyAsync(state.ConnectionState!).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -932,7 +932,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
-                StartHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                StartHeartbeating(state.ConnectionState!, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
@@ -970,7 +970,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(JsonPayload payload)
+    private async Task ProcessEventAsync(State state, JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
         var name = payload.Event!;
@@ -992,6 +992,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         SessionId = args.SessionId;
                         ApplicationFlags = args.ApplicationFlags;
 
+                        state.IndicateReady(state.ConnectionState!);
                         _readyCompletionSource.TrySetResult();
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
@@ -1004,6 +1005,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
+                    state.IndicateReady(state.ConnectionState!);
                     _readyCompletionSource.TrySetResult();
 
                     await updateLatencyTask.ConfigureAwait(false);

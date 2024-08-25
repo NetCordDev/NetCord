@@ -8,7 +8,7 @@ public readonly struct RateLimitAcquisitionResult
         RateLimited = rateLimited;
     }
 
-    public static RateLimitAcquisitionResult NoRateLimit() => new(0, false);
+    public static RateLimitAcquisitionResult NoRateLimit { get; } = new(0, false);
 
     public static RateLimitAcquisitionResult RateLimit(int resetAfter) => new(resetAfter, true);
 

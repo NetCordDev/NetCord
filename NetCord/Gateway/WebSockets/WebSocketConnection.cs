@@ -4,23 +4,16 @@ namespace NetCord.Gateway.WebSockets;
 
 internal sealed class WebSocketConnection : IWebSocketConnection
 {
-    private readonly ClientWebSocket _webSocket;
-
-    public static async ValueTask<IWebSocketConnection> CreateAsync(Uri uri, CancellationToken cancellationToken = default)
-    {
-        ClientWebSocket webSocket = new();
-        await webSocket.ConnectAsync(uri, cancellationToken).ConfigureAwait(false);
-        return new WebSocketConnection(webSocket);
-    }
-
-    private WebSocketConnection(ClientWebSocket webSocket)
-    {
-        _webSocket = webSocket;
-    }
+    private readonly ClientWebSocket _webSocket = new();
 
     public int? CloseStatus => (int?)_webSocket.CloseStatus;
 
     public string? CloseStatusDescription => _webSocket.CloseStatusDescription;
+
+    public ValueTask OpenAsync(Uri uri, CancellationToken cancellationToken = default)
+    {
+        return new(_webSocket.ConnectAsync(uri, cancellationToken));
+    }
 
     public void Abort()
     {

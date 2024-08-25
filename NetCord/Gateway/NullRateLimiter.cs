@@ -8,11 +8,7 @@ internal sealed class NullRateLimiter : IRateLimiter
     {
     }
 
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync() => new(RateLimitAcquisitionResult.NoRateLimit());
-
-    public void Reset()
-    {
-    }
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync() => new(RateLimitAcquisitionResult.NoRateLimit);
 
     public void Dispose()
     {

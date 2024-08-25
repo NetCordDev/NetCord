@@ -2,8 +2,8 @@
 
 public class WebSocketConnectionProvider : IWebSocketConnectionProvider
 {
-    public ValueTask<IWebSocketConnection> CreateWebSocketConnectionAsync(Uri uri, CancellationToken cancellationToken = default)
+    public IWebSocketConnection CreateConnection()
     {
-        return WebSocketConnection.CreateAsync(uri, cancellationToken);
+        return new WebSocketConnection();
     }
 }

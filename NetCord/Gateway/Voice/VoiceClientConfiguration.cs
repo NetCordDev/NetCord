@@ -18,5 +18,5 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IVoiceEncryption? Encryption { get; init; }
     public bool RedirectInputStreams { get; init; }
 
-    IRateLimiter? IWebSocketClientConfiguration.RateLimiter => null;
+    IRateLimiterProvider? IWebSocketClientConfiguration.RateLimiterProvider => null;
 }

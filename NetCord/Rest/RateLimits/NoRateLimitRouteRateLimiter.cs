@@ -10,7 +10,7 @@ internal class NoRateLimitRouteRateLimiter : ITrackingRouteRateLimiter
 
     public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
     {
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
     public ValueTask CancelAcquireAsync(long timestamp)
