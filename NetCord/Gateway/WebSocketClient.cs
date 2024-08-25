@@ -59,9 +59,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected sealed class State : IDisposable
     {
-        private ConnectionState? _connectionState;
-
-        public ConnectionState? ConnectionState => _connectionState;
+        public ConnectionState? ConnectionState { get; private set; }
 
         public CancellationTokenProvider ClosedTokenProvider { get; } = new();
 
@@ -77,7 +75,7 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                if (_connectionState != connectionState)
+                if (ConnectionState != connectionState)
                     return;
 
                 _connectedCompletionSource.TrySetResult(connectionState);
@@ -88,7 +86,7 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                if (_connectionState != connectionState)
+                if (ConnectionState != connectionState)
                     return;
 
                 _readyCompletionSource.TrySetResult(connectionState);
@@ -99,11 +97,11 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                var previousState = _connectionState;
+                var previousState = ConnectionState;
                 if (previousState is not null)
                     return false;
 
-                _connectionState = connectionState;
+                ConnectionState = connectionState;
             }
 
             return true;
@@ -113,14 +111,14 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                var previousState = _connectionState;
+                var previousState = ConnectionState;
                 if (previousState is null || !previousState.TryIndicateDisconnecting())
                 {
                     connectionState = null;
                     return false;
                 }
 
-                _connectionState = null;
+                ConnectionState = null;
                 connectionState = previousState;
 
                 _readyCompletionSource.TrySetCanceled();
@@ -135,7 +133,7 @@ public abstract class WebSocketClient : IDisposable
 
         public void Dispose()
         {
-            _connectionState?.Dispose();
+            ConnectionState?.Dispose();
             ClosedTokenProvider.Dispose();
         }
     }
