@@ -8,10 +8,19 @@ namespace NetCord;
 /// <remarks>
 /// Users in Discord are generally considered the base entity and can be members of guilds, participate in text and voice chat, and much more. Users are separated by a distinction of 'bot' vs 'normal'. Bot users are automated users that are 'owned' by another user.
 /// </remarks>
-public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonUser>
+public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 {
     JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonUser _jsonModel = jsonModel;
+    private protected readonly JsonModels.JsonUser _jsonModel;
+
+    public User(JsonModels.JsonUser jsonModel, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+
+        var avatarDecorationData = jsonModel.AvatarDecorationData;
+        if (avatarDecorationData is not null)
+            AvatarDecorationData = new(avatarDecorationData);
+    }
 
     /// <summary>
     /// The user's ID.
@@ -176,12 +185,12 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     public UserFlags? PublicFlags => _jsonModel.PublicFlags;
 
     /// <summary>
-    /// The user's avatar decoration hash.
+    /// Data for the user's avatar decoration.
     /// </summary>
     /// <remarks>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
-    public string? AvatarDecorationHash => _jsonModel.AvatarDecorationHash;
+    public AvatarDecorationData? AvatarDecorationData { get; }
 
     /// <summary>
     /// Whether the user has a set custom avatar.
@@ -210,13 +219,13 @@ public partial class User(JsonModels.JsonUser jsonModel, RestClient client) : Cl
     /// <summary>
     /// Whether the user has a set avatar decoration.
     /// </summary>
-    public bool HasAvatarDecoration => AvatarDecorationHash is not null;
+    public bool HasAvatarDecoration => AvatarDecorationData is not null;
 
     /// <summary>
-    /// Gets the <see cref="ImageUrl"/> of the user's avatar decoration URL.
+    /// Gets the <see cref="ImageUrl"/> of the user's avatar decoration.
     /// </summary>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's avatar decoration. If the user does not have one set, returns <see langword="null"/>.</returns>
-    public ImageUrl? GetAvatarDecorationUrl() => AvatarDecorationHash is string hash ? ImageUrl.UserAvatarDecoration(Id, hash) : null;
+    public ImageUrl? GetAvatarDecorationUrl() => AvatarDecorationData is { Hash: var hash } ? ImageUrl.AvatarDecoration(hash) : null;
 
     /// <summary>
     /// Returns an <see cref="ImageUrl"/> object representing the user's default avatar.

@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class LinkButton : IButton, IJsonModel<JsonComponent>
+public class LinkButton : ICustomizableButton, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private readonly JsonComponent _jsonModel;

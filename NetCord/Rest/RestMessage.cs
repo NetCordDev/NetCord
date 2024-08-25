@@ -46,7 +46,13 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
         var messageReference = jsonModel.MessageReference;
         if (messageReference is not null)
+        {
             MessageReference = new(messageReference);
+
+            MessageSnapshots = jsonModel.MessageSnapshots.SelectOrEmpty(s => new MessageSnapshot(s, messageReference.GuildId, client)).ToArray();
+        }
+        else
+            MessageSnapshots = [];
 
         var referencedMessage = jsonModel.ReferencedMessage;
         if (referencedMessage is not null)
@@ -80,6 +86,10 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         var poll = jsonModel.Poll;
         if (poll is not null)
             Poll = new(poll);
+
+        var call = jsonModel.Call;
+        if (call is not null)
+            Call = new(call);
     }
 
     /// <summary>
@@ -189,14 +199,19 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public ulong? ApplicationId => _jsonModel.ApplicationId;
 
     /// <summary>
+    /// A <see cref="MessageFlags"/> object indicating the message's applied flags.
+    /// </summary>
+    public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+
+    /// <summary>
     /// Contains data showing the source of a crosspost, channel follow add, pin, or message reply.
     /// </summary>
     public MessageReference? MessageReference { get; }
 
     /// <summary>
-    /// A <see cref="MessageFlags"/> object indicating the message's applied flags.
+    /// A list of messages associated with the message reference.
     /// </summary>
-    public MessageFlags Flags => _jsonModel.Flags.GetValueOrDefault();
+    public IReadOnlyList<MessageSnapshot> MessageSnapshots { get; }
 
     /// <summary>
     /// The message associated with the <see cref="MessageReference"/>.
@@ -249,6 +264,8 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public InteractionResolvedData? ResolvedData { get; }
 
     public MessagePoll? Poll { get; }
+
+    public MessageCall? Call { get; }
 
     public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
         => SendAsync(replyMessage.ToMessageProperties(Id), properties);

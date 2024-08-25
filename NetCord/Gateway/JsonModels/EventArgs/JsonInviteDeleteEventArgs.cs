@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.JsonModels.EventArgs;
 
-public class JsonGuildInviteDeleteEventArgs
+public class JsonInviteDeleteEventArgs
 {
     [JsonPropertyName("channel_id")]
     public ulong InviteChannelId { get; set; }

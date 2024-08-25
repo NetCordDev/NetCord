@@ -75,7 +75,7 @@ public enum GatewayIntents : uint
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <see cref="GatewayClient.GuildInviteCreate"/>, <see cref="GatewayClient.GuildInviteDelete"/>
+    /// <see cref="GatewayClient.InviteCreate"/>, <see cref="GatewayClient.InviteDelete"/>
     /// </summary>
     GuildInvites = 1 << 6,
 

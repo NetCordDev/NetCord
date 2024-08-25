@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class InteractionMessageProperties : IHttpSerializable
+public partial class InteractionMessageProperties : IHttpSerializable, IMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("tts")]

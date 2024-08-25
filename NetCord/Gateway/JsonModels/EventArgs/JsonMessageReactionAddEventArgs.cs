@@ -26,4 +26,13 @@ public class JsonMessageReactionAddEventArgs
 
     [JsonPropertyName("message_author_id")]
     public ulong? MessageAuthorId { get; set; }
+
+    [JsonPropertyName("burst")]
+    public bool Burst { get; set; }
+
+    [JsonPropertyName("burst_colors")]
+    public Color[] BurstColors { get; set; }
+
+    [JsonPropertyName("type")]
+    public ReactionType Type { get; set; }
 }

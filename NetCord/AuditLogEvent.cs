@@ -281,4 +281,39 @@ public enum AuditLogEvent
     /// Creator monetization terms were accepted.
     /// </summary>
     CreatorMonetizationTermsAccepted = 151,
+
+    /// <summary>
+    /// Guild onboarding question was created.
+    /// </summary>
+    OnboardingPromptCreate = 163,
+
+    /// <summary>
+    /// Guild onboarding question was updated.
+    /// </summary>
+    OnboardingPromptUpdate = 164,
+
+    /// <summary>
+    /// Guild onboarding question was deleted.
+    /// </summary>
+    OnboardingPromptDelete = 165,
+
+    /// <summary>
+    /// Guild onboarding was created.
+    /// </summary>
+    OnboardingCreate = 166,
+
+    /// <summary>
+    /// Guild onboarding was updated.
+    /// </summary>
+    OnboardingUpdate = 167,
+
+    /// <summary>
+    /// Server guide was created.
+    /// </summary>
+    HomeSettingsCreate = 190,
+
+    /// <summary>
+    /// Server guide was updated.
+    /// </summary>
+    HomeSettingsUpdate = 191,
 }

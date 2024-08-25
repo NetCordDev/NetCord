@@ -69,7 +69,7 @@ public class CodeBlock(string code, string? formatter = null) : ISpanFormattable
 
             foreach (var c in formatterSpan)
             {
-                if (char.IsAsciiLetterOrDigit(c) || c == '+' || c == '-')
+                if (char.IsAsciiLetterOrDigit(c) || c is '+' or '-' or '#' or '_')
                     continue;
 
                 goto Success;

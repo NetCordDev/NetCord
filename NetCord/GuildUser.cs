@@ -21,6 +21,12 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     public ImageUrl? GetGuildAvatarUrl(ImageFormat? format = null) => GuildAvatarHash is string hash ? ImageUrl.GuildUserAvatar(GuildId, Id, hash, format) : null;
 
     /// <summary>
+    /// Gets the <see cref="ImageUrl"/> of the user's guild avatar decoration.
+    /// </summary>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild avatar decoration. If the user does not have one set, returns <see langword="null"/>.</returns>
+    public ImageUrl? GetGuildAvatarDecorationUrl() => GuildAvatarDecorationData is { Hash: var hash } ? ImageUrl.AvatarDecoration(hash) : null;
+
+    /// <summary>
     /// Applies a timeout to the <see cref="GuildUser"/> for a specified <see cref="DateTimeOffset"/>.
     /// </summary>
     /// <param name="until">How long to time the <see cref="GuildUser"/> out for, specified as the time to wait until.</param>

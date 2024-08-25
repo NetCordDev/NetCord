@@ -6,4 +6,5 @@ public enum AutoModerationRuleTriggerType
     Spam = 3,
     KeywordPreset = 4,
     MentionSpam = 5,
+    UserProfile = 6,
 }

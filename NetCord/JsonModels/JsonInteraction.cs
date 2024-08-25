@@ -16,6 +16,9 @@ public class JsonInteraction : JsonEntity
     [JsonPropertyName("guild_id")]
     public ulong? GuildId { get; set; }
 
+    [JsonPropertyName("guild")]
+    public JsonInteractionGuildReference? GuildReference { get; set; }
+
     [JsonPropertyName("channel")]
     public JsonChannel? Channel { get; set; }
 

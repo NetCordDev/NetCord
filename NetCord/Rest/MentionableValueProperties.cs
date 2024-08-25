@@ -9,7 +9,7 @@ public partial struct MentionableValueProperties(ulong id, MentionableValueType 
     [JsonPropertyName("id")]
     public ulong Id { get; set; } = id;
 
-    [JsonConverter(typeof(StringEnumConverterWithErrorHandling<MentionableValueType>))]
+    [JsonConverter(typeof(SafeStringEnumConverter<MentionableValueType>))]
     [JsonPropertyName("type")]
     public MentionableValueType Type { get; set; } = type;
 }

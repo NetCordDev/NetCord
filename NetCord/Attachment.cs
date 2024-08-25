@@ -15,6 +15,11 @@ public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonMode
     public string FileName => _jsonModel.FileName;
 
     /// <summary>
+    /// Title of the attachment.
+    /// </summary>
+    public string? Title => _jsonModel.Title;
+
+    /// <summary>
     /// Description for the attachment (max 1024 characters).
     /// </summary>
     public string? Description => _jsonModel.Description;

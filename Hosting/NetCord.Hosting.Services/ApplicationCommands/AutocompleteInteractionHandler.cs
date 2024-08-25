@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
-using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
@@ -19,7 +18,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction, TCont
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext> _createContext;
-    private readonly Func<IExecutionResult, AutocompleteInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
+    private readonly IAutocompleteInteractionResultHandler<TAutocompleteContext> _resultHandler;
     private readonly GatewayClient? _client;
 
     public AutocompleteInteractionHandler(IServiceProvider services,
@@ -44,7 +43,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction, TCont
             _handleAsync = &HandleInteractionAsync;
 
         _createContext = optionsValue.CreateAutocompleteContext ?? ContextHelper.CreateContextDelegate<AutocompleteInteraction, GatewayClient?, TAutocompleteContext>();
-        _handleResultAsync = optionsValue.HandleAutocompleteResultAsync;
+        _resultHandler = optionsValue.AutocompleteResultHandler;
         _client = client;
     }
 
@@ -89,7 +88,7 @@ internal partial class AutocompleteInteractionHandler<TInteraction, TContext, TA
 
         try
         {
-            await _handleResultAsync(result, interaction, client, _logger, services).ConfigureAwait(false);
+            await _resultHandler.HandleResultAsync(result, context, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {

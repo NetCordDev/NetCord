@@ -4,8 +4,11 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public class JsonRestGuildInvite
+public class JsonRestInvite
 {
+    [JsonPropertyName("type")]
+    public InviteType Type { get; set; }
+
     [JsonPropertyName("code")]
     public string Code { get; set; }
 
@@ -19,7 +22,7 @@ public class JsonRestGuildInvite
     public JsonUser? Inviter { get; set; }
 
     [JsonPropertyName("target_type")]
-    public GuildInviteTargetType? TargetType { get; set; }
+    public InviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user")]
     public JsonUser? TargetUser { get; set; }

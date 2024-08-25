@@ -1,6 +1,4 @@
-﻿using NetCord.Gateway;
-
-namespace NetCord.Rest;
+﻿namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -57,12 +55,12 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages", $"?limit={limit.GetValueOrDefault(100)}&around={messageId}", new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public async Task<RestMessage> GetMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), TypeNameOverride = "Message")]
     public async Task<RestMessage> SendMessageAsync(ulong channelId, MessageProperties message, RestRequestProperties? properties = null)
     {
         using (HttpContent content = message.Serialize())
@@ -71,30 +69,32 @@ public partial class RestClient
 
     [GenerateAlias([typeof(AnnouncementGuildChannel)], nameof(AnnouncementGuildChannel.Id))]
     [GenerateAlias([typeof(AnnouncementGuildThread)], nameof(AnnouncementGuildThread.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public async Task<RestMessage> CrosspostMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/messages/{messageId}/crosspost", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task AddMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/@me", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task DeleteMessageReactionAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, ulong userId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}/{userId}", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
-    public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    public IAsyncEnumerable<User> GetMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, MessageReactionsPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
+
+        var type = paginationProperties.Type;
 
         return new QueryPaginationAsyncEnumerable<User, ulong>(
             this,
@@ -103,25 +103,25 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), type.HasValue ? $"?type={(byte)type.GetValueOrDefault()}&" : "?"),
             new(channelId),
             properties);
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task DeleteAllMessageReactionsAsync(ulong channelId, ulong messageId, ReactionEmojiProperties emoji, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}", null, new(channelId), properties);
 
     private static string ReactionEmojiToString(ReactionEmojiProperties emoji) => emoji.Id.HasValue ? $"{emoji.Name}:{emoji.Id.GetValueOrDefault()}" : emoji.Name;
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public async Task<RestMessage> ModifyMessageAsync(ulong channelId, ulong messageId, Action<MessageOptions> action, RestRequestProperties? properties = null)
     {
         MessageOptions messageOptions = new();
@@ -131,7 +131,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task DeleteMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties);
 
@@ -197,15 +197,15 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
-    public async Task<IEnumerable<RestGuildInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildInviteArray).ConfigureAwait(false)).Select(r => new RestGuildInvite(r, this));
+    public async Task<IEnumerable<RestInvite>> GetGuildChannelInvitesAsync(ulong channelId, RestRequestProperties? properties = null)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInviteArray).ConfigureAwait(false)).Select(r => new RestInvite(r, this));
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
-    public async Task<RestGuildInvite> CreateGuildChannelInviteAsync(ulong channelId, GuildInviteProperties? guildInviteProperties = null, RestRequestProperties? properties = null)
+    public async Task<RestInvite> CreateGuildChannelInviteAsync(ulong channelId, InviteProperties? inviteProperties = null, RestRequestProperties? properties = null)
 #pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
     {
-        using (HttpContent content = new JsonContent<GuildInviteProperties?>(guildInviteProperties, Serialization.Default.GuildInviteProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestGuildInvite).ConfigureAwait(false), this);
+        using (HttpContent content = new JsonContent<InviteProperties?>(inviteProperties, Serialization.Default.InviteProperties))
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
     }
 #pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
@@ -238,12 +238,12 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/pins", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessageArray).ConfigureAwait(false)).ToDictionary(m => m.Id, m => new RestMessage(m, this));
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task PinMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Put, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public Task UnpinMessageAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/pins/{messageId}", null, new(channelId), properties);
 
@@ -259,7 +259,7 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/recipients/{userId}", null, new(channelId), properties);
 
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = "Message")]
     public async Task<GuildThread> CreateGuildThreadAsync(ulong channelId, ulong messageId, GuildThreadFromMessageProperties threadFromMessageProperties, RestRequestProperties? properties = null)
     {
         using (HttpContent content = new JsonContent<GuildThreadFromMessageProperties>(threadFromMessageProperties, Serialization.Default.GuildThreadFromMessageProperties))

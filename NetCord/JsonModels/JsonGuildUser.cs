@@ -42,4 +42,7 @@ public class JsonGuildUser
 
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
+
+    [JsonPropertyName("avatar_decoration_data")]
+    public JsonAvatarDecorationData? GuildAvatarDecorationData { get; set; }
 }

@@ -6,10 +6,19 @@ namespace NetCord;
 /// <summary>
 /// Represents a <see cref="GuildUser"/> object that lacks a <see cref="GuildUser.GuildId"/> field, as well as methods relying on it.
 /// </summary>
-public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User(jsonModel.User, client), IJsonModel<JsonGuildUser>
+public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
 {
     JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
-    private protected new readonly JsonGuildUser _jsonModel = jsonModel;
+    private protected new readonly JsonGuildUser _jsonModel;
+
+    public PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : base(jsonModel.User, client)
+    {
+        _jsonModel = jsonModel;
+
+        var guildAvatarDecorationData = jsonModel.GuildAvatarDecorationData;
+        if (guildAvatarDecorationData is not null)
+            GuildAvatarDecorationData = new(guildAvatarDecorationData);
+    }
 
     /// <summary>
     /// The user's guild nickname.
@@ -67,7 +76,17 @@ public class PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : User
     public DateTimeOffset? TimeOutUntil => _jsonModel.TimeOutUntil;
 
     /// <summary>
+    /// Data for the guild user's avatar decoration.
+    /// </summary>
+    public AvatarDecorationData? GuildAvatarDecorationData { get; }
+
+    /// <summary>
     /// Whether the user has a guild avatar set.
     /// </summary>
     public bool HasGuildAvatar => GuildAvatarHash is not null;
+
+    /// <summary>
+    /// Whether the user has a set avatar decoration.
+    /// </summary>
+    public bool HasGuildAvatarDecoration => GuildAvatarDecorationData is not null;
 }

@@ -489,7 +489,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildInvite, ValueTask>? GuildInviteCreate;
+    public event Func<Invite, ValueTask>? InviteCreate;
 
     /// <summary>
     /// Sent when an invite is deleted. Only sent if the bot has the <see cref="Permissions.ManageChannels"/> permission for the relevant channel.<br/>
@@ -498,7 +498,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete;
+    public event Func<InviteDeleteEventArgs, ValueTask>? InviteDelete;
 
     /// <summary>
     /// Sent when a message is created.
@@ -547,7 +547,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     /// <summary>
     /// Sent when a message is updated.
-    /// The inner payload is a partial message object, with only the message's ID and Guild ID being guaranteed present, all other fields can be null.<br/>
+    /// The inner payload is a message object with set <see cref="Message.GuildId"/>, and <see cref="Rest.RestMessage.Author"/> fields.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>*
@@ -588,7 +588,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
     /// </remarks>
-    public event Func<IPartialMessage, ValueTask>? MessageUpdate;
+    public event Func<Message, ValueTask>? MessageUpdate;
 
     /// <summary>
     /// Sent when a message is deleted.<br/>
@@ -1130,7 +1130,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
                 {
-                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry))).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_ADD":
@@ -1260,12 +1260,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "INVITE_CREATE":
                 {
-                    await InvokeEventAsync(GuildInviteCreate, () => new(data.ToObject(Serialization.Default.JsonGuildInvite), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(InviteCreate, () => new(data.ToObject(Serialization.Default.JsonInvite), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_DELETE":
                 {
-                    await InvokeEventAsync(GuildInviteDelete, () => new(data.ToObject(Serialization.Default.JsonGuildInviteDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(InviteDelete, () => new(data.ToObject(Serialization.Default.JsonInviteDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_CREATE":
@@ -1290,7 +1290,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     await InvokeEventAsync(
                         MessageUpdate,
                         () => data.ToObject(Serialization.Default.JsonMessage),
-                        json => IPartialMessage.CreateFromJson(json, Cache, Rest),
+                        json => Message.CreateFromJson(json, Cache, Rest),
                         json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {

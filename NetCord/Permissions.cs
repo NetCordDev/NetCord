@@ -242,4 +242,9 @@ public enum Permissions : ulong
     /// Allows sending polls.
     /// </summary>
     SendPolls = 1uL << 49,
+
+    /// <summary>
+    /// Allows user-installed apps to send public responses. When disabled, users will still be allowed to use their apps but the responses will be ephemeral. This only applies to apps not also installed to the server.
+    /// </summary>
+    UseExternalApplications = 1uL << 50,
 }

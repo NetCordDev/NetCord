@@ -8,12 +8,12 @@
 > 
 > **must** be lowercase.
 
-## [Hosting](#tab/hosting)
+## [Generic Host](#tab/generic-host)
 
-With hosting, adding application commands is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostBuilderExtensions.UseApplicationCommands``2(Microsoft.Extensions.Hosting.IHostBuilder) to add an application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the ASP.NET Core minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
+Adding application commands with the generic host is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostBuilderExtensions.UseApplicationCommands``2(Microsoft.Extensions.Hosting.IHostBuilder) to add an application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the ASP.NET Core minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
 [!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=11-13,16-20)]
 
-## [Without Hosting](#tab/without-hosting)
+## [Bare Bones](#tab/bare-bones)
 
 First, add the following lines to using the section.
 [!code-cs[Program.cs](Introduction/Program.cs#L4-L5)]
