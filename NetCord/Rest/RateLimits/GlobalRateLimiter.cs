@@ -27,7 +27,7 @@ internal class GlobalRateLimiter(int limit, long duration) : IGlobalRateLimiter
             }
         }
 
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
     public ValueTask IndicateRateLimitAsync(long reset)

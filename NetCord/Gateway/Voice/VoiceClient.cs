@@ -56,7 +56,7 @@ public class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendPayloadAsync(serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -75,28 +75,28 @@ public class VoiceClient : WebSocketClient
     /// <returns></returns>
     public async Task ResumeAsync(CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(cancellationToken).ConfigureAwait(false);
-        await TryResumeAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await base.StartAsync(cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(connectionState, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
 
-    private protected override ValueTask TryResumeAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask TryResumeAsync(ConnectionState state, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendConnectionPayloadAsync(state, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(Serialization.Default.VoicePayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, new() { RetryHandling = WebSocketRetryHandling.RetryRateLimit }, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override async Task ProcessPayloadAsync(JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(State state, JsonPayload payload)
     {
         switch ((VoiceOpcode)payload.Opcode)
         {
@@ -163,6 +163,7 @@ public class VoiceClient : WebSocketClient
                     InvokeLog(LogMessage.Info("Ready"));
                     var readyTask = InvokeEventAsync(Ready);
 
+                    state.IndicateReady(state.ConnectionState!);
                     _readyCompletionSource.TrySetResult();
 
                     await readyTask.ConfigureAwait(false);
@@ -189,7 +190,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    StartHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                    StartHeartbeating(state.ConnectionState!, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:

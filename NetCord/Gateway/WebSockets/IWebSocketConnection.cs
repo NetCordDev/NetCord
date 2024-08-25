@@ -6,6 +6,8 @@ public interface IWebSocketConnection : IDisposable
 
     public string? CloseStatusDescription { get; }
 
+    public ValueTask OpenAsync(Uri uri, CancellationToken cancellationToken = default);
+
     public ValueTask SendAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageType messageType, WebSocketMessageFlags messageFlags, CancellationToken cancellationToken = default);
 
     public ValueTask<WebSocketConnectionReceiveResult> ReceiveAsync(Memory<byte> buffer, CancellationToken cancellationToken = default);

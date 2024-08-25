@@ -220,7 +220,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         return new()
         {
             WebSocketConnectionProvider = configuration.WebSocketConnectionProviderFactory!(shard),
-            RateLimiter = configuration.RateLimiterFactory!(shard),
+            RateLimiterProvider = configuration.RateLimiterProviderFactory!(shard),
             DefaultPayloadProperties = configuration.DefaultPayloadPropertiesFactory!(shard),
             ReconnectStrategy = configuration.ReconnectStrategyFactory!(shard),
             LatencyTimer = configuration.LatencyTimerFactory!(shard),

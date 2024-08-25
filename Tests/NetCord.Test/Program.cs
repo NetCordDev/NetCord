@@ -91,6 +91,15 @@ internal static class Program
 
         await _client.StartAsync();
         await _client.ReadyAsync;
+
+        //await _client.CloseAsync();
+
+        ////await _client.StartAsync();
+
+        //await _client.RequestGuildUsersAsync(new(0));
+
+        await Task.WhenAll(_client.CloseAsync(), _client.RequestGuildUsersAsync(new(0)).AsTask());
+
         //try
         //{
         //    await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
@@ -101,14 +110,14 @@ internal static class Program
         //    Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
         //}
 
-        for (int i = 0; i < 120; i++)
-        {
-            await _client.UpdatePresenceAsync(new(UserStatusType.Online)
-            {
-                Activities = [new($"wzium {i}", UserActivityType.Game)],
-            });
-            Console.WriteLine(i);
-        }
+        //for (int i = 0; i < 120; i++)
+        //{
+        //    await _client.UpdatePresenceAsync(new(UserStatusType.Online)
+        //    {
+        //        Activities = [new($"wzium {i}", UserActivityType.Game)],
+        //    });
+        //    Console.WriteLine(i);
+        //}
 
         await Task.Delay(-1);
     }

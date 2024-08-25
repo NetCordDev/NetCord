@@ -9,6 +9,6 @@ internal interface IWebSocketClientConfiguration
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; }
     public IReconnectStrategy? ReconnectStrategy { get; }
     public ILatencyTimer? LatencyTimer { get; }
-    public IRateLimiter? RateLimiter { get; }
+    public IRateLimiterProvider? RateLimiterProvider { get; }
     public WebSocketPayloadProperties? DefaultPayloadProperties { get; }
 }

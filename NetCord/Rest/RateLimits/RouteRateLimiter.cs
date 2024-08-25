@@ -34,7 +34,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
                     _remaining--;
             }
         }
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
     public ValueTask CancelAcquireAsync(long timestamp)
