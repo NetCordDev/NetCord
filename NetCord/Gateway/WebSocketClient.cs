@@ -101,7 +101,7 @@ public abstract class WebSocketClient : IDisposable
                 if (ClosedTokenProvider.IsCancellationRequested)
                     return ConnectingResult.Closed;
 
-                if (ConnectionState is ConnectionState previousState)
+                if (ConnectionState is not null)
                     return ConnectingResult.AlreadyStarted;
 
                 ConnectionState = connectionState;
