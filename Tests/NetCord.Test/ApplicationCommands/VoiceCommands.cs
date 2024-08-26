@@ -57,7 +57,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         voiceClient.Disconnect += disconnectHandler;
 
         await voiceClient.StartAsync();
-        await voiceClient.ReadyAsync;
 
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 

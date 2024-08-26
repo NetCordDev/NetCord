@@ -90,7 +90,6 @@ internal static class Program
         manager.AddService(_userCommandService);
 
         await _client.StartAsync();
-        await _client.ReadyAsync;
 
         //await _client.CloseAsync();
 

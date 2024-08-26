@@ -34,9 +34,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
         // Connect
         await voiceClient.StartAsync();
 
-        // Wait for ready
-        await voiceClient.ReadyAsync;
-
         // Enter speaking state, to be able to send voice
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
@@ -123,9 +120,6 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
 
         // Connect
         await voiceClient.StartAsync();
-
-        // Wait for ready
-        await voiceClient.ReadyAsync;
 
         // Enter speaking state, to be able to send voice
         await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
