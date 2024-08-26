@@ -427,13 +427,12 @@ public abstract class WebSocketClient : IDisposable
     {
         var connectionState = state.ConnectionState!;
         var connection = connectionState.Connection;
-        var token = connectionState.DisconnectedTokenProvider.Token;
         try
         {
             using RentedArrayBufferWriter<byte> writer = new(DefaultBufferSize);
             while (true)
             {
-                var result = await connection.ReceiveAsync(writer.GetMemory(), token).ConfigureAwait(false);
+                var result = await connection.ReceiveAsync(writer.GetMemory()).ConfigureAwait(false);
 
                 if (result.EndOfMessage)
                 {
