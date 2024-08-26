@@ -13,4 +13,4 @@ Follow the [installation guide](installing-native-dependencies.md) to install th
 [!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L12-L99)]
 
 ### Receiving Voice
-[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L101-L141)]
+[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L101-L140)]
