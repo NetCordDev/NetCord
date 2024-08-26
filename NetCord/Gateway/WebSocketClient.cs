@@ -153,6 +153,25 @@ public abstract class WebSocketClient : IDisposable
             return true;
         }
 
+        public bool TryIndicateDisconnecting(ConnectionState connectionState)
+        {
+            lock (ClosedTokenProvider)
+            {
+                if (ConnectionState != connectionState || !connectionState.TryIndicateDisconnecting())
+                    return false;
+
+                ConnectionState = null;
+
+                _readyCompletionSource.TrySetCanceled();
+                _readyCompletionSource = new();
+
+                _connectedCompletionSource.TrySetCanceled();
+                _connectedCompletionSource = new();
+            }
+
+            return true;
+        }
+
         public bool TryIndicateDisconnecting([MaybeNullWhen(false)] out ConnectionState connectionState)
         {
             lock (ClosedTokenProvider)
@@ -208,13 +227,10 @@ public abstract class WebSocketClient : IDisposable
     private readonly WebSocketPayloadProperties _defaultPayloadProperties;
 
     private protected readonly ILatencyTimer _latencyTimer;
-    private protected readonly TaskCompletionSource _readyCompletionSource = new();
 
     private State? _state;
 
     private protected abstract Uri Uri { get; }
-
-    public Task ReadyAsync => _readyCompletionSource.Task;
 
     public TimeSpan Latency
     {
@@ -249,22 +265,27 @@ public abstract class WebSocketClient : IDisposable
         await InvokeEventAsync(Connect).ConfigureAwait(false);
     }
 
-    private async void HandleDisconnected(State state, ConnectionState connectionState, WebSocketCloseStatus? closeStatus, string? description)
+    private async void HandleDisconnected(State state, ConnectionState connectionState)
     {
+        var connection = connectionState.Connection;
+
+        var description = connection.CloseStatusDescription;
         InvokeLog(LogMessage.Info("Disconnected", string.IsNullOrEmpty(description) ? null : (description.EndsWith('.') ? description[..^1] : description)));
-        var reconnect = Reconnect(closeStatus, description);
+
+        var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
+
         var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
+
         if (reconnect)
         {
-            connectionState.Dispose();
             await ReconnectAsync(state).ConfigureAwait(false);
+            connectionState.Dispose();
         }
         else
         {
             Interlocked.CompareExchange(ref _state, null, state);
             state.Dispose();
             connectionState.Dispose();
-            _readyCompletionSource.TrySetCanceled();
         }
 
         await disconnectTask.ConfigureAwait(false);
@@ -273,11 +294,7 @@ public abstract class WebSocketClient : IDisposable
     private async void HandleClosed()
     {
         InvokeLog(LogMessage.Info("Closed"));
-        var closeTask = InvokeEventAsync(Close).ConfigureAwait(false);
-
-        _readyCompletionSource.TrySetCanceled();
-
-        await closeTask;
+        await InvokeEventAsync(Close).ConfigureAwait(false);
     }
 
     private async void HandleMessageReceived(State state, ReadOnlyMemory<byte> data)
@@ -390,11 +407,12 @@ public abstract class WebSocketClient : IDisposable
             {
                 await connection.CloseAsync((int)status, statusDescription, cancellationToken).ConfigureAwait(false);
             }
-            catch
+            catch (Exception ex) when (ex is not ArgumentException)
             {
+                InvokeLog(LogMessage.Error(ex));
                 connection.Abort();
                 HandleClosed();
-                throw;
+                return;
             }
 
             await connectionState.ReadTask.ConfigureAwait(false);
@@ -432,8 +450,10 @@ public abstract class WebSocketClient : IDisposable
         {
         }
 
-        if (state.TryIndicateDisconnecting(out _))
-            HandleDisconnected(state, connectionState, (WebSocketCloseStatus?)connection.CloseStatus, connection.CloseStatusDescription);
+        if (state.TryIndicateDisconnecting(connectionState))
+            HandleDisconnected(state, connectionState);
+        else
+            connectionState.Dispose();
     }
 
     public void Abort()

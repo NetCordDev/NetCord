@@ -164,7 +164,6 @@ public class VoiceClient : WebSocketClient
                     var readyTask = InvokeEventAsync(Ready);
 
                     state.IndicateReady(state.ConnectionState!);
-                    _readyCompletionSource.TrySetResult();
 
                     await readyTask.ConfigureAwait(false);
                 }

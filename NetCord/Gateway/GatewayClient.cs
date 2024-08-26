@@ -993,7 +993,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         ApplicationFlags = args.ApplicationFlags;
 
                         state.IndicateReady(state.ConnectionState!);
-                        _readyCompletionSource.TrySetResult();
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
                 }
@@ -1006,7 +1005,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var resumeTask = InvokeResumeEventAsync();
 
                     state.IndicateReady(state.ConnectionState!);
-                    _readyCompletionSource.TrySetResult();
 
                     await updateLatencyTask.ConfigureAwait(false);
                     await resumeTask.ConfigureAwait(false);
