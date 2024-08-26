@@ -198,6 +198,8 @@ public abstract class WebSocketClient : IDisposable
 
         public void Dispose()
         {
+            _readyCompletionSource.TrySetCanceled();
+            _connectedCompletionSource.TrySetCanceled();
             ConnectionState?.Dispose();
             ClosedTokenProvider.Dispose();
         }
