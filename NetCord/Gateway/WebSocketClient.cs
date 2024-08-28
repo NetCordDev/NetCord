@@ -636,11 +636,11 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected abstract ValueTask TryResumeAsync(ConnectionState state, CancellationToken cancellationToken = default);
+    private protected abstract ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected async void StartHeartbeating(ConnectionState state, double interval)
+    private protected async void StartHeartbeating(ConnectionState connectionState, double interval)
     {
-        var cancellationToken = state.DisconnectedTokenProvider.Token;
+        var cancellationToken = connectionState.DisconnectedTokenProvider.Token;
 
         PeriodicTimer timer;
 
@@ -661,7 +661,7 @@ public abstract class WebSocketClient : IDisposable
                 try
                 {
                     await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
-                    await HeartbeatAsync(state, cancellationToken).ConfigureAwait(false);
+                    await HeartbeatAsync(connectionState, cancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
