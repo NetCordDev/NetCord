@@ -557,10 +557,9 @@ public abstract class WebSocketClient : IDisposable
                     }
                     catch (TaskCanceledException ex)
                     {
-                        if (disconnectedToken.IsCancellationRequested)
-                            return ex;
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                        throw;
+                            return ex;
                     }
 
                     continue;
