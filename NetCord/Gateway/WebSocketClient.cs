@@ -35,23 +35,7 @@ public abstract class WebSocketClient : IDisposable
 
         public CancellationTokenProvider DisconnectedTokenProvider { get; } = new();
 
-        public Task ReadTask => _readCompletionSource.Task;
-
-        private readonly TaskCompletionSource _readCompletionSource = new();
-
         private int _state;
-
-        public async void StartReading(State state, Func<State, ConnectionState, Task> readAsync)
-        {
-            try
-            {
-                await readAsync(state, this).ConfigureAwait(false);
-            }
-            finally
-            {
-                _readCompletionSource.TrySetResult();
-            }
-        }
 
         public bool TryIndicateDisconnecting()
         {
@@ -65,7 +49,6 @@ public abstract class WebSocketClient : IDisposable
 
         public void Dispose()
         {
-            _readCompletionSource.TrySetResult();
             DisconnectedTokenProvider.Dispose();
             RateLimiter.Dispose();
             Connection.Dispose();
@@ -361,7 +344,7 @@ public abstract class WebSocketClient : IDisposable
             throw;
         }
 
-        connectionState.StartReading(state, ReadAsync);
+        _ = ReadAsync(state, connectionState);
 
         return connectionState;
     }
@@ -397,8 +380,6 @@ public abstract class WebSocketClient : IDisposable
                 HandleClosed();
                 return;
             }
-
-            await connectionState.ReadTask.ConfigureAwait(false);
 
             HandleClosed();
         }

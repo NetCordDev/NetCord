@@ -118,13 +118,23 @@ internal static class Program
             Console.WriteLine(i);
         }
 
-        await _client.CloseAsync();
-        await _client.StartAsync();
-
-        await _client.UpdatePresenceAsync(new(UserStatusType.Online)
+        var task = _client.UpdatePresenceAsync(new(UserStatusType.Online)
         {
             Activities = [new($"wzium", UserActivityType.Game)],
         });
+
+        await Task.Delay(1000);
+
+        await _client.CloseAsync();
+
+        await task;
+
+        //await _client.StartAsync();
+
+        //await _client.UpdatePresenceAsync(new(UserStatusType.Online)
+        //{
+        //    Activities = [new($"wzium", UserActivityType.Game)],
+        //});
 
         await Task.Delay(-1);
     }
