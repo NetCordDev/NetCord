@@ -444,12 +444,21 @@ public abstract class WebSocketClient : IDisposable
         if (state is null)
             return;
 
-        if (state.TryIndicateClosing(out var connectionState))
+        if (!state.TryIndicateClosing(out var connectionState))
+            return;
+
+        try
         {
-            state.Dispose();
             connectionState.Connection.Abort();
-            HandleClosed();
         }
+        catch (Exception ex)
+        {
+            InvokeLog(LogMessage.Error(ex));
+        }
+
+        connectionState.Dispose();
+        state.Dispose();
+        HandleClosed();
     }
 
     private protected virtual void OnConnected()
@@ -469,6 +478,9 @@ public abstract class WebSocketClient : IDisposable
         {
             InvokeLog(LogMessage.Error(ex));
         }
+
+        connectionState.Dispose();
+        HandleClosed();
 
         return ReconnectAsync(state);
     }
@@ -559,7 +571,7 @@ public abstract class WebSocketClient : IDisposable
                     {
                         cancellationToken.ThrowIfCancellationRequested();
 
-                            return ex;
+                        return ex;
                     }
 
                     continue;
