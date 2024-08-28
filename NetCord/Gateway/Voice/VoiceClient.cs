@@ -97,7 +97,7 @@ public class VoiceClient : WebSocketClient
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override async Task ProcessPayloadAsync(State state, JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload)
     {
         switch ((VoiceOpcode)payload.Opcode)
         {
@@ -111,7 +111,6 @@ public class VoiceClient : WebSocketClient
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
 
-                    var connectionState = state.ConnectionState!;
                     if (RedirectInputStreams)
                     {
                         TaskCompletionSource<byte[]> result = new();
@@ -168,7 +167,7 @@ public class VoiceClient : WebSocketClient
                     InvokeLog(LogMessage.Info("Ready"));
                     var readyTask = InvokeEventAsync(Ready);
 
-                    state.IndicateReady(state.ConnectionState!);
+                    state.IndicateReady(connectionState);
 
                     await readyTask.ConfigureAwait(false);
                 }
@@ -196,7 +195,7 @@ public class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    StartHeartbeating(state.ConnectionState!, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                    StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:

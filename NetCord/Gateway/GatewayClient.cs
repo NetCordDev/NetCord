@@ -899,7 +899,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
 
-    private protected override async Task ProcessPayloadAsync(State state, JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload)
     {
         switch ((GatewayOpcode)payload.Opcode)
         {
@@ -907,7 +907,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
                 try
                 {
-                    await ProcessEventAsync(state, payload).ConfigureAwait(false);
+                    await ProcessEventAsync(state, connectionState, payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -918,13 +918,13 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case GatewayOpcode.Reconnect:
                 InvokeLog(LogMessage.Info("Reconnect request"));
-                await AbortAndReconnectAsync(state).ConfigureAwait(false);
+                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
                 try
                 {
-                    await SendIdentifyAsync(state.ConnectionState!).ConfigureAwait(false);
+                    await SendIdentifyAsync(connectionState).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -932,7 +932,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
-                StartHeartbeating(state.ConnectionState!, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
@@ -970,7 +970,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(State state, JsonPayload payload)
+    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
         var name = payload.Event!;
@@ -992,7 +992,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         SessionId = args.SessionId;
                         ApplicationFlags = args.ApplicationFlags;
 
-                        state.IndicateReady(state.ConnectionState!);
+                        state.IndicateReady(connectionState);
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
                 }
@@ -1004,7 +1004,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
-                    state.IndicateReady(state.ConnectionState!);
+                    state.IndicateReady(connectionState);
 
                     await updateLatencyTask.ConfigureAwait(false);
                     await resumeTask.ConfigureAwait(false);

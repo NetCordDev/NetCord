@@ -41,11 +41,11 @@ public abstract class WebSocketClient : IDisposable
 
         private int _state;
 
-        public async void StartReading(State state, Func<State, Task> readAsync)
+        public async void StartReading(State state, Func<State, ConnectionState, Task> readAsync)
         {
             try
             {
-                await readAsync(state).ConfigureAwait(false);
+                await readAsync(state, this).ConfigureAwait(false);
             }
             finally
             {
@@ -74,7 +74,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected sealed class State : IDisposable
     {
-        public ConnectionState? ConnectionState { get; private set; }
+        private ConnectionState? _connectionState;
 
         public CancellationTokenProvider ClosedTokenProvider { get; } = new();
 
@@ -90,7 +90,7 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                if (ConnectionState != connectionState)
+                if (_connectionState != connectionState)
                     return;
 
                 _connectedCompletionSource.TrySetResult(new ConnectionStateResult.Success(connectionState));
@@ -101,7 +101,7 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                if (ConnectionState != connectionState)
+                if (_connectionState != connectionState)
                     return;
 
                 _readyCompletionSource.TrySetResult(new ConnectionStateResult.Success(connectionState));
@@ -115,10 +115,10 @@ public abstract class WebSocketClient : IDisposable
                 if (ClosedTokenProvider.IsCancellationRequested)
                     return ConnectingResult.Closed;
 
-                if (ConnectionState is not null)
+                if (_connectionState is not null)
                     return ConnectingResult.AlreadyStarted;
 
-                ConnectionState = connectionState;
+                _connectionState = connectionState;
             }
 
             return ConnectingResult.Success;
@@ -137,10 +137,10 @@ public abstract class WebSocketClient : IDisposable
             {
                 _ = connectionState.TryIndicateDisconnecting();
 
-                if (ConnectionState != connectionState)
+                if (_connectionState != connectionState)
                     return;
 
-                ConnectionState = null;
+                _connectionState = null;
             }
         }
 
@@ -153,14 +153,14 @@ public abstract class WebSocketClient : IDisposable
                 _readyCompletionSource.TrySetCanceled();
                 _connectedCompletionSource.TrySetCanceled();
 
-                var previousState = ConnectionState;
+                var previousState = _connectionState;
                 if (previousState is null || !previousState.TryIndicateDisconnecting())
                 {
                     connectionState = null;
                     return false;
                 }
 
-                ConnectionState = null;
+                _connectionState = null;
                 connectionState = previousState;
             }
 
@@ -171,35 +171,10 @@ public abstract class WebSocketClient : IDisposable
         {
             lock (ClosedTokenProvider)
             {
-                if (ConnectionState != connectionState || !connectionState.TryIndicateDisconnecting())
+                if (_connectionState != connectionState || !connectionState.TryIndicateDisconnecting())
                     return false;
 
-                ConnectionState = null;
-
-                var retry = ConnectionStateResult.Retry.Instance;
-                _readyCompletionSource.TrySetResult(retry);
-                _connectedCompletionSource.TrySetResult(retry);
-
-                _readyCompletionSource = new();
-                _connectedCompletionSource = new();
-            }
-
-            return true;
-        }
-
-        public bool TryIndicateDisconnecting([MaybeNullWhen(false)] out ConnectionState connectionState)
-        {
-            lock (ClosedTokenProvider)
-            {
-                var previousState = ConnectionState;
-                if (previousState is null || !previousState.TryIndicateDisconnecting())
-                {
-                    connectionState = null;
-                    return false;
-                }
-
-                ConnectionState = null;
-                connectionState = previousState;
+                _connectionState = null;
 
                 var retry = ConnectionStateResult.Retry.Instance;
                 _readyCompletionSource.TrySetResult(retry);
@@ -216,7 +191,7 @@ public abstract class WebSocketClient : IDisposable
         {
             _readyCompletionSource.TrySetCanceled();
             _connectedCompletionSource.TrySetCanceled();
-            ConnectionState?.Dispose();
+            _connectionState?.Dispose();
             ClosedTokenProvider.Dispose();
         }
     }
@@ -275,10 +250,10 @@ public abstract class WebSocketClient : IDisposable
         await InvokeEventAsync(Connecting).ConfigureAwait(false);
     }
 
-    private async void HandleConnected(State state)
+    private async void HandleConnected(State state, ConnectionState connectionState)
     {
         OnConnected();
-        state.IndicateConnected(state.ConnectionState!);
+        state.IndicateConnected(connectionState);
         InvokeLog(LogMessage.Info("Connected"));
         await InvokeEventAsync(Connect).ConfigureAwait(false);
     }
@@ -315,27 +290,17 @@ public abstract class WebSocketClient : IDisposable
         await InvokeEventAsync(Close).ConfigureAwait(false);
     }
 
-    private async void HandleMessageReceived(State state, ReadOnlyMemory<byte> data)
+    private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> data)
     {
         try
         {
-            JsonPayload payload;
-            try
-            {
-                payload = CreatePayload(data);
-            }
-            catch (Exception ex)
-            {
-                InvokeLog(LogMessage.Error(ex));
-                await AbortAndReconnectAsync(state).ConfigureAwait(false);
-                return;
-            }
-
-            await ProcessPayloadAsync(state, payload).ConfigureAwait(false);
+            var payload = CreatePayload(data);
+            await ProcessPayloadAsync(state, connectionState, payload).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             InvokeLog(LogMessage.Error(ex));
+            await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
         }
     }
 
@@ -387,7 +352,7 @@ public abstract class WebSocketClient : IDisposable
         {
             HandleConnecting();
             await connection.OpenAsync(Uri, cancellationToken).ConfigureAwait(false);
-            HandleConnected(state);
+            HandleConnected(state, connectionState);
         }
         catch (Exception)
         {
@@ -439,9 +404,8 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private async Task ReadAsync(State state)
+    private async Task ReadAsync(State state, ConnectionState connectionState)
     {
-        var connectionState = state.ConnectionState!;
         var connection = connectionState.Connection;
         try
         {
@@ -456,7 +420,7 @@ public abstract class WebSocketClient : IDisposable
                         break;
 
                     writer.Advance(result.Count);
-                    HandleMessageReceived(state, writer.WrittenMemory);
+                    HandleMessageReceived(state, connectionState, writer.WrittenMemory);
                     writer.Clear();
                 }
                 else
@@ -492,9 +456,9 @@ public abstract class WebSocketClient : IDisposable
     {
     }
 
-    private protected ValueTask AbortAndReconnectAsync(State state)
+    private protected ValueTask AbortAndReconnectAsync(State state, ConnectionState connectionState)
     {
-        if (!state.TryIndicateDisconnecting(out var connectionState))
+        if (!state.TryIndicateDisconnecting(connectionState))
             return default;
 
         try
@@ -700,7 +664,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, Serialization.Default.JsonPayload)!;
 
-    private protected abstract Task ProcessPayloadAsync(State state, JsonPayload payload);
+    private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload);
 
     private protected async void InvokeLog(LogMessage logMessage)
     {
