@@ -21,7 +21,7 @@ internal static class Program
     {
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
-        Compression = new ZLibGatewayCompression(),
+        Compression = new ZstandardGatewayCompression(),
     });
 
     private static readonly CommandService<CommandContext> _commandService = new();

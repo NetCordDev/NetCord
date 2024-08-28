@@ -13,6 +13,20 @@ namespace NetCord.Gateway;
 
 public abstract class WebSocketClient : IDisposable
 {
+    private protected record ConnectionStateResult
+    {
+        public record Success(ConnectionState ConnectionState) : ConnectionStateResult;
+
+        public record Retry : ConnectionStateResult
+        {
+            private Retry()
+            {
+            }
+
+            public static Retry Instance { get; } = new();
+        }
+    }
+
     private protected sealed class ConnectionState(IWebSocketConnection connection, IRateLimiter rateLimiter) : IDisposable
     {
         public IWebSocketConnection Connection => connection;
@@ -64,13 +78,13 @@ public abstract class WebSocketClient : IDisposable
 
         public CancellationTokenProvider ClosedTokenProvider { get; } = new();
 
-        public Task<ConnectionState> ReadyTask => _readyCompletionSource.Task;
+        public Task<ConnectionStateResult> ReadyTask => _readyCompletionSource.Task;
 
-        private TaskCompletionSource<ConnectionState> _readyCompletionSource = new();
+        private TaskCompletionSource<ConnectionStateResult> _readyCompletionSource = new();
 
-        public Task<ConnectionState> ConnectedTask => _connectedCompletionSource.Task;
+        public Task<ConnectionStateResult> ConnectedTask => _connectedCompletionSource.Task;
 
-        private TaskCompletionSource<ConnectionState> _connectedCompletionSource = new();
+        private TaskCompletionSource<ConnectionStateResult> _connectedCompletionSource = new();
 
         public void IndicateConnected(ConnectionState connectionState)
         {
@@ -79,7 +93,7 @@ public abstract class WebSocketClient : IDisposable
                 if (ConnectionState != connectionState)
                     return;
 
-                _connectedCompletionSource.TrySetResult(connectionState);
+                _connectedCompletionSource.TrySetResult(new ConnectionStateResult.Success(connectionState));
             }
         }
 
@@ -90,7 +104,7 @@ public abstract class WebSocketClient : IDisposable
                 if (ConnectionState != connectionState)
                     return;
 
-                _readyCompletionSource.TrySetResult(connectionState);
+                _readyCompletionSource.TrySetResult(new ConnectionStateResult.Success(connectionState));
             }
         }
 
@@ -162,10 +176,11 @@ public abstract class WebSocketClient : IDisposable
 
                 ConnectionState = null;
 
-                _readyCompletionSource.TrySetCanceled();
-                _readyCompletionSource = new();
+                var retry = ConnectionStateResult.Retry.Instance;
+                _readyCompletionSource.TrySetResult(retry);
+                _connectedCompletionSource.TrySetResult(retry);
 
-                _connectedCompletionSource.TrySetCanceled();
+                _readyCompletionSource = new();
                 _connectedCompletionSource = new();
             }
 
@@ -186,10 +201,11 @@ public abstract class WebSocketClient : IDisposable
                 ConnectionState = null;
                 connectionState = previousState;
 
-                _readyCompletionSource.TrySetCanceled();
-                _readyCompletionSource = new();
+                var retry = ConnectionStateResult.Retry.Instance;
+                _readyCompletionSource.TrySetResult(retry);
+                _connectedCompletionSource.TrySetResult(retry);
 
-                _connectedCompletionSource.TrySetCanceled();
+                _readyCompletionSource = new();
                 _connectedCompletionSource = new();
             }
 
@@ -510,7 +526,13 @@ public abstract class WebSocketClient : IDisposable
             if (!task.IsCompleted)
             {
                 if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
-                    connectionState = await task.ConfigureAwait(false);
+                {
+                    var result = await task.ConfigureAwait(false);
+                    if (result is ConnectionStateResult.Success successResult)
+                        connectionState = successResult.ConnectionState;
+                    else
+                        continue;
+                }
                 else
                 {
                     ThrowConnectionNotStarted();
@@ -518,7 +540,16 @@ public abstract class WebSocketClient : IDisposable
                 }
             }
             else
-                connectionState = state.ConnectionState!;
+            {
+                var result = task.Result;
+                if (result is ConnectionStateResult.Success successResult)
+                    connectionState = successResult.ConnectionState;
+                else
+                {
+                    ThrowConnectionNotStarted();
+                    return;
+                }
+            }
 
             var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
 
