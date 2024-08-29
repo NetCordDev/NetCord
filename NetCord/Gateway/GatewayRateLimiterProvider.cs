@@ -11,7 +11,7 @@ public class GatewayRateLimiterProvider(int limit, long duration) : IRateLimiter
         private int _remaining = limit;
         private long _reset;
 
-        public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+        public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
         {
             var timestamp = Environment.TickCount64;
             lock (_lock)
@@ -32,6 +32,24 @@ public class GatewayRateLimiterProvider(int limit, long duration) : IRateLimiter
             }
 
             return new(RateLimitAcquisitionResult.NoRateLimit);
+        }
+
+        public ValueTask CancelAcquireAsync(long acquisitionTimestamp, CancellationToken cancellationToken = default)
+        {
+            var currentTimestamp = Environment.TickCount64;
+            lock (_lock)
+            {
+                var reset = _reset;
+                var start = reset - duration;
+                if (acquisitionTimestamp <= reset
+                    && acquisitionTimestamp >= start
+                    && currentTimestamp <= reset
+                    && currentTimestamp >= start
+                    && _remaining < _limit)
+                    _remaining++;
+            }
+
+            return default;
         }
 
         public void Dispose()

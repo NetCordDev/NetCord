@@ -538,7 +538,17 @@ public abstract class WebSocketClient : IDisposable
 
         while (true)
         {
-            var result = await rateLimiter.TryAcquireAsync().ConfigureAwait(false);
+            RateLimitAcquisitionResult result;
+            try
+            {
+                result = await rateLimiter.TryAcquireAsync(linkedToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                return ex;
+            }
 
             if (result.RateLimited)
             {
@@ -561,12 +571,34 @@ public abstract class WebSocketClient : IDisposable
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
 
+            var timestamp = Environment.TickCount64;
+
             try
             {
                 await connectionState.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, linkedToken).ConfigureAwait(false);
             }
-            catch (Exception ex) when (ex is not ArgumentException)
+            catch (ArgumentException)
             {
+                try
+                {
+                    await rateLimiter.CancelAcquireAsync(timestamp, default).ConfigureAwait(false);
+                }
+                catch
+                {
+                }
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    await rateLimiter.CancelAcquireAsync(timestamp, default).ConfigureAwait(false);
+                }
+                catch
+                {
+                }
+
                 cancellationToken.ThrowIfCancellationRequested();
 
                 return ex;
