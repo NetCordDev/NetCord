@@ -22,7 +22,7 @@ internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
         return RateLimitAcquisitionResult.NoRateLimit;
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp)
     {
         _retry = false;
         _semaphore.Release();
