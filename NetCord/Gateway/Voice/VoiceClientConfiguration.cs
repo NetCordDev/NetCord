@@ -9,6 +9,7 @@ namespace NetCord.Gateway.Voice;
 public class VoiceClientConfiguration : IWebSocketClientConfiguration
 {
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; init; }
+    public IRateLimiterProvider? RateLimiterProvider { get; init; }
     public WebSocketPayloadProperties? DefaultPayloadProperties { get; init; }
     public IUdpSocket? UdpSocket { get; init; }
     public IReconnectStrategy? ReconnectStrategy { get; init; }
@@ -17,6 +18,4 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IVoiceClientCache? Cache { get; init; }
     public IVoiceEncryption? Encryption { get; init; }
     public bool RedirectInputStreams { get; init; }
-
-    IRateLimiterProvider? IWebSocketClientConfiguration.RateLimiterProvider => null;
 }
