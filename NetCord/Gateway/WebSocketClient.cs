@@ -192,7 +192,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected static readonly WebSocketPayloadProperties _internalPayloadProperties = new()
     {
-        MessageFlags = WebSocketMessageFlags.EndOfMessage | WebSocketMessageFlags.BypassReady,
+        MessageFlags = WebSocketMessageFlags.EndOfMessage,
         RetryHandling = WebSocketRetryHandling.RetryRateLimit,
     };
 
@@ -477,14 +477,14 @@ public abstract class WebSocketClient : IDisposable
             if (state is null)
                 ThrowConnectionNotStarted();
 
-            var task = properties.MessageFlags.HasFlag(WebSocketMessageFlags.BypassReady) ? state.ConnectedTask : state.ReadyTask;
+            var task = state.ReadyTask;
 
             ConnectionState connectionState;
             if (!task.IsCompleted)
             {
                 if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 {
-                    var result = await task.ConfigureAwait(false);
+                    var result = await task.WaitAsync(cancellationToken).ConfigureAwait(false);
                     if (result is ConnectionStateResult.Success successResult)
                         connectionState = successResult.ConnectionState;
                     else
