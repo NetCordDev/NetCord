@@ -90,61 +90,6 @@ internal static class Program
         manager.AddService(_userCommandService);
 
         await _client.StartAsync();
-
-        //await _client.CloseAsync();
-
-        ////await _client.StartAsync();
-
-        //await _client.RequestGuildUsersAsync(new(0));
-
-        //await Task.WhenAll(_client.CloseAsync(), _client.RequestGuildUsersAsync(new(0)).AsTask());
-
-        //try
-        //{
-        //    await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
-        //}
-        //catch (RestException ex)
-        //{
-        //    var error = ex.Error;
-        //    Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
-        //}
-
-        //for (int i = 0; i < 119; i++)
-        //{
-        //    await _client.UpdatePresenceAsync(new(UserStatusType.Online)
-        //    {
-        //        Activities = [new($"wzium {i}", UserActivityType.Game)],
-        //    });
-        //    Console.WriteLine(i);
-        //}
-
-        //await _client.CloseAsync();
-
-        //await _client.StartAsync();
-
-        //await _client.UpdatePresenceAsync(new(UserStatusType.Online)
-        //{
-        //    Activities = [new($"wzium", UserActivityType.Game)],
-        //});
-
-        var task = _client.UpdatePresenceAsync(new(UserStatusType.Online)
-        {
-            Activities = [new($"wzium", UserActivityType.Game)],
-        });
-
-        await Task.Delay(1000);
-
-        await _client.CloseAsync();
-
-        await task;
-
-        //await _client.StartAsync();
-
-        //await _client.UpdatePresenceAsync(new(UserStatusType.Online)
-        //{
-        //    Activities = [new($"wzium", UserActivityType.Game)],
-        //});
-
         await Task.Delay(-1);
     }
 
