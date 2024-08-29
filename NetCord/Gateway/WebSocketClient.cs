@@ -254,14 +254,14 @@ public abstract class WebSocketClient : IDisposable
 
         if (reconnect)
         {
-            await ReconnectAsync(state).ConfigureAwait(false);
             connectionState.Dispose();
+            await ReconnectAsync(state).ConfigureAwait(false);
         }
         else
         {
             Interlocked.CompareExchange(ref _state, null, state);
-            state.Dispose();
             connectionState.Dispose();
+            state.Dispose();
         }
 
         await disconnectTask.ConfigureAwait(false);
@@ -366,23 +366,27 @@ public abstract class WebSocketClient : IDisposable
         if (!state.TryIndicateClosing(out var connectionState))
             return;
 
-        using (state)
+        var connection = connectionState.Connection;
+        try
         {
-            var connection = connectionState.Connection;
+            await connection.CloseAsync((int)status, statusDescription, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not ArgumentException)
+        {
+            InvokeLog(LogMessage.Error(ex));
             try
             {
-                await connection.CloseAsync((int)status, statusDescription, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (ex is not ArgumentException)
-            {
-                InvokeLog(LogMessage.Error(ex));
                 connection.Abort();
-                HandleClosed();
-                return;
             }
-
-            HandleClosed();
+            catch (Exception abortEx)
+            {
+                InvokeLog(LogMessage.Error(abortEx));
+            }
         }
+
+        connectionState.Dispose();
+        state.Dispose();
+        HandleClosed();
     }
 
     private async Task ReadAsync(State state, ConnectionState connectionState)
@@ -414,8 +418,6 @@ public abstract class WebSocketClient : IDisposable
 
         if (state.TryIndicateDisconnecting(connectionState))
             HandleDisconnected(state, connectionState);
-        else
-            connectionState.Dispose();
     }
 
     public void Abort()
