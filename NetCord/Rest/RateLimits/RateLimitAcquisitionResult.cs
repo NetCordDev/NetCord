@@ -9,9 +9,9 @@ public readonly struct RateLimitAcquisitionResult
         AlwaysRetry = alwaysRetryOnce;
     }
 
-    public static RateLimitAcquisitionResult Retry() => new(0, false, true);
+    public static RateLimitAcquisitionResult Retry { get; } = new(0, false, true);
 
-    public static RateLimitAcquisitionResult NoRateLimit() => new(0, false, false);
+    public static RateLimitAcquisitionResult NoRateLimit { get; } = new(0, false, false);
 
     public static RateLimitAcquisitionResult RateLimit(int resetAfter) => new(resetAfter, true, false);
 

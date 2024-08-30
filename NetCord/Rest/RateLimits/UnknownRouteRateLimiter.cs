@@ -15,14 +15,14 @@ internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
     {
         await _semaphore.WaitAsync().ConfigureAwait(false);
         if (_retry)
-            return RateLimitAcquisitionResult.Retry();
+            return RateLimitAcquisitionResult.Retry;
 
         _retry = true;
 
-        return RateLimitAcquisitionResult.NoRateLimit();
+        return RateLimitAcquisitionResult.NoRateLimit;
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp)
     {
         _retry = false;
         _semaphore.Release();

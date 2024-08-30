@@ -31,7 +31,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         {
             return new()
             {
-                WebSocketFactory = _ => null,
+                WebSocketConnectionProviderFactory = _ => null,
                 ReconnectStrategyFactory = _ => null,
                 LatencyTimerFactory = _ => null,
                 VersionFactory = _ => ApiVersion.V10,
@@ -49,7 +49,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
 
         return new()
         {
-            WebSocketFactory = configuration.WebSocketFactory ?? (_ => null),
+            WebSocketConnectionProviderFactory = configuration.WebSocketConnectionProviderFactory ?? (_ => null),
             ReconnectStrategyFactory = configuration.ReconnectStrategyFactory ?? (_ => null),
             LatencyTimerFactory = configuration.LatencyTimerFactory ?? (_ => null),
             VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
@@ -219,7 +219,9 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         var configuration = _configuration;
         return new()
         {
-            WebSocket = configuration.WebSocketFactory!(shard),
+            WebSocketConnectionProvider = configuration.WebSocketConnectionProviderFactory!(shard),
+            RateLimiterProvider = configuration.RateLimiterProviderFactory!(shard),
+            DefaultPayloadProperties = configuration.DefaultPayloadPropertiesFactory!(shard),
             ReconnectStrategy = configuration.ReconnectStrategyFactory!(shard),
             LatencyTimer = configuration.LatencyTimerFactory!(shard),
             Version = configuration.VersionFactory!(shard),

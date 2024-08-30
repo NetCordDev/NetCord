@@ -9,7 +9,7 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 namespace NetCord.Gateway;
 
 /// <summary>
-/// The GatewayClient class allows applications to send and receive data from the Discord Gateway, such as events and resource requests, via a WebSocket client.
+/// The <see cref="GatewayClient"/> class allows applications to send and receive data from the Discord Gateway, such as events and resource requests.
 /// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
@@ -370,7 +370,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
     /// <summary>
-    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
+    /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, WebSocketPayloadProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: None
@@ -836,7 +836,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         _compression.Initialize();
     }
 
-    private ValueTask SendIdentifyAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
+    private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
         {
@@ -847,7 +847,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _configuration.Intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -858,8 +858,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        await StartAsync(cancellationToken).ConfigureAwait(false);
-        await SendIdentifyAsync(presence, cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -871,35 +871,35 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        await ConnectAsync(cancellationToken).ConfigureAwait(false);
-        await TryResumeAsync(SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
 
-    private protected override ValueTask TryResumeAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        return TryResumeAsync(SessionId!, SequenceNumber, cancellationToken);
+        return TryResumeAsync(connectionState, SessionId!, SequenceNumber, cancellationToken);
     }
 
-    private ValueTask TryResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    private ValueTask TryResumeAsync(ConnectionState connectionState, string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override ValueTask HeartbeatAsync(CancellationToken cancellationToken = default)
+    private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendPayloadAsync(serializedPayload, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
 
-    private protected override async Task ProcessPayloadAsync(JsonPayload payload)
+    private protected override async Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload)
     {
         switch ((GatewayOpcode)payload.Opcode)
         {
@@ -907,7 +907,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
                 try
                 {
-                    await ProcessEventAsync(payload).ConfigureAwait(false);
+                    await ProcessEventAsync(state, connectionState, payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -918,13 +918,13 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case GatewayOpcode.Reconnect:
                 InvokeLog(LogMessage.Info("Reconnect request"));
-                await AbortAndReconnectAsync().ConfigureAwait(false);
+                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 InvokeLog(LogMessage.Info("Invalid session"));
                 try
                 {
-                    await SendIdentifyAsync().ConfigureAwait(false);
+                    await SendIdentifyAsync(connectionState).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -932,7 +932,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 break;
             case GatewayOpcode.Hello:
-                StartHeartbeating(payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
@@ -943,33 +943,34 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Joins, moves, or disconnects the app from a voice channel.
     /// </summary>
-    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, CancellationToken cancellationToken = default)
+    public ValueTask UpdateVoiceStateAsync(VoiceStateProperties voiceState, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<VoiceStateProperties> payload = new(GatewayOpcode.VoiceStateUpdate, voiceState);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesVoiceStateProperties), properties, cancellationToken);
     }
 
     /// <summary>
     /// Updates an app's presence.
     /// </summary>
     /// <param name="presence">The presence to set.</param>
+    /// <param name="properties"></param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
-    public ValueTask UpdatePresenceAsync(PresenceProperties presence, CancellationToken cancellationToken = default)
+    public ValueTask UpdatePresenceAsync(PresenceProperties presence, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<PresenceProperties> payload = new(GatewayOpcode.PresenceUpdate, presence);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesPresenceProperties), properties, cancellationToken);
     }
 
     /// <summary>
-    /// Requests user for a guild.
+    /// Requests users for a guild.
     /// </summary>
-    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, CancellationToken cancellationToken = default)
+    public ValueTask RequestGuildUsersAsync(GuildUsersRequestProperties requestProperties, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         GatewayPayloadProperties<GuildUsersRequestProperties> payload = new(GatewayOpcode.RequestGuildUsers, requestProperties);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), cancellationToken);
+        return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(JsonPayload payload)
+    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
         var name = payload.Event!;
@@ -991,7 +992,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         SessionId = args.SessionId;
                         ApplicationFlags = args.ApplicationFlags;
 
-                        _readyCompletionSource.TrySetResult();
+                        state.IndicateReady(connectionState);
                     }).ConfigureAwait(false);
                     await updateLatencyTask.ConfigureAwait(false);
                 }
@@ -1003,7 +1004,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
-                    _readyCompletionSource.TrySetResult();
+                    state.IndicateReady(connectionState);
 
                     await updateLatencyTask.ConfigureAwait(false);
                     await resumeTask.ConfigureAwait(false);

@@ -7,7 +7,9 @@ namespace NetCord.Gateway;
 
 public class ShardedGatewayClientConfiguration
 {
-    public Func<Shard, IWebSocket?>? WebSocketFactory { get; init; }
+    public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; init; }
+    public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; init; }
+    public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; init; }
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; init; }
     public Func<Shard, ILatencyTimer?>? LatencyTimerFactory { get; init; }
     public Func<Shard, ApiVersion>? VersionFactory { get; init; }

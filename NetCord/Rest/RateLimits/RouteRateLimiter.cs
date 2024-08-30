@@ -34,14 +34,21 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
                     _remaining--;
             }
         }
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp)
     {
+        var currentTimestamp = Environment.TickCount64;
         lock (_lock)
         {
-            if (timestamp - (_reset - _maxResetAfter) >= -50 && _remaining < _limit)
+            var reset = _reset;
+            var safeStart = reset - _maxResetAfter - 50;
+            if (acquisitionTimestamp <= reset
+                && acquisitionTimestamp >= safeStart
+                && currentTimestamp <= reset
+                && currentTimestamp >= safeStart
+                && _remaining < _limit)
                 _remaining++;
         }
         return default;

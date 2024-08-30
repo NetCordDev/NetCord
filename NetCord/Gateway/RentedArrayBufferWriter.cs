@@ -57,7 +57,7 @@ internal sealed class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : I
         {
             var pool = ArrayPool<T>.Shared;
             var newBuffer = pool.Rent(sum);
-            Array.Copy(buffer, newBuffer, index);
+            buffer.AsSpan(0, index).CopyTo(newBuffer);
             _buffer = newBuffer;
             pool.Return(buffer);
         }
