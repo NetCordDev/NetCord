@@ -460,7 +460,17 @@ public abstract class WebSocketClient : IDisposable
             var task = state.ReadyTask;
 
             ConnectionState connectionState;
-            if (!task.IsCompleted)
+            if (task.IsCompleted)
+            {
+                if (task.Result is ConnectionStateResult.Success successResult)
+                    connectionState = successResult.ConnectionState;
+                else
+                {
+                    ThrowConnectionNotStarted();
+                    return;
+                }
+            }
+            else
             {
                 if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 {
@@ -470,17 +480,6 @@ public abstract class WebSocketClient : IDisposable
                     else
                         continue;
                 }
-                else
-                {
-                    ThrowConnectionNotStarted();
-                    return;
-                }
-            }
-            else
-            {
-                var result = task.Result;
-                if (result is ConnectionStateResult.Success successResult)
-                    connectionState = successResult.ConnectionState;
                 else
                 {
                     ThrowConnectionNotStarted();
@@ -507,7 +506,7 @@ public abstract class WebSocketClient : IDisposable
         ThrowConnectionNotStarted(exception);
     }
 
-    private protected static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
+    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
