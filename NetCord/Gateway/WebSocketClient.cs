@@ -65,21 +65,6 @@ public abstract class WebSocketClient : IDisposable
 
         private TaskCompletionSource<ConnectionStateResult> _readyCompletionSource = new();
 
-        public Task<ConnectionStateResult> ConnectedTask => _connectedCompletionSource.Task;
-
-        private TaskCompletionSource<ConnectionStateResult> _connectedCompletionSource = new();
-
-        public void IndicateConnected(ConnectionState connectionState)
-        {
-            lock (ClosedTokenProvider)
-            {
-                if (_connectionState != connectionState)
-                    return;
-
-                _connectedCompletionSource.TrySetResult(new ConnectionStateResult.Success(connectionState));
-            }
-        }
-
         public void IndicateReady(ConnectionState connectionState)
         {
             lock (ClosedTokenProvider)
@@ -134,7 +119,6 @@ public abstract class WebSocketClient : IDisposable
                 ClosedTokenProvider.Cancel();
 
                 _readyCompletionSource.TrySetCanceled();
-                _connectedCompletionSource.TrySetCanceled();
 
                 var previousState = _connectionState;
                 if (previousState is null || !previousState.TryIndicateDisconnecting())
@@ -159,12 +143,8 @@ public abstract class WebSocketClient : IDisposable
 
                 _connectionState = null;
 
-                var retry = ConnectionStateResult.Retry.Instance;
-                _readyCompletionSource.TrySetResult(retry);
-                _connectedCompletionSource.TrySetResult(retry);
-
+                _readyCompletionSource.TrySetResult(ConnectionStateResult.Retry.Instance);
                 _readyCompletionSource = new();
-                _connectedCompletionSource = new();
             }
 
             return true;
@@ -173,7 +153,6 @@ public abstract class WebSocketClient : IDisposable
         public void Dispose()
         {
             _readyCompletionSource.TrySetCanceled();
-            _connectedCompletionSource.TrySetCanceled();
             _connectionState?.Dispose();
             ClosedTokenProvider.Dispose();
         }
@@ -233,10 +212,9 @@ public abstract class WebSocketClient : IDisposable
         await InvokeEventAsync(Connecting).ConfigureAwait(false);
     }
 
-    private async void HandleConnected(State state, ConnectionState connectionState)
+    private async void HandleConnected()
     {
         OnConnected();
-        state.IndicateConnected(connectionState);
         InvokeLog(LogMessage.Info("Connected"));
         await InvokeEventAsync(Connect).ConfigureAwait(false);
     }
@@ -335,7 +313,7 @@ public abstract class WebSocketClient : IDisposable
         {
             HandleConnecting();
             await connection.OpenAsync(Uri, cancellationToken).ConfigureAwait(false);
-            HandleConnected(state, connectionState);
+            HandleConnected();
         }
         catch (Exception)
         {
