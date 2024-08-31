@@ -5,7 +5,7 @@ namespace NetCord;
 
 public abstract class ApplicationCommandInteraction : Interaction
 {
-    private protected ApplicationCommandInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
+    private protected ApplicationCommandInteraction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client) : base(jsonModel, guild, sendResponseAsync, client)
     {
     }
 

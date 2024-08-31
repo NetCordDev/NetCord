@@ -15,7 +15,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
 
     public long LastAccess { get; private set; } = Environment.TickCount64;
 
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
         var timestamp = Environment.TickCount64;
         lock (_lock)
@@ -37,7 +37,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
         return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
-    public ValueTask CancelAcquireAsync(long acquisitionTimestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp, CancellationToken cancellationToken = default)
     {
         var currentTimestamp = Environment.TickCount64;
         lock (_lock)
@@ -54,7 +54,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
         return default;
     }
 
-    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo)
+    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo, CancellationToken cancellationToken = default)
     {
         lock (_lock)
         {
@@ -74,7 +74,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
         return default;
     }
 
-    public ValueTask IndicateExchangeAsync(long timestamp) => CancelAcquireAsync(timestamp);
+    public ValueTask IndicateExchangeAsync(long timestamp, CancellationToken cancellationToken = default) => CancelAcquireAsync(timestamp, cancellationToken);
 
     public void IndicateAccess()
     {

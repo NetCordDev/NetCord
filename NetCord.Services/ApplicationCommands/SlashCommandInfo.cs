@@ -90,26 +90,26 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         return SuccessResult.Instance;
     }
 
-    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync()
+    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
         var parameters = Parameters;
         var count = parameters.Count;
 
         var options = new ApplicationCommandOptionProperties[count];
         for (int i = 0; i < count; i++)
-            options[i] = await parameters[i].GetRawValueAsync().ConfigureAwait(false);
+            options[i] = await parameters[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
 #pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
-            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
-            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
 #pragma warning restore CS0618 // Type or member is obsolete

@@ -24,6 +24,6 @@ public partial class RestClient
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
-    public async Task<RestMessage> EndMessagePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
+    public async Task<RestMessage> EndMessagePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
 }

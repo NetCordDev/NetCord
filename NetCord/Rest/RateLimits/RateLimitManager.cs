@@ -28,9 +28,9 @@ public sealed class RateLimitManager : IRateLimitManager
         _bucketRateLimiters = new(cacheSize);
     }
 
-    public ValueTask<IGlobalRateLimiter> GetGlobalRateLimiterAsync() => new(_globalRateLimiter);
+    public ValueTask<IGlobalRateLimiter> GetGlobalRateLimiterAsync(CancellationToken cancellationToken = default) => new(_globalRateLimiter);
 
-    public ValueTask<IRouteRateLimiter> GetRouteRateLimiterAsync(Route route)
+    public ValueTask<IRouteRateLimiter> GetRouteRateLimiterAsync(Route route, CancellationToken cancellationToken = default)
     {
         ITrackingRouteRateLimiter? rateLimiter;
 
@@ -50,7 +50,7 @@ public sealed class RateLimitManager : IRateLimitManager
         return new(rateLimiter);
     }
 
-    public async ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo, BucketInfo? previousBucketInfo)
+    public ValueTask ExchangeRouteRateLimiterAsync(Route route, RateLimitInfo? rateLimitInfo, BucketInfo? previousBucketInfo, CancellationToken cancellationToken = default)
     {
         if (rateLimitInfo is null)
         {
@@ -60,7 +60,7 @@ public sealed class RateLimitManager : IRateLimitManager
                 _routeRateLimiters[route] = new NoRateLimitRouteRateLimiter();
             }
 
-            return;
+            return default;
         }
 
         ITrackingRouteRateLimiter? rateLimiter;
@@ -83,11 +83,11 @@ public sealed class RateLimitManager : IRateLimitManager
             {
                 CleanupRateLimiters();
                 bucketRateLimiters[bucketInfo] = _routeRateLimiters[route] = new RouteRateLimiter(rateLimitInfo);
-                return;
+                return default;
             }
         }
 
-        await rateLimiter.UpdateAsync(rateLimitInfo).ConfigureAwait(false);
+        return rateLimiter.UpdateAsync(rateLimitInfo, cancellationToken);
     }
 
     private void CleanupRateLimiters()

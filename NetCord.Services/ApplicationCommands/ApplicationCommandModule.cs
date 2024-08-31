@@ -4,19 +4,19 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandModule<TContext> : BaseApplicationCommandModule<TContext> where TContext : IApplicationCommandContext
 {
-    public Task RespondAsync(InteractionCallback callback, RestRequestProperties? properties = null) => Context.Interaction.SendResponseAsync(callback, properties);
+    public Task RespondAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendResponseAsync(callback, properties, cancellationToken);
 
-    public Task<RestMessage> GetResponseAsync(RestRequestProperties? properties = null) => Context.Interaction.GetResponseAsync(properties);
+    public Task<RestMessage> GetResponseAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.GetResponseAsync(properties, cancellationToken);
 
-    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RestRequestProperties? properties = null) => Context.Interaction.ModifyResponseAsync(action, properties);
+    public Task<RestMessage> ModifyResponseAsync(Action<MessageOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.ModifyResponseAsync(action, properties, cancellationToken);
 
-    public Task DeleteResponseAsync(RestRequestProperties? properties = null) => Context.Interaction.DeleteResponseAsync(properties);
+    public Task DeleteResponseAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.DeleteResponseAsync(properties, cancellationToken);
 
-    public Task<RestMessage> FollowupAsync(InteractionMessageProperties message, RestRequestProperties? properties = null) => Context.Interaction.SendFollowupMessageAsync(message, properties);
+    public Task<RestMessage> FollowupAsync(InteractionMessageProperties message, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendFollowupMessageAsync(message, properties, cancellationToken);
 
-    public Task<RestMessage> GetFollowupAsync(ulong messageId, RestRequestProperties? properties = null) => Context.Interaction.GetFollowupMessageAsync(messageId, properties);
+    public Task<RestMessage> GetFollowupAsync(ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.GetFollowupMessageAsync(messageId, properties, cancellationToken);
 
-    public Task<RestMessage> ModifyFollowupAsync(ulong messageId, Action<MessageOptions> action, RestRequestProperties? properties = null) => Context.Interaction.ModifyFollowupMessageAsync(messageId, action, properties);
+    public Task<RestMessage> ModifyFollowupAsync(ulong messageId, Action<MessageOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.ModifyFollowupMessageAsync(messageId, action, properties, cancellationToken);
 
-    public Task DeleteFollowupAsync(ulong messageId, RestRequestProperties? properties = null) => Context.Interaction.DeleteFollowupMessageAsync(messageId, properties);
+    public Task DeleteFollowupAsync(ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.DeleteFollowupMessageAsync(messageId, properties, cancellationToken);
 }

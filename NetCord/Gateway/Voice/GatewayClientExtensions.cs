@@ -27,7 +27,7 @@ public static class GatewayClientExtensions
 
         try
         {
-            await client.UpdateVoiceStateAsync(new(guildId, channelId)).ConfigureAwait(false);
+            await client.UpdateVoiceStateAsync(new(guildId, channelId), cancellationToken: cancellationToken).ConfigureAwait(false);
         }
         catch
         {

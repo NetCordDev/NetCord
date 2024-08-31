@@ -13,7 +13,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
 
     private List<LocalizationInfo>? _localizationsInfo;
 
-    private async ValueTask<List<LocalizationInfo>> LoadLocalizationsAsync()
+    private async ValueTask<List<LocalizationInfo>> LoadLocalizationsAsync(CancellationToken cancellationToken)
     {
         var configuration = _configuration;
 
@@ -34,7 +34,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
             Localization localization;
 
             using (AutoTranscodingStream stream = new(File.OpenRead(file), Encoding.UTF8))
-                localization = (await JsonSerializer.DeserializeAsync(stream, LocalizationSerializerContext.Default.Localization).ConfigureAwait(false))!;
+                localization = (await JsonSerializer.DeserializeAsync(stream, LocalizationSerializerContext.Default.Localization, cancellationToken).ConfigureAwait(false))!;
 
             result.Add(new(locale, localization));
         }
@@ -78,9 +78,9 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
         return new(pattern, options);
     }
 
-    public async ValueTask<IReadOnlyDictionary<string, string>?> GetLocalizationsAsync(IReadOnlyList<LocalizationPathSegment> path)
+    public async ValueTask<IReadOnlyDictionary<string, string>?> GetLocalizationsAsync(IReadOnlyList<LocalizationPathSegment> path, CancellationToken cancellationToken = default)
     {
-        var localizationsInfo = _localizationsInfo ??= await LoadLocalizationsAsync().ConfigureAwait(false);
+        var localizationsInfo = _localizationsInfo ??= await LoadLocalizationsAsync(cancellationToken).ConfigureAwait(false);
 
         int count = path.Count;
         int max = count - 1;
