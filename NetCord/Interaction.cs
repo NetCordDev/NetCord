@@ -8,9 +8,9 @@ public abstract partial class Interaction : ClientEntity, IInteraction
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonInteraction _jsonModel;
 
-    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> _sendResponseAsync;
+    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
 
-    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client) : base(client)
+    private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
 
@@ -61,7 +61,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public abstract InteractionData Data { get; }
 
-    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client)
+    public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
     {
         return jsonModel.Type switch
         {
@@ -92,8 +92,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
     {
         var guildId = jsonModel.GuildId;
         var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
-        return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties), client);
+        return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties, cancellationToken), client);
     }
 
-    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null) => _sendResponseAsync(this, callback, properties);
+    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, properties, cancellationToken);
 }

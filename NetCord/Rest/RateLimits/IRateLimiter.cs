@@ -2,5 +2,5 @@
 
 public interface IRateLimiter
 {
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync();
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default);
 }

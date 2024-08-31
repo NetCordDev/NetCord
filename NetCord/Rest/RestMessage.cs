@@ -267,6 +267,6 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
     public MessageCall? Call { get; }
 
-    public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null)
-        => SendAsync(replyMessage.ToMessageProperties(Id), properties);
+    public Task<RestMessage> ReplyAsync(ReplyMessageProperties replyMessage, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => SendAsync(replyMessage.ToMessageProperties(Id), properties, cancellationToken);
 }

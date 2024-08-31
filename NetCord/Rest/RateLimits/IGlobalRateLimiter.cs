@@ -2,5 +2,5 @@
 
 public interface IGlobalRateLimiter : IRateLimiter
 {
-    public ValueTask IndicateRateLimitAsync(long reset);
+    public ValueTask IndicateRateLimitAsync(long reset, CancellationToken cancellationToken = default);
 }

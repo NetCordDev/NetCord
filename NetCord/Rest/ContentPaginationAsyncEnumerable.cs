@@ -20,7 +20,7 @@ internal class ContentPaginationAsyncEnumerable<T, TProperties, TFrom>(
 
         while (true)
         {
-            var results = await convertAsync(await client.SendRequestAsync(method, content, endpoint, null, resourceInfo, properties, global).ConfigureAwait(false)).ConfigureAwait(false);
+            var results = await convertAsync(await client.SendRequestAsync(method, content, endpoint, null, resourceInfo, properties, global, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
 
             T? last = default;
             int count = 0;

@@ -20,12 +20,12 @@ internal class GatewayClientHostedService : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        return _client.StartAsync();
+        return _client.StartAsync(cancellationToken: cancellationToken);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        return _client.CloseAsync();
+        return _client.CloseAsync(cancellationToken: cancellationToken);
     }
 
     private ValueTask LogAsync(LogMessage message)

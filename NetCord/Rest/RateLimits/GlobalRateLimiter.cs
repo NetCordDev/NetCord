@@ -7,7 +7,7 @@ internal class GlobalRateLimiter(int limit, long duration) : IGlobalRateLimiter
     private int _remaining = limit;
     private long _reset;
 
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
         var timestamp = Environment.TickCount64;
         lock (_lock)
@@ -30,7 +30,7 @@ internal class GlobalRateLimiter(int limit, long duration) : IGlobalRateLimiter
         return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
-    public ValueTask IndicateRateLimitAsync(long reset)
+    public ValueTask IndicateRateLimitAsync(long reset, CancellationToken cancellationToken = default)
     {
         lock (_lock)
         {

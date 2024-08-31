@@ -7,9 +7,9 @@ public class PingInteraction : Entity, IInteraction
     JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonInteraction _jsonModel;
 
-    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> _sendResponseAsync;
+    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
 
-    public PingInteraction(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client)
+    public PingInteraction(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
     {
         _jsonModel = jsonModel;
 
@@ -36,5 +36,5 @@ public class PingInteraction : Entity, IInteraction
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
-    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null) => _sendResponseAsync(this, callback, properties);
+    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, properties, cancellationToken);
 }

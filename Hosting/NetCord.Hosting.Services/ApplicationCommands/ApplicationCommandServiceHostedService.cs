@@ -23,7 +23,7 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
         foreach (var service in services.GetServices<IApplicationCommandService>())
             applicationCommandServiceManager.AddService(service);
 
-        var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true).ConfigureAwait(false);
+        var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("{count} application command(s) created", commands.Count);
     }

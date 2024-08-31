@@ -18,7 +18,7 @@ internal class OptimizedQueryPaginationAsyncEnumerable<T, TFrom>(
 
         while (true)
         {
-            (var results, var hasMore) = await convertAsync(await client.SendRequestAsync(method, endpoint, query, resourceInfo, properties, global).ConfigureAwait(false)).ConfigureAwait(false);
+            (var results, var hasMore) = await convertAsync(await client.SendRequestAsync(method, endpoint, query, resourceInfo, properties, global, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
 
             T? last = default;
 
