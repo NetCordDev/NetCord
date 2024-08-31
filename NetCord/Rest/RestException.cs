@@ -13,7 +13,7 @@ public class RestException : Exception
     public RestException(HttpStatusCode statusCode, string? reasonPhrase, RestError error) : base(GetMessage(statusCode, reasonPhrase, error.Message))
     {
         StatusCode = statusCode;
-        ReasonPhrase = reasonPhrase!;
+        ReasonPhrase = reasonPhrase;
         Error = error;
     }
 
