@@ -30,8 +30,8 @@ public class ApplicationCommandServiceManager
 
         foreach (var (command, (service, commands, commandInfo)) in created.Zip(globalInfos))
         {
-            commands.Add(new(command.Key, commandInfo));
-            result.Add(command.Value);
+            commands.Add(new(command.Id, commandInfo));
+            result.Add(command);
         }
 
         if (includeGuildCommands)
@@ -50,8 +50,8 @@ public class ApplicationCommandServiceManager
 
                 foreach (var (command, (service, commands, commandInfo)) in guildCreated.Zip(guildInfos))
                 {
-                    commands.Add(new(command.Key, commandInfo));
-                    result.Add(command.Value);
+                    commands.Add(new(command.Id, commandInfo));
+                    result.Add(command);
                 }
             }
         }

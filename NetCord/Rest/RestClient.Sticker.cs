@@ -7,12 +7,12 @@ public partial class RestClient
     public async Task<StandardSticker> GetStickerAsync(ulong stickerId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/stickers/{stickerId}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonSticker).ConfigureAwait(false));
 
-    public async Task<IReadOnlyDictionary<ulong, StickerPack>> GetStickerPacksAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/sticker-packs", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStickerPacks).ConfigureAwait(false)).StickerPacks.ToDictionary(s => s.Id, s => new StickerPack(s));
+    public async Task<IReadOnlyList<StickerPack>> GetStickerPacksAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/sticker-packs", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStickerPacks).ConfigureAwait(false)).StickerPacks.Select(s => new StickerPack(s)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, GuildSticker>> GetGuildStickersAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/stickers", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStickerArray).ConfigureAwait(false)).ToDictionary(s => s.Id, s => new GuildSticker(s, this));
+    public async Task<IReadOnlyList<GuildSticker>> GetGuildStickersAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/stickers", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonStickerArray).ConfigureAwait(false)).Select(s => new GuildSticker(s, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     [GenerateAlias([typeof(GuildSticker)], nameof(GuildSticker.GuildId), nameof(GuildSticker.Id))]

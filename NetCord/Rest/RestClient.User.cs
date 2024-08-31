@@ -61,8 +61,8 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(CurrentUser)])]
-    public async Task<IReadOnlyDictionary<ulong, Connection>> GetCurrentUserConnectionsAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/connections", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonConnectionArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new Connection(c, this));
+    public async Task<IReadOnlyList<Connection>> GetCurrentUserConnectionsAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/connections", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonConnectionArray).ConfigureAwait(false)).Select(c => new Connection(c, this)).ToArray();
 
     [GenerateAlias([typeof(CurrentUser)])]
     public async Task<ApplicationRoleConnection> GetCurrentUserApplicationRoleConnectionAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)

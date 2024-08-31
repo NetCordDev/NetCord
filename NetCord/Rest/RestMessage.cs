@@ -21,7 +21,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
             Author = new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
         }
 
-        MentionedUsers = jsonModel.MentionedUsers!.ToDictionary(u => u.Id, u =>
+        MentionedUsers = jsonModel.MentionedUsers!.Select(u =>
         {
             var guildUser = u.GuildUser;
             if (guildUser is null)
@@ -29,10 +29,10 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
 
             guildUser.User = u;
             return new GuildUser(guildUser, jsonModel.GuildId.GetValueOrDefault(), client);
-        });
+        }).ToArray();
 
-        MentionedChannels = jsonModel.MentionedChannels.ToDictionaryOrEmpty(c => c.Id, c => new GuildChannelMention(c));
-        Attachments = jsonModel.Attachments!.ToDictionary(a => a.Id, Attachment.CreateFromJson);
+        MentionedChannels = jsonModel.MentionedChannels.SelectOrEmpty(c => new GuildChannelMention(c)).ToArray();
+        Attachments = jsonModel.Attachments!.Select(Attachment.CreateFromJson).ToArray();
         Embeds = jsonModel.Embeds!.Select(e => new Embed(e)).ToArray();
         Reactions = jsonModel.Reactions.SelectOrEmpty(r => new MessageReaction(r)).ToArray();
 
@@ -73,7 +73,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
         Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
-        Stickers = jsonModel.Stickers.ToDictionaryOrEmpty(s => s.Id, s => new MessageSticker(s, client));
+        Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
         if (roleSubscriptionData is not null)
@@ -131,9 +131,9 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public bool MentionEveryone => _jsonModel.MentionEveryone.GetValueOrDefault();
 
     /// <summary>
-    /// A dictionary of <see cref="User"/> objects indexed by their IDs, containing users specifically mentioned in the message.
+    /// A list of <see cref="User"/> objects indexed by their IDs, containing users specifically mentioned in the message.
     /// </summary>
-    public IReadOnlyDictionary<ulong, User> MentionedUsers { get; }
+    public IReadOnlyList<User> MentionedUsers { get; }
 
     /// <summary>
     /// A list of IDs corresponding to roles specifically mentioned in the message.
@@ -141,17 +141,17 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public IReadOnlyList<ulong> MentionedRoleIds => _jsonModel.MentionedRoleIds!;
 
     /// <summary>
-    /// A dictionary of <see cref="GuildChannelMention"/> objects indexed by their IDs, containing channels specifically mentioned in the message.
+    /// A list of <see cref="GuildChannelMention"/> objects indexed by their IDs, containing channels specifically mentioned in the message.
     /// </summary>
     /// <remarks>
     /// Not all channel mentions in a message will appear in <see cref="MentionedChannels"/>. Only <see cref="TextChannel"/>s visible to everyone in a lurkable guild will ever be included. Only crossposted messages (via Channel Following) currently include <see cref="MentionedChannels"/> at all. If no <see cref="Mention"/>s in the message meet these requirements, this field will not be sent.
     /// </remarks>
-    public IReadOnlyDictionary<ulong, GuildChannelMention> MentionedChannels { get; }
+    public IReadOnlyList<GuildChannelMention> MentionedChannels { get; }
 
     /// <summary>
-    /// A dictionary of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
+    /// A list of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Attachment> Attachments { get; }
+    public IReadOnlyList<Attachment> Attachments { get; }
 
     /// <summary>
     /// A list of <see cref="Embed"/> objects containing any embedded content present in the message.
@@ -245,7 +245,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     /// <summary>
     /// Contains stickers contained in the message, if any.
     /// </summary>
-    public IReadOnlyDictionary<ulong, MessageSticker> Stickers { get; }
+    public IReadOnlyList<MessageSticker> Stickers { get; }
 
     /// <summary>
     /// A generally increasing integer (there may be gaps or duplicates) that represents the approximate position of the message in a <see cref="GuildThread"/>.

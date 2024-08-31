@@ -199,8 +199,8 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     [Command("bot-avatar")]
     public Task BotAvatar()
     {
-        var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
-        return newAvatar is null ? throw new("Give an url or attachment") : BotAvatar(new(newAvatar.Url));
+        var attachments = Context.Message.Attachments;
+        return attachments.Count is 0 ? throw new("Give an url or attachment") : BotAvatar(new(attachments[0].Url));
     }
 
     [Command("bot-avatar")]

@@ -23,9 +23,9 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     public IReadOnlyList<Embed> Embeds { get; } = jsonModel.Embeds.Select(e => new Embed(e)).ToArray();
 
     /// <summary>
-    /// A dictionary of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
+    /// A list of <see cref="Attachment"/> objects indexed by their IDs, containing any files attached in the message.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Attachment> Attachments { get; } = jsonModel.Attachments.ToDictionary(a => a.Id, Attachment.CreateFromJson);
+    public IReadOnlyList<Attachment> Attachments { get; } = jsonModel.Attachments.Select(Attachment.CreateFromJson).ToArray();
 
     /// <summary>
     /// When the message was edited (or null if never).
@@ -38,9 +38,9 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     public MessageFlags Flags => jsonModel.Flags.GetValueOrDefault();
 
     /// <summary>
-    /// A dictionary of <see cref="User"/> objects indexed by their IDs, containing users specifically mentioned in the message.
+    /// A list of <see cref="User"/> objects indexed by their IDs, containing users specifically mentioned in the message.
     /// </summary>
-    public IReadOnlyDictionary<ulong, User> MentionedUsers { get; } = jsonModel.MentionedUsers.ToDictionary(u => u.Id, u =>
+    public IReadOnlyList<User> MentionedUsers { get; } = jsonModel.MentionedUsers.Select(u =>
     {
         var guildUser = u.GuildUser;
         if (guildUser is null)
@@ -48,7 +48,7 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
 
         guildUser.User = u;
         return new GuildUser(guildUser, guildId.GetValueOrDefault(), client);
-    });
+    }).ToArray();
 
     /// <summary>
     /// A list of IDs corresponding to roles specifically mentioned in the message.

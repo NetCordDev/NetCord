@@ -4,7 +4,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest.JsonModels;
 
-public class JsonRestGuildThreadResult
+internal class JsonRestGuildThreadResult
 {
     [JsonPropertyName("threads")]
     public JsonChannel[] Threads { get; set; }

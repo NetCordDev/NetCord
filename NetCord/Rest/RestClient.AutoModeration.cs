@@ -5,8 +5,8 @@ namespace NetCord.Rest;
 public partial class RestClient
 {
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, AutoModerationRule>> GetAutoModerationRulesAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonAutoModerationRuleArray).ConfigureAwait(false)).ToDictionary(r => r.Id, r => new AutoModerationRule(r, this));
+    public async Task<IReadOnlyList<AutoModerationRule>> GetAutoModerationRulesAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/auto-moderation/rules", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonAutoModerationRuleArray).ConfigureAwait(false)).Select(r => new AutoModerationRule(r, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     [GenerateAlias([typeof(AutoModerationRule)], nameof(AutoModerationRule.GuildId), nameof(AutoModerationRule.Id))]

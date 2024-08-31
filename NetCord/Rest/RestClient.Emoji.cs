@@ -5,8 +5,8 @@ namespace NetCord.Rest;
 public partial class RestClient
 {
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, GuildEmoji>> GetGuildEmojisAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/emojis", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, guildId, this));
+    public async Task<IReadOnlyList<GuildEmoji>> GetGuildEmojisAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/emojis", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).Select(e => new GuildEmoji(e, guildId, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     [GenerateAlias([typeof(GuildEmoji)], nameof(GuildEmoji.GuildId), nameof(GuildEmoji.Id))]
@@ -36,8 +36,8 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/emojis/{emojiId}", null, new(guildId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
-    public async Task<IReadOnlyDictionary<ulong, ApplicationEmoji>> GetApplicationEmojisAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).ToDictionary(e => e.Id.GetValueOrDefault(), e => new ApplicationEmoji(e, applicationId, this));
+    public async Task<IReadOnlyList<ApplicationEmoji>> GetApplicationEmojisAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).Select(e => new ApplicationEmoji(e, applicationId, this)).ToArray();
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
     [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]

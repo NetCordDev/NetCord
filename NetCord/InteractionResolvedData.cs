@@ -1,4 +1,5 @@
-﻿using NetCord.Rest;
+﻿using NetCord.JsonModels;
+using NetCord.Rest;
 
 namespace NetCord;
 
@@ -12,7 +13,7 @@ public class InteractionResolvedData
 
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
-    public InteractionResolvedData(JsonModels.JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
+    public InteractionResolvedData(JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
     {
         var users = jsonModel.Users;
         if (users is not null)

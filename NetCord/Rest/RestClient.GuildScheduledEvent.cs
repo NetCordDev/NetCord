@@ -5,8 +5,8 @@ namespace NetCord.Rest;
 public partial class RestClient
 {
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, GuildScheduledEvent>> GetGuildScheduledEventsAsync(ulong guildId, bool withUserCount = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events", $"?with_user_count={withUserCount}", new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEventArray).ConfigureAwait(false)).ToDictionary(e => e.Id, e => new GuildScheduledEvent(e, this));
+    public async Task<IReadOnlyList<GuildScheduledEvent>> GetGuildScheduledEventsAsync(ulong guildId, bool withUserCount = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/scheduled-events", $"?with_user_count={withUserCount}", new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildScheduledEventArray).ConfigureAwait(false)).Select(e => new GuildScheduledEvent(e, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<GuildScheduledEvent> CreateGuildScheduledEventAsync(ulong guildId, GuildScheduledEventProperties guildScheduledEventProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)

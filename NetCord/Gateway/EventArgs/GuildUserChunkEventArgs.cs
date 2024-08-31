@@ -10,16 +10,16 @@ public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuild
     public GuildUserChunkEventArgs(JsonModels.EventArgs.JsonGuildUserChunkEventArgs jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Users = jsonModel.Users.ToDictionary(u => u.User.Id, u => new GuildUser(u, jsonModel.GuildId, client));
+        Users = jsonModel.Users.Select(u => new GuildUser(u, jsonModel.GuildId, client)).ToArray();
 
         var presences = jsonModel.Presences;
         if (presences is not null)
-            Presences = presences.ToDictionary(p => p.User.Id, p => new Presence(p, jsonModel.GuildId, client));
+            Presences = presences.Select(p => new Presence(p, jsonModel.GuildId, client)).ToArray();
     }
 
     public ulong GuildId => _jsonModel.GuildId;
 
-    public IReadOnlyDictionary<ulong, GuildUser> Users { get; }
+    public IReadOnlyList<GuildUser> Users { get; }
 
     public int ChunkIndex => _jsonModel.ChunkIndex;
 
@@ -27,7 +27,7 @@ public class GuildUserChunkEventArgs : IJsonModel<JsonModels.EventArgs.JsonGuild
 
     public IReadOnlyList<ulong>? NotFound => _jsonModel.NotFound;
 
-    public IReadOnlyDictionary<ulong, Presence>? Presences { get; }
+    public IReadOnlyList<Presence>? Presences { get; }
 
     public string? Nonce => _jsonModel.Nonce;
 }

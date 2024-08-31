@@ -10,8 +10,8 @@ public class JsonGatewayClientCache
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("dm_channels")]
-    public IReadOnlyDictionary<ulong, JsonChannel> DMChannels { get; set; }
+    public IReadOnlyList<JsonChannel> DMChannels { get; set; }
 
     [JsonPropertyName("guilds")]
-    public IReadOnlyDictionary<ulong, JsonGuild> Guilds { get; set; }
+    public IReadOnlyList<JsonGuild> Guilds { get; set; }
 }

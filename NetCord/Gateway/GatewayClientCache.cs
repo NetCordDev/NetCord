@@ -19,8 +19,8 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
-        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => DMChannel.CreateFromJson(c, client));
-        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => new Guild(g, clientId, client));
+        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => c.Id, c => DMChannel.CreateFromJson(c, client));
+        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client));
     }
 
     public CurrentUser? User => _user;
@@ -38,8 +38,8 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return new()
         {
             User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            DMChannels = _DMChannels.ToDictionary(p => p.Key, p => ((IJsonModel<JsonChannel>)p.Value).JsonModel),
-            Guilds = _guilds.ToDictionary(p => p.Key, p => ((IJsonModel<JsonGuild>)p.Value).JsonModel),
+            DMChannels = _DMChannels.Select(p => ((IJsonModel<JsonChannel>)p.Value).JsonModel).ToArray(),
+            Guilds = _guilds.Select(p => ((IJsonModel<JsonGuild>)p.Value).JsonModel).ToArray(),
         };
     }
 
@@ -74,28 +74,28 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<KeyValuePair<ulong, GuildUser>> users)
+    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<GuildUser> users)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItems(users))),
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItems(users.Select(u => new KeyValuePair<ulong, GuildUser>(u.Id, u))))),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<KeyValuePair<ulong, Presence>> presences)
+    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<Presence> presences)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItems(presences))),
+                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItems(presences.Select(p => new KeyValuePair<ulong, Presence>(p.User.Id, p))))),
             };
         }
 

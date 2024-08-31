@@ -206,8 +206,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
         foreach (var (command, commandInfo) in created.Zip(globalCommandsToCreate))
         {
-            commands.Add(new(command.Key, commandInfo));
-            result.Add(command.Value);
+            commands.Add(new(command.Id, commandInfo));
+            result.Add(command);
         }
 
         if (includeGuildCommands)
@@ -224,8 +224,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                 var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties, cancellationToken).ConfigureAwait(false);
                 foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))
                 {
-                    commands.Add(new(command.Key, commandInfo));
-                    result.Add(command.Value);
+                    commands.Add(new(command.Id, commandInfo));
+                    result.Add(command);
                 }
             }
         }

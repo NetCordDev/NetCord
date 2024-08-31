@@ -11,7 +11,7 @@ public class Connection : IJsonModel<JsonModels.JsonConnection>
 
         var integrations = jsonModel.Integrations;
         if (integrations is not null)
-            Integrations = integrations.ToDictionary(i => i.Id, i => new Integration(i, client));
+            Integrations = integrations.Select(i => new Integration(i, client)).ToArray();
     }
 
     /// <summary>
@@ -30,9 +30,9 @@ public class Connection : IJsonModel<JsonModels.JsonConnection>
     public bool? Revoked => _jsonModel.Revoked;
 
     /// <summary>
-    /// An array of server integrations.
+    /// A list of server integrations.
     /// </summary>
-    public IReadOnlyDictionary<ulong, Integration>? Integrations { get; }
+    public IReadOnlyList<Integration>? Integrations { get; }
 
     /// <summary>
     /// Whether the connection is verified.

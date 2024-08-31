@@ -4,8 +4,8 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    public async Task<IReadOnlyDictionary<ulong, ApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new ApplicationCommand(c, this));
+    public async Task<IReadOnlyList<ApplicationCommand>> GetGlobalApplicationCommandsAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).Select(c => new ApplicationCommand(c, this)).ToArray();
 
     public async Task<ApplicationCommand> CreateGlobalApplicationCommandAsync(ulong applicationId, ApplicationCommandProperties applicationCommandProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
@@ -30,15 +30,15 @@ public partial class RestClient
     public Task DeleteGlobalApplicationCommandAsync(ulong applicationId, ulong commandId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/commands/{commandId}", null, null, properties, cancellationToken: cancellationToken);
 
-    public async Task<IReadOnlyDictionary<ulong, ApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong applicationId, IEnumerable<ApplicationCommandProperties> commands, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ApplicationCommand>> BulkOverwriteGlobalApplicationCommandsAsync(ulong applicationId, IEnumerable<ApplicationCommandProperties> commands, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<IEnumerable<ApplicationCommandProperties>>(commands, Serialization.Default.IEnumerableApplicationCommandProperties))
-            return (await (await SendRequestAsync(HttpMethod.Put, content, $"/applications/{applicationId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new ApplicationCommand(c, this));
+            return (await (await SendRequestAsync(HttpMethod.Put, content, $"/applications/{applicationId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).Select(c => new ApplicationCommand(c, this)).ToArray();
     }
 
     [GenerateAlias([typeof(RestGuild)], null, nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, GuildApplicationCommand>> GetGuildApplicationCommandsAsync(ulong applicationId, ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/guilds/{guildId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new GuildApplicationCommand(c, this));
+    public async Task<IReadOnlyList<GuildApplicationCommand>> GetGuildApplicationCommandsAsync(ulong applicationId, ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/guilds/{guildId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).Select(c => new GuildApplicationCommand(c, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], null, nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<GuildApplicationCommand> CreateGuildApplicationCommandAsync(ulong applicationId, ulong guildId, ApplicationCommandProperties applicationCommandProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
@@ -68,15 +68,15 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/guilds/{guildId}/commands/{commandId}", null, null, properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(RestGuild)], null, nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, GuildApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong applicationId, ulong guildId, IEnumerable<ApplicationCommandProperties> commands, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<GuildApplicationCommand>> BulkOverwriteGuildApplicationCommandsAsync(ulong applicationId, ulong guildId, IEnumerable<ApplicationCommandProperties> commands, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<IEnumerable<ApplicationCommandProperties>>(commands, Serialization.Default.IEnumerableApplicationCommandProperties))
-            return (await (await SendRequestAsync(HttpMethod.Put, content, $"/applications/{applicationId}/guilds/{guildId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).ToDictionary(c => c.Id, c => new GuildApplicationCommand(c, this));
+            return (await (await SendRequestAsync(HttpMethod.Put, content, $"/applications/{applicationId}/guilds/{guildId}/commands", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandArray).ConfigureAwait(false)).Select(c => new GuildApplicationCommand(c, this)).ToArray();
     }
 
     [GenerateAlias([typeof(RestGuild)], null, nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    public async Task<IReadOnlyDictionary<ulong, ApplicationCommandGuildPermissions>> GetApplicationCommandsGuildPermissionsAsync(ulong applicationId, ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/guilds/{guildId}/commands/permissions", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandGuildPermissionsArray).ConfigureAwait(false)).ToDictionary(p => p.CommandId, p => new ApplicationCommandGuildPermissions(p));
+    public async Task<IReadOnlyList<ApplicationCommandGuildPermissions>> GetApplicationCommandsGuildPermissionsAsync(ulong applicationId, ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/guilds/{guildId}/commands/permissions", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationCommandGuildPermissionsArray).ConfigureAwait(false)).Select(p => new ApplicationCommandGuildPermissions(p)).ToArray();
 
     [GenerateAlias([typeof(ApplicationCommand)], nameof(ApplicationCommand.ApplicationId), null, nameof(ApplicationCommand.Id))]
     [GenerateAlias([typeof(GuildApplicationCommand)], nameof(GuildApplicationCommand.ApplicationId), nameof(GuildApplicationCommand.GuildId), nameof(GuildApplicationCommand.Id), TypeNameOverride = "ApplicationCommandGuild")]
