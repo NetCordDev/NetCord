@@ -45,13 +45,13 @@ public sealed partial class RestClient : IDisposable
         _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
     }
 
-    public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
+    public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, /*CancellationToken cancellationToken = default, */bool global = true)
     {
         properties ??= _defaultRequestProperties;
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties/*, cancellationToken*/);
 
         HttpRequestMessage CreateMessage()
         {
@@ -65,13 +65,13 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    public Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true)
+    public Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, /*CancellationToken cancellationToken = default, */bool global = true)
     {
         properties ??= _defaultRequestProperties;
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties/*, cancellationToken*/);
 
         HttpRequestMessage CreateMessage()
         {
@@ -88,7 +88,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties)
+    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties/*, CancellationToken cancellationToken*/)
     {
         while (true)
         {

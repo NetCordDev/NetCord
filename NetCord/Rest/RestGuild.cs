@@ -139,7 +139,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// Total permissions for the user in the <see cref="RestGuild"/> (excludes overwrites and implicit permissions).
     /// </summary>
     /// <remarks>
-    /// Only available in objects returned from <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?)"/>.
+    /// Only available in objects returned from <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?, CancellationToken)"/>.
     /// </remarks>
     public Permissions? Permissions => _jsonModel.Permissions;
 
@@ -289,7 +289,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// The approximate number of <see cref="GuildUser"/>s in the <see cref="RestGuild"/>.
     /// </summary>
     /// <remarks>
-    /// Only available in objects returned from <see cref="RestClient.GetGuildAsync(ulong, bool, RestRequestProperties?)"/> and <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?)"/>, where <c>withCounts</c> is true.
+    /// Only available in objects returned from <see cref="RestClient.GetGuildAsync(ulong, bool, RestRequestProperties?, CancellationToken)"/> and <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?, CancellationToken)"/>, where <c>withCounts</c> is true.
     /// </remarks>
     public int? ApproximateUserCount => _jsonModel.ApproximateUserCount;
 
@@ -297,7 +297,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// Approximate number of non-offline <see cref="GuildUser"/>s in the <see cref="RestGuild"/>.
     /// </summary>
     /// <remarks>
-    /// Only available in objects returned from <see cref="RestClient.GetGuildAsync(ulong, bool, RestRequestProperties?)"/> and <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?)"/>, where <c>withCounts</c> is true.
+    /// Only available in objects returned from <see cref="RestClient.GetGuildAsync(ulong, bool, RestRequestProperties?, CancellationToken)"/> and <see cref="RestClient.GetCurrentUserGuildsAsync(GuildsPaginationProperties?, RestRequestProperties?, CancellationToken)"/>, where <c>withCounts</c> is true.
     /// </remarks>
     public int? ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount;
 
