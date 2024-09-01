@@ -45,4 +45,10 @@ public class JsonGuildScheduledEvent : JsonEntity
 
     [JsonPropertyName("user_count")]
     public int? UserCount { get; set; }
+
+    [JsonPropertyName("image")]
+    public string? CoverImageHash { get; set; }
+
+    [JsonPropertyName("recurrence_rule")]
+    public JsonGuildScheduledEventRecurrenceRule? RecurrenceRule { get; set; }
 }

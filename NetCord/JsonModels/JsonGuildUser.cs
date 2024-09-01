@@ -13,6 +13,9 @@ public class JsonGuildUser
     [JsonPropertyName("avatar")]
     public string? GuildAvatarHash { get; set; }
 
+    [JsonPropertyName("banner")]
+    public string? GuildBannerHash { get; set; }
+
     [JsonPropertyName("roles")]
     public ulong[] RoleIds { get; set; }
 

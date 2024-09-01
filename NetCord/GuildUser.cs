@@ -11,20 +11,21 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     /// <summary>
     /// The ID of the guild the <see cref="GuildUser"/> object belongs to.
     /// </summary>
-    public ulong GuildId { get; } = guildId;
+    public ulong GuildId => guildId;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the user's guild avatar.
     /// </summary>
     /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated avatars).</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild avatar. If the user does not have one set, returns <see langword="null"/>.</returns>
-    public ImageUrl? GetGuildAvatarUrl(ImageFormat? format = null) => GuildAvatarHash is string hash ? ImageUrl.GuildUserAvatar(GuildId, Id, hash, format) : null;
+    public ImageUrl? GetGuildAvatarUrl(ImageFormat? format = null) => GuildAvatarHash is string hash ? ImageUrl.GuildUserAvatar(guildId, Id, hash, format) : null;
 
     /// <summary>
-    /// Gets the <see cref="ImageUrl"/> of the user's guild avatar decoration.
+    /// Gets the <see cref="ImageUrl"/> of the user's guild banner.
     /// </summary>
-    /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild avatar decoration. If the user does not have one set, returns <see langword="null"/>.</returns>
-    public ImageUrl? GetGuildAvatarDecorationUrl() => GuildAvatarDecorationData is { Hash: var hash } ? ImageUrl.AvatarDecoration(hash) : null;
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/> (or <see cref="ImageFormat.Gif"/> for animated banners).</param>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild banner. If the user does not have one set, returns <see langword="null"/>.</returns>
+    public ImageUrl? GetGuildBannerUrl(ImageFormat? format = null) => GuildBannerHash is string hash ? ImageUrl.GuildUserBanner(guildId, Id, hash, format) : null;
 
     /// <summary>
     /// Applies a timeout to the <see cref="GuildUser"/> for a specified <see cref="DateTimeOffset"/>.
@@ -41,7 +42,7 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     /// <exception cref="EntityNotFoundException"/>
     public async Task<GuildUserInfo> GetInfoAsync(RestRequestProperties? properties = null)
     {
-        await foreach (var info in _client.SearchGuildUsersAsync(GuildId, new() { Limit = 1, AndQuery = [new UserIdsGuildUsersSearchQuery([Id])] }, properties).ConfigureAwait(false))
+        await foreach (var info in _client.SearchGuildUsersAsync(guildId, new() { Limit = 1, AndQuery = [new UserIdsGuildUsersSearchQuery([Id])] }, properties).ConfigureAwait(false))
             return info;
 
         throw new EntityNotFoundException("The user was not found.");

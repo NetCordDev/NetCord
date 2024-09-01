@@ -15,4 +15,6 @@ public class Team(JsonModels.JsonTeam jsonModel, RestClient client) : Entity, IJ
     public string Name => jsonModel.Name;
 
     public ulong OwnerId => jsonModel.OwnerId;
+
+    public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.TeamIcon(Id, hash, format) : null;
 }

@@ -31,6 +31,11 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     public string? GuildAvatarHash => _jsonModel.GuildAvatarHash;
 
     /// <summary>
+    /// The user's guild banner hash.
+    /// </summary>
+    public string? GuildBannerHash => _jsonModel.GuildBannerHash;
+
+    /// <summary>
     /// A list of <see cref="ulong"/> IDs representing the user's current roles.
     /// </summary>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
@@ -86,7 +91,18 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     public bool HasGuildAvatar => GuildAvatarHash is not null;
 
     /// <summary>
+    /// Whether the user has a guild banner set.
+    /// </summary>
+    public bool HasGuildBanner => GuildBannerHash is not null;
+
+    /// <summary>
     /// Whether the user has a set avatar decoration.
     /// </summary>
     public bool HasGuildAvatarDecoration => GuildAvatarDecorationData is not null;
+
+    /// <summary>
+    /// Gets the <see cref="ImageUrl"/> of the user's guild avatar decoration.
+    /// </summary>
+    /// <returns>An <see cref="ImageUrl"/> pointing to the user's guild avatar decoration. If the user does not have one set, returns <see langword="null"/>.</returns>
+    public ImageUrl? GetGuildAvatarDecorationUrl() => GuildAvatarDecorationData is { Hash: var hash } ? ImageUrl.AvatarDecoration(hash) : null;
 }

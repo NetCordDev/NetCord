@@ -26,6 +26,8 @@ public abstract class CustomEmoji : Emoji, ISpanFormattable
 
     public bool? Available => _jsonModel.Available;
 
+    public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.CustomEmoji(Id, format);
+
     public override string ToString() => Animated ? $"<a:{Name}:{Id}>" : $"<:{Name}:{Id}>";
 
     public string ToString(string? format, IFormatProvider? formatProvider) => ToString();
