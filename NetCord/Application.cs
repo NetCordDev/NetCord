@@ -63,4 +63,14 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
         if (integrationTypesConfiguration is not null)
             IntegrationTypesConfiguration = integrationTypesConfiguration.ToDictionary(i => i.Key, i => new ApplicationIntegrationTypeConfiguration(i.Value));
     }
+
+    public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.ApplicationIcon(Id, hash, format) : null;
+
+    public ImageUrl? GetCoverUrl(ImageFormat format) => CoverImageHash is string hash ? ImageUrl.ApplicationCover(Id, hash, format) : null;
+
+    public ImageUrl? GetAssetUrl(ulong assetId, ImageFormat format) => ImageUrl.ApplicationAsset(Id, assetId, format);
+
+    public ImageUrl? GetAchievementIconUrl(ulong achievementId, string iconHash, ImageFormat format) => ImageUrl.AchievementIcon(Id, achievementId, iconHash, format);
+
+    public ImageUrl? GetStorePageAssetUrl(ulong assetId, ImageFormat format) => ImageUrl.StorePageAsset(Id, assetId, format);
 }

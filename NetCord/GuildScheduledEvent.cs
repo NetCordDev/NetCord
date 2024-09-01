@@ -37,6 +37,10 @@ public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.J
 
     public int? UserCount => _jsonModel.UserCount;
 
+    public string? CoverImageHash => _jsonModel.CoverImageHash;
+
+    public GuildScheduledEventRecurrenceRule? RecurrenceRule { get; }
+
     public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
@@ -44,5 +48,13 @@ public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.J
         var creator = _jsonModel.Creator;
         if (creator is not null)
             Creator = new(creator, client);
+
+        var recurrenceRule = _jsonModel.RecurrenceRule;
+        if (recurrenceRule is not null)
+            RecurrenceRule = new(recurrenceRule);
     }
+
+    public bool HasCoverImage => CoverImageHash is not null;
+
+    public ImageUrl? GetCoverImageUrl(ImageFormat format) => _jsonModel.CoverImageHash is string hash ? ImageUrl.GuildScheduledEventCover(Id, hash, format) : null;
 }
