@@ -29,7 +29,8 @@ public static class PartialGuildUserExtensions
         if (user.Id == guild.OwnerId)
             return (Permissions)ulong.MaxValue;
 
-        var permissions = guild.EveryoneRole.Permissions;
+        if (guild.EveryoneRole is not { Permissions: var permissions })
+            throw new InvalidOperationException("Cannot calculate permissions based on a partial guild.");
 
         foreach (var role in user.GetRoles(guild))
             permissions |= role.Permissions;
