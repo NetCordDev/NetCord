@@ -104,7 +104,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="RestGuild"/>'s splash.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's splash. If the guild does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetSplashUrl(ImageFormat format) => SplashHash is string hash ? ImageUrl.GuildSplash(Id, hash, format) : null;
 
@@ -121,7 +121,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the <see cref="RestGuild"/>'s discovery splash.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the guild's discovery splash. If the guild does not have one set, returns <see langword="null"/>.</returns>
     public ImageUrl? GetDiscoverySplashUrl(ImageFormat format) => DiscoverySplashHash is string hash ? ImageUrl.GuildDiscoverySplash(Id, hash, format) : null;
 
