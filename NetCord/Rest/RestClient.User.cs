@@ -39,6 +39,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(CurrentUser)])]
+    [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id))]
     public async Task<GuildUser> GetCurrentUserGuildUserAsync(ulong guildId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => new(await (await SendRequestAsync(HttpMethod.Get, $"/users/@me/guilds/{guildId}/member", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonGuildUser).ConfigureAwait(false), guildId, this);
 
