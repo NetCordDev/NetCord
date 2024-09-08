@@ -203,6 +203,7 @@ function findActiveItem(items: (NavItem | NavItemContainer)[]): NavItem {
       activeItem = item;
     }
   }
+  return activeItem;
 }
 
 function commonUrlPrefix(url: URL, base: URL): number {
