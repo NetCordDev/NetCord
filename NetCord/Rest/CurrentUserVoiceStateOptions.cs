@@ -9,7 +9,7 @@ public partial class CurrentUserVoiceStateOptions
     }
 
     /// <summary>
-    /// The id of the channel the user is currently in.
+    /// The ID of the channel the user is currently in.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("channel_id")]

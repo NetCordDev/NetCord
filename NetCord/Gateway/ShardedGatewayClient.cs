@@ -31,7 +31,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         {
             return new()
             {
-                WebSocketFactory = _ => null,
+                WebSocketConnectionProviderFactory = _ => null,
                 ReconnectStrategyFactory = _ => null,
                 LatencyTimerFactory = _ => null,
                 VersionFactory = _ => ApiVersion.V10,
@@ -49,7 +49,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
 
         return new()
         {
-            WebSocketFactory = configuration.WebSocketFactory ?? (_ => null),
+            WebSocketConnectionProviderFactory = configuration.WebSocketConnectionProviderFactory ?? (_ => null),
             ReconnectStrategyFactory = configuration.ReconnectStrategyFactory ?? (_ => null),
             LatencyTimerFactory = configuration.LatencyTimerFactory ?? (_ => null),
             VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
@@ -219,7 +219,9 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         var configuration = _configuration;
         return new()
         {
-            WebSocket = configuration.WebSocketFactory!(shard),
+            WebSocketConnectionProvider = configuration.WebSocketConnectionProviderFactory!(shard),
+            RateLimiterProvider = configuration.RateLimiterProviderFactory!(shard),
+            DefaultPayloadProperties = configuration.DefaultPayloadPropertiesFactory!(shard),
             ReconnectStrategy = configuration.ReconnectStrategyFactory!(shard),
             LatencyTimer = configuration.LatencyTimerFactory!(shard),
             Version = configuration.VersionFactory!(shard),
@@ -303,8 +305,8 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _guildIntegrationCreateLock, ref _guildIntegrationCreate, a => _guildIntegrationCreate!(client, a), (c, e) => c.GuildIntegrationCreate += e);
         HookEvent(client, _guildIntegrationUpdateLock, ref _guildIntegrationUpdate, a => _guildIntegrationUpdate!(client, a), (c, e) => c.GuildIntegrationUpdate += e);
         HookEvent(client, _guildIntegrationDeleteLock, ref _guildIntegrationDelete, a => _guildIntegrationDelete!(client, a), (c, e) => c.GuildIntegrationDelete += e);
-        HookEvent(client, _guildInviteCreateLock, ref _guildInviteCreate, a => _guildInviteCreate!(client, a), (c, e) => c.GuildInviteCreate += e);
-        HookEvent(client, _guildInviteDeleteLock, ref _guildInviteDelete, a => _guildInviteDelete!(client, a), (c, e) => c.GuildInviteDelete += e);
+        HookEvent(client, _inviteCreateLock, ref _inviteCreate, a => _inviteCreate!(client, a), (c, e) => c.InviteCreate += e);
+        HookEvent(client, _inviteDeleteLock, ref _inviteDelete, a => _inviteDelete!(client, a), (c, e) => c.InviteDelete += e);
         HookEvent(client, _messageCreateLock, ref _messageCreate, a => _messageCreate!(client, a), (c, e) => c.MessageCreate += e);
         HookEvent(client, _messageUpdateLock, ref _messageUpdate, a => _messageUpdate!(client, a), (c, e) => c.MessageUpdate += e);
         HookEvent(client, _messageDeleteLock, ref _messageDelete, a => _messageDelete!(client, a), (c, e) => c.MessageDelete += e);
@@ -1033,35 +1035,35 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private Func<GatewayClient, GuildIntegrationDeleteEventArgs, ValueTask>? _guildIntegrationDelete;
     private readonly object _guildIntegrationDeleteLock = new();
 
-    /// <inheritdoc cref="GatewayClient.GuildInviteCreate"/>
-    public event Func<GatewayClient, GuildInvite, ValueTask>? GuildInviteCreate
+    /// <inheritdoc cref="GatewayClient.InviteCreate"/>
+    public event Func<GatewayClient, Invite, ValueTask>? InviteCreate
     {
         add
         {
-            HookEvent(_guildInviteCreateLock, value, ref _guildInviteCreate, client => a => _guildInviteCreate!(client, a), (c, e) => c.GuildInviteCreate += e);
+            HookEvent(_inviteCreateLock, value, ref _inviteCreate, client => a => _inviteCreate!(client, a), (c, e) => c.InviteCreate += e);
         }
         remove
         {
-            UnhookEvent(_guildInviteCreateLock, value, ref _guildInviteCreate, (c, e) => c.GuildInviteCreate -= e);
+            UnhookEvent(_inviteCreateLock, value, ref _inviteCreate, (c, e) => c.InviteCreate -= e);
         }
     }
-    private Func<GatewayClient, GuildInvite, ValueTask>? _guildInviteCreate;
-    private readonly object _guildInviteCreateLock = new();
+    private Func<GatewayClient, Invite, ValueTask>? _inviteCreate;
+    private readonly object _inviteCreateLock = new();
 
-    /// <inheritdoc cref="GatewayClient.GuildInviteDelete"/>
-    public event Func<GatewayClient, GuildInviteDeleteEventArgs, ValueTask>? GuildInviteDelete
+    /// <inheritdoc cref="GatewayClient.InviteDelete"/>
+    public event Func<GatewayClient, InviteDeleteEventArgs, ValueTask>? InviteDelete
     {
         add
         {
-            HookEvent(_guildInviteDeleteLock, value, ref _guildInviteDelete, client => a => _guildInviteDelete!(client, a), (c, e) => c.GuildInviteDelete += e);
+            HookEvent(_inviteDeleteLock, value, ref _inviteDelete, client => a => _inviteDelete!(client, a), (c, e) => c.InviteDelete += e);
         }
         remove
         {
-            UnhookEvent(_guildInviteDeleteLock, value, ref _guildInviteDelete, (c, e) => c.GuildInviteDelete -= e);
+            UnhookEvent(_inviteDeleteLock, value, ref _inviteDelete, (c, e) => c.InviteDelete -= e);
         }
     }
-    private Func<GatewayClient, GuildInviteDeleteEventArgs, ValueTask>? _guildInviteDelete;
-    private readonly object _guildInviteDeleteLock = new();
+    private Func<GatewayClient, InviteDeleteEventArgs, ValueTask>? _inviteDelete;
+    private readonly object _inviteDeleteLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageCreate"/>
     public event Func<GatewayClient, Message, ValueTask>? MessageCreate
@@ -1079,7 +1081,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private readonly object _messageCreateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageUpdate"/>
-    public event Func<GatewayClient, IPartialMessage, ValueTask>? MessageUpdate
+    public event Func<GatewayClient, Message, ValueTask>? MessageUpdate
     {
         add
         {
@@ -1090,7 +1092,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
             UnhookEvent(_messageUpdateLock, value, ref _messageUpdate, (c, e) => c.MessageUpdate -= e);
         }
     }
-    private Func<GatewayClient, IPartialMessage, ValueTask>? _messageUpdate;
+    private Func<GatewayClient, Message, ValueTask>? _messageUpdate;
     private readonly object _messageUpdateLock = new();
 
     /// <inheritdoc cref="GatewayClient.MessageDelete"/>

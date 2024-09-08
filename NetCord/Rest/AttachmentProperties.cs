@@ -27,6 +27,11 @@ public partial class AttachmentProperties : IHttpSerializable
     public string FileName { get; set; }
 
     /// <summary>
+    /// Title of the attachment.
+    /// </summary>
+    public string? Title { get; set; }
+
+    /// <summary>
     /// Description for the file (max 1024 characters for attachments sent by message, max 200 characters for attachments used for sticker creation).
     /// </summary>
     public string? Description { get; set; }

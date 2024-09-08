@@ -66,12 +66,6 @@ public partial class InteractionCallback : IHttpSerializable
     public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
         => new(InteractionCallbackType.Modal, modal);
 
-    /// <summary>
-    /// Respond to an interaction with an upgrade button, only available for apps with monetization enabled.
-    /// </summary>
-    public static InteractionCallback PremiumRequired
-        => new(InteractionCallbackType.PremiumRequired);
-
     public HttpContent Serialize()
     {
         switch (this)

@@ -60,19 +60,19 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         return SuccessResult.Instance;
     }
 
-    public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync()
+    public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
         var parameters = Parameters;
         var count = parameters.Count;
 
         var options = new ApplicationCommandOptionProperties[count];
         for (int i = 0; i < count; i++)
-            options[i] = await parameters[i].GetRawValueAsync().ConfigureAwait(false);
+            options[i] = await parameters[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
         return new(ApplicationCommandOptionType.SubCommand, Name, Description)
         {
-            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
-            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(DescriptionLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
     }

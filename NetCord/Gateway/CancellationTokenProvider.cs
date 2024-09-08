@@ -4,6 +4,8 @@ internal sealed class CancellationTokenProvider : IDisposable
 {
     private readonly CancellationTokenSource _source;
 
+    public bool IsCancellationRequested => _source.IsCancellationRequested;
+
     public CancellationToken Token { get; }
 
     public CancellationTokenProvider()

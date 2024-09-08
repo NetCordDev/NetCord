@@ -13,7 +13,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     public ApplicationCommandType Type => _jsonModel.Type;
 
     /// <summary>
-    /// Id of the parent application.
+    /// ID of the parent application.
     /// </summary>
     public ulong ApplicationId => _jsonModel.ApplicationId;
 

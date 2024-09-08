@@ -16,13 +16,4 @@ public partial class EmbedImageProperties(string? url)
     public string? Url { get; set; } = url;
 
     public static implicit operator EmbedImageProperties(string? url) => new(url);
-
-    public static implicit operator EmbedImageProperties(AttachmentProperties attachment) => FromAttachment(attachment.FileName);
-
-    /// <summary>
-    /// Creates new <see cref="EmbedImageProperties"/> based on <paramref name="attachmentFileName"/>.
-    /// </summary>
-    /// <param name="attachmentFileName">Attachment file name.</param>
-    /// <returns></returns>
-    public static EmbedImageProperties FromAttachment(string attachmentFileName) => new($"attachment://{attachmentFileName}");
 }

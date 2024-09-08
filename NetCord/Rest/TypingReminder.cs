@@ -4,20 +4,20 @@ internal sealed class TypingReminder(ulong channelId, RestClient client, RestReq
 {
     private readonly CancellationTokenSource _tokenSource = new();
 
-    public async Task StartAsync()
+    public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await client.TriggerTypingStateAsync(channelId).ConfigureAwait(false);
+        await client.TriggerTypingStateAsync(channelId, properties, cancellationToken).ConfigureAwait(false);
         _ = RunAsync();
     }
 
     private async Task RunAsync()
     {
-        var token = _tokenSource.Token;
+        var cancellationToken = _tokenSource.Token;
         using PeriodicTimer timer = new(TimeSpan.FromSeconds(9.5));
         while (true)
         {
-            await timer.WaitForNextTickAsync(token).ConfigureAwait(false);
-            await client.TriggerTypingStateAsync(channelId, properties).ConfigureAwait(false);
+            await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false);
+            await client.TriggerTypingStateAsync(channelId, properties, cancellationToken).ConfigureAwait(false);
         }
     }
 

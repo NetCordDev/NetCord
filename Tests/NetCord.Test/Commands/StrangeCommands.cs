@@ -65,7 +65,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         {
             Content = "This is button:",
             Components = [actionRow],
-            MessageReference = new(Context.Message.Id),
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id),
             AllowedMentions = new()
             {
                 ReplyMention = false
@@ -89,7 +89,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
                 actionRow
             ],
             Content = "This is the message with the link",
-            MessageReference = new(Context.Message.Id),
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id),
             AllowedMentions = new()
             {
                 ReplyMention = false
@@ -114,7 +114,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Attachments = [file],
-            MessageReference = new(Context.Message.Id),
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id),
             AllowedMentions = AllowedMentionsProperties.None
         };
         return SendAsync(message);
@@ -185,7 +185,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         {
             Content = "Here is your menu:",
             Components = [new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length }],
-            MessageReference = new(Context.Message.Id)
+            MessageReference = MessageReferenceProperties.Reply(Context.Message.Id)
         };
         return SendAsync(message);
     }
@@ -199,8 +199,8 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     [Command("bot-avatar")]
     public Task BotAvatar()
     {
-        var newAvatar = Context.Message.Attachments.Values.FirstOrDefault();
-        return newAvatar is null ? throw new("Give an url or attachment") : BotAvatar(new(newAvatar.Url));
+        var attachments = Context.Message.Attachments;
+        return attachments.Count is 0 ? throw new("Give an url or attachment") : BotAvatar(new(attachments[0].Url));
     }
 
     [Command("bot-avatar")]
@@ -269,7 +269,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         return SendAsync(new()
         {
             Attachments = [attachment],
-            Embeds = [new() { Image = attachment }]
+            Embeds = [new() { Image = $"attachment://{attachment.FileName}" }]
         });
     }
 

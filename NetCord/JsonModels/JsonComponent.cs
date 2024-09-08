@@ -25,6 +25,9 @@ public class JsonComponent
     [JsonPropertyName("url")]
     public string? Url { get; set; }
 
+    [JsonPropertyName("sku_id")]
+    public ulong? SkuId { get; set; }
+
     [JsonPropertyName("options")]
     public JsonMenuSelectOption[] Options { get; set; }
 

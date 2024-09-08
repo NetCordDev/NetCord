@@ -6,7 +6,9 @@ namespace NetCord.Gateway;
 
 internal interface IWebSocketClientConfiguration
 {
-    public IWebSocket? WebSocket { get; }
+    public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; }
     public IReconnectStrategy? ReconnectStrategy { get; }
     public ILatencyTimer? LatencyTimer { get; }
+    public IRateLimiterProvider? RateLimiterProvider { get; }
+    public WebSocketPayloadProperties? DefaultPayloadProperties { get; }
 }

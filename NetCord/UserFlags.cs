@@ -1,5 +1,8 @@
 ﻿namespace NetCord;
 
+/// <summary>
+/// The flags on a <see cref="User"/>'s account.
+/// </summary>
 [Flags]
 public enum UserFlags : ulong
 {

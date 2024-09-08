@@ -19,17 +19,17 @@ public partial class RestClient
             {
                 var jsonAuditLog = await s.ToObjectAsync(Serialization.Default.JsonAuditLog).ConfigureAwait(false);
                 RestAuditLogEntryData data = new(jsonAuditLog, this);
-                return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data));
+                return jsonAuditLog.AuditLogEntries.Select(e => new RestAuditLogEntry(e, data, guildId));
             },
             e => e.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/audit-logs",
             new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue
                                                                                                                                             ? (actionType.HasValue
-                                                                                                                                                ? $"?user_id={userId.GetValueOrDefault()}&action_type={actionType.GetValueOrDefault()}&"
+                                                                                                                                                ? $"?user_id={userId.GetValueOrDefault()}&action_type={(int)actionType.GetValueOrDefault()}&"
                                                                                                                                                 : $"?user_id={userId.GetValueOrDefault()}&")
                                                                                                                                             : (actionType.HasValue
-                                                                                                                                                ? $"?action_type={actionType.GetValueOrDefault()}&"
+                                                                                                                                                ? $"?action_type={(int)actionType.GetValueOrDefault()}&"
                                                                                                                                                 : "?")),
             new(guildId),
             properties);

@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<GuildJoinRequestFormResponseFieldType>))]
+[JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<GuildJoinRequestFormResponseFieldType>))]
 public enum GuildJoinRequestFormResponseFieldType
 {
     [JsonPropertyName("TERMS")]

@@ -6,9 +6,34 @@ namespace NetCord;
 public enum ApplicationFlags : uint
 {
     /// <summary>
+    /// Undocumented.
+    /// </summary>
+    EmbeddedReleased = 1 << 1,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    ManagedEmoji = 1 << 2,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    EmbeddedIAP = 1 << 3,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    GroupDMCreate = 1 << 4,
+
+    /// <summary>
     /// Indicates if an app uses the Auto Moderation API.
     /// </summary>
     ApplicationAutoModerationRuleCreateBadge = 1 << 6,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    RPCHasConnected = 1 << 11,
 
     /// <summary>
     /// Intent required for bots in 100 or more servers to receive <see cref="GatewayClient.PresenceUpdate"/> events.
@@ -49,6 +74,11 @@ public enum ApplicationFlags : uint
     /// Intent required for bots in under 100 servers to receive message content, found on the Bot page in your app's settings.
     /// </summary>
     GatewayMessageContentLimited = 1 << 19,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    EmbeddedFirstParty = 1 << 20,
 
     /// <summary>
     /// Indicates if an app has registered global application commands.

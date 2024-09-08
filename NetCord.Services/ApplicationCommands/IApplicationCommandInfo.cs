@@ -15,5 +15,5 @@ public interface IApplicationCommandInfo
     public bool Nsfw { get; }
     public ulong? GuildId { get; }
 
-    public ValueTask<ApplicationCommandProperties> GetRawValueAsync();
+    public ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);
 }

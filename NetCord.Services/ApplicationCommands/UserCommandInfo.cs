@@ -71,12 +71,12 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         return SuccessResult.Instance;
     }
 
-    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync()
+    public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
 #pragma warning disable CS0618 // Type or member is obsolete
         return new UserCommandProperties(Name)
         {
-            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance)).ConfigureAwait(false),
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
             DMPermission = DMPermission,
             DefaultPermission = DefaultPermission,

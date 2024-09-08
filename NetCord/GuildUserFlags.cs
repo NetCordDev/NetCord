@@ -1,5 +1,8 @@
 ﻿namespace NetCord;
 
+/// <summary>
+/// The flags on a <see cref="GuildUser"/> object, mostly undocumented by Discord.
+/// </summary>
 [Flags]
 public enum GuildUserFlags
 {
@@ -14,7 +17,7 @@ public enum GuildUserFlags
     CompletedOnboarding = 1 << 1,
 
     /// <summary>
-    /// User bypasses guild verification requirements.
+    /// User bypasses guild verification requirements. Allows a user who does not meet verification requirements to participate in a guild.
     /// </summary>
     BypassesVerification = 1 << 2,
 
@@ -22,4 +25,24 @@ public enum GuildUserFlags
     /// User has started onboarding.
     /// </summary>
     StartedOnboarding = 1 << 3,
+
+    /// <summary>
+    /// No longer in use, undocumented.
+    /// </summary>
+    StartedHomeFlags = 1 << 5,
+
+    /// <summary>
+    /// No longer in use, undocumented.
+    /// </summary>
+    CompletedHomeFlags = 1 << 6,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    AutomodQuarantinedUsernameOrGuildNickname = 1 << 7,
+
+    /// <summary>
+    /// Undocumented.
+    /// </summary>
+    AutomodQuarantinedBio = 1 << 8,
 }

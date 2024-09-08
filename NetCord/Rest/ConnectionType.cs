@@ -2,11 +2,17 @@
 
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<ConnectionType>))]
+[JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<ConnectionType>))]
 public enum ConnectionType
 {
     [JsonPropertyName("battlenet")]
     BattleNet,
+
+    [JsonPropertyName("bungie")]
+    Bungie,
+
+    [JsonPropertyName("domain")]
+    Domain,
 
     [JsonPropertyName("ebay")]
     Ebay,
@@ -37,6 +43,9 @@ public enum ConnectionType
 
     [JsonPropertyName("riotgames")]
     RiotGames,
+
+    [JsonPropertyName("roblox")]
+    Roblox,
 
     [JsonPropertyName("spotify")]
     Spotify,

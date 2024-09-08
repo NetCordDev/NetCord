@@ -3,7 +3,7 @@ using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
-public class RestAuditLogEntry(JsonAuditLogEntry jsonModel, RestAuditLogEntryData data) : AuditLogEntry(jsonModel)
+public class RestAuditLogEntry(JsonAuditLogEntry jsonModel, RestAuditLogEntryData data, ulong guildId) : AuditLogEntry(jsonModel, guildId)
 {
     /// <summary>
     /// Data of objects referenced in the audit log.

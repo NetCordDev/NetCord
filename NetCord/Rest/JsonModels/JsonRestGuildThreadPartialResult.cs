@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest.JsonModels;
 
-public class JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
+internal class JsonRestGuildThreadPartialResult : JsonRestGuildThreadResult
 {
     [JsonPropertyName("has_more")]
     public bool HasMore { get; set; }

@@ -13,6 +13,9 @@ public class JsonGuildUser
     [JsonPropertyName("avatar")]
     public string? GuildAvatarHash { get; set; }
 
+    [JsonPropertyName("banner")]
+    public string? GuildBannerHash { get; set; }
+
     [JsonPropertyName("roles")]
     public ulong[] RoleIds { get; set; }
 
@@ -42,4 +45,7 @@ public class JsonGuildUser
 
     [JsonPropertyName("communication_disabled_until")]
     public DateTimeOffset? TimeOutUntil { get; set; }
+
+    [JsonPropertyName("avatar_decoration_data")]
+    public JsonAvatarDecorationData? GuildAvatarDecorationData { get; set; }
 }

@@ -13,7 +13,7 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.J
 
         var addedUsers = jsonModel.AddedUsers;
         if (addedUsers is not null)
-            AddedUsers = addedUsers.ToDictionary(u => u.UserId, u => new AddedThreadUser(u, GuildId, client));
+            AddedUsers = addedUsers.Select(u => new AddedThreadUser(u, GuildId, client)).ToArray();
     }
 
     public ulong ThreadId => _jsonModel.ThreadId;
@@ -22,7 +22,7 @@ public class GuildThreadUsersUpdateEventArgs : IJsonModel<JsonModels.EventArgs.J
 
     public int UserCount => _jsonModel.UserCount;
 
-    public IReadOnlyDictionary<ulong, AddedThreadUser>? AddedUsers { get; }
+    public IReadOnlyList<AddedThreadUser>? AddedUsers { get; }
 
     public IReadOnlyList<ulong> RemovedUserIds => _jsonModel.RemovedUserIds;
 }

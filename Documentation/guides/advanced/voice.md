@@ -10,7 +10,7 @@ Follow the [installation guide](installing-native-dependencies.md) to install th
 > In the following examples streams and @NetCord.Gateway.Voice.VoiceClient instances are not disposed because they should be stored somewhere and disposed later.
 
 ### Sending Voice
-[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L12-L102)]
+[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L12-L99)]
 
 ### Receiving Voice
-[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L104-L146)]
+[!code-cs[VoiceModule.cs](Voice/VoiceModule.cs#L101-L140)]

@@ -12,7 +12,7 @@ internal static class ServiceProviderHelper
         return parameter.IsOptional ? GetOptionalGetServiceExpression(parameter, serviceProvider) : GetRequiredGetServiceExpression(parameter, serviceProvider, serviceNotFound);
     }
 
-    private static Expression GetOptionalGetServiceExpression(ParameterInfo parameter, ParameterExpression serviceProvider)
+    private static BlockExpression GetOptionalGetServiceExpression(ParameterInfo parameter, ParameterExpression serviceProvider)
     {
         var parameterValueVariable = Expression.Variable(typeof(object));
         var parameterType = parameter.ParameterType;
@@ -25,7 +25,7 @@ internal static class ServiceProviderHelper
             Expression.Label(argRet, ParameterHelper.GetParameterDefaultValueExpression(parameterType, parameter)));
     }
 
-    private static Expression GetRequiredGetServiceExpression(ParameterInfo parameter, ParameterExpression serviceProvider, Expression serviceNotFound)
+    private static BlockExpression GetRequiredGetServiceExpression(ParameterInfo parameter, ParameterExpression serviceProvider, Expression serviceNotFound)
     {
         var parameterValueVariable = Expression.Variable(typeof(object));
         var parameterType = parameter.ParameterType;

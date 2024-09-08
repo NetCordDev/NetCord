@@ -29,7 +29,7 @@ public enum MessageFlags : uint
     Urgent = 1 << 4,
 
     /// <summary>
-    /// This message has an associated thread, with the same id as the message.
+    /// This message has an associated thread, with the same ID as the message.
     /// </summary>
     HasThread = 1 << 5,
 

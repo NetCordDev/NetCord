@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class WebhookMessageProperties : IHttpSerializable
+public partial class WebhookMessageProperties : IHttpSerializable, IMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("content")]

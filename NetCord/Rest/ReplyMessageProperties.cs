@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public partial class ReplyMessageProperties
+public partial class ReplyMessageProperties : IMessageProperties
 {
     public string? Content { get; set; }
     public NonceProperties? Nonce { get; set; }
@@ -12,6 +12,7 @@ public partial class ReplyMessageProperties
     public IEnumerable<MessageComponentProperties>? Components { get; set; }
     public IEnumerable<ulong>? StickerIds { get; set; }
     public MessageFlags? Flags { get; set; }
+    public MessagePollProperties? Poll { get; set; }
 
     public MessageProperties ToMessageProperties(ulong messageReferenceId)
     {
@@ -23,10 +24,11 @@ public partial class ReplyMessageProperties
             Attachments = Attachments,
             Embeds = Embeds,
             AllowedMentions = AllowedMentions ?? new(),
-            MessageReference = new(messageReferenceId, FailIfNotExists.GetValueOrDefault(true)),
+            MessageReference = MessageReferenceProperties.Reply(messageReferenceId, FailIfNotExists.GetValueOrDefault(true)),
             Components = Components,
             StickerIds = StickerIds,
             Flags = Flags,
+            Poll = Poll,
         };
     }
 

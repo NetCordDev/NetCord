@@ -12,10 +12,10 @@ Privileged intents are intents that you need to enable in [Discord Developer Por
 Intents in NetCord are handled by @NetCord.Gateway.GatewayIntents.
 You specify them like this:
 
-## [Hosting](#tab/hosting)
+## [Generic Host](#tab/generic-host)
 [!code-cs[Program.cs](IntentsHosting/Program.cs?highlight=6#L6-L13)]
 
-## [Without Hosting](#tab/without-hosting)
+## [Bare Bones](#tab/bare-bones)
 [!code-cs[Program.cs](Intents/Program.cs?highlight=3#L4-L7)]
 
 ***

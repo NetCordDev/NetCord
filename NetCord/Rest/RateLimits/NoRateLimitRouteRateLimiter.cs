@@ -8,22 +8,22 @@ internal class NoRateLimitRouteRateLimiter : ITrackingRouteRateLimiter
 
     public long LastAccess { get; private set; } = Environment.TickCount64;
 
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
-    {
-        return default;
-    }
-
-    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp, CancellationToken cancellationToken = default)
     {
         return default;
     }
 
-    public ValueTask IndicateExchangeAsync(long timestamp)
+    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo, CancellationToken cancellationToken = default)
+    {
+        return default;
+    }
+
+    public ValueTask IndicateExchangeAsync(long timestamp, CancellationToken cancellationToken = default)
     {
         return default;
     }

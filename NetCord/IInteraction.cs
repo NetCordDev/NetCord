@@ -14,7 +14,7 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
-    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, Task> sendResponseAsync, RestClient client)
+    public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
     {
         if (jsonModel.Type is InteractionType.Ping)
             return new PingInteraction(jsonModel, sendResponseAsync, client);
@@ -22,5 +22,5 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
         return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
     }
 
-    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null);
+    public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);
 }

@@ -12,20 +12,23 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     JsonAuditLogEntry IJsonModel<JsonAuditLogEntry>.JsonModel => _jsonModel;
     private protected readonly JsonAuditLogEntry _jsonModel;
 
-    public AuditLogEntry(JsonAuditLogEntry jsonModel)
+    public AuditLogEntry(JsonAuditLogEntry jsonModel, ulong guildId)
     {
         _jsonModel = jsonModel;
+
         Changes = _jsonModel.Changes.ToDictionaryOrEmpty(c => c.Key, c => new AuditLogChange(c));
 
         var options = _jsonModel.Options;
         if (options is not null)
             Options = new(options);
+
+        GuildId = guildId;
     }
 
     public override ulong Id => _jsonModel.Id;
 
     /// <summary>
-    /// Id of the affected entity.
+    /// ID of the affected entity.
     /// </summary>
     public ulong? TargetId => _jsonModel.TargetId;
 
@@ -35,7 +38,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     public IReadOnlyDictionary<string, AuditLogChange> Changes { get; }
 
     /// <summary>
-    /// Id of user that made the changes.
+    /// ID of user that made the changes.
     /// </summary>
     public ulong? UserId => _jsonModel.UserId;
 
@@ -53,6 +56,11 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// Reason for the change (1-512 characters).
     /// </summary>
     public string? Reason => _jsonModel.Reason;
+
+    /// <summary>
+    /// The ID of the guild this audit log entry belongs to.
+    /// </summary>
+    public ulong GuildId { get; }
 
     private bool TryGetChangeModel<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out JsonAuditLogChange model)
     {

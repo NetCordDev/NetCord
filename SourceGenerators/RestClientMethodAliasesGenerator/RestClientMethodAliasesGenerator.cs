@@ -25,7 +25,7 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                 namespace NetCord.Rest;
 
                 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-                public class GenerateAliasAttribute(Type[] types, params string?[] parameterAliases) : Attribute
+                internal class GenerateAliasAttribute(Type[] types, params string?[] parameterAliases) : Attribute
                 {
                     public Type[] Types { get; } = types;
 

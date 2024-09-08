@@ -15,7 +15,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
 
     public long LastAccess { get; private set; } = Environment.TickCount64;
 
-    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+    public ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
         var timestamp = Environment.TickCount64;
         lock (_lock)
@@ -34,20 +34,27 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
                     _remaining--;
             }
         }
-        return new(RateLimitAcquisitionResult.NoRateLimit());
+        return new(RateLimitAcquisitionResult.NoRateLimit);
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp, CancellationToken cancellationToken = default)
     {
+        var currentTimestamp = Environment.TickCount64;
         lock (_lock)
         {
-            if (timestamp - (_reset - _maxResetAfter) >= -50 && _remaining < _limit)
+            var reset = _reset;
+            var safeStart = reset - _maxResetAfter - 50;
+            if (acquisitionTimestamp <= reset
+                && acquisitionTimestamp >= safeStart
+                && currentTimestamp <= reset
+                && currentTimestamp >= safeStart
+                && _remaining < _limit)
                 _remaining++;
         }
         return default;
     }
 
-    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo)
+    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo, CancellationToken cancellationToken = default)
     {
         lock (_lock)
         {
@@ -67,7 +74,7 @@ internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRat
         return default;
     }
 
-    public ValueTask IndicateExchangeAsync(long timestamp) => CancelAcquireAsync(timestamp);
+    public ValueTask IndicateExchangeAsync(long timestamp, CancellationToken cancellationToken = default) => CancelAcquireAsync(timestamp, cancellationToken);
 
     public void IndicateAccess()
     {

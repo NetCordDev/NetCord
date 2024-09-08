@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
-using NetCord.Services;
 using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
@@ -19,7 +18,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, TContext
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<ComponentInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
-    private readonly Func<IExecutionResult, TInteraction, GatewayClient?, ILogger, IServiceProvider, ValueTask> _handleResultAsync;
+    private readonly IComponentInteractionResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
 
     public ComponentInteractionHandler(IServiceProvider services,
@@ -44,7 +43,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, TContext
             _handleAsync = &HandleInteractionAsync;
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>();
-        _handleResultAsync = optionsValue.HandleResultAsync;
+        _resultHandler = optionsValue.ResultHandler;
         _client = client;
     }
 
@@ -89,7 +88,7 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext> : IGa
 
         try
         {
-            await _handleResultAsync(result, interaction, client, _logger, services).ConfigureAwait(false);
+            await _resultHandler.HandleResultAsync(result, context, client, _logger, services).ConfigureAwait(false);
         }
         catch (Exception exceptionHandlerException)
         {

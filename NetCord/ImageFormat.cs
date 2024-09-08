@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public enum ImageFormat
+public enum ImageFormat : byte
 {
     Jpeg,
     Png,

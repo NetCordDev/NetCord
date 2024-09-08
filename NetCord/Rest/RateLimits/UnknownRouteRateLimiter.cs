@@ -11,18 +11,18 @@ internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
 
     public long LastAccess { get; private set; } = Environment.TickCount64;
 
-    public async ValueTask<RateLimitAcquisitionResult> TryAcquireAsync()
+    public async ValueTask<RateLimitAcquisitionResult> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync().ConfigureAwait(false);
+        await _semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         if (_retry)
-            return RateLimitAcquisitionResult.Retry();
+            return RateLimitAcquisitionResult.Retry;
 
         _retry = true;
 
-        return RateLimitAcquisitionResult.NoRateLimit();
+        return RateLimitAcquisitionResult.NoRateLimit;
     }
 
-    public ValueTask CancelAcquireAsync(long timestamp)
+    public ValueTask CancelAcquireAsync(long acquisitionTimestamp, CancellationToken cancellationToken = default)
     {
         _retry = false;
         _semaphore.Release();
@@ -30,7 +30,7 @@ internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
         return default;
     }
 
-    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo)
+    public ValueTask UpdateAsync(RateLimitInfo rateLimitInfo, CancellationToken cancellationToken = default)
     {
         _retry = false;
         _semaphore.Release();
@@ -38,7 +38,7 @@ internal class UnknownRouteRateLimiter : ITrackingRouteRateLimiter
         return default;
     }
 
-    public ValueTask IndicateExchangeAsync(long timestamp)
+    public ValueTask IndicateExchangeAsync(long timestamp, CancellationToken cancellationToken = default)
     {
         _retry = true;
         _semaphore.Release(int.MaxValue);

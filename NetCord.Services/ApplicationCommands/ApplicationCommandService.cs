@@ -189,16 +189,16 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
             _globalCommandsToCreate.Add(applicationCommandInfo);
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null)
+    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         var globalCommandsToCreate = _globalCommandsToCreate;
         int globalCount = globalCommandsToCreate.Count;
         var globalProperties = new ApplicationCommandProperties[globalCount];
 
         for (int i = 0; i < globalCount; i++)
-            globalProperties[i] = await globalCommandsToCreate[i].GetRawValueAsync().ConfigureAwait(false);
+            globalProperties[i] = await globalCommandsToCreate[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties).ConfigureAwait(false);
+        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties, cancellationToken).ConfigureAwait(false);
 
         int count = ((IApplicationCommandService)this).GetApproximateCommandsCount(includeGuildCommands);
         List<KeyValuePair<ulong, ApplicationCommandInfo<TContext>>> commands = new(count);
@@ -206,8 +206,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
         foreach (var (command, commandInfo) in created.Zip(globalCommandsToCreate))
         {
-            commands.Add(new(command.Key, commandInfo));
-            result.Add(command.Value);
+            commands.Add(new(command.Id, commandInfo));
+            result.Add(command);
         }
 
         if (includeGuildCommands)
@@ -219,13 +219,13 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                 var guildProperties = new ApplicationCommandProperties[guildCount];
 
                 for (int i = 0; i < guildCount; i++)
-                    guildProperties[i] = await guildCommands[i].GetRawValueAsync().ConfigureAwait(false);
+                    guildProperties[i] = await guildCommands[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties).ConfigureAwait(false);
+                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsPair.Key, guildProperties, properties, cancellationToken).ConfigureAwait(false);
                 foreach (var (command, commandInfo) in guildCreated.Zip(guildCommands))
                 {
-                    commands.Add(new(command.Key, commandInfo));
-                    result.Add(command.Value);
+                    commands.Add(new(command.Id, commandInfo));
+                    result.Add(command);
                 }
             }
         }

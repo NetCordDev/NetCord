@@ -11,8 +11,8 @@ public interface IGatewayClientCache : IDisposable
     public IGatewayClientCache CacheDMChannel(DMChannel dMChannel);
     public IGatewayClientCache CacheGuild(Guild guild);
     public IGatewayClientCache CacheGuildUser(GuildUser user);
-    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<KeyValuePair<ulong, GuildUser>> users);
-    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<KeyValuePair<ulong, Presence>> presences);
+    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<GuildUser> users);
+    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<Presence> presences);
     public IGatewayClientCache CacheRole(Role role);
     public IGatewayClientCache CacheGuildScheduledEvent(GuildScheduledEvent scheduledEvent);
     public IGatewayClientCache CacheGuildEmojis(ulong guildId, ImmutableDictionary<ulong, GuildEmoji> emojis);

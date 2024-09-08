@@ -9,36 +9,36 @@ public enum GatewayIntents : uint
     /// <summary>
     /// Associated with the following events:
     /// <list type="bullet">
-    ///		<item>
-    ///			<description>
-    ///				Guild Events: <see cref="GatewayClient.GuildCreate"/>, <see cref="GatewayClient.GuildUpdate"/>, <see cref="GatewayClient.GuildDelete"/><br/>
-    ///			</description>
-    ///		</item>
-    ///		<item>
-    ///			<description>
-    ///				Role Events: <see cref="GatewayClient.RoleCreate"/>, <see cref="GatewayClient.RoleUpdate"/>, <see cref="GatewayClient.RoleDelete"/><br/>
-    ///			</description>
-    ///		</item>
-    ///		<item>
-    ///			<description>
-    ///				Channel Events: <see cref="GatewayClient.GuildChannelCreate"/>, <see cref="GatewayClient.GuildChannelUpdate"/>, <see cref="GatewayClient.GuildChannelDelete"/>, <see cref="GatewayClient.ChannelPinsUpdate"/><br/>
-    ///			</description>
-    ///		</item>
-    ///		<item>
-    ///			<description>
-    ///				Thread Events: <see cref="GatewayClient.GuildThreadCreate"/>, <see cref="GatewayClient.GuildThreadUpdate"/>, <see cref="GatewayClient.GuildThreadDelete"/>, <see cref="GatewayClient.GuildThreadListSync"/><br/>
-    ///			</description>
-    ///		</item>
-    ///		<item>
-    ///			<description>
-    ///				Thread User Events: <see cref="GatewayClient.GuildThreadUserUpdate"/>, <see cref="GatewayClient.GuildThreadUsersUpdate"/><br/>
-    ///			</description>
-    ///		</item>
-    ///		<item>
-    ///			<description>
-    ///				Stage Events: <see cref="GatewayClient.StageInstanceCreate"/>, <see cref="GatewayClient.StageInstanceUpdate"/>, <see cref="GatewayClient.StageInstanceDelete"/>
-    ///			</description>
-    ///		</item>
+    ///      <item>
+    ///         <description>
+    ///            Guild Events: <see cref="GatewayClient.GuildCreate"/>, <see cref="GatewayClient.GuildUpdate"/>, <see cref="GatewayClient.GuildDelete"/><br/>
+    ///         </description>
+    ///      </item>
+    ///      <item>
+    ///         <description>
+    ///            Role Events: <see cref="GatewayClient.RoleCreate"/>, <see cref="GatewayClient.RoleUpdate"/>, <see cref="GatewayClient.RoleDelete"/><br/>
+    ///         </description>
+    ///      </item>
+    ///      <item>
+    ///         <description>
+    ///            Channel Events: <see cref="GatewayClient.GuildChannelCreate"/>, <see cref="GatewayClient.GuildChannelUpdate"/>, <see cref="GatewayClient.GuildChannelDelete"/>, <see cref="GatewayClient.ChannelPinsUpdate"/><br/>
+    ///         </description>
+    ///      </item>
+    ///      <item>
+    ///         <description>
+    ///            Thread Events: <see cref="GatewayClient.GuildThreadCreate"/>, <see cref="GatewayClient.GuildThreadUpdate"/>, <see cref="GatewayClient.GuildThreadDelete"/>, <see cref="GatewayClient.GuildThreadListSync"/><br/>
+    ///         </description>
+    ///      </item>
+    ///      <item>
+    ///         <description>
+    ///            Thread User Events: <see cref="GatewayClient.GuildThreadUserUpdate"/>, <see cref="GatewayClient.GuildThreadUsersUpdate"/><br/>
+    ///         </description>
+    ///      </item>
+    ///      <item>
+    ///         <description>
+    ///            Stage Events: <see cref="GatewayClient.StageInstanceCreate"/>, <see cref="GatewayClient.StageInstanceUpdate"/>, <see cref="GatewayClient.StageInstanceDelete"/>
+    ///         </description>
+    ///      </item>
     /// </list>
     /// </summary>
     Guilds = 1 << 0,
@@ -75,7 +75,7 @@ public enum GatewayIntents : uint
 
     /// <summary>
     /// Associated with the following events:<br/>
-    /// <see cref="GatewayClient.GuildInviteCreate"/>, <see cref="GatewayClient.GuildInviteDelete"/>
+    /// <see cref="GatewayClient.InviteCreate"/>, <see cref="GatewayClient.InviteDelete"/>
     /// </summary>
     GuildInvites = 1 << 6,
 

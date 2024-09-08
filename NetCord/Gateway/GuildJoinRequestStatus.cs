@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-[JsonConverter(typeof(JsonConverters.StringEnumConverterWithErrorHandling<GuildJoinRequestStatus>))]
+[JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<GuildJoinRequestStatus>))]
 public enum GuildJoinRequestStatus
 {
     [JsonPropertyName("STARTED")]

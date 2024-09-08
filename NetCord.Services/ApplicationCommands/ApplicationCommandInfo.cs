@@ -58,5 +58,5 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public abstract LocalizationPathSegment LocalizationPathSegment { get; }
 
     public abstract ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
-    public abstract ValueTask<ApplicationCommandProperties> GetRawValueAsync();
+    public abstract ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);
 }

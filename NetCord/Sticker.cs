@@ -20,4 +20,6 @@ public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
         _jsonModel = jsonModel;
         Tags = _jsonModel.Tags.Split(',');
     }
+
+    public ImageUrl GetImageUrl(ImageFormat format) => ImageUrl.Sticker(Id, format);
 }

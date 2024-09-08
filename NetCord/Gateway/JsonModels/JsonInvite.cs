@@ -4,8 +4,11 @@ using NetCord.JsonModels;
 
 namespace NetCord.Gateway.JsonModels;
 
-public class JsonGuildInvite
+public class JsonInvite
 {
+    [JsonPropertyName("type")]
+    public InviteType Type { get; set; }
+
     [JsonPropertyName("channel_id")]
     public ulong ChannelId { get; set; }
 
@@ -28,7 +31,7 @@ public class JsonGuildInvite
     public int MaxUses { get; set; }
 
     [JsonPropertyName("target_type")]
-    public GuildInviteTargetType? TargetType { get; set; }
+    public InviteTargetType? TargetType { get; set; }
 
     [JsonPropertyName("target_user")]
     public JsonUser? TargetUser { get; set; }

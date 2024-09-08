@@ -66,7 +66,8 @@ public class ImageUrl : ISpanFormattable
 
     private protected virtual bool IsSizeValid(ReadOnlySpan<char> format)
     {
-        for (int i = 0; i < format.Length; i++)
+        int length = format.Length;
+        for (int i = 0; i < length; i++)
         {
             if (!char.IsAsciiDigit(format[i]))
                 return false;
@@ -157,9 +158,9 @@ public class ImageUrl : ISpanFormattable
         return new($"/guilds/{guildId}/users/{userId}/avatars/{avatarHash}", GetExtension(avatarHash, format));
     }
 
-    public static ImageUrl UserAvatarDecoration(ulong userId, string avatarDecorationHash)
+    public static ImageUrl AvatarDecoration(string avatarDecorationHash)
     {
-        return new($"/avatar-decorations/{userId}/{avatarDecorationHash}", "png");
+        return new($"/avatar-decoration-presets/{avatarDecorationHash}", "png");
     }
 
     public static ImageUrl ApplicationIcon(ulong applicationId, string iconHash, ImageFormat format)
@@ -202,14 +203,14 @@ public class ImageUrl : ISpanFormattable
         return new($"/stickers/{stickerId}", GetFormat(format), Discord.MediaUrl);
     }
 
-    public static ImageUrl RoleIcon(ulong roleId, ImageFormat format)
+    public static ImageUrl RoleIcon(ulong roleId, string iconHash, ImageFormat format)
     {
-        return new($"/role-icons/{roleId}/role_icon", GetFormat(format));
+        return new($"/role-icons/{roleId}/{iconHash}", GetFormat(format));
     }
 
-    public static ImageUrl GuildScheduledEventCover(ulong scheduledEventId, string coverHash, ImageFormat format)
+    public static ImageUrl GuildScheduledEventCover(ulong scheduledEventId, string coverImageHash, ImageFormat format)
     {
-        return new($"/guild-events/{scheduledEventId}/{coverHash}", GetFormat(format));
+        return new($"/guild-events/{scheduledEventId}/{coverImageHash}", GetFormat(format));
     }
 
     public static ImageUrl GuildUserBanner(ulong guildId, ulong userId, string bannerHash, ImageFormat? format)

@@ -13,7 +13,7 @@ public class GuildOnboarding : IJsonModel<JsonModels.JsonGuildOnboarding>
     }
 
     /// <summary>
-    /// Id of the guild this onboarding is part of.
+    /// ID of the guild this onboarding is part of.
     /// </summary>
     public ulong GuildId => _jsonModel.GuildId;
 

@@ -10,14 +10,14 @@ Sharding is splitting your bot into multiple @"NetCord.Gateway.GatewayClient"s. 
 
 ## How to shard?
 
-## [Hosting](#tab/hosting)
+## [Generic Host](#tab/generic-host)
 
-With hosting, to start sharding, instead of calling @NetCord.Hosting.Gateway.GatewayClientHostBuilderExtensions.UseDiscordGateway(Microsoft.Extensions.Hosting.IHostBuilder), you need to call @NetCord.Hosting.Gateway.ShardedGatewayClientHostBuilderExtensions.UseDiscordShardedGateway(Microsoft.Extensions.Hosting.IHostBuilder). Example:
+To start sharding with the generic host, instead of calling @NetCord.Hosting.Gateway.GatewayClientHostBuilderExtensions.UseDiscordGateway(Microsoft.Extensions.Hosting.IHostBuilder), you need to call @NetCord.Hosting.Gateway.ShardedGatewayClientHostBuilderExtensions.UseDiscordShardedGateway(Microsoft.Extensions.Hosting.IHostBuilder). Example:
 [!code-cs[Program.cs](ShardingHosting/Program.cs)]
 
 Also note that you need to use @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1 instead of @NetCord.Hosting.Gateway.IGatewayEventHandler or @NetCord.Hosting.Gateway.IGatewayEventHandler`1 for event handlers. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add event handlers.
 
-## [Without Hosting](#tab/without-hosting)
+## [Bare Bones](#tab/bare-bones)
 
 To start sharding, you need to create an instance of @NetCord.Gateway.ShardedGatewayClient. Its usage is very similar to @NetCord.Gateway.GatewayClient. Example:
 [!code-cs[Program.cs](Sharding/Program.cs)]

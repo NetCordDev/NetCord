@@ -12,7 +12,7 @@ public class Sku(JsonModels.JsonSku jsonModel) : Entity, IJsonModel<JsonModels.J
     public SkuType Type => jsonModel.Type;
 
     /// <summary>
-    /// Id of the parent application.
+    /// ID of the parent application.
     /// </summary>
     public ulong ApplicationId => jsonModel.ApplicationId;
 

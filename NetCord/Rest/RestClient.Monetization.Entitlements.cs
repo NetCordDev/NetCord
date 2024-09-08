@@ -44,15 +44,15 @@ public partial class RestClient
             properties);
     }
 
-    public Task ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Post, $"/applications/{applicationId}/entitlements/{entitlementId}/consume", null, null, properties);
+    public Task ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => SendRequestAsync(HttpMethod.Post, $"/applications/{applicationId}/entitlements/{entitlementId}/consume", null, null, properties, cancellationToken: cancellationToken);
 
-    public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RestRequestProperties? properties = null)
+    public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, Serialization.Default.TestEntitlementProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false));
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false));
     }
 
-    public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null)
-        => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties);
+    public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties, cancellationToken: cancellationToken);
 }

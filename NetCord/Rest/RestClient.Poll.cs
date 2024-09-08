@@ -5,7 +5,7 @@ namespace NetCord.Rest;
 public partial class RestClient
 {
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
     public IAsyncEnumerable<User> GetMessagePollAnswerVotersAsync(ulong channelId, ulong messageId, int answerId, PaginationProperties<ulong>? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.PrepareWithDirectionValidation(paginationProperties, PaginationDirection.After, 100);
@@ -23,7 +23,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    [GenerateAlias([typeof(RestMessage), typeof(IPartialMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
-    public async Task<RestMessage> EndMessagePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null)
-        => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire", null, new(channelId), properties).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
+    [GenerateAlias([typeof(RestMessage)], nameof(RestMessage.ChannelId), nameof(RestMessage.Id), TypeNameOverride = nameof(Message))]
+    public async Task<RestMessage> EndMessagePollAsync(ulong channelId, ulong messageId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/polls/{messageId}/expire", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
 }

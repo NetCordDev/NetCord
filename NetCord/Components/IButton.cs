@@ -2,8 +2,6 @@
 
 public interface IButton
 {
-    public string? Label { get; }
-    public EmojiReference? Emoji { get; }
     public bool Disabled { get; }
 
     public static IButton CreateFromJson(JsonModels.JsonComponent jsonModel)
@@ -11,6 +9,7 @@ public interface IButton
         return jsonModel.Style.GetValueOrDefault() switch
         {
             (ButtonStyle)5 => new LinkButton(jsonModel),
+            (ButtonStyle)6 => new PremiumButton(jsonModel),
             _ => new Button(jsonModel),
         };
     }
