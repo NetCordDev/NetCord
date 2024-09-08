@@ -14,7 +14,7 @@ public static class ApplicationCommandServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+                                                                              Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
@@ -22,7 +22,7 @@ public static class ApplicationCommandServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+                                                                              Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
@@ -37,7 +37,7 @@ public static class ApplicationCommandServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+                                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -46,7 +46,7 @@ public static class ApplicationCommandServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+                                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext

@@ -49,13 +49,13 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         }
     }
 
-    public void AddCommand(string[] aliases, Delegate handler, int priority = 0)
+    public void AddCommand(IEnumerable<string> aliases, Delegate handler, int priority = 0)
     {
         CommandInfo<TContext> commandInfo = new(handler, priority, _configuration);
         AddCommandInfo(aliases, commandInfo, handler.Method);
     }
 
-    private void AddCommandInfo(string[] aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
+    private void AddCommandInfo(IEnumerable<string> aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
     {
         foreach (var alias in aliases)
         {

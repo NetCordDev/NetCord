@@ -8,7 +8,7 @@ namespace NetCord.Hosting.Services.Commands;
 public static class CommandServiceHostExtensions
 {
     public static IHost AddCommand<TContext>(this IHost host,
-                                             string[] aliases,
+                                             IEnumerable<string> aliases,
                                              Delegate handler,
                                              int priority = 0) where TContext : ICommandContext
     {

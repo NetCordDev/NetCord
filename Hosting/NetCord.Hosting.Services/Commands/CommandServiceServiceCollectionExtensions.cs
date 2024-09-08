@@ -16,14 +16,14 @@ public static class CommandServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
-                                                                      Action<CommandServiceOptions<TContext>> configureOptions)
+                                                           Action<CommandServiceOptions<TContext>> configureOptions)
         where TContext : ICommandContext
     {
         return services.AddCommands<TContext>((options, _) => configureOptions(options));
     }
 
     public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
-                                                                             Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+                                                           Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
         where TContext : ICommandContext
     {
         services

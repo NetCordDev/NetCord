@@ -17,7 +17,7 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                                Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
@@ -25,7 +25,7 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                                Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
@@ -59,7 +59,7 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                                     Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -68,7 +68,7 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                                            Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext

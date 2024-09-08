@@ -14,7 +14,7 @@ public static class ComponentInteractionServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseComponentInteractions<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+                                                                                Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
@@ -22,7 +22,7 @@ public static class ComponentInteractionServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseComponentInteractions<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+                                                                                Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {

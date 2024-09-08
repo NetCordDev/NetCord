@@ -13,16 +13,16 @@ public static class CommandServiceHostBuilderExtensions
     }
 
     public static IHostBuilder UseCommands<TContext>(this IHostBuilder builder,
-                                                           Action<CommandServiceOptions<TContext>> configureOptions)
+                                                     Action<CommandServiceOptions<TContext>> configureOptions)
         where TContext : ICommandContext
     {
         return builder.UseCommands<TContext>((options, _) => configureOptions(options));
     }
 
     public static IHostBuilder UseCommands<TContext>(this IHostBuilder builder,
-                                                           Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+                                                     Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
         where TContext : ICommandContext
     {
-        return builder.ConfigureServices((context, services) => services.AddCommands<TContext>(configureOptions));
+        return builder.ConfigureServices((context, services) => services.AddCommands(configureOptions));
     }
 }

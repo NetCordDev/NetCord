@@ -17,7 +17,7 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                            Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
@@ -25,7 +25,7 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
     }
 
     public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                            Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
