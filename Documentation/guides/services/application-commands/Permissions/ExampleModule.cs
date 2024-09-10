@@ -9,12 +9,12 @@ public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("mention-everyone", "Mentions @everyone",
         DefaultGuildUserPermissions = Permissions.MentionEveryone,
         Contexts = [InteractionContextType.Guild])]
-    public Task MentionEveryoneAsync()
+    public static InteractionMessageProperties MentionEveryone()
     {
-        return RespondAsync(InteractionCallback.Message(new()
+        return new()
         {
             AllowedMentions = AllowedMentionsProperties.All,
             Content = "@everyone",
-        }));
+        };
     }
 }

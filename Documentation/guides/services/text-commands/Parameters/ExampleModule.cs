@@ -7,34 +7,25 @@ namespace MyBot;
 public class ExampleModule : CommandModule<CommandContext>
 {
     [Command("average")]
-    public Task AverageAsync(params double[] numbers)
-    {
-        return ReplyAsync($"Average: {numbers.Average()}");
-    }
+    public static string Average(params double[] numbers) => $"Average: {numbers.Average()}";
 
     [Command("power")]
-    public Task PowerAsync(double @base, double power = 2)
-    {
-        return ReplyAsync($"Result: {Math.Pow(@base, power)}");
-    }
+    public static string Power(double @base, double power = 2) => $"Result: {Math.Pow(@base, power)}";
 
     [Command("reverse")]
-    public Task ReverseAsync([CommandParameter(Remainder = true)] string toReverse)
+    public static string Reverse([CommandParameter(Remainder = true)] string toReverse)
     {
         var array = toReverse.ToCharArray();
         Array.Reverse(array);
-        return ReplyAsync(new string(array));
+        return new string(array);
     }
 
     [Command("multiply", Priority = 0)]
-    public Task MultiplyAsync(int times, [CommandParameter(Remainder = true)] string text)
+    public static string Multiply(int times, [CommandParameter(Remainder = true)] string text)
     {
-        return ReplyAsync(string.Concat(Enumerable.Repeat(text, times)));
+        return string.Concat(Enumerable.Repeat(text, times));
     }
 
     [Command("multiply", Priority = 1)]
-    public Task MultiplyAsync(int times, BigInteger number)
-    {
-        return ReplyAsync((number * times).ToString());
-    }
+    public static string Multiply(int times, BigInteger number) => (number * times).ToString();
 }

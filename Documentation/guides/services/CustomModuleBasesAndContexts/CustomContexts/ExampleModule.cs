@@ -7,9 +7,9 @@ public class ExampleModule : CommandModule<CustomCommandContext>
 {
     [RequireContext<CustomCommandContext>(RequiredContext.Guild)]
     [Command("botname")]
-    public Task BotNameAsync()
+    public string BotName()
     {
         var user = Context.BotGuildUser;
-        return ReplyAsync(user.Nickname ?? user.Username);
+        return user.Nickname ?? user.Username;
     }
 }

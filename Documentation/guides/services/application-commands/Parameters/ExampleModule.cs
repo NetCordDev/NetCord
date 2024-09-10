@@ -1,5 +1,4 @@
 ﻿using NetCord;
-using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
@@ -7,30 +6,20 @@ namespace MyBot;
 public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("username", "Returns user's username")]
-    public Task UsernameAsync(User? user = null)
+    public string Username(User? user = null)
     {
         user ??= Context.User;
-        return RespondAsync(InteractionCallback.Message(user.Username));
+        return user.Username;
     }
 
     [SlashCommand("power", "Raises a number to a power")]
-    public Task PowerAsync([SlashCommandParameter(Name = "base", Description = "The base")] double @base, [SlashCommandParameter(Description = "The power")] double power = 2)
+    public static string Power(
+        [SlashCommandParameter(Name = "base", Description = "The base")] double @base,
+        [SlashCommandParameter(Description = "The power")] double power = 2)
     {
-        return RespondAsync(InteractionCallback.Message($"Result: {Math.Pow(@base, power)}"));
+        return $"Result: {Math.Pow(@base, power)}";
     }
 
     [SlashCommand("animal", "Sends animal you selected")]
-    public Task AnimalAsync(Animal animal)
-    {
-        return RespondAsync(InteractionCallback.Message(animal.ToString()));
-    }
-
-    public enum Animal
-    {
-        Dog,
-        Cat,
-        Fish,
-        [SlashCommandChoice("Guinea Pig")]
-        GuineaPig,
-    }
+    public static string Animal(Animal animal) => animal.ToString();
 }

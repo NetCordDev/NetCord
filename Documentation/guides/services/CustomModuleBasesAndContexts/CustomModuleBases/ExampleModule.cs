@@ -8,10 +8,10 @@ public class ExampleModule : CustomCommandModule
 {
     [RequireContext<CommandContext>(RequiredContext.Guild)]
     [Command("color")]
-    public Task ColorAsync(GuildUser? user = null)
+    public string Color(GuildUser? user = null)
     {
         user ??= (GuildUser)Context.User;
         var color = GetUserColor(user);
-        return ReplyAsync($"#{color.RawValue:X6}");
+        return $"#{color.RawValue:X6}";
     }
 }
