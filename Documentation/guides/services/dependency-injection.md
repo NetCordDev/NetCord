@@ -2,6 +2,12 @@
 
 Dependency injection (DI) is a technique that helps make your code more modular and testable by letting you pass services from the outside. It reduces tight coupling between components, making your applications easier to maintain and extend.
 
+## Scopes
+
+With `NetCord.Hosting.Services` scopes are created for each command/interaction and disposed after the command/interaction is **completely** executed by default. Therefore all code relevant to the command/interaction like for example the @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandResultHandler`1 will be executed within the same scope.
+
+You can control whether to use scopes or not by setting the `UseScopes` property in the options class. For example @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceOptions`2.UseScopes for application commands.
+
 ## Minimal APIs
 
 Dependency injection with minimal APIs can seem complicated at first, but it is actually quite simple.
