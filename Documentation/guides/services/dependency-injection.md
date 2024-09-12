@@ -19,14 +19,14 @@ You can see an example slash command below, but the same rules apply to all serv
 
 ## Modules
 
-Dependency injection with modules is like everywhere else. You just inject the services via the constructor.
+Dependency injection with modules is like everywhere else. You just inject the services via the constructor. The modules behave as if they were transient services, so they are created for each command/interaction.
 
 You can see an example with text commands below, but the same rules apply to all services:
 [!code-cs[DataModule.cs](DependencyInjection/DataModule.cs#l5-L9)]
 
 ## Autocomplete Providers
 
-Same for autocomplete providers, you just inject the services via the constructor.
+Same for autocomplete providers, you just inject the services via the constructor. They also behave as if they were transient services.
 
 You can see an example autocomplete provider below:
 [!code-cs[DataAutocompleteProvider.cs](DependencyInjection/DataAutocompleteProvider.cs#l7-L22)]
