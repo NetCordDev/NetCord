@@ -1,6 +1,6 @@
 # Dependency Injection
 
-Dependency Injection (DI) is a technique that helps make your code more modular and testable by letting you pass services from the outside. It reduces tight coupling between components, making your applications easier to maintain and extend.
+Dependency injection (DI) is a technique that helps make your code more modular and testable by letting you pass services from the outside. It reduces tight coupling between components, making your applications easier to maintain and extend.
 
 ## Minimal APIs
 
