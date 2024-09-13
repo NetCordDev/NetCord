@@ -46,7 +46,7 @@ public enum UserFlags : ulong
     /// <summary>
     /// User is a House of Brilliance Member.
     /// </summary>
-    HypeSquadOnlineHouse = 1uL << 7,
+    HypeSquadOnlineHouse2 = 1uL << 7,
 
     /// <summary>
     /// User is a House of Balance Member.
