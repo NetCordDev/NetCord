@@ -3,8 +3,10 @@
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway(options =>
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway(options =>
     {
         options.Configuration = new()
         {
@@ -15,7 +17,7 @@ var builder = Host.CreateDefaultBuilder(args)
                       | GatewayIntents.GuildMessageReactions,
         };
     })
-    .ConfigureServices(services => services.AddGatewayEventHandlers(typeof(Program).Assembly));
+    .AddGatewayEventHandlers(typeof(Program).Assembly);
 
 var host = builder.Build()
     .UseGatewayEventHandlers();

@@ -6,11 +6,13 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Services.ApplicationCommands;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway()
-    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
-    .UseApplicationCommands<UserCommandInteraction, UserCommandContext>()
-    .UseApplicationCommands<MessageCommandInteraction, MessageCommandContext>();
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway()
+    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
+    .AddApplicationCommands<UserCommandInteraction, UserCommandContext>()
+    .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>();
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", () => "Pong!")

@@ -7,7 +7,7 @@ To localize application commands, you need to use @NetCord.Services.ApplicationC
 The samples below show how to specify the @NetCord.Services.ApplicationCommands.JsonLocalizationsProvider.
 
 ## [Generic Host](#tab/generic-host)
-[!code-cs[Program.cs](LocalizationsHosting/Program.cs?highlight=6#L9-L16)]
+[!code-cs[Program.cs](LocalizationsHosting/Program.cs?highlight=6#L11-L18)]
 
 ## [Bare Bones](#tab/bare-bones)
 [!code-cs[Program.cs](Localizations/Program.cs?highlight=3#L12-L15)]

@@ -6,15 +6,17 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Services.ComponentInteractions;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway()
-    .UseComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
-    .UseComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .UseComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
-    .UseComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
-    .UseComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
-    .UseComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
-    .UseComponentInteractions<ModalInteraction, ModalInteractionContext>();
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway()
+    .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
+    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
+    .AddComponentInteractions<UserMenuInteraction, UserMenuInteractionContext>()
+    .AddComponentInteractions<RoleMenuInteraction, RoleMenuInteractionContext>()
+    .AddComponentInteractions<MentionableMenuInteraction, MentionableMenuInteractionContext>()
+    .AddComponentInteractions<ChannelMenuInteraction, ChannelMenuInteractionContext>()
+    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
 
 var host = builder.Build()
     .AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!")

@@ -13,7 +13,7 @@ Intents in NetCord are handled by @NetCord.Gateway.GatewayIntents.
 You specify them like this:
 
 ## [Generic Host](#tab/generic-host)
-[!code-cs[Program.cs](IntentsHosting/Program.cs?highlight=6#L6-L13)]
+[!code-cs[Program.cs](IntentsHosting/Program.cs?highlight=6#L8-L15)]
 
 ## [Bare Bones](#tab/bare-bones)
 [!code-cs[Program.cs](Intents/Program.cs?highlight=3#L4-L7)]

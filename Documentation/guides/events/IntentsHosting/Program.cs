@@ -3,8 +3,10 @@
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway(options =>
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway(options =>
     {
         options.Configuration = new()
         {

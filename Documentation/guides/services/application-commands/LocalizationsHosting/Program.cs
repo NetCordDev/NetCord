@@ -6,15 +6,17 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Services.ApplicationCommands;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>(options =>
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>(options =>
     {
         options.Configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default with
         {
             LocalizationsProvider = new JsonLocalizationsProvider(),
         };
     })
-    .UseDiscordGateway();
+    .AddDiscordGateway();
 
 var host = builder.Build()
     .AddModules(typeof(Program).Assembly)

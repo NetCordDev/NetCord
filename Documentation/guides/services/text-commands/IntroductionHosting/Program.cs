@@ -5,9 +5,11 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.Commands;
 using NetCord.Services.Commands;
 
-var builder = Host.CreateDefaultBuilder(args)
-    .UseDiscordGateway()
-    .UseCommands<CommandContext>();
+var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services
+    .AddDiscordGateway()
+    .AddCommands<CommandContext>();
 
 var host = builder.Build()
     .AddCommand<CommandContext>(["ping"], () => "Pong!")

@@ -6,9 +6,9 @@ using NetCord.Services.ApplicationCommands;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host
-    .UseDiscordRest()
-    .UseApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>();
+builder.Services
+    .AddDiscordRest()
+    .AddApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>();
 
 var app = builder.Build();
 

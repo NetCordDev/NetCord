@@ -12,7 +12,7 @@ Before we start, you need a token of your bot... so you need to go to the [Disco
 
 ## [Generic Host](#tab/generic-host)
 
-With the generic host, you can just use @NetCord.Hosting.Gateway.GatewayClientHostBuilderExtensions.UseDiscordGateway(Microsoft.Extensions.Hosting.IHostBuilder) to add your bot to the host. Quite easy, right?
+With the generic host, you can just use @NetCord.Hosting.Gateway.GatewayClientServiceCollectionExtensions.AddDiscordGateway(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add your bot to the host. Quite easy, right?
 [!code-cs[Program.cs](CodingHosting/Program.cs)]
 
 Also note that the token needs to be stored in the configuration. You can for example use `appsettings.json` file. It should look like this:
