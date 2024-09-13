@@ -14,13 +14,19 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
     {
         // Check if the specified track is a well formed uri
         if (!Uri.IsWellFormedUriString(track, UriKind.Absolute))
-            throw new("Invalid track!");
+        {
+            await RespondAsync(InteractionCallback.Message("Invalid track!"));
+            return;
+        }
 
         var guild = Context.Guild!;
 
         // Get the user voice state
         if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var voiceState))
-            throw new("You are not connected to any voice channel!");
+        {
+            await RespondAsync(InteractionCallback.Message("You are not connected to any voice channel!"));
+            return;
+        }
 
         var client = Context.Client;
 
@@ -99,14 +105,14 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("echo", "Creates echo", Contexts = [InteractionContextType.Guild])]
-    public async Task EchoAsync()
+    public async Task<string> EchoAsync()
     {
         var guild = Context.Guild!;
         var userId = Context.User.Id;
 
         // Get the user voice state
         if (!guild.VoiceStates.TryGetValue(userId, out var voiceState))
-            throw new("You are not connected to any voice channel!");
+            return "You are not connected to any voice channel!";
 
         var client = Context.Client;
 
@@ -135,7 +141,7 @@ public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
             return default;
         };
 
-        // Respond to the interaction
-        await RespondAsync(InteractionCallback.Message("Echo!"));
+        // Return the response
+        return "Echo!";
     }
 }
