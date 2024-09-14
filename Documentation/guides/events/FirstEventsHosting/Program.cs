@@ -9,10 +9,10 @@ builder.Services
     .AddDiscordGateway(options =>
     {
         options.Intents = GatewayIntents.GuildMessages
-                      | GatewayIntents.DirectMessages
-                      | GatewayIntents.MessageContent
-                      | GatewayIntents.DirectMessageReactions
-                      | GatewayIntents.GuildMessageReactions;
+                          | GatewayIntents.DirectMessages
+                          | GatewayIntents.MessageContent
+                          | GatewayIntents.DirectMessageReactions
+                          | GatewayIntents.GuildMessageReactions;
     })
     .AddGatewayEventHandlers(typeof(Program).Assembly);
 
