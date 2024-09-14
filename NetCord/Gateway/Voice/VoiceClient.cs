@@ -43,14 +43,14 @@ public class VoiceClient : WebSocketClient
     {
         UserId = userId;
         SessionId = sessionId;
-        Uri = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version}", UriKind.Absolute);
+        Uri = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version.GetValueOrDefault(VoiceApiVersion.V4)}", UriKind.Absolute);
         GuildId = guildId;
         Token = token;
 
         _udpSocket = configuration.UdpSocket ?? new UdpSocket();
         Cache = configuration.Cache ?? new VoiceClientCache();
         _encryption = configuration.Encryption ?? new Aes256GcmRtpSizeEncryption();
-        RedirectInputStreams = configuration.RedirectInputStreams;
+        RedirectInputStreams = configuration.RedirectInputStreams.GetValueOrDefault(false);
     }
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)

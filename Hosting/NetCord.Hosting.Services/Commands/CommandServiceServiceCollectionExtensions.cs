@@ -9,6 +9,44 @@ namespace NetCord.Hosting.Services.Commands;
 
 public static class CommandServiceServiceCollectionExtensions
 {
+    // Configure
+
+    public static IServiceCollection ConfigureCommands(this IServiceCollection services,
+                                                       Action<CommandServiceOptions> configureOptions)
+    {
+        return services.ConfigureCommands((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection ConfigureCommands(this IServiceCollection services,
+                                                       Action<CommandServiceOptions, IServiceProvider> configureOptions)
+    {
+        services
+            .AddOptions<CommandServiceOptions>()
+            .PostConfigure(configureOptions);
+
+        return services;
+    }
+
+    public static IServiceCollection ConfigureCommands<TContext>(this IServiceCollection services,
+                                                                 Action<CommandServiceOptions<TContext>> configureOptions)
+        where TContext : ICommandContext
+    {
+        return services.ConfigureCommands<TContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection ConfigureCommands<TContext>(this IServiceCollection services,
+                                                                 Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+        where TContext : ICommandContext
+    {
+        services
+            .AddOptions<CommandServiceOptions<TContext>>()
+            .PostConfigure(configureOptions);
+
+        return services;
+    }
+
+    // Add
+
     public static IServiceCollection AddCommands<TContext>(this IServiceCollection services)
         where TContext : ICommandContext
     {
@@ -29,12 +67,14 @@ public static class CommandServiceServiceCollectionExtensions
         services
             .AddOptions<CommandServiceOptions<TContext>>()
             .BindConfiguration("Discord")
-            .Configure(configureOptions);
+            .BindConfiguration("Discord:Commands")
+            .Configure<IOptions<CommandServiceOptions>>((options, baseOptions) => options.Apply(baseOptions))
+            .PostConfigure(configureOptions);
 
         services.AddSingleton(services =>
         {
             var options = services.GetRequiredService<IOptions<CommandServiceOptions<TContext>>>().Value;
-            return new CommandService<TContext>(options.Configuration);
+            return new CommandService<TContext>(options.CreateConfiguration());
         });
         services.AddSingleton<IService>(services => services.GetRequiredService<CommandService<TContext>>());
 

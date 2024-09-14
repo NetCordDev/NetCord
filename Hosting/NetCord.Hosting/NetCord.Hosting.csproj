@@ -35,6 +35,8 @@
   <ItemGroup>
     <Compile Include="../../NetCord.Services/Helpers/ServiceProviderHelper.cs" />
     <Compile Include="../../NetCord.Services/Helpers/ParameterHelper.cs" />
+    <Compile Include="../../NetCord/Gateway/GatewayClientConfigurationFactory.cs" />
+    <Compile Include="../../NetCord/Gateway/ShardedGatewayClientConfigurationFactory.cs" />
   </ItemGroup>
 
 </Project>

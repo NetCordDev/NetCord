@@ -8,14 +8,11 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddDiscordGateway(options =>
     {
-        options.Configuration = new()
-        {
-            Intents = GatewayIntents.GuildMessages
+        options.Intents = GatewayIntents.GuildMessages
                       | GatewayIntents.DirectMessages
                       | GatewayIntents.MessageContent
                       | GatewayIntents.DirectMessageReactions
-                      | GatewayIntents.GuildMessageReactions,
-        };
+                      | GatewayIntents.GuildMessageReactions;
     })
     .AddGatewayEventHandlers(typeof(Program).Assembly);
 

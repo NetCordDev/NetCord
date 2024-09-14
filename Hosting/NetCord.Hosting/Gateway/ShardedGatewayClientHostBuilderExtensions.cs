@@ -4,6 +4,20 @@ namespace NetCord.Hosting.Gateway;
 
 public static class ShardedGatewayClientHostBuilderExtensions
 {
+    // Configure
+
+    public static IHostBuilder ConfigureDiscordShardedGateway(this IHostBuilder builder, Action<ShardedGatewayClientOptions> configureOptions)
+    {
+        return builder.ConfigureDiscordShardedGateway((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder ConfigureDiscordShardedGateway(this IHostBuilder builder, Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
+    {
+        return builder.ConfigureServices((_, services) => services.ConfigureDiscordShardedGateway(configureOptions));
+    }
+
+    // Use
+
     public static IHostBuilder UseDiscordShardedGateway(this IHostBuilder builder)
     {
         return builder.UseDiscordShardedGateway((_, _) => { });

@@ -23,7 +23,7 @@ public sealed partial class RestClient : IDisposable
     {
         configuration ??= new();
 
-        _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version}";
+        _baseUrl = $"https://{configuration.Hostname ?? Discord.RestHostname}/api/v{(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}";
 
         var requestHandler = _requestHandler = configuration.RequestHandler ?? new RestRequestHandler();
 
