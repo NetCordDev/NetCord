@@ -11,12 +11,10 @@ using NetCord.Test.Hosting.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host
-    .UseDiscordRest()
-    .UseApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>()
-    .UseComponentInteractions<ButtonInteraction, HttpButtonInteractionContext>();
-
 builder.Services
+    .AddDiscordRest()
+    .AddApplicationCommands<SlashCommandInteraction, HttpSlashCommandContext>()
+    .AddComponentInteractions<ButtonInteraction, HttpButtonInteractionContext>()
     .AddHttpInteractionHandler<InteractionHandler>()
     .AddHttpInteractionHandler((Interaction interaction, ILogger<Interaction> logger) => logger.LogInformation("Id: {}", interaction.Id));
 
