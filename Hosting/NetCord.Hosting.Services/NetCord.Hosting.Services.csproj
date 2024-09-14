@@ -14,7 +14,7 @@
     <PackageIcon>SmallSquare.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>$(VersionPrefix)</Version>
-    <VersionSuffix>alpha.98</VersionSuffix>
+    <VersionSuffix>alpha.99</VersionSuffix>
     <Description>The modern and fully customizable C# Discord library.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
