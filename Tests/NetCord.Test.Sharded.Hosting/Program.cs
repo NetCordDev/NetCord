@@ -12,19 +12,15 @@ using NetCord.Services.Commands;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
-    .AddDiscordShardedGateway(o => o.Configuration = new()
-    {
-        ShardCount = 2,
-        IntentsFactory = _ => GatewayIntents.All,
-    })
+    .ConfigureDiscordShardedGateway(o => o.Presence = new(UserStatusType.Idle))
+    .AddDiscordShardedGateway()
     .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
     .AddCommands<CommandContext>()
     .AddShardedGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
 
 var host = builder.Build();
 
-host
-    .AddSlashCommand<SlashCommandContext>("ping", "Ping!", (SlashCommandContext context) => "Pong!")
+host.AddSlashCommand<SlashCommandContext>("ping", "Ping!", (SlashCommandContext context) => "Pong!")
     .AddCommand<CommandContext>(["ping"], () => "Pong!")
     .UseGatewayEventHandlers();
 

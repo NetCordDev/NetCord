@@ -35,10 +35,12 @@ using NetCord.Test.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
-    .AddDiscordGateway(o => o.Configuration = new()
-    {
-        Intents = GatewayIntents.All,
-    })
+    .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
+    .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
+    .ConfigureCommands(o => o.Prefix = ">")
+    .ConfigureApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
+    .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
+    .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
     .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>(options =>
     {
         options.ResultHandler = new CustomSlashCommandResultHandler();

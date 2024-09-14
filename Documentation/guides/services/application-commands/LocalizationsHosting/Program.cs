@@ -11,10 +11,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>(options =>
     {
-        options.Configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default with
-        {
-            LocalizationsProvider = new JsonLocalizationsProvider(),
-        };
+        options.LocalizationsProvider = new JsonLocalizationsProvider();
     })
     .AddDiscordGateway();
 

@@ -8,8 +8,12 @@ internal static class RoutePatternHelper
     {
         var trimmedPattern = TrimPrefix(pattern);
 
-        var routePattern = RoutePatternFactory.Pattern(pattern, trimmedPattern.Length == 0 ? [] : trimmedPattern.Split('/').Select(p => RoutePatternFactory.Segment(RoutePatternFactory.LiteralPart(p))));
-        return routePattern;
+        var segments = trimmedPattern.Length is 0
+            ? []
+            : trimmedPattern.Split('/')
+                            .Select(p => RoutePatternFactory.Segment(RoutePatternFactory.LiteralPart(p)));
+
+        return RoutePatternFactory.Pattern(pattern, segments);
     }
 
     private static string TrimPrefix(string routePattern)

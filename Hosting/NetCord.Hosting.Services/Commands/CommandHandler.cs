@@ -35,7 +35,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
 
         var optionsValue = options.Value;
 
-        if (optionsValue.UseScopes)
+        if (optionsValue.UseScopes.GetValueOrDefault(true))
         {
             _scopeFactory = services.GetService<IServiceScopeFactory>() ?? throw new InvalidOperationException($"'{nameof(IServiceScopeFactory)}' is not registered in the '{nameof(IServiceProvider)}', but it is required for using scopes.");
             _handleAsync = &HandleMessageWithScopeAsync;
@@ -45,7 +45,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
 
         _getPrefixLengthAsync = GetGetPrefixLengthAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>();
-        _resultHandler = optionsValue.ResultHandler;
+        _resultHandler = optionsValue.ResultHandler ?? new CommandResultHandler<TContext>();
         _client = client;
     }
 
@@ -60,7 +60,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
         if (prefix is not null)
         {
             if (prefixes is not null)
-                throw new InvalidOperationException($"Both '{nameof(options.Prefix)}' and '{options.Prefixes}' cannot be set at the same time.");
+                throw new InvalidOperationException($"Both '{nameof(options.Prefix)}' and '{nameof(options.Prefixes)}' cannot be set at the same time.");
 
             return (message, _, _) => new(!message.Author.IsBot && message.Content.StartsWith(prefix) ? prefix.Length : -1);
         }

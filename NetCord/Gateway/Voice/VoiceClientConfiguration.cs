@@ -14,8 +14,8 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IUdpSocket? UdpSocket { get; init; }
     public IReconnectStrategy? ReconnectStrategy { get; init; }
     public ILatencyTimer? LatencyTimer { get; init; }
-    public VoiceApiVersion Version { get; init; } = VoiceApiVersion.V4;
+    public VoiceApiVersion? Version { get; init; }
     public IVoiceClientCache? Cache { get; init; }
     public IVoiceEncryption? Encryption { get; init; }
-    public bool RedirectInputStreams { get; init; }
+    public bool? RedirectInputStreams { get; init; }
 }

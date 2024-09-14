@@ -16,7 +16,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
     .AddSingleton<IDataProvider, DataProvider>()
-    .AddDiscordGateway(o => o.Configuration = new() { Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent })
+    .AddDiscordGateway(o => o.Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent)
     .AddCommands<CommandContext>()
     .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
 

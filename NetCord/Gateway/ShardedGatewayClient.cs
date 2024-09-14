@@ -29,41 +29,40 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     {
         if (configuration is null)
         {
-            return new()
-            {
-                WebSocketConnectionProviderFactory = _ => null,
-                ReconnectStrategyFactory = _ => null,
-                LatencyTimerFactory = _ => null,
-                VersionFactory = _ => ApiVersion.V10,
-                CacheFactory = _ => null,
-                CompressionFactory = _ => null,
-                IntentsFactory = _ => GatewayIntents.AllNonPrivileged,
-                Hostname = null,
-                ConnectionPropertiesFactory = _ => null,
-                LargeThresholdFactory = _ => null,
-                PresenceFactory = _ => null,
-                ShardCount = null,
-                RestClientConfiguration = null,
-            };
+            return ShardedGatewayClientConfigurationFactory.Create(_ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   _ => null,
+                                                                   null,
+                                                                   null,
+                                                                   null);
         }
 
-        return new()
-        {
-            WebSocketConnectionProviderFactory = configuration.WebSocketConnectionProviderFactory ?? (_ => null),
-            ReconnectStrategyFactory = configuration.ReconnectStrategyFactory ?? (_ => null),
-            LatencyTimerFactory = configuration.LatencyTimerFactory ?? (_ => null),
-            VersionFactory = configuration.VersionFactory ?? (_ => ApiVersion.V10),
-            CacheFactory = configuration.CacheFactory ?? (_ => null),
-            CompressionFactory = configuration.CompressionFactory ?? (_ => null),
-            IntentsFactory = configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
-            Hostname = configuration.Hostname,
-            ConnectionPropertiesFactory = configuration.ConnectionPropertiesFactory ?? (_ => null),
-            LargeThresholdFactory = configuration.LargeThresholdFactory ?? (_ => null),
-            PresenceFactory = configuration.PresenceFactory ?? (_ => null),
-            ShardCount = configuration.ShardCount,
-            CacheDMChannels = configuration.CacheDMChannels,
-            RestClientConfiguration = configuration.RestClientConfiguration,
-        };
+        return ShardedGatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory ?? (_ => null),
+                                                               configuration.RateLimiterProviderFactory ?? (_ => null),
+                                                               configuration.DefaultPayloadPropertiesFactory ?? (_ => null),
+                                                               configuration.ReconnectStrategyFactory ?? (_ => null),
+                                                               configuration.LatencyTimerFactory ?? (_ => null),
+                                                               configuration.VersionFactory ?? (_ => ApiVersion.V10),
+                                                               configuration.CacheFactory ?? (_ => null),
+                                                               configuration.CompressionFactory ?? (_ => null),
+                                                               configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
+                                                               configuration.Hostname,
+                                                               configuration.ConnectionPropertiesFactory ?? (_ => null),
+                                                               configuration.LargeThresholdFactory ?? (_ => null),
+                                                               configuration.PresenceFactory ?? (_ => null),
+                                                               configuration.ShardCount,
+                                                               configuration.CacheDMChannels,
+                                                               configuration.RestClientConfiguration);
     }
 
     /// <summary>
@@ -217,24 +216,22 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     private GatewayClientConfiguration GetGatewayClientConfiguration(Shard shard)
     {
         var configuration = _configuration;
-        return new()
-        {
-            WebSocketConnectionProvider = configuration.WebSocketConnectionProviderFactory!(shard),
-            RateLimiterProvider = configuration.RateLimiterProviderFactory!(shard),
-            DefaultPayloadProperties = configuration.DefaultPayloadPropertiesFactory!(shard),
-            ReconnectStrategy = configuration.ReconnectStrategyFactory!(shard),
-            LatencyTimer = configuration.LatencyTimerFactory!(shard),
-            Version = configuration.VersionFactory!(shard),
-            Cache = configuration.CacheFactory!(shard),
-            Compression = configuration.CompressionFactory!(shard),
-            Intents = configuration.IntentsFactory!(shard),
-            Hostname = configuration.Hostname,
-            ConnectionProperties = configuration.ConnectionPropertiesFactory!(shard),
-            LargeThreshold = configuration.LargeThresholdFactory!(shard),
-            Presence = configuration.PresenceFactory!(shard),
-            Shard = shard,
-            CacheDMChannels = configuration.CacheDMChannels,
-        };
+        return GatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory!(shard),
+                                                        configuration.RateLimiterProviderFactory!(shard),
+                                                        configuration.DefaultPayloadPropertiesFactory!(shard),
+                                                        configuration.ReconnectStrategyFactory!(shard),
+                                                        configuration.LatencyTimerFactory!(shard),
+                                                        configuration.VersionFactory!(shard),
+                                                        configuration.CacheFactory!(shard),
+                                                        configuration.CompressionFactory!(shard),
+                                                        configuration.IntentsFactory!(shard),
+                                                        configuration.Hostname,
+                                                        configuration.ConnectionPropertiesFactory!(shard),
+                                                        configuration.LargeThresholdFactory!(shard),
+                                                        configuration.PresenceFactory!(shard),
+                                                        shard,
+                                                        configuration.CacheDMChannels,
+                                                        null);
     }
 
     public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)

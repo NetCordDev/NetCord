@@ -6,6 +6,36 @@ namespace NetCord.Hosting.Services.Commands;
 
 public static class CommandServiceHostBuilderExtensions
 {
+    // Configure
+
+    public static IHostBuilder ConfigureCommands(this IHostBuilder builder,
+                                                 Action<CommandServiceOptions> configureOptions)
+    {
+        return builder.ConfigureCommands((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder ConfigureCommands(this IHostBuilder builder,
+                                                 Action<CommandServiceOptions, IServiceProvider> configureOptions)
+    {
+        return builder.ConfigureServices((context, services) => services.ConfigureCommands(configureOptions));
+    }
+
+    public static IHostBuilder ConfigureCommands<TContext>(this IHostBuilder builder,
+                                                           Action<CommandServiceOptions<TContext>> configureOptions)
+        where TContext : ICommandContext
+    {
+        return builder.ConfigureCommands<TContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder ConfigureCommands<TContext>(this IHostBuilder builder,
+                                                           Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+        where TContext : ICommandContext
+    {
+        return builder.ConfigureServices((context, services) => services.ConfigureCommands(configureOptions));
+    }
+
+    // Use
+
     public static IHostBuilder UseCommands<TContext>(this IHostBuilder builder)
         where TContext : ICommandContext
     {

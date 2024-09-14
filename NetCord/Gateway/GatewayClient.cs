@@ -13,7 +13,11 @@ namespace NetCord.Gateway;
 /// </summary>
 public partial class GatewayClient : WebSocketClient, IEntity
 {
-    private readonly GatewayClientConfiguration _configuration;
+    private readonly ConnectionPropertiesProperties _connectionProperties;
+    private readonly int? _largeThreshold;
+    private readonly PresenceProperties? _presence;
+    private readonly GatewayIntents _intents;
+    private readonly bool _cacheDMChannels;
     private readonly object? _DMsLock;
     private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
     private readonly IGatewayCompression _compression;
@@ -787,7 +791,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// The shard of the <see cref="GatewayClient"/>.
     /// </summary>
-    public Shard? Shard => _configuration.Shard;
+    public Shard? Shard { get; }
 
     /// <summary>
     /// The application flags of the <see cref="GatewayClient"/>.
@@ -817,18 +821,22 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         Token = token;
 
-        _configuration = configuration;
+        Shard = configuration.Shard;
+        _connectionProperties = configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default;
+        _largeThreshold = configuration.LargeThreshold;
+        _presence = configuration.Presence;
+        _intents = configuration.Intents.GetValueOrDefault(GatewayIntents.AllNonPrivileged);
 
-        var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
-        Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version}&encoding=json&compress={compression.Name}", UriKind.Absolute);
-        Cache = configuration.Cache ?? new GatewayClientCache();
-        Rest = rest;
-
-        if (configuration.CacheDMChannels)
+        if (_cacheDMChannels = configuration.CacheDMChannels.GetValueOrDefault(true))
         {
             _DMsLock = new();
             _DMSemaphores = [];
         }
+
+        var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
+        Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}&encoding=json&compress={compression.Name}", UriKind.Absolute);
+        Cache = configuration.Cache ?? new GatewayClientCache();
+        Rest = rest;
     }
 
     private protected override void OnConnected()
@@ -840,11 +848,11 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayIdentifyProperties>(GatewayOpcode.Identify, new(Token.RawToken)
         {
-            ConnectionProperties = _configuration.ConnectionProperties ?? ConnectionPropertiesProperties.Default,
-            LargeThreshold = _configuration.LargeThreshold,
-            Shard = _configuration.Shard,
-            Presence = presence ?? _configuration.Presence,
-            Intents = _configuration.Intents,
+            ConnectionProperties = _connectionProperties,
+            LargeThreshold = _largeThreshold,
+            Shard = Shard,
+            Presence = presence ?? _presence,
+            Intents = _intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
@@ -1272,7 +1280,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         MessageCreate,
                         () => data.ToObject(Serialization.Default.JsonMessage),
                         json => Message.CreateFromJson(json, Cache, Rest),
-                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
+                        json => _cacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {
                             var channelId = json.ChannelId;
@@ -1289,7 +1297,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                         MessageUpdate,
                         () => data.ToObject(Serialization.Default.JsonMessage),
                         json => Message.CreateFromJson(json, Cache, Rest),
-                        json => _configuration.CacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
+                        json => _cacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
                         json =>
                         {
                             var channelId = json.ChannelId;
