@@ -1,34 +1,41 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace NetCord.Services;
 
 public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IUserContext, IGuildContext, IChannelContext
 {
     public Permissions ChannelPermissions { get; }
-    public string? ChannelPermissionsFormat { get; }
+    public string? ChannelPermissionsFormat => _channelPermissionsFormat?.Format;
 
     public Permissions GuildPermissions { get; }
-    public string? GuildPermissionsFormat { get; }
+    public string? GuildPermissionsFormat => _guildPermissionsFormat?.Format;
 
+    private readonly CompositeFormat? _channelPermissionsFormat;
+    private readonly CompositeFormat? _guildPermissionsFormat;
     private readonly PermissionsType _permissionsType;
 
-    public RequireUserPermissionsAttribute(Permissions channelPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required user permissions: {0}.")
+    public RequireUserPermissionsAttribute(Permissions channelPermissions,
+                                           [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required user permissions: {0}.")
     {
         if (channelPermissions == default)
             return;
 
         ChannelPermissions = channelPermissions;
-        ChannelPermissionsFormat = channelPermissionsFormat;
+        _channelPermissionsFormat = CompositeFormat.Parse(channelPermissionsFormat);
         _permissionsType |= PermissionsType.Channel;
     }
 
-    public RequireUserPermissionsAttribute(Permissions channelPermissions, Permissions guildPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required user permissions: {0}.", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required user guild permissions: {0}.") : this(channelPermissions, channelPermissionsFormat)
+    public RequireUserPermissionsAttribute(Permissions channelPermissions,
+                                           Permissions guildPermissions,
+                                           [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required user permissions: {0}.",
+                                           [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required user guild permissions: {0}.") : this(channelPermissions, channelPermissionsFormat)
     {
         if (guildPermissions == default)
             return;
 
         GuildPermissions = guildPermissions;
-        GuildPermissionsFormat = guildPermissionsFormat;
+        _guildPermissionsFormat = CompositeFormat.Parse(guildPermissionsFormat);
         _permissionsType |= PermissionsType.Guild;
     }
 
@@ -44,7 +51,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
             if (_permissionsType.HasFlag(PermissionsType.Channel) && !interactionPermissions.HasFlag(ChannelPermissions))
             {
                 var missingPermissions = ChannelPermissions & ~interactionUser.Permissions;
-                return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Channel));
+                return new(new MissingPermissionsResult(string.Format(null, _channelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Channel));
             }
 
             if (!_permissionsType.HasFlag(PermissionsType.Guild))
@@ -58,7 +65,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
             if (!permissions.HasFlag(GuildPermissions))
             {
                 var missingPermissions = GuildPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Guild));
+                return new(new MissingPermissionsResult(string.Format(null, _guildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Guild));
             }
 
             return new(PreconditionResult.Success);
@@ -74,7 +81,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
             if (_permissionsType.HasFlag(PermissionsType.Guild) && !permissions.HasFlag(GuildPermissions))
             {
                 var missingPermissions = GuildPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Guild));
+                return new(new MissingPermissionsResult(string.Format(null, _guildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Guild));
             }
 
             if (!_permissionsType.HasFlag(PermissionsType.Channel))
@@ -89,7 +96,7 @@ public class RequireUserPermissionsAttribute<TContext> : PreconditionAttribute<T
             if (!permissions.HasFlag(ChannelPermissions))
             {
                 var missingPermissions = ChannelPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Channel));
+                return new(new MissingPermissionsResult(string.Format(null, _channelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.User, MissingPermissionsResultPermissionType.Channel));
             }
 
             return new(PreconditionResult.Success);

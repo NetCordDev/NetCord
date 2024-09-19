@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 using NetCord.Services.ComponentInteractions;
 
@@ -7,30 +8,36 @@ namespace NetCord.Services;
 public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext, IChannelContext, IGatewayClientContext
 {
     public Permissions ChannelPermissions { get; }
-    public string? ChannelPermissionsFormat { get; }
+    public string? ChannelPermissionsFormat => _channelPermissionsFormat?.Format;
 
     public Permissions GuildPermissions { get; }
-    public string? GuildPermissionsFormat { get; }
+    public string? GuildPermissionsFormat => _guildPermissionsFormat?.Format;
 
+    private readonly CompositeFormat? _channelPermissionsFormat;
+    private readonly CompositeFormat? _guildPermissionsFormat;
     private readonly PermissionsType _permissionsType;
 
-    public RequireBotPermissionsAttribute(Permissions channelPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required bot permissions: {0}.")
+    public RequireBotPermissionsAttribute(Permissions channelPermissions,
+                                          [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required bot permissions: {0}.")
     {
         if (channelPermissions == default)
             return;
 
         ChannelPermissions = channelPermissions;
-        ChannelPermissionsFormat = channelPermissionsFormat;
+        _channelPermissionsFormat = CompositeFormat.Parse(channelPermissionsFormat);
         _permissionsType |= PermissionsType.Channel;
     }
 
-    public RequireBotPermissionsAttribute(Permissions channelPermissions, Permissions guildPermissions, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required bot permissions: {0}.", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required bot guild permissions: {0}.") : this(channelPermissions, channelPermissionsFormat)
+    public RequireBotPermissionsAttribute(Permissions channelPermissions,
+                                          Permissions guildPermissions,
+                                          [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string channelPermissionsFormat = "Required bot permissions: {0}.",
+                                          [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string guildPermissionsFormat = "Required bot guild permissions: {0}.") : this(channelPermissions, channelPermissionsFormat)
     {
         if (guildPermissions == default)
             return;
 
         GuildPermissions = guildPermissions;
-        GuildPermissionsFormat = guildPermissionsFormat;
+        _guildPermissionsFormat = CompositeFormat.Parse(guildPermissionsFormat);
         _permissionsType |= PermissionsType.Guild;
     }
 
@@ -48,7 +55,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (_permissionsType.HasFlag(PermissionsType.Channel) && !interactionPermissions.HasFlag(ChannelPermissions))
             {
                 var missingPermissions = ChannelPermissions & ~interactionPermissions;
-                return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Channel));
+                return new(new MissingPermissionsResult(string.Format(null, _channelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Channel));
             }
 
             if (!_permissionsType.HasFlag(PermissionsType.Guild))
@@ -70,7 +77,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (!permissions.HasFlag(GuildPermissions))
             {
                 var missingPermissions = GuildPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Guild));
+                return new(new MissingPermissionsResult(string.Format(null, _guildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Guild));
             }
 
             return new(PreconditionResult.Success);
@@ -93,7 +100,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (_permissionsType.HasFlag(PermissionsType.Guild) && !permissions.HasFlag(GuildPermissions))
             {
                 var missingPermissions = GuildPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(GuildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Guild));
+                return new(new MissingPermissionsResult(string.Format(null, _guildPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Guild));
             }
 
             if (!_permissionsType.HasFlag(PermissionsType.Channel))
@@ -107,7 +114,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (!permissions.HasFlag(ChannelPermissions))
             {
                 var missingPermissions = ChannelPermissions & ~permissions;
-                return new(new MissingPermissionsResult(string.Format(ChannelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Channel));
+                return new(new MissingPermissionsResult(string.Format(null, _channelPermissionsFormat!, missingPermissions), missingPermissions, MissingPermissionsResultEntityType.Bot, MissingPermissionsResultPermissionType.Channel));
             }
 
             return new(PreconditionResult.Success);

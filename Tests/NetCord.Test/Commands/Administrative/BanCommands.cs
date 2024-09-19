@@ -4,11 +4,11 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands.Administrative;
 
-[RequireContext<CommandContext>(Services.RequiredContext.Guild)]
+[RequireContext<CommandContext>(RequiredContext.Guild)]
 [RequireUserPermissions<CommandContext>(Permissions.BanUsers), RequireBotPermissions<CommandContext>(Permissions.BanUsers)]
 public class BanCommands : CommandModule<CommandContext>
 {
-    [RequireContext<CommandContext>(Services.RequiredContext.Guild)]
+    [RequireContext<CommandContext>(RequiredContext.Guild)]
     [Command("ban")]
     public async Task Ban(UserId userId, TimeSpan deleteMessagesTime = default, [CommandParameter(Remainder = true)] string? reason = null)
     {

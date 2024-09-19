@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace NetCord.Services;
 
@@ -6,17 +8,19 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
 {
     public RequiredContext RequiredContext { get; }
 
-    public string Format { get; }
+    public string Format => _format.Format;
+
+    private readonly CompositeFormat _format;
 
     /// <param name="requiredContext"></param>
     /// <param name="format">{0} - required context</param>
     public RequireContextAttribute(RequiredContext requiredContext, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format = "Required context: {0}.")
     {
-        if (!Enum.IsDefined(requiredContext))
-            throw new System.ComponentModel.InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext));
+        if (requiredContext > RequiredContext.DM)
+            throw new InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext));
 
         RequiredContext = requiredContext;
-        Format = format;
+        _format = CompositeFormat.Parse(format);
     }
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
@@ -32,13 +36,13 @@ public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext>
             RequiredContext.DM => channel is not DMChannel,
             _ => throw new InvalidOperationException(),
         })
-            return new(new InvalidContextResult(string.Format(Format, requiredContext), requiredContext));
+            return new(new InvalidContextResult(string.Format(null, _format, requiredContext), requiredContext));
 
         return new(PreconditionResult.Success);
     }
 }
 
-public enum RequiredContext
+public enum RequiredContext : byte
 {
     Guild,
     GroupDM,
@@ -47,5 +51,5 @@ public enum RequiredContext
 
 public class InvalidContextResult(string message, RequiredContext missingContext) : PreconditionFailResult(message)
 {
-    public RequiredContext MissingContext { get; } = missingContext;
+    public RequiredContext MissingContext => missingContext;
 }
