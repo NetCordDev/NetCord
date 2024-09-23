@@ -20,7 +20,7 @@ public class MenuInteractions : BaseComponentInteractionModule<StringMenuInterac
     }
 
     [ComponentInteraction("menu")]
-    public Task Menu([NotEmpty] string s)
+    public Task Menu(string s)
     {
         _ = s;
         InteractionMessageProperties interactionMessage = new()
