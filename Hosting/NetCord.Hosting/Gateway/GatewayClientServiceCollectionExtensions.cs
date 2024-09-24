@@ -9,13 +9,16 @@ public static class GatewayClientServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureDiscordGateway(this IServiceCollection services, Action<GatewayClientOptions> configureOptions)
+    public static IServiceCollection ConfigureDiscordGateway(
+        this IServiceCollection services,
+        Action<GatewayClientOptions> configureOptions)
     {
         return services.ConfigureDiscordGateway((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureDiscordGateway(this IServiceCollection services,
-                                                             Action<GatewayClientOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureDiscordGateway(
+        this IServiceCollection services,
+        Action<GatewayClientOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<GatewayClientOptions>()
@@ -26,23 +29,29 @@ public static class GatewayClientServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddDiscordGateway(this IServiceCollection services)
+    public static IServiceCollection AddDiscordGateway(
+        this IServiceCollection services)
     {
         return services.AddDiscordGateway((_, _) => { });
     }
 
-    public static IServiceCollection AddDiscordGateway(this IServiceCollection services, Action<GatewayClientOptions> configureOptions)
+    public static IServiceCollection AddDiscordGateway(
+        this IServiceCollection services,
+        Action<GatewayClientOptions> configureOptions)
     {
         return services.AddDiscordGateway((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddDiscordGateway(this IServiceCollection services, Action<GatewayClientOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection AddDiscordGateway(
+        this IServiceCollection services,
+        Action<GatewayClientOptions, IServiceProvider> configureOptions)
     {
+        services.AddSingleton<IValidateOptions<GatewayClientOptions>, GatewayClientOptions.Validator>();
+
         services
             .AddOptions<GatewayClientOptions>()
             .BindConfiguration("Discord")
-            .PostConfigure(configureOptions)
-            .ValidateDataAnnotations();
+            .PostConfigure(configureOptions);
 
         services.AddSingleton<IOptions<IDiscordOptions>>(services => services.GetRequiredService<IOptions<GatewayClientOptions>>());
 

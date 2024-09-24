@@ -11,14 +11,16 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureComponentInteractions(this IServiceCollection services,
-                                                                    Action<ComponentInteractionServiceOptions> configureOptions)
+    public static IServiceCollection ConfigureComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions> configureOptions)
     {
         return services.ConfigureComponentInteractions((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureComponentInteractions(this IServiceCollection services,
-                                                                    Action<ComponentInteractionServiceOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<ComponentInteractionServiceOptions>()
@@ -27,16 +29,22 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                            Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IServiceCollection ConfigureComponentInteractions<TInteraction,
+                                                                    TContext>(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
         return services.ConfigureComponentInteractions<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                            Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureComponentInteractions<TInteraction,
+                                                                    TContext>(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
@@ -49,30 +57,42 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services)
+    public static IServiceCollection AddComponentInteractions<TInteraction,
+                                                              [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services)
+
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
         return services.AddComponentInteractions<TInteraction, TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IServiceCollection AddComponentInteractions<TInteraction,
+                                                              [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
         return services.AddComponentInteractions<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddComponentInteractions<TInteraction, TContext>(this IServiceCollection services,
-                                                                                      Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection AddComponentInteractions<TInteraction,
+                                                              [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ComponentInteraction
         where TContext : IComponentInteractionContext
     {
         services
-            .AddOptions<ComponentInteractionServiceOptions<TInteraction, TContext>>()
+            .AddOptions<ComponentInteractionServiceOptions>()
             .BindConfiguration("Discord")
-            .BindConfiguration("Discord:ComponentInteractions")
+            .BindConfiguration("Discord:ComponentInteractions");
+
+        services
+            .AddOptions<ComponentInteractionServiceOptions<TInteraction, TContext>>()
             .Configure<IOptions<ComponentInteractionServiceOptions>>((options, baseOptions) => options.Apply(baseOptions))
             .PostConfigure(configureOptions);
 

@@ -11,14 +11,16 @@ public static class CommandServiceServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureCommands(this IServiceCollection services,
-                                                       Action<CommandServiceOptions> configureOptions)
+    public static IServiceCollection ConfigureCommands(
+        this IServiceCollection services,
+        Action<CommandServiceOptions> configureOptions)
     {
         return services.ConfigureCommands((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureCommands(this IServiceCollection services,
-                                                       Action<CommandServiceOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureCommands(
+        this IServiceCollection services,
+        Action<CommandServiceOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<CommandServiceOptions>()
@@ -27,15 +29,19 @@ public static class CommandServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureCommands<TContext>(this IServiceCollection services,
-                                                                 Action<CommandServiceOptions<TContext>> configureOptions)
+    public static IServiceCollection ConfigureCommands<TContext>(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<TContext>> configureOptions)
+
         where TContext : ICommandContext
     {
         return services.ConfigureCommands<TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureCommands<TContext>(this IServiceCollection services,
-                                                                 Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureCommands<TContext>(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+
         where TContext : ICommandContext
     {
         services
@@ -47,27 +53,36 @@ public static class CommandServiceServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services)
+    public static IServiceCollection AddCommands<[DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services)
+
         where TContext : ICommandContext
     {
         return services.AddCommands<TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
-                                                           Action<CommandServiceOptions<TContext>> configureOptions)
+    public static IServiceCollection AddCommands<[DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<TContext>> configureOptions)
+
         where TContext : ICommandContext
     {
         return services.AddCommands<TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddCommands<TContext>(this IServiceCollection services,
-                                                           Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection AddCommands<[DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<TContext>, IServiceProvider> configureOptions)
+
         where TContext : ICommandContext
     {
         services
-            .AddOptions<CommandServiceOptions<TContext>>()
+            .AddOptions<CommandServiceOptions>()
             .BindConfiguration("Discord")
-            .BindConfiguration("Discord:Commands")
+            .BindConfiguration("Discord:Commands");
+
+        services
+            .AddOptions<CommandServiceOptions<TContext>>()
             .Configure<IOptions<CommandServiceOptions>>((options, baseOptions) => options.Apply(baseOptions))
             .PostConfigure(configureOptions);
 

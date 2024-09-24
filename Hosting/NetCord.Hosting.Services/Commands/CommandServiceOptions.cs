@@ -27,12 +27,13 @@ public class CommandServiceOptions
 
     public string? Prefix { get; set; }
 
-    public IReadOnlyList<string>? Prefixes { get; set; }
+    public IEnumerable<string>? Prefixes { get; set; }
 
     public Func<Message, GatewayClient, IServiceProvider, ValueTask<int>>? GetPrefixLengthAsync { get; set; }
 }
 
-public class CommandServiceOptions<TContext> where TContext : ICommandContext
+public class CommandServiceOptions<TContext>
+    where TContext : ICommandContext
 {
     public Dictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; set; } = CommandServiceConfiguration<TContext>.Default.TypeReaders.ToDictionary();
 
@@ -56,7 +57,7 @@ public class CommandServiceOptions<TContext> where TContext : ICommandContext
 
     public string? Prefix { get; set; }
 
-    public IReadOnlyList<string>? Prefixes { get; set; }
+    public IEnumerable<string>? Prefixes { get; set; }
 
     public Func<Message, GatewayClient, IServiceProvider, ValueTask<int>>? GetPrefixLengthAsync { get; set; }
 

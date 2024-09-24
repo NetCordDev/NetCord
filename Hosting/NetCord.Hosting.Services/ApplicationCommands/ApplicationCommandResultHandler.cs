@@ -7,7 +7,9 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlags = null) : IApplicationCommandResultHandler<TContext> where TContext : IApplicationCommandContext
+public class ApplicationCommandResultHandler<TContext>(MessageFlags? messageFlags = null)
+    : IApplicationCommandResultHandler<TContext>
+    where TContext : IApplicationCommandContext
 {
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {

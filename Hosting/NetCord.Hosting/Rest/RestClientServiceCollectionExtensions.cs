@@ -9,12 +9,16 @@ public static class RestClientServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureDiscordRest(this IServiceCollection services, Action<RestClientOptions> configureOptions)
+    public static IServiceCollection ConfigureDiscordRest(
+        this IServiceCollection services,
+        Action<RestClientOptions> configureOptions)
     {
         return services.ConfigureDiscordRest((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureDiscordRest(this IServiceCollection services, Action<RestClientOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureDiscordRest(
+        this IServiceCollection services,
+        Action<RestClientOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<RestClientOptions>()
@@ -25,17 +29,21 @@ public static class RestClientServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddDiscordRest(this IServiceCollection services)
+    public static IServiceCollection AddDiscordRest(
+        this IServiceCollection services)
     {
         return services.AddDiscordRest((_, _) => { });
     }
 
-    public static IServiceCollection AddDiscordRest(this IServiceCollection services, Action<RestClientOptions> configureOptions)
+    public static IServiceCollection AddDiscordRest(
+        this IServiceCollection services, Action<RestClientOptions> configureOptions)
     {
         return services.AddDiscordRest((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddDiscordRest(this IServiceCollection services, Action<RestClientOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection AddDiscordRest(
+        this IServiceCollection services,
+        Action<RestClientOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<RestClientOptions>()

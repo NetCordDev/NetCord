@@ -15,13 +15,15 @@ public static class EndpointRouteBuilderExtensions
 {
     public static IEndpointConventionBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
-        var publicKey = endpoints.ServiceProvider.GetRequiredService<IOptions<IDiscordOptions>>().Value.PublicKey ?? throw new InvalidOperationException($"'{nameof(IDiscordOptions.PublicKey)}' must be set.");
+        var services = endpoints.ServiceProvider;
+
+        var publicKey = services.GetRequiredService<IOptions<IDiscordOptions>>().Value.PublicKey ?? throw new InvalidOperationException($"'{nameof(IDiscordOptions.PublicKey)}' must be set.");
         HttpInteractionValidator validator = new(publicKey);
 
-        var handlers = endpoints.ServiceProvider.GetServices<IHttpInteractionHandler>().ToArray();
+        var handlers = services.GetServices<IHttpInteractionHandler>().ToArray();
         var tasks = new ValueTask[handlers.Length];
 
-        var client = endpoints.ServiceProvider.GetRequiredService<RestClient>();
+        var client = services.GetRequiredService<RestClient>();
 
         var routePattern = RoutePatternHelper.ParseLiteral(pattern);
 

@@ -23,7 +23,9 @@ public class ComponentInteractionServiceOptions
     public bool? UseScopes { get; set; }
 }
 
-public class ComponentInteractionServiceOptions<TInteraction, TContext> where TInteraction : Interaction where TContext : IComponentInteractionContext
+public class ComponentInteractionServiceOptions<TInteraction, TContext>
+    where TInteraction : Interaction
+    where TContext : IComponentInteractionContext
 {
     public Dictionary<Type, ComponentInteractionTypeReader<TContext>> TypeReaders { get; set; } = ComponentInteractionServiceConfiguration<TContext>.Default.TypeReaders.ToDictionary();
 

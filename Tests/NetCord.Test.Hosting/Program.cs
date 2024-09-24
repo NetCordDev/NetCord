@@ -48,9 +48,12 @@ builder.Services
     .AddApplicationCommands<UserCommandInteraction, UserCommandContext>()
     .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
+    .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddCommands<CommandContext>()
     .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
-    .AddGatewayEventHandlers(typeof(Program).Assembly);
+    .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
+    .AddGatewayEventHandler<ConnectHandler>()
+    .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>();
 
 var host = builder.Build()
     .AddSlashCommand<SlashCommandContext>("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
@@ -70,7 +73,8 @@ var host = builder.Build()
     .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((IServiceProvider provider, ButtonInteractionContext context) => throw new("Exception!")))
     .AddCommand<CommandContext>(["ping"], () => "Pong!")
     .AddCommand<CommandContext>(["exception"], (Action)(() => throw new("Exception!")))
-    //.AddModules(Assembly.GetEntryAssembly()!)
+    .AddSlashCommand<SlashCommandContext>("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
+    .AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD")
     .AddApplicationCommandModule<SlashCommandContext, SlashCommandModule>()
     .UseGatewayEventHandlers();
 

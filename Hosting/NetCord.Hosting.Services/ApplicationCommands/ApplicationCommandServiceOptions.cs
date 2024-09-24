@@ -28,7 +28,9 @@ public class ApplicationCommandServiceOptions
     public bool? UseScopes { get; set; }
 }
 
-public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
+public class ApplicationCommandServiceOptions<TInteraction, TContext>
+    where TInteraction : ApplicationCommandInteraction
+    where TContext : IApplicationCommandContext
 {
     public Dictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; set; } = ApplicationCommandServiceConfiguration<TContext>.Default.TypeReaders.ToDictionary();
 
@@ -106,7 +108,11 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext> where TInt
     }
 }
 
-public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext> : ApplicationCommandServiceOptions<TInteraction, TContext> where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
+public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>
+    : ApplicationCommandServiceOptions<TInteraction, TContext>
+    where TInteraction : ApplicationCommandInteraction
+    where TContext : IApplicationCommandContext
+    where TAutocompleteContext : IAutocompleteInteractionContext
 {
     public Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext>? CreateAutocompleteContext { get; set; }
 

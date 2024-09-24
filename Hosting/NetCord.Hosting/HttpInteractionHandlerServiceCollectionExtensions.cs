@@ -4,7 +4,7 @@ namespace NetCord.Hosting;
 
 public static class HttpInteractionHandlerServiceCollectionExtensions
 {
-    public static IServiceCollection AddHttpInteractionHandler<T>(this IServiceCollection services) where T : class, IHttpInteractionHandler
+    public static IServiceCollection AddHttpInteractionHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services) where T : class, IHttpInteractionHandler
     {
         services.AddSingleton<IHttpInteractionHandler, T>();
         return services;

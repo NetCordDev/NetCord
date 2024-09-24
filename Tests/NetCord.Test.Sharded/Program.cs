@@ -3,7 +3,7 @@ using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
-
+using NetCord.Services.ComponentInteractions;
 using NetCord.Test.Sharded;
 
 CommandService<CommandContext> commandService = new();
@@ -18,6 +18,16 @@ var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
+slashCommandService.AddSlashCommand("button", "Button!", () =>
+{
+    return new InteractionMessageProperties()
+    {
+        Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
+    };
+});
+
+ComponentInteractionService<ButtonInteractionContext> buttonInteractionService = new();
+buttonInteractionService.AddInteraction("button", () => "XD");
 
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()
@@ -85,6 +95,20 @@ client.InteractionCreate += async (client, interaction) =>
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
+                }
+
+                break;
+            }
+
+        case ButtonInteraction buttonInteraction:
+            {
+                try
+                {
+                    await buttonInteractionService.ExecuteAsync(new(buttonInteraction, client));
+                }
+                catch (Exception ex)
+                {
+                    await buttonInteraction.SendResponseAsync(InteractionCallback.Message(ex.Message));
                 }
 
                 break;

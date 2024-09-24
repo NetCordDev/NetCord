@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
-    <IsAotCompatible>false</IsAotCompatible>
+    <IsAotCompatible>true</IsAotCompatible>
 
     <RepositoryUrl>https://github.com/NetCordDev/NetCord</RepositoryUrl>
     <PackageProjectUrl>https://netcord.dev</PackageProjectUrl>

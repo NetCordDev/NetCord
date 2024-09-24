@@ -9,7 +9,12 @@ using NetCord.Services.ComponentInteractions;
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
 [GatewayEvent(nameof(GatewayClient.InteractionCreate))]
-internal unsafe partial class ComponentInteractionHandler<TInteraction, TContext> : IGatewayEventHandler<Interaction>, IShardedGatewayEventHandler<Interaction>, IHttpInteractionHandler where TInteraction : ComponentInteraction where TContext : IComponentInteractionContext
+internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAMT.PublicConstructors)] TContext>
+    : IGatewayEventHandler<Interaction>,
+      IShardedGatewayEventHandler<Interaction>,
+      IHttpInteractionHandler
+    where TInteraction : ComponentInteraction
+    where TContext : IComponentInteractionContext
 {
     private IServiceProvider Services { get; }
 
@@ -52,7 +57,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, TContext
     public ValueTask HandleAsync(GatewayClient client, Interaction interaction) => _handleAsync(this, interaction, client);
 }
 
-internal partial class ComponentInteractionHandler<TInteraction, TContext> : IGatewayEventHandler<Interaction>, IShardedGatewayEventHandler<Interaction>, IHttpInteractionHandler
+internal partial class ComponentInteractionHandler<TInteraction, TContext>
 {
     private AsyncServiceScope CreateAsyncScope() => _scopeFactory!.CreateAsyncScope();
 

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -9,6 +10,7 @@ namespace NetCord.Hosting.Services;
 
 public static class ServicesHostExtensions
 {
+    [RequiresUnreferencedCode("Types might be removed")]
     public static IHost AddModules(this IHost host, Assembly assembly)
     {
         var services = host.Services.GetServices<IService>();

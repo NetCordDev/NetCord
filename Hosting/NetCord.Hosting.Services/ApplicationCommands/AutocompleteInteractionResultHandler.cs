@@ -6,7 +6,8 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-public class AutocompleteInteractionResultHandler<TAutocompleteContext> : IAutocompleteInteractionResultHandler<TAutocompleteContext> where TAutocompleteContext : IAutocompleteInteractionContext
+public class AutocompleteInteractionResultHandler<TAutocompleteContext> : IAutocompleteInteractionResultHandler<TAutocompleteContext>
+    where TAutocompleteContext : IAutocompleteInteractionContext
 {
     public ValueTask HandleResultAsync(IExecutionResult result, TAutocompleteContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
