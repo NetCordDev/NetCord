@@ -8,36 +8,47 @@ public static class ApplicationCommandServiceHostBuilderExtensions
 {
     // Configure
 
-    public static IHostBuilder ConfigureApplicationCommands(this IHostBuilder builder,
-                                                            Action<ApplicationCommandServiceOptions> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions> configureOptions)
     {
         return builder.ConfigureApplicationCommands((options, _) => configureOptions(options));
     }
 
-    public static IHostBuilder ConfigureApplicationCommands(this IHostBuilder builder,
-                                                            Action<ApplicationCommandServiceOptions, IServiceProvider> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions, IServiceProvider> configureOptions)
     {
         return builder.ConfigureServices((context, services) => services.ConfigureApplicationCommands(configureOptions));
     }
 
-    public static IHostBuilder ConfigureApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands<TInteraction,
+                                                            TContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return builder.ConfigureApplicationCommands<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IHostBuilder ConfigureApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands<TInteraction, TContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return builder.ConfigureServices((context, services) => services.ConfigureApplicationCommands(configureOptions));
     }
 
-    public static IHostBuilder ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands<TInteraction,
+                                                            TContext,
+                                                            TAutocompleteContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -45,8 +56,12 @@ public static class ApplicationCommandServiceHostBuilderExtensions
         return builder.ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
     }
 
-    public static IHostBuilder ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+    public static IHostBuilder ConfigureApplicationCommands<TInteraction,
+                                                            TContext,
+                                                            TAutocompleteContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -56,38 +71,55 @@ public static class ApplicationCommandServiceHostBuilderExtensions
 
     // Use
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext>(this IHostBuilder builder)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext>(
+        this IHostBuilder builder)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return builder.UseApplicationCommands<TInteraction, TContext>((_, _) => { });
     }
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                              Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return builder.UseApplicationCommands<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext>(this IHostBuilder builder,
-                                                                              Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return builder.ConfigureServices((context, services) => services.AddApplicationCommands(configureOptions));
     }
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext,
+                                                      [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IHostBuilder builder)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
     {
         return builder.UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>((_, _) => { });
     }
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext,
+                                                      [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -95,8 +127,12 @@ public static class ApplicationCommandServiceHostBuilderExtensions
         return builder.UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
     }
 
-    public static IHostBuilder UseApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IHostBuilder builder,
-                                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+    public static IHostBuilder UseApplicationCommands<TInteraction,
+                                                      [DAM(DAMT.PublicConstructors)] TContext,
+                                                      [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext

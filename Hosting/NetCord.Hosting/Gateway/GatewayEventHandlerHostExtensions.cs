@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using NetCord.Gateway;
@@ -7,33 +9,29 @@ namespace NetCord.Hosting.Gateway;
 
 public static class GatewayEventHandlerHostExtensions
 {
+    private const string CheckId = "IL2075:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.";
+    private const string Justification = "'DynamicDependencyAttribute' is applied to preserve the methods.";
+
     public static IHost UseGatewayEventHandlers(this IHost host)
     {
         var services = host.Services;
 
-        var client = services.GetService<GatewayClient>();
-        if (client is not null)
-        {
-            RegisterGatewayClientHandlers(client, services);
-
-            var shardedClient = services.GetService<ShardedGatewayClient>();
-            if (shardedClient is not null)
-                RegisterShardedGatewayClientHandlers(shardedClient, services);
-            return host;
-        }
-        else
-        {
-            var shardedClient = services.GetService<ShardedGatewayClient>();
-            if (shardedClient is not null)
-            {
-                RegisterShardedGatewayClientHandlers(shardedClient, services);
-                return host;
-            }
-        }
-
-        throw new InvalidOperationException($"None of '{nameof(GatewayClient)}' and '{nameof(ShardedGatewayClient)}' have been registered.");
+        var client = services.GetRequiredService<GatewayClient>();
+        RegisterGatewayClientHandlers(client, services);
+        return host;
     }
 
+    public static IHost UseShardedGatewayEventHandlers(this IHost host)
+    {
+        var services = host.Services;
+
+        var shardedClient = services.GetRequiredService<ShardedGatewayClient>();
+        RegisterShardedGatewayClientHandlers(shardedClient, services);
+        return host;
+    }
+
+    [DynamicDependency(DAMT.PublicMethods, typeof(IGatewayEventHandler<>))]
+    [UnconditionalSuppressMessage("Trimming", CheckId, Justification = Justification)]
     private static void RegisterGatewayClientHandlers(GatewayClient client, IServiceProvider services)
     {
         var events = typeof(GatewayClient).GetEvents().ToDictionary(e => e.Name);
@@ -45,35 +43,38 @@ public static class GatewayEventHandlerHostExtensions
                 if (!events.TryGetValue(eventName, out var @event))
                     throw new InvalidOperationException($"Event '{eventName}' does not exist for '{nameof(GatewayClient)}'.");
 
-                var eventTypeArguments = @event.EventHandlerType!.GenericTypeArguments;
-                if (handler is IGatewayEventHandler gatewayEventHandler)
-                {
-                    if (eventTypeArguments.Length != 1)
-                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not match the type arguments of the '{@event.Name}' event.");
+                var eventType = @event.EventHandlerType!;
+                var eventArguments = eventType.GenericTypeArguments;
 
-                    @event.AddEventHandler(client, gatewayEventHandler.HandleAsync);
+                Delegate @delegate;
+
+                if (eventArguments.Length is 1)
+                {
+                    if (handler is not IGatewayEventHandler gatewayEventHandler)
+                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not implement the required interface '{typeof(IGatewayEventHandler)}' for event '{eventName}'.");
+
+                    @delegate = gatewayEventHandler.HandleAsync;
                 }
                 else
                 {
                     var handlerType = handler.GetType();
-
-                    if (eventTypeArguments.Length != 2)
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
-
-                    var parameterType = eventTypeArguments[0];
-                    var @interface = typeof(IGatewayEventHandler<>).MakeGenericType(parameterType);
-
-                    if (!handlerType.IsAssignableTo(@interface))
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not implement the required interface '{@interface}'.");
+                    var firstArgument = eventArguments[0];
+                    var @interface = handlerType.GetInterfaces().FirstOrDefault(i => i.IsGenericType &&
+                                                                                     i.GetGenericTypeDefinition() == typeof(IGatewayEventHandler<>) &&
+                                                                                     i.GenericTypeArguments[0] == firstArgument)
+                        ?? throw new InvalidOperationException($"Handler '{handlerType}' does not implement the required interface '{nameof(IGatewayEventHandler)}`1[{firstArgument}]' for event '{eventName}'.");
 
                     var method = @interface.GetMethod(nameof(IGatewayEventHandler.HandleAsync))!;
-
-                    @event.AddEventHandler(client, method.CreateDelegate(typeof(Func<,>).MakeGenericType(parameterType, typeof(ValueTask)), handler));
+                    @delegate = method.CreateDelegate(eventType, handler);
                 }
+
+                @event.AddEventHandler(client, @delegate);
             }
         }
     }
 
+    [DynamicDependency(DAMT.PublicMethods, typeof(IShardedGatewayEventHandler<>))]
+    [UnconditionalSuppressMessage("Trimming", CheckId, Justification = Justification)]
     private static void RegisterShardedGatewayClientHandlers(ShardedGatewayClient client, IServiceProvider services)
     {
         var events = typeof(ShardedGatewayClient).GetEvents().ToDictionary(e => e.Name);
@@ -83,33 +84,34 @@ public static class GatewayEventHandlerHostExtensions
             foreach (var eventName in handler.GetEvents())
             {
                 if (!events.TryGetValue(eventName, out var @event))
-                    throw new InvalidOperationException($"Event '{eventName}' does not exist for '{nameof(ShardedGatewayClient)}'.");
+                    throw new InvalidOperationException($"Event '{eventName}' does not exist for '{nameof(GatewayClient)}'.");
 
-                var eventTypeArguments = @event.EventHandlerType!.GenericTypeArguments;
-                if (handler is IShardedGatewayEventHandler shardedGatewayEventHandler)
+                var eventType = @event.EventHandlerType!;
+                var eventArguments = eventType.GenericTypeArguments;
+
+                Delegate @delegate;
+
+                if (eventArguments.Length is 2)
                 {
-                    if (eventTypeArguments.Length != 2)
-                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not match the type arguments of the '{@event.Name}' event.");
+                    if (handler is not IShardedGatewayEventHandler gatewayEventHandler)
+                        throw new InvalidOperationException($"Handler '{handler.GetType()}' does not implement the required interface '{typeof(IShardedGatewayEventHandler)}' for event '{eventName}'.");
 
-                    @event.AddEventHandler(client, shardedGatewayEventHandler.HandleAsync);
+                    @delegate = gatewayEventHandler.HandleAsync;
                 }
                 else
                 {
                     var handlerType = handler.GetType();
-
-                    if (eventTypeArguments.Length != 3)
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not match the type arguments of the '{@event.Name}' event.");
-
-                    var parameterType = eventTypeArguments[1];
-                    var @interface = typeof(IShardedGatewayEventHandler<>).MakeGenericType(parameterType);
-
-                    if (!handlerType.IsAssignableTo(@interface))
-                        throw new InvalidOperationException($"Handler '{handlerType}' does not implement the required interface '{@interface}'.");
+                    var firstArgument = eventArguments[1];
+                    var @interface = handlerType.GetInterfaces().FirstOrDefault(i => i.IsGenericType &&
+                                                                                     i.GetGenericTypeDefinition() == typeof(IShardedGatewayEventHandler<>) &&
+                                                                                     i.GenericTypeArguments[0] == firstArgument)
+                        ?? throw new InvalidOperationException($"Handler '{handlerType}' does not implement the required interface '{nameof(IShardedGatewayEventHandler)}`1[{firstArgument}]' for event '{eventName}'.");
 
                     var method = @interface.GetMethod(nameof(IShardedGatewayEventHandler.HandleAsync))!;
-
-                    @event.AddEventHandler(client, method.CreateDelegate(typeof(Func<,,>).MakeGenericType(typeof(GatewayClient), parameterType, typeof(ValueTask)), handler));
+                    @delegate = method.CreateDelegate(eventType, handler);
                 }
+
+                @event.AddEventHandler(client, @delegate);
             }
         }
     }

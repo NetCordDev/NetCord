@@ -37,11 +37,12 @@ public static class ShardedGatewayClientServiceCollectionExtensions
 
     public static IServiceCollection AddDiscordShardedGateway(this IServiceCollection services, Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
     {
+        services.AddSingleton<IValidateOptions<ShardedGatewayClientOptions>, ShardedGatewayClientOptions.Validator>();
+
         services
             .AddOptions<ShardedGatewayClientOptions>()
             .BindConfiguration("Discord")
-            .PostConfigure(configureOptions)
-            .ValidateDataAnnotations();
+            .PostConfigure(configureOptions);
 
         services.AddSingleton<IOptions<IDiscordOptions>>(services => services.GetRequiredService<IOptions<ShardedGatewayClientOptions>>());
 

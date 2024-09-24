@@ -56,14 +56,22 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
-    public static IHost AddApplicationCommandModule<TContext>(this IHost host, Type type) where TContext : IApplicationCommandContext
+    public static IHost AddApplicationCommandModule<TContext>(
+        this IHost host,
+        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] Type type)
+
+        where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddModule(type);
         return host;
     }
 
-    public static IHost AddApplicationCommandModule<TContext, T>(this IHost host) where TContext : IApplicationCommandContext
+    public static IHost AddApplicationCommandModule<TContext,
+                                                    [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] T>(
+        this IHost host)
+
+        where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddModule<T>();

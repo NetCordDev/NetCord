@@ -6,7 +6,7 @@ namespace NetCord.Hosting.Services;
 
 internal static class ContextHelper
 {
-    public static Func<TArgument1, TArgument2, IServiceProvider, TContext> CreateContextDelegate<TArgument1, TArgument2, TContext>()
+    public static Func<TArgument1, TArgument2, IServiceProvider, TContext> CreateContextDelegate<TArgument1, TArgument2, [DAM(DAMT.PublicConstructors)] TContext>()
     {
         var argument1Type = typeof(TArgument1);
         var argument2Type = typeof(TArgument2);

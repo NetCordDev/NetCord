@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,7 +7,7 @@ namespace NetCord.Hosting.Gateway;
 
 public static class GatewayEventHandlerServiceCollectionExtensions
 {
-    public static IServiceCollection AddGatewayEventHandler<T>(this IServiceCollection services) where T : class, IGatewayEventHandlerBase
+    public static IServiceCollection AddGatewayEventHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services) where T : class, IGatewayEventHandlerBase
     {
         services.AddSingleton<IGatewayEventHandlerBase, T>();
         return services;
@@ -30,6 +31,7 @@ public static class GatewayEventHandlerServiceCollectionExtensions
         return services;
     }
 
+    [RequiresUnreferencedCode("Types might be removed")]
     public static IServiceCollection AddGatewayEventHandlers(this IServiceCollection services, Assembly assembly)
     {
         var handlerBase = typeof(IGatewayEventHandlerBase);
@@ -46,7 +48,7 @@ public static class GatewayEventHandlerServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddShardedGatewayEventHandler<T>(this IServiceCollection services) where T : class, IShardedGatewayEventHandlerBase
+    public static IServiceCollection AddShardedGatewayEventHandler<[DAM(DAMT.PublicConstructors)] T>(this IServiceCollection services) where T : class, IShardedGatewayEventHandlerBase
     {
         services.AddSingleton<IShardedGatewayEventHandlerBase, T>();
         return services;
@@ -70,6 +72,7 @@ public static class GatewayEventHandlerServiceCollectionExtensions
         return services;
     }
 
+    [RequiresUnreferencedCode("Types might be removed")]
     public static IServiceCollection AddShardedGatewayEventHandlers(this IServiceCollection services, Assembly assembly)
     {
         var handlerBase = typeof(IShardedGatewayEventHandlerBase);

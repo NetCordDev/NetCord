@@ -11,14 +11,16 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureApplicationCommands(this IServiceCollection services,
-                                                                  Action<ApplicationCommandServiceOptions> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions> configureOptions)
     {
         return services.ConfigureApplicationCommands((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureApplicationCommands(this IServiceCollection services,
-                                                                  Action<ApplicationCommandServiceOptions, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<ApplicationCommandServiceOptions>()
@@ -27,16 +29,22 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands<TInteraction,
+                                                                  TContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return services.ConfigureApplicationCommands<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands<TInteraction,
+                                                                  TContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
@@ -47,8 +55,12 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                                Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands<TInteraction,
+                                                                  TContext,
+                                                                  TAutocompleteContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -56,8 +68,12 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services.ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                                Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection ConfigureApplicationCommands<TInteraction,
+                                                                  TContext,
+                                                                  TAutocompleteContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -71,30 +87,42 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return services.AddApplicationCommands<TInteraction, TContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         return services.AddApplicationCommands<TInteraction, TContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext>(this IServiceCollection services,
-                                                                                    Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
     {
         services
-            .AddOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>()
+            .AddOptions<ApplicationCommandServiceOptions>()
             .BindConfiguration("Discord")
-            .BindConfiguration("Discord:ApplicationCommands")
+            .BindConfiguration("Discord:ApplicationCommands");
+
+        services
+            .AddOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>()
             .Configure<IOptions<ApplicationCommandServiceOptions>>((options, baseOptions) => options.Apply(baseOptions))
             .PostConfigure(configureOptions);
 
@@ -116,15 +144,23 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext,
+                                                            [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IServiceCollection services)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
     {
         return services.AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>((_, _) => { });
     }
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext,
+                                                            [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
@@ -132,16 +168,23 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         return services.AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddApplicationCommands<TInteraction, TContext, TAutocompleteContext>(this IServiceCollection services,
-                                                                                                          Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+    public static IServiceCollection AddApplicationCommands<TInteraction,
+                                                            [DAM(DAMT.PublicConstructors)] TContext,
+                                                            [DAM(DAMT.PublicConstructors)] TAutocompleteContext>(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>, IServiceProvider> configureOptions)
+
         where TInteraction : ApplicationCommandInteraction
         where TContext : IApplicationCommandContext
         where TAutocompleteContext : IAutocompleteInteractionContext
     {
         services
-            .AddOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>()
+            .AddOptions<ApplicationCommandServiceOptions>()
             .BindConfiguration("Discord")
-            .BindConfiguration("Discord:ApplicationCommands")
+            .BindConfiguration("Discord:ApplicationCommands");
+
+        services
+            .AddOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>()
             .Configure<IOptions<ApplicationCommandServiceOptions>>((options, baseOptions) => options.Apply(baseOptions))
             .PostConfigure(configureOptions);
 

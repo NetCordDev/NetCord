@@ -9,7 +9,10 @@ using NetCord.Services.Commands;
 namespace NetCord.Hosting.Services.Commands;
 
 [GatewayEvent(nameof(GatewayClient.MessageCreate))]
-internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Message>, IShardedGatewayEventHandler<Message> where TContext : ICommandContext
+internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
+    : IGatewayEventHandler<Message>,
+      IShardedGatewayEventHandler<Message>
+    where TContext : ICommandContext
 {
     public IServiceProvider Services { get; }
 
@@ -67,10 +70,11 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
 
         if (prefixes is not null)
         {
-            var count = prefixes.Count;
+            var prefixesArray = prefixes.ToArray();
+            var count = prefixesArray.Length;
             if (count == 1)
             {
-                var firstPrefix = prefixes[0];
+                var firstPrefix = prefixesArray[0];
                 return (message, _, _) => new(!message.Author.IsBot && message.Content.StartsWith(firstPrefix) ? firstPrefix.Length : -1);
             }
             else
@@ -82,7 +86,7 @@ internal unsafe partial class CommandHandler<TContext> : IGatewayEventHandler<Me
                     var content = message.Content;
                     for (var i = 0; i < count; i++)
                     {
-                        var prefix = prefixes[i];
+                        var prefix = prefixesArray[i];
                         if (content.StartsWith(prefix))
                             return new(prefix.Length);
                     }

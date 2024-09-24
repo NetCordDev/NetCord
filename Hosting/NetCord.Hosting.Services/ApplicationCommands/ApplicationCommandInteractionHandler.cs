@@ -9,7 +9,11 @@ using NetCord.Services.ApplicationCommands;
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
 [GatewayEvent(nameof(GatewayClient.InteractionCreate))]
-internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction, TContext> : IGatewayEventHandler<Interaction>, IShardedGatewayEventHandler<Interaction>, IHttpInteractionHandler where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
+internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction, [DAM(DAMT.PublicConstructors)] TContext>
+    : IGatewayEventHandler<Interaction>,
+      IShardedGatewayEventHandler<Interaction>,
+      IHttpInteractionHandler
+    where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
 {
     private IServiceProvider Services { get; }
 

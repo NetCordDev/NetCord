@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
+using Microsoft.Extensions.Options;
+
 using NetCord.Gateway;
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
@@ -10,8 +12,13 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.Gateway;
 
-public class ShardedGatewayClientOptions : IDiscordOptions
+public partial class ShardedGatewayClientOptions : IDiscordOptions
 {
+    [OptionsValidator]
+    internal partial class Validator : IValidateOptions<ShardedGatewayClientOptions>
+    {
+    }
+
     [Required]
     public string? Token { get; set; }
 

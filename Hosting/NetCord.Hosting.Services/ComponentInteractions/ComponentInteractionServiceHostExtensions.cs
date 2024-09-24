@@ -16,14 +16,22 @@ public static class ComponentInteractionServiceHostExtensions
         return host;
     }
 
-    public static IHost AddComponentInteractionModule<TContext>(this IHost host, Type type) where TContext : IComponentInteractionContext
+    public static IHost AddComponentInteractionModule<TContext>(
+        this IHost host,
+        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] Type type)
+
+        where TContext : IComponentInteractionContext
     {
         var service = host.Services.GetRequiredService<ComponentInteractionService<TContext>>();
         service.AddModule(type);
         return host;
     }
 
-    public static IHost AddComponentInteractionModule<TContext, T>(this IHost host) where TContext : IComponentInteractionContext
+    public static IHost AddComponentInteractionModule<TContext,
+                                                      [DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] T>(
+        this IHost host)
+
+        where TContext : IComponentInteractionContext
     {
         var service = host.Services.GetRequiredService<ComponentInteractionService<TContext>>();
         service.AddModule<T>();

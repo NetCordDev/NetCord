@@ -7,7 +7,8 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFlags = null) : IComponentInteractionResultHandler<TContext> where TContext : IComponentInteractionContext
+public class ComponentInteractionResultHandler<TContext>(MessageFlags? messageFlags = null) : IComponentInteractionResultHandler<TContext>
+    where TContext : IComponentInteractionContext
 {
     public ValueTask HandleResultAsync(IExecutionResult result, TContext context, GatewayClient? client, ILogger logger, IServiceProvider services)
     {
