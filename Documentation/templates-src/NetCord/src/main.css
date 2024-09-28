@@ -3,6 +3,7 @@
   src:
     local(Cascadia Code Regular),
     url(cascadia-code.woff2) format(woff2);
+  font-display: swap;
 }
 
 @font-face {
@@ -10,6 +11,7 @@
   src:
     local(Franklin Gothic Heavy),
     url(franklin-gothic-heavy.woff2) format(woff2);
+  font-display: swap;
 }
 
 :root {
@@ -99,6 +101,7 @@ article,
 .subtitle {
   font-size: 1.7em;
   margin-bottom: 70px;
+  line-height: 1.5;
 }
 
 .buttons {

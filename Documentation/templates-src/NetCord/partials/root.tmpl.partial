@@ -1,6 +1,6 @@
 <div class="main">
   <h1 class="title">NetCord</h1>
-  <p class="subtitle">The modern and fully customizable C# Discord library</p>
+  <h2 class="subtitle">The modern and fully customizable C# Discord library</h2>
   <section class="buttons">
     <a href="guides/getting-started/installation.html" class="button primary-button">Get Started</a>
     <a href="guides/getting-started/installation.html" class="button secondary-button">Guides</a>
