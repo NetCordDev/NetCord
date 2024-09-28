@@ -81,9 +81,10 @@ export async function renderNavbar(): Promise<NavItem[]> {
             ></a>`;
           } else if (i.onclick) {
             return html`<button
+              type="button"
               class="btn border-0 icon-tooltip"
-              @click="${i.onclick}"
               aria-label="${i.tooltip}"
+              @click="${i.onclick}"
               tooltip="${i.tooltip}"
               ><i class="${i.icon}"></i
             ></button>`;
