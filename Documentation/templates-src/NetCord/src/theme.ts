@@ -48,12 +48,14 @@ export async function themePicker(refresh: () => void) {
   const theme = getTheme();
   const icon = theme === "light" ? "sun" : "moon";
 
-  return html`<a
+  return html`<button
+    type="button"
     class="btn border-0 icon-tooltip"
+    aria-label="Toggle theme"
     @click="${toggleTheme}"
     tooltip="Toggle theme"
     ><i class="bi bi-${icon}"></i
-  ></a>`;
+  ></button>`;
 
   function toggleTheme(e) {
     e.preventDefault();
