@@ -3,7 +3,6 @@
 
 import AnchorJs from "anchor-js";
 import { render, html, nothing, TemplateResult } from "lit-html";
-// import { unsafeStatic,  } from 'lit-html/static.js'
 import { breakWordLit, meta, isExternalHref, loc, options } from "./helper";
 import { themePicker } from "./theme";
 import { TocNode } from "./toc";
@@ -71,13 +70,27 @@ export async function renderNavbar(): Promise<NavItem[]> {
     const iconsForm = html` <form class="icons">
       ${icons?.map(
         (i) =>
-          html`<a
-            class="btn border-0 icon-tooltip"
-            href="${i.href ?? nothing}"
-            @click="${i.onclick ?? nothing}"
-            tooltip="${i.tooltip}"
-            ><i class="${i.icon}"></i
-          ></a>`,
+        {
+          if (i.href) {
+            return html`<a
+              class="btn border-0 icon-tooltip"
+              href="${i.href}"
+              aria-label="${i.tooltip}"
+              tooltip="${i.tooltip}"
+              ><i class="${i.icon}"></i
+            ></a>`;
+          } else if (i.onclick) {
+            return html`<button
+              class="btn border-0 icon-tooltip"
+              @click="${i.onclick}"
+              aria-label="${i.tooltip}"
+              tooltip="${i.tooltip}"
+              ><i class="${i.icon}"></i
+            ></button>`;
+          }
+
+          return nothing;
+        },
       )}
       ${await themePicker(renderCore)}
     </form>`;
