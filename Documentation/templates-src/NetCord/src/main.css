@@ -15,9 +15,15 @@
 }
 
 :root {
-  --bs-font-monospace: Cascadia Code, monospace;
   --blurple: #5865f2;
+  --blurple-rgb: 88, 101, 242;
   --dark-blurple: #4752c4;
+  --dark-blurple-rgb: 71, 82, 196;
+  --bs-font-monospace: Cascadia Code, monospace;
+  --bs-link-color: var(--blurple);
+  --bs-link-color-rgb: var(--blurple-rgb);
+  --bs-link-hover-color: var(--dark-blurple);
+  --bs-link-hover-color-rgb: var(--dark-blurple-rgb);
   --ligatures: none;
   --snow-icon: "\f2bb";
   --snowflake-color: #a0ffff;
@@ -30,6 +36,11 @@
 
 [data-bs-theme="dark"] {
   --tooltip-color: white;
+  --bs-body-bg: #1f1f1f;
+}
+
+[data-bs-theme="dark"] .hljs {
+    background-color: #1a1a1a;
 }
 
 .navbar-nav {
