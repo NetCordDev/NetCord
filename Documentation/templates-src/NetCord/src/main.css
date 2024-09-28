@@ -101,6 +101,7 @@ article,
 .subtitle {
   font-size: 1.7em;
   margin-bottom: 70px;
+  line-height: 1.5;
 }
 
 .buttons {
