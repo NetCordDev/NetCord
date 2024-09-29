@@ -99,7 +99,7 @@ NetCord's goal is to allow .NET developers to create fully customizable Discord 
 
 ## 6. 📄 Documentation
 
-- **[Documentation](https://netcord.dev/docs/index.html)**
+- **[Documentation](https://netcord.dev/docs/)**
 
 ## 7. 🩹 Support
 
