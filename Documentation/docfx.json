@@ -30,7 +30,7 @@
     ],
     "resource": [
       {
-        "files": ["images/**", "favicon.ico", "logo.svg"]
+        "files": ["images/**", "favicon.ico", "logo.svg", "robots.txt"]
       }
     ],
     "overwrite": [
