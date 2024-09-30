@@ -16,7 +16,7 @@ export async function renderMarkdown() {
   renderTabs();
   renderCodeCopy();
 
-  await Promise.all([renderClickableImage(), renderMath(), renderMermaid()]);
+  await Promise.all([/*renderClickableImage(), */renderMath(), renderMermaid()]);
 
   onThemeChange(renderMermaid);
 }
