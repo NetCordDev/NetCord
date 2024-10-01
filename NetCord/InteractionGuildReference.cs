@@ -8,7 +8,7 @@ public class InteractionGuildReference(JsonInteractionGuildReference jsonModel) 
 
     public override ulong Id => jsonModel.Id;
 
-    public string[] Features => jsonModel.Features;
+    public IReadOnlyList<string> Features => jsonModel.Features;
 
     public string Locale => jsonModel.Locale;
 }
