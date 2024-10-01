@@ -29,7 +29,7 @@ If your bot is hosted at `https://example.com` and you have specified `/interact
 
 For local testing, you can use [ngrok](https://ngrok.com). Use the following command to start ngrok with a correct port specified:
 ```bash
-ngrok http https://localhost:port
+ngrok http http://localhost:port
 ```
 
 It will generate a URL that you can use to receive interactions. For example, if the URL is `https://random-subdomain.ngrok-free.app` and you have specified `/interactions` pattern in @NetCord.Hosting.AspNetCore.EndpointRouteBuilderExtensions.UseHttpInteractions*, the endpoint URL will be `https://random-subdomain.ngrok-free.app/interactions`.
