@@ -5,7 +5,7 @@ Intents allow you to subscribe Discord events, such as @NetCord.Gateway.GatewayC
 
 ## Privileged intents
 Privileged intents are intents that you need to enable in [Discord Developer Portal](https://discord.com/developers/applications).
-![](../../images/intents_Privileged.png)
+![Shows 'Privileged Gateway Intents' section in 'Bot' section](../../images/intents_Privileged.png)
 
 ## How to specify intents in NetCord?
 
