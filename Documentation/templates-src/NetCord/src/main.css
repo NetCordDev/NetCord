@@ -270,23 +270,12 @@ code,
     border-top-style: solid;
     border-top-color: var(--tooltip-color);
     font-weight: 600;
-    bottom: calc(-100% - 3px);
-  }
-
-@media (min-width: 768px) {
-  .icon-tooltip::after {
     bottom: calc(-100% + 6px);
   }
 
-  .navbar > .container-xxl {
-    padding-left: 40px;
-    padding-right: 40px;
+  .icon-tooltip:hover::after {
+    animation: tooltipFadeInUp 0.15s ease both;
   }
-}
-
-.icon-tooltip:hover::after {
-  animation: tooltipFadeInUp 0.15s ease both;
-}
 
 @keyframes iconShow {
   0% {
@@ -385,6 +374,10 @@ code,
 
   .buttons {
     flex-direction: column;
+  }
+
+  .icon-tooltip::after {
+    bottom: calc(-100% - 3px);
   }
 
   .feature-item {
