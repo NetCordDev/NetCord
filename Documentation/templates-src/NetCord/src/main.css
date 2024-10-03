@@ -128,6 +128,7 @@ article,
 .bg-body {
   --bs-bg-opacity: 0;
   backdrop-filter: blur(10px) brightness(80%);
+  -webkit-backdrop-filter: blur(10px) brightness(80%);
 }
 
 .border-bottom {
