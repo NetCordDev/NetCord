@@ -10,10 +10,10 @@
       <meta http-equiv="refresh" content="0;URL='{{redirect_url}}'">
     {{/redirect_url}}
     {{^redirect_url}}
-      <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}</title>
+      <title>{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{^omitAppTitle}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}{{/omitAppTitle}}</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta name="title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}">
-      <meta property="og:title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}">
+      <meta name="title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{^omitAppTitle}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}{{/omitAppTitle}}">
+      <meta property="og:title" content="{{#title}}{{title}}{{/title}}{{^title}}{{>partials/title}}{{/title}}{{^omitAppTitle}}{{#_appTitle}} | {{_appTitle}}{{/_appTitle}}{{/omitAppTitle}}">
       <meta name="description" content="{{#description}}{{description}}{{/description}}{{^description}}{{#_appDescription}}{{_appDescription}}{{/_appDescription}}{{/description}}">
       <meta property="og:description" content="{{#description}}{{description}}{{/description}}{{^description}}{{#_appDescription}}{{_appDescription}}{{/_appDescription}}{{/description}}">
       <meta property="og:type" content="website">
