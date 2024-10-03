@@ -368,3 +368,10 @@ code,
     flex-basis: 100%;
   }
 }
+
+@media not all and (max-width: 767px) {
+  .navbar > .container-xxl {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
