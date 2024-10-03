@@ -1,16 +1,12 @@
 @font-face {
   font-family: Cascadia Code;
-  src:
-    local(Cascadia Code Regular),
-    url(cascadia-code.woff2) format(woff2);
+  src: local(Cascadia Code Regular), url(cascadia-code.woff2) format(woff2);
   font-display: swap;
 }
 
 @font-face {
   font-family: Franklin Gothic Heavy;
-  src:
-    local(Franklin Gothic Heavy),
-    url(franklin-gothic-heavy.woff2) format(woff2);
+  src: local(Franklin Gothic Heavy), url(franklin-gothic-heavy.woff2) format(woff2);
   font-display: swap;
 }
 
@@ -129,20 +125,6 @@ article,
   }
 }
 
-@media (max-width: 767px) {
-  .title {
-    font-size: 23vw;
-  }
-
-  .subtitle {
-    font-size: 3.5vw;
-  }
-
-  .buttons {
-    flex-direction: column;
-  }
-}
-
 .bg-body {
   --bs-bg-opacity: 0;
   backdrop-filter: blur(10px) brightness(80%);
@@ -167,26 +149,26 @@ article,
   background-color: var(--blurple);
 }
 
-.primary-button:hover,
-.primary-button:active {
-  background-color: var(--dark-blurple);
-  border-color: var(--dark-blurple);
-}
+  .primary-button:hover,
+  .primary-button:active {
+    background-color: var(--dark-blurple);
+    border-color: var(--dark-blurple);
+  }
 
 .secondary-button {
   color: var(--bs-emphasis-color);
 }
 
-.secondary-button:hover {
-  background-color: var(--blurple);
-  color: var(--bs-white);
-}
+  .secondary-button:hover {
+    background-color: var(--blurple);
+    color: var(--bs-white);
+  }
 
-.secondary-button:active {
-  background-color: var(--dark-blurple);
-  border-color: var(--dark-blurple);
-  color: var(--bs-white);
-}
+  .secondary-button:active {
+    background-color: var(--dark-blurple);
+    border-color: var(--dark-blurple);
+    color: var(--bs-white);
+  }
 
 .icon:before {
   display: inline-grid;
@@ -214,11 +196,7 @@ code,
 }
 
 * {
-  transition:
-    background-color 0.2s ease-in-out,
-    color 0.2s ease-in-out,
-    border-color 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .form-control {
@@ -278,26 +256,22 @@ code,
   animation: iconShow 0.3s forwards;
 }
 
-.icon-tooltip::after {
-  pointer-events: none;
-  content: attr(tooltip);
-  position: absolute;
-  white-space: nowrap;
-  padding: 2px 10px;
-  color: var(--tooltip-color);
-  font-size: 0.8em;
-  animation: tooltipFadeOutUp 0.15s ease both;
-  transition:
-    background-color 0.2s ease-in-out,
-    color 0.2s ease-in-out,
-    border-color 0.2s ease-in-out,
-    box-shadow 0.2s ease-in-out;
-  border-width: 3px 0 0 0;
-  border-top-style: solid;
-  border-top-color: var(--tooltip-color);
-  font-weight: 600;
-  bottom: calc(-100% - 3px);
-}
+  .icon-tooltip::after {
+    pointer-events: none;
+    content: attr(tooltip);
+    position: absolute;
+    white-space: nowrap;
+    padding: 2px 10px;
+    color: var(--tooltip-color);
+    font-size: 0.8em;
+    animation: tooltipFadeOutUp 0.15s ease both;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-width: 3px 0 0 0;
+    border-top-style: solid;
+    border-top-color: var(--tooltip-color);
+    font-weight: 600;
+    bottom: calc(-100% - 3px);
+  }
 
 @media (min-width: 768px) {
   .icon-tooltip::after {
@@ -349,5 +323,71 @@ code,
   to {
     opacity: 0;
     transform: translate(calc(-50% - 8.4px), 0) translateY(10px);
+  }
+}
+
+.features-section {
+  padding: 50px 0;
+  text-align: center;
+  color: var(--bs-emphasis-color);
+}
+
+.section-title {
+  font-size: 30px;
+  margin-bottom: 30px;
+}
+
+.features-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 0 40px;
+}
+
+.feature-item {
+  flex-basis: 30%;
+  padding: 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+[data-bs-theme="dark"]
+.feature-item {
+  background-color: rgba(0, 0, 0, 0.11);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.feature-item h4 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.feature-item p {
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 23vw;
+  }
+
+  .subtitle {
+    font-size: 3.5vw;
+  }
+
+  .buttons {
+    flex-direction: column;
+  }
+
+  .feature-item {
+    flex-basis: 100%;
   }
 }
