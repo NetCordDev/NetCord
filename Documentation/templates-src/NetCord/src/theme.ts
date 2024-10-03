@@ -44,7 +44,7 @@ export function getTheme(): "light" | "dark" {
     | "dark";
 }
 
-export async function themePicker(refresh: () => void) {
+export async function themePicker(refresh: () => void, mouseOver: (event: MouseEvent) => void) {
   const theme = getTheme();
   const icon = theme === "light" ? "sun" : "moon";
 
@@ -52,8 +52,9 @@ export async function themePicker(refresh: () => void) {
     type="button"
     class="btn border-0 icon-tooltip"
     aria-label="Toggle theme"
-    @click="${toggleTheme}"
     tooltip="Toggle theme"
+    @click="${toggleTheme}"
+    @mouseover="${mouseOver}"
     ><i class="bi bi-${icon}"></i
   ></button>`;
 

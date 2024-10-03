@@ -115,10 +115,6 @@ article,
   text-align: center;
 }
 
-.bg-body {
-  z-index: 1;
-}
-
 @media (max-height: 600px) {
   .main {
     height: auto;
@@ -126,6 +122,7 @@ article,
 }
 
 .bg-body {
+  z-index: 1;
   --bs-bg-opacity: 0;
   backdrop-filter: blur(10px) brightness(80%);
   -webkit-backdrop-filter: blur(10px) brightness(80%);
@@ -253,43 +250,29 @@ code,
   }
 }
 
-.icon-tooltip {
-  animation: iconShow 0.3s forwards;
+.icon-tooltip-hovered.icon-tooltip::after {
+  pointer-events: none;
+  content: attr(tooltip);
+  position: absolute;
+  white-space: nowrap;
+  padding: 2px 10px;
+  color: var(--tooltip-color);
+  font-size: 0.8em;
+  animation: tooltipFadeOutUp 0.15s ease both;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border-width: 3px 0 0 0;
+  border-top-style: solid;
+  border-top-color: var(--tooltip-color);
+  font-weight: 600;
+  bottom: calc(-100% + 6px);
 }
 
-  .icon-tooltip::after {
-    pointer-events: none;
-    content: attr(tooltip);
-    position: absolute;
-    white-space: nowrap;
-    padding: 2px 10px;
-    color: var(--tooltip-color);
-    font-size: 0.8em;
-    animation: tooltipFadeOutUp 0.15s ease both;
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-    border-width: 3px 0 0 0;
-    border-top-style: solid;
-    border-top-color: var(--tooltip-color);
-    font-weight: 600;
-    bottom: calc(-100% + 6px);
-  }
+.icon-tooltip-hovered.icon-tooltip:hover::after {
+  animation: tooltipFadeInUp 0.15s ease both;
+}
 
-  .icon-tooltip:hover::after {
-    animation: tooltipFadeInUp 0.15s ease both;
-  }
-
-@keyframes iconShow {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 0;
-  }
-
-  100% {
-    opacity: 1;
-  }
+.navbar-collapse.collapsing .icon-tooltip-hovered.icon-tooltip::after {
+  scale: 0;
 }
 
 @keyframes tooltipFadeInUp {
@@ -377,7 +360,7 @@ code,
     flex-direction: column;
   }
 
-  .icon-tooltip::after {
+  .icon-tooltip-hovered.icon-tooltip::after {
     bottom: calc(-100% - 3px);
   }
 

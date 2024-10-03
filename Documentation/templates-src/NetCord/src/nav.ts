@@ -67,6 +67,10 @@ export async function renderNavbar(): Promise<NavItem[]> {
   </ul>`;
 
   async function renderCore() {
+    function handleMouseOver(event: MouseEvent) {
+      (event.target as Element).classList.add("icon-tooltip-hovered");
+    }
+
     const iconsForm = html` <form class="icons">
       ${icons?.map(
         (i) =>
@@ -74,9 +78,10 @@ export async function renderNavbar(): Promise<NavItem[]> {
           if (i.href) {
             return html`<a
               class="btn border-0 icon-tooltip"
-              href="${i.href}"
               aria-label="${i.tooltip}"
               tooltip="${i.tooltip}"
+              href="${i.href}"
+              @mouseover="${handleMouseOver}"
               ><i class="${i.icon}"></i
             ></a>`;
           } else if (i.onclick) {
@@ -84,8 +89,9 @@ export async function renderNavbar(): Promise<NavItem[]> {
               type="button"
               class="btn border-0 icon-tooltip"
               aria-label="${i.tooltip}"
-              @click="${i.onclick}"
               tooltip="${i.tooltip}"
+              @click="${i.onclick}"
+              @mouseover="${handleMouseOver}"
               ><i class="${i.icon}"></i
             ></button>`;
           }
@@ -93,7 +99,7 @@ export async function renderNavbar(): Promise<NavItem[]> {
           return nothing;
         },
       )}
-      ${await themePicker(renderCore)}
+      ${await themePicker(renderCore, handleMouseOver)}
     </form>`;
 
     render(html`${menu} ${iconsForm}`, navbar);
