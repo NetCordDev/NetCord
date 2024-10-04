@@ -363,6 +363,10 @@ code,
     bottom: calc(-100% - 3px);
   }
 
+  .section-title {
+    font-size: 7vw;
+  }
+
   .features-section {
     padding: 50px 0;
   }
