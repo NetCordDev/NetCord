@@ -13,7 +13,7 @@
   <div class="features-container">
     <div class="feature-item">
       <h4>Fully Customizable</h4>
-      <p>NetCord is a highly customizable, open-source C# Discord library, enabling developers to create tailored bots with flexible and extensible features.</p>
+      <p>NetCord is a highly customizable, open source C# Discord library, enabling developers to create tailored bots with flexible and extensible features.</p>
     </div>
     <div class="feature-item">
       <h4>Easy to Use</h4>
@@ -25,7 +25,7 @@
     </div>
     <div class="feature-item">
       <h4>Asynchronous & Concurrent</h4>
-      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high-performing bot interactions.</p>
+      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high performing bot interactions.</p>
     </div>
     <div class="feature-item">
       <h4>Native AOT Support</h4>
@@ -37,7 +37,7 @@
     </div>
     <div class="feature-item">
       <h4>Voice Ready</h4>
-      <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high-quality voice features into your bot.</p>
+      <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high quality voice features into your bot.</p>
     </div>
     <div class="feature-item">
       <h4>Complete API Coverage</h4>
