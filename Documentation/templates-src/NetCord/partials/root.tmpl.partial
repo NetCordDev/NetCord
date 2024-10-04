@@ -7,3 +7,45 @@
     <a href="docs/" class="button secondary-button">Docs</a>
   </section>
 </div>
+
+<div class="features-section">
+  <h3 class="section-title">Key Features of NetCord</h3>
+  <div class="features-container">
+    <div class="feature-item">
+      <h4>Fully Customizable</h4>
+      <p>NetCord is a highly customizable, open-source C# Discord library, enabling developers to create tailored bots with flexible and extensible features.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Easy to Use</h4>
+      <p>With an intuitive API design, NetCord streamlines bot development, allowing you to quickly and efficiently build Discord bots in .NET.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Lightweight & High Performance</h4>
+      <p>NetCord is designed for efficiency, ensuring high performance while keeping resource usage minimal, making it perfect for scalable bots.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Asynchronous & Concurrent</h4>
+      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high-performing bot interactions.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Native AOT Support</h4>
+      <p>NetCord supports Native AOT, allowing for faster startup times, smaller memory footprints, and reduced deployment sizes, making your bot highly optimized for performance.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Immutable Caching</h4>
+      <p>NetCord's caching system is immutable by default, providing all the benefits of immutability, such as data consistency and preventing unintended changes during execution.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Voice Ready</h4>
+      <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high-quality voice features into your bot.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Complete API Coverage</h4>
+      <p>NetCord covers the entire Discord API and more, ensuring you have access to all the latest features and capabilities Discord has to offer.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Open Source & Forever Free</h4>
+      <p>NetCord is open source and forever free to use under the permissive MIT license, making it an ideal choice for developers at any level.</p>
+    </div>
+  </div>
+</div>

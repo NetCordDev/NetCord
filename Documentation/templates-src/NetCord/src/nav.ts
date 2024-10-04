@@ -67,6 +67,10 @@ export async function renderNavbar(): Promise<NavItem[]> {
   </ul>`;
 
   async function renderCore() {
+    function handleActiveEvent(event: Event) {
+      (event.target as Element).classList.add("icon-tooltip-active");
+    }
+
     const iconsForm = html` <form class="icons">
       ${icons?.map(
         (i) =>
@@ -74,26 +78,30 @@ export async function renderNavbar(): Promise<NavItem[]> {
           if (i.href) {
             return html`<a
               class="btn border-0 icon-tooltip"
-              href="${i.href}"
               aria-label="${i.tooltip}"
               tooltip="${i.tooltip}"
-              ><i class="${i.icon}"></i
+              href="${i.href}"
+              @mouseover="${handleActiveEvent}"
+              @focus="${handleActiveEvent}"
+              ><i class="${i.icon} icon-content"></i
             ></a>`;
           } else if (i.onclick) {
             return html`<button
               type="button"
               class="btn border-0 icon-tooltip"
               aria-label="${i.tooltip}"
-              @click="${i.onclick}"
               tooltip="${i.tooltip}"
-              ><i class="${i.icon}"></i
+              @click="${i.onclick}"
+              @mouseover="${handleActiveEvent}"
+              @focus="${handleActiveEvent}"
+              ><i class="${i.icon} icon-content"></i
             ></button>`;
           }
 
           return nothing;
         },
       )}
-      ${await themePicker(renderCore)}
+      ${await themePicker(renderCore, handleActiveEvent)}
     </form>`;
 
     render(html`${menu} ${iconsForm}`, navbar);
