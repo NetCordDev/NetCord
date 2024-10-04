@@ -272,7 +272,7 @@ code,
 }
 
 .icon-tooltip-active.icon-tooltip:hover::after,
-.icon-tooltip-active.icon-tooltip:focus::after {
+.icon-tooltip-active.icon-tooltip:focus-visible::after {
   animation: tooltipFadeInUp 0.15s ease both;
 }
 
