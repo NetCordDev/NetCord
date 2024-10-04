@@ -109,16 +109,10 @@ article,
 .main {
   color: var(--bs-emphasis-color);
   display: flex;
-  justify-content: center;
+  justify-content: end;
   flex-direction: column;
-  height: 80vh;
+  height: 55vh;
   text-align: center;
-}
-
-@media (max-height: 600px) {
-  .main {
-    height: auto;
-  }
 }
 
 .bg-body {
@@ -305,7 +299,7 @@ code,
 }
 
 .features-section {
-  padding: 50px 0;
+  padding: 100px 0;
   text-align: center;
   color: var(--bs-emphasis-color);
 }
@@ -369,8 +363,18 @@ code,
     bottom: calc(-100% - 3px);
   }
 
+  .features-section {
+    padding: 50px 0;
+  }
+
   .feature-item {
     flex-basis: 100%;
+  }
+}
+
+@media (max-width: 767px), (max-height: 750px) {
+  .main {
+    height: auto;
   }
 }
 
