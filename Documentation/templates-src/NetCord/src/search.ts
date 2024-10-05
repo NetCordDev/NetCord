@@ -126,7 +126,7 @@ export async function enableSearch() {
             return html` <div class="sr-item">
               <div class="item-title">
                 <a href="${itemHref}" target="_blank" rel="noopener noreferrer"
-                  >${mark(hit.title, query)}</a
+                  >${mark(hit.title.split(" | ")[0], query)}</a
                 >
               </div>
               <div class="item-href">${mark(itemRawHref, query)}</div>
