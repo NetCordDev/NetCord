@@ -346,6 +346,10 @@ code,
   margin-bottom: 0;
 }
 
+body {
+  margin-right: calc(-100vw + 100%);
+}
+
 @media (max-width: 767px) {
   .title {
     font-size: 23vw;
@@ -386,5 +390,15 @@ code,
   .navbar > .container-xxl {
     padding-left: 40px;
     padding-right: 40px;
+  }
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion) {
+  @view-transition {
+    navigation: none;
   }
 }
