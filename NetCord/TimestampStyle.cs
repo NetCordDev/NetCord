@@ -1,12 +1,12 @@
 ﻿namespace NetCord;
 
-public enum TimestampStyle : short
+public enum TimestampStyle : byte
 {
-    ShortTime = (short)'t',
-    LongTime = (short)'T',
-    ShortDate = (short)'d',
-    LongDate = (short)'D',
-    ShortDateTime = (short)'f',
-    LongDateTime = (short)'F',
-    RelativeTime = (short)'R',
+    ShortTime = (byte)'t',
+    LongTime = (byte)'T',
+    ShortDate = (byte)'d',
+    LongDate = (byte)'D',
+    ShortDateTime = (byte)'f',
+    LongDateTime = (byte)'F',
+    RelativeTime = (byte)'R',
 }
