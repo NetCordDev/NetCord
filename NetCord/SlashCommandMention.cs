@@ -1,6 +1,6 @@
 ﻿namespace NetCord;
 
-public class SlashCommandMention(ulong id, string name) : Entity
+public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<SlashCommandMention>
 {
     public override ulong Id { get; } = id;
 
@@ -100,12 +100,18 @@ public class SlashCommandMention(ulong id, string name) : Entity
         }
     }
 
-    public static bool operator ==(SlashCommandMention left, SlashCommandMention right)
-        => left.Id == right.Id && left.Name == right.Name && left.SubCommandGroupName == right.SubCommandGroupName && left.SubCommandName == right.SubCommandName;
+    public static bool operator ==(SlashCommandMention? left, SlashCommandMention? right) => left is null ? right is null : Equals(left, right);
 
-    public static bool operator !=(SlashCommandMention left, SlashCommandMention right) => !(left == right);
+    public static bool operator !=(SlashCommandMention? left, SlashCommandMention? right) => !(left == right);
 
-    public override bool Equals(object? obj) => obj is SlashCommandMention mention && this == mention;
+    public override bool Equals(object? obj) => obj is SlashCommandMention mention && EqualsHelper(mention);
+
+    public bool Equals(SlashCommandMention? other) => other is not null && EqualsHelper(other);
+
+    private bool EqualsHelper(SlashCommandMention other) => Id == other.Id
+                                                            && Name == other.Name
+                                                            && SubCommandGroupName == other.SubCommandGroupName
+                                                            && SubCommandName == other.SubCommandName;
 
     public override int GetHashCode() => HashCode.Combine(Id, Name, SubCommandGroupName, SubCommandName);
 }
