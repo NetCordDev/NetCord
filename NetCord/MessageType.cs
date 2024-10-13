@@ -185,5 +185,10 @@ public enum MessageType
     /// <summary>
     /// Sent when a purchase is made in a guild.
     /// </summary>
-    PurchaseNotification = 44
+    PurchaseNotification = 44,
+
+    /// <summary>
+    /// Sent after a poll has ended and the results have been finalized.
+    /// </summary>
+    PollResult = 46,
 }
