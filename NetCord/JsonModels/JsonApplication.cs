@@ -61,6 +61,9 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("approximate_guild_count")]
     public int? ApproximateGuildCount { get; set; }
 
+    [JsonPropertyName("approximate_user_install_count")]
+    public int? ApproximateUserInstallCount { get; set; }
+
     [JsonPropertyName("redirect_uris")]
     public string[]? RedirectUris { get; set; }
 

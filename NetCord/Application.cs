@@ -27,6 +27,7 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string? CoverImageHash => _jsonModel.CoverImageHash;
     public ApplicationFlags? Flags => _jsonModel.Flags;
     public int? ApproximateGuildCount => _jsonModel.ApproximateGuildCount;
+    public int? ApproximateUserInstallCount => _jsonModel.ApproximateUserInstallCount;
     public IReadOnlyList<string>? RedirectUris => _jsonModel.RedirectUris;
     public string? InteractionsEndpointUrl => _jsonModel.InteractionsEndpointUrl;
     public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
