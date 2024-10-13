@@ -179,6 +179,10 @@ public partial class RestClient
         => (await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRoleArray).ConfigureAwait(false)).Select(r => new Role(r, guildId, this)).ToArray();
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
+    public async Task<Role> GetGuildRoleAsync(ulong guildId, ulong roleId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+        => new(await (await SendRequestAsync(HttpMethod.Get, $"/guilds/{guildId}/roles/{roleId}", null, new(guildId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRole).ConfigureAwait(false), guildId, this);
+
+    [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
     public async Task<Role> CreateGuildRoleAsync(ulong guildId, RoleProperties guildRoleProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<RoleProperties>(guildRoleProperties, Serialization.Default.RoleProperties))
