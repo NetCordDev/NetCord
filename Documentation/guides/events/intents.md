@@ -23,4 +23,4 @@ You specify them like this:
 If you have done this, you will receive guild and direct messages.
 
 > [!NOTE]
-> `MessageContent` is a special, privileged intent that allows you to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments and @NetCord.Rest.RestMessage.Components of messages on events. Otherwise they are empty.
+> `MessageContent` is a special, privileged intent that allows you to receive @NetCord.Rest.RestMessage.Content, @NetCord.Rest.RestMessage.Embeds, @NetCord.Rest.RestMessage.Attachments, @NetCord.Rest.RestMessage.Components and @NetCord.Rest.RestMessage.Poll of messages in events. Otherwise they are empty.
