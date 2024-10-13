@@ -2,7 +2,7 @@
 
 public enum UserActivityType
 {
-    Game = 0,
+    Playing = 0,
     Streaming = 1,
     Listening = 2,
     Watching = 3,
