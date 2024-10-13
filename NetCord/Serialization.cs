@@ -31,6 +31,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonVoiceState))]
 [JsonSerializable(typeof(JsonUser))]
 [JsonSerializable(typeof(JsonTypingStartEventArgs))]
+[JsonSerializable(typeof(JsonVoiceChannelEffectSendEventArgs))]
 [JsonSerializable(typeof(JsonStageInstance))]
 [JsonSerializable(typeof(JsonPresence))]
 [JsonSerializable(typeof(JsonMessageReactionRemoveEmojiEventArgs))]

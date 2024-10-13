@@ -81,6 +81,7 @@ public enum GatewayIntents : uint
 
     /// <summary>
     /// Associated with the following events:<br/>
+    /// <see cref="GatewayClient.VoiceChannelEffectSend"/>
     /// <see cref="GatewayClient.VoiceStateUpdate"/>
     /// </summary>
     GuildVoiceStates = 1 << 7,

@@ -315,6 +315,7 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _presenceUpdateLock, ref _presenceUpdate, a => _presenceUpdate!(client, a), (c, e) => c.PresenceUpdate += e);
         HookEvent(client, _typingStartLock, ref _typingStart, a => _typingStart!(client, a), (c, e) => c.TypingStart += e);
         HookEvent(client, _currentUserUpdateLock, ref _currentUserUpdate, a => _currentUserUpdate!(client, a), (c, e) => c.CurrentUserUpdate += e);
+        HookEvent(client, _voiceChannelEffectSendLock, ref _voiceChannelEffectSend, a => _voiceChannelEffectSend!(client, a), (c, e) => c.VoiceChannelEffectSend += e);
         HookEvent(client, _voiceStateUpdateLock, ref _voiceStateUpdate, a => _voiceStateUpdate!(client, a), (c, e) => c.VoiceStateUpdate += e);
         HookEvent(client, _voiceServerUpdateLock, ref _voiceServerUpdate, a => _voiceServerUpdate!(client, a), (c, e) => c.VoiceServerUpdate += e);
         HookEvent(client, _webhooksUpdateLock, ref _webhooksUpdate, a => _webhooksUpdate!(client, a), (c, e) => c.WebhooksUpdate += e);
@@ -1226,6 +1227,21 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
     private Func<GatewayClient, CurrentUser, ValueTask>? _currentUserUpdate;
     private readonly object _currentUserUpdateLock = new();
+
+    /// <inheritdoc cref="GatewayClient.VoiceChannelEffectSend"/>
+    public event Func<GatewayClient, VoiceChannelEffectSendEventArgs, ValueTask>? VoiceChannelEffectSend
+    {
+        add
+        {
+            HookEvent(_voiceChannelEffectSendLock, value, ref _voiceChannelEffectSend, client => a => _voiceChannelEffectSend!(client, a), (c, e) => c.VoiceChannelEffectSend += e);
+        }
+        remove
+        {
+            UnhookEvent(_currentUserUpdateLock, value, ref _voiceChannelEffectSend, (c, e) => c.VoiceChannelEffectSend -= e);
+        }
+    }
+    private Func<GatewayClient, VoiceChannelEffectSendEventArgs, ValueTask>? _voiceChannelEffectSend;
+    private readonly object _voiceChannelEffectSendLock = new();
 
     /// <inheritdoc cref="GatewayClient.VoiceStateUpdate"/>
     public event Func<GatewayClient, VoiceState, ValueTask>? VoiceStateUpdate

@@ -680,6 +680,16 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
 
     /// <summary>
+    /// Sent when someone sends an effect, such as an emoji reaction or a soundboard sound, in a voice channel the current user is connected to.
+    /// Inner payload is a <see cref="VoiceChannelEffectSendEventArgs"/> object.<br/>
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: <see cref="GatewayIntents.GuildVoiceStates"/>
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<VoiceChannelEffectSendEventArgs, ValueTask>? VoiceChannelEffectSend;
+
+    /// <summary>
     /// Sent when someone joins/leaves/moves voice channels.
     /// Inner payload is a <see cref="VoiceState"/> object.<br/>
     /// </summary>
@@ -1370,6 +1380,11 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "USER_UPDATE":
                 {
                     await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(Serialization.Default.JsonUser), Rest), user => Cache = Cache.CacheCurrentUser(user)).ConfigureAwait(false);
+                }
+                break;
+            case "VOICE_CHANNEL_EFFECT_SEND":
+                {
+                    await InvokeEventAsync(VoiceChannelEffectSend, () => new(data.ToObject(Serialization.Default.JsonVoiceChannelEffectSendEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_STATE_UPDATE":

@@ -99,6 +99,7 @@ internal static class Program
             var error = ex.Error;
             Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
         }
+
         await Task.Delay(-1);
     }
 
