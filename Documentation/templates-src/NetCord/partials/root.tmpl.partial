@@ -13,23 +13,23 @@
   <div class="features-container">
     <div class="feature-item">
       <h4>Fully Customizable</h4>
-      <p>NetCord is a highly customizable, open source C# Discord library, enabling developers to create tailored bots with flexible and extensible features.</p>
+      <p>NetCord is a highly customizable, open source C# Discord library, enabling developers to create tailored Discord bots with flexible and extensible features.</p>
     </div>
     <div class="feature-item">
       <h4>Easy to Use</h4>
-      <p>With an intuitive and beginner friendly API design, NetCord streamlines bot development, allowing you to quickly and efficiently build Discord bots in .NET.</p>
+      <p>With an intuitive and beginner friendly API design, NetCord streamlines Discord bot development, allowing you to quickly and efficiently build Discord bots in .NET.</p>
     </div>
     <div class="feature-item">
       <h4>Lightweight & High Performance</h4>
-      <p>NetCord is designed for efficiency, ensuring high performance while keeping resource usage minimal, making it perfect for scalable bots.</p>
+      <p>NetCord is designed for efficiency, ensuring high performance while keeping resource usage minimal, making it perfect for scalable Discord bots.</p>
     </div>
     <div class="feature-item">
       <h4>Asynchronous & Concurrent</h4>
-      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high performing bot interactions.</p>
+      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high performing Discord bot interactions.</p>
     </div>
     <div class="feature-item">
       <h4>Native AOT Support</h4>
-      <p>NetCord supports Native AOT, allowing for faster startup times, smaller memory footprints, and reduced deployment sizes, making your bot highly optimized for performance.</p>
+      <p>NetCord supports Native AOT, allowing for faster startup times, smaller memory footprints, and reduced deployment sizes, making your Discord bot highly optimized for performance.</p>
     </div>
     <div class="feature-item">
       <h4>Immutable Caching</h4>
@@ -37,7 +37,7 @@
     </div>
     <div class="feature-item">
       <h4>Voice Ready</h4>
-      <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high quality voice features into your bot.</p>
+      <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high quality voice features into your Discord bot.</p>
     </div>
     <div class="feature-item">
       <h4>Complete API Coverage</h4>
