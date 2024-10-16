@@ -8,7 +8,7 @@ public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrat
     {
         _jsonModel = jsonModel;
 
-        var bot = _jsonModel.Bot;
+        var bot = jsonModel.Bot;
         if (bot is not null)
             Bot = new(bot, client);
     }
