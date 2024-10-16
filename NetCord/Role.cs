@@ -7,6 +7,17 @@ namespace NetCord;
 
 public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role>
 {
+    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+
+        var tags = jsonModel.Tags;
+        if (tags is not null)
+            Tags = new(tags);
+
+        GuildId = guildId;
+    }
+
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
 
@@ -35,17 +46,6 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role
     public RoleFlags Flags => _jsonModel.Flags;
 
     public ulong GuildId { get; }
-
-    public Role(JsonRole jsonModel, ulong guildId, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        var tags = jsonModel.Tags;
-        if (tags is not null)
-            Tags = new(tags);
-
-        GuildId = guildId;
-    }
 
     public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.RoleIcon(Id, hash, format) : null;
 

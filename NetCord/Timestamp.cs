@@ -5,9 +5,6 @@ namespace NetCord;
 
 public readonly struct Timestamp : IEquatable<Timestamp>, ISpanFormattable, ISpanParsable<Timestamp>
 {
-    public DateTimeOffset DateTime { get; }
-    public TimestampStyle? Style { get; }
-
     public Timestamp(DateTimeOffset dateTime)
     {
         DateTime = dateTime;
@@ -18,6 +15,9 @@ public readonly struct Timestamp : IEquatable<Timestamp>, ISpanFormattable, ISpa
         DateTime = dateTime;
         Style = style;
     }
+
+    public DateTimeOffset DateTime { get; }
+    public TimestampStyle? Style { get; }
 
     public static bool operator ==(Timestamp left, Timestamp right) => left.Equals(right);
 

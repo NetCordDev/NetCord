@@ -5,11 +5,6 @@ namespace NetCord;
 
 public abstract partial class Interaction : ClientEntity, IInteraction
 {
-    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonInteraction _jsonModel;
-
-    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
-
     private protected Interaction(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
@@ -30,36 +25,6 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
         _sendResponseAsync = sendResponseAsync;
     }
-
-    public override ulong Id => _jsonModel.Id;
-
-    public ulong ApplicationId => _jsonModel.ApplicationId;
-
-    public ulong? GuildId => _jsonModel.GuildId;
-
-    public InteractionGuildReference? GuildReference { get; }
-
-    public Guild? Guild { get; }
-
-    public TextChannel Channel { get; }
-
-    public User User { get; }
-
-    public string Token => _jsonModel.Token;
-
-    public Permissions AppPermissions => _jsonModel.AppPermissions;
-
-    public string UserLocale => _jsonModel.UserLocale!;
-
-    public string? GuildLocale => _jsonModel.GuildLocale;
-
-    public IReadOnlyList<Entitlement> Entitlements { get; }
-
-    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _jsonModel.AuthorizingIntegrationOwners!;
-
-    public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
-
-    public abstract InteractionData Data { get; }
 
     public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
     {
@@ -94,6 +59,41 @@ public abstract partial class Interaction : ClientEntity, IInteraction
         var guild = guildId.HasValue ? cache.Guilds.GetValueOrDefault(guildId.GetValueOrDefault()) : null;
         return CreateFromJson(jsonModel, guild, (interaction, interactionCallback, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, interactionCallback, properties, cancellationToken), client);
     }
+
+    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonInteraction _jsonModel;
+
+    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
+
+    public override ulong Id => _jsonModel.Id;
+
+    public ulong ApplicationId => _jsonModel.ApplicationId;
+
+    public ulong? GuildId => _jsonModel.GuildId;
+
+    public InteractionGuildReference? GuildReference { get; }
+
+    public Guild? Guild { get; }
+
+    public TextChannel Channel { get; }
+
+    public User User { get; }
+
+    public string Token => _jsonModel.Token;
+
+    public Permissions AppPermissions => _jsonModel.AppPermissions;
+
+    public string UserLocale => _jsonModel.UserLocale!;
+
+    public string? GuildLocale => _jsonModel.GuildLocale;
+
+    public IReadOnlyList<Entitlement> Entitlements { get; }
+
+    public IReadOnlyDictionary<ApplicationIntegrationType, ulong> AuthorizingIntegrationOwners => _jsonModel.AuthorizingIntegrationOwners!;
+
+    public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
+
+    public abstract InteractionData Data { get; }
 
     public Task SendResponseAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, properties, cancellationToken);
 }

@@ -4,6 +4,15 @@ namespace NetCord;
 
 public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrationApplication>
 {
+    public IntegrationApplication(JsonModels.JsonIntegrationApplication jsonModel, RestClient client)
+    {
+        _jsonModel = jsonModel;
+
+        var bot = _jsonModel.Bot;
+        if (bot is not null)
+            Bot = new(bot, client);
+    }
+
     JsonModels.JsonIntegrationApplication IJsonModel<JsonModels.JsonIntegrationApplication>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonIntegrationApplication _jsonModel;
 
@@ -18,13 +27,4 @@ public class IntegrationApplication : Entity, IJsonModel<JsonModels.JsonIntegrat
     public string Summary => _jsonModel.Summary;
 
     public User? Bot { get; }
-
-    public IntegrationApplication(JsonModels.JsonIntegrationApplication jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var bot = _jsonModel.Bot;
-        if (bot is not null)
-            Bot = new(bot, client);
-    }
 }

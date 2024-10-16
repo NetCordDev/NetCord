@@ -4,9 +4,6 @@ namespace NetCord;
 
 public class MessagePoll : IJsonModel<JsonMessagePoll>
 {
-    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => _jsonModel;
-    private readonly JsonMessagePoll _jsonModel;
-
     public MessagePoll(JsonMessagePoll jsonModel)
     {
         _jsonModel = jsonModel;
@@ -18,6 +15,9 @@ public class MessagePoll : IJsonModel<JsonMessagePoll>
         if (results is not null)
             Results = new(results);
     }
+
+    JsonMessagePoll IJsonModel<JsonMessagePoll>.JsonModel => _jsonModel;
+    private readonly JsonMessagePoll _jsonModel;
 
     public MessagePollMedia Question { get; }
     public IReadOnlyList<MessagePollAnswer> Answers { get; }

@@ -8,9 +8,6 @@ namespace NetCord;
 /// </summary>
 public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
 {
-    JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
-    private protected new readonly JsonGuildUser _jsonModel;
-
     public PartialGuildUser(JsonGuildUser jsonModel, RestClient client) : base(jsonModel.User, client)
     {
         _jsonModel = jsonModel;
@@ -19,6 +16,9 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
         if (guildAvatarDecorationData is not null)
             GuildAvatarDecorationData = new(guildAvatarDecorationData);
     }
+
+    JsonGuildUser IJsonModel<JsonGuildUser>.JsonModel => _jsonModel;
+    private protected new readonly JsonGuildUser _jsonModel;
 
     /// <summary>
     /// The user's guild nickname.
