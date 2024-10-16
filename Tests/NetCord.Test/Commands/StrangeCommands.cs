@@ -295,7 +295,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("button")]
-    public Task ButtonAsync(string customId)
+    public Task ButtonAsync([CommandParameter(Remainder = true)] string customId)
     {
         return SendAsync(new()
         {
