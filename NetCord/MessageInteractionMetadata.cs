@@ -5,9 +5,6 @@ namespace NetCord;
 
 public class MessageInteractionMetadata : Entity, IJsonModel<JsonMessageInteractionMetadata>
 {
-    private readonly JsonMessageInteractionMetadata _jsonModel;
-    JsonMessageInteractionMetadata IJsonModel<JsonMessageInteractionMetadata>.JsonModel => _jsonModel;
-
     public MessageInteractionMetadata(JsonMessageInteractionMetadata jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
@@ -18,6 +15,9 @@ public class MessageInteractionMetadata : Entity, IJsonModel<JsonMessageInteract
         if (triggeringInteractionMetadata is not null)
             TriggeringInteractionMetadata = new(triggeringInteractionMetadata, client);
     }
+
+    private readonly JsonMessageInteractionMetadata _jsonModel;
+    JsonMessageInteractionMetadata IJsonModel<JsonMessageInteractionMetadata>.JsonModel => _jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 

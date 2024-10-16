@@ -4,6 +4,21 @@ namespace NetCord;
 
 public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
 {
+    public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
+    {
+        _jsonModel = jsonModel;
+
+        var user = _jsonModel.User;
+        if (user is not null)
+            User = new(user, client);
+
+        Account = new(_jsonModel.Account);
+
+        var application = _jsonModel.Application;
+        if (application is not null)
+            Application = new(application, client);
+    }
+
     JsonModels.JsonIntegration IJsonModel<JsonModels.JsonIntegration>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonIntegration _jsonModel;
 
@@ -36,19 +51,4 @@ public class Integration : Entity, IJsonModel<JsonModels.JsonIntegration>
     public bool? Revoked => _jsonModel.Revoked;
 
     public IntegrationApplication? Application { get; }
-
-    public Integration(JsonModels.JsonIntegration jsonModel, RestClient client)
-    {
-        _jsonModel = jsonModel;
-
-        var user = _jsonModel.User;
-        if (user is not null)
-            User = new(user, client);
-
-        Account = new(_jsonModel.Account);
-
-        var application = _jsonModel.Application;
-        if (application is not null)
-            Application = new(application, client);
-    }
 }

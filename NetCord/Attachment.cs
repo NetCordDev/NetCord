@@ -4,6 +4,16 @@ namespace NetCord;
 
 public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonModel<JsonModels.JsonAttachment>
 {
+    public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
+    {
+        if (jsonModel.Width.HasValue)
+            return new ImageAttachment(jsonModel);
+        else if (jsonModel.DurationSeconds.HasValue)
+            return new VoiceAttachment(jsonModel);
+        else
+            return new Attachment(jsonModel);
+    }
+
     JsonModels.JsonAttachment IJsonModel<JsonModels.JsonAttachment>.JsonModel => _jsonModel;
     private protected readonly JsonModels.JsonAttachment _jsonModel = jsonModel;
 
@@ -52,14 +62,4 @@ public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonMode
     public AttachmentFlags Flags => _jsonModel.Flags;
 
     public AttachmentExpirationInfo GetExpirationInfo() => new(Url);
-
-    public static Attachment CreateFromJson(JsonModels.JsonAttachment jsonModel)
-    {
-        if (jsonModel.Width.HasValue)
-            return new ImageAttachment(jsonModel);
-        else if (jsonModel.DurationSeconds.HasValue)
-            return new VoiceAttachment(jsonModel);
-        else
-            return new Attachment(jsonModel);
-    }
 }
