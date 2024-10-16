@@ -17,6 +17,7 @@ public readonly struct Timestamp : IEquatable<Timestamp>, ISpanFormattable, ISpa
     }
 
     public DateTimeOffset DateTime { get; }
+
     public TimestampStyle? Style { get; }
 
     public static bool operator ==(Timestamp left, Timestamp right) => left.Equals(right);
