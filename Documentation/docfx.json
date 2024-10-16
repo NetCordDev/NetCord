@@ -22,25 +22,25 @@
     },
     "content": [
       {
-        "files": ["docs/**.yml", "docs/index.md"]
+        "files": [ "docs/**.yml", "docs/index.md" ]
       },
       {
-        "files": ["guides/**.md", "guides/**/toc.yml", "toc.yml", "index.md"]
+        "files": [ "guides/**.md", "guides/**/toc.yml", "toc.yml", "index.md" ]
       }
     ],
     "resource": [
       {
-        "files": ["images/**", "favicon.ico", "logo.svg", "robots.txt"]
+        "files": [ "images/**", "favicon.ico", "logo.svg", "robots.txt" ]
       }
     ],
     "overwrite": [
       {
-        "files": ["apidoc/**.md"],
-        "exclude": ["obj/**", "_site/**"]
+        "files": [ "apidoc/**.md" ],
+        "exclude": [ "obj/**", "_site/**" ]
       }
     ],
     "dest": "_site",
-    "template": ["default", "templates/NetCord"],
+    "template": [ "default", "templates/NetCord" ],
     "markdownEngineName": "markdig",
     "globalMetadata": {
       "_appDescription": "NetCord – the modern and fully customizable C# Discord library",
@@ -58,6 +58,6 @@
         "!docs/**": false
       }
     },
-    "xrefService": "https://xref.docs.microsoft.com/query?uid={uid}"
+    "xref": [ "https://learn.microsoft.com/en-us/dotnet/.xrefmap.json" ]
   }
 }
