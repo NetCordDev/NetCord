@@ -7,10 +7,10 @@ To begin, navigate to the [Discord Developer Portal](https://discord.com/develop
 ## 1. Creating a Discord Bot
 
 1. In the **Applications** section, click on **New Application**.  
-   ![Click 'New Application' in the 'Applications' section](../../images/prerequisites_CreateApplication_1.png)
+   ![Click 'New Application' in the 'Applications' section](../../images/prerequisites_CreateApplication_1.png){width=600px}
 
 2. Fill in the name of your bot, check the checkbox, and then click **Create**.  
-   ![Fill in the name, check the box, and click 'Create'](../../images/prerequisites_CreateApplication_2.png)
+   ![Fill in the name, check the box, and click 'Create'](../../images/prerequisites_CreateApplication_2.png){width=350px}
 
 That's it! You have successfully created your Discord bot.
 
@@ -19,10 +19,10 @@ That's it! You have successfully created your Discord bot.
 Now that your bot is created, let's add it to a server:
 
 1. In your bot's settings, go to the **OAuth2** section and generate an invite link by selecting the **bot** scope. Then copy the generated link and paste it into your browser.
-   ![Generate a bot invite link in 'OAuth2 > URL Generator' by selecting 'bot' scope](../../images/prerequisites_AddBotToServer_1.png)
+   ![Generate a bot invite link in 'OAuth2 > URL Generator' by selecting 'bot' scope](../../images/prerequisites_AddBotToServer_1.png){width=850px}
 
-2. Select the server you want to add your bot to, and click **Authorize**.  
-   ![Select the server and click 'Authorise'](../../images/prerequisites_AddBotToServer_2.png)
+2. Select the server you want to add your bot to, and click **Authorise**.  
+   ![Select the server and click 'Authorise'](../../images/prerequisites_AddBotToServer_2.png){width=400px}
 
 Done! Your bot is now part of the server.
 
@@ -34,10 +34,10 @@ Done! Your bot is now part of the server.
 The bot token is crucial for connecting your C# Discord bot with the Discord API. Follow these steps to get the token:
 
 1. Go to the **Bot** section in your application's settings and click **Reset Token**.  
-   ![Go to 'Bot' section and click 'Reset Token'](../../images/prerequisites_Token_1.png)
+   ![Go to 'Bot' section and click 'Reset Token'](../../images/prerequisites_Token_1.png){width=600px}
 
 2. After resetting, click **Copy** to copy the token to your clipboard.  
-   ![Click 'Copy' to copy the bot token to the clipboard](../../images/prerequisites_Token_2.png)
+   ![Click 'Copy' to copy the bot token to the clipboard](../../images/prerequisites_Token_2.png){width=350px}
 
 ***
 
