@@ -18,7 +18,12 @@
   ],
   "build": {
     "sitemap": {
-      "baseUrl": "https://netcord.dev"
+      "baseUrl": "https://netcord.dev",
+      "fileOptions": {
+        "docs/**": {
+          "priority": 0.3
+        }
+      }
     },
     "content": [
       {
