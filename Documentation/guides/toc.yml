@@ -2,9 +2,9 @@
   items:
     - name: Installation
       href: getting-started/installation.md
-    - name: Creating a First Bot
-      href: getting-started/creating-a-first-bot.md
-    - name: Coding Time
+    - name: Prerequisites
+      href: getting-started/prerequisites.md
+    - name: Setting Up Your Discord Bot
       href: getting-started/coding.md
 - name: Working with Events
   items:
