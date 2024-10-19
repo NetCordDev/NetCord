@@ -25,6 +25,8 @@
   --tooltip-color: black;
   --bs-secondary-rgb: 100, 100, 100;
   --bs-secondary: #646464;
+  --bs-secondary-hover-rgb: 77, 77, 77;
+  --bs-secondary-hover: #4d4d4d;
   --bs-code-color: #d5025e;
 }
 
@@ -32,7 +34,13 @@
   --tooltip-color: white;
   --bs-secondary-rgb: 170, 170, 170;
   --bs-secondary: #aaaaaa;
+  --bs-secondary-hover-rgb: 179, 179, 179;
+  --bs-secondary-hover: #b3b3b3;
   --bs-code-color: #e685b5;
+}
+
+.link-secondary:hover, .link-secondary:focus {
+  color: var(--bs-secondary-hover-rgb);
 }
 
 .navbar-nav {
