@@ -62,9 +62,9 @@
   --bs-link-hover-color: #0032ca;
 }
 
-:root[data-bs-theme="light"] .alert-info a:hover {
-  --bs-link-color-rgb: var(--bs-link-hover-color-rgb);
-}
+  :root[data-bs-theme="light"] .alert-info a:hover {
+    --bs-link-color-rgb: var(--bs-link-hover-color-rgb);
+  }
 
 .btn {
   --bs-btn-color: var(--bs-emphasis-color);
