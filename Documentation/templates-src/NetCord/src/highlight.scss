@@ -3,16 +3,19 @@
  * The .NET Foundation licenses this file to you under the MIT license.
  */
 
-@import "highlight.js/scss/vs";
+[data-bs-theme]:not([data-bs-theme="dark"]) {
+  @import "highlight.js/scss/base16/dirtysea";
+}
 
-@include color-mode(dark) {
-  /* stylelint-disable-next-line no-invalid-position-at-import-rule */
+[data-bs-theme]:not([data-bs-theme="dark"]) .hljs {
+  background-color: #f5f5f5;
+}
+
+[data-bs-theme="dark"] {
   @import "highlight.js/scss/vs2015";
 }
 
 .hljs {
-  background-color: #f5f5f5;
-
   @media print {
     overflow-x: hidden;
     text-wrap: pretty;
@@ -26,6 +29,6 @@ pre > code .line-highlight {
 
 @include color-mode(dark) {
   pre > code .line-highlight {
-    background-color: #4a4a00;
+    background-color: #323110;
   }
 }

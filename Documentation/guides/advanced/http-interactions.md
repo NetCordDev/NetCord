@@ -10,7 +10,7 @@ Follow the [installation guide](installing-native-dependencies.md) to install th
 
 To handle HTTP interactions, you need to use @NetCord.Hosting.Rest.RestClientServiceCollectionExtensions.AddDiscordRest(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add the @NetCord.Rest.RestClient and then call @NetCord.Hosting.AspNetCore.EndpointRouteBuilderExtensions.UseHttpInteractions(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder,System.String) to map the interactions route.
 
-[!code-cs[Program.cs](HttpInteractions/Program.cs?highlight=10,17-18)]
+[!code-cs[Program.cs](HttpInteractions/Program.cs?highlight=10,18)]
 
 ## Finding Public Key and Specifying Interaction Endpoint URL
 
