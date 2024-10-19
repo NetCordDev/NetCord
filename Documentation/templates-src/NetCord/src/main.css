@@ -12,6 +12,7 @@
 
 :root {
   --bs-font-monospace: Cascadia Code, monospace;
+  --light-blurple: #6c82ff;
   --blurple: #5865f2;
   --dark-blurple: #4752c4;
   --ligatures: none;
@@ -22,17 +23,39 @@
 :root,
 [data-bs-theme="light"] {
   --tooltip-color: black;
+  --bs-secondary-rgb: 100, 100, 100;
+  --bs-secondary: #646464;
+  --bs-code-color: #d5025e;
 }
 
 [data-bs-theme="dark"] {
   --tooltip-color: white;
+  --bs-secondary-rgb: 170, 170, 170;
+  --bs-secondary: #aaaaaa;
+  --bs-code-color: #e685b5;
 }
 
 .navbar-nav {
   --bs-nav-link-color: var(--bs-emphasis-color);
+  --bs-nav-link-hover-color: var(--light-blurple);
+  --bs-navbar-active-color: var(--light-blurple);
+  --bs-nav-link-font-weight: 600;
+}
+
+:root[data-bs-theme="light"] .navbar-nav {
   --bs-nav-link-hover-color: var(--blurple);
   --bs-navbar-active-color: var(--blurple);
-  --bs-nav-link-font-weight: 600;
+}
+
+:root[data-bs-theme="light"] .alert-info a {
+  --bs-link-color-rgb: 0, 75, 255;
+  --bs-link-color: #004bff;
+  --bs-link-hover-color-rgb: 0, 50, 202;
+  --bs-link-hover-color: #0032ca;
+}
+
+:root[data-bs-theme="light"] .alert-info a:hover {
+  --bs-link-color-rgb: var(--bs-link-hover-color-rgb);
 }
 
 .btn {
