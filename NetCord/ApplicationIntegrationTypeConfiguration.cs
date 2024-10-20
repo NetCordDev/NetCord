@@ -4,9 +4,6 @@ namespace NetCord;
 
 public class ApplicationIntegrationTypeConfiguration : IJsonModel<JsonApplicationIntegrationTypeConfiguration>
 {
-    private readonly JsonApplicationIntegrationTypeConfiguration _jsonModel;
-    JsonApplicationIntegrationTypeConfiguration IJsonModel<JsonApplicationIntegrationTypeConfiguration>.JsonModel => _jsonModel;
-
     public ApplicationIntegrationTypeConfiguration(JsonApplicationIntegrationTypeConfiguration jsonModel)
     {
         _jsonModel = jsonModel;
@@ -15,6 +12,9 @@ public class ApplicationIntegrationTypeConfiguration : IJsonModel<JsonApplicatio
         if (oAuth2InstallParams is not null)
             OAuth2InstallParams = new(oAuth2InstallParams);
     }
+
+    private readonly JsonApplicationIntegrationTypeConfiguration _jsonModel;
+    JsonApplicationIntegrationTypeConfiguration IJsonModel<JsonApplicationIntegrationTypeConfiguration>.JsonModel => _jsonModel;
 
     /// <summary>
     /// Install params for each installation context's default in-app authorization link.

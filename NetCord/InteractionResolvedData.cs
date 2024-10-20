@@ -5,14 +5,6 @@ namespace NetCord;
 
 public class InteractionResolvedData
 {
-    public IReadOnlyDictionary<ulong, User>? Users { get; }
-
-    public IReadOnlyDictionary<ulong, Role>? Roles { get; }
-
-    public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
-
-    public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
-
     public InteractionResolvedData(JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
     {
         var users = jsonModel.Users;
@@ -61,4 +53,12 @@ public class InteractionResolvedData
         if (attachments is not null)
             Attachments = attachments.ToDictionary(c => c.Key, c => Attachment.CreateFromJson(c.Value));
     }
+
+    public IReadOnlyDictionary<ulong, User>? Users { get; }
+
+    public IReadOnlyDictionary<ulong, Role>? Roles { get; }
+
+    public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
+
+    public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 }

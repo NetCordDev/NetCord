@@ -2,14 +2,6 @@
 
 public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<SlashCommandMention>
 {
-    public override ulong Id { get; } = id;
-
-    public string Name { get; } = name;
-
-    public string? SubCommandGroupName { get; }
-
-    public string? SubCommandName { get; }
-
     public SlashCommandMention(ulong id, string name, string subCommandName) : this(id, name)
     {
         SubCommandName = subCommandName;
@@ -19,6 +11,14 @@ public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<Sla
     {
         SubCommandGroupName = subCommandGroupName;
     }
+
+    public override ulong Id { get; } = id;
+
+    public string Name { get; } = name;
+
+    public string? SubCommandGroupName { get; }
+
+    public string? SubCommandName { get; }
 
     public override string ToString()
     {
