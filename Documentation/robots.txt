@@ -1,4 +1,1 @@
-User-agent: *
-Disallow: /*?
-
 Sitemap: https://netcord.dev/sitemap.xml

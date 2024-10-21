@@ -21,6 +21,7 @@
       {{#_appTitle}}<meta property="og:site_name" content="{{_appTitle}}">{{/_appTitle}}
       <meta property="og:image" content="https://netcord.dev/images/logo.png">
       <meta property="og:image:alt" content="NetCord Logo">
+      <link rel="canonical" href="https://netcord.dev/{{#canonicalPath}}{{canonicalPath.0}}{{/canonicalPath}}{{^canonicalPath}}{{_path}}{{/canonicalPath}}">
       <link rel="icon" href="{{_rel}}{{{_appFaviconPath}}}{{^_appFaviconPath}}favicon.ico{{/_appFaviconPath}}">
       <link rel="stylesheet" href="{{_rel}}public/docfx.min.css">
       <link rel="stylesheet" href="{{_rel}}public/main.css">
