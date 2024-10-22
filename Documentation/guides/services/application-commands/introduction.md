@@ -1,3 +1,7 @@
+---
+uid: application-commands
+---
+
 # Introduction
 
 > [!IMPORTANT]

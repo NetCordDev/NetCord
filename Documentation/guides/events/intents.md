@@ -1,3 +1,7 @@
+---
+uid: events
+---
+
 # Intents
 
 ## What are intents?
