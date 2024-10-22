@@ -13,20 +13,20 @@ Before diving into the code, you need to set up your bot on the Discord Develope
 
 ### Creating a Discord Bot Application
 
-1. Head over to the [Discord Developer Portal](https://discord.com/developers/applications). Click **New Application** in the **Applications** section.  
+1. Head over to the [Discord Developer Portal](https://discord.com/developers/applications). Click **New Application** in the **Applications** section.
    ![Click 'New Application' in the 'Applications' section](../../images/makingABot_CreateApplication_1.png){width=600px}
 
-2. Enter a name for your bot, check the box, and click **Create**.  
+2. Enter a name for your bot, check the box, and click **Create**.
    ![Enter a name for your bot, check the box, and click 'Create'](../../images/makingABot_CreateApplication_2.png){width=350px}
 
 ### Adding Your Bot to a Discord Server
 
 Once your bot application is created, you need to invite it to a server to interact with users:
 
-1. In the **OAuth2** section, select the **bot** scope to generate an invite link.  
+1. In the **OAuth2** section, select the **bot** scope to generate an invite link.
    ![Generate a bot invite link in 'OAuth2 > URL Generator' by selecting 'bot' scope](../../images/makingABot_AddBotToServer_1.png){width=850px}
 
-2. Use the generated invite link, paste it into your browser, select a server, and click **Authorise**.  
+2. Use the generated invite link, paste it into your browser, select a server, and click **Authorise**.
    ![Paste the invite link into your browser, select a server, and click 'Authorise'](../../images/makingABot_AddBotToServer_2.png){width=400px}
 
 ### Retrieving Your Discord Bot Token
@@ -36,10 +36,10 @@ Before running the code, you'll need to retrieve your bot's token, which will al
 > [!IMPORTANT]
 > Never share your bot token with anyone! It grants full control over your bot.
 
-1. Go to the **Bot** section in the application settings and click **Reset Token**.  
+1. Go to the **Bot** section in the application settings and click **Reset Token**.
    ![Go to 'Bot' section and click 'Reset Token'](../../images/makingABot_Token_1.png){width=600px}
 
-2. Copy the token and save it. You'll need it later to connect your bot to Discord.  
+2. Copy the token and save it. You'll need it later to connect your bot to Discord.
    ![Click 'Copy' to copy the bot token to the clipboard](../../images/makingABot_Token_2.png){width=350px}
 
 ## Step 2: Coding Your C# Discord Bot with NetCord
@@ -62,29 +62,29 @@ Pick one based on your preference and project requirements.
 > - [Microsoft.Extensions.Hosting](https://www.nuget.org/packages/Microsoft.Extensions.Hosting)
 > - [NetCord.Hosting](https://www.nuget.org/packages/NetCord.Hosting)
 
-To set up the bot with the generic host, simply use @NetCord.Hosting.Gateway.GatewayClientServiceCollectionExtensions.AddDiscordGateway*. Here's an example showing how to add the bot to the host.  
+To set up the bot with the generic host, simply use @NetCord.Hosting.Gateway.GatewayClientServiceCollectionExtensions.AddDiscordGateway*. Here's an example showing how to add the bot to the host.
 [!code-cs[Program.cs](CodingHosting/Program.cs)]
 
-For better configuration management, store the token in an `appsettings.json` file like this:  
+For better configuration management, store the token in an `appsettings.json` file like this:
 [!code-json[appsettings.json](CodingHosting/appsettings.json)]
 
 #### [Bare Bones](#tab/bare-bones)
 
-To create the @NetCord.Gateway.GatewayClient manually, add the following lines to your `Program.cs` file.  
+To create the @NetCord.Gateway.GatewayClient manually, add the following lines to your `Program.cs` file.
 [!code-cs[Program.cs](Coding/Program.cs#L1-L4)]
 
-Next, you can add logging to track your bot's activity.  
+Next, you can add logging to track your bot's activity.
 [!code-cs[Program.cs](Coding/Program.cs#L6-L10)]
 
-Finally, start your bot with the following lines.  
+Finally, start your bot with the following lines.
 [!code-cs[Program.cs](Coding/Program.cs#L12-L13)]
 
-#### The Final Product  
+#### The Final Product
 [!code-cs[Program.cs](Coding/Program.cs)]
 
 ***
 
-Now, when you run the code, your bot should be online!  
+Now, when you run the code, your bot should be online!
 ![Bot being online](../../images/makingABot_BotOnline.png)
 
 ## Extending Your Bot
