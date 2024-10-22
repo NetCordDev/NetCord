@@ -16,7 +16,7 @@ To handle HTTP interactions, you need to use @NetCord.Hosting.Rest.RestClientSer
 
 To make your bot receive interactions, you need to store the public key in the configuration and specify the endpoint URL in the [Discord Developer Portal](https://discord.com/developers/applications).
 
-![Shows 'Public Key' section in 'General Information' section](../../images/httpInteractions_FindingPublicKeyAndSpecifyingInteractionEndpointUrl.png)
+![Shows 'Public Key' section in 'General Information' section](../../images/http-interactions_FindingPublicKeyAndSpecifyingInteractionEndpointUrl.png)
 
 ### Specifying Public Key in Configuration
 
