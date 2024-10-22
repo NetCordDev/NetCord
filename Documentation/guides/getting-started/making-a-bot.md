@@ -1,6 +1,6 @@
 ---
 omitAppTitle: true
-description: Learn how to build your first Discord bot using C# and NetCord, a powerful .NET library for creating efficient and scalable Discord bots. This comprehensive guide walks you through the setup process on the Discord Developer Portal, retrieving your bot token, and writing the essential code to bring your bot to life.
+description: Learn to build your first Discord bot using C#/.NET and NetCord. This guide walks you through the setup process and writing the code to bring your bot to life.
 ---
 
 # Building Your First .NET Discord Bot with C# and NetCord
