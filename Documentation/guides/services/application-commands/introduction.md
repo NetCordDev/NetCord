@@ -12,9 +12,9 @@ uid: application-commands
 > 
 > **must** be lowercase.
 
-## [Generic Host](#tab/generic-host)
+## [.NET Generic Host](#tab/generic-host)
 
-Adding application commands with the generic host is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddApplicationCommands``2(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add an application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
+Adding application commands with the .NET Generic Host is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddApplicationCommands``2(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add an application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
 [!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=13-15,18-22)]
 
 ## [Bare Bones](#tab/bare-bones)
