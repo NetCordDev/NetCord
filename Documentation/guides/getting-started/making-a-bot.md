@@ -15,20 +15,20 @@ Before diving into the code, you need to set up your bot on the Discord Develope
 ### Creating a Discord Bot Application
 
 1. Head over to the [Discord Developer Portal](https://discord.com/developers/applications). Click **New Application** in the **Applications** section.
-   ![Click 'New Application' in the 'Applications' section](../../images/making-a-bot_CreateApplication_1.png){width=600px}
+   ![Click 'New Application' in the 'Applications' section](../../images/making-a-bot_CreateApplication_1.webp){width=600px}
 
 2. Enter a name for your bot, check the box, and click **Create**.
-   ![Enter a name for your bot, check the box, and click 'Create'](../../images/making-a-bot_CreateApplication_2.png){width=350px}
+   ![Enter a name for your bot, check the box, and click 'Create'](../../images/making-a-bot_CreateApplication_2.webp){width=350px}
 
 ### Adding Your Bot to a Discord Server
 
 Once your bot application is created, you need to invite it to a server to interact with users:
 
 1. In the **OAuth2** section, select the **bot** scope to generate an invite link.
-   ![Generate a bot invite link in 'OAuth2 > URL Generator' by selecting 'bot' scope](../../images/making-a-bot_AddBotToServer_1.png){width=850px}
+   ![Generate a bot invite link in 'OAuth2 > URL Generator' by selecting 'bot' scope](../../images/making-a-bot_AddBotToServer_1.webp){width=850px}
 
 2. Use the generated invite link, paste it into your browser, select a server, and click **Authorise**.
-   ![Paste the invite link into your browser, select a server, and click 'Authorise'](../../images/making-a-bot_AddBotToServer_2.png){width=400px}
+   ![Paste the invite link into your browser, select a server, and click 'Authorise'](../../images/making-a-bot_AddBotToServer_2.webp){width=400px}
 
 ### Retrieving Your Discord Bot Token
 
@@ -38,10 +38,10 @@ Before running the code, you'll need to retrieve your bot's token, which will al
 > Never share your bot token with anyone! It grants full control over your bot.
 
 1. Go to the **Bot** section in the application settings and click **Reset Token**.
-   ![Go to 'Bot' section and click 'Reset Token'](../../images/making-a-bot_Token_1.png){width=600px}
+   ![Go to 'Bot' section and click 'Reset Token'](../../images/making-a-bot_Token_1.webp){width=600px}
 
 2. Copy the token and save it. You'll need it later to connect your bot to Discord.
-   ![Click 'Copy' to copy the bot token to the clipboard](../../images/making-a-bot_Token_2.png){width=350px}
+   ![Click 'Copy' to copy the bot token to the clipboard](../../images/making-a-bot_Token_2.webp){width=350px}
 
 ## Step 2: Coding Your C# Discord Bot
 
@@ -86,7 +86,7 @@ Finally, start your bot with the following lines.
 ***
 
 Now, when you run the code, your C# bot should be online!
-![Bot being online](../../images/making-a-bot_BotOnline.png)
+![Bot being online](../../images/making-a-bot_BotOnline.webp)
 
 ## Extending Your C# Discord Bot
 
