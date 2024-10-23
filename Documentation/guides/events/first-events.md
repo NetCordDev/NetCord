@@ -1,8 +1,8 @@
 # First Events
 
-## [Generic Host](#tab/generic-host)
+## [.NET Generic Host](#tab/generic-host)
 
-The preferred way to receive events with the generic host is by implementing @NetCord.Hosting.Gateway.IGatewayEventHandler or @NetCord.Hosting.Gateway.IGatewayEventHandler`1.
+The preferred way to receive events with the .NET Generic Host is by implementing @NetCord.Hosting.Gateway.IGatewayEventHandler or @NetCord.Hosting.Gateway.IGatewayEventHandler`1.
 
 First, use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add all event handlers in an assembly. You also need to call @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind the handlers to the client.
 [!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=17,20)]
