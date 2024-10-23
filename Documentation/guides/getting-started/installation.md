@@ -20,14 +20,14 @@ To install the NetCord package using the Visual Studio UI, follow these steps:
 
 2. Click `Manage NuGet Packages`.
 
-   ![Click 'Manage NuGet Packages'](../../images/installation_VisualStudio_1.png)
+   ![Click 'Manage NuGet Packages'](../../images/installation_VisualStudio_1.webp)
 
 3. Browse and install `NetCord` package.
 
    > [!NOTE]
    > The `Include prerelease` checkbox must be checked to see the package.
 
-   ![Browse and install 'NetCord' package](../../images/installation_VisualStudio_2.png)
+   ![Browse and install 'NetCord' package](../../images/installation_VisualStudio_2.webp)
 
 ## [JetBrains Rider](#tab/rider)
 
@@ -37,14 +37,14 @@ To install the NetCord package using JetBrains Rider UI, follow these steps:
 
 2. Click `Manage NuGet Packages`.
 
-   ![Click 'Manage NuGet Packages'](../../images/installation_JetBrainsRider_1.png)
+   ![Click 'Manage NuGet Packages'](../../images/installation_JetBrainsRider_1.webp)
 
 3. Browse and install `NetCord` package.
 
    > [!NOTE]
    > The `Prerelease` checkbox must be checked to see the package.
 
-   ![Browse and install 'NetCord' package](../../images/installation_JetBrainsRider_2.png)
+   ![Browse and install 'NetCord' package](../../images/installation_JetBrainsRider_2.webp)
 
 ## [Other](#tab/other)
 
