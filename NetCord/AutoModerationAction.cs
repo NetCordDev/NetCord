@@ -4,9 +4,6 @@ namespace NetCord;
 
 public class AutoModerationAction : IJsonModel<JsonAutoModerationAction>
 {
-    JsonAutoModerationAction IJsonModel<JsonAutoModerationAction>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationAction _jsonModel;
-
     public AutoModerationAction(JsonAutoModerationAction jsonModel)
     {
         _jsonModel = jsonModel;
@@ -15,6 +12,9 @@ public class AutoModerationAction : IJsonModel<JsonAutoModerationAction>
         if (metadata is not null)
             Metadata = new(metadata);
     }
+
+    JsonAutoModerationAction IJsonModel<JsonAutoModerationAction>.JsonModel => _jsonModel;
+    private readonly JsonAutoModerationAction _jsonModel;
 
     public AutoModerationActionType Type => _jsonModel.Type;
 

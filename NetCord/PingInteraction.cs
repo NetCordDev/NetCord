@@ -4,11 +4,6 @@ namespace NetCord;
 
 public class PingInteraction : Entity, IInteraction
 {
-    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonInteraction _jsonModel;
-
-    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
-
     public PingInteraction(JsonModels.JsonInteraction jsonModel, Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> sendResponseAsync, RestClient client)
     {
         _jsonModel = jsonModel;
@@ -23,6 +18,11 @@ public class PingInteraction : Entity, IInteraction
 
         _sendResponseAsync = sendResponseAsync;
     }
+
+    JsonModels.JsonInteraction IJsonModel<JsonModels.JsonInteraction>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonInteraction _jsonModel;
+
+    private readonly Func<IInteraction, InteractionCallback, RestRequestProperties?, CancellationToken, Task> _sendResponseAsync;
 
     public override ulong Id => _jsonModel.Id;
 

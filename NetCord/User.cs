@@ -10,9 +10,6 @@ namespace NetCord;
 /// </remarks>
 public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 {
-    JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
-    private protected readonly JsonModels.JsonUser _jsonModel;
-
     public User(JsonModels.JsonUser jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
@@ -21,6 +18,9 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
         if (avatarDecorationData is not null)
             AvatarDecorationData = new(avatarDecorationData);
     }
+
+    JsonModels.JsonUser IJsonModel<JsonModels.JsonUser>.JsonModel => _jsonModel;
+    private protected readonly JsonModels.JsonUser _jsonModel;
 
     /// <summary>
     /// The user's ID.
