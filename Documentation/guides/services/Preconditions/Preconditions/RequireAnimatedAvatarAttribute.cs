@@ -7,7 +7,7 @@ public class RequireAnimatedAvatarAttribute<TContext> : PreconditionAttribute<TC
 {
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        // Return a fail result when the user has not avatar or it's not animated
+        // Return a fail result when the user has no avatar or it's not animated
         if (context.User.AvatarHash is not string hash || !hash.StartsWith("a_"))
             return new(PreconditionResult.Fail("You need an animated avatar to use this."));
 
