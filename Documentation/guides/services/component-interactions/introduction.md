@@ -1,3 +1,7 @@
+---
+uid: component-interactions
+---
+
 # Introduction
 
 ## [.NET Generic Host](#tab/generic-host)
