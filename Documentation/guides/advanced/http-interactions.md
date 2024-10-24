@@ -50,5 +50,5 @@ It will generate a URL that you can use to receive HTTP interactions from Discor
 
 Now, as you have your bot up and running, you can start adding more features to it. You can use the following guides to learn more about the features you can add to your HTTP interactions based bot:
 
-- **@"application-commands?text=Application Commands":** Learn how to make complex commands with parameters and subcommands.
-- **@"component-interactions?text=Component Interactions":** Make your HTTP interactions bot interactive with buttons, select menus, and other components.
+- **@"application-commands?text=Application Commands":** Learn how to make complex commands with parameters and subcommands with ease.
+- **@"component-interactions?text=Component Interactions":** Make your HTTP interactions bot interactive with buttons, select menus, and other components easily.
