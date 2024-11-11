@@ -40,6 +40,18 @@
       <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high quality voice features into your Discord bot.</p>
     </div>
     <div class="feature-item">
+      <h4>HTTP Interactions Ready</h4>
+      <p>NetCord enables seamless HTTP interaction handling for Discord bots, letting you manage Discord interactions without requiring a persistent WebSocket connection.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Dependency-less</h4>
+      <p>NetCord operates without external .NET dependencies, making this C# library lightweight, modular, and easy to integrate into any Discord bot project.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Stateless REST</h4>
+      <p>With a stateless REST approach, NetCord ensures scalable and flexible API requests for Discord bots, eliminating the need for local data storage.</p>
+    </div>
+    <div class="feature-item">
       <h4>Complete API Coverage</h4>
       <p>NetCord covers the entire Discord API and more, ensuring you have access to all the latest features and capabilities Discord has to offer.</p>
     </div>
