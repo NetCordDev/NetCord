@@ -41,7 +41,7 @@
     </div>
     <div class="feature-item">
       <h4>HTTP Interactions Ready</h4>
-      <p>NetCord enables seamless HTTP interaction handling for Discord bots, letting you manage Discord interactions without requiring a persistent WebSocket connection.</p>
+      <p>NetCord enables seamless HTTP interaction handling for Discord bots, letting you manage interactions without requiring a WebSocket connection.</p>
     </div>
     <div class="feature-item">
       <h4>Dependency-less</h4>
@@ -49,7 +49,7 @@
     </div>
     <div class="feature-item">
       <h4>Stateless REST</h4>
-      <p>With a stateless REST approach, NetCord ensures scalable and flexible API requests for Discord bots, eliminating the need for local data storage.</p>
+      <p>With a stateless REST approach, NetCord ensures scalable API requests for Discord bots, eliminating the need for local data storage for making requests.</p>
     </div>
     <div class="feature-item">
       <h4>Complete API Coverage</h4>
