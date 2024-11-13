@@ -25,7 +25,7 @@
     </div>
     <div class="feature-item">
       <h4>Asynchronous & Concurrent</h4>
-      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high performing Discord bot interactions.</p>
+      <p>Fully supporting async/await, NetCord enables responsive, concurrent operations, allowing for scalable, high performance interactions in Discord bots built with .NET.</p>
     </div>
     <div class="feature-item">
       <h4>Native AOT Support</h4>
