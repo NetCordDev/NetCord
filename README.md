@@ -80,14 +80,18 @@ public class GreetingModule : ApplicationCommandModule<SlashCommandContext>
 
 ## 3. 🎨 Features
 
-- **Fully customizable** - NetCord is fully customizable and extensible
-- **Easy to use** - NetCord is easy to use and understand
-- **Lightweight** - NetCord is lightweight and performant
-- **Asynchronous** - NetCord is fully asynchronous and concurrent
-- **AOT-ready** - NetCord supports Native AOT compilation
-- **Immutable** - NetCord's caching is immutable by default
-- **Voice-ready** - NetCord supports both sending and receiving voice
-- **Comprehensive** - NetCord covers the entire Discord API and more
+- **Fully Customizable** - Easily tailor your Discord bot with NetCord's flexible, extensible API.
+- **Easy to Use** - Designed to be intuitive and easy to use for C# and .NET developers.
+- **Lightweight & High Performance** - Optimized for efficient resource use, ideal for scalable bots.
+- **Fully Asynchronous** - Built for responsive, concurrent operations in your bot.
+- **Native AOT Support** - Enjoy faster startups and reduced memory usage with AOT compilation.
+- **Immutable Caching** - Default immutable caching keeps data reliable and consistent.
+- **Voice Support** - Includes high-quality capabilities for sending and receiving voice.
+- **HTTP Interactions** - Easily handle interactions over HTTP without a persistent connection.
+- **Dependency-Free** - Lightweight by design, with no external dependencies required.
+- **Stateless REST** - Efficiently manage API requests with a stateless design.
+- **Complete API Coverage** - Comprehensive support for the Discord API and advanced features.
+- **Open Source** - Free to use and contribute to, licensed under MIT.
 
 ## 4. 🥅 Goals
 

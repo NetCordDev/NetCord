@@ -25,7 +25,7 @@
     </div>
     <div class="feature-item">
       <h4>Asynchronous & Concurrent</h4>
-      <p>Fully supporting async/await, NetCord allows for responsive, concurrent operations, enabling scalable and high performing Discord bot interactions.</p>
+      <p>Fully supporting async/await, NetCord enables responsive, concurrent operations, allowing for scalable, high performance interactions in Discord bots built with .NET.</p>
     </div>
     <div class="feature-item">
       <h4>Native AOT Support</h4>
@@ -38,6 +38,18 @@
     <div class="feature-item">
       <h4>Voice Ready</h4>
       <p>NetCord includes robust support for sending and receiving voice data, allowing you to integrate high quality voice features into your Discord bot.</p>
+    </div>
+    <div class="feature-item">
+      <h4>HTTP Interactions Ready</h4>
+      <p>NetCord enables seamless HTTP interaction handling for Discord bots, letting you manage interactions without requiring a WebSocket connection.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Dependency-less</h4>
+      <p>NetCord operates without external .NET dependencies, making this C# library lightweight, modular, and easy to integrate into any Discord bot project.</p>
+    </div>
+    <div class="feature-item">
+      <h4>Stateless REST</h4>
+      <p>With a stateless REST approach, NetCord ensures scalable API requests for Discord bots, eliminating the need for local data storage for making requests.</p>
     </div>
     <div class="feature-item">
       <h4>Complete API Coverage</h4>
