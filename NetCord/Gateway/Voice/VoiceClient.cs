@@ -36,7 +36,7 @@ public class VoiceClient : WebSocketClient
     public IVoiceClientCache Cache { get; private set; }
 
     /// <summary>
-    /// The sequence number of the <see cref="GatewayClient"/>.
+    /// The sequence number of the <see cref="VoiceClient"/>.
     /// </summary>
     public int SequenceNumber { get; private set; } = -1;
 
