@@ -915,11 +915,15 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(_compression.Decompress(payload).Span, Serialization.Default.JsonPayload)!;
-
-    private protected override async Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload)
+    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
-        switch ((GatewayOpcode)payload.Opcode)
+        var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
+        return HandlePayloadAsync(state, connectionState, jsonPayload);
+    }
+
+    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    {
+        switch (payload.Opcode)
         {
             case GatewayOpcode.Dispatch:
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
@@ -988,7 +992,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendPayloadAsync(payload.Serialize(Serialization.Default.GatewayPayloadPropertiesGuildUsersRequestProperties), properties, cancellationToken);
     }
 
-    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonPayload payload)
+    private async Task ProcessEventAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
     {
         var data = payload.Data.GetValueOrDefault();
         var name = payload.Event!;

@@ -2,12 +2,18 @@
 
 public class VoiceReceiveEventArgs(uint ssrc, ulong userId, ReadOnlyMemory<byte> frame)
 {
-    public uint Ssrc { get; } = ssrc;
-
-    public ulong UserId { get; } = userId;
+    /// <summary>
+    /// The SSRC of the user.
+    /// </summary>
+    public uint Ssrc => ssrc;
 
     /// <summary>
-    /// Opus frame.
+    /// The ID of the user.
     /// </summary>
-    public ReadOnlyMemory<byte> Frame { get; } = frame;
+    public ulong UserId => userId;
+
+    /// <summary>
+    /// The frame encoded in Opus.
+    /// </summary>
+    public ReadOnlyMemory<byte> Frame => frame;
 }

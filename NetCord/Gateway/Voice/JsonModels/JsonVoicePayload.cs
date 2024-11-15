@@ -1,19 +1,16 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NetCord.Gateway.JsonModels;
+namespace NetCord.Gateway.Voice.JsonModels;
 
-internal class JsonPayload
+internal class JsonVoicePayload
 {
     [JsonPropertyName("op")]
-    public byte Opcode { get; set; }
+    public VoiceOpcode Opcode { get; set; }
 
     [JsonPropertyName("d")]
     public JsonElement? Data { get; set; }
 
-    [JsonPropertyName("s")]
+    [JsonPropertyName("seq")]
     public int? SequenceNumber { get; set; }
-
-    [JsonPropertyName("t")]
-    public string? Event { get; set; }
 }

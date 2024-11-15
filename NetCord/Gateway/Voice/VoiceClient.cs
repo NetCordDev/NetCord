@@ -1,9 +1,10 @@
 ﻿using System.Buffers.Binary;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 
-using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.Voice.Encryption;
+using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
@@ -14,7 +15,8 @@ public class VoiceClient : WebSocketClient
 {
     public event Func<VoiceReceiveEventArgs, ValueTask>? VoiceReceive;
     public event Func<ValueTask>? Ready;
-    public event Func<ulong, ValueTask>? UserDisconnect;
+    public event Func<UserConnectEventArgs, ValueTask>? UserConnect;
+    public event Func<UserDisconnectEventArgs, ValueTask>? UserDisconnect;
 
     public ulong UserId { get; }
 
@@ -33,6 +35,11 @@ public class VoiceClient : WebSocketClient
     /// </summary>
     public IVoiceClientCache Cache { get; private set; }
 
+    /// <summary>
+    /// The sequence number of the <see cref="GatewayClient"/>.
+    /// </summary>
+    public int SequenceNumber { get; private set; } = -1;
+
     private protected override Uri Uri { get; }
 
     private readonly Dictionary<uint, Stream> _inputStreams = [];
@@ -43,7 +50,7 @@ public class VoiceClient : WebSocketClient
     {
         UserId = userId;
         SessionId = sessionId;
-        Uri = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version.GetValueOrDefault(VoiceApiVersion.V4)}", UriKind.Absolute);
+        Uri = new($"wss://{Endpoint = endpoint}?v={(int)configuration.Version.GetValueOrDefault(VoiceApiVersion.V8)}", UriKind.Absolute);
         GuildId = guildId;
         Token = token;
 
@@ -71,13 +78,15 @@ public class VoiceClient : WebSocketClient
     }
 
     /// <summary>
-    /// Resumes a session.
+    /// Resumes the session.
     /// </summary>
+    /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task ResumeAsync(CancellationToken cancellationToken = default)
+    public async Task ResumeAsync(int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var connectionState = await base.StartAsync(cancellationToken).ConfigureAwait(false);
-        await TryResumeAsync(connectionState, cancellationToken).ConfigureAwait(false);
+        await TryResumeAsync(connectionState, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
@@ -85,21 +94,35 @@ public class VoiceClient : WebSocketClient
 
     private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
+        return TryResumeAsync(connectionState, SequenceNumber, cancellationToken);
+    }
+
+    private ValueTask TryResumeAsync(ConnectionState connectionState, int sequenceNumber, CancellationToken cancellationToken = default)
+    {
+        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<int>(VoiceOpcode.Heartbeat, Environment.TickCount).Serialize(Serialization.Default.VoicePayloadPropertiesInt32);
+        var serializedPayload = new VoicePayloadProperties<VoiceHeartbeatProperties>(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties);
         _latencyTimer.Start();
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override async Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload)
+    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
-        switch ((VoiceOpcode)payload.Opcode)
+        var jsonPayload = JsonSerializer.Deserialize(payload, Serialization.Default.JsonVoicePayload)!;
+        return HandlePayloadAsync(state, connectionState, jsonPayload);
+    }
+
+    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonVoicePayload payload)
+    {
+        if (payload.SequenceNumber is int sequenceNumber)
+            SequenceNumber = sequenceNumber;
+
+        switch (payload.Opcode)
         {
             case VoiceOpcode.Ready:
                 {
@@ -207,11 +230,18 @@ public class VoiceClient : WebSocketClient
                     await updateLatencyTask;
                 }
                 break;
+            case VoiceOpcode.ClientConnect:
+                {
+                    var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
+                    await InvokeEventAsync(UserConnect, new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
+                }
+                break;
             case VoiceOpcode.ClientDisconnect:
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
-                    await InvokeEventAsync(UserDisconnect, json.UserId, userId =>
+                    await InvokeEventAsync(UserDisconnect, new(json.UserId), args =>
                     {
+                        var userId = args.UserId;
                         var cache = Cache;
                         if (cache.Ssrcs.TryGetValue(userId, out var ssrc))
                         {

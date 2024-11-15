@@ -9,7 +9,7 @@ public interface IGatewayCompression : IDisposable
 
     public string Name { get; }
 
-    public ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload);
+    public ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> payload);
 
     public void Initialize();
 }

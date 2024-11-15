@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 
 namespace NetCord.Gateway.Compression;
 
@@ -7,31 +6,35 @@ public sealed class ZLibGatewayCompression : IGatewayCompression
 {
     private const int DefaultBufferSize = 8192;
 
-    private readonly ReadOnlyMemoryStream _memoryStream;
     private readonly RentedArrayBufferWriter<byte> _writer;
+    private readonly MutableUnmanagedMemoryStream _memoryStream;
     private ZLibStream? _zLibStream;
 
     public ZLibGatewayCompression()
     {
-        _memoryStream = new();
         _writer = new(DefaultBufferSize);
+        _memoryStream = new();
     }
 
     public string Name => "zlib-stream";
 
-    public ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload)
+    public unsafe ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> payload)
     {
-        _memoryStream.SetMemory(payload);
-
         var writer = _writer;
         var zLibStream = _zLibStream!;
-        int bytesRead;
-        while ((bytesRead = zLibStream.Read(writer.GetSpan())) != 0)
-            writer.Advance(bytesRead);
 
-        var written = writer.WrittenMemory;
         writer.Clear();
-        return written;
+
+        fixed (byte* payloadPtr = payload)
+        {
+            _memoryStream.SetMemory(payloadPtr, payload.Length);
+
+            int bytesRead;
+            while ((bytesRead = zLibStream.Read(writer.GetSpan())) != 0)
+                writer.Advance(bytesRead);
+        }
+
+        return writer.WrittenSpan;
     }
 
     public void Initialize()
@@ -42,25 +45,30 @@ public sealed class ZLibGatewayCompression : IGatewayCompression
 
     public void Dispose()
     {
-        _memoryStream.Dispose();
         _zLibStream?.Dispose();
         _writer.Dispose();
     }
 
-    private class ReadOnlyMemoryStream : Stream
+    private unsafe class MutableUnmanagedMemoryStream : Stream
     {
-        private ReadOnlyMemory<byte> _memory;
-        private int _position;
+        private byte* _start;
+        private byte* _end;
+
+        public void SetMemory(byte* pointer, int length)
+        {
+            _start = pointer;
+            _end = pointer + length;
+        }
 
         public override bool CanRead => true;
 
-        public override bool CanSeek => true;
+        public override bool CanSeek => false;
 
         public override bool CanWrite => false;
 
-        public override long Length => _memory.Length;
+        public override long Length => throw new NotSupportedException();
 
-        public override long Position { get => _position; set => _position = checked((int)value); }
+        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
         public override void Flush()
         {
@@ -70,32 +78,15 @@ public sealed class ZLibGatewayCompression : IGatewayCompression
 
         public override int Read(Span<byte> buffer)
         {
-            var span = _memory.Span;
-            var position = _position;
-            var length = Math.Min(span.Length - position, buffer.Length);
-            span.Slice(position, length).CopyTo(buffer);
-            _position += length;
+            var start = _start;
+            var length = Math.Min((int)(_end - start), buffer.Length);
+            new ReadOnlySpan<byte>(start, length).CopyTo(buffer);
+            _start += length;
             return length;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return origin switch
-            {
-                SeekOrigin.Begin => Position = offset,
-                SeekOrigin.Current => Position += offset,
-                SeekOrigin.End => Position = Length - offset,
-                _ => throw new InvalidEnumArgumentException(nameof(origin), (int)origin, typeof(SeekOrigin)),
-            };
-        }
-
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
         public override void SetLength(long value) => throw new NotSupportedException();
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-
-        public void SetMemory(ReadOnlyMemory<byte> memory)
-        {
-            _memory = memory;
-            _position = 0;
-        }
     }
 }

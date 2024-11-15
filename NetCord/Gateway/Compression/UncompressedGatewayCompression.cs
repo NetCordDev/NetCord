@@ -4,7 +4,7 @@ public sealed class UncompressedGatewayCompression : IGatewayCompression
 {
     public string Name => "uncompressed";
 
-    public ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload) => payload;
+    public ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> payload) => payload;
 
     public void Initialize()
     {

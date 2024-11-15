@@ -17,18 +17,19 @@ public sealed partial class ZstandardGatewayCompression : IGatewayCompression
 
     public string Name => "zstd-stream";
 
-    public unsafe ReadOnlyMemory<byte> Decompress(ReadOnlyMemory<byte> payload)
+    public unsafe ReadOnlySpan<byte> Decompress(ReadOnlySpan<byte> payload)
     {
         var writer = _writer;
         var zstdStream = _zstdStream!;
 
-        var inBuffer = payload.Span;
-        int inLength = inBuffer.Length;
-        fixed (byte* ptrIn = inBuffer)
+        writer.Clear();
+
+        int inLength = payload.Length;
+        fixed (byte* payloadPtr = payload)
         {
             Zstandard.Buffer input = new()
             {
-                Ptr = ptrIn,
+                Ptr = payloadPtr,
                 Size = (nuint)inLength,
             };
 
@@ -39,11 +40,11 @@ public sealed partial class ZstandardGatewayCompression : IGatewayCompression
                 Zstandard.Buffer output;
                 nuint result;
 
-                fixed (byte* ptrOut = outBuffer)
+                fixed (byte* outPtr = outBuffer)
                 {
                     output = new()
                     {
-                        Ptr = ptrOut,
+                        Ptr = outPtr,
                         Size = (nuint)outLength,
                     };
 
@@ -60,9 +61,7 @@ public sealed partial class ZstandardGatewayCompression : IGatewayCompression
             }
         }
 
-        var written = writer.WrittenMemory;
-        writer.Clear();
-        return written;
+        return writer.WrittenSpan;
     }
 
     public void Initialize()

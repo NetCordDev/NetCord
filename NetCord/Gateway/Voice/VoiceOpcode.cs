@@ -12,5 +12,6 @@ internal enum VoiceOpcode : byte
     Resume = 7,
     Hello = 8,
     Resumed = 9,
+    ClientConnect = 11,
     ClientDisconnect = 13,
 }

@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Text.Json;
 
-using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
@@ -255,8 +253,7 @@ public abstract class WebSocketClient : IDisposable
     {
         try
         {
-            var payload = CreatePayload(data);
-            await ProcessPayloadAsync(state, connectionState, payload).ConfigureAwait(false);
+            await ProcessPayloadAsync(state, connectionState, data.Span).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -665,9 +662,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected virtual JsonPayload CreatePayload(ReadOnlyMemory<byte> payload) => JsonSerializer.Deserialize(payload.Span, Serialization.Default.JsonPayload)!;
-
-    private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, JsonPayload payload);
+    private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
 
     private protected async void InvokeLog(LogMessage logMessage)
     {

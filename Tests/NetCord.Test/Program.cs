@@ -5,7 +5,6 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
-using NetCord.Gateway.Compression;
 using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services;
@@ -21,7 +20,9 @@ internal static class Program
     {
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
-        Compression = new ZstandardGatewayCompression(),
+        //Compression = new ZstandardGatewayCompression(),
+        //Compression = new ZLibGatewayCompression(),
+        //Compression = new UncompressedGatewayCompression(),
     });
 
     private static readonly CommandService<CommandContext> _commandService = new();
@@ -90,6 +91,7 @@ internal static class Program
         manager.AddService(_userCommandService);
 
         await _client.StartAsync();
+
         try
         {
             await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
