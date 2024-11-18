@@ -5,7 +5,7 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ComponentInteractions;
 
-public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IService where TContext : IComponentInteractionContext
+public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IComponentInteractionService where TContext : IComponentInteractionContext
 {
     private readonly ComponentInteractionServiceConfiguration<TContext> _configuration = configuration ?? ComponentInteractionServiceConfiguration<TContext>.Default;
     private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
@@ -22,7 +22,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseComponentInteractionModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseComponentInteractionModule<TContext>)}'.");
+            throw new InvalidOperationException($"Modules must inherit from '{typeof(BaseComponentInteractionModule<TContext>)}'.");
 
         AddModuleCore(type);
     }

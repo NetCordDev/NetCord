@@ -1,7 +1,5 @@
 ﻿using System.Linq.Expressions;
 
-using NetCord.Services.Helpers;
-
 namespace NetCord.Hosting.Services;
 
 internal static class ContextHelper
@@ -39,7 +37,7 @@ internal static class ContextHelper
                 else if (argument2Type.IsAssignableTo(parameterType))
                     arguments[argIndex++] = argument2;
                 else
-                    arguments[argIndex++] = ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, Expression.Goto(next));
+                    arguments[argIndex++] = NetCord.Services.Helpers.ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, Expression.Goto(next));
             }
 
             expressions[expressionIndex++] = Expression.Return(ret, Expression.New(constructor, arguments), contextType);

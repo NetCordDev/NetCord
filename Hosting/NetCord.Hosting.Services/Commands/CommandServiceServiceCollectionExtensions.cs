@@ -91,6 +91,7 @@ public static class CommandServiceServiceCollectionExtensions
             var options = services.GetRequiredService<IOptions<CommandServiceOptions<TContext>>>().Value;
             return new CommandService<TContext>(options.CreateConfiguration());
         });
+        services.AddSingleton<ICommandService>(services => services.GetRequiredService<CommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<CommandService<TContext>>());
 
         services.AddSingleton<CommandHandler<TContext>>();

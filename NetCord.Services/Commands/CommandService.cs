@@ -6,7 +6,7 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.Commands;
 
-public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : IService where TContext : ICommandContext
+public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : ICommandService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
     private readonly char[] _parameterSeparators = configuration.ParameterSeparators.ToArray();
@@ -25,7 +25,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseCommandModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseCommandModule<TContext>)}'.");
+            throw new InvalidOperationException($"Modules must inherit from '{typeof(BaseCommandModule<TContext>)}'.");
 
         AddModuleCore(type);
     }

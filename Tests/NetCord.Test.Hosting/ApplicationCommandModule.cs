@@ -2,7 +2,7 @@
 
 namespace NetCord.Test.Hosting;
 
-public class SlashCommandModule : ApplicationCommandModule<SlashCommandContext>
+public class ApplicationCommandModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("ping2", "Ping!")]
     public static string Ping()

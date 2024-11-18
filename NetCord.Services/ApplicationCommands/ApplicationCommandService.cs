@@ -25,7 +25,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
     }
 }
 
-public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : IApplicationCommandService, IService where TContext : IApplicationCommandContext
+public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : IApplicationCommandService where TContext : IApplicationCommandContext
 {
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration = configuration ?? ApplicationCommandServiceConfiguration<TContext>.Default;
     private protected FrozenDictionary<ulong, ApplicationCommandInfo<TContext>> _commands = FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>.Empty;
@@ -49,7 +49,7 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type)
     {
         if (!type.IsAssignableTo(typeof(BaseApplicationCommandModule<TContext>)))
-            throw new InvalidOperationException($"Modules must inherit from '{nameof(BaseApplicationCommandModule<TContext>)}'.");
+            throw new InvalidOperationException($"Modules must inherit from '{typeof(BaseApplicationCommandModule<TContext>)}'.");
 
         AddModuleCore(type);
     }

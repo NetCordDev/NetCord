@@ -20,8 +20,8 @@ builder.Services
 
 var host = builder.Build();
 
-host.AddSlashCommand<SlashCommandContext>("ping", "Ping!", (SlashCommandContext context) => "Pong!")
-    .AddCommand<CommandContext>(["ping"], () => "Pong!")
+host.AddSlashCommand("ping", "Ping!", (SlashCommandContext context) => "Pong!")
+    .AddCommand(["ping"], () => "Pong!")
     .UseShardedGatewayEventHandlers();
 
 await host.RunAsync();

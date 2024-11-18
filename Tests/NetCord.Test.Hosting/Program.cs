@@ -38,15 +38,13 @@ builder.Services
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
     .ConfigureCommands(o => o.Prefix = ">")
-    .ConfigureApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
+    .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
     .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
-    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext, AutocompleteInteractionContext>(options =>
+    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(options =>
     {
-        options.ResultHandler = new CustomSlashCommandResultHandler();
+        options.ResultHandler = new CustomApplicationCommandResultHandler();
     })
-    .AddApplicationCommands<UserCommandInteraction, UserCommandContext>()
-    .AddApplicationCommands<MessageCommandInteraction, MessageCommandContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddCommands<CommandContext>()
@@ -56,26 +54,26 @@ builder.Services
     .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>();
 
 var host = builder.Build()
-    .AddSlashCommand<SlashCommandContext>("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand<SlashCommandContext>("help", "Help!", (ApplicationCommandService<SlashCommandContext> slashCommandService, SlashCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
-    .AddSlashCommand<SlashCommandContext>("button", "Button!", () =>
+    .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
+    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
+    .AddSlashCommand("button", "Button!", () =>
     {
         return new InteractionMessageProperties()
         {
             Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
         };
     })
-    .AddSlashCommand<SlashCommandContext>("exception", "Exception!", (Action<string>)((string s) => throw new("Exception!")))
-    .AddSlashCommand<SlashCommandContext>("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
-    .AddUserCommand<UserCommandContext>("ping", () => "Pong!")
-    .AddMessageCommand<MessageCommandContext>("ping", () => "Pong!")
-    .AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!")
+    .AddSlashCommand("exception", "Exception!", (Action<string>)((string s) => throw new("Exception!")))
+    .AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
+    .AddUserCommand("ping", () => "Pong!")
+    .AddMessageCommand("ping", () => "Pong!")
+    .AddComponentInteraction("button", () => "Button!")
     .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((IServiceProvider provider, ButtonInteractionContext context) => throw new("Exception!")))
-    .AddCommand<CommandContext>(["ping"], () => "Pong!")
-    .AddCommand<CommandContext>(["exception"], (Action)(() => throw new("Exception!")))
-    .AddSlashCommand<SlashCommandContext>("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
+    .AddCommand(["ping"], () => "Pong!")
+    .AddCommand(["exception"], (Action)(() => throw new("Exception!")))
+    .AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
     .AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD")
-    .AddApplicationCommandModule<SlashCommandContext, SlashCommandModule>()
+    .AddApplicationCommandModule<ApplicationCommandModule>()
     .UseGatewayEventHandlers();
 
 await host.RunAsync();

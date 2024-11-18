@@ -101,6 +101,7 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
             var options = services.GetRequiredService<IOptions<ComponentInteractionServiceOptions<TInteraction, TContext>>>().Value;
             return new ComponentInteractionService<TContext>(options.CreateConfiguration());
         });
+        services.AddSingleton<IComponentInteractionService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
 
         services.AddSingleton<ComponentInteractionHandler<TInteraction, TContext>>();
