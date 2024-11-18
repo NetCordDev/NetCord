@@ -13,9 +13,8 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                              UserCommandAttribute attribute,
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
-        MethodHelper.EnsureNoParameters(method);
-
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, [], configuration.ResultResolverProvider);
+        var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(User));
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
@@ -41,11 +40,13 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
-        MethodHelper.EnsureNoParameters(split.Parameters, method);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, [], configuration.ResultResolverProvider);
+        var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
+
+    private readonly bool _userParameter;
 
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -59,9 +60,11 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         if (preconditionResult is IFailResult)
             return preconditionResult;
 
+        object?[]? parameters = _userParameter ? [((UserCommandInteraction)context.Interaction).Data.TargetUser] : null;
+
         try
         {
-            await _invokeAsync(null, context, serviceProvider).ConfigureAwait(false);
+            await _invokeAsync(parameters, context, serviceProvider).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -4,11 +4,23 @@ namespace NetCord.Services.Helpers;
 
 internal static class MethodHelper
 {
-    public static void EnsureNoParameters(MethodInfo method) => EnsureNoParameters(method.GetParameters(), method);
-
-    public static void EnsureNoParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method)
+    public static bool EnsureSingleParameterOfTypeOrNone(MethodInfo method, Type parameterType)
     {
-        if (parameters.Length != 0)
-            throw new InvalidDefinitionException("The command cannot have parameters.", method);
+        return EnsureSingleParameterOfTypeOrNone(method.GetParameters(), method, parameterType);
+    }
+
+    public static bool EnsureSingleParameterOfTypeOrNone(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, Type parameterType)
+    {
+        switch (parameters.Length)
+        {
+            case 0:
+                return false;
+            case 1:
+                if (parameters[0].ParameterType == parameterType)
+                    return true;
+                goto default;
+            default:
+                throw new InvalidDefinitionException($"The command must have no parameters or a single parameter of type '{parameterType}'.", method);
+        }
     }
 }

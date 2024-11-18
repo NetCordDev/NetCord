@@ -13,9 +13,8 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
                                 MessageCommandAttribute attribute,
                                 ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
-        MethodHelper.EnsureNoParameters(method);
-
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, [], configuration.ResultResolverProvider);
+        var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(RestMessage));
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
@@ -41,11 +40,13 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
-        MethodHelper.EnsureNoParameters(split.Parameters, method);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, [], configuration.ResultResolverProvider);
+        var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(RestMessage));
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
+
+    private readonly bool _messageParameter;
 
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -59,9 +60,11 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         if (preconditionResult is IFailResult)
             return preconditionResult;
 
+        object?[]? parameters = _messageParameter ? [((MessageCommandInteraction)context.Interaction).Data.TargetMessage] : null;
+
         try
         {
-            await _invokeAsync(null, context, serviceProvider).ConfigureAwait(false);
+            await _invokeAsync(parameters, context, serviceProvider).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
