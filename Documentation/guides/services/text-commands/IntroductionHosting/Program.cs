@@ -11,9 +11,15 @@ builder.Services
     .AddDiscordGateway()
     .AddCommands<CommandContext>();
 
-var host = builder.Build()
-    .AddCommand<CommandContext>(["ping"], () => "Pong!")
-    .AddModules(typeof(Program).Assembly)
-    .UseGatewayEventHandlers();
+var host = builder.Build();
+
+// Add a command using minimal APIs
+host.AddCommand(["ping"], () => "Pong!");
+
+// Add commands from modules
+host.AddModules(typeof(Program).Assembly);
+
+// Add handlers to handle the commands
+host.UseGatewayEventHandlers();
 
 await host.RunAsync();

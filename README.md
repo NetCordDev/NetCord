@@ -57,10 +57,10 @@ The following example sets up a bot with a minimal API-style approach for the `/
 ```cs
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseApplicationCommands<SlashCommandInteraction, SlashCommandContext>();
+    .UseApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext>();
 
 var host = builder.Build()
-    .AddSlashCommand<SlashCommandContext>("square", "Square!", (int a) => $"{a}² = {a * a}")
+    .AddSlashCommand("square", "Square!", (int a) => $"{a}² = {a * a}")
     .UseGatewayEventHandlers();
 
 await host.RunAsync();
@@ -71,7 +71,7 @@ await host.RunAsync();
 Moreover, you can use a module-based approach. Here's an example of a `/greet` command that greets a specified user:
 
 ```cs
-public class GreetingModule : ApplicationCommandModule<SlashCommandContext>
+public class GreetingModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("greet", "Greet someone!")]
     public string Greet(User user) => $"{Context.User} greets {user}!";
