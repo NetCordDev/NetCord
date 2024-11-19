@@ -50,12 +50,12 @@ function toggleSnow() {
 let icons = [
   {
     icon: "bi bi-github",
-    tooltip: "GitHub",
+    tooltip: "Star on GitHub",
     href: "https://github.com/NetCordDev/NetCord",
   },
   {
     icon: "bi bi-discord",
-    tooltip: "Discord",
+    tooltip: "Join us on Discord",
     href: "https://discord.gg/meaSHTGyUH",
   },
   {
