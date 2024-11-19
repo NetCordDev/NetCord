@@ -145,6 +145,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoiceEncryptionTest", "Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parameters", "Documentation\guides\services\component-interactions\Parameters\Parameters.csproj", "{C99E04D0-96EE-4671-980E-5183D2D6A72A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "basic-concepts", "basic-concepts", "{EA1542CE-C8E4-4995-A2D1-D69A4AAF17D9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespondingToInteractions", "Documentation\guides\basic-concepts\RespondingToInteractions\RespondingToInteractions.csproj", "{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -359,6 +363,10 @@ Global
 		{C99E04D0-96EE-4671-980E-5183D2D6A72A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C99E04D0-96EE-4671-980E-5183D2D6A72A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C99E04D0-96EE-4671-980E-5183D2D6A72A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -425,6 +433,8 @@ Global
 		{9E6C8288-7762-4F98-85B1-A3ED29EE0DFF} = {46E6F97B-83C3-4B66-8B0F-226D02DEC5A0}
 		{98A70693-9EC7-4965-BC8F-A5646723DAA2} = {5E156987-5CC6-4873-B774-F41CBD7D3F3D}
 		{C99E04D0-96EE-4671-980E-5183D2D6A72A} = {5631D9FD-493B-40C6-85CC-D8742DF012CB}
+		{EA1542CE-C8E4-4995-A2D1-D69A4AAF17D9} = {FDFF38F4-A459-4809-BA63-01A2BEC131ED}
+		{0FAF1324-E5B2-4B4B-8B6F-7CE5AA175633} = {EA1542CE-C8E4-4995-A2D1-D69A4AAF17D9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {945CA52C-0E28-4020-A241-BDE73D8384AA}

@@ -10,6 +10,12 @@
       href: events/intents.md
     - name: First Events
       href: events/first-events.md
+- name: Basic Concepts
+  items:
+    - name: Responding to Interactions
+      href: basic-concepts/responding-to-interactions.md
+    - name: Sending Messages
+      href: basic-concepts/sending-messages.md
 - name: Services
   items:
     - name: Introduction
