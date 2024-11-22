@@ -1,5 +1,8 @@
 ﻿---
 uid: sending-messages
+omitAppTitle: true
+title: Sending Messages in a C# Discord Bot with NetCord Library
+description: Learn how to send messages in a C# Discord bot using NetCord, covering text, embeds, attachments, allowed mentions, and interactive components like buttons.
 ---
 
 # Sending Messages
@@ -157,7 +160,7 @@ User menus allow selecting users as options, and support specifying default user
 
 [!code-cs[Creating user menus](SendingMessages/Program.cs#L176-L179)]
 
-***
+#### Specifying Additional Properties
 
 Additionally, all select menus allow you to specify a placeholder, set a minimum and maximum number of selectable options, and disable the select menu if necessary.
 
