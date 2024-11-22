@@ -1,4 +1,5 @@
 ---
+uid: responding-to-interactions
 omitAppTitle: true
 title: Responding to Interactions in C# Discord Bots with NetCord
 description: Learn to handle interactions in your C# Discord bot with NetCord. Explore response types like messages, modals, and deferrals for building bots with .NET.

@@ -116,7 +116,6 @@ async static Task PropertiesAsync()
     attachment = new GoogleCloudPlatformAttachmentProperties("hello.txt", bucket.UploadFileName);
 
     attachment.Title = "Hello, World!";
-
     attachment.Description = "This is a file named hello.txt";
 
     message.Attachments = [attachment];
