@@ -1,94 +1,154 @@
----
+﻿---
 uid: sending-messages
 ---
 
 # Sending Messages
 
-This guide will show you how to send messages to a channel.
+This guide demonstrates how to send messages to a channel.
 
-There are many message properties as different endpoints support different values. Though they all implement @NetCord.Rest.IMessageProperties which contains the most common properties, and these properties will be described in this guide.
+Different message properties types are available since various endpoints support different values. However, all the types implement @NetCord.Rest.IMessageProperties, which includes the most commonly used properties. The properties of @NetCord.Rest.IMessageProperties will be covered in this guide.
 
-## Making use of @NetCord.Rest.IMessageProperties
+## Using @NetCord.Rest.IMessageProperties
 
-Sometimes you may want to write an API that will support creating messages for multiple endpoints. In this case, you can use the @NetCord.Rest.IMessageProperties interface to define the properties that are common to all endpoints easily.
+If you need to build an API that supports creating messages for multiple endpoints, you can utilize the @NetCord.Rest.IMessageProperties interface. This allows you to define the properties common to all message properties types in a straightforward manner.
 
-[!code-cs[Making use of 'IMessageProperties'](SendingMessages/Program.cs#L14-L21)]
+[!code-cs[Using 'IMessageProperties'](SendingMessages/Program.cs#L6-L13)]
 
-You can see sample usages of this method here.
+You can view sample usages of this method below:
 
-[!code-cs[Using our API for 'MessageProperties'](SendingMessages/Program.cs#L25)]
-[!code-cs[Using our API for 'InteractionMessageProperties'](SendingMessages/Program.cs#L27)]
+[!code-cs[Using our API for 'MessageProperties'](SendingMessages/Program.cs#L19)]
+[!code-cs[Using our API for 'InteractionMessageProperties'](SendingMessages/Program.cs#L21)]
 
-## Specifying the Content
+## Defining the Content
 
-The content is the main text of the message.
+The content refers to the main text of the message.
 
-[!code-cs[Specifying the content](SendingMessages/Program.cs#L34)]
+[!code-cs[Defining the content](SendingMessages/Program.cs#L28)]
 
-All message properties also have an implicit conversion from string. Note that this won't work for @NetCord.Rest.IMessageProperties as it is an interface.
+All message properties types support an implicit conversion from a string. However, note that this does not apply to @NetCord.Rest.IMessageProperties, as it is an interface.
 
-[!code-cs[Implicit conversion from string](SendingMessages/Program.cs#L96)]
+[!code-cs[Implicit conversion from string](SendingMessages/Program.cs#L199)]
 
-## Specifying Embeds
+## Adding Embeds
 
-Embeds are rich content that can be attached to a message. They can contain titles, descriptions, images, and more. You can add up to 10 embeds to a message.
+Embeds are rich content elements that can be attached to a message. They support titles, descriptions, images, and more. A message can include up to 10 embeds.
 
-[!code-cs[Specifying embeds](SendingMessages/Program.cs#L43)]
+[!code-cs[Adding embeds](SendingMessages/Program.cs#L80)]
 
 ### Customizing Embeds
 
-## Specifying Allowed Mentions
+You can customize embeds by specifying properties such as the title, description, color, and image.
 
-Allowed mentions control which users and roles can be mentioned in the message.
+[!code-cs[Customizing embeds](SendingMessages/Program.cs#L32-L78)]
 
-Using @"NetCord.Rest.AllowedMentionsProperties.All?text=AllowedMentionsProperties.All" will allow all mentions.
+## Managing Allowed Mentions
 
-[!code-cs[Specifying allowed mentions](SendingMessages/Program.cs#L45)]
+Allowed mentions define which users and roles can be mentioned within the message.
 
-While using @"NetCord.Rest.AllowedMentionsProperties.None?text=AllowedMentionsProperties.None" will disable all mentions.
+To allow all mentions, use @"NetCord.Rest.AllowedMentionsProperties.All?text=AllowedMentionsProperties.All".
 
-[!code-cs[Specifying allowed mentions](SendingMessages/Program.cs#L47)]
+[!code-cs[Setting allowed mentions](SendingMessages/Program.cs#L82)]
 
-You can also create your own custom allowed mentions.
+To disable all mentions, use @"NetCord.Rest.AllowedMentionsProperties.None?text=AllowedMentionsProperties.None".
 
-[!code-cs[Specifying allowed mentions](SendingMessages/Program.cs#L49-L55)]
+[!code-cs[Disabling allowed mentions](SendingMessages/Program.cs#L84)]
 
-## Specifying Attachments
+You can also define custom allowed mentions.
 
-Attachments are files that can be attached to a message. You can add up to 10 attachments to a message.
+[!code-cs[Customizing allowed mentions](SendingMessages/Program.cs#L86-L92)]
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L85)]
+## Attaching Files
+
+Attachments are files that can be added to a message. A message can contain up to 10 attachments.
+
+[!code-cs[Adding attachments](SendingMessages/Program.cs#L122)]
 
 ### Customizing Attachments
 
-A classic example of attachment creation can be. You can of course specify any type of stream that is readable, such as a file stream.
+> [!NOTE]
+> Any readable stream can be used to create an attachment, such as a file stream.
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L59)]
+A classic example of attachment creation is shown below.
 
-You can also create attachments in different formats like for example in Base64.
+[!code-cs[Creating attachments](SendingMessages/Program.cs#L96)]
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L61)]
+Attachments can also be created in different formats. In this example, a base64-encoded attachment will appear as "Hello, base64!" in the chat.
 
-Or with quoted-printable encoding.
+[!code-cs[Base64 attachment](SendingMessages/Program.cs#L98)]
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L63-L64)]
+Another example is an attachment with quoted-printable encoding, which will display as "Różowy means pink" in the chat.
 
-Discord also supports uploading attachments directly into the Google Cloud Platform.
+[!code-cs[Quoted-printable attachment](SendingMessages/Program.cs#L100-L101)]
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L70-L79)]
+Discord also supports uploading attachments directly to Google Cloud Platform. The following example will create an attachment with "Hello, Google!" content.
 
-You can also specify @"NetCord.Rest.AttachmentProperties.Title?text=AttachmentProperties.Title" and @"NetCord.Rest.AttachmentProperties.Description?text=AttachmentProperties.Description" to specify the title and description of the attachment.
+[!code-cs[Google Cloud attachment](SendingMessages/Program.cs#L107-L116)]
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L81)]
+Additionally, you can set the title and description of any attachment using @"NetCord.Rest.AttachmentProperties.Title?text=AttachmentProperties.Title" and @"NetCord.Rest.AttachmentProperties.Description?text=AttachmentProperties.Description".
 
-[!code-cs[Specifying attachments](SendingMessages/Program.cs#L83)]
+[!code-cs[Attachment properties](SendingMessages/Program.cs#L118)]
 
-## Specifying Components
+[!code-cs[Another attachment example](SendingMessages/Program.cs#L120)]
 
-## Specifying Flags
+## Adding Components
 
-Flags control the behavior of the message. You can specify multiple flags by combining them with the bitwise OR operator.
+Components are interactive elements that can be attached to a message. These include buttons, select menus, and more. A message can contain up to 5 components, including action rows and select menus.
 
-This example specifies that the message should not display any embeds from URLs it contains and that it should be silent (shouldn't trigger push and desktop notifications).
+[!code-cs[Adding components](SendingMessages/Program.cs#L182)]
 
-[!code-cs[Specifying flags](SendingMessages/Program.cs#L91)]
+### Action Rows
+
+Action rows contain buttons, and each can have up to 5 buttons. Available button types include:
+- @NetCord.Rest.ButtonProperties, which triggers an interaction when clicked.
+- @NetCord.Rest.LinkButtonProperties, which opens a URL when clicked.
+- @NetCord.Rest.PremiumButtonProperties, which prompts the user to pay when clicked.
+
+[!code-cs[Defining action rows](SendingMessages/Program.cs#L126-L136)]
+
+### Select Menus
+
+Select menus are dropdown menus containing up to 25 options. They support various types, such as strings, channels, and users.
+
+#### String Menus
+
+String menus allow you to include any string options. Each option in the menu can be customized with additional properties, such as setting a default selection, adding an emoji, or providing a description for better context.
+
+[!code-cs[Creating string menus](SendingMessages/Program.cs#L138-L156)]
+
+#### Channel Menus
+
+Channel menus include channels as options, and support filtering by channel type and the ability to specify default channels.
+
+[!code-cs[Creating channel menus](SendingMessages/Program.cs#L158-L162)]
+
+#### Mentionable Menus
+
+Mentionable menus include users and roles as options, and support specifying default users and roles.
+
+[!code-cs[Creating mentionable menus](SendingMessages/Program.cs#L164-L170)]
+
+#### Role Menus
+
+Role menus contain roles as options, and support specifying default roles.
+
+[!code-cs[Creating role menus](SendingMessages/Program.cs#L172-L175)]
+
+#### User Menus
+
+User menus allow selecting users as options, and support specifying default users.
+
+[!code-cs[Creating user menus](SendingMessages/Program.cs#L177-L180)]
+
+***
+
+Additionally, all select menus allow you to specify a placeholder, set a minimum and maximum number of selectable options, and disable the select menu if necessary.
+
+[!code-cs[Configuring select menus](SendingMessages/Program.cs#L191-L194)]
+
+## Configuring Flags
+
+Flags control how a message behaves. You can combine multiple flags using the bitwise OR operator.
+
+For example, this configuration specifies that no embeds from URLs should be displayed, and the message should be silent (not triggering push or desktop notifications).
+
+[!code-cs[Setting flags](SendingMessages/Program.cs#L184)]

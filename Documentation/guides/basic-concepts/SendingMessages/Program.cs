@@ -1,15 +1,7 @@
 ﻿using NetCord;
 using NetCord.Rest;
 
-#pragma warning disable IDE0017, IDE0059
-
-_ = CreateMessage<MessageProperties>();
-
-UseCreateMessage();
-
-_ = PropertiesAsync();
-
-ImplicitConversion();
+#pragma warning disable IDE0017, IDE0059, CS8321
 
 static T CreateMessage<T>() where T : IMessageProperties, new()
 {
@@ -22,9 +14,11 @@ static T CreateMessage<T>() where T : IMessageProperties, new()
 
 static void UseCreateMessage()
 {
-    var message = CreateMessage<MessageProperties>();
+    IMessageProperties message;
 
-    var interactionMessage = CreateMessage<InteractionMessageProperties>();
+    message = CreateMessage<MessageProperties>();
+
+    message = CreateMessage<InteractionMessageProperties>();
 }
 
 async static Task PropertiesAsync()
@@ -34,10 +28,53 @@ async static Task PropertiesAsync()
     message.Content = "Hello, World!";
 
     EmbedProperties embed;
-    
+
     embed = new()
     {
-        
+        Title = "Welcome to the Baking Club!",
+        Description = "Join us for delicious recipes and baking tips!",
+        Url = "https://example.com",
+        Timestamp = DateTimeOffset.UtcNow,
+        Color = new(0xFFA500),
+        Footer = new()
+        {
+            Text = "Happy Baking!",
+            IconUrl = "https://example.com/images/baking-icon.png",
+        },
+        Image = "https://example.com/images/cake.jpg",
+        Thumbnail = "https://example.com/images/rolling-pin.png",
+        Author = new()
+        {
+            Name = "Baking Club",
+            Url = "https://example.com",
+            IconUrl = "https://example.com/images/club-logo.png",
+        },
+        Fields =
+        [
+            new()
+            {
+                Name = "Today's Special Recipe",
+                Value = "Chocolate Lava Cake",
+            },
+            new()
+            {
+                Name = "Next Meetup",
+                Value = "Sunday, 4 PM",
+                Inline = true,
+            },
+            new()
+            {
+                Name = "Location",
+                Value = "123 Baker's Street",
+                Inline = true,
+            },
+            new()
+            {
+                Name = "Membership Fee",
+                Value = "Free for the first month!",
+                Inline = true,
+            },
+        ],
     };
 
     message.Embeds = [embed];
@@ -61,7 +98,7 @@ async static Task PropertiesAsync()
     attachment = new Base64AttachmentProperties("hello.txt", new MemoryStream("SGVsbG8sIGJhc2U2NCE="u8.ToArray()));
 
     attachment = new QuotedPrintableAttachmentProperties("polish.txt",
-                                                         new MemoryStream("R=C3=B3=C5=BCowy is pink"u8.ToArray()));
+                                                         new MemoryStream("R=C3=B3=C5=BCowy means pink"u8.ToArray()));
 
     TextChannel textChannel = null!;
 
@@ -84,11 +121,77 @@ async static Task PropertiesAsync()
 
     message.Attachments = [attachment];
 
-    message.Components =
-    [
-    ];
+    MessageComponentProperties component;
+
+    component = new ActionRowProperties
+    {
+        new ButtonProperties("welcome", "Welcome", new("👋"), ButtonStyle.Primary),
+        new ButtonProperties("hug", new EmojiProperties(356377264209920002), ButtonStyle.Success),
+        new ButtonProperties("goodbye", "Goodbye", ButtonStyle.Secondary)
+        {
+            Disabled = true,
+        },
+        new LinkButtonProperties("https://netcord.dev", "Learn More"),
+        new PremiumButtonProperties(1271914991536312372),
+    };
+
+    component = new StringMenuProperties("animal")
+    {
+        new("Dog", "dog")
+        {
+            Default = true,
+            Emoji = new("🐶"),
+            Description = "A loyal companion",
+        },
+        new("Cat", "cat")
+        {
+            Emoji = new("🐱"),
+            Description = "A curious feline",
+        },
+        new("Bird", "bird")
+        {
+            Emoji = new("🐦"),
+            Description = "A chirpy flyer",
+        },
+    };
+
+    component = new ChannelMenuProperties("channel")
+    {
+        DefaultValues = [1124777547687788626],
+        ChannelTypes = [ChannelType.ForumGuildChannel, ChannelType.PublicGuildThread],
+    };
+
+    component = new MentionableMenuProperties("mentionable")
+    {
+        DefaultValues =
+        [
+            new(803324257194082314, MentionableValueType.User),
+        ],
+    };
+
+    component = new RoleMenuProperties("role")
+    {
+        DefaultValues = [803169206115237908],
+    };
+
+    component = new UserMenuProperties("user")
+    {
+        DefaultValues = [233590074724319233],
+    };
+
+    message.Components = [component];
 
     message.Flags = MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications;
+}
+
+static void Menu()
+{
+    MenuProperties component = null!;
+
+    component.Placeholder = "Select 2-5 animals";
+    component.MinValues = 2;
+    component.MaxValues = 5;
+    component.Disabled = true;
 }
 
 static void ImplicitConversion()
