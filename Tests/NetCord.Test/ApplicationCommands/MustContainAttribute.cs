@@ -1,7 +1,7 @@
 ﻿using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Test.SlashCommands;
+namespace NetCord.Test.ApplicationCommands;
 
 internal class MustContainAttribute(string value) : ParameterPreconditionAttribute<SlashCommandContext>
 {

@@ -10,7 +10,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="buttons">Buttons of the action row (max 5).</param>
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
-public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : MessageComponentProperties, IEnumerable<IButtonProperties>
+public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : ComponentProperties, IEnumerable<IButtonProperties>
 {
     public ActionRowProperties() : this([])
     {

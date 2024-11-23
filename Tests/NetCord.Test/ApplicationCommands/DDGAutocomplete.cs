@@ -3,7 +3,7 @@
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Test.SlashCommands;
+namespace NetCord.Test.ApplicationCommands;
 
 public class DDGAutocomplete(HttpClient client) : IAutocompleteProvider<AutocompleteInteractionContext>
 {

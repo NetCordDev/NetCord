@@ -90,7 +90,7 @@ public partial class InteractionCallback : IHttpSerializable
                 return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, Serialization.Default.InteractionCallbackInteractionCallbackChoicesDataProperties);
 
             case InteractionCallback<ModalProperties> interactionCallback:
-                return new JsonContent<InteractionCallback<ModalProperties>>(interactionCallback, Serialization.Default.InteractionCallbackModalProperties);
+                return new JsonContent<IInteractionCallback<IModalProperties>>(interactionCallback, Serialization.Default.IInteractionCallbackIModalProperties);
 
             default:
                 return new JsonContent<InteractionCallback>(this, Serialization.Default.InteractionCallback);
@@ -98,12 +98,21 @@ public partial class InteractionCallback : IHttpSerializable
     }
 }
 
-public class InteractionCallback<T> : InteractionCallback
+public class InteractionCallback<T> : InteractionCallback, IInteractionCallback<T>
 {
     internal InteractionCallback(InteractionCallbackType type, T data) : base(type)
     {
         Data = data;
     }
+
+    [JsonPropertyName("data")]
+    public T Data { get; }
+}
+
+internal interface IInteractionCallback<out T>
+{
+    [JsonPropertyName("type")]
+    public InteractionCallbackType Type { get; }
 
     [JsonPropertyName("data")]
     public T Data { get; }

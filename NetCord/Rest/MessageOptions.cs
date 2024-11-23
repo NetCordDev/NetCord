@@ -26,7 +26,7 @@ public partial class MessageOptions : IHttpSerializable
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("components")]
-    public IEnumerable<MessageComponentProperties>? Components { get; set; }
+    public IEnumerable<ComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]

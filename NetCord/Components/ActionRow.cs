@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class ActionRow(JsonComponent jsonModel) : IMessageComponent, IJsonModel<JsonComponent>
+public class ActionRow(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 

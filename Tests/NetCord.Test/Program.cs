@@ -44,7 +44,7 @@ internal static class Program
         var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
         configuration = configuration with
         {
-            TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new SlashCommands.PermissionsTypeReader()),
+            TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new ApplicationCommands.PermissionsTypeReader()),
             ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],

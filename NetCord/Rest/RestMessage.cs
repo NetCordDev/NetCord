@@ -72,7 +72,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         if (startedThread is not null)
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
-        Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
+        Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;
@@ -238,9 +238,9 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public GuildThread? StartedThread { get; }
 
     /// <summary>
-    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
+    /// A list of <see cref="IComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
     /// </summary>
-    public IReadOnlyList<IMessageComponent> Components { get; }
+    public IReadOnlyList<IComponent> Components { get; }
 
     /// <summary>
     /// Contains stickers contained in the message, if any.

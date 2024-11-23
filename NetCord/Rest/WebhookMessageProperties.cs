@@ -30,7 +30,7 @@ public partial class WebhookMessageProperties : IHttpSerializable, IMessagePrope
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("components")]
-    public IEnumerable<MessageComponentProperties>? Components { get; set; }
+    public IEnumerable<ComponentProperties>? Components { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonConverter(typeof(JsonConverters.AttachmentPropertiesIEnumerableConverter))]

@@ -1,7 +1,7 @@
 ﻿using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Test.SlashCommands;
+namespace NetCord.Test.ApplicationCommands;
 
 public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
 {
@@ -10,7 +10,7 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
     {
         return RespondAsync(InteractionCallback.Modal(new($"wzium:{user.Id}", "Wzium user",
         [
-            new("reason", TextInputStyle.Paragraph, "Reason")
+            new TextInputProperties("reason", TextInputStyle.Paragraph, "Reason")
             {
                 Placeholder = "Because of not wziumming",
                 Required = false,

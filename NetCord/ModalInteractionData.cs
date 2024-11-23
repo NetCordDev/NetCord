@@ -2,5 +2,5 @@
 
 public class ModalInteractionData(JsonModels.JsonInteractionData jsonModel) : ComponentInteractionData(jsonModel)
 {
-    public IReadOnlyList<TextInput> Components { get; } = jsonModel.Components!.Select(c => new TextInput(c)).ToArray();
+    public IReadOnlyList<IComponent> Components { get; } = jsonModel.Components!.Select(IComponent.CreateFromJson).ToArray();
 }

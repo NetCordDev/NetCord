@@ -4,7 +4,7 @@ using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Test.SlashCommands;
+namespace NetCord.Test.ApplicationCommands;
 
 internal class PermissionsTypeReader : SlashCommandTypeReader<SlashCommandContext>
 {

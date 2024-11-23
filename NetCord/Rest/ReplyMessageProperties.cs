@@ -9,7 +9,7 @@ public partial class ReplyMessageProperties : IMessageProperties
     public IEnumerable<EmbedProperties>? Embeds { get; set; }
     public AllowedMentionsProperties? AllowedMentions { get; set; }
     public bool? FailIfNotExists { get; set; }
-    public IEnumerable<MessageComponentProperties>? Components { get; set; }
+    public IEnumerable<ComponentProperties>? Components { get; set; }
     public IEnumerable<ulong>? StickerIds { get; set; }
     public MessageFlags? Flags { get; set; }
     public MessagePollProperties? Poll { get; set; }

@@ -17,7 +17,7 @@ public class ButtonInteractions(string wzium) : ComponentInteractionModule<Butto
 
         return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", $"Wzium user {wzium}",
         [
-            new("reason", TextInputStyle.Paragraph, "Reason")
+            new TextInputProperties("reason", TextInputStyle.Paragraph, "Reason")
             {
                 Placeholder = "Because of not wziumming",
                 Required = false,
