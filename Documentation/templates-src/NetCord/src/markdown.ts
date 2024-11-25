@@ -456,7 +456,7 @@ function renderTabs() {
     notifyContentUpdated();
     const top = info.anchor.getBoundingClientRect().top;
     if (top !== originalTop && event instanceof MouseEvent) {
-      window.scrollTo(0, window.pageYOffset + top - originalTop);
+      window.scrollTo({ top: window.pageYOffset + top - originalTop, behavior: "instant" });
     }
   }
 

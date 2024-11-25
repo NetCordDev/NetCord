@@ -1,31 +1,15 @@
 ﻿using NetCord;
 using NetCord.Rest;
 
-#pragma warning disable IDE0017, IDE0059, CS8321
-
-static T CreateMessage<T>() where T : IMessageProperties, new()
-{
-    return new()
-    {
-        Content = "Hello, World!",
-        Components = [],
-    };
-}
-
-static void UseCreateMessage()
-{
-    IMessageProperties message;
-
-    message = CreateMessage<MessageProperties>();
-
-    message = CreateMessage<InteractionMessageProperties>();
-}
+#pragma warning disable IDE0017, IDE0040, IDE0051, IDE0059, CS8321
 
 async static Task PropertiesAsync()
 {
     IMessageProperties message = null!;
 
     message.Content = "Hello, World!";
+
+    message.WithContent("Hello, World!");
 
     EmbedProperties embed;
 
@@ -77,11 +61,49 @@ async static Task PropertiesAsync()
         ],
     };
 
+    embed = new EmbedProperties()
+        .WithTitle("Welcome to the Baking Club!")
+        .WithDescription("Join us for delicious recipes and baking tips!")
+        .WithUrl("https://example.com")
+        .WithTimestamp(DateTimeOffset.UtcNow)
+        .WithColor(new(0xFFA500))
+        .WithFooter(new EmbedFooterProperties()
+            .WithText("Happy Baking!")
+            .WithIconUrl("https://example.com/images/baking-icon.png"))
+        .WithImage("https://example/com/images/cake.jpg")
+        .WithThumbnail("https://example.com/images/rolling-pin.png")
+        .WithAuthor(new EmbedAuthorProperties()
+            .WithName("Baking Club")
+            .WithUrl("https://example.com")
+            .WithIconUrl("https://example.com/images/club-logo.png"))
+        .AddFields(
+            new EmbedFieldProperties()
+                .WithName("Today's Special Recipe")
+                .WithValue("Chocolate Lava Cake"),
+            new EmbedFieldProperties()
+                .WithName("Next Meetup")
+                .WithValue("Sunday, 4 PM")
+                .WithInline(),
+            new EmbedFieldProperties()
+                .WithName("Location")
+                .WithValue("123 Baker's Street")
+                .WithInline(),
+            new EmbedFieldProperties()
+                .WithName("Membership Fee")
+                .WithValue("Free for the first month!")
+                .WithInline());
+
     message.Embeds = [embed];
+
+    message.AddEmbeds(embed);
 
     message.AllowedMentions = AllowedMentionsProperties.All;
 
+    message.WithAllowedMentions(AllowedMentionsProperties.All);
+
     message.AllowedMentions = AllowedMentionsProperties.None;
+
+    message.WithAllowedMentions(AllowedMentionsProperties.None);
 
     message.AllowedMentions = new()
     {
@@ -90,6 +112,12 @@ async static Task PropertiesAsync()
         AllowedRoles = [988888771187581010], // Allow specific roles
         AllowedUsers = [265546281693347841], // Allow specific users
     };
+
+    message.WithAllowedMentions(new AllowedMentionsProperties()
+        .WithEveryone() // Allow @everyone and @here
+        .WithReplyMention() // Allow reply mention
+        .AddAllowedRoles(988888771187581010) // Allow specific roles
+        .AddAllowedUsers(265546281693347841)); // Allow specific users
 
     AttachmentProperties attachment;
 
@@ -118,9 +146,15 @@ async static Task PropertiesAsync()
     attachment.Title = "Hello, World!";
     attachment.Description = "This is a file named hello.txt";
 
+    attachment
+        .WithTitle("Hello, World!")
+        .WithDescription("This is a file named hello.txt");
+
     message.Attachments = [attachment];
 
-    MessageComponentProperties component;
+    message.AddAttachments(attachment);
+
+    ComponentProperties component;
 
     component = new ActionRowProperties
     {
@@ -133,6 +167,15 @@ async static Task PropertiesAsync()
         new LinkButtonProperties("https://netcord.dev", "Learn More"),
         new PremiumButtonProperties(1271914991536312372),
     };
+
+    component = new ActionRowProperties()
+        .AddButtons(
+            new ButtonProperties("welcome", "Welcome", new("👋"), ButtonStyle.Primary),
+            new ButtonProperties("hug", new EmojiProperties(356377264209920002), ButtonStyle.Success),
+            new ButtonProperties("goodbye", "Goodbye", ButtonStyle.Secondary)
+                .WithDisabled(),
+            new LinkButtonProperties("https://netcord.dev", "Learn More"),
+            new PremiumButtonProperties(1271914991536312372));
 
     component = new StringMenuProperties("animal")
     {
@@ -154,11 +197,28 @@ async static Task PropertiesAsync()
         },
     };
 
+    component = new StringMenuProperties("animal")
+        .AddOptions(
+            new StringMenuSelectOptionProperties("Dog", "dog")
+                .WithDefault()
+                .WithEmoji(new("🐶"))
+                .WithDescription("A loyal companion"),
+            new StringMenuSelectOptionProperties("Cat", "cat")
+                .WithEmoji(new("🐱"))
+                .WithDescription("A curious feline"),
+            new StringMenuSelectOptionProperties("Bird", "bird")
+                .WithEmoji(new("🐦"))
+                .WithDescription("A chirpy flyer"));
+
     component = new ChannelMenuProperties("channel")
     {
         DefaultValues = [1124777547687788626],
         ChannelTypes = [ChannelType.ForumGuildChannel, ChannelType.PublicGuildThread],
     };
+
+    component = new ChannelMenuProperties("channel")
+        .AddDefaultValues(1124777547687788626)
+        .AddChannelTypes(ChannelType.ForumGuildChannel, ChannelType.PublicGuildThread);
 
     component = new MentionableMenuProperties("mentionable")
     {
@@ -168,19 +228,33 @@ async static Task PropertiesAsync()
         ],
     };
 
+    component = new MentionableMenuProperties("mentionable")
+        .AddDefaultValues(
+            new MentionableValueProperties(803324257194082314, MentionableValueType.User));
+
     component = new RoleMenuProperties("role")
     {
         DefaultValues = [803169206115237908],
     };
+
+    component = new RoleMenuProperties("role")
+        .AddDefaultValues(803169206115237908);
 
     component = new UserMenuProperties("user")
     {
         DefaultValues = [233590074724319233],
     };
 
+    component = new UserMenuProperties("user")
+        .AddDefaultValues(233590074724319233);
+
     message.Components = [component];
 
+    message.AddComponents(component);
+
     message.Flags = MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications;
+
+    message.WithFlags(MessageFlags.SuppressEmbeds | MessageFlags.SuppressNotifications);
 }
 
 static void Menu()
@@ -191,9 +265,50 @@ static void Menu()
     component.MinValues = 2;
     component.MaxValues = 5;
     component.Disabled = true;
+
+    component
+        .WithPlaceholder("Select 2-5 animals")
+        .WithMinValues(2)
+        .WithMaxValues(5)
+        .WithDisabled();
 }
 
 static void ImplicitConversion()
 {
     MessageProperties message = "Hello, World!";
+}
+
+static class Classic
+{
+    static T CreateMessage<T>() where T : IMessageProperties, new()
+    {
+        return new()
+        {
+            Content = "Hello, World!",
+            Components = [],
+        };
+    }
+}
+
+static class Fluent
+{
+    static T CreateMessage<T>() where T : IMessageProperties, new()
+    {
+        T message = new();
+
+        message
+            .WithContent("Hello, World!")
+            .WithComponents([]);
+
+        return message;
+    }
+
+    static void UseCreateMessage()
+    {
+        IMessageProperties message;
+
+        message = CreateMessage<MessageProperties>();
+
+        message = CreateMessage<InteractionMessageProperties>();
+    }
 }

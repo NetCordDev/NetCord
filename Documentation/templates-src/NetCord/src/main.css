@@ -95,6 +95,10 @@ article img {
   border-radius: 10px;
 }
 
+.tabGroup > section > pre:last-of-type {
+  margin-bottom: 0;
+}
+
 article img {
   margin: 10px 0;
   box-shadow: 3px 3px 6px #111;
