@@ -26,7 +26,7 @@ When you run this code, when someone reacts to a message, the bot will notify ev
 Other events work similar to these. You can play with them if you want!
 
 > [!NOTE]
-> When using @NetCord.Gateway.ShardedGatewayClient, you need to implement @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1 instead. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add event handlers and @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseShardedGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind them instead.
+> When using @NetCord.Gateway.ShardedGatewayClient, you need to implement @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1 instead. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers* to add event handlers and @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseShardedGatewayEventHandlers* to bind them instead. See @sharding?text=Sharding for more information.
 
 ## [Bare Bones](#tab/bare-bones)
 

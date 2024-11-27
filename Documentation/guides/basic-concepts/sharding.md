@@ -1,25 +1,44 @@
+---
+uid: sharding
+omitAppTitle: true
+title: Scale Your C# Discord Bot with Sharding in NetCord
+description: Implement sharding for your C# Discord bot with NetCord to improve scalability and performance by distributing tasks across multiple gateway connections.
+---
+
 # Sharding
 
-## When to shard?
+Sharding allows your bot to split its responsibilities across multiple gateway connections. In NetCord, this is managed by the @NetCord.Gateway.ShardedGatewayClient, which acts as a controller for multiple instances of @NetCord.Gateway.GatewayClient. Each shard, represented by a @NetCord.Gateway.GatewayClient, handles a specific subset of guilds.
 
-Sharding is required when your bot is in more than 2500 guilds.
+## When to Shard
 
-## What is sharding?
+Sharding becomes necessary when your bot is in more than 2,500 guilds.
 
-Sharding is splitting your bot into multiple @"NetCord.Gateway.GatewayClient"s. Each shard, represented as a @NetCord.Gateway.GatewayClient instance, will be responsible for a certain number of guilds.
+## How to Shard
 
-## How to shard?
+### [.NET Generic Host](#tab/generic-host)
 
-## [.NET Generic Host](#tab/generic-host)
-
-To start sharding with the .NET Generic Host, instead of calling @NetCord.Hosting.Gateway.GatewayClientServiceCollectionExtensions.AddDiscordGateway(Microsoft.Extensions.DependencyInjection.IServiceCollection), you need to call @NetCord.Hosting.Gateway.ShardedGatewayClientServiceCollectionExtensions.AddDiscordShardedGateway(Microsoft.Extensions.DependencyInjection.IServiceCollection). Example:
+When using the .NET Generic Host, you can add the @NetCord.Gateway.ShardedGatewayClient by calling @NetCord.Hosting.Gateway.ShardedGatewayClientServiceCollectionExtensions.AddDiscordShardedGateway*.
 [!code-cs[Program.cs](ShardingHosting/Program.cs)]
 
-Also note that you need to use @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1 instead of @NetCord.Hosting.Gateway.IGatewayEventHandler or @NetCord.Hosting.Gateway.IGatewayEventHandler`1 for event handlers. You also need to use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add event handlers and @NetCord.Hosting.Gateway.GatewayEventHandlerHostExtensions.UseShardedGatewayEventHandlers(Microsoft.Extensions.Hosting.IHost) to bind them.
+### [Bare Bones](#tab/bare-bones)
 
-## [Bare Bones](#tab/bare-bones)
-
-To start sharding, you need to create an instance of @NetCord.Gateway.ShardedGatewayClient. Its usage is very similar to @NetCord.Gateway.GatewayClient. Example:
+For a bare-bones setup, you need to manually create an instance of @NetCord.Gateway.ShardedGatewayClient. Its API is very similar to @NetCord.Gateway.GatewayClient. Here's an example:
 [!code-cs[Program.cs](Sharding/Program.cs)]
 
-As you can see, the only difference in usage is that each event has an additional parameter, which is the @NetCord.Gateway.GatewayClient the event has been received from. Also note that events can be invoked concurrently from different shards.
+***
+
+## How to Register Events
+
+### [.NET Generic Host](#tab/generic-host)
+
+To register event handlers with sharding in the .NET Generic Host, use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers* to add all event handlers in an assembly and then call @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayEventHandlers* to bind these handlers to the sharded client.
+
+[!code-cs[Program.cs](ShardingHosting/RegisteringHandlers.cs?highlight=10,13#L12-L26)]
+
+When creating event handlers, implement @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1. Note the additional parameter representing the @NetCord.Gateway.GatewayClient that received the event.
+[!code-cs[Program.cs](ShardingHosting/MessageUpdateHandler.cs)]
+
+### [Bare Bones](#tab/bare-bones)
+
+For bare-bones setups, adding event handlers is straightforward. Each handler has an additional parameter for the @NetCord.Gateway.GatewayClient that received the event.
+[!code-cs[Program.cs](Sharding/RegisteringHandlers.cs#L18-L21)]
