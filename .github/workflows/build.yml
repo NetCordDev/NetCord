@@ -7,7 +7,7 @@ on:
       - alpha
 
 concurrency:
-  group: ${{ github.event.pull_request.number }}
+  group: ${{ github.ref_name }}
 
 jobs:
   build:
