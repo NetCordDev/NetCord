@@ -61,10 +61,22 @@ jobs:
           PR_NUMBER: ${{ steps.pr-context.outputs.number }}
         with:
           script: |
-            const number = process.env.PR_NUMBER
-            github.rest.issues.createComment({
+            const number = process.env.PR_NUMBER;
+
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `The documentation preview is available at https://preview.netcord.dev/${number}.`,
-            })
+            });
+
+            const body = `The documentation preview is available at https://preview.netcord.dev/${number}.`;
+            const duplicateComment = comments.find(comment => comment.user.id === 41898282 && comment.body === body);
+
+            if (!duplicateComment) {
+              await github.rest.issues.createComment({
+                issue_number: number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body,
+              });
+            }
