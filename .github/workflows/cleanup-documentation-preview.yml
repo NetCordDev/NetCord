@@ -1,10 +1,12 @@
 name: Cleanup Documentation Preview
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
-    paths:
-      - 'Documentation/**'
+
+concurrency:
+  group: ${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   documentation-preview:

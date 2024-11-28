@@ -27,21 +27,13 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
 
-      - name: Pack
+      - name: Pack Packages
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
-
-      - name: Publish
-        run: |
-          dotnet nuget push NetCord/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -52,6 +44,16 @@ jobs:
           dotnet tool install docfx -g --version 2.75.3
           npm install
           npm run build
+
+      - name: Publish Packages
+        env:
+          KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push NetCord/bin/Release/*.nupkg -k $KEY -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k $KEY -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $KEY -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $KEY -n -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -n -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
         uses: appleboy/scp-action@v0.1.7

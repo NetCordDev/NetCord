@@ -1,15 +1,13 @@
 name: Build
 
 on:
-  push:
-    branches-ignore:
-      - stable
-      - alpha
   pull_request:
-    types: [opened, synchronize]
     branches:
       - stable
       - alpha
+
+concurrency:
+  group: ${{ github.event.pull_request.number }}
 
 jobs:
   build:
@@ -32,13 +30,16 @@ jobs:
       - name: Test
         run: dotnet test -c Release --no-build --verbosity normal
 
-      - name: Pack
+      - name: Pack Packages
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
 
       - name: Build Documentation
         working-directory: Documentation
