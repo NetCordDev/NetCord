@@ -11,7 +11,7 @@ Sharding allows your bot to split its responsibilities across multiple gateway c
 
 ## When to Shard
 
-Sharding becomes necessary when your bot is in more than 2,500 guilds.
+Sharding becomes necessary when your bot exceeds 2,500 guilds. However, it's recommended to implement sharding earlier, typically when targeting 1,000+ guilds, to ensure smoother scaling and performance.
 
 ## How to Shard
 
