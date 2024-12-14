@@ -4,7 +4,7 @@
   <section class="buttons">
     <a href="guides/getting-started/installation.html" class="button primary-button">Get Started</a>
     <a href="guides/getting-started/installation.html" class="button secondary-button">Guides</a>
-    <a href="docs/" class="button secondary-button">Docs</a>
+    <a href="docs/" class="button secondary-button">API Docs</a>
   </section>
 </div>
 
