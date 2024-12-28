@@ -19,9 +19,9 @@ builder.Services
 
 var host = builder.Build();
 
-host.AddCommand<CommandContext>(
-        aliases: ["bye"],
-        ([MustContain<CommandContext>("bye")] string text) => text);
+host.AddCommand(
+    aliases: ["bye"],
+    ([MustContain<CommandContext>("bye")] string text) => text);
 
 host.AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();
