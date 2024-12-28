@@ -12,7 +12,7 @@ builder.Services
 
 var app = builder.Build();
 
-app.AddSlashCommand<HttpSlashCommandContext>("ping", "Ping!", () => "Pong!");
+app.AddSlashCommand("ping", "Ping!", () => "Pong!");
 
 // You can specify any pattern here, but remember to update it in the Discord Developer Portal
 app.UseHttpInteractions("/interactions");

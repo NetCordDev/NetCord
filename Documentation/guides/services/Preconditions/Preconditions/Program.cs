@@ -22,7 +22,7 @@ builder.Services
 
 var host = builder.Build();
 
-host.AddSlashCommand<SlashCommandContext>(
+host.AddSlashCommand(
         name: "hi",
         description: "Hi!",
         [RequireAnimatedAvatar<SlashCommandContext>] () => "Hi! You can use this command because your avatar is animated!");

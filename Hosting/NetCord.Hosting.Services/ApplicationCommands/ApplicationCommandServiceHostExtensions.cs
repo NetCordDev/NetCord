@@ -47,16 +47,16 @@ public static class ApplicationCommandServiceHostExtensions
     }
 
     public static IHost AddSlashCommand(this IHost host,
-                                                  string name,
-                                                  string description,
-                                                  Delegate handler,
-                                                  Permissions? defaultGuildUserPermissions = null,
-                                                  bool? dMPermission = null,
-                                                  bool defaultPermission = true,
-                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                  IEnumerable<InteractionContextType>? contexts = null,
-                                                  bool nsfw = false,
-                                                  ulong? guildId = null)
+                                        string name,
+                                        string description,
+                                        Delegate handler,
+                                        Permissions? defaultGuildUserPermissions = null,
+                                        bool? dMPermission = null,
+                                        bool defaultPermission = true,
+                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                        IEnumerable<InteractionContextType>? contexts = null,
+                                        bool nsfw = false,
+                                        ulong? guildId = null)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddSlashCommand(name,
@@ -73,15 +73,15 @@ public static class ApplicationCommandServiceHostExtensions
     }
 
     public static IHost AddUserCommand(this IHost host,
-                                                 string name,
-                                                 Delegate handler,
-                                                 Permissions? defaultGuildUserPermissions = null,
-                                                 bool? dMPermission = null,
-                                                 bool defaultPermission = true,
-                                                 IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                 IEnumerable<InteractionContextType>? contexts = null,
-                                                 bool nsfw = false,
-                                                 ulong? guildId = null)
+                                       string name,
+                                       Delegate handler,
+                                       Permissions? defaultGuildUserPermissions = null,
+                                       bool? dMPermission = null,
+                                       bool defaultPermission = true,
+                                       IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                       IEnumerable<InteractionContextType>? contexts = null,
+                                       bool nsfw = false,
+                                       ulong? guildId = null)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddUserCommand(name,
@@ -97,15 +97,15 @@ public static class ApplicationCommandServiceHostExtensions
     }
 
     public static IHost AddMessageCommand(this IHost host,
-                                                    string name,
-                                                    Delegate handler,
-                                                    Permissions? defaultGuildUserPermissions = null,
-                                                    bool? dMPermission = null,
-                                                    bool defaultPermission = true,
-                                                    IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                    IEnumerable<InteractionContextType>? contexts = null,
-                                                    bool nsfw = false,
-                                                    ulong? guildId = null)
+                                          string name,
+                                          Delegate handler,
+                                          Permissions? defaultGuildUserPermissions = null,
+                                          bool? dMPermission = null,
+                                          bool defaultPermission = true,
+                                          IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                          IEnumerable<InteractionContextType>? contexts = null,
+                                          bool nsfw = false,
+                                          ulong? guildId = null)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddMessageCommand(name,
