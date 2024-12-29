@@ -4,14 +4,14 @@ using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
 
-public class DataAutocompleteProvider(IDataProvider dataProvider) : IAutocompleteProvider<AutocompleteInteractionContext>
+public class DataAutocompleteProvider(IDataProvider provider) : IAutocompleteProvider<AutocompleteInteractionContext>
 {
     public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(
         ApplicationCommandInteractionDataOption option,
         AutocompleteInteractionContext context)
     {
         var input = option.Value!;
-        var data = dataProvider.GetData();
+        var data = provider.GetData();
 
         var result = data.Where(d => d.Contains(input))
                          .Take(25)

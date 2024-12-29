@@ -27,8 +27,8 @@ host.AddModules(typeof(Program).Assembly);
 host.AddSlashCommand(
         name: "data",
         description: "Shows the data!",
-        (IDataProvider dataProvider, ApplicationCommandContext context, int count) => string.Join(' ', dataProvider.GetData()
-                                                                                                                   .Take(count)));
+        (IDataProvider provider, ApplicationCommandContext context, int count) => string.Join(' ', provider.GetData()
+                                                                                                           .Take(count)));
 
 host.UseGatewayEventHandlers();
 

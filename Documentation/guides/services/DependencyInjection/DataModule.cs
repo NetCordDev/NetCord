@@ -2,8 +2,8 @@
 
 namespace MyBot;
 
-public class DataModule(IDataProvider dataProvider) : CommandModule<CommandContext>
+public class DataModule(IDataProvider provider) : CommandModule<CommandContext>
 {
     [Command("data")]
-    public string Data(int count) => string.Join(' ', dataProvider.GetData().Take(count));
+    public string Data(int count) => string.Join(' ', provider.GetData().Take(count));
 }
