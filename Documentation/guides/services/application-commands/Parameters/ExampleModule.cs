@@ -3,7 +3,7 @@ using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
 
-public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
+public class ExampleModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("username", "Returns user's username")]
     public string Username(User? user = null)

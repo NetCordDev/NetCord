@@ -14,7 +14,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
     .AddDiscordGateway()
-    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
+    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext>()
     .AddCommands<CommandContext>();
 
 var host = builder.Build();

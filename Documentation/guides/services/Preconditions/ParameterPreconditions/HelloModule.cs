@@ -2,8 +2,8 @@
 
 namespace MyBot;
 
-public class HelloModule : ApplicationCommandModule<SlashCommandContext>
+public class HelloModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("hello", "Say hello!")]
-    public static string Hello([MustContain<SlashCommandContext>("hello")] string text) => text;
+    public static string Hello([MustContain<ApplicationCommandContext>("hello")] string text) => text;
 }

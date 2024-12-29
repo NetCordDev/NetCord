@@ -7,7 +7,7 @@ using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
 
-public class VoiceModule : ApplicationCommandModule<SlashCommandContext>
+public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("play", "Plays music", Contexts = [InteractionContextType.Guild])]
     public async Task PlayAsync(string track)

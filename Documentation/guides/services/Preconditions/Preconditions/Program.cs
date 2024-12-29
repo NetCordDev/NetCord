@@ -16,7 +16,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
     .AddDiscordGateway()
-    .AddApplicationCommands<SlashCommandInteraction, SlashCommandContext>()
+    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddCommands<CommandContext>();
 
@@ -25,7 +25,7 @@ var host = builder.Build();
 host.AddSlashCommand(
         name: "hi",
         description: "Hi!",
-        [RequireAnimatedAvatar<SlashCommandContext>] () => "Hi! You can use this command because your avatar is animated!");
+        [RequireAnimatedAvatar<ApplicationCommandContext>] () => "Hi! You can use this command because your avatar is animated!");
 
 host.AddModules(typeof(Program).Assembly)
     .UseGatewayEventHandlers();

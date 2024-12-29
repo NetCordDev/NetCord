@@ -5,19 +5,19 @@ using NetCord.Services.ApplicationCommands;
 namespace MyBot;
 
 [SlashCommand("guild", "Guild command")]
-public class GuildCommandsModule : ApplicationCommandModule<SlashCommandContext>
+public class GuildCommandsModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SubSlashCommand("channels", "Get guild channel count")]
     public string Channels() => $"Channels: {Context.Guild!.Channels.Count}";
 
     [SubSlashCommand("name", "Guild name")]
-    public class GuildNameModule : ApplicationCommandModule<SlashCommandContext>
+    public class GuildNameModule : ApplicationCommandModule<ApplicationCommandContext>
     {
         [SubSlashCommand("get", "Get guild name")]
         public string GetName() => $"Name: {Context.Guild!.Name}";
 
-        [RequireUserPermissions<SlashCommandContext>(Permissions.ManageGuild)]
-        [RequireBotPermissions<SlashCommandContext>(Permissions.ManageGuild)]
+        [RequireUserPermissions<ApplicationCommandContext>(Permissions.ManageGuild)]
+        [RequireBotPermissions<ApplicationCommandContext>(Permissions.ManageGuild)]
         [SubSlashCommand("set", "Set guild name")]
         public async Task<string> SetNameAsync(string name)
         {

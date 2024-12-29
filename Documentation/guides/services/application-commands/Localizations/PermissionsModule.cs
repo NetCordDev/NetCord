@@ -4,10 +4,10 @@ using NetCord.Services.ApplicationCommands;
 namespace MyBot;
 
 [SlashCommand("permissions", "Manages permissions")]
-public class PermissionsModule : ApplicationCommandModule<SlashCommandContext>
+public class PermissionsModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SubSlashCommand("user", "Manages user permissions")]
-    public class UserPermissionsModule : ApplicationCommandModule<SlashCommandContext>
+    public class UserPermissionsModule : ApplicationCommandModule<ApplicationCommandContext>
     {
         [SubSlashCommand("show", "Shows user permissions")]
         public static string Show(
@@ -18,7 +18,7 @@ public class PermissionsModule : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SubSlashCommand("role", "Manages role permissions")]
-    public class RolePermissionsModule : ApplicationCommandModule<SlashCommandContext>
+    public class RolePermissionsModule : ApplicationCommandModule<ApplicationCommandContext>
     {
         [SubSlashCommand("show", "Shows role permissions")]
         public static string Show(

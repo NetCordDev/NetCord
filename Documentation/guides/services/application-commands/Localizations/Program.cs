@@ -9,7 +9,7 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
     Intents = default,
 });
 
-ApplicationCommandService<SlashCommandContext> applicationCommandService = new(ApplicationCommandServiceConfiguration<SlashCommandContext>.Default with
+ApplicationCommandService<ApplicationCommandContext> applicationCommandService = new(ApplicationCommandServiceConfiguration<ApplicationCommandContext>.Default with
 {
     LocalizationsProvider = new JsonLocalizationsProvider(),
 });
@@ -18,10 +18,10 @@ applicationCommandService.AddModules(typeof(Program).Assembly);
 
 client.InteractionCreate += async interaction =>
 {
-    if (interaction is not SlashCommandInteraction slashCommandInteraction)
+    if (interaction is not ApplicationCommandInteraction applicationCommandInteraction)
         return;
 
-    var result = await applicationCommandService.ExecuteAsync(new SlashCommandContext(slashCommandInteraction, client));
+    var result = await applicationCommandService.ExecuteAsync(new ApplicationCommandContext(applicationCommandInteraction, client));
 
     if (result is not IFailResult failResult)
         return;

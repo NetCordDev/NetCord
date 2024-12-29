@@ -2,7 +2,7 @@
 
 namespace MyBot;
 
-public class AnimalModule : ApplicationCommandModule<SlashCommandContext>
+public class AnimalModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("animal", "Sends the animal you selected")]
     public static string Animal(

@@ -4,7 +4,7 @@ using NetCord.Services.ApplicationCommands;
 
 namespace MyBot;
 
-public class ExampleModule : ApplicationCommandModule<SlashCommandContext>
+public class ExampleModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("mention-everyone", "Mentions @everyone",
         DefaultGuildUserPermissions = Permissions.MentionEveryone,
