@@ -30,8 +30,6 @@
       items:
         - name: Introduction
           href: services/application-commands/introduction.md
-        - name: Multiple Services
-          href: services/application-commands/multiple-services.md
         - name: Parameters
           href: services/application-commands/parameters.md
         - name: Subcommands
@@ -40,6 +38,8 @@
           href: services/application-commands/permissions.md
         - name: Localizations
           href: services/application-commands/localizations.md
+        - name: Multiple Services
+          href: services/application-commands/multiple-services.md
     - name: Component Interactions
       items:
         - name: Introduction
