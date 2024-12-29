@@ -15,7 +15,7 @@ Dependency injection with minimal APIs can seem complicated at first, but it is 
 What you need to know is that parameters preceding the context parameter are treated as services and parameters following the context parameter are treated as command/interaction parameters. When the context parameter is not present, all parameters are treated as command/interaction parameters.
 
 You can see an example slash command below, but the same rules apply to all services:
-[!code-cs[Program.cs](DependencyInjection/Program.cs#L27-L31)]
+[!code-cs[Program.cs](DependencyInjection/Program.cs#L27-L32)]
 
 ## Modules
 
