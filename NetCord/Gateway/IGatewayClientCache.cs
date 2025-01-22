@@ -5,10 +5,8 @@ namespace NetCord.Gateway;
 public interface IGatewayClientCache : IDisposable
 {
     public CurrentUser? User { get; }
-    public IReadOnlyDictionary<ulong, DMChannel> DMChannels { get; }
     public IReadOnlyDictionary<ulong, Guild> Guilds { get; }
 
-    public IGatewayClientCache CacheDMChannel(DMChannel dMChannel);
     public IGatewayClientCache CacheGuild(Guild guild);
     public IGatewayClientCache CacheGuildUser(GuildUser user);
     public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<GuildUser> users);

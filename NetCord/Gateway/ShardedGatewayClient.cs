@@ -43,7 +43,6 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
                                                                    _ => null,
                                                                    _ => null,
                                                                    null,
-                                                                   null,
                                                                    null);
         }
 
@@ -61,7 +60,6 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
                                                                configuration.LargeThresholdFactory ?? (_ => null),
                                                                configuration.PresenceFactory ?? (_ => null),
                                                                configuration.ShardCount,
-                                                               configuration.CacheDMChannels,
                                                                configuration.RestClientConfiguration);
     }
 
@@ -230,7 +228,6 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
                                                         configuration.LargeThresholdFactory!(shard),
                                                         configuration.PresenceFactory!(shard),
                                                         shard,
-                                                        configuration.CacheDMChannels,
                                                         null);
     }
 
@@ -1604,20 +1601,20 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         }
     }
 
-    private static void DisposeClients(IReadOnlyList<GatewayClient>? clients, bool initialized)
+    private static void DisposeClients(GatewayClient[]? clients, bool initialized)
     {
         if (clients is null)
             return;
 
-        var count = clients.Count;
+        var length = clients.Length;
         if (initialized)
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < length; i++)
                 clients[i]!.Dispose();
         }
         else
         {
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < length; i++)
             {
                 var client = clients[i];
                 if (client is null)

@@ -22,7 +22,6 @@ internal static class ShardedGatewayClientConfigurationFactory
                                                            Func<Shard, int?>? largeThresholdFactory,
                                                            Func<Shard, PresenceProperties?>? presenceFactory,
                                                            int? shardCount,
-                                                           bool? cacheDMChannels,
                                                            RestClientConfiguration? restClientConfiguration)
     {
         return new()
@@ -41,7 +40,6 @@ internal static class ShardedGatewayClientConfigurationFactory
             LargeThresholdFactory = largeThresholdFactory,
             PresenceFactory = presenceFactory,
             ShardCount = shardCount,
-            CacheDMChannels = cacheDMChannels,
             RestClientConfiguration = restClientConfiguration,
         };
     }

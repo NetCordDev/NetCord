@@ -21,6 +21,5 @@ public class ShardedGatewayClientConfiguration
     public Func<Shard, int?>? LargeThresholdFactory { get; init; }
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; init; }
     public int? ShardCount { get; init; }
-    public bool? CacheDMChannels { get; init; }
     public Rest.RestClientConfiguration? RestClientConfiguration { get; init; }
 }

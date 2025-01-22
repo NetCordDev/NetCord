@@ -37,7 +37,7 @@ public class Message(JsonMessage jsonModel, Guild? guild, TextChannel? channel, 
         else
         {
             guild = null;
-            channel = cache.DMChannels.GetValueOrDefault(jsonModel.ChannelId);
+            channel = null;
         }
 
         return (guild, channel);

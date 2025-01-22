@@ -52,8 +52,6 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     public int? ShardCount { get; set; }
 
-    public bool? CacheDMChannels { get; set; }
-
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
     // Simple properties
@@ -98,7 +96,6 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
                                                                CreateFactory(LargeThreshold, LargeThresholdFactory),
                                                                CreateFactory(Presence, PresenceFactory),
                                                                ShardCount,
-                                                               CacheDMChannels,
                                                                RestClientConfiguration);
 
         static Func<Shard, T?>? CreateFactory<T>(T? value, Func<Shard, T?>? func, [CallerArgumentExpression(nameof(value))] string valueName = "", [CallerArgumentExpression(nameof(func))] string funcName = "")

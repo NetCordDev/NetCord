@@ -51,8 +51,6 @@ public partial class GatewayClientOptions : IDiscordOptions
 
     public Shard? Shard { get; set; }
 
-    public bool? CacheDMChannels { get; set; }
-
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
     internal GatewayClientConfiguration CreateConfiguration()
@@ -71,7 +69,6 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         LargeThreshold,
                                                         Presence,
                                                         Shard,
-                                                        CacheDMChannels,
                                                         RestClientConfiguration);
     }
 }

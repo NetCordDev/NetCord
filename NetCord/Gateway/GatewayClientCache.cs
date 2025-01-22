@@ -10,7 +10,6 @@ public sealed record GatewayClientCache : IGatewayClientCache
 {
     public GatewayClientCache()
     {
-        _DMChannels = CollectionsUtils.CreateImmutableDictionary<ulong, DMChannel>();
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
@@ -19,18 +18,15 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
-        _DMChannels = jsonModel.DMChannels.ToImmutableDictionary(c => c.Id, c => DMChannel.CreateFromJson(c, client));
         _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client));
     }
 
     public CurrentUser? User => _user;
-    public IReadOnlyDictionary<ulong, DMChannel> DMChannels => _DMChannels;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
 #pragma warning disable IDE0032 // Use auto property
     private CurrentUser? _user;
 #pragma warning restore IDE0032 // Use auto property
-    private ImmutableDictionary<ulong, DMChannel> _DMChannels;
     private ImmutableDictionary<ulong, Guild> _guilds;
 
     public JsonGatewayClientCache ToJsonModel()
@@ -38,16 +34,7 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return new()
         {
             User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            DMChannels = _DMChannels.Select(p => ((IJsonModel<JsonChannel>)p.Value).JsonModel).ToArray(),
             Guilds = _guilds.Select(p => ((IJsonModel<JsonGuild>)p.Value).JsonModel).ToArray(),
-        };
-    }
-
-    public IGatewayClientCache CacheDMChannel(DMChannel dMChannel)
-    {
-        return this with
-        {
-            _DMChannels = _DMChannels.SetItem(dMChannel.Id, dMChannel),
         };
     }
 

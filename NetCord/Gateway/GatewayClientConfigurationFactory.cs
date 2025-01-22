@@ -22,7 +22,6 @@ internal static class GatewayClientConfigurationFactory
                                                     int? largeThreshold,
                                                     PresenceProperties? presence,
                                                     Shard? shard,
-                                                    bool? cacheDMChannels,
                                                     RestClientConfiguration? restClientConfiguration)
     {
         return new()
@@ -41,7 +40,6 @@ internal static class GatewayClientConfigurationFactory
             LargeThreshold = largeThreshold,
             Presence = presence,
             Shard = shard,
-            CacheDMChannels = cacheDMChannels,
             RestClientConfiguration = restClientConfiguration,
         };
     }

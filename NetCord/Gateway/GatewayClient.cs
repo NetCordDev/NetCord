@@ -17,9 +17,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
     private readonly int? _largeThreshold;
     private readonly PresenceProperties? _presence;
     private readonly GatewayIntents _intents;
-    private readonly bool _cacheDMChannels;
-    private readonly object? _DMsLock;
-    private readonly Dictionary<ulong, SemaphoreSlim>? _DMSemaphores;
     private readonly IGatewayCompression _compression;
     private readonly bool _disposeRest;
 
@@ -837,12 +834,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
         _presence = configuration.Presence;
         _intents = configuration.Intents.GetValueOrDefault(GatewayIntents.AllNonPrivileged);
 
-        if (_cacheDMChannels = configuration.CacheDMChannels.GetValueOrDefault(true))
-        {
-            _DMsLock = new();
-            _DMSemaphores = [];
-        }
-
         var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
         Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}&encoding=json&compress={compression.Name}", UriKind.Absolute);
         Cache = configuration.Cache ?? new GatewayClientCache();
@@ -1290,36 +1281,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "MESSAGE_CREATE":
                 {
-                    await InvokeEventAsync(
-                        MessageCreate,
-                        () => data.ToObject(Serialization.Default.JsonMessage),
-                        json => Message.CreateFromJson(json, Cache, Rest),
-                        json => _cacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
-                        json =>
-                        {
-                            var channelId = json.ChannelId;
-                            if (!_DMSemaphores!.TryGetValue(channelId, out var semaphore))
-                                _DMSemaphores.Add(channelId, semaphore = new(1, 1));
-                            return semaphore;
-                        },
-                        json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
+                    await InvokeEventAsync(MessageCreate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    await InvokeEventAsync(
-                        MessageUpdate,
-                        () => data.ToObject(Serialization.Default.JsonMessage),
-                        json => Message.CreateFromJson(json, Cache, Rest),
-                        json => _cacheDMChannels && !json.GuildId.HasValue && !json.Flags.GetValueOrDefault().HasFlag(MessageFlags.Ephemeral),
-                        json =>
-                        {
-                            var channelId = json.ChannelId;
-                            if (!_DMSemaphores!.TryGetValue(channelId, out var semaphore))
-                                _DMSemaphores.Add(channelId, semaphore = new(1, 1));
-                            return semaphore;
-                        },
-                        json => CacheChannelAsync(json.ChannelId)).ConfigureAwait(false);
+                    await InvokeEventAsync(MessageUpdate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE":
@@ -1457,20 +1424,6 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         ulong GetGuildId() => data.GetProperty("guild_id").ToObject(Serialization.Default.UInt64);
-
-        async ValueTask CacheChannelAsync(ulong channelId)
-        {
-            var cache = Cache;
-            if (!cache.DMChannels.ContainsKey(channelId))
-            {
-                var channel = await Rest.GetChannelAsync(channelId).ConfigureAwait(false);
-                if (channel is DMChannel dMChannel)
-                {
-                    lock (_DMsLock!)
-                        Cache = Cache.CacheDMChannel(dMChannel);
-                }
-            }
-        }
     }
 
     protected override void Dispose(bool disposing)
