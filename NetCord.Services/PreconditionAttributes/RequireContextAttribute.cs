@@ -9,7 +9,7 @@ namespace NetCord.Services;
 public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext
 {
     public RequiredContext RequiredContext => GetRequiredContext(_guild);
-    
+
     public string Format => _format.Format;
 
     private readonly bool _guild;
