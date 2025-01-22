@@ -4,48 +4,55 @@ using System.Text;
 
 namespace NetCord.Services;
 
-public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IChannelContext
-{
-    public RequiredContext RequiredContext { get; }
+#pragma warning disable IDE0290 // Use primary constructor
 
+public class RequireContextAttribute<TContext> : PreconditionAttribute<TContext> where TContext : IGuildContext
+{
+    public RequiredContext RequiredContext => GetRequiredContext(_guild);
+    
     public string Format => _format.Format;
 
+    private readonly bool _guild;
     private readonly CompositeFormat _format;
 
     /// <param name="requiredContext"></param>
     /// <param name="format">{0} - required context</param>
     public RequireContextAttribute(RequiredContext requiredContext, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format = "Required context: {0}.")
     {
-        if (requiredContext > RequiredContext.DM)
-            throw new InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext));
+        _guild = requiredContext switch
+        {
+            RequiredContext.Guild => true,
+            RequiredContext.DM => false,
+            _ => throw new InvalidEnumArgumentException(nameof(requiredContext), (int)requiredContext, typeof(RequiredContext)),
+        };
 
-        RequiredContext = requiredContext;
         _format = CompositeFormat.Parse(format);
     }
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        var channel = context.Channel;
+        var guild = _guild;
+        var hasValue = context.GuildId.HasValue;
 
-        var requiredContext = RequiredContext;
-
-        if (requiredContext switch
+        if (guild switch
         {
-            RequiredContext.Guild => channel is not IGuildChannel,
-            RequiredContext.GroupDM => channel is not GroupDMChannel,
-            RequiredContext.DM => channel is not DMChannel,
-            _ => throw new InvalidOperationException(),
+            true => !hasValue,
+            false => hasValue,
         })
+        {
+            var requiredContext = GetRequiredContext(guild);
             return new(new InvalidContextResult(string.Format(null, _format, requiredContext), requiredContext));
+        }
 
         return new(PreconditionResult.Success);
     }
+
+    private static RequiredContext GetRequiredContext(bool guild) => guild ? RequiredContext.Guild : RequiredContext.DM;
 }
 
 public enum RequiredContext : byte
 {
     Guild,
-    GroupDM,
     DM,
 }
 

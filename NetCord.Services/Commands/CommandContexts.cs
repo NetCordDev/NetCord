@@ -18,4 +18,6 @@ public class CommandContext(Message message, GatewayClient client)
     public Guild? Guild => Message.Guild;
     public TextChannel? Channel => Message.Channel;
     public User User => Message.Author;
+
+    ulong? IGuildContext.GuildId => Message.GuildId;
 }

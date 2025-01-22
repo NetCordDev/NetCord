@@ -18,4 +18,6 @@ public class AutocompleteInteractionContext(AutocompleteInteraction interaction,
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
 }

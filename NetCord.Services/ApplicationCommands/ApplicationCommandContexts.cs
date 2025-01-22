@@ -19,6 +19,8 @@ public class ApplicationCommandContext(ApplicationCommandInteraction interaction
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 public class HttpApplicationCommandContext(ApplicationCommandInteraction interaction, RestClient client)
@@ -50,6 +52,8 @@ public class SlashCommandContext(SlashCommandInteraction interaction, GatewayCli
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 public class HttpSlashCommandContext(SlashCommandInteraction interaction, RestClient client)
@@ -82,6 +86,8 @@ public class UserCommandContext(UserCommandInteraction interaction, GatewayClien
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public User Target => Interaction.Data.TargetUser;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 public class HttpUserCommandContext(UserCommandInteraction interaction, RestClient client)
@@ -115,6 +121,8 @@ public class MessageCommandContext(MessageCommandInteraction interaction, Gatewa
     public TextChannel Channel => Interaction.Channel;
     public User User => Interaction.User;
     public RestMessage Target => Interaction.Data.TargetMessage;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
 
 public class HttpMessageCommandContext(MessageCommandInteraction interaction, RestClient client)
