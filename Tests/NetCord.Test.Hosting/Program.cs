@@ -41,13 +41,13 @@ builder.Services
     .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
     .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
-    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(options =>
+    .AddApplicationCommands(options =>
     {
         options.ResultHandler = new CustomApplicationCommandResultHandler();
     })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
-    .AddCommands<CommandContext>()
+    .AddCommands()
     .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
     .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
     .AddGatewayEventHandler<ConnectHandler>()
