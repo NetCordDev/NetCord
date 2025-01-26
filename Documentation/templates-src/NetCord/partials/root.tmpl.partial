@@ -8,6 +8,17 @@
   </section>
 </div>
 
+<div class="code-example-section">
+  <h3 class="section-title">Create Your First Discord Bot in Minutes!</h3>
+  <h4 class="section-text">
+    Quickly add a <code>/square</code> command to calculate squares with just a few lines of C#.
+  </h4>
+  <div class="code-example">
+    <pre><code class="lang-cs" name="Program.cs">{{>partials/example}}</code></pre>
+  </div>
+  <h4 class="section-text">Start building now with NetCord!</h4>
+</div>
+
 <div class="features-section">
   <h3 class="section-title">Key Features of NetCord</h3>
   <div class="features-container">
@@ -60,13 +71,4 @@
       <p>NetCord is open source and forever free to use under the permissive MIT license, making it an ideal choice for developers at any level.</p>
     </div>
   </div>
-</div>
-
-<div class="code-example-section">
-  <h3 class="section-title">Create Your First Discord Bot in Minutes!</h3>
-  <h4 class="section-text">Quickly add a <code>/square</code> command to calculate squares with just a few lines of C#.</h4>
-  <div class="code-example">
-    <pre><code class="lang-cs" name="Program.cs">{{>partials/example}}</code></pre>
-  </div>
-  <h4 class="section-text">Start building now with NetCord!</h4>
 </div>

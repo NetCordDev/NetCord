@@ -140,6 +140,7 @@ article,
   display: flex;
   justify-content: center;
   margin: 0 6vw;
+  padding-bottom: 50px;
 }
 
 .main {
@@ -335,7 +336,7 @@ code,
 }
 
 .features-section {
-  padding: 100px 0;
+  padding-bottom: 100px;
   color: var(--bs-emphasis-color);
 }
 
@@ -350,6 +351,7 @@ code,
   }
 
 .code-example-section {
+  padding-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
