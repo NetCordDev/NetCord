@@ -340,8 +340,9 @@ code,
 }
 
 .code-example {
-  font-size: 1.2em;
   width: fit-content;
+  max-width: 100%;
+  font-size: 1em;
 }
 
   .code-example pre code.hljs {
@@ -448,6 +449,10 @@ body {
   .navbar > .container-xxl {
     padding-left: 40px;
     padding-right: 40px;
+  }
+
+  .code-example {
+    font-size: 1.2em;
   }
 }
 
