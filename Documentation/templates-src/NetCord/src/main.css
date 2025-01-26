@@ -140,7 +140,6 @@ article,
   display: flex;
   justify-content: center;
   margin: 0 6vw;
-  padding-bottom: 50px;
 }
 
 .main {
@@ -351,6 +350,7 @@ code,
   }
 
 .code-example-section {
+  margin-top: 100px;
   padding-bottom: 20px;
   display: flex;
   flex-direction: column;
