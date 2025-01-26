@@ -9,7 +9,7 @@
 </div>
 
 <div class="code-example-section">
-  <h3 class="section-title">Create Your First Discord Bot in Minutes!</h3>
+  <h3 class="section-title">Build a Discord Bot in Minutes!</h3>
   <h4 class="section-text">
     Quickly add a <code>/square</code> command to calculate squares with just a few lines of C#.
   </h4>
