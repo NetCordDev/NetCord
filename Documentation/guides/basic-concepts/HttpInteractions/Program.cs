@@ -1,14 +1,12 @@
-﻿using NetCord;
-using NetCord.Hosting.AspNetCore;
+﻿using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;
 using NetCord.Hosting.Services.ApplicationCommands;
-using NetCord.Services.ApplicationCommands;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDiscordRest()
-    .AddApplicationCommands<ApplicationCommandInteraction, HttpApplicationCommandContext>();
+    .AddHttpApplicationCommands();
 
 var app = builder.Build();
 

@@ -57,7 +57,7 @@ The following example sets up a bot with a minimal API-style approach for the `/
 ```cs
 var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
-    .UseApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext>();
+    .UseApplicationCommands();
 
 var host = builder.Build()
     .AddSlashCommand("square", "Square!", (int a) => $"{a}² = {a * a}")

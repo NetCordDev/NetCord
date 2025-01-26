@@ -9,7 +9,7 @@ using NetCord.Services.ApplicationCommands;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
-    .AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext>(options =>
+    .AddApplicationCommands(options =>
     {
         options.LocalizationsProvider = new JsonLocalizationsProvider();
     })

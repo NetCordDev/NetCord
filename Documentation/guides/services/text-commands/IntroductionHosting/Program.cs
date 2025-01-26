@@ -9,7 +9,7 @@ var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
     .AddDiscordGateway()
-    .AddCommands<CommandContext>();
+    .AddCommands();
 
 var host = builder.Build();
 
