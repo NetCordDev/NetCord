@@ -368,6 +368,7 @@ code,
   font-size: 18px;
   text-align: center;
   margin-bottom: 30px;
+  padding: 0 10px;
 }
 
 .features-container {
@@ -429,11 +430,7 @@ body {
   }
 
   .section-title {
-    font-size: 7vw;
-  }
-
-  .features-section {
-    padding: 50px 0;
+    font-size: 5.5vw;
   }
 
   .feature-item {
