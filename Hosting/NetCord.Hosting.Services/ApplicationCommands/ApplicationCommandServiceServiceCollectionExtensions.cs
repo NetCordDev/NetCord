@@ -87,6 +87,46 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
 
     // Add
 
+    public static IServiceCollection AddApplicationCommands(
+        this IServiceCollection services)
+    {
+        return services.AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>((_, _) => { });
+    }
+
+    public static IServiceCollection AddApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>> configureOptions)
+    {
+        return services.AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection AddApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return services.AddApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(configureOptions);
+    }
+
+    public static IServiceCollection AddHttpApplicationCommands(
+        this IServiceCollection services)
+    {
+        return services.AddApplicationCommands<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>((_, _) => { });
+    }
+
+    public static IServiceCollection AddHttpApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>> configureOptions)
+    {
+        return services.AddApplicationCommands<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection AddHttpApplicationCommands(
+        this IServiceCollection services,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return services.AddApplicationCommands(configureOptions);
+    }
+
     public static IServiceCollection AddApplicationCommands<TInteraction,
                                                             [DAM(DAMT.PublicConstructors)] TContext>(
         this IServiceCollection services)

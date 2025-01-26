@@ -46,6 +46,46 @@ public static class ComponentInteractionServiceHostBuilderExtensions
 
     // Use
 
+    public static IHostBuilder UseComponentInteractions(
+        this IHostBuilder builder)
+    {
+        return builder.UseComponentInteractions<ComponentInteraction, ComponentInteractionContext>((_, _) => { });
+    }
+
+    public static IHostBuilder UseComponentInteractions(
+        this IHostBuilder builder,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, ComponentInteractionContext>> configureOptions)
+    {
+        return builder.UseComponentInteractions<ComponentInteraction, ComponentInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder UseComponentInteractions(
+        this IHostBuilder builder,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, ComponentInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return builder.UseComponentInteractions<ComponentInteraction, ComponentInteractionContext>(configureOptions);
+    }
+
+    public static IHostBuilder UseHttpComponentInteractions(
+        this IHostBuilder builder)
+    {
+        return builder.UseComponentInteractions<ComponentInteraction, HttpComponentInteractionContext>((_, _) => { });
+    }
+
+    public static IHostBuilder UseHttpComponentInteractions(
+        this IHostBuilder builder,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, HttpComponentInteractionContext>> configureOptions)
+    {
+        return builder.UseComponentInteractions<ComponentInteraction, HttpComponentInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder UseHttpComponentInteractions(
+        this IHostBuilder builder,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, HttpComponentInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return builder.UseComponentInteractions(configureOptions);
+    }
+
     public static IHostBuilder UseComponentInteractions<TInteraction,
                                                         [DAM(DAMT.PublicConstructors)] TContext>(
         this IHostBuilder builder)

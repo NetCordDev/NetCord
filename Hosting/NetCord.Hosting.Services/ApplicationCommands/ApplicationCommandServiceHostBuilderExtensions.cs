@@ -71,6 +71,46 @@ public static class ApplicationCommandServiceHostBuilderExtensions
 
     // Use
 
+    public static IHostBuilder UseApplicationCommands(
+        this IHostBuilder builder)
+    {
+        return builder.UseApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>((_, _) => { });
+    }
+
+    public static IHostBuilder UseApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>> configureOptions)
+    {
+        return builder.UseApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder UseApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return builder.UseApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(configureOptions);
+    }
+
+    public static IHostBuilder UseHttpApplicationCommands(
+        this IHostBuilder builder)
+    {
+        return builder.UseApplicationCommands<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>((_, _) => { });
+    }
+
+    public static IHostBuilder UseHttpApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>> configureOptions)
+    {
+        return builder.UseApplicationCommands<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder UseHttpApplicationCommands(
+        this IHostBuilder builder,
+        Action<ApplicationCommandServiceOptions<ApplicationCommandInteraction, HttpApplicationCommandContext, HttpAutocompleteInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return builder.UseApplicationCommands(configureOptions);
+    }
+
     public static IHostBuilder UseApplicationCommands<TInteraction,
                                                       [DAM(DAMT.PublicConstructors)] TContext>(
         this IHostBuilder builder)

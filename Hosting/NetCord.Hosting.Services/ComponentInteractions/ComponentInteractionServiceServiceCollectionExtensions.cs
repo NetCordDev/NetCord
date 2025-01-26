@@ -57,6 +57,46 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
 
     // Add
 
+    public static IServiceCollection AddComponentInteractions(
+        this IServiceCollection services)
+    {
+        return services.AddComponentInteractions<ComponentInteraction, ComponentInteractionContext>((_, _) => { });
+    }
+
+    public static IServiceCollection AddComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, ComponentInteractionContext>> configureOptions)
+    {
+        return services.AddComponentInteractions<ComponentInteraction, ComponentInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection AddComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, ComponentInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return services.AddComponentInteractions<ComponentInteraction, ComponentInteractionContext>(configureOptions);
+    }
+
+    public static IServiceCollection AddHttpComponentInteractions(
+        this IServiceCollection services)
+    {
+        return services.AddComponentInteractions<ComponentInteraction, HttpComponentInteractionContext>((_, _) => { });
+    }
+
+    public static IServiceCollection AddHttpComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, HttpComponentInteractionContext>> configureOptions)
+    {
+        return services.AddComponentInteractions<ComponentInteraction, HttpComponentInteractionContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection AddHttpComponentInteractions(
+        this IServiceCollection services,
+        Action<ComponentInteractionServiceOptions<ComponentInteraction, HttpComponentInteractionContext>, IServiceProvider> configureOptions)
+    {
+        return services.AddComponentInteractions(configureOptions);
+    }
+
     public static IServiceCollection AddComponentInteractions<TInteraction,
                                                               [DAM(DAMT.PublicConstructors)] TContext>(
         this IServiceCollection services)

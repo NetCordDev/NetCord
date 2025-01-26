@@ -42,6 +42,26 @@ public static class CommandServiceHostBuilderExtensions
 
     // Use
 
+    public static IHostBuilder UseCommands(
+        this IHostBuilder builder)
+    {
+        return builder.UseCommands<CommandContext>((_, _) => { });
+    }
+
+    public static IHostBuilder UseCommands(
+        this IHostBuilder builder,
+        Action<CommandServiceOptions<CommandContext>> configureOptions)
+    {
+        return builder.UseCommands<CommandContext>((options, _) => configureOptions(options));
+    }
+
+    public static IHostBuilder UseCommands(
+        this IHostBuilder builder,
+        Action<CommandServiceOptions<CommandContext>, IServiceProvider> configureOptions)
+    {
+        return builder.UseCommands<CommandContext>(configureOptions);
+    }
+
     public static IHostBuilder UseCommands<[DAM(DAMT.PublicConstructors)] TContext>(
         this IHostBuilder builder)
 

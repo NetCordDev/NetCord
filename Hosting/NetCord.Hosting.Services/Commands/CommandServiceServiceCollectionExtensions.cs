@@ -53,6 +53,26 @@ public static class CommandServiceServiceCollectionExtensions
 
     // Add
 
+    public static IServiceCollection AddCommands(
+        this IServiceCollection services)
+    {
+        return services.AddCommands<CommandContext>((_, _) => { });
+    }
+
+    public static IServiceCollection AddCommands(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<CommandContext>> configureOptions)
+    {
+        return services.AddCommands<CommandContext>((options, _) => configureOptions(options));
+    }
+
+    public static IServiceCollection AddCommands(
+        this IServiceCollection services,
+        Action<CommandServiceOptions<CommandContext>, IServiceProvider> configureOptions)
+    {
+        return services.AddCommands<CommandContext>(configureOptions);
+    }
+
     public static IServiceCollection AddCommands<[DAM(DAMT.PublicConstructors)] TContext>(
         this IServiceCollection services)
 
