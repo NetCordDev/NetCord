@@ -4,6 +4,19 @@ namespace NetCord;
 
 public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.JsonGuildScheduledEvent>
 {
+    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+
+        var creator = _jsonModel.Creator;
+        if (creator is not null)
+            Creator = new(creator, client);
+
+        var recurrenceRule = _jsonModel.RecurrenceRule;
+        if (recurrenceRule is not null)
+            RecurrenceRule = new(recurrenceRule);
+    }
+
     JsonModels.JsonGuildScheduledEvent IJsonModel<JsonModels.JsonGuildScheduledEvent>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonGuildScheduledEvent _jsonModel;
 
@@ -40,19 +53,6 @@ public partial class GuildScheduledEvent : ClientEntity, IJsonModel<JsonModels.J
     public string? CoverImageHash => _jsonModel.CoverImageHash;
 
     public GuildScheduledEventRecurrenceRule? RecurrenceRule { get; }
-
-    public GuildScheduledEvent(JsonModels.JsonGuildScheduledEvent jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        var creator = _jsonModel.Creator;
-        if (creator is not null)
-            Creator = new(creator, client);
-
-        var recurrenceRule = _jsonModel.RecurrenceRule;
-        if (recurrenceRule is not null)
-            RecurrenceRule = new(recurrenceRule);
-    }
 
     public bool HasCoverImage => CoverImageHash is not null;
 

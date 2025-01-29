@@ -8,14 +8,6 @@ namespace NetCord;
 [JsonConverter(typeof(ColorConverter))]
 public readonly struct Color : IEquatable<Color>
 {
-    public int RawValue => (Red << 16) | (Green << 8) | Blue;
-
-    public byte Red { get; }
-
-    public byte Green { get; }
-
-    public byte Blue { get; }
-
     public Color(byte red, byte green, byte blue)
     {
         Red = red;
@@ -29,6 +21,14 @@ public readonly struct Color : IEquatable<Color>
         Green = (byte)(rgb >> 8);
         Blue = (byte)rgb;
     }
+
+    public int RawValue => (Red << 16) | (Green << 8) | Blue;
+
+    public byte Red { get; }
+
+    public byte Green { get; }
+
+    public byte Blue { get; }
 
     public bool Equals(Color other) => Red == other.Red && Green == other.Green && Blue == other.Blue;
 

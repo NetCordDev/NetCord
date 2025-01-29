@@ -5,15 +5,15 @@ namespace NetCord;
 
 public partial class AutoModerationRule : ClientEntity, IJsonModel<JsonAutoModerationRule>
 {
-    JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => _jsonModel;
-    private readonly JsonAutoModerationRule _jsonModel;
-
     public AutoModerationRule(JsonAutoModerationRule jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
         TriggerMetadata = new(_jsonModel.TriggerMetadata);
         Actions = _jsonModel.Actions.Select(a => new AutoModerationAction(a)).ToArray();
     }
+
+    JsonAutoModerationRule IJsonModel<JsonAutoModerationRule>.JsonModel => _jsonModel;
+    private readonly JsonAutoModerationRule _jsonModel;
 
     public override ulong Id => _jsonModel.Id;
 

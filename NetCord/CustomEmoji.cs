@@ -5,8 +5,6 @@ namespace NetCord;
 
 public abstract class CustomEmoji : Emoji, ISpanFormattable
 {
-    private protected RestClient _client;
-
     public CustomEmoji(JsonEmoji jsonModel, RestClient client) : base(jsonModel)
     {
         _client = client;
@@ -15,6 +13,8 @@ public abstract class CustomEmoji : Emoji, ISpanFormattable
         if (creator is not null)
             Creator = new(creator, client);
     }
+
+    private protected RestClient _client;
 
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 

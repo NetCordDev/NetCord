@@ -5,6 +5,40 @@
 /// </summary>
 public class Embed : IJsonModel<JsonModels.JsonEmbed>
 {
+    /// <summary>
+    /// Creates an embed from its <see cref="JsonModels.JsonEmbed"/> equivalent.
+    /// </summary>
+    public Embed(JsonModels.JsonEmbed jsonModel)
+    {
+        _jsonModel = jsonModel;
+
+        var footer = jsonModel.Footer;
+        if (footer is not null)
+            Footer = new(footer);
+
+        var image = jsonModel.Image;
+        if (image is not null)
+            Image = new(image);
+
+        var thumbnail = jsonModel.Thumbnail;
+        if (thumbnail is not null)
+            Thumbnail = new(thumbnail);
+
+        var video = jsonModel.Video;
+        if (video is not null)
+            Video = new(video);
+
+        var provider = jsonModel.Provider;
+        if (provider is not null)
+            Provider = new(provider);
+
+        var author = jsonModel.Author;
+        if (author is not null)
+            Author = new(author);
+
+        Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f)).ToArray();
+    }
+
     JsonModels.JsonEmbed IJsonModel<JsonModels.JsonEmbed>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonEmbed _jsonModel;
 
@@ -72,38 +106,4 @@ public class Embed : IJsonModel<JsonModels.JsonEmbed>
     /// Allows the addition of multiple subtitles with additional content underneath them below the main <see cref="Title"/> and <see cref="Description"/> blocks, maximum of 25 per embed.
     /// </summary>
     public IReadOnlyList<EmbedField> Fields { get; }
-
-    /// <summary>
-    /// Creates an embed from its <see cref="JsonModels.JsonEmbed"/> equivalent.
-    /// </summary>
-    public Embed(JsonModels.JsonEmbed jsonModel)
-    {
-        _jsonModel = jsonModel;
-
-        var footer = jsonModel.Footer;
-        if (footer is not null)
-            Footer = new(footer);
-
-        var image = jsonModel.Image;
-        if (image is not null)
-            Image = new(image);
-
-        var thumbnail = jsonModel.Thumbnail;
-        if (thumbnail is not null)
-            Thumbnail = new(thumbnail);
-
-        var video = jsonModel.Video;
-        if (video is not null)
-            Video = new(video);
-
-        var provider = jsonModel.Provider;
-        if (provider is not null)
-            Provider = new(provider);
-
-        var author = jsonModel.Author;
-        if (author is not null)
-            Author = new(author);
-
-        Fields = jsonModel.Fields.SelectOrEmpty(f => new EmbedField(f)).ToArray();
-    }
 }

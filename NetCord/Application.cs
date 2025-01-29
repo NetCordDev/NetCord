@@ -4,6 +4,35 @@ namespace NetCord;
 
 public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonApplication>
 {
+    public Application(JsonModels.JsonApplication jsonModel, RestClient client) : base(client)
+    {
+        _jsonModel = jsonModel;
+
+        var bot = jsonModel.Bot;
+        if (bot is not null)
+            Bot = new(bot, client);
+
+        var owner = jsonModel.Owner;
+        if (owner is not null)
+            Owner = new(owner, client);
+
+        var team = jsonModel.Team;
+        if (team is not null)
+            Team = new(team, client);
+
+        var guild = jsonModel.Guild;
+        if (guild is not null)
+            Guild = new(guild, client);
+
+        var installParams = jsonModel.InstallParams;
+        if (installParams is not null)
+            InstallParams = new(installParams);
+
+        var integrationTypesConfiguration = jsonModel.IntegrationTypesConfiguration;
+        if (integrationTypesConfiguration is not null)
+            IntegrationTypesConfiguration = integrationTypesConfiguration.ToDictionary(i => i.Key, i => new ApplicationIntegrationTypeConfiguration(i.Value));
+    }
+
     JsonModels.JsonApplication IJsonModel<JsonModels.JsonApplication>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonApplication _jsonModel;
 
@@ -35,35 +64,6 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public ApplicationInstallParams? InstallParams { get; }
     public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration>? IntegrationTypesConfiguration { get; }
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
-
-    public Application(JsonModels.JsonApplication jsonModel, RestClient client) : base(client)
-    {
-        _jsonModel = jsonModel;
-
-        var bot = jsonModel.Bot;
-        if (bot is not null)
-            Bot = new(bot, client);
-
-        var owner = jsonModel.Owner;
-        if (owner is not null)
-            Owner = new(owner, client);
-
-        var team = jsonModel.Team;
-        if (team is not null)
-            Team = new(team, client);
-
-        var guild = jsonModel.Guild;
-        if (guild is not null)
-            Guild = new(guild, client);
-
-        var installParams = jsonModel.InstallParams;
-        if (installParams is not null)
-            InstallParams = new(installParams);
-
-        var integrationTypesConfiguration = jsonModel.IntegrationTypesConfiguration;
-        if (integrationTypesConfiguration is not null)
-            IntegrationTypesConfiguration = integrationTypesConfiguration.ToDictionary(i => i.Key, i => new ApplicationIntegrationTypeConfiguration(i.Value));
-    }
 
     public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.ApplicationIcon(Id, hash, format) : null;
 

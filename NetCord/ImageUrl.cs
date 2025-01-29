@@ -2,8 +2,6 @@
 
 public class ImageUrl : ISpanFormattable
 {
-    private readonly string _url;
-
     private ImageUrl(string partialUrl, string extension, string baseUrl = Discord.CDNUrl) : this($"{baseUrl}{partialUrl}.{extension}")
     {
     }
@@ -12,6 +10,8 @@ public class ImageUrl : ISpanFormattable
     {
         _url = url;
     }
+
+    private readonly string _url;
 
     public override string ToString() => _url;
 
