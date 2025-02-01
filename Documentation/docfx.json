@@ -13,7 +13,8 @@
           ]
         }
       ],
-      "dest": "docs"
+      "dest": "docs",
+      "memberLayout": "separatePages"
     }
   ],
   "build": {
