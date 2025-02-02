@@ -164,19 +164,39 @@ public abstract class WebSocketClient : IDisposable
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
-        _defaultPayloadProperties = configuration.DefaultPayloadProperties is { } defaultPayloadProperties ? defaultPayloadProperties with { } : new();
+        _defaultPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
     }
 
-    private protected static readonly WebSocketPayloadProperties _internalPayloadProperties = new()
+    private static InternalWebSocketPayloadProperties CreatePayloadProperties(WebSocketPayloadProperties? properties)
     {
-        MessageFlags = WebSocketMessageFlags.EndOfMessage,
-        RetryHandling = WebSocketRetryHandling.RetryRateLimit,
-    };
+        return properties switch
+        {
+            null => new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.Retry),
+            _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(),
+                                                        properties.MessageFlags.GetValueOrDefault(WebSocketMessageFlags.EndOfMessage),
+                                                        properties.RetryHandling.GetValueOrDefault(WebSocketRetryHandling.Retry))
+        };
+    }
+
+    private protected record struct InternalWebSocketPayloadProperties(WebSocketMessageType MessageType, WebSocketMessageFlags MessageFlags, WebSocketRetryHandling RetryHandling)
+    {
+        public readonly InternalWebSocketPayloadProperties Compose(WebSocketPayloadProperties? properties)
+        {
+            return properties switch
+            {
+                null => this,
+                _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(MessageType),
+                                                            properties.MessageFlags.GetValueOrDefault(MessageFlags),
+                                                            properties.RetryHandling.GetValueOrDefault(RetryHandling))
+            };
+        }
+    }
 
     private readonly IWebSocketConnectionProvider _connectionProvider;
     private readonly IReconnectStrategy _reconnectStrategy;
     private readonly IRateLimiterProvider _rateLimiterProvider;
-    private readonly WebSocketPayloadProperties _defaultPayloadProperties;
+    private readonly InternalWebSocketPayloadProperties _defaultPayloadProperties;
+    private protected readonly InternalWebSocketPayloadProperties _internalPayloadProperties = new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
 
@@ -444,7 +464,7 @@ public abstract class WebSocketClient : IDisposable
 
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        properties ??= _defaultPayloadProperties;
+        var payloadProperties = _defaultPayloadProperties.Compose(properties);
 
         while (true)
         {
@@ -468,7 +488,7 @@ public abstract class WebSocketClient : IDisposable
             }
             else
             {
-                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 {
                     var result = await task.WaitAsync(cancellationToken).ConfigureAwait(false);
                     if (result is ConnectionStateResult.Success successResult)
@@ -483,26 +503,26 @@ public abstract class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
 
-            if (!properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+            if (!payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 ThrowConnectionNotStarted();
         }
     }
 
-    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
+    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
+        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
+    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -527,7 +547,7 @@ public abstract class WebSocketClient : IDisposable
 
             if (result.RateLimited)
             {
-                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
+                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
                 {
                     try
                     {
@@ -550,7 +570,7 @@ public abstract class WebSocketClient : IDisposable
 
             try
             {
-                await connectionState.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, linkedToken).ConfigureAwait(false);
+                await connectionState.Connection.SendAsync(buffer, payloadProperties.MessageType, payloadProperties.MessageFlags, linkedToken).ConfigureAwait(false);
             }
             catch (ArgumentException)
             {
