@@ -3,7 +3,7 @@
 public sealed partial class RestRequestProperties
 {
     /// <summary>
-    /// The rate limit handling.
+    /// The rate limit handling. Defaults to <see cref="RestRateLimitHandling.Retry"/>.
     /// </summary>
     public RestRateLimitHandling? RateLimitHandling { get; set; }
 

@@ -18,11 +18,9 @@ public partial class GatewayClientOptions : IDiscordOptions
     {
     }
 
-    /// <inheritdoc/>
     [Required]
     public string? Token { get; set; }
 
-    /// <inheritdoc/>
     public string? PublicKey { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
