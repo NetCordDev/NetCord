@@ -3,7 +3,7 @@ using NetCord.Rest;
 namespace NetCord;
 
 /// <summary>
-/// Applications or 'apps', are containers for developer platform features, and can contains bots installable to guilds and/or user accounts.
+/// Applications or 'apps', are containers for developer platform features, and can contain bots installable to guilds and/or user accounts.
 /// </summary>
 public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonApplication>
 {
