@@ -41,7 +41,7 @@ public enum ChannelType
     AnnouncementGuildThread = 10,
 
     /// <summary>
-    /// A temporary sub-channel within a <see cref="TextGuildChannel"/> or <see cref="ForumGuildChannel"/>.
+    /// A temporary sub-channel within a <see cref="TextGuildChannel"/>, <see cref="ForumGuildChannel"/>, or <see cref="MediaForumGuildChannel"/>.
     /// </summary>
     PublicGuildThread = 11,
 

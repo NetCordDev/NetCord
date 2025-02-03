@@ -3,7 +3,7 @@ using NetCord.Rest;
 namespace NetCord;
 
 /// <summary>
-/// Applications or 'apps', are containers for developer platform features, and can be installed to guilds and/or user accounts.
+/// Applications or 'apps', are containers for developer platform features, and can contains bots installable to guilds and/or user accounts.
 /// </summary>
 public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonApplication>
 {
@@ -65,7 +65,7 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string Description => _jsonModel.Description;
 
     /// <summary>
-    /// The application's RPC origin URL list, where <c>T</c> is of type <see cref="string"/>. <see langword="null"/> if RPC is disabled.
+    /// A list of the application's RPC origin URLs. <see langword="null"/> if RPC is disabled.
     /// </summary>
     public IReadOnlyList<string> RpcOrigins => _jsonModel.RpcOrigins;
 
@@ -100,7 +100,7 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public User? Owner { get; }
 
     /// <summary>
-    /// The hex-encoded verification key used for interactions and the GameSDK's GetTicket.
+    /// The hex-encoded verification key used for HTTP interactions and the GameSDK's GetTicket.
     /// </summary>
     public string VerifyKey => _jsonModel.VerifyKey;
 
@@ -180,27 +180,27 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public IReadOnlyDictionary<ApplicationIntegrationType, ApplicationIntegrationTypeConfiguration>? IntegrationTypesConfiguration { get; }
 
     /// <summary>
-    /// The application's default customization URL. Is <see langword="null"/> if disabled.
+    /// The application's default custom install URL. Is <see langword="null"/> if disabled.
     /// </summary>
     public string? CustomInstallUrl => _jsonModel.CustomInstallUrl;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the application's icon.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     public ImageUrl? GetIconUrl(ImageFormat format) => IconHash is string hash ? ImageUrl.ApplicationIcon(Id, hash, format) : null;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the application's cover.
     /// </summary>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     public ImageUrl? GetCoverUrl(ImageFormat format) => CoverImageHash is string hash ? ImageUrl.ApplicationCover(Id, hash, format) : null;
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of the an asset associated with the application.
     /// </summary>
     /// <param name="assetId">The ID of the asset to get an <see cref="ImageUrl"/> for.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     public ImageUrl? GetAssetUrl(ulong assetId, ImageFormat format) => ImageUrl.ApplicationAsset(Id, assetId, format);
 
     /// <summary>
@@ -208,13 +208,13 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     /// </summary>
     /// <param name="achievementId">The ID of the achievement to get an <see cref="ImageUrl"/> for.</param>
     /// <param name="iconHash">The hash of the achievement's icon.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     public ImageUrl? GetAchievementIconUrl(ulong achievementId, string iconHash, ImageFormat format) => ImageUrl.AchievementIcon(Id, achievementId, iconHash, format);
 
     /// <summary>
     /// Gets the <see cref="ImageUrl"/> of a store page asset associated with the application.
     /// </summary>
     /// <param name="assetId">The ID of the asset to get an <see cref="ImageUrl"/> for.</param>
-    /// <param name="format">The format of the returned <see cref="ImageUrl"/>. Defaults to <see cref="ImageFormat.Png"/>.</param>
+    /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     public ImageUrl? GetStorePageAssetUrl(ulong assetId, ImageFormat format) => ImageUrl.StorePageAsset(Id, assetId, format);
 }
