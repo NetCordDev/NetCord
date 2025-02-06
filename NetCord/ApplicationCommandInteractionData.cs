@@ -1,22 +1,22 @@
 ﻿namespace NetCord;
 
 /// <summary>
-/// Contains information on an <see cref="ApplicationCommandInteraction"/>.
+/// Contains data for an invoked <see cref="Rest.ApplicationCommand"/>.
 /// </summary>
 public class ApplicationCommandInteractionData(JsonModels.JsonInteractionData jsonModel) : InteractionData(jsonModel)
 {
     /// <summary>
-    /// The parent <see cref="ApplicationCommandInteraction"/>'s ID.
+    /// The invoked <see cref="Rest.ApplicationCommand"/>'s ID.
     /// </summary>
     public ulong Id => _jsonModel.Id.GetValueOrDefault();
 
     /// <summary>
-    /// The parent <see cref="ApplicationCommandInteraction"/>'s name.
+    /// The invoked <see cref="Rest.ApplicationCommand"/>'s name.
     /// </summary>
     public string Name => _jsonModel.Name!;
 
     /// <summary>
-    /// The parent <see cref="ApplicationCommandInteraction"/>'s type.
+    /// The invoked <see cref="Rest.ApplicationCommand"/>'s type.
     /// </summary>
     public ApplicationCommandType Type => _jsonModel.Type.GetValueOrDefault();
 }
