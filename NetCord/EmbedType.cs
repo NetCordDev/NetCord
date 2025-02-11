@@ -3,7 +3,7 @@
 namespace NetCord;
 
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<EmbedType>))]
-public enum EmbedType : byte
+public enum EmbedType : sbyte
 {
     [JsonPropertyName("rich")]
     Rich,

@@ -3,7 +3,7 @@
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<Platform>))]
-public enum Platform
+public enum Platform : sbyte
 {
     [JsonPropertyName("desktop")]
     Desktop,
