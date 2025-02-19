@@ -93,3 +93,15 @@ NetCord's goal is to allow .NET developers to create fully customizable Discord 
 ## 8. 📜 License
 
 This repository is released under the [MIT License](https://github.com/NetCordDev/NetCord/blob/alpha/LICENSE.md).
+
+## 9. 🛠️ Development
+
+### Versioning
+
+NetCord follows a `MAJOR.MINOR.PATCH` versioning scheme:
+
+- MAJOR versions can introduce significant, breaking API changes.
+- MINOR versions can add new features and may include limited breaking changes that are unlikely to affect most users.
+- PATCH versions contain backwards-compatible bug fixes and improvements.
+
+Our goal is to maintain stability while allowing for necessary evolution of the API.
