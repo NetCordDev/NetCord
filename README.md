@@ -18,7 +18,8 @@
 5. [📚 Guides](#5--guides)
 6. [📄 Documentation](#6--documentation)
 7. [🩹 Support](#7--support)
-6. [📜 License](#8--license)
+8. [📜 License](#8--license)
+9. [🛠️ Development](#9--development)
 
 ## 1. 📦 Installation
 
@@ -103,9 +104,9 @@ NetCord's goal is to allow .NET developers to create fully customizable Discord 
 
 - **[Getting Started](https://netcord.dev/guides/getting-started/installation.html)**
 
-## 6. 📄 Documentation
+## 6. 📄 API Documentation
 
-- **[Documentation](https://netcord.dev/docs/)**
+- **[API Documentation](https://netcord.dev/docs/)**
 
 ## 7. 🩹 Support
 
