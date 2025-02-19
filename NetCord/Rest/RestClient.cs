@@ -11,8 +11,16 @@ public sealed partial class RestClient : IDisposable
 {
     private readonly string _baseUrl;
     private readonly IRestRequestHandler _requestHandler;
-    private readonly RestRequestProperties _defaultRequestProperties;
+    private readonly InternalRestRequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
+
+    private readonly record struct InternalRestRequestProperties(RestRateLimitHandling RateLimitHandling)
+    {
+        public InternalRestRequestProperties Compose(RestRequestProperties? properties)
+        {
+            return properties is null ? this : new(properties.RateLimitHandling.GetValueOrDefault(RateLimitHandling));
+        }
+    }
 
     /// <summary>
     /// The token of the <see cref="RestClient"/>.
@@ -29,14 +37,20 @@ public sealed partial class RestClient : IDisposable
 
         requestHandler.AddDefaultHeader("User-Agent", [UserAgentHeader]);
 
-        var defaultRequestProperties = configuration.DefaultRequestProperties ?? new();
-
-        foreach (var header in defaultRequestProperties.GetHeaders())
-            requestHandler.AddDefaultHeader(header.Name, header.Values);
-
-        _defaultRequestProperties = defaultRequestProperties.WithoutHeaders();
+        _defaultRequestProperties = ProcessRequestProperties(configuration.DefaultRequestProperties, requestHandler);
 
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
+    }
+
+    private static InternalRestRequestProperties ProcessRequestProperties(RestRequestProperties? properties, IRestRequestHandler requestHandler)
+    {
+        if (properties is null)
+            return new(RestRateLimitHandling.Retry);
+
+        foreach (var header in properties.GetHeaders())
+            requestHandler.AddDefaultHeader(header.Name, header.Values);
+
+        return new(properties.RateLimitHandling.GetValueOrDefault(RestRateLimitHandling.Retry));
     }
 
     public RestClient(IToken token, RestClientConfiguration? configuration = null) : this(configuration)
@@ -47,19 +61,22 @@ public sealed partial class RestClient : IDisposable
 
     public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true, CancellationToken cancellationToken = default)
     {
-        properties ??= _defaultRequestProperties;
+        var requestProperties = _defaultRequestProperties.Compose(properties);
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties, cancellationToken);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
             HttpRequestMessage requestMessage = new(method, url);
 
-            var headers = requestMessage.Headers;
-            foreach (var header in properties.GetHeaders())
-                headers.Add(header.Name, header.Values);
+            if (properties is not null)
+            {
+                var headers = requestMessage.Headers;
+                foreach (var header in properties.GetHeaders())
+                    headers.Add(header.Name, header.Values);
+            }
 
             return requestMessage;
         }
@@ -67,11 +84,11 @@ public sealed partial class RestClient : IDisposable
 
     public Task<Stream> SendRequestAsync(HttpMethod method, HttpContent content, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true, CancellationToken cancellationToken = default)
     {
-        properties ??= _defaultRequestProperties;
+        var requestProperties = _defaultRequestProperties.Compose(properties);
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, properties, cancellationToken);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
@@ -80,21 +97,24 @@ public sealed partial class RestClient : IDisposable
                 Content = content,
             };
 
-            var headers = requestMessage.Headers;
-            foreach (var header in properties.GetHeaders())
-                headers.Add(header.Name, header.Values);
+            if (properties is not null)
+            {
+                var headers = requestMessage.Headers;
+                foreach (var header in properties.GetHeaders())
+                    headers.Add(header.Name, header.Values);
+            }
 
             return requestMessage;
         }
     }
 
-    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, RestRequestProperties properties, CancellationToken cancellationToken)
+    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
         while (true)
         {
-            var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(properties, cancellationToken).ConfigureAwait(false) : null;
+            var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(requestProperties, cancellationToken).ConfigureAwait(false) : null;
 
-            var rateLimiter = await AcquireRouteRateLimiterAsync(route, properties, cancellationToken).ConfigureAwait(false);
+            var rateLimiter = await AcquireRouteRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false);
 
             var timestamp = Environment.TickCount64;
             HttpResponseMessage response;
@@ -139,7 +159,7 @@ public sealed partial class RestClient : IDisposable
 
                 if (rateLimited)
                 {
-                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
+                    if (requestProperties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
                             await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault(), cancellationToken).ConfigureAwait(false);
@@ -159,7 +179,7 @@ public sealed partial class RestClient : IDisposable
 
                     await rateLimiter.CancelAcquireAsync(timestamp, default).ConfigureAwait(false);
 
-                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
+                    if (requestProperties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                         continue;
                 }
                 else
@@ -167,7 +187,7 @@ public sealed partial class RestClient : IDisposable
                     await _rateLimitManager.ExchangeRouteRateLimiterAsync(route, null, null, default).ConfigureAwait(false);
                     await rateLimiter.IndicateExchangeAsync(timestamp, default).ConfigureAwait(false);
 
-                    if (properties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
+                    if (requestProperties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
                             await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault(), cancellationToken).ConfigureAwait(false);
@@ -207,7 +227,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(RestRequestProperties properties, CancellationToken cancellationToken)
+    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
         while (true)
         {
@@ -215,7 +235,7 @@ public sealed partial class RestClient : IDisposable
             var info = await rateLimiter.TryAcquireAsync(cancellationToken).ConfigureAwait(false);
             if (info.RateLimited)
             {
-                if (properties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryGlobal))
+                if (requestProperties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryGlobal))
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
                 else
                     throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.Global);
@@ -227,7 +247,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async ValueTask<IRouteRateLimiter> AcquireRouteRateLimiterAsync(Route route, RestRequestProperties properties, CancellationToken cancellationToken)
+    private async ValueTask<IRouteRateLimiter> AcquireRouteRateLimiterAsync(Route route, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
         while (true)
         {
@@ -235,7 +255,7 @@ public sealed partial class RestClient : IDisposable
             var info = await rateLimiter.TryAcquireAsync(cancellationToken).ConfigureAwait(false);
             if (info.RateLimited)
             {
-                if (properties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryUser))
+                if (requestProperties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryUser))
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
                 else
                     throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.User);

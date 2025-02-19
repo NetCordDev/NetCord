@@ -6,6 +6,10 @@ namespace NetCord.Hosting.Gateway;
 
 public interface IGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Gets the names of the events this handler listens for.
+    /// </summary>
+    /// <returns>The names of the events this handler listens for.</returns>
     public IEnumerable<string> GetEvents()
     {
         var type = GetType();
@@ -16,16 +20,29 @@ public interface IGatewayEventHandlerBase
 
 public interface IGatewayEventHandler : IGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Handles the event.
+    /// </summary>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
     public ValueTask HandleAsync();
 }
 
 public interface IGatewayEventHandler<T> : IGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Handles the event.
+    /// </summary>
+    /// <param name="arg">The event argument.</param>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
     public ValueTask HandleAsync(T arg);
 }
 
 public interface IShardedGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Gets the names of the events this handler listens for.
+    /// </summary>
+    /// <returns>The names of the events this handler listens for.</returns>
     public IEnumerable<string> GetEvents()
     {
         var type = GetType();
@@ -36,11 +53,22 @@ public interface IShardedGatewayEventHandlerBase
 
 public interface IShardedGatewayEventHandler : IShardedGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Handles the event.
+    /// </summary>
+    /// <param name="client">The <see cref="GatewayClient"/> that represents the shard that received the event.</param>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
     public ValueTask HandleAsync(GatewayClient client);
 }
 
 public interface IShardedGatewayEventHandler<T> : IShardedGatewayEventHandlerBase
 {
+    /// <summary>
+    /// Handles the event.
+    /// </summary>
+    /// <param name="client">The <see cref="GatewayClient"/> that represents the shard that received the event.</param>
+    /// <param name="arg">The event argument.</param>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
     public ValueTask HandleAsync(GatewayClient client, T arg);
 }
 

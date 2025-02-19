@@ -819,6 +819,8 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Constructs a <see cref="GatewayClient"/> using the given <paramref name="token"/> and <paramref name="configuration"/>.
     /// </summary>
+    /// <param name="token">The token used to authenticate the <see cref="GatewayClient"/>.</param>
+    /// <param name="configuration">The configuration of the <see cref="GatewayClient"/>.</param>
     public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
     {
         _disposeRest = true;

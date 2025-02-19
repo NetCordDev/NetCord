@@ -13,6 +13,12 @@ namespace NetCord.Hosting.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {
+    /// <summary>
+    /// Adds a route to the <see cref="IEndpointRouteBuilder"/> that will handle Discord interactions.
+    /// </summary>
+    /// <param name="endpoints">The <see cref="IEndpointRouteBuilder"/> to add the route to.</param>
+    /// <param name="pattern">The route pattern.</param>
+    /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     public static IEndpointConventionBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
         var services = endpoints.ServiceProvider;

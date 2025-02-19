@@ -24,60 +24,87 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.WebSocketConnectionProviderFactory" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
     public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.LatencyTimerFactory" />
     public Func<Shard, ILatencyTimer?>? LatencyTimerFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
     public Func<Shard, IGatewayClientCache?>? CacheFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.IntentsFactory" />
     public Func<Shard, GatewayIntents?>? IntentsFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.Hostname" />
     public string? Hostname { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ConnectionPropertiesFactory" />
     public Func<Shard, ConnectionPropertiesProperties?>? ConnectionPropertiesFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.LargeThresholdFactory" />
     public Func<Shard, int?>? LargeThresholdFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.PresenceFactory" />
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ShardCount" />
     public int? ShardCount { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
     // Simple properties
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.WebSocketConnectionProviderFactory" />
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
     public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.LatencyTimerFactory" />
     public ILatencyTimer? LatencyTimer { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public ApiVersion? Version { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
     public IGatewayClientCache? Cache { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public IGatewayCompression? Compression { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.IntentsFactory" />
     public GatewayIntents? Intents { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ConnectionPropertiesFactory" />
     public ConnectionPropertiesProperties? ConnectionProperties { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.LargeThresholdFactory" />
     public int? LargeThreshold { get; set; }
 
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.PresenceFactory" />
     public PresenceProperties? Presence { get; set; }
 
     internal ShardedGatewayClientConfiguration CreateConfiguration()

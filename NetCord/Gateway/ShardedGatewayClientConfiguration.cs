@@ -2,24 +2,59 @@
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 public class ShardedGatewayClientConfiguration
 {
+    /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
     public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.LatencyTimer" />
     public Func<Shard, ILatencyTimer?>? LatencyTimerFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
     public Func<Shard, IGatewayClientCache?>? CacheFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Intents" />
     public Func<Shard, GatewayIntents?>? IntentsFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Hostname" />
     public string? Hostname { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.ConnectionProperties" />
     public Func<Shard, ConnectionPropertiesProperties?>? ConnectionPropertiesFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.LargeThreshold" />
     public Func<Shard, int?>? LargeThresholdFactory { get; init; }
+
+    /// <inheritdoc cref="GatewayClientConfiguration.Presence" />
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; init; }
+
+    /// <summary>
+    /// The number of shards to use. If <see langword="null"/>, the number of shards will be determined by Discord.
+    /// </summary>
     public int? ShardCount { get; init; }
-    public Rest.RestClientConfiguration? RestClientConfiguration { get; init; }
+
+    /// <summary>
+    /// The configuration for the <see cref="RestClient"/> at <see cref="ShardedGatewayClient.Rest"/>
+    /// and for each shard at <see cref="GatewayClient.Rest"/>. Defaults to <see langword="null"/>.
+    /// </summary>
+    public RestClientConfiguration? RestClientConfiguration { get; init; }
 }
