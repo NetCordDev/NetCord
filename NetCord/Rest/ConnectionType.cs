@@ -3,7 +3,7 @@
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<ConnectionType>))]
-public enum ConnectionType
+public enum ConnectionType : sbyte
 {
     [JsonPropertyName("battlenet")]
     BattleNet,

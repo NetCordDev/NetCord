@@ -2,6 +2,7 @@
 using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,7 +11,13 @@ namespace NetCord.JsonConverters;
 
 public class SafeStringEnumConverter<T> : JsonConverter<T> where T : struct, Enum
 {
-    private static readonly T _unknownValue = (T)(object)-1;
+    private static readonly T _unknownValue;
+
+    static SafeStringEnumConverter()
+    {
+        long value = -1;
+        _unknownValue = Unsafe.As<long, T>(ref value);
+    }
 
     private readonly FrozenDictionary<ReadOnlyMemory<byte>, T> _namesDictionary;
     private readonly FrozenDictionary<T, JsonEncodedText> _valuesDictionary;
