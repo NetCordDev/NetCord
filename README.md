@@ -19,7 +19,7 @@
 6. [📄 Documentation](#6--documentation)
 7. [🩹 Support](#7--support)
 8. [📜 License](#8--license)
-9. [🛠️ Development](#9--development)
+9. [🛠️ Development](#9-%EF%B8%8F-development)
 
 ## 1. 📦 Installation
 
