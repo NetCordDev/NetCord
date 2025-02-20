@@ -17,10 +17,10 @@ public class PermissionsModule : ApplicationCommandModule<ApplicationCommandCont
         }
     }
 
-    [SubSlashCommand("role", "Manages role permissions")]
-    public class RolePermissionsModule : ApplicationCommandModule<ApplicationCommandContext>
+    [SubSlashCommand("channel", "Manages channel permissions")]
+    public class ChannelPermissionsModule : ApplicationCommandModule<ApplicationCommandContext>
     {
-        [SubSlashCommand("show", "Shows role permissions")]
+        [SubSlashCommand("show", "Shows channel permissions")]
         public static string Show(
             [SlashCommandParameter(Description = "The channel whose permissions you want to see")] IGuildChannel channel)
         {
