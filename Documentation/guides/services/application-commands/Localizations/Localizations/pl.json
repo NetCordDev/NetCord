@@ -30,17 +30,17 @@
             }
           }
         },
-        "role": {
-          "name": "rola",
-          "description": "Zarządza uprawnieniami roli",
+        "channel": {
+          "name": "kanał",
+          "description": "Zarządza uprawnieniami kanału",
           "subcommands": {
             "show": {
               "name": "pokaż",
-              "description": "Pokazuje uprawnienia roli",
+              "description": "Pokazuje uprawnienia kanału",
               "parameters": {
                 "role": {
-                  "name": "rola",
-                  "description": "Rola, której uprawnienia chcesz zobaczyć"
+                  "name": "kanał",
+                  "description": "Kanał, którego uprawnienia chcesz zobaczyć"
                 }
               }
             }
