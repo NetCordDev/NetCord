@@ -4,17 +4,12 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(IButtonConverter))]
-public partial interface IButtonProperties
+public partial interface IButtonProperties : ISectionAccessoryProperties
 {
     /// <summary>
     /// Style of the button.
     /// </summary>
     public ButtonStyle Style { get; }
-
-    /// <summary>
-    /// Type of the component.
-    /// </summary>
-    public ComponentType ComponentType { get; }
 
     /// <summary>
     /// Whether the button is disabled.

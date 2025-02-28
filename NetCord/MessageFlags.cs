@@ -62,4 +62,9 @@ public enum MessageFlags : uint
     /// This message is a voice message.
     /// </summary>
     IsVoiceMessage = 1 << 13,
+
+    /// <summary>
+    /// This message supports components V2.
+    /// </summary>
+    ComponentsV2 = 1 << 15,
 }

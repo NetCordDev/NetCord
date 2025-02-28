@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class ButtonProperties : ICustomizableButtonProperties
+public partial class ButtonProperties : ICustomizableButtonProperties, ISectionAccessoryProperties
 {
     /// <summary>
     /// Developer-defined identifier for the button (max 100 characters).

@@ -16,6 +16,7 @@ public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons)
     {
     }
 
+    [JsonPropertyName("type")]
     public override ComponentType ComponentType => ComponentType.ActionRow;
 
     /// <summary>
