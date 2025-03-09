@@ -6,4 +6,6 @@ public partial class ComponentMediaProperties(string url)
 {
     [JsonPropertyName("url")]
     public string Url { get; set; } = url;
+
+    public static implicit operator ComponentMediaProperties(string url) => new(url);
 }

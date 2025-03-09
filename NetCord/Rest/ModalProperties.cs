@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class ModalProperties(string customId, string title, IEnumerable<ComponentProperties> components) : IModalProperties, IEnumerable<ComponentProperties>
+public partial class ModalProperties(string customId, string title, IEnumerable<IComponentProperties> components) : IModalProperties, IEnumerable<IComponentProperties>
 {
     public ModalProperties(string customId, string title) : this(customId, title, [])
     {
@@ -17,12 +17,12 @@ public partial class ModalProperties(string customId, string title, IEnumerable<
     public string Title { get; set; } = title;
 
     [JsonPropertyName("components")]
-    public IEnumerable<ComponentProperties> Components { get; set; } = components;
+    public IEnumerable<IComponentProperties> Components { get; set; } = components;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Add(ComponentProperties component) => AddComponents(component);
+    public void Add(IComponentProperties component) => AddComponents(component);
 
-    IEnumerator<ComponentProperties> IEnumerable<ComponentProperties>.GetEnumerator() => Components.GetEnumerator();
+    IEnumerator<IComponentProperties> IEnumerable<IComponentProperties>.GetEnumerator() => Components.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
 }
 
@@ -37,5 +37,5 @@ internal interface IModalProperties
     public string Title { get; set; }
 
     [JsonPropertyName("components")]
-    public IEnumerable<ComponentProperties> Components { get; set; }
+    public IEnumerable<IComponentProperties> Components { get; set; }
 }

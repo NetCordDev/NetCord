@@ -6,7 +6,7 @@ namespace NetCord;
 
 public class MentionableMenu : EntityMenu
 {
-    public MentionableMenu(JsonComponent jsonModel) : base(jsonModel, GetDefaultValues(jsonModel, out var defaultValues))
+    public MentionableMenu(JsonComponent jsonModel, int parentId) : base(jsonModel, GetDefaultValues(jsonModel, out var defaultValues), parentId)
     {
         DefaultValues = defaultValues;
     }

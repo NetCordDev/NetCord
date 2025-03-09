@@ -6,5 +6,7 @@ public class ActionRow(JsonComponent jsonModel) : IComponent, IJsonModel<JsonCom
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
-    public IReadOnlyList<IButton> Buttons { get; } = jsonModel.Components.SelectOrEmpty(IButton.CreateFromJson).ToArray();
+    public int Id => jsonModel.Id;
+
+    public IReadOnlyList<IButton> Buttons { get; } = jsonModel.Components!.Select(IButton.CreateFromJson).ToArray();
 }

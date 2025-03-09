@@ -2,8 +2,12 @@
 
 namespace NetCord.Rest;
 
-public partial class ButtonProperties : ICustomizableButtonProperties, ISectionAccessoryProperties
+public partial class ButtonProperties : ICustomizableButtonProperties, IComponentSectionAccessoryProperties
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
     /// <summary>
     /// Developer-defined identifier for the button (max 100 characters).
     /// </summary>

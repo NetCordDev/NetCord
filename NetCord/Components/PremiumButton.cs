@@ -5,6 +5,7 @@ public class PremiumButton(JsonComponent jsonModel) : IButton, IJsonModel<JsonCo
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
+    public int Id => jsonModel.Id;
     public ulong SkuId => jsonModel.SkuId.GetValueOrDefault();
     public bool Disabled => jsonModel.Disabled.GetValueOrDefault();
 }

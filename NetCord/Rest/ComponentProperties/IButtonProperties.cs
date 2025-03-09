@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(IButtonConverter))]
-public partial interface IButtonProperties : ISectionAccessoryProperties
+public partial interface IButtonProperties : IComponentSectionAccessoryProperties
 {
     /// <summary>
     /// Style of the button.

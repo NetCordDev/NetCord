@@ -2,9 +2,14 @@
 
 namespace NetCord.Rest;
 
-public partial class TextInputProperties(string customId, TextInputStyle style, string label) : ComponentProperties
+public partial class TextInputProperties(string customId, TextInputStyle style, string label) : IComponentProperties
 {
-    public override ComponentType ComponentType => ComponentType.TextInput;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.TextInput;
 
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; } = customId;
@@ -34,4 +39,7 @@ public partial class TextInputProperties(string customId, TextInputStyle style, 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
+
+    [JsonIgnore]
+    public int? ParentId { get; set; }
 }

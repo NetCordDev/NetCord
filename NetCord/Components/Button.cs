@@ -5,6 +5,7 @@ public class Button : ICustomizableButton, IJsonModel<JsonModels.JsonComponent>
     JsonModels.JsonComponent IJsonModel<JsonModels.JsonComponent>.JsonModel => _jsonModel;
     private readonly JsonModels.JsonComponent _jsonModel;
 
+    public int Id => _jsonModel.Id;
     public string CustomId => _jsonModel.CustomId!;
     public ButtonStyle Style => _jsonModel.Style.GetValueOrDefault();
     public string? Label => _jsonModel.Label;
