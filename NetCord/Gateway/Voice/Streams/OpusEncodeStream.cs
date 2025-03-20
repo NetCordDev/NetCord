@@ -36,7 +36,7 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
         public SegmentingStream(Stream next, PcmFormat format, VoiceChannels channels) : base(next)
         {
-            _buffer = new byte[_frameSize = Opus.GetFrameSize(format, channels)];
+            _buffer = GC.AllocateUninitializedArray<byte>(_frameSize = Opus.GetFrameSize(format, channels));
         }
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -156,18 +156,23 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
     {
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            using var owner = MemoryPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
-            var data = owner.Memory;
-            int count = Encode(buffer.Span, data.Span);
-            await _next.WriteAsync(data[..count], cancellationToken).ConfigureAwait(false);
+            var array = ArrayPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
+
+            int count = Encode(buffer.Span, array.AsSpan());
+            await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
+
+            ArrayPool<byte>.Shared.Return(array);
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            using var owner = MemoryPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
-            var data = owner.Memory.Span;
+            var array = ArrayPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
+            
+            var data = array.AsSpan();
             int count = Encode(buffer, data);
             _next.Write(data[..count]);
+
+            ArrayPool<byte>.Shared.Return(array);
         }
 
         protected override void Dispose(bool disposing)

@@ -67,30 +67,47 @@ internal class DecryptStream(Stream next, IVoiceEncryption encryption) : Rewriti
 
         async ValueTask ActualWriteAsync()
         {
-            using (Decrypt(out var plaintext))
-                await _next.WriteAsync(plaintext, cancellationToken).ConfigureAwait(false);
+            var array = Decrypt(out var plaintext);
 
-            IMemoryOwner<byte> Decrypt(out Memory<byte> plaintext)
+            await _next.WriteAsync(plaintext, cancellationToken).ConfigureAwait(false);
+
+            ArrayPool<byte>.Shared.Return(array);
+
+            byte[] Decrypt(out Memory<byte> plaintext)
             {
                 var packet = packetStorage.Packet;
 
                 var extension = packet.Extension;
 
-                int plaintextLength = extension && !_extensionEncryption ? buffer.Length - _expansion - 4 : buffer.Length - _expansion;
+                int plaintextLength = extension && !_extensionEncryption
+                    ? buffer.Length - _expansion - 4
+                    : buffer.Length - _expansion;
 
-                var owner = MemoryPool<byte>.Shared.Rent(plaintextLength);
-                plaintext = owner.Memory[..plaintextLength];
-                var plaintextSpan = plaintext.Span;
+                var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+
+                var plaintextSpan = array.AsSpan(0, plaintextLength);
 
                 encryption.Decrypt(packet, plaintextSpan);
 
+                int start, length;
                 if (extension)
                 {
-                    int extensionLength = _extensionEncryption ? BinaryPrimitives.ReadUInt16BigEndian(plaintextSpan[2..]) + 1 : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]);
-                    plaintext = plaintext[(4 * extensionLength)..];
+                    int extensionLength = _extensionEncryption
+                        ? BinaryPrimitives.ReadUInt16BigEndian(plaintextSpan[2..]) + 1
+                        : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]);
+
+                    start = 4 * extensionLength;
+                    length = plaintextLength - start;
+                }
+                else
+                {
+                    start = 0;
+                    length = plaintextLength;
                 }
 
-                return owner;
+                plaintext = array.AsMemory(start, length);
+
+                return array;
             }
         }
     }
@@ -135,19 +152,27 @@ internal class DecryptStream(Stream next, IVoiceEncryption encryption) : Rewriti
 
         var extension = packet.Extension;
 
-        int plaintextLength = extension && !_extensionEncryption ? buffer.Length - _expansion - 4 : buffer.Length - _expansion;
+        int plaintextLength = extension && !_extensionEncryption
+            ? buffer.Length - _expansion - 4
+            : buffer.Length - _expansion;
 
-        var owner = MemoryPool<byte>.Shared.Rent(plaintextLength);
-        var plaintext = owner.Memory.Span[..plaintextLength];
+        var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+
+        var plaintext = array.AsSpan(0, plaintextLength);
 
         encryption.Decrypt(packet, plaintext);
 
         if (extension)
         {
-            int extensionLength = _extensionEncryption ? BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1 : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]);
+            int extensionLength = _extensionEncryption
+                ? BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1
+                : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]);
+
             plaintext = plaintext[(4 * extensionLength)..];
         }
 
         _next.Write(plaintext);
+
+        ArrayPool<byte>.Shared.Return(array);
     }
 }
