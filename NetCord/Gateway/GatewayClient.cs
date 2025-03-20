@@ -275,7 +275,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Sent when a guild becomes or was already unavailable due to an outage, or when the bot leaves / is removed from a guild.
     /// </summary>
     /// <remarks>
-    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUserDeleted"/> field is not true, the bot was removed from the guild.<br/>
+    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUnavailable"/> property is <see langword="false"/>, the bot was removed from the guild.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
@@ -1138,7 +1138,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_DELETE":
                 {
                     var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild.Id, !jsonGuild.IsUnavailable), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
@@ -1425,7 +1425,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ulong GetGuildId() => data.GetProperty("guild_id").ToObject(Serialization.Default.UInt64);
+        ulong GetGuildId() => data.GetProperty("guild_id"u8).ToObject(Serialization.Default.UInt64);
     }
 
     protected override void Dispose(bool disposing)
