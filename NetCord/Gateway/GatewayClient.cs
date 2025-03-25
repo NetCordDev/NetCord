@@ -729,6 +729,37 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Interaction, ValueTask>? InteractionCreate;
 
     /// <summary>
+    /// Sent when a Subscription for a Premium App is created.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Subscription.Status"/> can be either <see cref="SubscriptionStatus.Inactive"/> or <see cref="SubscriptionStatus.Inactive"/> when this event is received. You will receive subsequent <see cref="SubscriptionUpdate"/> events if the status is updated to active. As a best practice, you should not grant any perks to users until the entitlements are created.
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionCreate;
+
+    /// <summary>
+    /// Sent when a subscription for a Premium App has been updated.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionUpdate;
+
+    /// <summary>
+    /// Sent when a Subscription for a Premium App has been deleted.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionDelete;
+
+    /// <summary>
     /// Sent when a <see cref="StageInstance"/> is created (i.e. the Stage is now 'live').
     /// Inner payload is a <see cref="StageInstance"/>.<br/>
     /// </summary>
@@ -1269,6 +1300,21 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "INTERACTION_CREATE":
                 {
                     await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(Serialization.Default.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_CREATE":
+                {
+                    await InvokeEventAsync(SubscriptionCreate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_UPDATE":
+                {
+                    await InvokeEventAsync(SubscriptionUpdate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_DELETE":
+                {
+                    await InvokeEventAsync(SubscriptionDelete, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":
