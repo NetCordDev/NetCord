@@ -1440,17 +1440,17 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "ENTITLEMENT_CREATE":
                 {
-                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_UPDATE":
                 {
-                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_DELETE":
                 {
-                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_JOIN_REQUEST_UPDATE":

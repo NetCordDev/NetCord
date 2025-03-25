@@ -19,7 +19,7 @@ public class PingInteraction : Entity, IInteraction
         else
             User = new(jsonModel.User!, client);
 
-        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
+        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
 
         _sendResponseAsync = sendResponseAsync;
     }
