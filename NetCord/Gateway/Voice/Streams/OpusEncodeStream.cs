@@ -167,7 +167,7 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         public override void Write(ReadOnlySpan<byte> buffer)
         {
             var array = ArrayPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
-            
+
             var data = array.AsSpan();
             int count = Encode(buffer, data);
             _next.Write(data[..count]);
