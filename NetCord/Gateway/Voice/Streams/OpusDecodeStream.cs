@@ -47,18 +47,23 @@ public partial class OpusDecodeStream
 {
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        using var owner = MemoryPool<byte>.Shared.Rent(_frameSize);
-        var pcm = owner.Memory[.._frameSize];
-        Decode(buffer.Span, pcm.Span);
-        await _next.WriteAsync(pcm, cancellationToken).ConfigureAwait(false);
+        var array = ArrayPool<byte>.Shared.Rent(_frameSize);
+
+        Decode(buffer.Span, array.AsSpan(0, _frameSize));
+        await _next.WriteAsync(array.AsMemory(0, _frameSize), cancellationToken).ConfigureAwait(false);
+
+        ArrayPool<byte>.Shared.Return(array);
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        using var owner = MemoryPool<byte>.Shared.Rent(_frameSize);
-        var pcm = owner.Memory.Span[.._frameSize];
+        var array = ArrayPool<byte>.Shared.Rent(_frameSize);
+
+        var pcm = array.AsSpan(0, _frameSize);
         Decode(buffer, pcm);
         _next.Write(pcm);
+
+        ArrayPool<byte>.Shared.Return(array);
     }
 
     protected override void Dispose(bool disposing)

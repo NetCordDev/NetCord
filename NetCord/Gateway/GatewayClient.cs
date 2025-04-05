@@ -275,7 +275,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Sent when a guild becomes or was already unavailable due to an outage, or when the bot leaves / is removed from a guild.
     /// </summary>
     /// <remarks>
-    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUserDeleted"/> field is not true, the bot was removed from the guild.<br/>
+    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUnavailable"/> property is <see langword="false"/>, the bot was removed from the guild.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
@@ -729,6 +729,37 @@ public partial class GatewayClient : WebSocketClient, IEntity
     public event Func<Interaction, ValueTask>? InteractionCreate;
 
     /// <summary>
+    /// Sent when a Subscription for a Premium App is created.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Subscription.Status"/> can be either <see cref="SubscriptionStatus.Inactive"/> or <see cref="SubscriptionStatus.Inactive"/> when this event is received. You will receive subsequent <see cref="SubscriptionUpdate"/> events if the status is updated to active. As a best practice, you should not grant any perks to users until the entitlements are created.
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionCreate;
+
+    /// <summary>
+    /// Sent when a subscription for a Premium App has been updated.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionUpdate;
+
+    /// <summary>
+    /// Sent when a Subscription for a Premium App has been deleted.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public event Func<Subscription, ValueTask>? SubscriptionDelete;
+
+    /// <summary>
     /// Sent when a <see cref="StageInstance"/> is created (i.e. the Stage is now 'live').
     /// Inner payload is a <see cref="StageInstance"/>.<br/>
     /// </summary>
@@ -1138,7 +1169,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_DELETE":
                 {
                     var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild.Id, !jsonGuild.IsUnavailable), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
@@ -1271,6 +1302,21 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(Serialization.Default.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
+            case "SUBSCRIPTION_CREATE":
+                {
+                    await InvokeEventAsync(SubscriptionCreate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_UPDATE":
+                {
+                    await InvokeEventAsync(SubscriptionUpdate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_DELETE":
+                {
+                    await InvokeEventAsync(SubscriptionDelete, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
             case "INVITE_CREATE":
                 {
                     await InvokeEventAsync(InviteCreate, () => new(data.ToObject(Serialization.Default.JsonInvite), Rest)).ConfigureAwait(false);
@@ -1394,17 +1440,17 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "ENTITLEMENT_CREATE":
                 {
-                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_UPDATE":
                 {
-                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_DELETE":
                 {
-                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_JOIN_REQUEST_UPDATE":
@@ -1425,7 +1471,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ulong GetGuildId() => data.GetProperty("guild_id").ToObject(Serialization.Default.UInt64);
+        ulong GetGuildId() => data.GetProperty("guild_id"u8).ToObject(Serialization.Default.UInt64);
     }
 
     protected override void Dispose(bool disposing)

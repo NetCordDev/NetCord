@@ -16,19 +16,26 @@ internal class EncryptStream(Stream next, IVoiceEncryption encryption, VoiceClie
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         int datagramLength = buffer.Length + _expansion;
-        using var owner = MemoryPool<byte>.Shared.Rent(datagramLength);
-        var datagram = owner.Memory[..datagramLength];
-        WriteDatagram(buffer.Span, datagram.Span);
-        await _next.WriteAsync(datagram, cancellationToken).ConfigureAwait(false);
+
+        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
+
+        WriteDatagram(buffer.Span, array.AsSpan(0, datagramLength));
+        await _next.WriteAsync(array.AsMemory(0, datagramLength), cancellationToken).ConfigureAwait(false);
+
+        ArrayPool<byte>.Shared.Return(array);
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
         int datagramLength = buffer.Length + _expansion;
-        using var owner = MemoryPool<byte>.Shared.Rent(datagramLength);
-        var datagram = owner.Memory.Span[..datagramLength];
+
+        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
+
+        var datagram = array.AsSpan(0, datagramLength);
         WriteDatagram(buffer, datagram);
         _next.Write(datagram);
+
+        ArrayPool<byte>.Shared.Return(array);
     }
 
     public override async Task FlushAsync(CancellationToken cancellationToken)
