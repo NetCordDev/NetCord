@@ -257,9 +257,9 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             [
                 new ActionRowProperties(
                 [
-                    new ButtonProperties("id", new EmojiProperties(1259973074573332480), ButtonStyle.Success),
+                    new ButtonProperties("id", new EmojiProperties(1112841336022892604), ButtonStyle.Success),
                     new ButtonProperties("xd", new EmojiProperties("⭐"), ButtonStyle.Primary),
-                    new LinkButtonProperties(new("https://google.com"), new EmojiProperties(942818016222138399)),
+                    new LinkButtonProperties(new("https://google.com"), new EmojiProperties(1067878891273850991)),
                 ]),
             ],
         });
