@@ -47,7 +47,7 @@ public class JsonComponent
     public int? MaxValues { get; set; }
 
     [JsonPropertyName("components")]
-    public JsonComponent[] Components { get; set; }
+    public JsonComponent[]? Components { get; set; }
 
     [JsonPropertyName("min_length")]
     public int? MinLength { get; set; }
