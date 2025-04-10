@@ -12,6 +12,6 @@ public partial class TextGuildChannel(JsonModels.JsonChannel jsonModel, ulong gu
     public bool Nsfw => _jsonModel.Nsfw.GetValueOrDefault();
     public int Slowmode => _jsonModel.Slowmode.GetValueOrDefault();
     public ulong? ParentId => _jsonModel.ParentId;
-    public int? DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration;
+    public ThreadArchiveDuration? DefaultAutoArchiveDuration => _jsonModel.DefaultAutoArchiveDuration;
     public int DefaultThreadSlowmode => _jsonModel.DefaultThreadSlowmode.GetValueOrDefault();
 }

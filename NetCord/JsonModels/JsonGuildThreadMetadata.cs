@@ -8,7 +8,7 @@ public class JsonGuildThreadMetadata
     public bool Archived { get; set; }
 
     [JsonPropertyName("auto_archive_duration")]
-    public int AutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration AutoArchiveDuration { get; set; }
 
     [JsonPropertyName("archive_timestamp")]
     public DateTimeOffset ArchiveTimestamp { get; set; }

@@ -58,7 +58,7 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_auto_archive_duration")]
-    public int? DefaultAutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration? DefaultAutoArchiveDuration { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("available_tags")]
@@ -90,7 +90,7 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("auto_archive_duration")]
-    public int? AutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration? AutoArchiveDuration { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("locked")]

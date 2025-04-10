@@ -77,7 +77,7 @@ public class JsonChannel : JsonEntity
     public JsonThreadCurrentUser? CurrentUser { get; set; }
 
     [JsonPropertyName("default_auto_archive_duration")]
-    public int? DefaultAutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration? DefaultAutoArchiveDuration { get; set; }
 
     [JsonPropertyName("permissions")]
     public Permissions? Permissions { get; set; }
