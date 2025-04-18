@@ -46,6 +46,19 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
+    [SlashCommand("cv2", "Components V2")]
+    public static InteractionMessageProperties CV2()
+    {
+        return new()
+        {
+            Components = [
+                new MediaGalleryProperties().AddItems(new MediaGalleryItemProperties(new("https://netcord.dev/images/SmallSquare.png"))),
+                new ComponentSeparatorProperties(),
+            ],
+            Flags = MessageFlags.IsComponentsV2,
+        };
+    }
+
     [SlashCommand("enum", "Enum!")]
     public static void Enum(ChannelFlags @enum)
     {

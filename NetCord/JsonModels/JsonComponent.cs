@@ -4,6 +4,9 @@ namespace NetCord.JsonModels;
 
 public class JsonComponent
 {
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
     [JsonPropertyName("type")]
     public ComponentType Type { get; set; }
 
@@ -60,4 +63,34 @@ public class JsonComponent
 
     [JsonPropertyName("value")]
     public string? Value { get; set; }
+
+    [JsonPropertyName("accessory")]
+    public JsonComponent? Accessory { get; set; }
+
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
+
+    [JsonPropertyName("media")]
+    public JsonComponentMedia? Media { get; set; }
+
+    [JsonPropertyName("file")]
+    public JsonComponentMedia? File { get; set; }
+
+    [JsonPropertyName("spoiler")]
+    public bool? Spoiler { get; set; }
+
+    [JsonPropertyName("description")]
+    public string? Description { get; set; }
+
+    [JsonPropertyName("divider")]
+    public bool? Divider { get; set; }
+
+    [JsonPropertyName("spacing")]
+    public ComponentSeparatorSpacingSize? Spacing { get; set; }
+
+    [JsonPropertyName("accent_color")]
+    public Color? AccentColor { get; set; }
+
+    [JsonPropertyName("items")]
+    public JsonComponent[]? Items { get; set; }
 }

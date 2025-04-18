@@ -16,6 +16,15 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
                 Required = false,
                 MinLength = 5,
                 MaxLength = 20,
+                Id = 1223,
+                ParentId = 102,
+            },
+            new TextInputProperties("wzium", TextInputStyle.Short, "XD")
+            {
+                Placeholder = "Wzium or not",
+                Required = true,
+                Id = 5,
+                ParentId = 24,
             },
         ])));
     }
