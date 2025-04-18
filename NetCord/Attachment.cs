@@ -1,6 +1,4 @@
-﻿using System.Net.Mime;
-
-namespace NetCord;
+﻿namespace NetCord;
 
 public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonModel<JsonModels.JsonAttachment>
 {
@@ -27,7 +25,7 @@ public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonMode
     /// <summary>
     /// The attachment's media type.
     /// </summary>
-    public ContentType? ContentType => _jsonModel.ContentType;
+    public string? ContentType => _jsonModel.ContentType;
 
     /// <summary>
     /// Size of file in bytes.

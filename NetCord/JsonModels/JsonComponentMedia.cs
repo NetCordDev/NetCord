@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -17,9 +16,8 @@ public class JsonComponentMedia
     [JsonPropertyName("width")]
     public int? Width { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.ContentTypeConverter))]
     [JsonPropertyName("content_type")]
-    public ContentType? ContentType { get; set; }
+    public string? ContentType { get; set; }
 
     [JsonPropertyName("loading_state")]
     public ComponentMediaLoadingState? LoadingState { get; set; }

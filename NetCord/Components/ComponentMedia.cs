@@ -1,6 +1,4 @@
-﻿using System.Net.Mime;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
@@ -31,7 +29,7 @@ public class ComponentMedia(JsonComponentMedia jsonModel) : IJsonModel<JsonCompo
     /// <summary>
     /// The media item's media type.
     /// </summary>
-    public ContentType? ContentType => jsonModel.ContentType;
+    public string? ContentType => jsonModel.ContentType;
 
     /// <summary>
     /// Loading state of the media item.
