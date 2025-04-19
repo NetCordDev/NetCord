@@ -6,10 +6,10 @@ public partial class RestClient
 {
     [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
-    public async Task<Webhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IncomingWebhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<WebhookProperties>(webhookProperties, Serialization.Default.WebhookProperties))
-            return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
     }
 
     [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
