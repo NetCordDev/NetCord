@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "NetCord.Test.Hosting.AzureFunctions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7048",
+      "launchBrowser": false
+    }
+  }
+}

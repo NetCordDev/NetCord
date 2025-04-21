@@ -55,6 +55,7 @@
   </Folder>
   <Folder Name="/Hosting/">
     <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
+    <Project Path="Hosting/NetCord.Hosting.AzureFunctions/NetCord.Hosting.AzureFunctions.csproj" />
     <Project Path="Hosting/NetCord.Hosting.Services/NetCord.Hosting.Services.csproj" />
     <Project Path="Hosting/NetCord.Hosting/NetCord.Hosting.csproj" />
   </Folder>
@@ -71,6 +72,7 @@
     <Project Path="Tests/ColorTest/ColorTest.csproj" />
     <Project Path="Tests/MentionTest/MentionTest.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting.AspNetCore/NetCord.Test.Hosting.AspNetCore.csproj" />
+    <Project Path="Tests/NetCord.Test.Hosting.AzureFunctions/NetCord.Test.Hosting.AzureFunctions.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting/NetCord.Test.Hosting.csproj" />
     <Project Path="Tests/NetCord.Test.Sharded.Hosting/NetCord.Test.Sharded.Hosting.csproj" />
     <Project Path="Tests/NetCord.Test.Sharded/NetCord.Test.Sharded.csproj" />
