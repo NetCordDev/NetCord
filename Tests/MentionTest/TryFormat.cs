@@ -152,6 +152,11 @@ public class TryFormat
     [TestMethod]
     public void LogMessage()
     {
+        // Sleep until the next second to ensure the timestamp is the same for all messages
+        var now = DateTime.Now;
+        var milliseconds = 1000 - now.Millisecond;
+        Thread.Sleep(milliseconds);
+
         TestTryFormat(TryFormat, _messages, m => m.ToString());
 
         static bool TryFormat(Span<char> destination, out int charsWritten, LogMessage value) => value.TryFormat(destination, out charsWritten);
