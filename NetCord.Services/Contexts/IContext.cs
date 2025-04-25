@@ -1,4 +1,4 @@
-namespace Netcord.Services;
+namespace NetCord.Services;
 
 public interface IContext
 {
