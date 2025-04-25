@@ -2,7 +2,7 @@
 
 namespace NetCord.Services;
 
-public interface IRestMessageContext
+public interface IRestMessageContext : IContext
 {
     public RestMessage Message { get; }
 }

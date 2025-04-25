@@ -2,7 +2,7 @@
 
 namespace NetCord.Services;
 
-public interface IGatewayClientContext
+public interface IGatewayClientContext : IContext
 {
     public GatewayClient Client { get; }
 }
