@@ -72,7 +72,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/members",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }
@@ -144,7 +144,7 @@ public partial class RestClient
             b => b.User.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/bans",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }

@@ -40,7 +40,7 @@ public partial class RestClient
             e => e.Id,
             HttpMethod.Get,
             $"/applications/{applicationId}/entitlements",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), baseQuery),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), baseQuery),
             null,
             properties);
     }

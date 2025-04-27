@@ -49,7 +49,7 @@ public partial record GuildUsersSearchPaginationProperties : PaginationPropertie
                 writer.WriteEndObject();
             }
 
-            writer.WriteNumber(_limit, value.Limit.GetValueOrDefault());
+            writer.WriteNumber(_limit, value.BatchSize.GetValueOrDefault());
 
             var direction = value.Direction.GetValueOrDefault();
 

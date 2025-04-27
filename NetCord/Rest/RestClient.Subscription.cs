@@ -20,7 +20,7 @@ public partial class RestClient
             e => e.Id,
             HttpMethod.Get,
             $"/skus/{skuId}/subscriptions",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue ? $"?user_id={userId}" : "?"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue ? $"?user_id={userId}" : "?"),
             null,
             properties);
     }
