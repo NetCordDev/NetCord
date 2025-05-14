@@ -77,7 +77,7 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public IEnumerable<InteractionContextType>? DefaultContexts { get; init; }
 
-    public ISlashCommandParameterNameProcessor<TContext> ParameterNameProcessor { get; init; } = new SnakeCaseSlashCommandParameterNameProcessor<TContext>();
+    public ISlashCommandParameterNameProcessor<TContext> ParameterNameProcessor { get; init; } = SnakeCaseSlashCommandParameterNameProcessor<TContext>.Instance;
 
     /// <summary>
     /// {0} - parameter name
@@ -85,7 +85,9 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
     [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
     public string DefaultParameterDescriptionFormat { get; init; } = "No description provided.";
 
-    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new ApplicationCommandResultResolverProvider<TContext>();
+    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = ApplicationCommandResultResolverProvider<TContext>.Instance;
+
+    public IServiceResolverProvider ServiceResolverProvider { get; init; } = Services.ServiceResolverProvider.Instance;
 
     public ILocalizationsProvider? LocalizationsProvider { get; init; }
 }

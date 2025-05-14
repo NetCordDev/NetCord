@@ -6,11 +6,15 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.Commands;
 
+#pragma warning disable IDE0032 // Use auto property
+
 public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : ICommandService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
     private readonly char[] _parameterSeparators = configuration.ParameterSeparators.ToArray();
     private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
+
+    public CommandServiceConfiguration<TContext> Configuration => _configuration;
 
     public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>> GetCommands()
         => new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<CommandInfo<TContext>>>(c.Key, [.. c.Value])));

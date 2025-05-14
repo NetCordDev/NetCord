@@ -107,9 +107,9 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         return new(new NotFoundResult("Command not found."));
     }
 
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
     {
         foreach (var subCommand in SubCommands.Values)
-            subCommand.InitializeAutocomplete<TAutocompleteContext>();
+            subCommand.InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

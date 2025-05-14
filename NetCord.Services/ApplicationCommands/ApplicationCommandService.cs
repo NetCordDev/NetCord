@@ -21,7 +21,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
     {
-        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>();
+        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(_configuration.ServiceResolverProvider);
     }
 }
 
@@ -36,6 +36,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GlobalCommands => _globalCommandsToCreate;
 
     IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
+
+    public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => _commands;
 

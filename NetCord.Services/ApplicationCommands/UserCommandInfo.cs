@@ -14,7 +14,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(User));
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
@@ -42,7 +42,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 

@@ -9,6 +9,12 @@ public interface ISlashCommandParameterNameProcessor<TContext> where TContext : 
 
 public class SlashCommandParameterNameProcessor<TContext> : ISlashCommandParameterNameProcessor<TContext> where TContext : IApplicationCommandContext
 {
+    public static SlashCommandParameterNameProcessor<TContext> Instance { get; } = new();
+
+    private SlashCommandParameterNameProcessor()
+    {
+    }
+
     public string ProcessParameterName(string name, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         return name;
@@ -17,6 +23,12 @@ public class SlashCommandParameterNameProcessor<TContext> : ISlashCommandParamet
 
 public class SnakeCaseSlashCommandParameterNameProcessor<TContext> : ISlashCommandParameterNameProcessor<TContext> where TContext : IApplicationCommandContext
 {
+    public static SnakeCaseSlashCommandParameterNameProcessor<TContext> Instance { get; } = new();
+
+    private SnakeCaseSlashCommandParameterNameProcessor()
+    {
+    }
+
     public string ProcessParameterName(string name, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         return JsonNamingPolicy.SnakeCaseLower.ConvertName(name);
@@ -25,6 +37,12 @@ public class SnakeCaseSlashCommandParameterNameProcessor<TContext> : ISlashComma
 
 public class KebabCaseSlashCommandParameterNameProcessor<TContext> : ISlashCommandParameterNameProcessor<TContext> where TContext : IApplicationCommandContext
 {
+    public static KebabCaseSlashCommandParameterNameProcessor<TContext> Instance { get; } = new();
+
+    private KebabCaseSlashCommandParameterNameProcessor()
+    {
+    }
+
     public string ProcessParameterName(string name, ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         return JsonNamingPolicy.KebabCaseLower.ConvertName(name);
