@@ -74,13 +74,13 @@ public static class EndpointRouteBuilderExtensions
 
         Encoding.UTF8.GetBytes(timestamp, timestampAndBody.Span);
 
-        int position = timestampByteCount;
-        var body = request.Body;
-        while (position < timestampAndBodyLength)
-            position += await body.ReadAsync(timestampAndBody[position..]).ConfigureAwait(false);
+        await request.Body.ReadExactlyAsync(timestampAndBody[timestampByteCount..]).ConfigureAwait(false);
 
         if (!validator.Validate(signatures[0], timestampAndBody.Span))
+        {
+            ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
             return null;
+        }
 
         var response = context.Response;
         var interaction = HttpInteractionFactory.Create(timestampAndBody.Span[timestampByteCount..], async (interaction, interactionCallback, properties, cancellationToken) =>
