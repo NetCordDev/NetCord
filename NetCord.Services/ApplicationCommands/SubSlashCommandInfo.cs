@@ -23,7 +23,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
@@ -98,11 +98,11 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         return new NotFoundResult("Command not found.");
     }
 
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Parameters;
         var count = parameters.Count;
         for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>();
+            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

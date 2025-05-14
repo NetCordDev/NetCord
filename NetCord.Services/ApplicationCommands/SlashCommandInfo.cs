@@ -21,7 +21,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal SlashCommandInfo(string name,
@@ -54,7 +54,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
@@ -136,11 +136,11 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         return new NotFoundResult("Command not found.");
     }
 
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Parameters;
         var count = parameters.Count;
         for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>();
+            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

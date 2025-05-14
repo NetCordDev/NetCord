@@ -50,7 +50,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
         else
             _handleAsync = &HandleInteractionAsync;
 
-        _createContext = optionsValue.CreateAutocompleteContext ?? ContextHelper.CreateContextDelegate<AutocompleteInteraction, GatewayClient?, TAutocompleteContext>();
+        _createContext = optionsValue.CreateAutocompleteContext ?? ContextHelper.CreateContextDelegate<AutocompleteInteraction, GatewayClient?, TAutocompleteContext>(_applicationCommandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.AutocompleteResultHandler ?? new AutocompleteInteractionResultHandler<TAutocompleteContext>();
         _client = client;
     }

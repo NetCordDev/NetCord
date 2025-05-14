@@ -7,6 +7,12 @@ namespace NetCord.Services.Commands;
 
 public class CommandResultResolverProvider<TContext> : IResultResolverProvider<TContext> where TContext : ICommandContext
 {
+    public static CommandResultResolverProvider<TContext> Instance { get; } = new();
+
+    private CommandResultResolverProvider()
+    {
+    }
+
     public bool TryGetResolver(Type type, [MaybeNullWhen(false)] out Func<object?, TContext, ValueTask> resolver)
     {
         if (type == typeof(Task))

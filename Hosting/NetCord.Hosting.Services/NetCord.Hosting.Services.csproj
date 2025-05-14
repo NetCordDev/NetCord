@@ -21,6 +21,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <NoWarn>SYSLIB1100;SYSLIB1101</NoWarn>
+
+    <DefineConstants>NetCordHostingServices</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

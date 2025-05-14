@@ -46,7 +46,7 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
         else
             _handleAsync = &HandleInteractionAsync;
 
-        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>();
+        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_applicationCommandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new ApplicationCommandResultHandler<TContext>();
         _client = client;
     }

@@ -19,7 +19,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         var parameters = GetParameters(method.GetParameters(), method, configuration);
         Parameters = parameters;
 
-        InvokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        InvokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
@@ -35,7 +35,7 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         var parameters = GetParameters(split.Parameters, method, configuration);
         Parameters = parameters;
 
-        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }

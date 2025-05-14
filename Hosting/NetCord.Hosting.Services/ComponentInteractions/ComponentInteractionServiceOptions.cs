@@ -20,6 +20,8 @@ public class ComponentInteractionServiceOptions
 
     public CultureInfo? CultureInfo { get; set; }
 
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
+
     public bool? UseScopes { get; set; }
 }
 
@@ -41,6 +43,8 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext>
     public CultureInfo? CultureInfo { get; set; }
 
     public IResultResolverProvider<TContext>? ResultResolverProvider { get; set; }
+
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
 
     public bool? UseScopes { get; set; }
 
@@ -64,6 +68,10 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext>
         if (cultureInfo is not null)
             CultureInfo = cultureInfo;
 
+        var serviceResolverProvider = value.ServiceResolverProvider;
+        if (serviceResolverProvider is not null)
+            ServiceResolverProvider = serviceResolverProvider;
+
         var useScopes = value.UseScopes;
         if (useScopes.HasValue)
             UseScopes = useScopes;
@@ -81,6 +89,7 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext>
             ParameterSeparator = ParameterSeparator ?? configuration.ParameterSeparator,
             CultureInfo = CultureInfo ?? configuration.CultureInfo,
             ResultResolverProvider = ResultResolverProvider ?? configuration.ResultResolverProvider,
+            ServiceResolverProvider = ServiceResolverProvider ?? KeyedServiceResolverProvider.Instance,
         };
     }
 }

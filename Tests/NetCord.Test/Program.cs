@@ -45,7 +45,7 @@ internal static class Program
         configuration = configuration with
         {
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new ApplicationCommands.PermissionsTypeReader()),
-            ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
+            ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
         };
@@ -53,6 +53,7 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton("wzium");
+        services.AddKeyedSingleton("key", "wzium2");
         services.AddSingleton(new HttpClient());
         services.AddSingleton(new Dictionary<ulong, SemaphoreSlim>());
         _serviceProvider = services.BuildServiceProvider();
@@ -77,6 +78,7 @@ internal static class Program
         _channelMenuInteractionService.AddModules(assembly);
         _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
+        _slashCommandService.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}");
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 

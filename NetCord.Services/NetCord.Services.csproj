@@ -18,6 +18,8 @@
     <Description>The modern and fully customizable C# Discord library.</Description>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <DefineConstants>NetCordServices</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -64,4 +64,6 @@ public record ComponentInteractionServiceConfiguration<TContext> where TContext 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
 
     public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new ComponentInteractionResultResolverProvider<TContext>();
+
+    public IServiceResolverProvider ServiceResolverProvider { get; init; } = Services.ServiceResolverProvider.Instance;
 }
