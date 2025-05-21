@@ -75,6 +75,8 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     {
         Description = description;
 
+        Preconditions = [];
+        
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
         SlashCommandBuilder slashCommandBuilder = new();
@@ -101,15 +103,11 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         }
 
         SubCommands = subCommands.ToFrozenDictionary();
-
-        Preconditions = [];
     }
 
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
-
-    public override LocalizationPathSegment LocalizationPathSegment => new SlashCommandGroupLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

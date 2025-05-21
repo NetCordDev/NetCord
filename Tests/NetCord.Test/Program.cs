@@ -11,6 +11,7 @@ using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.ComponentInteractions;
+using NetCord.Test.ApplicationCommands;
 
 namespace NetCord.Test;
 
@@ -82,12 +83,15 @@ internal static class Program
 
         _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
         {
-            builder.AddSubCommand("green", "Green!", () => "green");
+            builder.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
+                                                     (string wzium,
+                                                      SlashCommandContext context,
+                                                      [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
             builder.AddSubCommand("blue", "Blue!", () => "blue");
             builder.AddSubCommand("red", "Red!", builder =>
             {
-                builder.AddSubCommand("orange", "Orange!", () => "orange");
-                builder.AddSubCommand("purple", "Purple!", () => "purple");
+                builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
+                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => $"purple {s}");
             });
         });
 

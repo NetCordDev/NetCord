@@ -23,8 +23,9 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal SubSlashCommandInfo(string name, string description, Delegate handler, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
@@ -45,8 +46,9 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     public string Name { get; }
