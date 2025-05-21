@@ -84,7 +84,7 @@ internal static class Program
         _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
         {
             builder.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
-                                                     (string wzium,
+            (string wzium,
                                                       SlashCommandContext context,
                                                       [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
             builder.AddSubCommand("blue", "Blue!", () => "blue");

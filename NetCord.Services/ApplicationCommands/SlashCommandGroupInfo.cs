@@ -76,7 +76,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         Description = description;
 
         Preconditions = [];
-        
+
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
         SlashCommandBuilder slashCommandBuilder = new();

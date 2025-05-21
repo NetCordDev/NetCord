@@ -87,7 +87,7 @@ var host = builder.Build()
     .AddSlashCommand("yellow", "Yellow!", builder =>
     {
         builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
-                                                 (string wzium,
+        (string wzium,
                                                   ApplicationCommandContext context,
                                                   [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
         builder.AddSubCommand("blue", "Blue!", () => "blue");

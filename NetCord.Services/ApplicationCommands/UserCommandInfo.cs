@@ -46,7 +46,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
-        
+
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
