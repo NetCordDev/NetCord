@@ -23,8 +23,8 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public string Description { get; }
 
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-    public Type? AutocompleteProviderType { get; }
+    [field: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    public Type? AutocompleteProviderType { [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] get; }
     public IChoicesProvider<TContext>? ChoicesProvider { get; }
     public double? MaxValue { get; }
     public double? MinValue { get; }
@@ -130,7 +130,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider, serviceResolverProvider),
                                    getChoicesAsyncMethod,
                                    option, context);
-        var lambda = Expression.Lambda(call, option, context, serviceProvider);
+        var lambda = Expression.Lambda<Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?>>>(call, option, context, serviceProvider);
         _invokeAutocompleteAsync = lambda.Compile();
     }
 }
