@@ -12,13 +12,13 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 {
     internal SubSlashCommandInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
-        Name = attribute.Name!;
+        Name = attribute.Name;
 
-        var localizationPath = LocalizationsPath = path.Add(new SubSlashCommandLocalizationPathSegment(Name));
+        var localizationPath = LocalizationPath = path.Add(new SubSlashCommandLocalizationPathSegment(Name));
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = attribute.Description!;
+        Description = attribute.Description;
 
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
@@ -27,9 +27,31 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
+    internal SubSlashCommandInfo(string name, string description, Delegate handler, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    {
+        Name = name;
+
+        var localizationPath = LocalizationPath = path.Add(new SubSlashCommandLocalizationPathSegment(name));
+
+        LocalizationsProvider = configuration.LocalizationsProvider;
+
+        Description = description;
+
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath);
+        Parameters = parameters;
+        ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+    }
+
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
-    public ImmutableList<LocalizationPathSegment> LocalizationsPath { get; }
+    public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
@@ -71,8 +93,8 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 
         return new(ApplicationCommandOptionType.SubCommand, Name, Description)
         {
-            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationsPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
+            NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
+            DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
     }

@@ -53,6 +53,58 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
+    internal SlashCommandGroupInfo(string name,
+                                   string description,
+                                   Action<SlashCommandBuilder> builder,
+                                   Permissions? defaultGuildUserPermissions,
+                                   bool? dMPermission,
+                                   bool defaultPermission,
+                                   IEnumerable<ApplicationIntegrationType>? integrationTypes,
+                                   IEnumerable<InteractionContextType>? contexts,
+                                   bool nsfw,
+                                   ulong? guildId,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
+                                                                                                          defaultGuildUserPermissions,
+                                                                                                          dMPermission,
+                                                                                                          defaultPermission,
+                                                                                                          integrationTypes,
+                                                                                                          contexts,
+                                                                                                          nsfw,
+                                                                                                          guildId,
+                                                                                                          configuration)
+    {
+        Description = description;
+
+        List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
+
+        SlashCommandBuilder slashCommandBuilder = new();
+        builder(slashCommandBuilder);
+
+        var subCommandsInfo = slashCommandBuilder.SubCommands;
+        int subCommandsCount = subCommandsInfo.Count;
+
+        for (int i = 0; i < subCommandsCount; i++)
+        {
+            var subCommandInfo = subCommandsInfo[i];
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandInfo.Name, subCommandInfo.Description, subCommandInfo.Handler, configuration, LocalizationPath);
+            subCommands.Add(new(subCommandInfo.Name, subCommand));
+        }
+
+        var subCommandGroupsInfo = slashCommandBuilder.SubCommandGroups;
+        int subCommandGroupsCount = subCommandGroupsInfo.Count;
+
+        for (int i = 0; i < subCommandGroupsCount; i++)
+        {
+            var subCommandGroupInfo = subCommandGroupsInfo[i];
+            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupInfo.Name, subCommandGroupInfo.Description, subCommandGroupInfo.Builder, configuration, LocalizationPath);
+            subCommands.Add(new(subCommandGroupInfo.Name, subCommandGroup));
+        }
+
+        SubCommands = subCommands.ToFrozenDictionary();
+
+        Preconditions = [];
+    }
+
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }

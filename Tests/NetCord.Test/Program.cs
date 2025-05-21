@@ -79,6 +79,18 @@ internal static class Program
         _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
         _slashCommandService.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}");
+
+        _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
+        {
+            builder.AddSubCommand("green", "Green!", () => "green");
+            builder.AddSubCommand("blue", "Blue!", () => "blue");
+            builder.AddSubCommand("red", "Red!", builder =>
+            {
+                builder.AddSubCommand("orange", "Orange!", () => "orange");
+                builder.AddSubCommand("purple", "Purple!", () => "purple");
+            });
+        });
+
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 

@@ -125,6 +125,33 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
         AddCommandInfo(slashCommandInfo);
     }
 
+    public void AddSlashCommand(string name,
+                                string description,
+                                Action<SlashCommandBuilder> builder,
+                                Permissions? defaultGuildUserPermissions = null,
+                                bool? dMPermission = null,
+                                bool defaultPermission = true,
+                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                IEnumerable<InteractionContextType>? contexts = null,
+                                bool nsfw = false,
+                                ulong? guildId = null)
+    {
+        SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(name,
+                                                                    description,
+                                                                    builder,
+                                                                    defaultGuildUserPermissions,
+                                                                    dMPermission,
+                                                                    defaultPermission,
+                                                                    integrationTypes,
+                                                                    contexts,
+                                                                    nsfw,
+                                                                    guildId,
+                                                                    _configuration);
+
+        OnAutocompleteAdd(slashCommandGroupInfo);
+        AddCommandInfo(slashCommandGroupInfo);
+    }
+
     public void AddUserCommand(string name,
                                Delegate handler,
                                Permissions? defaultGuildUserPermissions = null,
