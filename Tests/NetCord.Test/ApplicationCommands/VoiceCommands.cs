@@ -29,7 +29,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         await semaphore.WaitAsync();
         try
         {
-            var encryptionProvider = encryption.HasValue ? new StaticVoiceEncryptionProvider(encryption switch
+            var encryptionProvider = encryption.HasValue ? new StaticVoiceEncryptionProvider(encryption.GetValueOrDefault() switch
             {
                 VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
                 VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
