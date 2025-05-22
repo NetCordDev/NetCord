@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0306 // Simplify collection initialization
+
 [CollectionBuilder(typeof(ComponentContainerProperties), nameof(Create))]
 public partial class ComponentContainerProperties(IEnumerable<IComponentProperties> components) : IComponentProperties, IComponentContainerProperties, IEnumerable<IComponentProperties>
 {
@@ -26,7 +29,7 @@ public partial class ComponentContainerProperties(IEnumerable<IComponentProperti
     public void Add(IComponentProperties component) => AddComponents(component);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static ActionRowProperties Create(ReadOnlySpan<IButtonProperties> buttons) => new(buttons.ToArray());
+    public static ComponentContainerProperties Create(ReadOnlySpan<IComponentProperties> components) => new(components.ToArray());
 
     IEnumerator<IComponentProperties> IEnumerable<IComponentProperties>.GetEnumerator() => Components.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
