@@ -10,7 +10,7 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync(VoiceEncryption encryption, Func<bool, ValueTask>? disconnectHandler = null)
+    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<bool, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
         if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
@@ -29,20 +29,22 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         await semaphore.WaitAsync();
         try
         {
+            var encryptionProvider = encryption.HasValue ? new StaticVoiceEncryptionProvider(encryption.GetValueOrDefault() switch
+            {
+                VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
+                VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
+                VoiceEncryption.XSalsa20Poly1305LiteRtpSize => new XSalsa20Poly1305LiteRtpSizeEncryption(),
+                VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
+                VoiceEncryption.Aes256Gcm => new Aes256GcmEncryption(),
+                VoiceEncryption.Aes256GcmRtpSize => new Aes256GcmRtpSizeEncryption(),
+                VoiceEncryption.XChaCha20Poly1305RtpSize => new XChaCha20Poly1305RtpSizeEncryption(),
+                _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
+            }) : null;
+
             voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
             {
                 RedirectInputStreams = true,
-                Encryption = encryption switch
-                {
-                    VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
-                    VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
-                    VoiceEncryption.XSalsa20Poly1305LiteRtpSize => new XSalsa20Poly1305LiteRtpSizeEncryption(),
-                    VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
-                    VoiceEncryption.Aes256Gcm => new Aes256GcmEncryption(),
-                    VoiceEncryption.Aes256GcmRtpSize => new Aes256GcmRtpSizeEncryption(),
-                    VoiceEncryption.XChaCha20Poly1305RtpSize => new XChaCha20Poly1305RtpSizeEncryption(),
-                    _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
-                },
+                EncryptionProvider = encryptionProvider,
             });
         }
         finally
@@ -64,7 +66,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(VoiceEncryption encryption = VoiceEncryption.Aes256GcmRtpSize)
+    public async Task PlayAsync(VoiceEncryption? encryption = null)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -103,7 +105,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("echo", "Echo!")]
-    public async Task EchoAsync(VoiceEncryption encryption = VoiceEncryption.Aes256GcmRtpSize)
+    public async Task EchoAsync(VoiceEncryption? encryption = null)
     {
         TaskCompletionSource taskCompletionSource = new();
 
@@ -132,5 +134,16 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         Aes256Gcm,
         Aes256GcmRtpSize,
         XChaCha20Poly1305RtpSize,
+    }
+
+    public class StaticVoiceEncryptionProvider(IVoiceEncryption encryption) : IVoiceEncryptionProvider
+    {
+        public IVoiceEncryption GetEncryption(IReadOnlyList<string> modes)
+        {
+            if (modes.Contains(encryption.Name))
+                return encryption;
+
+            throw new InvalidOperationException($"Encryption mode '{encryption.Name}' is not supported.");
+        }
     }
 }
