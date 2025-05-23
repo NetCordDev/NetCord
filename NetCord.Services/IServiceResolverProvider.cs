@@ -2,7 +2,7 @@
 
 namespace NetCord.Services;
 
-#if NetCordServices
+#if NetCord_Services
 public
 #else
 internal

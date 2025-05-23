@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Documentation/">
     <File Path="Documentation/.editorconfig" />
+    <File Path="Documentation/Directory.Build.props" />
+    <File Path="Documentation/Directory.Build.targets" />
   </Folder>
   <Folder Name="/Documentation/guides/" />
   <Folder Name="/Documentation/guides/basic-concepts/">
@@ -61,15 +63,20 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
     <File Path="global.json" />
   </Folder>
   <Folder Name="/SourceGenerators/">
+    <File Path="SourceGenerators/Directory.Build.props" />
+    <File Path="SourceGenerators/Directory.Build.targets" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
     <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
     <Project Path="SourceGenerators/Shared/Shared.csproj" />
     <Project Path="SourceGenerators/UserAgentHeaderGenerator/UserAgentHeaderGenerator.csproj" />
   </Folder>
   <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+    <File Path="Tests/Directory.Build.targets" />
     <Project Path="Tests/ColorTest/ColorTest.csproj" />
     <Project Path="Tests/MentionTest/MentionTest.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting.AspNetCore/NetCord.Test.Hosting.AspNetCore.csproj" />

@@ -6,7 +6,7 @@ using NetCord.Services;
 
 namespace NetCord.Hosting.Services;
 
-#if NetCordHostingServices
+#if NetCord_Hosting_Services
 public
 #else
 internal

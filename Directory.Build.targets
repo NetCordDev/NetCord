@@ -1,0 +1,7 @@
+<Project>
+  
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);$([System.String]::Copy('$(AssemblyName)').Replace('.', '_'))</DefineConstants>
+  </PropertyGroup>
+  
+</Project>
