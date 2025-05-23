@@ -18,7 +18,7 @@ public class ApplicationCommandInteractionDataOption(JsonModels.JsonApplicationC
     public ApplicationCommandOptionType Type => jsonModel.Type;
 
     /// <summary>
-    /// The parameter's value, <see langword="null"/> if omitted. Never <see langword="null"/> for autocomplete interactions. 
+    /// The parameter's value, <see langword="null"/> if omitted. When autocomplete is triggered for this parameter, the value is guaranteed to be non-<see langword="null"/>.
     /// </summary>
     public string? Value => jsonModel.Value;
 
