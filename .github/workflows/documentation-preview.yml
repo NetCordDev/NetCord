@@ -10,6 +10,7 @@ concurrency:
 
 jobs:
   documentation-preview:
+    if: ${{ github.event.workflow_run.event == 'pull_request' }}
     runs-on: ubuntu-latest
 
     permissions: 
