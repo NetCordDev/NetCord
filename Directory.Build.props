@@ -35,8 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(SolutionDir)\Resources\NuGet\README.md" Pack="true" PackagePath="" />
-    <None Include="$(SolutionDir)\Resources\NuGet\ICON.png" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)\Resources\NuGet\README.md" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)\Resources\NuGet\ICON.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>
