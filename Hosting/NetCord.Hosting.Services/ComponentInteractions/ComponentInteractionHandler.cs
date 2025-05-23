@@ -19,7 +19,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
     private IServiceProvider Services { get; }
 
     private readonly ILogger _logger;
-    private readonly ComponentInteractionService<TContext> _interactionService;
+    private readonly ComponentInteractionService<TContext> _componentInteractionService;
     private readonly IServiceScopeFactory? _scopeFactory;
     private readonly delegate*<ComponentInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
@@ -35,7 +35,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
         Services = services;
 
         _logger = logger;
-        _interactionService = interactionService;
+        _componentInteractionService = interactionService;
 
         var optionsValue = options.Value;
 
@@ -47,7 +47,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
         else
             _handleAsync = &HandleInteractionAsync;
 
-        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>();
+        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_componentInteractionService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new ComponentInteractionResultHandler<TContext>();
         _client = client;
     }
@@ -89,7 +89,7 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext>
     private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
         var context = _createContext(interaction, client, services);
-        var result = await _interactionService.ExecuteAsync(context, services).ConfigureAwait(false);
+        var result = await _componentInteractionService.ExecuteAsync(context, services).ConfigureAwait(false);
 
         try
         {

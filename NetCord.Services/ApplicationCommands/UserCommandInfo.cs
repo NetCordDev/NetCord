@@ -14,8 +14,10 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(User));
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
+
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal UserCommandInfo(string name,
@@ -42,8 +44,10 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider);
+
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _userParameter;
@@ -51,8 +55,6 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override LocalizationPathSegment LocalizationPathSegment => new ApplicationCommandLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

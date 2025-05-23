@@ -1,4 +1,8 @@
-﻿using NetCord.Rest;
+﻿using System.Runtime.InteropServices;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.Hosting;
@@ -22,4 +26,10 @@ public class ApplicationCommandModule : ApplicationCommandModule<ApplicationComm
     {
         return message.Content.Length.ToString();
     }
+}
+
+public class DITestModule([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium) : ApplicationCommandModule<ApplicationCommandContext>
+{
+    [UserCommand("Wzium")]
+    public string Wzium() => $"{keyedWzium} {wzium}";
 }

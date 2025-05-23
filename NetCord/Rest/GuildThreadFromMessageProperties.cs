@@ -9,7 +9,7 @@ public partial class GuildThreadFromMessageProperties(string name)
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("auto_archive_duration")]
-    public int? AutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration? AutoArchiveDuration { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("rate_limit_per_user")]

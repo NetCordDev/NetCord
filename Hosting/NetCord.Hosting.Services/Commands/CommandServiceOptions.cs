@@ -23,6 +23,8 @@ public class CommandServiceOptions
 
     public CultureInfo? CultureInfo { get; set; }
 
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
+
     public bool? UseScopes { get; set; }
 
     public string? Prefix { get; set; }
@@ -53,6 +55,8 @@ public class CommandServiceOptions<TContext>
 
     public IResultResolverProvider<TContext>? ResultResolverProvider { get; set; }
 
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
+
     public bool? UseScopes { get; set; }
 
     public string? Prefix { get; set; }
@@ -80,6 +84,10 @@ public class CommandServiceOptions<TContext>
         var cultureInfo = value.CultureInfo;
         if (cultureInfo is not null)
             CultureInfo = cultureInfo;
+
+        var serviceResolverProvider = value.ServiceResolverProvider;
+        if (serviceResolverProvider is not null)
+            ServiceResolverProvider = serviceResolverProvider;
 
         var useScopes = value.UseScopes;
         if (useScopes.HasValue)
@@ -110,6 +118,7 @@ public class CommandServiceOptions<TContext>
             IgnoreCase = IgnoreCase ?? configuration.IgnoreCase,
             CultureInfo = CultureInfo ?? configuration.CultureInfo,
             ResultResolverProvider = ResultResolverProvider ?? configuration.ResultResolverProvider,
+            ServiceResolverProvider = ServiceResolverProvider ?? KeyedServiceResolverProvider.Instance,
         };
     }
 }

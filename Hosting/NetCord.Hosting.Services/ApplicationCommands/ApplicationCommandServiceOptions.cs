@@ -23,6 +23,8 @@ public class ApplicationCommandServiceOptions
     [StringSyntax(StringSyntaxAttribute.CompositeFormat)]
     public string? DefaultParameterDescriptionFormat { get; set; }
 
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
+
     public ILocalizationsProvider? LocalizationsProvider { get; set; }
 
     public bool? UseScopes { get; set; }
@@ -52,6 +54,8 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
 
     public IResultResolverProvider<TContext>? ResultResolverProvider { get; set; }
 
+    public IServiceResolverProvider? ServiceResolverProvider { get; set; }
+
     public ILocalizationsProvider? LocalizationsProvider { get; set; }
 
     public bool? UseScopes { get; set; }
@@ -80,6 +84,10 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
         if (defaultParameterDescriptionFormat is not null)
             DefaultParameterDescriptionFormat = defaultParameterDescriptionFormat;
 
+        var serviceResolverProvider = value.ServiceResolverProvider;
+        if (serviceResolverProvider is not null)
+            ServiceResolverProvider = serviceResolverProvider;
+
         var localizationsProvider = value.LocalizationsProvider;
         if (localizationsProvider is not null)
             LocalizationsProvider = localizationsProvider;
@@ -103,6 +111,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
             ParameterNameProcessor = ParameterNameProcessor ?? configuration.ParameterNameProcessor,
             DefaultParameterDescriptionFormat = DefaultParameterDescriptionFormat ?? configuration.DefaultParameterDescriptionFormat,
             ResultResolverProvider = ResultResolverProvider ?? configuration.ResultResolverProvider,
+            ServiceResolverProvider = ServiceResolverProvider ?? KeyedServiceResolverProvider.Instance,
             LocalizationsProvider = LocalizationsProvider ?? configuration.LocalizationsProvider,
         };
     }

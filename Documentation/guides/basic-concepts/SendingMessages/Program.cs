@@ -154,7 +154,7 @@ async static Task PropertiesAsync()
 
     message.AddAttachments(attachment);
 
-    ComponentProperties component;
+    IComponentProperties component;
 
     component = new ActionRowProperties
     {

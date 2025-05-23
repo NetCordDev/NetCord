@@ -2,6 +2,6 @@
 
 namespace NetCord;
 
-public class RoleMenu(JsonComponent jsonModel) : EntityMenu(jsonModel)
+public class RoleMenu(JsonComponent jsonModel, int parentId) : EntityMenu(jsonModel, parentId)
 {
 }

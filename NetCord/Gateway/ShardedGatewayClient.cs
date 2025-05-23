@@ -319,6 +319,9 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
         HookEvent(client, _messagePollVoteAddLock, ref _messagePollVoteAdd, a => _messagePollVoteAdd!(client, a), (c, e) => c.MessagePollVoteAdd += e);
         HookEvent(client, _messagePollVoteRemoveLock, ref _messagePollVoteRemove, a => _messagePollVoteRemove!(client, a), (c, e) => c.MessagePollVoteRemove += e);
         HookEvent(client, _interactionCreateLock, ref _interactionCreate, a => _interactionCreate!(client, a), (c, e) => c.InteractionCreate += e);
+        HookEvent(client, _subscriptionCreateLock, ref _subscriptionCreate, a => _subscriptionCreate!(client, a), (c, e) => c.SubscriptionCreate += e);
+        HookEvent(client, _subscriptionUpdateLock, ref _subscriptionUpdate, a => _subscriptionUpdate!(client, a), (c, e) => c.SubscriptionUpdate += e);
+        HookEvent(client, _subscriptionDeleteLock, ref _subscriptionDelete, a => _subscriptionDelete!(client, a), (c, e) => c.SubscriptionDelete += e);
         HookEvent(client, _stageInstanceCreateLock, ref _stageInstanceCreate, a => _stageInstanceCreate!(client, a), (c, e) => c.StageInstanceCreate += e);
         HookEvent(client, _stageInstanceUpdateLock, ref _stageInstanceUpdate, a => _stageInstanceUpdate!(client, a), (c, e) => c.StageInstanceUpdate += e);
         HookEvent(client, _stageInstanceDeleteLock, ref _stageInstanceDelete, a => _stageInstanceDelete!(client, a), (c, e) => c.StageInstanceDelete += e);
@@ -1329,6 +1332,51 @@ public sealed class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity
     }
     private Func<GatewayClient, Interaction, ValueTask>? _interactionCreate;
     private readonly object _interactionCreateLock = new();
+
+    /// <inheritdoc cref="GatewayClient.SubscriptionCreate"/>
+    public event Func<GatewayClient, Subscription, ValueTask>? SubscriptionCreate
+    {
+        add
+        {
+            HookEvent(_subscriptionCreateLock, value, ref _subscriptionCreate, client => a => _subscriptionCreate!(client, a), (c, e) => c.SubscriptionCreate += e);
+        }
+        remove
+        {
+            UnhookEvent(_subscriptionCreateLock, value, ref _subscriptionCreate, (c, e) => c.SubscriptionCreate -= e);
+        }
+    }
+    private Func<GatewayClient, Subscription, ValueTask>? _subscriptionCreate;
+    private readonly object _subscriptionCreateLock = new();
+
+    /// <inheritdoc cref="GatewayClient.SubscriptionUpdate"/>
+    public event Func<GatewayClient, Subscription, ValueTask>? SubscriptionUpdate
+    {
+        add
+        {
+            HookEvent(_subscriptionUpdateLock, value, ref _subscriptionUpdate, client => a => _subscriptionUpdate!(client, a), (c, e) => c.SubscriptionUpdate += e);
+        }
+        remove
+        {
+            UnhookEvent(_subscriptionUpdateLock, value, ref _subscriptionUpdate, (c, e) => c.SubscriptionUpdate -= e);
+        }
+    }
+    private Func<GatewayClient, Subscription, ValueTask>? _subscriptionUpdate;
+    private readonly object _subscriptionUpdateLock = new();
+
+    /// <inheritdoc cref="GatewayClient.SubscriptionDelete"/>
+    public event Func<GatewayClient, Subscription, ValueTask>? SubscriptionDelete
+    {
+        add
+        {
+            HookEvent(_subscriptionDeleteLock, value, ref _subscriptionDelete, client => a => _subscriptionDelete!(client, a), (c, e) => c.SubscriptionDelete += e);
+        }
+        remove
+        {
+            UnhookEvent(_subscriptionDeleteLock, value, ref _subscriptionDelete, (c, e) => c.SubscriptionDelete -= e);
+        }
+    }
+    private Func<GatewayClient, Subscription, ValueTask>? _subscriptionDelete;
+    private readonly object _subscriptionDeleteLock = new();
 
     /// <inheritdoc cref="GatewayClient.StageInstanceCreate"/>
     public event Func<GatewayClient, StageInstance, ValueTask>? StageInstanceCreate

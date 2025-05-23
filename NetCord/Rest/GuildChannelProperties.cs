@@ -52,7 +52,7 @@ public partial class GuildChannelProperties(string name, ChannelType type)
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_auto_archive_duration")]
-    public int? DefaultAutoArchiveDuration { get; set; }
+    public ThreadArchiveDuration? DefaultAutoArchiveDuration { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_reaction_emoji")]

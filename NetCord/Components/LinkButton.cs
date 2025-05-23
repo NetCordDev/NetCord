@@ -7,6 +7,7 @@ public class LinkButton : ICustomizableButton, IJsonModel<JsonComponent>
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private readonly JsonComponent _jsonModel;
 
+    public int Id => _jsonModel.Id;
     public string Url => _jsonModel.Url!;
     public string? Label => _jsonModel.Label;
     public EmojiReference? Emoji { get; }

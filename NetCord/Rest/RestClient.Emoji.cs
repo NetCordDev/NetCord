@@ -37,7 +37,7 @@ public partial class RestClient
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
     public async Task<IReadOnlyList<ApplicationEmoji>> GetApplicationEmojisAsync(ulong applicationId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEmojiArray).ConfigureAwait(false)).Select(e => new ApplicationEmoji(e, applicationId, this)).ToArray();
+        => (await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/emojis", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonApplicationEmojisResult).ConfigureAwait(false)).Items.Select(e => new ApplicationEmoji(e, applicationId, this)).ToArray();
 
     [GenerateAlias([typeof(Application)], nameof(Application.Id))]
     [GenerateAlias([typeof(ApplicationEmoji)], nameof(ApplicationEmoji.ApplicationId), nameof(ApplicationEmoji.Id))]

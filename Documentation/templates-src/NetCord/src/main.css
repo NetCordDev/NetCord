@@ -349,6 +349,11 @@ code,
     padding: 1.5em !important;
   }
 
+.hljs-comment,
+.hljs-quote {
+  font-style: italic;
+}
+
 .code-example-section {
   margin-top: 100px;
   padding-bottom: 20px;

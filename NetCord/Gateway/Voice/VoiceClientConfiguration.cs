@@ -16,6 +16,6 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public ILatencyTimer? LatencyTimer { get; init; }
     public VoiceApiVersion? Version { get; init; }
     public IVoiceClientCache? Cache { get; init; }
-    public IVoiceEncryption? Encryption { get; init; }
+    public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
     public bool? RedirectInputStreams { get; init; }
 }

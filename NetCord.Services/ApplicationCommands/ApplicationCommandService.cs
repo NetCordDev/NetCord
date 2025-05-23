@@ -21,7 +21,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
     {
-        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>();
+        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(_configuration.ServiceResolverProvider);
     }
 }
 
@@ -36,6 +36,8 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GlobalCommands => _globalCommandsToCreate;
 
     IEnumerable<GuildCommands> IApplicationCommandService.GuildCommands => _guildCommandsToCreate.Select(c => new GuildCommands(c.Key, c.Value));
+
+    public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
     public IReadOnlyDictionary<ulong, ApplicationCommandInfo<TContext>> GetCommands() => _commands;
 
@@ -121,6 +123,33 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                                           _configuration);
         OnAutocompleteAdd(slashCommandInfo);
         AddCommandInfo(slashCommandInfo);
+    }
+
+    public void AddSlashCommand(string name,
+                                string description,
+                                Action<SlashCommandBuilder> builder,
+                                Permissions? defaultGuildUserPermissions = null,
+                                bool? dMPermission = null,
+                                bool defaultPermission = true,
+                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                IEnumerable<InteractionContextType>? contexts = null,
+                                bool nsfw = false,
+                                ulong? guildId = null)
+    {
+        SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(name,
+                                                                    description,
+                                                                    builder,
+                                                                    defaultGuildUserPermissions,
+                                                                    dMPermission,
+                                                                    defaultPermission,
+                                                                    integrationTypes,
+                                                                    contexts,
+                                                                    nsfw,
+                                                                    guildId,
+                                                                    _configuration);
+
+        OnAutocompleteAdd(slashCommandGroupInfo);
+        AddCommandInfo(slashCommandGroupInfo);
     }
 
     public void AddUserCommand(string name,

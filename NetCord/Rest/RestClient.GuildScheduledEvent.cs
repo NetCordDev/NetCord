@@ -53,7 +53,7 @@ public partial class RestClient
             u => u.User.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/scheduled-events/{scheduledEventId}/users",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={paginationProperties.WithGuildUsers}&"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={paginationProperties.WithGuildUsers}&"),
             new(guildId),
             properties);
     }

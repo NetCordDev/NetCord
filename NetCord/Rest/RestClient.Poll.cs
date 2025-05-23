@@ -17,7 +17,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/polls/{messageId}/answers/{answerId}",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }

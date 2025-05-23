@@ -1,6 +1,8 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
 
-public class Entitlement(JsonModels.JsonEntitlement jsonModel) : Entity, IJsonModel<JsonModels.JsonEntitlement>
+namespace NetCord;
+
+public partial class Entitlement(JsonModels.JsonEntitlement jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonEntitlement>
 {
     JsonModels.JsonEntitlement IJsonModel<JsonModels.JsonEntitlement>.JsonModel => jsonModel;
 

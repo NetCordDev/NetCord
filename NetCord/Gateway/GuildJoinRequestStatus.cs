@@ -3,14 +3,17 @@
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<GuildJoinRequestStatus>))]
-public enum GuildJoinRequestStatus
+public enum GuildJoinRequestStatus : sbyte
 {
     [JsonPropertyName("STARTED")]
     Started,
+
     [JsonPropertyName("PENDING")]
     Pending,
+
     [JsonPropertyName("REJECTED")]
     Rejected,
+
     [JsonPropertyName("APPROVED")]
     Approved,
 }

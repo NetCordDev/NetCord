@@ -49,6 +49,6 @@ public partial class Webhook : ClientEntity, IJsonModel<JsonWebhook>
     public static Webhook CreateFromJson(JsonWebhook jsonModel, RestClient client) => jsonModel.Type switch
     {
         WebhookType.Incoming => new IncomingWebhook(jsonModel, client),
-        _ => new(jsonModel, client),
+        _ => new Webhook(jsonModel, client),
     };
 }

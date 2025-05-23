@@ -42,7 +42,7 @@ public partial class GuildUser(JsonGuildUser jsonModel, ulong guildId, RestClien
     /// <exception cref="EntityNotFoundException"/>
     public async Task<GuildUserInfo> GetInfoAsync(RestRequestProperties? properties = null)
     {
-        await foreach (var info in _client.SearchGuildUsersAsync(guildId, new() { Limit = 1, AndQuery = [new UserIdsGuildUsersSearchQuery([Id])] }, properties).ConfigureAwait(false))
+        await foreach (var info in _client.SearchGuildUsersAsync(guildId, new() { BatchSize = 1, AndQuery = [new UserIdsGuildUsersSearchQuery([Id])] }, properties).ConfigureAwait(false))
             return info;
 
         throw new EntityNotFoundException("The user was not found.");

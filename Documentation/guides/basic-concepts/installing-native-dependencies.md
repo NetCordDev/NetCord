@@ -9,7 +9,7 @@ For HTTP interactions, [Libsodium](https://doc.libsodium.org/installation) is re
 ## Voice
 
 For voice:
-- [Libsodium](https://doc.libsodium.org/installation) **is not** required by default, as @NetCord.Gateway.Voice.Encryption.Aes256GcmRtpSizeEncryption is used, which does not require Libsodium. Libsodium is only required when you are using @NetCord.Gateway.Voice.Encryption.XChaCha20Poly1305RtpSizeEncryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305Encryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305LiteEncryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305LiteRtpSizeEncryption or @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305SuffixEncryption encryption mode.
+- [Libsodium](https://doc.libsodium.org/installation) **is not generally** required, but it **is highly recommended for production bots**. It is caused by the fact that generally @NetCord.Gateway.Voice.Encryption.Aes256GcmRtpSizeEncryption, which does not require Libsodium, is supported by Discord and is used by default. However, there is a small chance that Discord will not support this encryption mode for your connection. In this case, @NetCord.Gateway.Voice.Encryption.XChaCha20Poly1305RtpSizeEncryption, which does require Libsodium, is used by default. Libsodium is required when you use @NetCord.Gateway.Voice.Encryption.XChaCha20Poly1305RtpSizeEncryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305Encryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305LiteEncryption, @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305LiteRtpSizeEncryption, or @NetCord.Gateway.Voice.Encryption.XSalsa20Poly1305SuffixEncryption.
 - [Opus](https://opus-codec.org/downloads) is only required when you are using `Opus` prefixed classes.
 
 ## Installation

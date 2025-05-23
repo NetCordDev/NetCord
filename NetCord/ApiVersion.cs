@@ -16,14 +16,14 @@ public enum ApiVersion
 
     [Obsolete("Deprecated")]
     V6 = 6,
-    
+
     [Obsolete("Deprecated")]
     V7 = 7,
-    
+
     [Obsolete("Deprecated")]
     V8 = 8,
-    
+
     V9 = 9,
-    
+
     V10 = 10,
 }

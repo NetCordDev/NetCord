@@ -2,7 +2,7 @@
 
 namespace NetCord.Services;
 
-public interface IRestClientContext
+public interface IRestClientContext : IContext
 {
     public RestClient Client { get; }
 }

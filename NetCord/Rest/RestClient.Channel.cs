@@ -45,7 +45,7 @@ public partial class RestClient
             m => m.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }
@@ -103,7 +103,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/messages/{messageId}/reactions/{ReactionEmojiToString(emoji)}",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), type.HasValue ? $"?type={(byte)type.GetValueOrDefault()}&" : "?"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), type.HasValue ? $"?type={(byte)type.GetValueOrDefault()}&" : "?"),
             new(channelId),
             properties);
     }
@@ -320,7 +320,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/channels/{threadId}/thread-members",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_member={withGuildUsers}&"),
             new(threadId),
             properties);
     }
@@ -341,7 +341,7 @@ public partial class RestClient
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/public",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
             new(channelId),
             properties);
     }
@@ -362,7 +362,7 @@ public partial class RestClient
             t => t.Metadata.ArchiveTimestamp,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/private",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), t => t.ToString("s")),
             new(channelId),
             properties);
     }
@@ -383,7 +383,7 @@ public partial class RestClient
             t => t.Id,
             HttpMethod.Get,
             $"/channels/{channelId}/threads/archived/private",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(channelId),
             properties);
     }

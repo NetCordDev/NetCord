@@ -4,6 +4,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
+    [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id))]
     public IAsyncEnumerable<Entitlement> GetEntitlementsAsync(ulong applicationId, EntitlementsPaginationProperties? paginationProperties = null, RestRequestProperties? properties = null)
     {
         paginationProperties = PaginationProperties<ulong>.Prepare(paginationProperties, 0, long.MaxValue, PaginationDirection.After, 100);
@@ -32,27 +33,42 @@ public partial class RestClient
             paginationProperties,
             paginationProperties.Direction.GetValueOrDefault() switch
             {
-                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e)),
-                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e)),
+                PaginationDirection.After => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).Select(e => new Entitlement(e, this)),
+                PaginationDirection.Before => async s => (await s.ToObjectAsync(Serialization.Default.JsonEntitlementArray).ConfigureAwait(false)).GetReversedIEnumerable().Select(e => new Entitlement(e, this)),
                 _ => throw new ArgumentException($"The value of '{nameof(paginationProperties)}.{nameof(paginationProperties.Direction)}' is invalid.", nameof(paginationProperties)),
             },
             e => e.Id,
             HttpMethod.Get,
             $"/applications/{applicationId}/entitlements",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), baseQuery),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), baseQuery),
             null,
             properties);
     }
 
-    public Task ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => SendRequestAsync(HttpMethod.Post, $"/applications/{applicationId}/entitlements/{entitlementId}/consume", null, null, properties, cancellationToken: cancellationToken);
+    [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id))]
+    [GenerateAlias([typeof(Entitlement)], nameof(Entitlement.ApplicationId), nameof(Entitlement.Id))]
+    public async Task<Entitlement> GetEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        return new(await (await SendRequestAsync(HttpMethod.Get, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false), this);
+    }
 
+    [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id))]
+    [GenerateAlias([typeof(Entitlement)], nameof(Entitlement.ApplicationId), nameof(Entitlement.Id))]
+    public Task ConsumeEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        return SendRequestAsync(HttpMethod.Post, $"/applications/{applicationId}/entitlements/{entitlementId}/consume", null, null, properties, cancellationToken: cancellationToken);
+    }
+
+    [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id))]
     public async Task<Entitlement> CreateTestEntitlementAsync(ulong applicationId, TestEntitlementProperties testEntitlementProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<TestEntitlementProperties>(testEntitlementProperties, Serialization.Default.TestEntitlementProperties))
-            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false));
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/applications/{applicationId}/entitlements", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonEntitlement).ConfigureAwait(false), this);
     }
 
+    [GenerateAlias([typeof(CurrentApplication)], nameof(CurrentApplication.Id))]
     public Task DeleteTestEntitlementAsync(ulong applicationId, ulong entitlementId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-        => SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties, cancellationToken: cancellationToken);
+    {
+        return SendRequestAsync(HttpMethod.Delete, $"/applications/{applicationId}/entitlements/{entitlementId}", null, null, properties, cancellationToken: cancellationToken);
+    }
 }

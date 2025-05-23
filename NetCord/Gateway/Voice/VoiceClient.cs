@@ -44,7 +44,9 @@ public class VoiceClient : WebSocketClient
 
     private readonly Dictionary<uint, Stream> _inputStreams = [];
     private readonly IUdpSocket _udpSocket;
-    private readonly IVoiceEncryption _encryption;
+    private readonly IVoiceEncryptionProvider _encryptionProvider;
+
+    private IVoiceEncryption? _encryption;
 
     public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base(configuration ??= new())
     {
@@ -56,7 +58,7 @@ public class VoiceClient : WebSocketClient
 
         _udpSocket = configuration.UdpSocket ?? new UdpSocket();
         Cache = configuration.Cache ?? new VoiceClientCache();
-        _encryption = configuration.Encryption ?? new Aes256GcmRtpSizeEncryption();
+        _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
         RedirectInputStreams = configuration.RedirectInputStreams.GetValueOrDefault(false);
     }
 
@@ -130,6 +132,8 @@ public class VoiceClient : WebSocketClient
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
                     var ssrc = ready.Ssrc;
+                    var encryption = _encryption = _encryptionProvider.GetEncryption(ready.Modes);
+
                     Cache = Cache.CacheCurrentSsrc(ssrc);
 
                     _udpSocket.Connect(ready.Ip, ready.Port);
@@ -149,7 +153,7 @@ public class VoiceClient : WebSocketClient
 
                         _udpSocket.DatagramReceive += HandleDatagramReceive;
 
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, _encryption.Name)));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryption.Name)));
                         await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties).ConfigureAwait(false);
 
                         ReadOnlyMemory<byte> CreateDatagram()
@@ -176,7 +180,7 @@ public class VoiceClient : WebSocketClient
                     }
                     else
                     {
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, _encryption.Name)));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, encryption.Name)));
                         await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties).ConfigureAwait(false);
                     }
 
@@ -186,7 +190,7 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.SessionDescription:
                 {
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
-                    _encryption.SetKey(sessionDescription.SecretKey);
+                    _encryption!.SetKey(sessionDescription.SecretKey);
                     InvokeLog(LogMessage.Info("Ready"));
                     var readyTask = InvokeEventAsync(Ready);
 
@@ -203,7 +207,7 @@ public class VoiceClient : WebSocketClient
                     Cache = Cache.CacheUser(ssrc, userId);
 
                     VoiceInStream voiceInStream = new(this, ssrc, userId);
-                    DecryptStream decryptStream = new(voiceInStream, _encryption);
+                    DecryptStream decryptStream = new(voiceInStream, _encryption!);
 
                     var inputStreams = _inputStreams;
                     if (inputStreams.Remove(ssrc, out var stream))
@@ -287,13 +291,16 @@ public class VoiceClient : WebSocketClient
     /// </summary>
     /// <param name="normalizeSpeed">Whether to normalize the voice sending speed.</param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException">Used before <see cref="Ready"/> event.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when invoked before the <see cref="Ready"/> event.</exception>
     public Stream CreateOutputStream(bool normalizeSpeed = true)
     {
+        if (_encryption is not { } encryption)
+            throw new InvalidOperationException($"The output stream cannot be created before the {nameof(Ready)} event.");
+
         Stream stream = new VoiceOutStream(_udpSocket);
         if (normalizeSpeed)
             stream = new SpeedNormalizingStream(stream);
-        stream = new EncryptStream(stream, _encryption, this);
+        stream = new EncryptStream(stream, encryption, this);
         return stream;
     }
 
@@ -305,7 +312,7 @@ public class VoiceClient : WebSocketClient
             Cache.Dispose();
             foreach (var stream in _inputStreams.Values)
                 stream.Dispose();
-            _encryption.Dispose();
+            _encryption?.Dispose();
         }
         base.Dispose(disposing);
     }

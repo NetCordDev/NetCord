@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services;
 
-public interface IInteractionContext
+public interface IInteractionContext : IContext
 {
     public Interaction Interaction { get; }
 }

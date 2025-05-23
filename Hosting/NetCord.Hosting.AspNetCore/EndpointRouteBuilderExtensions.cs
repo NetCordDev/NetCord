@@ -13,6 +13,12 @@ namespace NetCord.Hosting.AspNetCore;
 
 public static class EndpointRouteBuilderExtensions
 {
+    /// <summary>
+    /// Adds a route to the <see cref="IEndpointRouteBuilder"/> that will handle Discord interactions.
+    /// </summary>
+    /// <param name="endpoints">The <see cref="IEndpointRouteBuilder"/> to add the route to.</param>
+    /// <param name="pattern">The route pattern.</param>
+    /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     public static IEndpointConventionBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
         var services = endpoints.ServiceProvider;
@@ -68,13 +74,13 @@ public static class EndpointRouteBuilderExtensions
 
         Encoding.UTF8.GetBytes(timestamp, timestampAndBody.Span);
 
-        int position = timestampByteCount;
-        var body = request.Body;
-        while (position < timestampAndBodyLength)
-            position += await body.ReadAsync(timestampAndBody[position..]).ConfigureAwait(false);
+        await request.Body.ReadExactlyAsync(timestampAndBody[timestampByteCount..]).ConfigureAwait(false);
 
         if (!validator.Validate(signatures[0], timestampAndBody.Span))
+        {
+            ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
             return null;
+        }
 
         var response = context.Response;
         var interaction = HttpInteractionFactory.Create(timestampAndBody.Span[timestampByteCount..], async (interaction, interactionCallback, properties, cancellationToken) =>

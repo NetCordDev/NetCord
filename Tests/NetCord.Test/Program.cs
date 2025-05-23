@@ -11,6 +11,7 @@ using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.ComponentInteractions;
+using NetCord.Test.ApplicationCommands;
 
 namespace NetCord.Test;
 
@@ -45,7 +46,7 @@ internal static class Program
         configuration = configuration with
         {
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new ApplicationCommands.PermissionsTypeReader()),
-            ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
+            ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
         };
@@ -53,6 +54,7 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton("wzium");
+        services.AddKeyedSingleton("key", "wzium2");
         services.AddSingleton(new HttpClient());
         services.AddSingleton(new Dictionary<ulong, SemaphoreSlim>());
         _serviceProvider = services.BuildServiceProvider();
@@ -77,6 +79,22 @@ internal static class Program
         _channelMenuInteractionService.AddModules(assembly);
         _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
+        _slashCommandService.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}");
+
+        _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
+        {
+            builder.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
+            (string wzium,
+                                                      SlashCommandContext context,
+                                                      [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
+            builder.AddSubCommand("blue", "Blue!", () => "blue");
+            builder.AddSubCommand("red", "Red!", builder =>
+            {
+                builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
+                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => $"purple {s}");
+            });
+        });
+
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 

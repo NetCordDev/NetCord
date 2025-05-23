@@ -27,6 +27,17 @@ public interface IApplicationCommandService : IService
                                 bool nsfw = false,
                                 ulong? guildId = null);
 
+    public void AddSlashCommand(string name,
+                                string description,
+                                Action<SlashCommandBuilder> builder,
+                                Permissions? defaultGuildUserPermissions = null,
+                                bool? dMPermission = null,
+                                bool defaultPermission = true,
+                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                IEnumerable<InteractionContextType>? contexts = null,
+                                bool nsfw = false,
+                                ulong? guildId = null);
+
     public void AddUserCommand(string name,
                                Delegate handler,
                                Permissions? defaultGuildUserPermissions = null,

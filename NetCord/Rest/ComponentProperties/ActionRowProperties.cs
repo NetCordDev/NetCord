@@ -10,13 +10,18 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="buttons">Buttons of the action row (max 5).</param>
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
-public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : ComponentProperties, IEnumerable<IButtonProperties>
+public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : IComponentProperties, IEnumerable<IButtonProperties>
 {
     public ActionRowProperties() : this([])
     {
     }
 
-    public override ComponentType ComponentType => ComponentType.ActionRow;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.ActionRow;
 
     /// <summary>
     /// Buttons of the action row (max 5).

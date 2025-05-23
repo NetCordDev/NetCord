@@ -16,7 +16,7 @@ internal class ContentPaginationAsyncEnumerable<T, TProperties, TFrom>(
     {
         var content = contentBuilder.Build(paginationProperties.From);
 
-        var expectedCount = paginationProperties.Limit.GetValueOrDefault();
+        var expectedCount = paginationProperties.BatchSize.GetValueOrDefault();
 
         while (true)
         {

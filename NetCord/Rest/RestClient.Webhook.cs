@@ -4,13 +4,15 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
+    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
-    public async Task<Webhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IncomingWebhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<WebhookProperties>(webhookProperties, Serialization.Default.WebhookProperties))
-            return Webhook.CreateFromJson(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
+            return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
     }
 
+    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public async Task<IReadOnlyList<Webhook>> GetChannelWebhooksAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhookArray).ConfigureAwait(false)).Select(w => Webhook.CreateFromJson(w, this)).ToArray();
@@ -58,15 +60,39 @@ public partial class RestClient
 
     [GenerateAlias([typeof(IncomingWebhook)], nameof(IncomingWebhook.Id), nameof(IncomingWebhook.Token), TypeNameOverride = nameof(Webhook))]
     [GenerateAlias([typeof(WebhookClient)], nameof(WebhookClient.Id), nameof(WebhookClient.Token), TypeNameOverride = nameof(Webhook))]
-    public async Task<RestMessage?> ExecuteWebhookAsync(ulong webhookId, string webhookToken, WebhookMessageProperties message, bool wait = false, ulong? threadId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<RestMessage?> ExecuteWebhookAsync(ulong webhookId, string webhookToken, WebhookMessageProperties message, bool wait = false, ulong? threadId = null, bool withComponents = true, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = message.Serialize())
         {
             if (wait)
-                return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/webhooks/{webhookId}/{webhookToken}", threadId.HasValue ? $"?wait=True&thread_id={threadId.GetValueOrDefault()}" : $"?wait=True", new(webhookId, webhookToken), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
+                return new(await (await SendRequestAsync(HttpMethod.Post,
+                                                         content,
+                                                         $"/webhooks/{webhookId}/{webhookToken}",
+                                                         threadId.HasValue
+                                                            ? (withComponents
+                                                                ? $"?wait=True&with_components=True&thread_id={threadId.GetValueOrDefault()}"
+                                                                : $"?wait=True&thread_id={threadId.GetValueOrDefault()}")
+                                                            : (withComponents
+                                                                ? $"?wait=True&with_components=True"
+                                                                : $"?wait=True"),
+                                                         new(webhookId, webhookToken),
+                                                         properties,
+                                                         cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
             else
             {
-                await SendRequestAsync(HttpMethod.Post, content, $"/webhooks/{webhookId}/{webhookToken}", threadId.HasValue ? $"?thread_id={threadId.GetValueOrDefault()}" : null, new(webhookId, webhookToken), properties, cancellationToken: cancellationToken).ConfigureAwait(false);
+                await SendRequestAsync(HttpMethod.Post,
+                                       content,
+                                       $"/webhooks/{webhookId}/{webhookToken}",
+                                       threadId.HasValue
+                                            ? (withComponents
+                                                 ? $"?with_components=True&thread_id={threadId.GetValueOrDefault()}"
+                                                 : $"?thread_id={threadId.GetValueOrDefault()}")
+                                            : (withComponents
+                                                 ? "?with_components=True"
+                                                 : null),
+                                       new(webhookId, webhookToken),
+                                       properties,
+                                       cancellationToken: cancellationToken).ConfigureAwait(false);
                 return null;
             }
         }
@@ -79,12 +105,24 @@ public partial class RestClient
 
     [GenerateAlias([typeof(IncomingWebhook)], nameof(IncomingWebhook.Id), nameof(IncomingWebhook.Token), TypeNameOverride = nameof(Webhook))]
     [GenerateAlias([typeof(WebhookClient)], nameof(WebhookClient.Id), nameof(WebhookClient.Token), TypeNameOverride = nameof(Webhook))]
-    public async Task<RestMessage> ModifyWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, Action<MessageOptions> action, ulong? threadId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<RestMessage> ModifyWebhookMessageAsync(ulong webhookId, string webhookToken, ulong messageId, Action<MessageOptions> action, ulong? threadId = null, bool withComponents = true, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         MessageOptions messageOptions = new();
         action(messageOptions);
         using (HttpContent content = messageOptions.Serialize())
-            return new(await (await SendRequestAsync(HttpMethod.Patch, content, $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}", threadId.HasValue ? $"?thread_id={threadId.GetValueOrDefault()}" : null, new(webhookId, webhookToken), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
+            return new(await (await SendRequestAsync(HttpMethod.Patch,
+                                                     content,
+                                                     $"/webhooks/{webhookId}/{webhookToken}/messages/{messageId}",
+                                                     threadId.HasValue
+                                                        ? (withComponents
+                                                            ? $"?with_components=True&thread_id={threadId.GetValueOrDefault()}"
+                                                            : $"?thread_id={threadId.GetValueOrDefault()}")
+                                                        : (withComponents
+                                                            ? "?with_components=True"
+                                                            : null),
+                                                     new(webhookId, webhookToken),
+                                                     properties,
+                                                     cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonMessage).ConfigureAwait(false), this);
     }
 
     [GenerateAlias([typeof(IncomingWebhook)], nameof(IncomingWebhook.Id), nameof(IncomingWebhook.Token), TypeNameOverride = nameof(Webhook))]

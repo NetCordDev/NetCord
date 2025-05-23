@@ -72,7 +72,7 @@ public partial class RestClient
             u => u.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/members",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }
@@ -144,7 +144,7 @@ public partial class RestClient
             b => b.User.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/bans",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString()),
             new(guildId),
             properties);
     }
@@ -197,7 +197,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(Role)], nameof(Role.Id), TypeNameOverride = $"{nameof(Guild)}{nameof(Role)}")]
+    [GenerateAlias([typeof(Role)], nameof(Role.GuildId), nameof(Role.Id), TypeNameOverride = $"{nameof(Guild)}{nameof(Role)}")]
     public async Task<Role> ModifyGuildRoleAsync(ulong guildId, ulong roleId, Action<RoleOptions> action, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         RoleOptions obj = new();
@@ -207,7 +207,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(RestGuild)], nameof(RestGuild.Id), TypeNameOverride = nameof(Guild))]
-    [GenerateAlias([typeof(Role)], nameof(Role.Id), TypeNameOverride = $"{nameof(Guild)}{nameof(Role)}")]
+    [GenerateAlias([typeof(Role)], nameof(Role.GuildId), nameof(Role.Id), TypeNameOverride = $"{nameof(Guild)}{nameof(Role)}")]
     public Task DeleteGuildRoleAsync(ulong guildId, ulong roleId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Delete, $"/guilds/{guildId}/roles/{roleId}", null, new(guildId), properties, cancellationToken: cancellationToken);
 

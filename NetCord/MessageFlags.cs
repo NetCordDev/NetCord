@@ -62,4 +62,14 @@ public enum MessageFlags : uint
     /// This message is a voice message.
     /// </summary>
     IsVoiceMessage = 1 << 13,
+
+    /// <summary>
+    /// This message has a snapshot (via Message Forwarding).
+    /// </summary>
+    HasSnapshot = 1 << 14,
+
+    /// <summary>
+    /// This message uses the components V2 system. Disables the ability of sending content &amp; embeds.
+    /// </summary>
+    IsComponentsV2 = 1 << 15,
 }
