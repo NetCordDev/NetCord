@@ -93,7 +93,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     /// </summary>
     public int Count => _clients.Length;
 
-    public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null)
+    public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null, CancellationToken cancellationToken = default)
     {
         CancellationTokenSource startCancellationTokenSource;
         lock (_startLock)
@@ -103,7 +103,9 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
             startCancellationTokenSource = _startCancellationTokenSource = new();
         }
-        var cancellationToken = startCancellationTokenSource.Token;
+
+        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, startCancellationTokenSource.Token);
+        var linkedToken = linkedTokenSource.Token;
 
         var oldInitialized = _initialized;
         _initialized = false;
@@ -113,7 +115,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         try
         {
             var rest = Rest;
-            var info = await rest.GetGatewayBotAsync().ConfigureAwait(false);
+            var info = await rest.GetGatewayBotAsync(cancellationToken: linkedToken).ConfigureAwait(false);
 
             var configuration = _configuration;
             var shardCount = configuration.ShardCount ?? info.ShardCount;
@@ -143,7 +145,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
             for (int bucket = maxConcurrency; bucket < shardCount; bucket += maxConcurrency)
             {
-                await Task.Delay(5000, cancellationToken).ConfigureAwait(false);
+                await Task.Delay(5000, linkedToken).ConfigureAwait(false);
                 await ConnectBucketAsync(bucket).ConfigureAwait(false);
             }
 
@@ -167,7 +169,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                     {
                         TimeSpan elapsed = new((Environment.TickCount64 - now) * TimeSpan.TicksPerMillisecond);
                         if (elapsed < resetAfter)
-                            await Task.Delay(resetAfter - elapsed, cancellationToken).ConfigureAwait(false);
+                            await Task.Delay(resetAfter - elapsed, linkedToken).ConfigureAwait(false);
 
                         remaining = total - 1;
                     }
@@ -182,11 +184,11 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                     GatewayClient client;
                     lock (clientsLock)
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
+                        linkedToken.ThrowIfCancellationRequested();
                         clients[shardId] = client = new(token, rest, gatewayClientConfiguration);
                     }
                     HookEvents(client);
-                    await client.StartAsync(presenceFactory(shard)).ConfigureAwait(false);
+                    await client.StartAsync(presenceFactory(shard), cancellationToken: linkedToken).ConfigureAwait(false);
                 }
             }
         }
@@ -231,7 +233,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                         null);
     }
 
-    public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure)
+    public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
         var startCancellationTokenSource = _startCancellationTokenSource;
         var clients = _clients;
@@ -242,7 +244,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             startCancellationTokenSource.Cancel();
         startCancellationTokenSource.Dispose();
 
-        await Task.WhenAll((_initialized ? clients : clients.TakeWhile(clients => clients is not null)).Select(client => client.CloseAsync(status))).ConfigureAwait(false);
+        await Task.WhenAll((_initialized ? clients : clients.TakeWhile(clients => clients is not null)).Select(client => client.CloseAsync(status, statusDescription, cancellationToken))).ConfigureAwait(false);
 
         _startCancellationTokenSource = null;
     }
@@ -308,18 +310,18 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             if (oldEvent is null && eventRef is not null)
             {
                 var clients = _clients;
-                    var eventManager = _eventManager;
-                    int count = clients.Length;
-                    for (int i = 0; i < count; i++)
-                    {
-                        var client = clients[i];
-                        if (client is null)
-                            break;
+                var eventManager = _eventManager;
+                int count = clients.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    var client = clients[i];
+                    if (client is null)
+                        break;
 
-                        var @delegate = getDelegate(client);
-                        eventManager.AddEvent(client, @lock, @delegate);
-                        addGatewayClientEvent(client, @delegate);
-                    }
+                    var @delegate = getDelegate(client);
+                    eventManager.AddEvent(client, @lock, @delegate);
+                    addGatewayClientEvent(client, @delegate);
+                }
             }
         }
     }
@@ -332,17 +334,17 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             if (eventRef is not null && newEvent is null)
             {
                 var clients = _clients;
-                    var eventManager = _eventManager;
-                    int count = clients.Length;
-                    for (int i = 0; i < count; i++)
-                    {
-                        var client = clients[i];
-                        if (client is null)
-                            break;
+                var eventManager = _eventManager;
+                int count = clients.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    var client = clients[i];
+                    if (client is null)
+                        break;
 
-                        if (eventManager.RemoveEvent(client, @lock, out var @delegate))
-                            removeGatewayClientEvent(client, @delegate);
-                    }
+                    if (eventManager.RemoveEvent(client, @lock, out var @delegate))
+                        removeGatewayClientEvent(client, @delegate);
+                }
             }
             eventRef = newEvent;
         }
@@ -356,17 +358,17 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             if (eventRef is not null && newEvent is null)
             {
                 var clients = _clients;
-                    var eventManager = _eventManager;
-                    int count = clients.Length;
-                    for (int i = 0; i < count; i++)
-                    {
-                        var client = clients[i];
-                        if (client is null)
-                            break;
+                var eventManager = _eventManager;
+                int count = clients.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    var client = clients[i];
+                    if (client is null)
+                        break;
 
-                        if (eventManager.RemoveEvent<T>(client, @lock, out var @delegate))
-                            removeGatewayClientEvent(client, @delegate);
-                    }
+                    if (eventManager.RemoveEvent<T>(client, @lock, out var @delegate))
+                        removeGatewayClientEvent(client, @delegate);
+                }
             }
             eventRef = newEvent;
         }

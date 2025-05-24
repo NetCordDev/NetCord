@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Net.Http.Headers;
-using System.Text;
+﻿using System.Text;
 
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -120,7 +118,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("}");
             stringWriter.WriteIndentation(1);
             stringWriter.WriteLine("}");
-            
+
             stringWriter.WriteIndentation(1);
 
             stringWriter.Write("private ");
@@ -144,7 +142,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
         stringWriter.Write("private void HookEvents(");
         stringWriter.Write(GatewayClientName);
         stringWriter.WriteLine(" client)");
-        
+
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("{");
 
