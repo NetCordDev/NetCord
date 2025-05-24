@@ -71,6 +71,7 @@
     <File Path="SourceGenerators/Directory.Build.targets" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
     <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
+    <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" Id="cb9012b4-aed0-4ab9-b182-aa167bdb9b96" />
     <Project Path="SourceGenerators/Shared/Shared.csproj" />
     <Project Path="SourceGenerators/UserAgentHeaderGenerator/UserAgentHeaderGenerator.csproj" />
   </Folder>

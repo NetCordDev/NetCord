@@ -32,7 +32,7 @@ buttonInteractionService.AddInteraction("button", () => "XD");
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()
 {
-    ShardCount = 1,
+    ShardCount = 3,
     IntentsFactory = shard => GatewayIntents.All,
     PresenceFactory = shard => new(UserStatusType.Online)
     {
