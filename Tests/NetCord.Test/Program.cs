@@ -66,6 +66,21 @@ internal static class Program
         _client.MessageCreate += Client_MessageCreate;
         _client.InteractionCreate += Client_InteractionCreate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
+
+        _client.GuildUserUpdate += async user =>
+        {
+            Console.WriteLine("A");
+            await Task.Delay(100);
+            Console.WriteLine("B");
+            throw new("X");
+        };
+
+        _client.GuildUserUpdate += user =>
+        {
+            Console.WriteLine("C");
+            throw new("D");
+        };
+
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
         _commandService.AddModules(assembly);

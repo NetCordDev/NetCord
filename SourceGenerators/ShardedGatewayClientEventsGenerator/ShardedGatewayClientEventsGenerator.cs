@@ -19,8 +19,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
     {
         var typeSymbols = context.SyntaxProvider
             .CreateSyntaxProvider((node, cancellationToken) => node is ClassDeclarationSyntax { Identifier.Text: GatewayClientName },
-                                  (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!)
-            .Where(s => s.ContainingNamespace is { } namespaceSymbol && namespaceSymbol.ToDisplayString() is Namespace);
+                                  (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!);
 
         context.RegisterSourceOutput(typeSymbols, (context, source) => context.AddSource("ShardedGatewayClient.g.cs", SourceText.From(GenerateEvents(source), Encoding.UTF8)));
     }
@@ -68,13 +67,18 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
 
             WriteEventType(stringWriter, eventType);
 
+            stringWriter.Write("? ");
             stringWriter.WriteLine(eventSymbol.Name);
+
             stringWriter.WriteIndentation(1);
             stringWriter.WriteLine("{");
+
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("add");
+
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("{");
+
             stringWriter.WriteIndentation(3);
             stringWriter.Write("HookEvent(");
 
@@ -99,13 +103,16 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
 
             stringWriter.Write(eventSymbol.Name);
             stringWriter.WriteLine(" += e);");
+
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("remove");
+
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("{");
+
             stringWriter.WriteIndentation(3);
             stringWriter.Write("UnhookEvent(");
             stringWriter.Write(internalName);
@@ -114,20 +121,23 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.Write(", (c, e) => c.");
             stringWriter.Write(eventSymbol.Name);
             stringWriter.WriteLine(" -= e);");
+
             stringWriter.WriteIndentation(2);
             stringWriter.WriteLine("}");
+
             stringWriter.WriteIndentation(1);
             stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(1);
-
             stringWriter.Write("private ");
+
             WriteEventType(stringWriter, eventType);
+
+            stringWriter.Write("? ");
             stringWriter.Write(internalName);
             stringWriter.WriteLine(";");
 
             stringWriter.WriteIndentation(1);
-
             stringWriter.Write("private readonly object ");
             stringWriter.Write(internalName);
             stringWriter.WriteLine("Lock = new();");
@@ -138,7 +148,6 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
     private void WriteHookEventsMethod(StringWriter stringWriter, IEventSymbol[] events)
     {
         stringWriter.WriteIndentation(1);
-
         stringWriter.Write("private void HookEvents(");
         stringWriter.Write(GatewayClientName);
         stringWriter.WriteLine(" client)");
@@ -200,7 +209,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.Write(".");
             stringWriter.Write(typeArgument.Name);
         }
-        stringWriter.Write(">? ");
+        stringWriter.Write(">");
     }
 
     private static IEventSymbol[] GetEvents(INamedTypeSymbol typeSymbol)

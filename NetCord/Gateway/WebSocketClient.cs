@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Buffers;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using NetCord.Gateway.LatencyTimers;
@@ -9,7 +11,7 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
 
-public abstract class WebSocketClient : IDisposable
+public abstract partial class WebSocketClient : IDisposable
 {
     private protected record ConnectionStateResult
     {
@@ -215,25 +217,57 @@ public abstract class WebSocketClient : IDisposable
 
     private TimeSpan _latency;
 
-    public event Func<TimeSpan, ValueTask>? LatencyUpdate;
-    public event Func<ValueTask>? Resume;
-    public event Func<ValueTask>? Connecting;
-    public event Func<ValueTask>? Connect;
-    public event Func<bool, ValueTask>? Disconnect;
-    public event Func<ValueTask>? Close;
-    public event Func<LogMessage, ValueTask>? Log;
+    public partial event Func<TimeSpan, ValueTask>? LatencyUpdate;
+    public partial event Func<ValueTask>? Resume;
+    public partial event Func<ValueTask>? Connecting;
+    public partial event Func<ValueTask>? Connect;
+    public partial event Func<bool, ValueTask>? Disconnect;
+    public partial event Func<ValueTask>? Close;
+    public partial event Func<LogMessage, ValueTask>? Log;
+
+    private protected static void AddEventHandler<T>(ref ImmutableList<T> events, T? value) where T : class
+    {
+        if (value is null)
+            return;
+
+        var currentEvents = events;
+
+        while (true)
+        {
+            var newEvents = currentEvents.Add(value);
+            var oldEvents = Interlocked.CompareExchange(ref events, newEvents, currentEvents);
+            if (currentEvents == oldEvents)
+                break;
+        }
+    }
+
+    private protected static void RemoveEventHandler<T>(ref ImmutableList<T> events, T? value) where T : class
+    {
+        if (value is null)
+            return;
+
+        var currentEvents = events;
+
+        while (true)
+        {
+            var newEvents = currentEvents.Remove(value);
+            var oldEvents = Interlocked.CompareExchange(ref events, newEvents, currentEvents);
+            if (currentEvents == oldEvents)
+                break;
+        }
+    }
 
     private async void HandleConnecting()
     {
         InvokeLog(LogMessage.Info("Connecting"));
-        await InvokeEventAsync(Connecting).ConfigureAwait(false);
+        await InvokeEventAsync(_connecting).ConfigureAwait(false);
     }
 
     private async void HandleConnected()
     {
         OnConnected();
         InvokeLog(LogMessage.Info("Connected"));
-        await InvokeEventAsync(Connect).ConfigureAwait(false);
+        await InvokeEventAsync(_connect).ConfigureAwait(false);
     }
 
     private async void HandleDisconnected(State state, ConnectionState connectionState)
@@ -245,7 +279,7 @@ public abstract class WebSocketClient : IDisposable
 
         var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
 
-        var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
+        var disconnectTask = InvokeEventAsync(_disconnect, reconnect);
 
         if (reconnect)
         {
@@ -265,7 +299,7 @@ public abstract class WebSocketClient : IDisposable
     private async void HandleClosed()
     {
         InvokeLog(LogMessage.Info("Closed"));
-        await InvokeEventAsync(Close).ConfigureAwait(false);
+        await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
     private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> data)
@@ -685,154 +719,220 @@ public abstract class WebSocketClient : IDisposable
 
     private protected async void InvokeLog(LogMessage logMessage)
     {
-        var log = Log;
-        if (log is not null)
+        var handlers = _log;
+
+        int count = handlers.Count;
+
+        if (count is 0)
+            return;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
             try
             {
-                await log(logMessage).ConfigureAwait(false);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](logMessage);
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch
+            {
+                tasks[i] = default;
+            }
+        }
+
+        await HandleTasksOfLogAsync(count, tasks).ConfigureAwait(false);
+    }
+
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private static async ValueTask HandleTasksOfLogAsync(int count, ValueTask[] tasks)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            try
+            {
+                await tasks[i].ConfigureAwait(false);
             }
             catch
             {
             }
         }
+
+        ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
-        => InvokeEventAsync(LatencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
+        => InvokeEventAsync(_latencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
 
     private protected ValueTask InvokeResumeEventAsync()
-        => InvokeEventAsync(Resume);
+        => InvokeEventAsync(_resume);
 
-    private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
+    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers)
     {
-        if (@event is not null)
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            ValueTask task;
             try
             {
-                task = @event();
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i]();
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
                 InvokeLog(LogMessage.Error(ex));
-                return default;
+                tasks[i] = default;
             }
-
-            return AwaitEventAsync(task);
         }
-        else
-            return default;
+
+        return HandleTasksAsync(count, tasks);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc)
     {
-        if (@event is not null)
-        {
-            var data = dataFunc();
+        int count = handlers.Count;
 
-            ValueTask task;
+        if (count is 0)
+            return default;
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
             try
             {
-                task = @event(data);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
                 InvokeLog(LogMessage.Error(ex));
-                return default;
+                tasks[i] = default;
             }
-
-            return AwaitEventAsync(task);
         }
-        else
-            return default;
+
+        return HandleTasksAsync(count, tasks);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data)
     {
-        if (@event is not null)
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            ValueTask task;
             try
             {
-                task = @event(data);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
                 InvokeLog(LogMessage.Error(ex));
-                return default;
+                tasks[i] = default;
             }
-
-            return AwaitEventAsync(task);
         }
-        else
-            return default;
+
+        return HandleTasksAsync(count, tasks);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData)
     {
-        if (@event is not null)
-        {
-            ValueTask task;
-            try
-            {
-                task = @event(data);
-                updateData(data);
-            }
-            catch (Exception ex)
-            {
-                updateData(data);
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+        int count = handlers.Count;
 
-            return AwaitEventAsync(task);
-        }
-        else
+        if (count is 0)
         {
             updateData(data);
             return default;
         }
-    }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
-    {
-        if (@event is not null)
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            var data = dataFunc();
-
-            ValueTask task;
             try
             {
-                task = @event(data);
-                updateData();
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                updateData();
                 InvokeLog(LogMessage.Error(ex));
-                return default;
+                tasks[i] = default;
             }
-
-            return AwaitEventAsync(task);
         }
-        else
+
+        updateData(data);
+
+        return HandleTasksAsync(count, tasks);
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData)
+    {
+        int count = handlers.Count;
+
+        if (count is 0)
         {
             updateData();
             return default;
         }
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            try
+            {
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+                tasks[i] = default;
+            }
+        }
+
+        updateData();
+
+        return HandleTasksAsync(count, tasks);
     }
 
-    private async ValueTask AwaitEventAsync(ValueTask task)
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks)
     {
-        try
+        for (int i = 0; i < count; i++)
         {
-            await task.ConfigureAwait(false);
+            try
+            {
+                await tasks[i].ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                InvokeLog(LogMessage.Error(ex));
+            }
         }
-        catch (Exception ex)
-        {
-            InvokeLog(LogMessage.Error(ex));
-        }
+
+        ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
     [DoesNotReturn]
