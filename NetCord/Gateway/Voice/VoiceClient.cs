@@ -11,12 +11,12 @@ using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway.Voice;
 
-public class VoiceClient : WebSocketClient
+public partial class VoiceClient : WebSocketClient
 {
-    public event Func<VoiceReceiveEventArgs, ValueTask>? VoiceReceive;
-    public event Func<ValueTask>? Ready;
-    public event Func<UserConnectEventArgs, ValueTask>? UserConnect;
-    public event Func<UserDisconnectEventArgs, ValueTask>? UserDisconnect;
+    public partial event Func<VoiceReceiveEventArgs, ValueTask>? VoiceReceive;
+    public partial event Func<ValueTask>? Ready;
+    public partial event Func<UserConnectEventArgs, ValueTask>? UserConnect;
+    public partial event Func<UserDisconnectEventArgs, ValueTask>? UserDisconnect;
 
     public ulong UserId { get; }
 
@@ -192,7 +192,7 @@ public class VoiceClient : WebSocketClient
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
                     _encryption!.SetKey(sessionDescription.SecretKey);
                     InvokeLog(LogMessage.Info("Ready"));
-                    var readyTask = InvokeEventAsync(Ready);
+                    var readyTask = InvokeEventAsync(_ready);
 
                     state.IndicateReady(connectionState);
 
@@ -237,13 +237,13 @@ public class VoiceClient : WebSocketClient
             case VoiceOpcode.ClientConnect:
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
-                    await InvokeEventAsync(UserConnect, new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
+                    await InvokeEventAsync(_userConnect, new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.ClientDisconnect:
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
-                    await InvokeEventAsync(UserDisconnect, new(json.UserId), args =>
+                    await InvokeEventAsync(_userDisconnect, new(json.UserId), args =>
                     {
                         var userId = args.UserId;
                         var cache = Cache;
@@ -259,12 +259,12 @@ public class VoiceClient : WebSocketClient
         }
     }
 
-    internal ValueTask InvokeVoiceReceiveAsync(VoiceReceiveEventArgs data) => InvokeEventAsync(VoiceReceive, data);
+    internal ValueTask InvokeVoiceReceiveAsync(VoiceReceiveEventArgs data) => InvokeEventAsync(_voiceReceive, data);
 
     private async void HandleDatagramReceive(UdpReceiveResult obj)
     {
-        var @event = VoiceReceive;
-        if (@event is not null)
+        var handlers = _voiceReceive;
+        if (!handlers.IsEmpty)
         {
             try
             {
