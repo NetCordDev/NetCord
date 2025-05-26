@@ -6,6 +6,7 @@ using System.Text.Json;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -191,7 +192,9 @@ public partial class VoiceClient : WebSocketClient
                 {
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
                     _encryption!.SetKey(sessionDescription.SecretKey);
-                    InvokeLog(LogMessage.Info("Ready"));
+
+                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
+
                     var readyTask = InvokeEventAsync(_ready);
 
                     state.IndicateReady(connectionState);
@@ -228,7 +231,9 @@ public partial class VoiceClient : WebSocketClient
             case VoiceOpcode.Resumed:
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Resumed"));
+
+                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
+
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     await InvokeResumeEventAsync().ConfigureAwait(false);
                     await updateLatencyTask;
@@ -275,7 +280,10 @@ public partial class VoiceClient : WebSocketClient
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while handling a datagram:{Environment.NewLine}{e}";
+                });
             }
         }
     }

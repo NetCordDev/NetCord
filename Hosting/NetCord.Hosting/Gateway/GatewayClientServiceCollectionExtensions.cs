@@ -94,7 +94,7 @@ public static class GatewayClientServiceCollectionExtensions
             if (token is not IEntityToken entityToken)
                 throw new InvalidOperationException($"Unable to initialize '{nameof(GatewayClient)}'. The provided token must implement the '{nameof(IEntityToken)}' interface.");
 
-            return new GatewayClient(entityToken, options.CreateConfiguration());
+            return new GatewayClient(entityToken, options.CreateConfiguration(services));
         });
         services.AddSingleton(services => services.GetRequiredService<GatewayClient>().Rest);
 

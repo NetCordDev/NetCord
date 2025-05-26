@@ -1,21 +1,17 @@
 ﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Services;
 using NetCord.Services.Commands;
 
-GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
+GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration
 {
     Intents = GatewayIntents.GuildMessages | GatewayIntents.DirectMessages | GatewayIntents.MessageContent,
+    Logger = new ConsoleLogger(),
 });
 
 CommandService<CommandContext> commandService = new();
 commandService.AddModules(typeof(Program).Assembly);
-
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
 
 client.MessageCreate += async message =>
 {

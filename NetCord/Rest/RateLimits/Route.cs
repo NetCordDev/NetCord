@@ -14,4 +14,12 @@ public record Route
     public string EndPoint { get; }
 
     public TopLevelResourceInfo? ResourceInfo { get; }
+
+    public override string ToString()
+    {
+        if (ResourceInfo is TopLevelResourceInfo resourceInfo)
+            return $"{Method} {string.Format(EndPoint, resourceInfo.ResourceId, resourceInfo.ResourceToken)}";
+
+        return $"{Method} {EndPoint}";
+    }
 }

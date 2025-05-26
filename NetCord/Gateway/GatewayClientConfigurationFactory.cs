@@ -2,6 +2,7 @@
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
@@ -22,7 +23,8 @@ internal static class GatewayClientConfigurationFactory
                                                     int? largeThreshold,
                                                     PresenceProperties? presence,
                                                     Shard? shard,
-                                                    RestClientConfiguration? restClientConfiguration)
+                                                    RestClientConfiguration? restClientConfiguration,
+                                                    IGatewayLogger? logger)
     {
         return new()
         {
@@ -41,6 +43,7 @@ internal static class GatewayClientConfigurationFactory
             Presence = presence,
             Shard = shard,
             RestClientConfiguration = restClientConfiguration,
+            Logger = logger,
         };
     }
 }

@@ -1,5 +1,6 @@
 using NetCord;
 using NetCord.Gateway;
+using NetCord.Logging;
 
 namespace MyBot;
 
@@ -7,13 +8,10 @@ internal class RegisteringHandlers
 {
     public static async Task RegisterHandlersAsync()
     {
-        ShardedGatewayClient client = new(new BotToken("Token from Discord Developer Portal"));
-
-        client.Log += (client, message) =>
+        ShardedGatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new ShardedGatewayClientConfiguration
         {
-            Console.WriteLine($"#{client.Shard.GetValueOrDefault().Id}\t{message}");
-            return default;
-        };
+            LoggerFactory = ShardedConsoleLogger.GetFactory(),
+        });
 
         client.MessageUpdate += async (client, message) =>
         {

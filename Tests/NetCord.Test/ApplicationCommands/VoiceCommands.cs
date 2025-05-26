@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 using NetCord.Gateway.Voice;
 using NetCord.Gateway.Voice.Encryption;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
@@ -45,17 +46,13 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             {
                 RedirectInputStreams = true,
                 EncryptionProvider = encryptionProvider,
+                Logger = new ConsoleLogger(),
             });
         }
         finally
         {
             semaphore.Release();
         }
-        voiceClient.Log += m =>
-        {
-            Console.WriteLine(m);
-            return default;
-        };
         voiceClient.Disconnect += disconnectHandler;
 
         await voiceClient.StartAsync();

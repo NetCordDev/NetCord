@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
@@ -68,7 +70,7 @@ public partial class GatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="GatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
-    internal GatewayClientConfiguration CreateConfiguration()
+    internal GatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return GatewayClientConfigurationFactory.Create(WebSocketConnectionProvider,
                                                         RateLimiterProvider,
@@ -84,6 +86,7 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         LargeThreshold,
                                                         Presence,
                                                         Shard,
-                                                        RestClientConfiguration);
+                                                        RestClientConfiguration,
+                                                        new GatewayMicrosoftExtensionsLogger(services));
     }
 }

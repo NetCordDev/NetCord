@@ -1,12 +1,14 @@
 ﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 
-GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
+GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration
 {
     Intents = default,
+    Logger = new ConsoleLogger(),
 });
 
 ApplicationCommandService<ApplicationCommandContext> applicationCommandService = new(ApplicationCommandServiceConfiguration<ApplicationCommandContext>.Default with
@@ -36,12 +38,6 @@ client.InteractionCreate += async interaction =>
 };
 
 await applicationCommandService.CreateCommandsAsync(client.Rest, client.Id);
-
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
-};
 
 await client.StartAsync();
 await Task.Delay(-1);

@@ -94,7 +94,7 @@ public static class ShardedGatewayClientServiceCollectionExtensions
             if (token is not IEntityToken entityToken)
                 throw new InvalidOperationException($"Unable to initialize '{nameof(ShardedGatewayClient)}'. The provided token must implement the '{nameof(IEntityToken)}' interface.");
 
-            return new ShardedGatewayClient(entityToken, options.CreateConfiguration());
+            return new ShardedGatewayClient(entityToken, options.CreateConfiguration(services));
         });
         services.AddSingleton(services => services.GetRequiredService<ShardedGatewayClient>().Rest);
 

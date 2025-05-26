@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Rest;
@@ -13,6 +15,7 @@ public sealed partial class RestClient : IDisposable
     private readonly IRestRequestHandler _requestHandler;
     private readonly InternalRestRequestProperties _defaultRequestProperties;
     private readonly IRateLimitManager _rateLimitManager;
+    private readonly IRestLogger _logger;
 
     private readonly record struct InternalRestRequestProperties(RestRateLimitHandling RateLimitHandling)
     {
@@ -27,7 +30,7 @@ public sealed partial class RestClient : IDisposable
     /// </summary>
     public IToken? Token { get; }
 
-    public RestClient(RestClientConfiguration? configuration = null)
+    private RestClient(IRestLogger? logger, RestClientConfiguration configuration)
     {
         configuration ??= new();
 
@@ -40,6 +43,42 @@ public sealed partial class RestClient : IDisposable
         _defaultRequestProperties = ProcessRequestProperties(configuration.DefaultRequestProperties, requestHandler);
 
         _rateLimitManager = configuration.RateLimitManager ?? new RateLimitManager();
+
+        _logger = logger ?? NullLogger.Instance;
+    }
+
+    public RestClient(RestClientConfiguration? configuration = null) : this((configuration ??= new()).Logger, configuration)
+    {
+    }
+
+    public RestClient(IToken token, RestClientConfiguration? configuration = null) : this(configuration)
+    {
+        Token = token;
+        _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
+    }
+
+    internal RestClient(IToken token, IRestClientOwnerConfiguration? configuration) : this(GetLogger(configuration, out var restConfiguration), restConfiguration)
+    {
+        Token = token;
+        _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
+    }
+
+    private static IRestLogger? GetLogger(IRestClientOwnerConfiguration? configuration, out RestClientConfiguration outConfiguration)
+    {
+        if (configuration is null)
+        {
+            outConfiguration = new();
+            return null;
+        }
+
+        if (configuration.RestClientConfiguration is { } restClientConfiguration)
+        {
+            outConfiguration = restClientConfiguration;
+            return restClientConfiguration.Logger ?? configuration.Logger;
+        }
+
+        outConfiguration = new();
+        return configuration.Logger;
     }
 
     private static InternalRestRequestProperties ProcessRequestProperties(RestRequestProperties? properties, IRestRequestHandler requestHandler)
@@ -51,12 +90,6 @@ public sealed partial class RestClient : IDisposable
             requestHandler.AddDefaultHeader(header.Name, header.Values);
 
         return new(properties.RateLimitHandling.GetValueOrDefault(RestRateLimitHandling.Retry));
-    }
-
-    public RestClient(IToken token, RestClientConfiguration? configuration = null) : this(configuration)
-    {
-        Token = token;
-        _requestHandler.AddDefaultHeader("Authorization", [token.HttpHeaderValue]);
     }
 
     public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true, CancellationToken cancellationToken = default)
@@ -112,9 +145,14 @@ public sealed partial class RestClient : IDisposable
     {
         while (true)
         {
-            var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(requestProperties, cancellationToken).ConfigureAwait(false) : null;
+            var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false) : null;
 
             var rateLimiter = await AcquireRouteRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false);
+
+            _logger.Log(LogLevel.Debug, route, null, static (s, e) =>
+            {
+                return $"Sending a request to route '{s}'.";
+            });
 
             var timestamp = Environment.TickCount64;
             HttpResponseMessage response;
@@ -162,12 +200,18 @@ public sealed partial class RestClient : IDisposable
                     if (requestProperties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
-                            await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault(), cancellationToken).ConfigureAwait(false);
+                        {
+                            var retryAfter = headers.RetryAfter!.Delta.GetValueOrDefault();
+
+                            LogRateLimitRetry(route, retryAfter, RateLimitScope.Shared);
+
+                            await Task.Delay(retryAfter, cancellationToken).ConfigureAwait(false);
+                        }
 
                         continue;
                     }
 
-                    throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
+                    throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, route, scope);
                 }
             }
             else if (rateLimited)
@@ -190,13 +234,19 @@ public sealed partial class RestClient : IDisposable
                     if (requestProperties.RateLimitHandling.HasFlag((RestRateLimitHandling)scope))
                     {
                         if (scope is RateLimitScope.Shared)
-                            await Task.Delay(headers.RetryAfter!.Delta.GetValueOrDefault(), cancellationToken).ConfigureAwait(false);
+                        {
+                            var retryAfter = headers.RetryAfter!.Delta.GetValueOrDefault();
+
+                            LogRateLimitRetry(route, retryAfter, RateLimitScope.Shared);
+
+                            await Task.Delay(retryAfter, cancellationToken).ConfigureAwait(false);
+                        }
 
                         continue;
                     }
                 }
 
-                throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
+                throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, route, scope);
             }
             else
             {
@@ -227,7 +277,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
+    private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(Route route, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
         while (true)
         {
@@ -236,9 +286,13 @@ public sealed partial class RestClient : IDisposable
             if (info.RateLimited)
             {
                 if (requestProperties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryGlobal))
+                {
+                    LogRateLimitRetry(route, info.ResetAfter, RateLimitScope.Global);
+
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
+                }
                 else
-                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.Global);
+                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, route, RateLimitScope.Global);
             }
             else if (info.AlwaysRetry)
                 continue;
@@ -256,15 +310,35 @@ public sealed partial class RestClient : IDisposable
             if (info.RateLimited)
             {
                 if (requestProperties.RateLimitHandling.HasFlag(RestRateLimitHandling.RetryUser))
+                {
+                    LogRateLimitRetry(route, info.ResetAfter, RateLimitScope.User);
+
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
+                }
                 else
-                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, RateLimitScope.User);
+                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, route, RateLimitScope.User);
             }
             else if (info.AlwaysRetry)
                 continue;
             else
                 return rateLimiter;
         }
+    }
+
+    private void LogRateLimitRetry(Route route, TimeSpan retryAfter, RateLimitScope scope)
+    {
+        _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
+        {
+            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retry after {s.RetryAfter.TotalMilliseconds:F0} ms.";
+        });
+    }
+
+    private void LogRateLimitRetry(Route route, int retryAfter, RateLimitScope scope)
+    {
+        _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
+        {
+            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retry after {s.RetryAfter} ms.";
+        });
     }
 
     private static bool TryGetBucketHeaderValue(HttpResponseHeaders headers, [MaybeNullWhen(false)] out string bucket)

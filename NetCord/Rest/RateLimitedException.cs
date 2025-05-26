@@ -1,8 +1,11 @@
-﻿namespace NetCord.Rest;
+﻿using NetCord.Rest.RateLimits;
 
-public class RateLimitedException(long reset, RateLimitScope scope) : Exception("Rate limit triggered.")
+namespace NetCord.Rest;
+
+public class RateLimitedException(long reset, Route route, RateLimitScope scope) : Exception($"{RateLimitScopeHelpers.GetString(scope)} rate limit exceeded for route '{route}'.")
 {
-    public long Reset { get; } = reset;
-    public RateLimitScope Scope { get; } = scope;
-    public long ResetAfter => Reset - Environment.TickCount64;
+    public long Reset => reset;
+    public Route Route => route;
+    public RateLimitScope Scope => scope;
+    public long ResetAfter => reset - Environment.TickCount64;
 }

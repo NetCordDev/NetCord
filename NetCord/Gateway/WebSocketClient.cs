@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -167,6 +168,7 @@ public abstract partial class WebSocketClient : IDisposable
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
         _defaultPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
+        _logger = configuration.Logger ?? NullLogger.Instance;
     }
 
     private static InternalWebSocketPayloadProperties CreatePayloadProperties(WebSocketPayloadProperties? properties)
@@ -201,6 +203,7 @@ public abstract partial class WebSocketClient : IDisposable
     private protected readonly InternalWebSocketPayloadProperties _internalPayloadProperties = new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
+    private protected readonly IWebSocketLogger _logger;
 
     private State? _state;
 
@@ -223,7 +226,6 @@ public abstract partial class WebSocketClient : IDisposable
     public partial event Func<ValueTask>? Connect;
     public partial event Func<bool, ValueTask>? Disconnect;
     public partial event Func<ValueTask>? Close;
-    public partial event Func<LogMessage, ValueTask>? Log;
 
     private protected static void AddEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
     {
@@ -259,14 +261,17 @@ public abstract partial class WebSocketClient : IDisposable
 
     private async void HandleConnecting()
     {
-        InvokeLog(LogMessage.Info("Connecting"));
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connecting.");
+
         await InvokeEventAsync(_connecting).ConfigureAwait(false);
     }
 
     private async void HandleConnected()
     {
         OnConnected();
-        InvokeLog(LogMessage.Info("Connected"));
+
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connected.");
+
         await InvokeEventAsync(_connect).ConfigureAwait(false);
     }
 
@@ -275,7 +280,16 @@ public abstract partial class WebSocketClient : IDisposable
         var connection = connectionState.Connection;
 
         var description = connection.CloseStatusDescription;
-        InvokeLog(LogMessage.Info("Disconnected", description is [.., '.'] ? description[..^1] : description));
+
+        _logger.Log(LogLevel.Information, description, null, static (s, e) =>
+        {
+            return s switch
+            {
+                null or { Length: 0 } => "Disconnected.",
+                [_, '.'] => $"Disconnected: {s}",
+                _ => $"Disconnected: {s}.",
+            };
+        });
 
         var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
 
@@ -298,7 +312,8 @@ public abstract partial class WebSocketClient : IDisposable
 
     private async void HandleClosed()
     {
-        InvokeLog(LogMessage.Info("Closed"));
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Closed.");
+
         await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
@@ -310,7 +325,11 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while processing the payload:{Environment.NewLine}{e}";
+            });
+
             await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
         }
     }
@@ -401,14 +420,21 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while closing the connection:{Environment.NewLine}{e}";
+            });
+
             try
             {
                 connection.Abort();
             }
             catch (Exception abortEx)
             {
-                InvokeLog(LogMessage.Error(abortEx));
+                _logger.Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
+                {
+                    return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+                });
             }
         }
 
@@ -464,7 +490,10 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
@@ -487,7 +516,10 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
@@ -661,7 +693,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while reconnecting:{Environment.NewLine}{e}";
+                });
+
                 continue;
             }
 
@@ -671,7 +707,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while resuming the connection:{Environment.NewLine}{e}";
+                });
             }
 
             return;
@@ -692,7 +731,11 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while creating the heartbeat timer:{Environment.NewLine}{e}";
+            });
+
             return;
         }
 
@@ -716,51 +759,6 @@ public abstract partial class WebSocketClient : IDisposable
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
     private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
-
-    private protected async void InvokeLog(LogMessage logMessage)
-    {
-        var handlers = _log;
-
-        int count = handlers.Count;
-
-        if (count is 0)
-            return;
-
-        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
-
-        for (int i = 0; i < count; i++)
-        {
-            try
-            {
-#pragma warning disable CA2012 // Use ValueTasks correctly
-                tasks[i] = handlers[i](logMessage);
-#pragma warning restore CA2012 // Use ValueTasks correctly
-            }
-            catch
-            {
-                tasks[i] = default;
-            }
-        }
-
-        await HandleTasksOfLogAsync(count, tasks).ConfigureAwait(false);
-    }
-
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private static async ValueTask HandleTasksOfLogAsync(int count, ValueTask[] tasks)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            try
-            {
-                await tasks[i].ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-
-        ArrayPool<ValueTask>.Shared.Return(tasks);
-    }
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(_latencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
@@ -787,7 +785,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
+
                 tasks[i] = default;
             }
         }
@@ -816,7 +818,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
+
                 tasks[i] = default;
             }
         }
@@ -843,7 +849,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
+
                 tasks[i] = default;
             }
         }
@@ -873,7 +883,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
+
                 tasks[i] = default;
             }
         }
@@ -907,7 +921,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
+
                 tasks[i] = default;
             }
         }
@@ -928,7 +946,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
+                });
             }
         }
 

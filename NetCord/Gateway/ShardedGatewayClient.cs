@@ -22,7 +22,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         Token = token;
         _configuration = configuration = CreateConfiguration(configuration);
         _eventManager = new();
-        Rest = new(token, configuration.RestClientConfiguration);
+        Rest = new(token, configuration);
     }
 
     private static ShardedGatewayClientConfiguration CreateConfiguration(ShardedGatewayClientConfiguration? configuration)
@@ -43,7 +43,8 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                                    _ => null,
                                                                    _ => null,
                                                                    null,
-                                                                   null);
+                                                                   null,
+                                                                   _ => null);
         }
 
         return ShardedGatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory ?? (_ => null),
@@ -60,7 +61,8 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                                configuration.LargeThresholdFactory ?? (_ => null),
                                                                configuration.PresenceFactory ?? (_ => null),
                                                                configuration.ShardCount,
-                                                               configuration.RestClientConfiguration);
+                                                               configuration.RestClientConfiguration,
+                                                               configuration.LoggerFactory ?? (_ => null));
     }
 
     /// <summary>
@@ -230,7 +232,8 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                         configuration.LargeThresholdFactory!(shard),
                                                         configuration.PresenceFactory!(shard),
                                                         shard,
-                                                        null);
+                                                        null,
+                                                        configuration.LoggerFactory!(shard));
     }
 
     public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)

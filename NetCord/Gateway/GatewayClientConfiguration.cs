@@ -2,13 +2,14 @@
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
 // Needs to be in sync with GatewayClientConfigurationFactory
 
-public class GatewayClientConfiguration : IWebSocketClientConfiguration
+public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestClientOwnerConfiguration
 {
     /// <inheritdoc/>
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; init; }
@@ -79,5 +80,18 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration
     /// </summary>
     public RestClientConfiguration? RestClientConfiguration { get; init; }
 
+    /// <summary>
+    /// The logger for the <see cref="GatewayClient"/>. Defaults to <see cref="NullLogger"/>.
+    /// </summary>
+    public IGatewayLogger? Logger { get; init; }
+
     IRateLimiterProvider? IWebSocketClientConfiguration.RateLimiterProvider => RateLimiterProvider is { } rateLimiter ? rateLimiter : new GatewayRateLimiterProvider(120, 60_000);
+
+    IWebSocketLogger? IWebSocketClientConfiguration.Logger => Logger switch
+    {
+        null or NullLogger => NullLogger.Instance,
+        _ => new GatewayWebSocketLogger(Logger),
+    };
+
+    IRestLogger? IRestClientOwnerConfiguration.Logger => Logger as IRestLogger;
 }
