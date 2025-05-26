@@ -225,34 +225,34 @@ public abstract partial class WebSocketClient : IDisposable
     public partial event Func<ValueTask>? Close;
     public partial event Func<LogMessage, ValueTask>? Log;
 
-    private protected static void AddEventHandler<T>(ref ImmutableList<T> events, T? value) where T : class
+    private protected static void AddEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
     {
         if (value is null)
             return;
 
-        var currentEvents = events;
+        var currentHandlers = handlers;
 
         while (true)
         {
-            var newEvents = currentEvents.Add(value);
-            var oldEvents = Interlocked.CompareExchange(ref events, newEvents, currentEvents);
-            if (currentEvents == oldEvents)
+            var newHandlers = currentHandlers.Add(value);
+            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
+            if (currentHandlers == oldHandlers)
                 break;
         }
     }
 
-    private protected static void RemoveEventHandler<T>(ref ImmutableList<T> events, T? value) where T : class
+    private protected static void RemoveEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
     {
         if (value is null)
             return;
 
-        var currentEvents = events;
+        var currentHandlers = handlers;
 
         while (true)
         {
-            var newEvents = currentEvents.Remove(value);
-            var oldEvents = Interlocked.CompareExchange(ref events, newEvents, currentEvents);
-            if (currentEvents == oldEvents)
+            var newHandlers = currentHandlers.Remove(value);
+            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
+            if (currentHandlers == oldHandlers)
                 break;
         }
     }
