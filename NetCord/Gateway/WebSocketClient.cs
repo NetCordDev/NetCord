@@ -286,7 +286,7 @@ public abstract partial class WebSocketClient : IDisposable
             return s switch
             {
                 null or { Length: 0 } => "Disconnected.",
-                [_, '.'] => $"Disconnected: {s}",
+                [.., '.'] => $"Disconnected: {s}",
                 _ => $"Disconnected: {s}.",
             };
         });
