@@ -1,4 +1,6 @@
-﻿using static NetCord.Logging.LoggerHelpers;
+﻿using NetCord.Gateway;
+
+using static NetCord.Logging.LoggerHelpers;
 
 namespace NetCord.Logging;
 
@@ -34,6 +36,11 @@ public class TextWriterLogger(TextWriter writer, LogLevel minimumLogLevel = LogL
 public class ShardedTextWriterLogger(int shardId, TextWriter writer, LogLevel minimumLogLevel = LogLevel.Information, TimeProvider? timeProvider = null) : IGatewayLogger, IRestLogger, IVoiceLogger
 {
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+
+    public static Func<Shard?, ShardedTextWriterLogger> GetFactory(TextWriter writer, LogLevel minimumLogLevel = LogLevel.Information, TimeProvider? timeProvider = null)
+    {
+        return shard => new ShardedTextWriterLogger(shard.GetValueOrDefault().Id, writer, minimumLogLevel, timeProvider);
+    }
 
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
