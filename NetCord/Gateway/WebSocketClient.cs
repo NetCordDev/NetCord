@@ -327,7 +327,7 @@ public abstract partial class WebSocketClient : IDisposable
         {
             _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while processing the payload:{Environment.NewLine}{e}";
+                return $"An error occurred while processing the payload.{Environment.NewLine}{e}";
             });
 
             await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
@@ -422,7 +422,7 @@ public abstract partial class WebSocketClient : IDisposable
         {
             _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while closing the connection:{Environment.NewLine}{e}";
+                return $"An error occurred while closing the connection.{Environment.NewLine}{e}";
             });
 
             try
@@ -433,7 +433,7 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 _logger.Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
                 {
-                    return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+                    return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
                 });
             }
         }
@@ -492,7 +492,7 @@ public abstract partial class WebSocketClient : IDisposable
         {
             _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
             });
         }
 
@@ -518,7 +518,7 @@ public abstract partial class WebSocketClient : IDisposable
         {
             _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while aborting the connection:{Environment.NewLine}{e}";
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
             });
         }
 
@@ -702,7 +702,7 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                 {
-                    return $"An error occurred while reconnecting:{Environment.NewLine}{e}";
+                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
                 });
 
                 continue;
@@ -716,7 +716,7 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                 {
-                    return $"An error occurred while resuming the connection:{Environment.NewLine}{e}";
+                    return $"An error occurred while resuming the connection.{Environment.NewLine}{e}";
                 });
             }
 
@@ -740,7 +740,7 @@ public abstract partial class WebSocketClient : IDisposable
         {
             _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while creating the heartbeat timer:{Environment.NewLine}{e}";
+                return $"An error occurred while creating the heartbeat timer.{Environment.NewLine}{e}";
             });
 
             return;
@@ -949,7 +949,7 @@ public abstract partial class WebSocketClient : IDisposable
     {
         _logger.Log(LogLevel.Error, handlersName, ex, static (s, e) =>
         {
-            return $"An error occurred while invoking an event handler of '{new EventNameFormatter(s)}':{Environment.NewLine}{e}";
+            return $"An error occurred while invoking an event handler of '{new EventNameFormatter(s)}'.{Environment.NewLine}{e}";
         });
     }
 

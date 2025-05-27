@@ -973,7 +973,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     _logger.Log(LogLevel.Error, payload, ex, static (s, e) =>
                     {
-                        return $"An error occurred while processing '{s.Event}' event:{Environment.NewLine}{e}";
+                        return $"An error occurred while processing '{s.Event}' event.{Environment.NewLine}{e}";
                     });
                 }
                 break;
@@ -995,7 +995,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                     {
-                        return $"An error occurred while sending the identify payload:{Environment.NewLine}{e}";
+                        return $"An error occurred while sending the identify payload.{Environment.NewLine}{e}";
                     });
                 }
                 break;

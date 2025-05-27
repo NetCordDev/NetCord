@@ -311,7 +311,7 @@ public partial class VoiceClient : WebSocketClient
             {
                 _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                 {
-                    return $"An error occurred while handling a datagram:{Environment.NewLine}{e}";
+                    return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
                 });
             }
         }
