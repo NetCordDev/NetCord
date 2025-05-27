@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
 
 using NetCord;
-using NetCord.Gateway;
 using NetCord.Rest;
 using NetCord.Rest.RateLimits;
 

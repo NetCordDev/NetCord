@@ -147,7 +147,7 @@ public partial class VoiceClient : WebSocketClient
                     if (RedirectInputStreams)
                     {
                         _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Initiating discovery of the external IP address and port.");
-                        
+
                         TaskCompletionSource<byte[]> result = new();
                         var handleDatagramReceiveOnce = HandleDatagramReceiveOnce;
                         _udpSocket.DatagramReceive += handleDatagramReceiveOnce;
@@ -248,7 +248,7 @@ public partial class VoiceClient : WebSocketClient
             case VoiceOpcode.Hello:
                 {
                     _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
-                    
+
                     StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;

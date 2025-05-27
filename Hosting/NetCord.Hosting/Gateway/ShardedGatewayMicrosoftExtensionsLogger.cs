@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 
 using NetCord.Gateway;
 using NetCord.Logging;
-using NetCord.Rest;
 
 namespace NetCord.Hosting.Gateway;
 
