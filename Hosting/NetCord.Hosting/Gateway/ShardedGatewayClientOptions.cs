@@ -113,9 +113,6 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     internal ShardedGatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
-        var gatewayLogger = services.GetRequiredService<ILogger<GatewayClient>>();
-        var restLogger = services.GetRequiredService<ILogger<RestClient>>();
-
         return ShardedGatewayClientConfigurationFactory.Create(CreateFactory(WebSocketConnectionProvider, WebSocketConnectionProviderFactory),
                                                                CreateFactory(RateLimiterProvider, RateLimiterProviderFactory),
                                                                CreateFactory(DefaultPayloadProperties, DefaultPayloadPropertiesFactory),
