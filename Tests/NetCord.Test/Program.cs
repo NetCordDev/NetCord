@@ -216,12 +216,4 @@ internal static class Program
             }
         }
     }
-
-    private static ValueTask Client_Log(LogMessage message)
-    {
-        Console.ForegroundColor = message.Severity == LogSeverity.Info ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
-        Console.WriteLine(message);
-        Console.ResetColor();
-        return default;
-    }
 }

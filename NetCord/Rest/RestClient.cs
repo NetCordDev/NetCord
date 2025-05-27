@@ -98,7 +98,7 @@ public sealed partial class RestClient : IDisposable
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, requestProperties, cancellationToken);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), route, global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
@@ -121,7 +121,7 @@ public sealed partial class RestClient : IDisposable
 
         var url = $"{_baseUrl}{route}{query}";
 
-        return SendRequestAsync(new(method, route.Format, resourceInfo), global, CreateMessage, requestProperties, cancellationToken);
+        return SendRequestAsync(new(method, route.Format, resourceInfo), route, global, CreateMessage, requestProperties, cancellationToken);
 
         HttpRequestMessage CreateMessage()
         {
@@ -141,7 +141,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private async Task<Stream> SendRequestAsync(Route route, bool global, Func<HttpRequestMessage> messageFunc, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
+    private async Task<Stream> SendRequestAsync(Route route, FormattableString fullRoute, bool global, Func<HttpRequestMessage> messageFunc, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
         while (true)
         {
@@ -149,9 +149,9 @@ public sealed partial class RestClient : IDisposable
 
             var rateLimiter = await AcquireRouteRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false);
 
-            _logger.Log(LogLevel.Debug, route, null, static (s, e) =>
+            _logger.Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute), null, static (s, e) =>
             {
-                return $"Sending a request to route '{s}'.";
+                return $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.";
             });
 
             var timestamp = Environment.TickCount64;
@@ -165,6 +165,11 @@ public sealed partial class RestClient : IDisposable
                 await rateLimiter.CancelAcquireAsync(timestamp, default).ConfigureAwait(false);
                 throw;
             }
+
+            _logger.Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute, Response: response), null, static (s, e) =>
+            {
+                return $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.";
+            });
 
             var headers = response.Headers;
 
