@@ -2,10 +2,9 @@
 
 internal static class LoggerHelpers
 {
-    public static TimeSpan GetRoundedTime(TimeProvider timeProvider)
+    public static TimeOnly GetTime(TimeProvider timeProvider)
     {
-        var ticks = timeProvider.GetLocalNow().TimeOfDay.Ticks;
-        return new(ticks - (ticks % TimeSpan.TicksPerSecond));
+        return TimeOnly.FromTimeSpan(timeProvider.GetLocalNow().TimeOfDay);
     }
 
     public static string GetConstantSizeLogLevelString(LogLevel logLevel)
