@@ -773,7 +773,7 @@ public abstract partial class WebSocketClient : IDisposable
     private protected ValueTask InvokeResumeEventAsync()
         => InvokeEventAsync(_resume);
 
-    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers)
+    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -792,19 +792,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
 
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -825,19 +822,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
 
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -856,19 +850,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
 
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -890,10 +881,7 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
 
                 tasks[i] = default;
             }
@@ -901,10 +889,10 @@ public abstract partial class WebSocketClient : IDisposable
 
         updateData(data);
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -928,10 +916,7 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
 
                 tasks[i] = default;
             }
@@ -939,11 +924,11 @@ public abstract partial class WebSocketClient : IDisposable
 
         updateData();
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks)
+    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks, string handlersName)
     {
         for (int i = 0; i < count; i++)
         {
@@ -953,14 +938,51 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while invoking the event handler:{Environment.NewLine}{e}";
-                });
+                LogEventHandlerException(handlersName, ex);
             }
         }
 
         ArrayPool<ValueTask>.Shared.Return(tasks);
+    }
+
+    private void LogEventHandlerException(string handlersName, Exception ex)
+    {
+        _logger.Log(LogLevel.Error, handlersName, ex, static (s, e) =>
+        {
+            return $"An error occurred while invoking an event handler of '{new EventNameFormatter(s)}':{Environment.NewLine}{e}";
+        });
+    }
+
+    private struct EventNameFormatter(string handlersName) : ISpanFormattable
+    {
+        public readonly string HandlersName => handlersName;
+
+        public readonly override string ToString()
+        {
+            return string.Create(HandlersName.Length - 1, HandlersName, static (span, handlersName) =>
+            {
+                span[0] = (char)(handlersName[1] & ~0x20);
+                handlersName.AsSpan(2).CopyTo(span[1..]);
+            });
+        }
+
+        public readonly string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            int resultLength = HandlersName.Length - 1;
+            if (destination.Length < resultLength)
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            destination[0] = (char)(HandlersName[1] & ~0x20);
+            HandlersName.AsSpan(2).CopyTo(destination[1..]);
+
+            charsWritten = resultLength;
+            return true;
+        }
     }
 
     [DoesNotReturn]
