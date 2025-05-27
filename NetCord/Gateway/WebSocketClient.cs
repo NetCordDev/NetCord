@@ -978,7 +978,7 @@ public abstract partial class WebSocketClient : IDisposable
     [DoesNotReturn]
     private static void ThrowRateLimitTriggered(int resetAfter)
     {
-        throw new InvalidOperationException("Rate limit triggered.");
+        throw new WebSocketRateLimitedException(resetAfter);
     }
 
     public void Dispose()

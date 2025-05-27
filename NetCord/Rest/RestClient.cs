@@ -216,7 +216,7 @@ public sealed partial class RestClient : IDisposable
                         continue;
                     }
 
-                    throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, route, scope);
+                    throw new RestRateLimitedException(route, (int)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
                 }
             }
             else if (rateLimited)
@@ -251,7 +251,7 @@ public sealed partial class RestClient : IDisposable
                     }
                 }
 
-                throw new RateLimitedException(timestamp + (long)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, route, scope);
+                throw new RestRateLimitedException(route, (int)headers.RetryAfter!.Delta.GetValueOrDefault().TotalMilliseconds, scope);
             }
             else
             {
@@ -297,7 +297,7 @@ public sealed partial class RestClient : IDisposable
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
                 }
                 else
-                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, route, RateLimitScope.Global);
+                    throw new RestRateLimitedException(route, info.ResetAfter, RateLimitScope.Global);
             }
             else if (info.AlwaysRetry)
                 continue;
@@ -321,7 +321,7 @@ public sealed partial class RestClient : IDisposable
                     await Task.Delay(info.ResetAfter, cancellationToken).ConfigureAwait(false);
                 }
                 else
-                    throw new RateLimitedException(Environment.TickCount64 + info.ResetAfter, route, RateLimitScope.User);
+                    throw new RestRateLimitedException(route, info.ResetAfter, RateLimitScope.User);
             }
             else if (info.AlwaysRetry)
                 continue;
