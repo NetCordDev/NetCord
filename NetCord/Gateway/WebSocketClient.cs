@@ -569,7 +569,7 @@ public abstract partial class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, _logger, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
@@ -579,16 +579,16 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, IWebSocketLogger logger, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, logger, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, IWebSocketLogger logger, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -617,6 +617,11 @@ public abstract partial class WebSocketClient : IDisposable
                 {
                     try
                     {
+                        logger.Log<object?>(LogLevel.Warning, result.ResetAfter, null, static (s, e) =>
+                        {
+                            return $"Rate limit exceeded. Retrying after {s} ms.";
+                        });
+
                         await Task.Delay(result.ResetAfter, linkedToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException ex)
@@ -631,6 +636,8 @@ public abstract partial class WebSocketClient : IDisposable
 
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
+
+            logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
 
             var timestamp = Environment.TickCount64;
 

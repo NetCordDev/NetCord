@@ -334,7 +334,7 @@ public sealed partial class RestClient : IDisposable
     {
         _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
         {
-            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retry after {s.RetryAfter.TotalMilliseconds:F0} ms.";
+            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retrying after {s.RetryAfter.TotalMilliseconds:F0} ms.";
         });
     }
 
@@ -342,7 +342,7 @@ public sealed partial class RestClient : IDisposable
     {
         _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
         {
-            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retry after {s.RetryAfter} ms.";
+            return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retrying after {s.RetryAfter} ms.";
         });
     }
 

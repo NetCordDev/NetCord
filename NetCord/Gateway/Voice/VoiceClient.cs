@@ -67,7 +67,7 @@ public partial class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
     }
 
     /// <summary>
@@ -104,14 +104,14 @@ public partial class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<VoiceHeartbeatProperties>(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
     }
 
     private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
@@ -166,7 +166,7 @@ public partial class VoiceClient : WebSocketClient
                         _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting protocol.");
 
                         VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryption.Name)));
-                        await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties).ConfigureAwait(false);
+                        await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties, _logger).ConfigureAwait(false);
 
                         ReadOnlyMemory<byte> CreateDatagram()
                         {
@@ -195,7 +195,7 @@ public partial class VoiceClient : WebSocketClient
                         _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting protocol.");
 
                         VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, encryption.Name)));
-                        await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties).ConfigureAwait(false);
+                        await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties, _logger).ConfigureAwait(false);
                     }
 
                     await updateLatencyTask;
