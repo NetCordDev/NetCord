@@ -46,7 +46,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             {
                 RedirectInputStreams = true,
                 EncryptionProvider = encryptionProvider,
-                Logger = new ConsoleLogger(),
+                Logger = new ConsoleLogger(LogLevel.Debug),
             });
         }
         finally

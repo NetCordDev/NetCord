@@ -45,7 +45,7 @@ ShardedGatewayClient client = new(token, new()
             },
         ],
     },
-    LoggerFactory = ShardedConsoleLogger.GetFactory(),
+    LoggerFactory = ShardedConsoleLogger.GetFactory(LogLevel.Debug),
 });
 client.MessageCreate += async (client, message) =>
 {

@@ -998,14 +998,14 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
-                var elapsed = _latencyTimer.Elapsed;
+                var latency = _latencyTimer.Elapsed;
 
-                _logger.Log(LogLevel.Debug, elapsed, null, static (s, e) =>
+                _logger.Log(LogLevel.Debug, latency, null, static (s, e) =>
                 {
                     return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                 });
 
-                await UpdateLatencyAsync(elapsed).ConfigureAwait(false);
+                await UpdateLatencyAsync(latency).ConfigureAwait(false);
                 break;
         }
     }
