@@ -876,7 +876,14 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override void OnConnected()
     {
-        _compression.Initialize();
+        var compression = _compression;
+
+        _logger.Log(LogLevel.Debug, compression, null, static (s, e) =>
+        {
+            return $"Using '{s.Name}' compression.";
+        });
+
+        compression.Initialize();
     }
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)

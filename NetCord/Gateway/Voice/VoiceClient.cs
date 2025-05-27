@@ -134,10 +134,11 @@ public partial class VoiceClient : WebSocketClient
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
                     var ssrc = ready.Ssrc;
                     var encryption = _encryption = _encryptionProvider.GetEncryption(ready.Modes);
+                    var encryptionName = encryption.Name;
 
-                    _logger.Log(LogLevel.Debug, encryption, null, static (s, e) =>
+                    _logger.Log(LogLevel.Debug, encryptionName, null, static (s, e) =>
                     {
-                        return $"Using '{s.Name}' encryption.";
+                        return $"Using '{s}' encryption.";
                     });
 
                     Cache = Cache.CacheCurrentSsrc(ssrc);
@@ -165,7 +166,7 @@ public partial class VoiceClient : WebSocketClient
 
                         _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting protocol.");
 
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryption.Name)));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryptionName)));
                         await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties, _logger).ConfigureAwait(false);
 
                         ReadOnlyMemory<byte> CreateDatagram()
@@ -194,7 +195,7 @@ public partial class VoiceClient : WebSocketClient
                     {
                         _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting protocol.");
 
-                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, encryption.Name)));
+                        VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ready.Ip, ready.Port, encryptionName)));
                         await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties, _logger).ConfigureAwait(false);
                     }
 
