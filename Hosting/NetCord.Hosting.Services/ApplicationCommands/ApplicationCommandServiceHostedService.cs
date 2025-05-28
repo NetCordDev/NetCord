@@ -16,7 +16,7 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
         if (client.Token is not IEntityToken token)
             throw new InvalidOperationException($"'{nameof(IEntityToken)}' is required to create application commands.");
 
-        logger.LogInformation("Creating application commands...");
+        logger.LogInformation("Registering application commands.");
 
         ApplicationCommandServiceManager applicationCommandServiceManager = new();
 
@@ -25,7 +25,7 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
 
         var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        logger.LogInformation("{count} application command(s) created", commands.Count);
+        logger.LogInformation("{count} application command(s) registered.", commands.Count);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

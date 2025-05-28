@@ -1,12 +1,14 @@
 ﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ComponentInteractions;
 
-GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration()
+GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), new GatewayClientConfiguration
 {
     Intents = default,
+    Logger = new ConsoleLogger(),
 });
 
 // Create the component interaction service with the button interaction context
@@ -40,12 +42,6 @@ client.InteractionCreate += async interaction =>
     catch
     {
     }
-};
-
-client.Log += message =>
-{
-    Console.WriteLine(message);
-    return default;
 };
 
 await client.StartAsync();

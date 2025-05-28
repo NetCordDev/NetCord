@@ -2,11 +2,12 @@
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public class ShardedGatewayClientConfiguration
+public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
 {
     /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; init; }
@@ -57,4 +58,11 @@ public class ShardedGatewayClientConfiguration
     /// and for each shard at <see cref="GatewayClient.Rest"/>. Defaults to <see langword="null"/>.
     /// </summary>
     public RestClientConfiguration? RestClientConfiguration { get; init; }
+
+    /// <summary>
+    /// <inheritdoc cref="GatewayClientConfiguration.Logger" />The <see cref="Shard"/> argument is <see langword="null"/> for the <see cref="RestClient"/>'s logger.
+    /// </summary>
+    public Func<Shard?, IGatewayLogger?>? LoggerFactory { get; init; }
+
+    IRestLogger? IRestClientOwnerConfiguration.Logger => LoggerFactory is { } loggerFactory ? loggerFactory(null) as IRestLogger : null;
 }

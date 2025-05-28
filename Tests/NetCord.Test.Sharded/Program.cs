@@ -1,5 +1,6 @@
 ﻿using NetCord;
 using NetCord.Gateway;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
@@ -44,13 +45,8 @@ ShardedGatewayClient client = new(token, new()
             },
         ],
     },
+    LoggerFactory = ShardedConsoleLogger.GetFactory(LogLevel.Debug),
 });
-client.Log += (client, message) =>
-{
-    var shard = client.Shard.GetValueOrDefault();
-    Console.WriteLine($"#{shard.Id}\t{message}");
-    return default;
-};
 client.MessageCreate += async (client, message) =>
 {
     if (message.Author.IsBot)

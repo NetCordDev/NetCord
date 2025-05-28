@@ -13,13 +13,13 @@ You can specify a prefix in the configuration. You can for example use `appsetti
 ## [Bare Bones](#tab/bare-bones)
 
 First, add the following lines to the using section.
-[!code-cs[Program.cs](Introduction/Program.cs#L3-L4)]
+[!code-cs[Program.cs](Introduction/Program.cs#L4-L5)]
 
 Now, it's time to create @NetCord.Services.Commands.CommandService`1 instance and add commands to it.
-[!code-cs[Program.cs](Introduction/Program.cs#L11-L18)]
+[!code-cs[Program.cs](Introduction/Program.cs#L13-L20)]
 
 We can add a command handler now.
-[!code-cs[Program.cs](Introduction/Program.cs#L20-L42)]
+[!code-cs[Program.cs](Introduction/Program.cs#L22-L44)]
 
 ### The Final Product
 

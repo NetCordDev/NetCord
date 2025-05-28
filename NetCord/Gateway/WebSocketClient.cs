@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -167,6 +168,7 @@ public abstract partial class WebSocketClient : IDisposable
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
         _defaultPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
+        _logger = configuration.Logger ?? NullLogger.Instance;
     }
 
     private static InternalWebSocketPayloadProperties CreatePayloadProperties(WebSocketPayloadProperties? properties)
@@ -201,6 +203,7 @@ public abstract partial class WebSocketClient : IDisposable
     private protected readonly InternalWebSocketPayloadProperties _internalPayloadProperties = new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
+    private protected readonly IWebSocketLogger _logger;
 
     private State? _state;
 
@@ -223,7 +226,6 @@ public abstract partial class WebSocketClient : IDisposable
     public partial event Func<ValueTask>? Connect;
     public partial event Func<bool, ValueTask>? Disconnect;
     public partial event Func<ValueTask>? Close;
-    public partial event Func<LogMessage, ValueTask>? Log;
 
     private protected static void AddEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
     {
@@ -259,14 +261,17 @@ public abstract partial class WebSocketClient : IDisposable
 
     private async void HandleConnecting()
     {
-        InvokeLog(LogMessage.Info("Connecting"));
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connecting.");
+
         await InvokeEventAsync(_connecting).ConfigureAwait(false);
     }
 
     private async void HandleConnected()
     {
         OnConnected();
-        InvokeLog(LogMessage.Info("Connected"));
+
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connected.");
+
         await InvokeEventAsync(_connect).ConfigureAwait(false);
     }
 
@@ -275,7 +280,16 @@ public abstract partial class WebSocketClient : IDisposable
         var connection = connectionState.Connection;
 
         var description = connection.CloseStatusDescription;
-        InvokeLog(LogMessage.Info("Disconnected", description is [.., '.'] ? description[..^1] : description));
+
+        _logger.Log(LogLevel.Information, description, null, static (s, e) =>
+        {
+            return s switch
+            {
+                null or { Length: 0 } => "Disconnected.",
+                [.., '.'] => $"Disconnected: {s}",
+                _ => $"Disconnected: {s}.",
+            };
+        });
 
         var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
 
@@ -298,7 +312,8 @@ public abstract partial class WebSocketClient : IDisposable
 
     private async void HandleClosed()
     {
-        InvokeLog(LogMessage.Info("Closed"));
+        _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Closed.");
+
         await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
@@ -310,7 +325,11 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while processing the payload.{Environment.NewLine}{e}";
+            });
+
             await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
         }
     }
@@ -401,14 +420,21 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while closing the connection.{Environment.NewLine}{e}";
+            });
+
             try
             {
                 connection.Abort();
             }
             catch (Exception abortEx)
             {
-                InvokeLog(LogMessage.Error(abortEx));
+                _logger.Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
+                {
+                    return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+                });
             }
         }
 
@@ -464,7 +490,10 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
@@ -487,7 +516,10 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
@@ -537,7 +569,7 @@ public abstract partial class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, _logger, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
@@ -547,16 +579,16 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, IWebSocketLogger logger, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, logger, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, IWebSocketLogger logger, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -585,6 +617,11 @@ public abstract partial class WebSocketClient : IDisposable
                 {
                     try
                     {
+                        logger.Log<object?>(LogLevel.Warning, result.ResetAfter, null, static (s, e) =>
+                        {
+                            return $"Rate limit exceeded. Retrying after {s} ms.";
+                        });
+
                         await Task.Delay(result.ResetAfter, linkedToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException ex)
@@ -599,6 +636,8 @@ public abstract partial class WebSocketClient : IDisposable
 
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
+
+            logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
 
             var timestamp = Environment.TickCount64;
 
@@ -661,7 +700,11 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
+                });
+
                 continue;
             }
 
@@ -671,7 +714,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while resuming the connection.{Environment.NewLine}{e}";
+                });
             }
 
             return;
@@ -692,7 +738,11 @@ public abstract partial class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while creating the heartbeat timer.{Environment.NewLine}{e}";
+            });
+
             return;
         }
 
@@ -717,58 +767,13 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
 
-    private protected async void InvokeLog(LogMessage logMessage)
-    {
-        var handlers = _log;
-
-        int count = handlers.Count;
-
-        if (count is 0)
-            return;
-
-        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
-
-        for (int i = 0; i < count; i++)
-        {
-            try
-            {
-#pragma warning disable CA2012 // Use ValueTasks correctly
-                tasks[i] = handlers[i](logMessage);
-#pragma warning restore CA2012 // Use ValueTasks correctly
-            }
-            catch
-            {
-                tasks[i] = default;
-            }
-        }
-
-        await HandleTasksOfLogAsync(count, tasks).ConfigureAwait(false);
-    }
-
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private static async ValueTask HandleTasksOfLogAsync(int count, ValueTask[] tasks)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            try
-            {
-                await tasks[i].ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-
-        ArrayPool<ValueTask>.Shared.Return(tasks);
-    }
-
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(_latencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
 
     private protected ValueTask InvokeResumeEventAsync()
         => InvokeEventAsync(_resume);
 
-    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers)
+    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -787,15 +792,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
+
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -816,15 +822,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
+
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -843,15 +850,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
+
                 tasks[i] = default;
             }
         }
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -873,17 +881,18 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
+
                 tasks[i] = default;
             }
         }
 
         updateData(data);
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
         int count = handlers.Count;
 
@@ -907,18 +916,19 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
+
                 tasks[i] = default;
             }
         }
 
         updateData();
 
-        return HandleTasksAsync(count, tasks);
+        return HandleTasksAsync(count, tasks, handlersName);
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks)
+    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks, string handlersName)
     {
         for (int i = 0; i < count; i++)
         {
@@ -928,11 +938,51 @@ public abstract partial class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                LogEventHandlerException(handlersName, ex);
             }
         }
 
         ArrayPool<ValueTask>.Shared.Return(tasks);
+    }
+
+    private void LogEventHandlerException(string handlersName, Exception ex)
+    {
+        _logger.Log(LogLevel.Error, handlersName, ex, static (s, e) =>
+        {
+            return $"An error occurred while invoking an event handler of '{new EventNameFormatter(s)}'.{Environment.NewLine}{e}";
+        });
+    }
+
+    private struct EventNameFormatter(string handlersName) : ISpanFormattable
+    {
+        public readonly string HandlersName => handlersName;
+
+        public readonly override string ToString()
+        {
+            return string.Create(HandlersName.Length - 1, HandlersName, static (span, handlersName) =>
+            {
+                span[0] = (char)(handlersName[1] & ~0x20);
+                handlersName.AsSpan(2).CopyTo(span[1..]);
+            });
+        }
+
+        public readonly string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            int resultLength = HandlersName.Length - 1;
+            if (destination.Length < resultLength)
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            destination[0] = (char)(HandlersName[1] & ~0x20);
+            HandlersName.AsSpan(2).CopyTo(destination[1..]);
+
+            charsWritten = resultLength;
+            return true;
+        }
     }
 
     [DoesNotReturn]
@@ -950,7 +1000,7 @@ public abstract partial class WebSocketClient : IDisposable
     [DoesNotReturn]
     private static void ThrowRateLimitTriggered(int resetAfter)
     {
-        throw new InvalidOperationException("Rate limit triggered.");
+        throw new WebSocketRateLimitedException(resetAfter);
     }
 
     public void Dispose()

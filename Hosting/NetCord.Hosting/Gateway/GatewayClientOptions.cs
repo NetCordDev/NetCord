@@ -68,7 +68,7 @@ public partial class GatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="GatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
-    internal GatewayClientConfiguration CreateConfiguration()
+    internal GatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return GatewayClientConfigurationFactory.Create(WebSocketConnectionProvider,
                                                         RateLimiterProvider,
@@ -84,6 +84,7 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         LargeThreshold,
                                                         Presence,
                                                         Shard,
-                                                        RestClientConfiguration);
+                                                        RestClientConfiguration,
+                                                        new GatewayMicrosoftExtensionsLogger(services));
     }
 }

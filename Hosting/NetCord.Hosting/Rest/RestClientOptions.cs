@@ -24,7 +24,7 @@ public class RestClientOptions : IDiscordOptions
     /// <inheritdoc cref="RestClientConfiguration.RateLimitManager" />
     public IRateLimitManager? RateLimitManager { get; set; }
 
-    internal RestClientConfiguration CreateConfiguration()
+    internal RestClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return new()
         {
@@ -33,6 +33,7 @@ public class RestClientOptions : IDiscordOptions
             RequestHandler = RequestHandler,
             DefaultRequestProperties = DefaultRequestProperties,
             RateLimitManager = RateLimitManager,
+            Logger = new RestMicrosoftExtensionsLogger(services),
         };
     }
 }

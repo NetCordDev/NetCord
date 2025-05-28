@@ -2,6 +2,7 @@
 
 using NetCord;
 using NetCord.Gateway.Voice;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
@@ -35,7 +36,11 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
         var voiceClient = await client.JoinVoiceChannelAsync(
             guild.Id,
-            voiceState.ChannelId.GetValueOrDefault());
+            voiceState.ChannelId.GetValueOrDefault(),
+            new VoiceClientConfiguration
+            {
+                Logger = new ConsoleLogger(),
+            });
 
         // Connect
         await voiceClient.StartAsync();
@@ -122,7 +127,11 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         var voiceClient = await client.JoinVoiceChannelAsync(
             guild.Id,
             voiceState.ChannelId.GetValueOrDefault(),
-            new() { RedirectInputStreams = true /* Required to receive voice */ });
+            new VoiceClientConfiguration
+            {
+                RedirectInputStreams = true, // Required to receive voice
+                Logger = new ConsoleLogger(),
+            });
 
         // Connect
         await voiceClient.StartAsync();

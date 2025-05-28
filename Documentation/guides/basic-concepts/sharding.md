@@ -41,4 +41,4 @@ When creating event handlers, implement @NetCord.Hosting.Gateway.IShardedGateway
 ### [Bare Bones](#tab/bare-bones)
 
 For bare-bones setups, adding event handlers is straightforward. Each handler has an additional parameter for the @NetCord.Gateway.GatewayClient that received the event.
-[!code-cs[Program.cs](Sharding/RegisteringHandlers.cs#L18-L21)]
+[!code-cs[Program.cs](Sharding/RegisteringHandlers.cs#L16-L19)]

@@ -1,6 +1,7 @@
 ﻿using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 namespace NetCord.Gateway;
 
@@ -30,4 +31,9 @@ internal interface IWebSocketClientConfiguration
     /// The default payload properties for WebSocket payloads. Defaults to <see langword="null"/>.
     /// </summary>
     public WebSocketPayloadProperties? DefaultPayloadProperties { get; }
+
+    /// <summary>
+    /// The logger for the <see cref="WebSocketClient"/>. Defaults to <see cref="NullLogger"/>.
+    /// </summary>
+    public IWebSocketLogger? Logger { get; }
 }

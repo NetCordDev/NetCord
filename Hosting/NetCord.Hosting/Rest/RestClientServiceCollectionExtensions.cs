@@ -87,7 +87,7 @@ public static class RestClientServiceCollectionExtensions
             var options = services.GetRequiredService<IOptions<RestClientOptions>>().Value;
 
             var token = options.Token;
-            var configuration = options.CreateConfiguration();
+            var configuration = options.CreateConfiguration(services);
             return token is null ? new(configuration) : new(ConfigurationHelper.ParseToken(token, services), configuration);
         });
 

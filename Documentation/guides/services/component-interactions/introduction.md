@@ -14,13 +14,13 @@ Unlike application commands, component interactions require maintaining context 
 ## [Bare Bones](#tab/bare-bones)
 
 First, add the following lines to the using section.
-[!code-cs[Program.cs](Introduction/Program.cs#L3-L5)]
+[!code-cs[Program.cs](Introduction/Program.cs#L4-L6)]
 
 Now, it's time to create @NetCord.Services.ComponentInteractions.ComponentInteractionService`1 instance and add component interactions to it. In this example, we will use @NetCord.Services.ComponentInteractions.ButtonInteractionContext.
-[!code-cs[Program.cs](Introduction/Program.cs#L12-L19)]
+[!code-cs[Program.cs](Introduction/Program.cs#L14-L21)]
 
 We can add an interaction handler now.
-[!code-cs[Program.cs](Introduction/Program.cs#L21-L43)]
+[!code-cs[Program.cs](Introduction/Program.cs#L23-L45)]
 
 ### The Final Product
 

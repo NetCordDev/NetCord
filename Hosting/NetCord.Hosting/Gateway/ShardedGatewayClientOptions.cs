@@ -8,6 +8,8 @@ using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Hosting.Rest;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Hosting.Gateway;
@@ -107,7 +109,7 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.PresenceFactory" />
     public PresenceProperties? Presence { get; set; }
 
-    internal ShardedGatewayClientConfiguration CreateConfiguration()
+    internal ShardedGatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return ShardedGatewayClientConfigurationFactory.Create(CreateFactory(WebSocketConnectionProvider, WebSocketConnectionProviderFactory),
                                                                CreateFactory(RateLimiterProvider, RateLimiterProviderFactory),
@@ -123,7 +125,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
                                                                CreateFactory(LargeThreshold, LargeThresholdFactory),
                                                                CreateFactory(Presence, PresenceFactory),
                                                                ShardCount,
-                                                               RestClientConfiguration);
+                                                               RestClientConfiguration,
+                                                               CreateLogger);
 
         static Func<Shard, T?>? CreateFactory<T>(T? value, Func<Shard, T?>? func, [CallerArgumentExpression(nameof(value))] string valueName = "", [CallerArgumentExpression(nameof(func))] string funcName = "")
         {
@@ -136,6 +139,14 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
             }
 
             return func;
+        }
+
+        IGatewayLogger? CreateLogger(Shard? shard)
+        {
+            if (shard.HasValue)
+                return new ShardedGatewayMicrosoftExtensionsLogger(shard.GetValueOrDefault().Id, services);
+
+            return new RestMicrosoftExtensionsLogger(services);
         }
     }
 }

@@ -2,6 +2,7 @@
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.Voice.UdpSockets;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 namespace NetCord.Gateway.Voice;
 
@@ -17,4 +18,11 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IVoiceClientCache? Cache { get; init; }
     public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
     public bool? RedirectInputStreams { get; init; }
+    public IVoiceLogger? Logger { get; init; }
+
+    IWebSocketLogger? IWebSocketClientConfiguration.Logger => Logger switch
+    {
+        null or NullLogger => NullLogger.Instance,
+        _ => new VoiceWebSocketLogger(Logger)
+    };
 }

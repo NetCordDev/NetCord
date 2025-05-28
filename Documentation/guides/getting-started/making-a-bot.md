@@ -72,13 +72,12 @@ For better configuration management, store the token in an `appsettings.json` fi
 #### [Bare Bones](#tab/bare-bones)
 
 To create the @NetCord.Gateway.GatewayClient manually, add the following lines to your `Program.cs` file.
-[!code-cs[Program.cs](Coding/Program.cs#L1-L4)]
+[!code-cs[Program.cs](Coding/Program.cs#L1-L8)]
 
-Next, you can add logging to track your bot's activity.
-[!code-cs[Program.cs](Coding/Program.cs#L6-L10)]
+We have also added a console logger to log messages to the console. This is useful for debugging and monitoring your bot's activity.
 
 Finally, start your bot with the following lines.
-[!code-cs[Program.cs](Coding/Program.cs#L12-L13)]
+[!code-cs[Program.cs](Coding/Program.cs#L10-L11)]
 
 #### The Final Product
 [!code-cs[Program.cs](Coding/Program.cs)]
