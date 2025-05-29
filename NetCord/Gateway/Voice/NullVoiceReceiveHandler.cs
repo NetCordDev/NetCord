@@ -8,7 +8,7 @@ public class NullVoiceReceiveHandler : IVoiceReceiveHandler
     {
     }
     public bool RequiresExternalSocketAddress => false;
-    
+
     public VoicePacketHandlingResult HandlePacket(RtpPacket packet)
     {
         return new(0, false);

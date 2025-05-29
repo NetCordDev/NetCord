@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
-using System.Collections.Immutable;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
@@ -69,7 +68,7 @@ public partial class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -106,14 +105,14 @@ public partial class VoiceClient : WebSocketClient
     {
         var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new VoicePayloadProperties<VoiceHeartbeatProperties>(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
@@ -138,7 +137,7 @@ public partial class VoiceClient : WebSocketClient
                     var encryption = _encryption = _encryptionProvider.GetEncryption(ready.Modes);
                     var encryptionName = encryption.Name;
 
-                    _logger.Log(LogLevel.Debug, encryptionName, null, static (s, e) =>
+                    Log(LogLevel.Debug, encryptionName, null, static (s, e) =>
                     {
                         return $"Using '{s}' encryption.";
                     });
@@ -149,30 +148,30 @@ public partial class VoiceClient : WebSocketClient
 
                     udpSocket.Connect(ready.Ip, ready.Port);
 
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
-                    
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
+
                     var (hostname, port) = await GetExternalSocketAddressAsync(udpSocket, ssrc).ConfigureAwait(false);
 
-                    _logger.Log(LogLevel.Debug, (Hostname: hostname, Port: port), null, static (s, e) => $"External socket address: {s.Hostname}:{s.Port}.");
+                    Log(LogLevel.Debug, (Hostname: hostname, Port: port), null, static (s, e) => $"External socket address: {s.Hostname}:{s.Port}.");
 
                     udpSocket.DatagramReceive += HandleDatagramReceive;
 
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
 
                     VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(hostname, port, encryptionName)));
-                    await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties, _logger).ConfigureAwait(false);
+                    await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalPayloadProperties).ConfigureAwait(false);
 
                     await updateLatencyTask;
                 }
                 break;
             case VoiceOpcode.SessionDescription:
                 {
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Session description received.");
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Session description received.");
 
                     var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
                     _encryption!.SetKey(sessionDescription.SecretKey);
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
 
                     var readyTask = InvokeEventAsync(_ready);
 
@@ -204,7 +203,7 @@ public partial class VoiceClient : WebSocketClient
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log(LogLevel.Debug, latency, null, static (s, e) =>
+                    Log(LogLevel.Debug, latency, null, static (s, e) =>
                     {
                         return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                     });
@@ -214,7 +213,7 @@ public partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Hello:
                 {
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
                     StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
@@ -223,7 +222,7 @@ public partial class VoiceClient : WebSocketClient
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     await InvokeResumeEventAsync().ConfigureAwait(false);
@@ -232,7 +231,7 @@ public partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.ClientConnect:
                 {
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client connect received.");
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client connect received.");
 
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
                     await InvokeEventAsync(_userConnect, new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
@@ -240,7 +239,7 @@ public partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.ClientDisconnect:
                 {
-                    _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
+                    Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
 
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
                     await InvokeEventAsync(_userDisconnect, new(json.UserId), args =>
@@ -367,43 +366,11 @@ public partial class VoiceClient : WebSocketClient
         }
         catch (Exception ex)
         {
-            _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
                 return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
             });
         }
-
-        //ReadOnlyMemory<byte> buffer = obj.Buffer;
-        //var ssrc = BinaryPrimitives.ReadUInt32BigEndian(buffer.Span[8..]);
-        //var encryption = _encryption!;
-        //RtpPacketStorage packetStorage = new(receiveResult.Buffer, encryption.ExtensionEncryption);
-
-        //if (packetStorage.Packet.PayloadType is not 0x78)
-        //    return;
-
-        //await InvokeEventAsync(_voiceReceive, () =>
-        //{
-        //    return new VoiceReceiveEventArgs(packetStorage, encryption);
-        //}).ConfigureAwait(false);
-
-        //var handlers = _voiceReceive;
-        //if (!handlers.IsEmpty)
-        //{
-        //    try
-        //    {
-        //        ReadOnlyMemory<byte> buffer = obj.Buffer;
-        //var ssrc = BinaryPrimitives.ReadUInt32BigEndian(buffer.Span[8..]);
-        //        if (_inputStreams.TryGetValue(ssrc, out var stream))
-        //            await stream.WriteAsync(buffer).ConfigureAwait(false);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-        //        {
-        //            return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
-        //        });
-        //    }
-        //}
     }
 
     private static async Task HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)

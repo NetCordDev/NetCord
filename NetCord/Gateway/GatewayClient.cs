@@ -878,12 +878,24 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var compression = _compression;
 
-        _logger.Log(LogLevel.Debug, compression, null, static (s, e) =>
+        try
+        {
+            compression.Initialize();
+        }
+        catch (Exception ex)
+        {
+            Log(LogLevel.Error, compression, ex, static (s, e) =>
+            {
+                return $"An error occurred while initializing '{s.Name}' compression.{Environment.NewLine}{e}";
+            });
+
+            return;
+        }
+
+        Log(LogLevel.Debug, compression, null, static (s, e) =>
         {
             return $"Using '{s.Name}' compression.";
         });
-
-        compression.Initialize();
     }
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
@@ -897,7 +909,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -937,14 +949,14 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
@@ -960,7 +972,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case GatewayOpcode.Dispatch:
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
 
-                _logger.Log(LogLevel.Debug, payload, null, static (s, e) =>
+                Log(LogLevel.Debug, payload, null, static (s, e) =>
                 {
                     return $"'{s.Event}' event received.";
                 });
@@ -971,7 +983,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, payload, ex, static (s, e) =>
+                    Log(LogLevel.Error, payload, ex, static (s, e) =>
                     {
                         return $"An error occurred while processing '{s.Event}' event.{Environment.NewLine}{e}";
                     });
@@ -980,12 +992,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case GatewayOpcode.Heartbeat:
                 break;
             case GatewayOpcode.Reconnect:
-                _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
 
                 await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
-                _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
 
                 try
                 {
@@ -993,21 +1005,21 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                    Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                     {
                         return $"An error occurred while sending the identify payload.{Environment.NewLine}{e}";
                     });
                 }
                 break;
             case GatewayOpcode.Hello:
-                _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
+                Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
                 StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 var latency = _latencyTimer.Elapsed;
 
-                _logger.Log(LogLevel.Debug, latency, null, static (s, e) =>
+                Log(LogLevel.Debug, latency, null, static (s, e) =>
                 {
                     return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                 });
@@ -1057,7 +1069,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
 
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
@@ -1080,7 +1092,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();

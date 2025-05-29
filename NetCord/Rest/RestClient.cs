@@ -92,6 +92,17 @@ public sealed partial class RestClient : IDisposable
         return new(properties.RateLimitHandling.GetValueOrDefault(RestRateLimitHandling.Retry));
     }
 
+    private void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    {
+        try
+        {
+            _logger.Log(logLevel, state, exception, formatter);
+        }
+        catch
+        {
+        }
+    }
+
     public Task<Stream> SendRequestAsync(HttpMethod method, FormattableString route, string? query = null, TopLevelResourceInfo? resourceInfo = null, RestRequestProperties? properties = null, bool global = true, CancellationToken cancellationToken = default)
     {
         var requestProperties = _defaultRequestProperties.Compose(properties);
@@ -149,7 +160,7 @@ public sealed partial class RestClient : IDisposable
 
             var rateLimiter = await AcquireRouteRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false);
 
-            _logger.Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute), null, static (s, e) =>
+            Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute), null, static (s, e) =>
             {
                 return $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.";
             });
@@ -166,7 +177,7 @@ public sealed partial class RestClient : IDisposable
                 throw;
             }
 
-            _logger.Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute, Response: response), null, static (s, e) =>
+            Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute, Response: response), null, static (s, e) =>
             {
                 return $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.";
             });
@@ -332,7 +343,7 @@ public sealed partial class RestClient : IDisposable
 
     private void LogRateLimitRetry(Route route, TimeSpan retryAfter, RateLimitScope scope)
     {
-        _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
+        Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
         {
             return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retrying after {s.RetryAfter.TotalMilliseconds:F0} ms.";
         });
@@ -340,7 +351,7 @@ public sealed partial class RestClient : IDisposable
 
     private void LogRateLimitRetry(Route route, int retryAfter, RateLimitScope scope)
     {
-        _logger.Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
+        Log(LogLevel.Warning, (Route: route, RetryAfter: retryAfter, Scope: scope), null, static (s, e) =>
         {
             return $"{RateLimitScopeHelpers.GetString(s.Scope)} rate limit exceeded for route '{s.Route}'. Retrying after {s.RetryAfter} ms.";
         });
