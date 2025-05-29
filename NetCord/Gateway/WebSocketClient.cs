@@ -798,10 +798,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
-        return HandleTasksAsync(count, tasks, handlersName);
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
@@ -828,10 +828,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
-        return HandleTasksAsync(count, tasks, handlersName);
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
@@ -856,16 +856,16 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
-        return HandleTasksAsync(count, tasks, handlersName);
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
         if (count is 0)
         {
-            updateData(data);
+            updateCache(data);
             return default;
         }
 
@@ -887,18 +887,18 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
-        updateData(data);
+        updateCache(data);
 
-        return HandleTasksAsync(count, tasks, handlersName);
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
         if (count is 0)
         {
-            updateData();
+            updateCache();
             return default;
         }
 
@@ -922,13 +922,45 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
-        updateData();
+        updateCache();
 
-        return HandleTasksAsync(count, tasks, handlersName);
+        return HandleTasksAsync(tasks, handlersName, count);
+    }
+
+    private protected ValueTask InvokeEventWithDisposalAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
+    {
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            try
+            {
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch (Exception ex)
+            {
+                LogEventHandlerException(handlersName, ex);
+
+                tasks[i] = default;
+            }
+        }
+
+        disposeData(data);
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private async ValueTask HandleTasksAsync(int count, ValueTask[] tasks, string handlersName)
+    private protected async ValueTask HandleTasksAsync(ValueTask[] tasks, string handlersName, int count)
     {
         for (int i = 0; i < count; i++)
         {
@@ -945,7 +977,7 @@ public abstract partial class WebSocketClient : IDisposable
         ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
-    private void LogEventHandlerException(string handlersName, Exception ex)
+    private protected void LogEventHandlerException(string handlersName, Exception ex)
     {
         _logger.Log(LogLevel.Error, handlersName, ex, static (s, e) =>
         {

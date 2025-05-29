@@ -17,7 +17,7 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public VoiceApiVersion? Version { get; init; }
     public IVoiceClientCache? Cache { get; init; }
     public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
-    public bool? RedirectInputStreams { get; init; }
+    public IVoiceReceiveHandler? ReceiveHandler { get; init; }
     public IVoiceLogger? Logger { get; init; }
 
     IWebSocketLogger? IWebSocketClientConfiguration.Logger => Logger switch

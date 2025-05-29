@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal partial class JsonSpeaking
+public partial class JsonSpeaking
 {
     [JsonPropertyName("user_id")]
     public ulong UserId { get; set; }
