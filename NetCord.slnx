@@ -93,5 +93,5 @@
   </Folder>
   <Project Path="NetCord.Services/NetCord.Services.csproj" />
   <Project Path="NetCord/NetCord.csproj" />
-  <Project Path="ProjectTemplates\NetCordTemplates.csproj" Type="Classic C#" />
+  <Project Path="ProjectTemplates\NetCordTemplates.csproj" />
 </Solution>
