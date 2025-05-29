@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "NetCord",
+  "classifications": [
+    "Web",
+    "NetCord",
+    "AspNetCore"
+  ],
+  "identity": "NetCord.Hosting.AspNetCore",
+  "groupIdentity": "NetCord",
+  "name": "NetCord Project",
+  "defaultName": "NetCordBot",
+  "sourceName": "NetCord.Template.Bot",
+  "shortName": "netcord",
+  "description": "NetCord Bot with module-based approach",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "primaryOutputs": [
+    {
+      "path": "NetCord.Template.Bot.csproj"
+    }
+  ],
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "exclude": [
+        ".template.config/**",
+        "**/*.idea/**"
+      ],
+      "modifiers": [
+        {
+          "condition": "(excludeLaunchSettings)",
+          "exclude": [ "Properties/launchSettings.json" ]
+        },
+        {
+          "condition": "(!addApplicationCommands)",
+          "exclude": [
+            "SlashCommands/HelloSlashModule.cs"
+          ]
+        },
+        {
+          "condition": "(!addTextCommands)",
+          "exclude": [
+            "TextCommands/HelloTextModule.cs"
+          ]
+        },
+        {
+          "condition": "(!addComponentInteractions)",
+          "exclude": [
+            "Interactions/ButtonInteractionModule.cs",
+            "SlashCommands/ButtonSlashModule.cs"
+          ]
+        }
+      ]
+    }
+  ],
+  "symbols": {
+    "framework": {
+      "type": "parameter",
+      "description": "The target framework for the project.",
+      "datatype": "choice",
+      "choices": [
+        {
+          "choice": "net8.0",
+          "description": "Targets .NET 8"
+        },
+        {
+          "choice": "net9.0",
+          "description": "Targets .NET 9"
+        }
+      ],
+      "defaultValue": "net8.0",
+      "replaces": "net8.0"
+    },
+    "addApplicationCommands": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "displayName": "Add Application Commands",
+      "description": "Whether to add application commands with example module",
+      "isRequired": false
+    },
+    "addTextCommands": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "displayName": "Add Text Commands",
+      "description": "Whether to add text commands with example module",
+      "isRequired": false
+    },
+    "addComponentInteractions": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "displayName": "Add Interactions",
+      "description": "Whether to add interactions with example module",
+      "isRequired": false
+    },
+    "hostIdentifier": {
+      "type": "bind",
+      "binding": "HostIdentifier"
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Whether to skip automatic restore of the project on create.",
+      "defaultValue": "false",
+      "displayName": "Skip restore",
+      "isRequired": false
+    },
+    "excludeLaunchSettings": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Whether to exclude launchSettings.json from the generated template."
+    },
+    "kestrelHttpPort": {
+      "type": "parameter",
+      "datatype": "integer",
+      "description": "Port number to use for the HTTP endpoint in launchSettings.json."
+    },
+    "kestrelHttpPortGenerated": {
+      "type": "generated",
+      "generator": "port",
+      "parameters": {
+        "low": 5000,
+        "high": 5300
+      }
+    },
+    "kestrelHttpPortReplacer": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "kestrelHttpPort",
+        "fallbackVariableName": "kestrelHttpPortGenerated"
+      },
+      "replaces": "5500"
+    },
+    "kestrelHttpsPort": {
+      "type": "parameter",
+      "datatype": "integer",
+      "description": "Port number to use for the HTTPS endpoint in launchSettings.json. This option is only applicable when the parameter no-https is not used (no-https will be ignored if Individual auth is used)."
+    },
+    "kestrelHttpsPortGenerated": {
+      "type": "generated",
+      "generator": "port",
+      "parameters": {
+        "low": 7000,
+        "high": 7300
+      }
+    },
+    "kestrelHttpsPortReplacer": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "kestrelHttpsPort",
+        "fallbackVariableName": "kestrelHttpsPortGenerated"
+      },
+      "replaces": "5501"
+    }
+  },
+  "postActions": [
+    {
+      "id": "restore",
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages.",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

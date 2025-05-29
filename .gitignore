@@ -365,3 +365,7 @@ FodyWeavers.xsd
 # Settings file
 appsettings.json
 !Documentation/**/appsettings.json
+!ProjectTemplates/**/appsettings.json
+
+# Rider settings folder
+.idea/

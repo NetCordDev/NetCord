@@ -1,0 +1,20 @@
+// Example "appsettings.json" for a NetCord Generic Host project.
+// All changes should be made in the "appsettings.json" file, or it's corresponding environment file.
+// This file can be removed. It's purpose is purely to show the user what the default settings are.
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "Discord": {
+    // See: https://netcord.dev/guides/getting-started/making-a-bot.html?tabs=generic-host
+    "Token": "Your_Discord_Token_Here",
+    // See https://netcord.dev/guides/services/text-commands/introduction.html?tabs=generic-host#specifying-a-prefix
+    "Prefixes": [
+      "Your_First_Prefix_Here (eg. !)",
+      "Your_Second_Another_Prefix_Here (eg. ?)"
+    ]
+  }
+}

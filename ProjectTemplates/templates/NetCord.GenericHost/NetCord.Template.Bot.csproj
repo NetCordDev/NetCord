@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+<!--#if (framework == "net9.0") -->
+        <TargetFramework>net9.0</TargetFramework>
+<!--#else -->
+        <TargetFramework>net8.0</TargetFramework>
+<!--#endif -->
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+<!--#if (framework == "net9.0") -->
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.*" />
+<!--#else -->
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
+<!--#endif -->
+        <PackageReference Include="NetCord.Hosting" Version="1.0.0-*" />
+        <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="appsettings.json" CopyToOutputDirectory="PreserveNewest"/>
+    </ItemGroup>
+</Project>

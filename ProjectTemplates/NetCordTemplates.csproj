@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>NetCord.Templates</PackageId>
+
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+
+    <!--  https://github.com/dotnet/sdk/issues/42660#issuecomment-2282753952 -->
+    <!--  https://github.com/NuGet/Home/issues/10372 -->
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>NetCord Project Templates</Title>
+    <Authors>NetCord</Authors>
+    <Description>Starting templates to use with NetCord - The modern and fully customizable C# Discord library.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**;templates\**\.idea\**" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+</Project>
