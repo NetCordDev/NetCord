@@ -3,7 +3,7 @@
 This guide will walk you through the process of installing NetCord packages using various tools like the .NET CLI, Visual Studio and JetBrains Rider.
 
 > [!NOTE]
-> NetCord requires [.NET 8](https://dotnet.microsoft.com/download/dotnet/8.0) or higher. Older versions are not supported.
+> NetCord requires [.NET 9](https://dotnet.microsoft.com/download/dotnet/9.0) or higher. Older versions are not supported.
 
 ## [.NET CLI](#tab/dotnet-cli)
 
