@@ -36,7 +36,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         public CancellationTokenProvider DisconnectedTokenProvider { get; } = new();
 
-        private int _state;
+        private byte _state;
 
         public bool TryIndicateDisconnecting()
         {
@@ -56,7 +56,7 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected sealed class State : IDisposable
+    private protected class State : IDisposable
     {
         private ConnectionState? _connectionState;
 
@@ -91,6 +91,10 @@ public abstract partial class WebSocketClient : IDisposable
             }
 
             return ConnectingResult.Success;
+        }
+
+        public virtual void Abort()
+        {
         }
 
         public enum ConnectingResult : byte
@@ -163,7 +167,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        _connectionProvider = configuration.WebSocketConnectionProvider ?? new WebSocketConnectionProvider();
+        _connectionProvider = configuration.WebSocketConnectionProvider ?? WebSocketConnectionProvider.Instance;
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
@@ -226,6 +230,16 @@ public abstract partial class WebSocketClient : IDisposable
     public partial event Func<ValueTask>? Connect;
     public partial event Func<bool, ValueTask>? Disconnect;
     public partial event Func<ValueTask>? Close;
+
+    private protected State GetState()
+    {
+        var state = _state;
+
+        if (state is null)
+            ThrowConnectionNotStarted();
+
+        return state;
+    }
 
     private protected void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
@@ -311,7 +325,7 @@ public abstract partial class WebSocketClient : IDisposable
             if (reconnect)
             {
                 connectionState.Dispose();
-                await ReconnectAsync(state).ConfigureAwait(false);
+                await ResumeAsync(state).ConfigureAwait(false);
             }
             else
             {
@@ -353,7 +367,7 @@ public abstract partial class WebSocketClient : IDisposable
 
             try
             {
-                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
+                await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
             }
             catch (Exception abortEx)
             {
@@ -365,24 +379,23 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected async Task<ConnectionState> StartAsync(CancellationToken cancellationToken = default)
+    private protected async Task<ConnectionState> StartAsync(State newState, CancellationToken cancellationToken = default)
     {
-        State state = new();
-        if (Interlocked.CompareExchange(ref _state, state, null) is not null)
+        if (Interlocked.CompareExchange(ref _state, newState, null) is not null)
         {
-            state.Dispose();
+            newState.Dispose();
             ThrowConnectionAlreadyStarted();
         }
 
         ConnectionState connectionState;
         try
         {
-            connectionState = await ConnectAsync(state, cancellationToken).ConfigureAwait(false);
+            connectionState = await ConnectAsync(newState, cancellationToken).ConfigureAwait(false);
         }
         catch
         {
-            Interlocked.CompareExchange(ref _state, null, state);
-            state.Dispose();
+            Interlocked.CompareExchange(ref _state, null, newState);
+            newState.Dispose();
             throw;
         }
 
@@ -469,6 +482,8 @@ public abstract partial class WebSocketClient : IDisposable
             }
         }
 
+        state.Abort();
+
         connectionState.Dispose();
         state.Dispose();
         HandleClosed();
@@ -518,6 +533,7 @@ public abstract partial class WebSocketClient : IDisposable
         try
         {
             connectionState.Connection.Abort();
+            state.Abort();
         }
         catch (Exception ex)
         {
@@ -536,7 +552,7 @@ public abstract partial class WebSocketClient : IDisposable
     {
     }
 
-    private protected ValueTask AbortAndReconnectAsync(State state, ConnectionState connectionState)
+    private protected ValueTask AbortAndResumeAsync(State state, ConnectionState connectionState)
     {
         if (!state.TryIndicateDisconnecting(connectionState))
             return default;
@@ -556,7 +572,30 @@ public abstract partial class WebSocketClient : IDisposable
         connectionState.Dispose();
         HandleClosed();
 
-        return ReconnectAsync(state);
+        return ResumeAsync(state);
+    }
+
+    private protected ValueTask AbortAndRestartAsync(State state, ConnectionState connectionState)
+    {
+        if (!state.TryIndicateDisconnecting(connectionState))
+            return default;
+
+        try
+        {
+            connectionState.Connection.Abort();
+        }
+        catch (Exception ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
+        }
+
+        connectionState.Dispose();
+        HandleClosed();
+
+        return RestartAsync(state);
     }
 
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
@@ -565,10 +604,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         while (true)
         {
-            var state = _state;
-
-            if (state is null)
-                ThrowConnectionNotStarted();
+            var state = GetState();
 
             var task = state.ReadyTask;
 
@@ -709,7 +745,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract bool Reconnect(WebSocketCloseStatus? status, string? description);
 
-    private protected async ValueTask ReconnectAsync(State state)
+    private protected async ValueTask ResumeAsync(State state)
     {
         var cancellationToken = state.ClosedTokenProvider.Token;
 
@@ -754,6 +790,54 @@ public abstract partial class WebSocketClient : IDisposable
             return;
         }
     }
+
+    private protected async ValueTask RestartAsync(State state)
+    {
+        var cancellationToken = state.ClosedTokenProvider.Token;
+
+        foreach (var delay in _reconnectStrategy.GetDelays())
+        {
+            try
+            {
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+            catch
+            {
+                return;
+            }
+
+            ConnectionState connectionState;
+            try
+            {
+                connectionState = await ConnectAsync(state, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
+                });
+
+                continue;
+            }
+
+            try
+            {
+                await SendIdentifyAsync(connectionState, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while restarting the connection.{Environment.NewLine}{e}";
+                });
+            }
+
+            return;
+        }
+    }
+
+    private protected abstract ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
     private protected abstract ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 

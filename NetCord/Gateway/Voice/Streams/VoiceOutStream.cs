@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoiceOutStream(IUdpSocket udpSocket) : Stream
+internal class VoiceOutStream(IUdpConnection udpConnection) : Stream
 {
     public override bool CanRead => false;
     public override bool CanSeek => false;
@@ -30,9 +30,9 @@ internal class VoiceOutStream(IUdpSocket udpSocket) : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        udpSocket.Send(buffer);
+        udpConnection.Send(buffer);
     }
 
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-        => udpSocket.SendAsync(buffer, cancellationToken);
+        => udpConnection.SendAsync(buffer, cancellationToken);
 }

@@ -2,14 +2,11 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class SpeakingProperties(SpeakingFlags speaking, int delay, uint ssrc)
+internal class SpeakingProperties(SpeakingFlags speaking, int delay)
 {
     [JsonPropertyName("speaking")]
     public SpeakingFlags Speaking { get; set; } = speaking;
 
     [JsonPropertyName("delay")]
     public int Delay { get; set; } = delay;
-
-    [JsonPropertyName("ssrc")]
-    public uint Ssrc { get; set; } = ssrc;
 }

@@ -12,7 +12,7 @@ namespace NetCord.Gateway;
 /// <summary>
 /// The <see cref="GatewayClient"/> class allows applications to send and receive data from the Discord Gateway, such as events and resource requests.
 /// </summary>
-public partial class GatewayClient : WebSocketClient, IEntity
+public sealed partial class GatewayClient : WebSocketClient, IEntity
 {
     private readonly ConnectionPropertiesProperties _connectionProperties;
     private readonly int? _largeThreshold;
@@ -920,7 +920,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
     }
 
@@ -933,12 +933,17 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+
+    private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
+    {
+        return SendIdentifyAsync(connectionState, null, cancellationToken);
+    }
 
     private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
@@ -994,7 +999,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case GatewayOpcode.Reconnect:
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
 
-                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
+                await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
                 Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");

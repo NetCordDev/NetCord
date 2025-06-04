@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Buffers;
+using System.ComponentModel;
 using System.Diagnostics;
 
 using NetCord.Gateway.Voice;
@@ -67,7 +68,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, reconnect =>
         {
             if (!reconnect)
                 cancellationTokenSource.Cancel();
@@ -75,8 +76,33 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
+        ////VoiceClient voiceClient2 = new(voiceClient.UserId, voiceClient.SessionId, voiceClient.Endpoint, voiceClient.GuildId, voiceClient.Token);
+
+        ////await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
+
+        //await voiceClient.StartAsync();
+
+        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
+        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
+
+        //await voiceClient.StartAsync();
+
+        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
+        //await voiceClient.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.Empty);
+
+        //await voiceClient.StartAsync();
+
+        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
+        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
+
+        //voiceClient.Abort();
+        //await voiceClient.StartAsync();
+
         var outputStream = voiceClient.CreateOutputStream();
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
@@ -87,6 +113,20 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
             RedirectStandardOutput = true,
         })!;
+
+        //_ = Task.Run(async () =>
+        //{
+        //    while (true)
+        //    {
+        //        voiceClient.Abort();
+        //        await voiceClient.StartAsync();
+        //        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        //        outputStream = voiceClient.CreateOutputStream();
+        //        opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        //        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
+        //        await Task.Delay(1000);
+        //    }
+        //});
 
         var token = cancellationTokenSource.Token;
         try
@@ -106,7 +146,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         TaskCompletionSource taskCompletionSource = new();
 
-        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, reconnect =>
         {
             if (!reconnect)
                 taskCompletionSource.TrySetResult();
@@ -114,13 +154,30 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
+
+        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
+
+        //voiceClient = new(voiceClient.UserId, voiceClient.SessionId, voiceClient.Endpoint, voiceClient.GuildId, voiceClient.Token, new() { ReceiveHandler = new VoiceReceiveHandler(), Logger = new ConsoleLogger(LogLevel.Debug) });
+
+        //await voiceClient.CloseAsync();
+
+        //await voiceClient.StartAsync();
+
+        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+
         using var outputStream = voiceClient.CreateOutputStream(false);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>
         {
-            outputStream.Write(args.Frame);
-            return default;
+            var frame = args.Frame;
+            var size = frame.Length;
+            var buffer = ArrayPool<byte>.Shared.Rent(size);
+            frame.CopyTo(buffer);
+            return outputStream.WriteAsync(buffer.AsMemory(0, size));
+
+            //outputStream.Write(args.Frame);
+            //return default;
 
             //return outputStream.WriteAsync(args.Frame, default);
 
