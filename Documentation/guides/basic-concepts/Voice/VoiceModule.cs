@@ -46,7 +46,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(new(SpeakingFlags.Microphone));
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Respond to the interaction
         await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
@@ -137,7 +137,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(new(SpeakingFlags.Microphone));
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
