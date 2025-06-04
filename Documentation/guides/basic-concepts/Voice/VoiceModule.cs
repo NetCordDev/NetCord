@@ -129,7 +129,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                RedirectInputStreams = true, // Required to receive voice
+                ReceiveHandler = new VoiceReceiveHandler(), // Required to receive voice
                 Logger = new ConsoleLogger(),
             });
 
@@ -145,8 +145,8 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (args.UserId == userId)
-                return outStream.WriteAsync(args.Frame);
+            if (voiceClient.Cache.Users.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
+                outStream.Write(args.Frame);
             return default;
         };
 

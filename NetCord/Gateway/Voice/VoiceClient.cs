@@ -283,10 +283,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
 
-                    var ssrc = json.Ssrc;
-                    var userId = json.UserId;
-
-                    await InvokeEventAsync(_speaking, () => new SpeakingEventArgs(json), () => Cache = Cache.CacheUser(ssrc, userId)).ConfigureAwait(false);
+                    await InvokeEventAsync(_speaking, () => new SpeakingEventArgs(json), () => Cache = Cache.CacheUser(json.UserId, json.Ssrc)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.HeartbeatACK:
@@ -336,7 +333,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
 
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
-                    await InvokeEventAsync(_userDisconnect, () => new UserDisconnectEventArgs(json.UserId)).ConfigureAwait(false);
+                    await InvokeEventAsync(_userDisconnect, () => new UserDisconnectEventArgs(json.UserId), () => Cache = Cache.RemoveUser(json.UserId)).ConfigureAwait(false);
                 }
                 break;
         }
