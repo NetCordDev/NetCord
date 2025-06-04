@@ -1,7 +1,7 @@
-﻿using System.Buffers;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 
+using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Logging;
@@ -12,7 +12,7 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<bool, ValueTask>? disconnectHandler = null)
+    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
         if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
@@ -68,38 +68,13 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, args =>
         {
-            if (!reconnect)
+            if (!args.Reconnect)
                 cancellationTokenSource.Cancel();
 
             return default;
         });
-
-        ////VoiceClient voiceClient2 = new(voiceClient.UserId, voiceClient.SessionId, voiceClient.Endpoint, voiceClient.GuildId, voiceClient.Token);
-
-        ////await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
-
-        //await voiceClient.StartAsync();
-
-        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
-
-        //await voiceClient.StartAsync();
-
-        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        //await voiceClient.CloseAsync(System.Net.WebSockets.WebSocketCloseStatus.Empty);
-
-        //await voiceClient.StartAsync();
-
-        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-
-        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
-
-        //voiceClient.Abort();
-        //await voiceClient.StartAsync();
 
         var outputStream = voiceClient.CreateOutputStream();
         OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
@@ -113,20 +88,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
             RedirectStandardOutput = true,
         })!;
-
-        //_ = Task.Run(async () =>
-        //{
-        //    while (true)
-        //    {
-        //        voiceClient.Abort();
-        //        await voiceClient.StartAsync();
-        //        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
-        //        outputStream = voiceClient.CreateOutputStream();
-        //        opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
-        //        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
-        //        await Task.Delay(1000);
-        //    }
-        //});
 
         var token = cancellationTokenSource.Token;
         try
@@ -146,140 +107,28 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         TaskCompletionSource taskCompletionSource = new();
 
-        var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, args =>
         {
-            if (!reconnect)
+            if (!args.Reconnect)
                 taskCompletionSource.TrySetResult();
 
             return default;
         });
-
-        //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
-
-        //voiceClient = new(voiceClient.UserId, voiceClient.SessionId, voiceClient.Endpoint, voiceClient.GuildId, voiceClient.Token, new() { ReceiveHandler = new VoiceReceiveHandler(), Logger = new ConsoleLogger(LogLevel.Debug) });
-
-        //await voiceClient.CloseAsync();
-
-        //await voiceClient.StartAsync();
-
-        //await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
 
         using var outputStream = voiceClient.CreateOutputStream(false);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>
         {
-            var frame = args.Frame;
-            var size = frame.Length;
-            var buffer = ArrayPool<byte>.Shared.Rent(size);
-            frame.CopyTo(buffer);
-            return outputStream.WriteAsync(buffer.AsMemory(0, size));
+            outputStream.Write(args.Frame);
+            return default;
 
-            //outputStream.Write(args.Frame);
-            //return default;
-
-            //return outputStream.WriteAsync(args.Frame, default);
-
-            //if (!Unsafe.IsNullRef(ref MemoryMarshal.GetReference(args.Frame.Span)))
-            //await outputStream.WriteAsync(args.Frame).ConfigureAwait(false);
+            //var frame = args.Frame;
+            //var size = frame.Length;
+            //var buffer = ArrayPool<byte>.Shared.Rent(size);
+            //frame.CopyTo(buffer);
+            //return outputStream.WriteAsync(buffer.AsMemory(0, size));
         };
-
-        //ushort? lastSequenceNumber = null;
-
-        //voiceClient.VoiceReceive += async args =>
-        //{
-        //    ushort framesMissed;
-
-        //    //if (lastSequenceNumber.HasValue)
-        //    //{
-        //    //    var context = args.GetContext(lastSequenceNumber.GetValueOrDefault());
-        //    //    if (!context.InOrder)
-        //    //        return;
-
-        //    //    framesMissed = context.FramesMissed;
-        //    //}
-        //    //else
-        //    //    framesMissed = 0;
-
-        //    //lastSequenceNumber = args.SequenceNumber;
-
-        //    var payloadSize = args.PayloadSize;
-
-        //    //var array = ArrayPool<byte>.Shared.Rent(payloadSize);
-
-        //    var array = new byte[payloadSize];
-
-        //    var result = args.Decrypt(array);
-
-        //    //for (ushort i = 0; i < framesMissed; i++)
-        //    //    await outputStream.WriteAsync(null);
-
-        //    await outputStream.WriteAsync(array.AsMemory()[result.FrameIndex..payloadSize]);
-
-        //ArrayPool<byte>.Shared.Return(array);
-
-        //var payloadSize = args.PayloadSize;
-
-        //var array = ArrayPool<byte>.Shared.Rent(payloadSize);
-
-        //var result = args.Decrypt(array, lastSequenceNumber);
-
-        //if (result.Status is not ContinuousVoiceDecryptionStatus.Ok)
-        //    return;
-
-        //lastSequenceNumber = args.SequenceNumber;
-
-        //for (var i = 0; i < result.FramesMissed; i++)
-        //    await outputStream.WriteAsync(null);
-
-        //await outputStream.WriteAsync(array.AsMemory()[result.FrameIndex..payloadSize]);
-
-        //ArrayPool<byte>.Shared.Return(array);
-        //};
-
-        //voiceClient.VoiceReceive += async args =>
-        //{
-        //    var sequenceNumber = args.SequenceNumber;
-        //    if (lastSequenceNumber.HasValue)
-        //    {
-        //        var diff = (ushort)(sequenceNumber - lastSequenceNumber.GetValueOrDefault());
-        //        switch (diff)
-        //        {
-        //            case 1:
-        //                lastSequenceNumber = sequenceNumber;
-        //                break;
-        //            case 0 or > ushort.MaxValue / 2:
-        //                return;
-        //            default:
-        //                do
-        //                    await outputStream.WriteAsync(null);
-        //                while (--diff > 1);
-        //                break;
-        //        }
-        //    }
-        //    else
-        //        lastSequenceNumber = sequenceNumber;
-
-        //    var payloadSize = args.PayloadSize;
-
-        //    var array = ArrayPool<byte>.Shared.Rent(payloadSize);
-
-        //    var result = args.Decrypt(array);
-
-        //    if (lastSequenceNumber.HasValue)
-        //    {
-        //        for (var i = sequenceNumber - lastSequenceNumber.GetValueOrDefault(); i > 1; i--)
-        //            await outputStream.WriteAsync(null);
-        //    }
-
-        //    lastSequenceNumber = sequenceNumber;
-
-        //    await outputStream.WriteAsync(array.AsMemory()[result.FrameIndex..payloadSize]);
-
-        //    ArrayPool<byte>.Shared.Return(array);
-        //};
-
-        //voiceClient.VoiceReceive += args => outputStream.WriteAsync(args);
 
         await taskCompletionSource.Task;
     }

@@ -228,7 +228,7 @@ public abstract partial class WebSocketClient : IDisposable
     public partial event Func<ValueTask>? Resume;
     public partial event Func<ValueTask>? Connecting;
     public partial event Func<ValueTask>? Connect;
-    public partial event Func<bool, ValueTask>? Disconnect;
+    public partial event Func<DisconnectEventArgs, ValueTask>? Disconnect;
     public partial event Func<ValueTask>? Close;
 
     private protected State GetState()
@@ -320,7 +320,7 @@ public abstract partial class WebSocketClient : IDisposable
 
             var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
 
-            var disconnectTask = InvokeEventAsync(_disconnect, reconnect);
+            var disconnectTask = InvokeEventAsync(_disconnect, () => new DisconnectEventArgs(reconnect));
 
             if (reconnect)
             {
