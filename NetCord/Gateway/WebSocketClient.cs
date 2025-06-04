@@ -1075,7 +1075,7 @@ public abstract partial class WebSocketClient : IDisposable
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private protected async ValueTask HandleTasksAsync(ValueTask[] tasks, string handlersName, int count)
+    private async ValueTask HandleTasksAsync(ValueTask[] tasks, string handlersName, int count)
     {
         for (int i = 0; i < count; i++)
         {
@@ -1092,7 +1092,7 @@ public abstract partial class WebSocketClient : IDisposable
         ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
-    private protected void LogEventHandlerException(string handlersName, Exception ex)
+    private void LogEventHandlerException(string handlersName, Exception ex)
     {
         Log(LogLevel.Error, handlersName, ex, static (s, e) =>
         {
