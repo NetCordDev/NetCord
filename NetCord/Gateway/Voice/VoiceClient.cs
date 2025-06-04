@@ -456,11 +456,12 @@ public sealed partial class VoiceClient : WebSocketClient
                     var packet = packetStorage.Packet;
                     var plaintextLength = packet.PayloadLength - encryption.Expansion;
                     var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
-                    encryption.Decrypt(packet, array.AsSpan(0, plaintextLength));
+                    var plaintext = array.AsSpan(0, plaintextLength);
+                    encryption.Decrypt(packet, plaintext);
 
                     var extensionLength = packet.Extension
                         ? 4 * (encryption.ExtensionEncryption
-                            ? BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[2..]) + 1
+                            ? BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1
                             : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
                         : 0;
 
