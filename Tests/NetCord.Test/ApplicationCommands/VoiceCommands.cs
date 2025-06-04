@@ -58,7 +58,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         await voiceClient.StartAsync();
 
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new(SpeakingFlags.Microphone));
 
         return voiceClient;
     }
@@ -153,7 +153,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
             return default;
         });
-
 
         //await voiceClient.ResumeAsync(voiceClient.SequenceNumber);
 

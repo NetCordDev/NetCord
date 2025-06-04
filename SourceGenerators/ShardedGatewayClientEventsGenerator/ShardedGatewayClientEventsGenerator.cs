@@ -138,7 +138,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine(";");
 
             stringWriter.WriteIndentation(1);
-            stringWriter.Write("private readonly object ");
+            stringWriter.Write("private readonly System.Threading.Lock ");
             stringWriter.Write(internalName);
             stringWriter.WriteLine("Lock = new();");
             stringWriter.WriteLine();

@@ -2,7 +2,7 @@
 
 public sealed class RateLimitManager : IRateLimitManager
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private readonly GlobalRateLimiter _globalRateLimiter;
     private readonly Dictionary<Route, ITrackingRouteRateLimiter> _routeRateLimiters;
     private readonly Dictionary<BucketInfo, ITrackingRouteRateLimiter> _bucketRateLimiters;

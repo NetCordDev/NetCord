@@ -6,7 +6,7 @@ public class VoiceReceiveHandler : IVoiceReceiveHandler
 
     public bool RequiresExternalSocketAddress => true;
 
-    public VoicePacketHandlingResult HandlePacket(RtpPacket packet)
+    public VoicePacketHandlingResult HandlePacket(VoiceClient client, RtpPacket packet)
     {
         ushort framesMissed;
         bool handle;

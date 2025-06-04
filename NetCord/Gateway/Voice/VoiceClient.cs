@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -126,7 +127,7 @@ public sealed partial class VoiceClient : WebSocketClient
     /// Starts the <see cref="VoiceClient"/>.
     /// </summary>
     /// <returns></returns>
-    public async Task StartAsync(CancellationToken cancellationToken = default)
+    public async ValueTask StartAsync(CancellationToken cancellationToken = default)
     {
         var connectionState = await StartAsync(CreateState(), cancellationToken).ConfigureAwait(false);
 
@@ -141,7 +142,7 @@ public sealed partial class VoiceClient : WebSocketClient
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task ResumeAsync(int sequenceNumber, CancellationToken cancellationToken = default)
+    public async ValueTask ResumeAsync(int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var connectionState = await StartAsync(CreateState(), cancellationToken).ConfigureAwait(false);
 
@@ -184,13 +185,13 @@ public sealed partial class VoiceClient : WebSocketClient
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
+    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
         var jsonPayload = JsonSerializer.Deserialize(payload, Serialization.Default.JsonVoicePayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 
-    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonVoicePayload payload)
+    private async ValueTask HandlePayloadAsync(State state, ConnectionState connectionState, JsonVoicePayload payload)
     {
         if (payload.SequenceNumber is int sequenceNumber)
             SequenceNumber = sequenceNumber;
@@ -238,10 +239,7 @@ public sealed partial class VoiceClient : WebSocketClient
                         (ip, port) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
                         if (ip is null)
                         {
-                            Log<object?>(LogLevel.Warning, null, null, static (s, e) =>
-                            {
-                                return "Failed to get external socket address after 5 attempts. Restarting the client.";
-                            });
+                            Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to get external socket address after 5 attempts. Restarting the client.");
 
                             await AbortAndRestartAsync(state, connectionState).ConfigureAwait(false);
                             return;
@@ -379,17 +377,18 @@ public sealed partial class VoiceClient : WebSocketClient
             }
             catch (OperationCanceledException)
             {
-                Log<object?>(LogLevel.Warning, null, null, static (s, e) =>
-                {
-                    return "Failed to get external socket address due to timeout. Retrying.";
-                });
+                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to get external socket address due to timeout. Retrying.");
                 continue;
             }
 
             var datagram = buffer.AsSpan(0, length);
 
+            ArrayPool<byte>.Shared.Return(array);
+
             return GetSocketAddress(datagram);
         }
+
+        ArrayPool<byte>.Shared.Return(array);
 
         return default;
     }
@@ -411,7 +410,7 @@ public sealed partial class VoiceClient : WebSocketClient
         return (ip, port);
     }
 
-    private void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    private async void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
     {
         if (_udpState is not { Encryption: var encryption })
             return;
@@ -420,19 +419,17 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             RtpPacketStorage packetStorage = new(datagram, encryption.ExtensionEncryption);
 
-            var result = _receiveHandler.HandlePacket(packetStorage.Packet);
+            var result = _receiveHandler.HandlePacket(this, GetPacketAndSsrc(packetStorage, out var ssrc));
             if (!result.Handle)
-                return;
-
-            var handlers = _voiceReceive;
-            if (handlers.IsEmpty)
                 return;
 
             var framesMissed = result.FramesMissed;
 
+            var handlers = _voiceReceive;
+
             if (framesMissed is 0)
             {
-                _ = InvokeEventForReceivedFrameAsync().AsTask();
+                await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
                 return;
             }
 
@@ -443,15 +440,14 @@ public sealed partial class VoiceClient : WebSocketClient
             {
                 tasks[i] = InvokeEventAsync(handlers, () =>
                 {
-                    var packet = packetStorage.Packet;
-                    return new VoiceReceiveEventArgs(null, 0, 0, packet.Ssrc);
+                    return new VoiceReceiveEventArgs(null, 0, 0, ssrc);
                 }, nameof(_voiceReceive));
             }
 
             tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
 #pragma warning restore CA2012 // Use ValueTasks correctly
 
-            _ = HandleTasksThatDoNotThrowAsync(tasks, framesMissed);
+            await HandleTasksThatDoNotThrowAsync(tasks, framesMissed).ConfigureAwait(false);
 
             ValueTask InvokeEventForReceivedFrameAsync()
             {
@@ -468,7 +464,7 @@ public sealed partial class VoiceClient : WebSocketClient
                             : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
                         : 0;
 
-                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, packet.Ssrc);
+                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, ssrc);
                 }, args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);
@@ -482,9 +478,17 @@ public sealed partial class VoiceClient : WebSocketClient
                 return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
             });
         }
+
+        static RtpPacket GetPacketAndSsrc(RtpPacketStorage packetStorage, out uint ssrc)
+        {
+            var packet = packetStorage.Packet;
+            ssrc = packet.Ssrc;
+            return packet;
+        }
     }
 
-    private static async Task HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private static async ValueTask HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)
     {
         for (ushort i = 0; i <= maxIndex; i++)
             await tasks[i].ConfigureAwait(false);
@@ -492,9 +496,9 @@ public sealed partial class VoiceClient : WebSocketClient
         ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
-    public ValueTask EnterSpeakingStateAsync(SpeakingFlags flags, int delay = 0, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, new(flags, delay));
+        VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, speaking);
         return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
     }
 

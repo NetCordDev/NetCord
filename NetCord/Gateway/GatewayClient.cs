@@ -918,7 +918,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="presence">The presence to set.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
+    public async ValueTask StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
         var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
@@ -931,7 +931,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    public async ValueTask ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
@@ -964,13 +964,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
+    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
         var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 
-    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    private async ValueTask HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
     {
         switch (payload.Opcode)
         {

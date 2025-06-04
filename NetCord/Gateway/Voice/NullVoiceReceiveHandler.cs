@@ -7,10 +7,11 @@ public class NullVoiceReceiveHandler : IVoiceReceiveHandler
     private NullVoiceReceiveHandler()
     {
     }
+
     public bool RequiresExternalSocketAddress => false;
 
-    public VoicePacketHandlingResult HandlePacket(RtpPacket packet)
+    public VoicePacketHandlingResult HandlePacket(VoiceClient client, RtpPacket packet)
     {
-        return new(0, false);
+        return default;
     }
 }

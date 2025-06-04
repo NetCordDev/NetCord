@@ -13,7 +13,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     private GatewayClient[] _clients = [];
 
     private CancellationTokenSource? _startCancellationTokenSource;
-    private readonly object _startLock = new();
+    private readonly Lock _startLock = new();
 
     private bool _initialized;
 
@@ -95,7 +95,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     /// </summary>
     public int Count => _clients.Length;
 
-    public async Task StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null, CancellationToken cancellationToken = default)
+    public async ValueTask StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null, CancellationToken cancellationToken = default)
     {
         CancellationTokenSource startCancellationTokenSource;
         lock (_startLock)
@@ -160,7 +160,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                 {
                     await WaitForRateLimitAsync().ConfigureAwait(false);
 
-                    tasks[i] = ConnectShardAsync(bucket + i);
+                    tasks[i] = ConnectShardAsync(bucket + i).AsTask();
                 }
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -179,7 +179,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                         remaining--;
                 }
 
-                async Task ConnectShardAsync(int shardId)
+                ValueTask ConnectShardAsync(int shardId)
                 {
                     Shard shard = new(shardId, shardCount);
                     var gatewayClientConfiguration = GetGatewayClientConfiguration(shard);
@@ -190,7 +190,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                         clients[shardId] = client = new(token, rest, gatewayClientConfiguration);
                     }
                     HookEvents(client);
-                    await client.StartAsync(presenceFactory(shard), cancellationToken: linkedToken).ConfigureAwait(false);
+                    return client.StartAsync(presenceFactory(shard), cancellationToken: linkedToken);
                 }
             }
         }
@@ -236,7 +236,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                         configuration.LoggerFactory!(shard));
     }
 
-    public async Task CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
+    public async ValueTask CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
         var startCancellationTokenSource = _startCancellationTokenSource;
         var clients = _clients;
@@ -247,7 +247,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             startCancellationTokenSource.Cancel();
         startCancellationTokenSource.Dispose();
 
-        await Task.WhenAll((_initialized ? clients : clients.TakeWhile(clients => clients is not null)).Select(client => client.CloseAsync(status, statusDescription, cancellationToken))).ConfigureAwait(false);
+        await Task.WhenAll((_initialized ? clients : clients.TakeWhile(clients => clients is not null)).Select(client => client.CloseAsync(status, statusDescription, cancellationToken).AsTask())).ConfigureAwait(false);
 
         _startCancellationTokenSource = null;
     }
@@ -255,7 +255,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     public IEnumerator<GatewayClient> GetEnumerator() => ((IEnumerable<GatewayClient>)_clients).GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => _clients.GetEnumerator();
 
-    private void HookEvent(GatewayClient client, object @lock, ref Func<GatewayClient, ValueTask>? eventRef, Func<ValueTask> @delegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
+    private void HookEvent(GatewayClient client, Lock @lock, ref Func<GatewayClient, ValueTask>? eventRef, Func<ValueTask> @delegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
     {
         lock (@lock)
         {
@@ -267,7 +267,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         }
     }
 
-    private void HookEvent<T>(GatewayClient client, object @lock, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<T, ValueTask> @delegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
+    private void HookEvent<T>(GatewayClient client, Lock @lock, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<T, ValueTask> @delegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
     {
         lock (@lock)
         {
@@ -279,7 +279,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         }
     }
 
-    private void HookEvent(object @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Func<GatewayClient, Func<ValueTask>> getDelegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
+    private void HookEvent(Lock @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Func<GatewayClient, Func<ValueTask>> getDelegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
     {
         lock (@lock)
         {
@@ -304,7 +304,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         }
     }
 
-    private void HookEvent<T>(object @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<GatewayClient, Func<T, ValueTask>> getDelegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
+    private void HookEvent<T>(Lock @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<GatewayClient, Func<T, ValueTask>> getDelegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
     {
         lock (@lock)
         {
@@ -329,7 +329,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         }
     }
 
-    private void UnhookEvent(object @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Action<GatewayClient, Func<ValueTask>> removeGatewayClientEvent)
+    private void UnhookEvent(Lock @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Action<GatewayClient, Func<ValueTask>> removeGatewayClientEvent)
     {
         lock (@lock)
         {
@@ -353,7 +353,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         }
     }
 
-    private void UnhookEvent<T>(object @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Action<GatewayClient, Func<T, ValueTask>> removeGatewayClientEvent)
+    private void UnhookEvent<T>(Lock @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Action<GatewayClient, Func<T, ValueTask>> removeGatewayClientEvent)
     {
         lock (@lock)
         {

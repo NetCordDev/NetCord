@@ -4,5 +4,5 @@ public interface IVoiceReceiveHandler
 {
     public bool RequiresExternalSocketAddress { get; }
 
-    public VoicePacketHandlingResult HandlePacket(RtpPacket packet);
+    public VoicePacketHandlingResult HandlePacket(VoiceClient client, RtpPacket packet);
 }

@@ -8,11 +8,11 @@ internal class GatewayClientHostedService(GatewayClient client) : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        return client.StartAsync(cancellationToken: cancellationToken);
+        return client.StartAsync(cancellationToken: cancellationToken).AsTask();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        return client.CloseAsync(cancellationToken: cancellationToken);
+        return client.CloseAsync(cancellationToken: cancellationToken).AsTask();
     }
 }

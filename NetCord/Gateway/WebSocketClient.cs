@@ -379,7 +379,7 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected async Task<ConnectionState> StartAsync(State newState, CancellationToken cancellationToken = default)
+    private protected async ValueTask<ConnectionState> StartAsync(State newState, CancellationToken cancellationToken = default)
     {
         if (Interlocked.CompareExchange(ref _state, newState, null) is not null)
         {
@@ -402,7 +402,7 @@ public abstract partial class WebSocketClient : IDisposable
         return connectionState;
     }
 
-    private protected async Task<ConnectionState> ConnectAsync(State state, CancellationToken cancellationToken = default)
+    private protected async ValueTask<ConnectionState> ConnectAsync(State state, CancellationToken cancellationToken = default)
     {
         var connection = _connectionProvider.CreateConnection();
         var rateLimiter = _rateLimiterProvider.CreateRateLimiter();
@@ -447,7 +447,7 @@ public abstract partial class WebSocketClient : IDisposable
     /// <param name="statusDescription">The status description to close with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
+    public async ValueTask CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
         var state = Interlocked.Exchange(ref _state, null);
 
@@ -880,7 +880,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
+    private protected abstract ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(_latencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
