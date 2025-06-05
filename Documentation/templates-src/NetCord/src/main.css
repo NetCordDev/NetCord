@@ -1,12 +1,12 @@
 @font-face {
   font-family: "Cascadia Code";
-  src: local(cascadia code regular), url("cascadia-code.woff2") format(woff2);
+  src: local("Cascadia Code Regular"), url("cascadia-code.woff2") format(woff2);
   font-display: swap;
 }
 
 @font-face {
   font-family: "Franklin Gothic Heavy";
-  src: local(franklin gothic heavy), url("franklin-gothic-heavy.woff2") format(woff2);
+  src: local("Franklin Gothic Heavy"), url("franklin-gothic-heavy.woff2") format(woff2);
   font-display: swap;
 }
 
