@@ -40,7 +40,7 @@
 }
 
 .link-secondary:hover, .link-secondary:focus {
-  color: var(--bs-secondary-hover-rgb);
+  color: var(--bs-secondary-hover-rgb) !important;
 }
 
 .navbar-nav {
@@ -156,6 +156,7 @@ article,
   --bs-bg-opacity: 0;
   backdrop-filter: blur(10px) brightness(80%);
   -webkit-backdrop-filter: blur(10px) brightness(80%);
+  border-bottom: unset !important;
 }
 
 .border-bottom {

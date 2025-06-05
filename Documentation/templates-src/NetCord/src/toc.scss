@@ -3,7 +3,10 @@
  * The .NET Foundation licenses this file to you under the MIT license.
  */
 
-$expand-stub-width: 0.85rem;
+@use "bootstrap/scss/bootstrap";
+@use "mixins";
+
+$expand-stub-width: .85rem;
 
 .toc {
   min-width: 0;
@@ -22,7 +25,7 @@ $expand-stub-width: 0.85rem;
 
   li {
     font-weight: normal;
-    margin: 0.6em 0;
+    margin: .6em 0;
     padding-left: $expand-stub-width;
     position: relative;
   }
@@ -30,7 +33,7 @@ $expand-stub-width: 0.85rem;
   li > a {
     display: inline;
 
-    @include underline-on-hover;
+    @include mixins.underline-on-hover;
   }
 
   li > ul {
@@ -46,13 +49,13 @@ $expand-stub-width: 0.85rem;
     width: $expand-stub-width;
     cursor: pointer;
     font-family: bootstrap-icons;
-    font-size: 0.8em;
+    font-size: .8em;
     content: "\F285";
     position: absolute;
-    margin-top: 0.2em;
+    margin-top: .2em;
     margin-left: -$expand-stub-width;
     transition: transform 0.35s ease;
-    transform-origin: 0.5em 50%;
+    transform-origin: .5em 50%;
 
     @media (prefers-reduced-motion) {
       & {
@@ -68,39 +71,39 @@ $expand-stub-width: 0.85rem;
   span.name-only {
     font-weight: 600;
     display: inline-block;
-    margin: 0.4rem 0;
+    margin: .4rem 0;
   }
 
   form.filter {
     display: flex;
     position: relative;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: .5rem;
 
-    > i.bi {
+    >i.bi {
       position: absolute;
-      left: 0.6rem;
-      opacity: 0.5;
+      left: .6rem;
+      opacity: .5;
     }
 
-    > input {
+    >input {
       padding-left: 2rem;
     }
   }
 
-  > .no-result {
-    font-size: 0.9em;
-    color: $secondary;
+  >.no-result {
+    font-size: .9em;
+    color: bootstrap.$secondary;
   }
-
+  
   a.pdf-link {
-    @include underline-on-hover;
+    @include mixins.underline-on-hover;
 
     &::before {
       content: "\F756";
       display: inline-block;
 
-      @include adjust-icon;
+      @include mixins.adjust-icon;
     }
   }
 }

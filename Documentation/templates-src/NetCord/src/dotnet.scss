@@ -3,8 +3,7 @@
  * The .NET Foundation licenses this file to you under the MIT license.
  */
 
-body[data-yaml-mime="ManagedReference"] article,
-body[data-yaml-mime="ApiPage"] article {
+body[data-yaml-mime="ManagedReference"] article, body[data-yaml-mime="ApiPage"] article {
   h1[data-uid] {
     position: relative;
     padding-right: 1.6rem;
@@ -21,8 +20,7 @@ body[data-yaml-mime="ApiPage"] article {
   h2.section {
     margin-top: 3rem;
 
-    + h3[data-uid],
-    + a + h3[data-uid] {
+    +h3[data-uid], +a+h3[data-uid] {
       margin-top: 1rem;
     }
   }
@@ -32,46 +30,46 @@ body[data-yaml-mime="ApiPage"] article {
     margin-top: 1.6rem;
   }
 
-  dl > dt {
+  dl>dt {
     font-weight: normal;
   }
 
-  dl > dd {
+  dl>dd {
     margin-left: 1rem;
   }
 
   dl.typelist {
-    > dt {
+    >dt {
       font-weight: 600;
     }
 
-    > dd {
+    >dd {
       margin-left: 0;
     }
 
-    > dd > div {
+    >dd>div {
       display: inline-block;
 
       &:not(:last-child)::after {
-        content: ", ";
+        content: ', ';
       }
     }
 
-    &.inheritance > dd > div:not(:last-child)::after {
+    &.inheritance>dd>div:not(:last-child)::after {
       font-family: bootstrap-icons;
-      content: "\F12C";
+      content: '\F12C';
       position: relative;
-      top: 0.2em;
-      opacity: 0.8;
+      top: .2em;
+      opacity: .8;
     }
   }
 
   dl.parameters {
-    > dt {
+    >dt {
       margin: 1em 0;
 
-      & > code {
-        margin-right: 0.2em;
+      &>code {
+        margin-right: .2em;
         font-size: 1em;
       }
     }
@@ -81,19 +79,19 @@ body[data-yaml-mime="ApiPage"] article {
     font-size: 14px;
     margin: 2rem 0 1rem;
 
-    > dl {
+    >dl {
       margin: 0;
 
-      > dd {
-        margin-left: 0.25rem;
+      >dd {
+        margin-left: .25rem;
         display: inline-block;
       }
 
-      > dt {
+      >dt {
         display: inline-block;
       }
 
-      > dt::after {
+      >dt::after {
         content: ":";
       }
     }
@@ -102,7 +100,7 @@ body[data-yaml-mime="ApiPage"] article {
   .header-action {
     position: absolute;
     right: 0;
-    bottom: 0.2rem;
+    bottom: .2rem;
     font-size: 1.2rem;
   }
 
@@ -121,12 +119,12 @@ body[data-yaml-mime="ApiPage"] article {
     cursor: inherit;
   }
 
-  li > span.term {
+  li>span.term {
     font-weight: 600;
 
     &::after {
-      content: "-";
-      margin: 0 0.5em;
+      content: '-';
+      margin: 0 .5em;
     }
   }
 }
