@@ -6,7 +6,7 @@ on:
     types: [completed]
 
 concurrency:
-  group: documentation preview ${{ github.event.workflow_run.head_branch }}
+  group: documentation-preview-${{ github.event.workflow_run.head_branch }}
 
 jobs:
   documentation-preview:
