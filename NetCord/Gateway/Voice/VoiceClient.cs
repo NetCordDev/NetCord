@@ -350,10 +350,8 @@ public sealed partial class VoiceClient : WebSocketClient
         catch
         {
         }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
+
+        ArrayPool<byte>.Shared.Return(buffer);
     }
 
     private async ValueTask<(string? Ip, ushort Port)> GetExternalSocketAddressAsync(IUdpConnection udpConnection, uint ssrc, byte[] buffer)
@@ -415,6 +413,10 @@ public sealed partial class VoiceClient : WebSocketClient
         if (_udpState is not { Encryption: var encryption })
             return;
 
+        var handlers = _voiceReceive;
+        if (handlers.IsEmpty)
+            return;
+
         try
         {
             RtpPacketStorage packetStorage = new(datagram, encryption.ExtensionEncryption);
@@ -424,8 +426,6 @@ public sealed partial class VoiceClient : WebSocketClient
                 return;
 
             var framesMissed = result.FramesMissed;
-
-            var handlers = _voiceReceive;
 
             if (framesMissed is 0)
             {

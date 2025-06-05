@@ -373,7 +373,7 @@ public abstract partial class WebSocketClient : IDisposable
             {
                 Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
                 {
-                    return $"An error occurred while aborting and reconnecting.{Environment.NewLine}{e}";
+                    return $"An error occurred while aborting and resuming.{Environment.NewLine}{e}";
                 });
             }
         }
@@ -472,6 +472,7 @@ public abstract partial class WebSocketClient : IDisposable
             try
             {
                 connection.Abort();
+                state.Abort();
             }
             catch (Exception abortEx)
             {
@@ -481,8 +482,6 @@ public abstract partial class WebSocketClient : IDisposable
                 });
             }
         }
-
-        state.Abort();
 
         connectionState.Dispose();
         state.Dispose();

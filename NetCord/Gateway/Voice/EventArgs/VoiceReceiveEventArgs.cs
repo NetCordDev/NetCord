@@ -4,7 +4,7 @@ public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex,
 {
     internal readonly byte[]? _buffer = buffer;
 
-    public ReadOnlySpan<byte> Frame => _buffer.AsSpan(frameIndex, frameLength);
+    public ReadOnlySpan<byte> Frame => new(_buffer, frameIndex, frameLength);
 
     public uint Ssrc => ssrc;
 }
