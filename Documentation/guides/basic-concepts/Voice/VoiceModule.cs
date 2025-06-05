@@ -46,7 +46,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Respond to the interaction
         await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
@@ -129,7 +129,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                RedirectInputStreams = true, // Required to receive voice
+                ReceiveHandler = new VoiceReceiveHandler(), // Required to receive voice
                 Logger = new ConsoleLogger(),
             });
 
@@ -137,7 +137,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
@@ -145,8 +145,8 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (args.UserId == userId)
-                return outStream.WriteAsync(args.Frame);
+            if (voiceClient.Cache.Users.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
+                outStream.Write(args.Frame);
             return default;
         };
 

@@ -7,7 +7,7 @@ public interface IVoiceClientCache : IDisposable
     public IReadOnlyDictionary<uint, ulong> Users { get; }
 
     public IVoiceClientCache CacheCurrentSsrc(uint ssrc);
-    public IVoiceClientCache CacheUser(uint ssrc, ulong userId);
+    public IVoiceClientCache CacheUser(ulong userId, uint ssrc);
 
-    public IVoiceClientCache RemoveUser(uint ssrc, ulong userId);
+    public IVoiceClientCache RemoveUser(ulong userId);
 }

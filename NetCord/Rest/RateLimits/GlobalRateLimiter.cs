@@ -2,7 +2,7 @@
 
 internal class GlobalRateLimiter(int limit, long duration) : IGlobalRateLimiter
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
     private readonly int _maxRemaining = limit - 1;
     private int _remaining = limit;
     private long _reset;

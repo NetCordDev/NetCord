@@ -18,8 +18,8 @@ public sealed record VoiceClientCache : IVoiceClientCache
 
     public VoiceClientCache()
     {
-        _ssrcs = CollectionsUtils.CreateImmutableDictionary<ulong, uint>();
-        _users = CollectionsUtils.CreateImmutableDictionary<uint, ulong>();
+        _ssrcs = ImmutableDictionary<ulong, uint>.Empty;
+        _users = ImmutableDictionary<uint, ulong>.Empty;
     }
 
     public VoiceClientCache(JsonVoiceClientCache jsonModel)
@@ -47,7 +47,7 @@ public sealed record VoiceClientCache : IVoiceClientCache
         };
     }
 
-    public IVoiceClientCache CacheUser(uint ssrc, ulong userId)
+    public IVoiceClientCache CacheUser(ulong userId, uint ssrc)
     {
         return this with
         {
@@ -56,11 +56,16 @@ public sealed record VoiceClientCache : IVoiceClientCache
         };
     }
 
-    public IVoiceClientCache RemoveUser(uint ssrc, ulong userId)
+    public IVoiceClientCache RemoveUser(ulong userId)
     {
+        var ssrcs = _ssrcs;
+
+        if (!ssrcs.TryGetValue(userId, out var ssrc))
+            return this;
+
         return this with
         {
-            _ssrcs = _ssrcs.Remove(userId),
+            _ssrcs = ssrcs.Remove(userId),
             _users = _users.Remove(ssrc),
         };
     }

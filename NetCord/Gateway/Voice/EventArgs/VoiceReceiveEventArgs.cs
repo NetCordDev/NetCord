@@ -1,19 +1,10 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public class VoiceReceiveEventArgs(uint ssrc, ulong userId, ReadOnlyMemory<byte> frame)
+public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex, int frameLength, uint ssrc)
 {
-    /// <summary>
-    /// The SSRC of the user.
-    /// </summary>
+    internal readonly byte[]? _buffer = buffer;
+
+    public ReadOnlySpan<byte> Frame => new(_buffer, frameIndex, frameLength);
+
     public uint Ssrc => ssrc;
-
-    /// <summary>
-    /// The ID of the user.
-    /// </summary>
-    public ulong UserId => userId;
-
-    /// <summary>
-    /// The frame encoded in Opus.
-    /// </summary>
-    public ReadOnlyMemory<byte> Frame => frame;
 }

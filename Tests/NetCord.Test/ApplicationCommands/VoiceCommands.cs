@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 
+using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Gateway.Voice.Encryption;
 using NetCord.Logging;
@@ -11,7 +12,7 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<bool, ValueTask>? disconnectHandler = null)
+    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
         if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
@@ -44,8 +45,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
             voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
             {
-                RedirectInputStreams = true,
                 EncryptionProvider = encryptionProvider,
+                ReceiveHandler = new VoiceReceiveHandler(),
                 Logger = new ConsoleLogger(LogLevel.Debug),
             });
         }
@@ -57,7 +58,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         await voiceClient.StartAsync();
 
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new(SpeakingFlags.Microphone));
 
         return voiceClient;
     }
@@ -67,16 +68,16 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, args =>
         {
-            if (!reconnect)
+            if (!args.Reconnect)
                 cancellationTokenSource.Cancel();
 
             return default;
         });
 
         var outputStream = voiceClient.CreateOutputStream();
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
@@ -106,9 +107,9 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     {
         TaskCompletionSource taskCompletionSource = new();
 
-        using var voiceClient = await JoinAsync(encryption, reconnect =>
+        var voiceClient = await JoinAsync(encryption, args =>
         {
-            if (!reconnect)
+            if (!args.Reconnect)
                 taskCompletionSource.TrySetResult();
 
             return default;
@@ -117,7 +118,17 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         using var outputStream = voiceClient.CreateOutputStream(false);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
-        voiceClient.VoiceReceive += args => outputStream.WriteAsync(args.Frame);
+        voiceClient.VoiceReceive += args =>
+        {
+            outputStream.Write(args.Frame);
+            return default;
+
+            //var frame = args.Frame;
+            //var size = frame.Length;
+            //var buffer = ArrayPool<byte>.Shared.Rent(size);
+            //frame.CopyTo(buffer);
+            //return outputStream.WriteAsync(buffer.AsMemory(0, size));
+        };
 
         await taskCompletionSource.Task;
     }

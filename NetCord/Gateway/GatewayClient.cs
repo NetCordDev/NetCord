@@ -12,7 +12,7 @@ namespace NetCord.Gateway;
 /// <summary>
 /// The <see cref="GatewayClient"/> class allows applications to send and receive data from the Discord Gateway, such as events and resource requests.
 /// </summary>
-public partial class GatewayClient : WebSocketClient, IEntity
+public sealed partial class GatewayClient : WebSocketClient, IEntity
 {
     private readonly ConnectionPropertiesProperties _connectionProperties;
     private readonly int? _largeThreshold;
@@ -878,12 +878,24 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var compression = _compression;
 
-        _logger.Log(LogLevel.Debug, compression, null, static (s, e) =>
+        try
+        {
+            compression.Initialize();
+        }
+        catch (Exception ex)
+        {
+            Log(LogLevel.Error, compression, ex, static (s, e) =>
+            {
+                return $"An error occurred while initializing '{s.Name}' compression.{Environment.NewLine}{e}";
+            });
+
+            return;
+        }
+
+        Log(LogLevel.Debug, compression, null, static (s, e) =>
         {
             return $"Using '{s.Name}' compression.";
         });
-
-        compression.Initialize();
     }
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
@@ -897,7 +909,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
             Intents = _intents,
         }).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayIdentifyProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     /// <summary>
@@ -906,9 +918,9 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="presence">The presence to set.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
+    public async ValueTask StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
     }
 
@@ -919,14 +931,19 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    public async ValueTask ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+
+    private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
+    {
+        return SendIdentifyAsync(connectionState, null, cancellationToken);
+    }
 
     private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
@@ -937,30 +954,30 @@ public partial class GatewayClient : WebSocketClient, IEntity
     {
         var serializedPayload = new GatewayPayloadProperties<GatewayResumeProperties>(GatewayOpcode.Resume, new(Token.RawToken, sessionId, sequenceNumber)).Serialize(Serialization.Default.GatewayPayloadPropertiesGatewayResumeProperties);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
         var serializedPayload = new GatewayPayloadProperties<int>(GatewayOpcode.Heartbeat, SequenceNumber).Serialize(Serialization.Default.GatewayPayloadPropertiesInt32);
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, _logger, cancellationToken);
+        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
+    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
         var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 
-    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    private async ValueTask HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
     {
         switch (payload.Opcode)
         {
             case GatewayOpcode.Dispatch:
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
 
-                _logger.Log(LogLevel.Debug, payload, null, static (s, e) =>
+                Log(LogLevel.Debug, payload, null, static (s, e) =>
                 {
                     return $"'{s.Event}' event received.";
                 });
@@ -971,7 +988,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(LogLevel.Error, payload, ex, static (s, e) =>
+                    Log(LogLevel.Error, payload, ex, static (s, e) =>
                     {
                         return $"An error occurred while processing '{s.Event}' event.{Environment.NewLine}{e}";
                     });
@@ -980,12 +997,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case GatewayOpcode.Heartbeat:
                 break;
             case GatewayOpcode.Reconnect:
-                _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
 
-                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
+                await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
-                _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
 
                 try
                 {
@@ -993,21 +1010,21 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                    Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                     {
                         return $"An error occurred while sending the identify payload.{Environment.NewLine}{e}";
                     });
                 }
                 break;
             case GatewayOpcode.Hello:
-                _logger.Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
+                Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
                 StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
                 var latency = _latencyTimer.Elapsed;
 
-                _logger.Log(LogLevel.Debug, latency, null, static (s, e) =>
+                Log(LogLevel.Debug, latency, null, static (s, e) =>
                 {
                     return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
                 });
@@ -1057,7 +1074,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
 
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
@@ -1080,7 +1097,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var latency = _latencyTimer.Elapsed;
 
-                    _logger.Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
 
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();

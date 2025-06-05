@@ -2,7 +2,7 @@
 
 internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRateLimiter
 {
-    private readonly object _lock = new();
+    private readonly Lock _lock = new();
 
     private long _reset = rateLimitInfo.Reset;
     private int _maxResetAfter = rateLimitInfo.ResetAfter;

@@ -35,4 +35,6 @@ public readonly ref struct RtpPacket(ReadOnlySpan<byte> datagram, bool encrypted
     public readonly int ExtendedHeaderLength => (encryptedExtension || !Extension ? 12 : 16) + (sizeof(int) * CsrcCount);
 
     public readonly ReadOnlySpan<byte> Payload => Datagram[ExtendedHeaderLength..];
+
+    public readonly int PayloadLength => Datagram.Length - ExtendedHeaderLength;
 }
