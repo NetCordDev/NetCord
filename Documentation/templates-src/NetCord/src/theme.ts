@@ -3,7 +3,7 @@
 
 import { html } from 'lit-html'
 import { Theme } from './options'
-import { loc, options } from './helper'
+import { options } from './helper'
 
 function setTheme(theme: Theme) {
   localStorage.setItem('theme', theme)
@@ -33,7 +33,7 @@ export function getTheme(): 'light' | 'dark' {
 
 export async function themePicker(refresh: () => void, active: (event: MouseEvent) => void) {
   const theme = getTheme()
-  const icon = theme === "light" ? "sun" : "moon"
+  const icon = theme === 'light' ? 'sun' : 'moon'
 
   return html`<button
     type="button"
@@ -48,7 +48,7 @@ export async function themePicker(refresh: () => void, active: (event: MouseEven
 
   function toggleTheme(e) {
     e.preventDefault()
-    setTheme(getTheme() == "light" ? "dark" : "light")
+    setTheme(getTheme() === 'light' ? 'dark' : 'light')
     refresh()
   }
 }

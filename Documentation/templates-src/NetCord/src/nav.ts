@@ -55,7 +55,7 @@ export async function renderNavbar(): Promise<NavItem[]> {
 
   async function renderCore() {
     function handleActiveEvent(event: Event) {
-      (event.target as Element).classList.add("icon-tooltip-active");
+      (event.target as Element).classList.add('icon-tooltip-active')
     }
 
     const iconsForm = html`
@@ -86,7 +86,7 @@ export async function renderNavbar(): Promise<NavItem[]> {
             }
 
             return nothing
-          },
+          }
         )}
         ${await themePicker(renderCore, handleActiveEvent)}
       </form>`

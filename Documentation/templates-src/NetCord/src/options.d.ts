@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-import BootstrapIcons from 'bootstrap-icons/font/bootstrap-icons.json'
 import { HLJSApi } from 'highlight.js'
 import { AnchorJSOptions } from 'anchor-js'
 import { MermaidConfig } from 'mermaid'
