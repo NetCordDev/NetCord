@@ -41,6 +41,7 @@
 
 .link-secondary:hover, .link-secondary:focus {
   color: var(--bs-secondary-hover-rgb) !important;
+  text-decoration-color: var(--bs-secondary-hover-rgb) !important;
 }
 
 .navbar-nav {
@@ -338,6 +339,14 @@ code,
 .features-section {
   padding-bottom: 100px;
   color: var(--bs-emphasis-color);
+}
+
+pre > code .line-highlight {
+  background-color: #ff0;
+}
+
+[data-bs-theme="dark"] pre > code .line-highlight {
+  background-color: #323110;
 }
 
 .code-example {
