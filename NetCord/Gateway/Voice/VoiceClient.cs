@@ -24,7 +24,7 @@ public sealed partial class VoiceClient : WebSocketClient
         }
     }
 
-    private class UdpState(IUdpConnection connection, IVoiceEncryption encryption) : IDisposable
+    internal class UdpState(IUdpConnection connection, IVoiceEncryption encryption) : IDisposable
     {
         public IUdpConnection Connection => connection;
         public IVoiceEncryption Encryption => encryption;
@@ -95,7 +95,7 @@ public sealed partial class VoiceClient : WebSocketClient
     private readonly IVoiceEncryptionProvider _encryptionProvider;
     private readonly IVoiceReceiveHandler _receiveHandler;
 
-    private UdpState? _udpState;
+    internal UdpState? _udpState;
 
     public VoiceClient(ulong userId, string sessionId, string endpoint, ulong guildId, string token, VoiceClientConfiguration? configuration = null) : base(configuration ??= new())
     {
@@ -508,16 +508,11 @@ public sealed partial class VoiceClient : WebSocketClient
     /// </summary>
     /// <param name="normalizeSpeed">Whether to normalize the voice sending speed.</param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException">Thrown when invoked before the <see cref="Ready"/> event.</exception>
     public Stream CreateOutputStream(bool normalizeSpeed = true)
     {
-        if (_udpState is not { } udpState)
-            throw new InvalidOperationException($"The output stream cannot be created before the {nameof(Ready)} event.");
-
-        Stream stream = new VoiceOutStream(udpState.Connection);
+        Stream stream = new VoiceOutStream(this);
         if (normalizeSpeed)
             stream = new SpeedNormalizingStream(stream);
-        stream = new EncryptStream(stream, udpState.Encryption, this);
         return stream;
     }
 
