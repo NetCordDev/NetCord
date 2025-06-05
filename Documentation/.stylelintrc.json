@@ -17,6 +17,7 @@
     }],
     "scss/at-rule-no-unknown": [ true, {
       "ignoreAtRules": [ "view-transition" ]
-    }]
+    }],
+    "property-no-vendor-prefix": null
   }
 }
