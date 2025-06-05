@@ -4,11 +4,13 @@
  */
 
 @use "sass:meta";
-@use "highlight.js/scss/base16/dirtysea";
 @use "bootstrap/scss/bootstrap";
 
-@include bootstrap.color-mode(dark) {
-  /* stylelint-disable-next-line no-invalid-position-at-import-rule */
+[data-bs-theme]:not([data-bs-theme="dark"]) {
+  @include meta.load-css("highlight.js/scss/base16/dirtysea");
+}
+
+[data-bs-theme="dark"] {
   @include meta.load-css("highlight.js/scss/vs2015");
 }
 
