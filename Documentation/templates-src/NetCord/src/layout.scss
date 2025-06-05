@@ -3,6 +3,8 @@
  * The .NET Foundation licenses this file to you under the MIT license.
  */
 
+@use "bootstrap/scss/bootstrap";
+
 $header-height: 60px;
 $footer-height: 60px;
 $main-padding-top: 1.6rem;
@@ -10,7 +12,7 @@ $main-padding-bottom: 2rem;
 
 // Makes a div sticky to top
 @mixin sticky-top {
-  @include media-breakpoint-up(md) {
+  @include bootstrap.media-breakpoint-up(md) {
     position: sticky;
     top: 0;
     z-index: 1030;
@@ -18,7 +20,7 @@ $main-padding-bottom: 2rem;
 }
 
 @mixin stick-to-header {
-  @include media-breakpoint-up(md) {
+  @include bootstrap.media-breakpoint-up(md) {
     position: sticky;
     top: calc($header-height + $main-padding-top);
   }
@@ -37,70 +39,69 @@ body[data-layout="landing"] {
   display: flex;
   flex-direction: column;
 
-  > header {
+  >header {
     display: flex;
     align-items: stretch;
 
     @include sticky-top;
 
-    @include media-breakpoint-up(md) {
+    @include bootstrap.media-breakpoint-up(md) {
       height: $header-height;
     }
 
-    > nav {
+    >nav {
       flex: 1;
     }
   }
 
-  > footer {
+  >footer {
     font-size: 14px;
     padding: 1rem 0;
     height: $footer-height;
 
-    > div {
+    >div {
       display: flex;
       align-items: center;
     }
   }
 
-  > main {
+  >main {
     display: flex;
     flex: 1;
     padding-top: $main-padding-top;
     padding-bottom: $main-padding-bottom;
 
-    > .content {
+    >.content {
       display: flex;
       flex-direction: column;
       width: 100%;
 
-      > :not(article) {
+      >:not(article) {
         display: none;
       }
 
-      > article {
+      >article {
         flex: 1;
       }
 
-      @include media-breakpoint-up(md) {
-        > article [id] {
+      @include bootstrap.media-breakpoint-up(md) {
+        >article [id] {
           scroll-margin-top: $header-height;
         }
       }
     }
 
-    > :not(.content) {
+    >:not(.content) {
       display: none;
     }
   }
 
   @media print {
-    > main {
+    >main {
       padding: 0 !important;
     }
 
-    > header,
-    > footer {
+    >header, >footer {
       display: none;
     }
   }
@@ -109,11 +110,11 @@ body[data-layout="landing"] {
 @media not print {
   // Search layout
   body[data-search] {
-    > main {
+    >main {
       display: none;
     }
 
-    > .search-results {
+    >.search-results {
       display: block;
       flex: 1;
       padding-top: $main-padding-top;
@@ -122,18 +123,18 @@ body[data-layout="landing"] {
   }
 
   body:not([data-search]) {
-    > .search-results {
+    >.search-results {
       display: none;
     }
 
     // Default layout: with header, footer, actionbar, affix, and toc
     &[data-layout=""],
     &[data-layout="conceptual"] {
-      > main {
+      >main {
         padding-bottom: 0;
 
-        > .toc-offcanvas {
-          flex: 0.35;
+        >.toc-offcanvas {
+          flex: .35;
           display: block;
           overflow: hidden;
           max-width: 360px;
@@ -141,17 +142,16 @@ body[data-layout="landing"] {
 
           @include stick-to-header;
 
-          @include media-breakpoint-down(md) {
+          @include bootstrap.media-breakpoint-down(md) {
             flex: 0;
           }
 
-          .offcanvas-start,
-          .offcanvas-body {
+          .offcanvas-start, .offcanvas-body {
             height: 100%;
           }
         }
 
-        > .content {
+        >.content {
           display: flex;
           flex-direction: column;
           flex: 1;
@@ -159,35 +159,43 @@ body[data-layout="landing"] {
           margin: 0 3rem;
           padding-bottom: $main-padding-bottom;
 
-          > .actionbar {
+          >.actionbar {
             display: flex;
             align-items: flex-start;
-            margin-top: 0.5rem;
+            margin-top: .5rem;
+
+            >button {
+              margin-top: -.65em;
+              margin-left: -.8em
+            }
           }
 
           article {
             flex: 1;
           }
 
-          > .contribution,
-          > .next-article {
+          >.contribution,
+          >.next-article {
             display: flex;
           }
 
-          @include media-breakpoint-down(lg) {
+          @include bootstrap.media-breakpoint-down(lg) {
             margin: 0 1rem;
           }
 
-          @include media-breakpoint-down(md) {
+          @include bootstrap.media-breakpoint-down(md) {
             margin: 0;
           }
         }
 
-        > .affix {
+        >.affix {
           display: block;
           width: 230px;
           max-height: calc(100vh - $header-height - $main-padding-top);
+
+          /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
           overflow-x: hidden;
+          /* stylelint-disable-next-line declaration-block-no-redundant-longhand-properties */
           overflow-y: auto;
 
           @include stick-to-header;
@@ -201,8 +209,7 @@ body[data-layout="landing"] {
 
     // Chromeless layout: with no header, footer, actionbar, affix, and toc
     &[data-layout="chromeless"] {
-      > header,
-      > footer {
+      >header, >footer {
         display: none;
       }
     }

@@ -44,35 +44,34 @@
       <meta name="loc:changeTheme" content="{{__global.changeTheme}}">
       <meta name="loc:copy" content="{{__global.copy}}">
       <meta name="loc:downloadPdf" content="{{__global.downloadPdf}}">
+
+      <script type="module" src="./{{_rel}}public/docfx.min.js"></script>
+
+      <script>
+        const theme = localStorage.getItem('theme') || 'auto'
+        document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
+      </script>
+
+      {{#_googleAnalyticsTagId}}
+      <script async src="https://www.googletagmanager.com/gtag/js?id={{_googleAnalyticsTagId}}"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', '{{_googleAnalyticsTagId}}');
+      </script>
+      {{/_googleAnalyticsTagId}}
     {{/redirect_url}}
   </head>
 
   {{^redirect_url}}
-  <script type="module" src="./{{_rel}}public/docfx.min.js"></script>
-
-  <script>
-    const theme = localStorage.getItem('theme') || 'auto'
-    document.documentElement.setAttribute('data-bs-theme', theme === 'auto' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : theme)
-  </script>
-
-  {{#_googleAnalyticsTagId}}
-  <script async src="https://www.googletagmanager.com/gtag/js?id={{_googleAnalyticsTagId}}"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', '{{_googleAnalyticsTagId}}');
-  </script>
-  {{/_googleAnalyticsTagId}}
-
   <body class="tex2jax_ignore" data-layout="{{_layout}}{{layout}}" data-yaml-mime="{{yamlmime}}">
-    <div id="snow-container" class="snow-container" aria-hidden="true"></div>
     <header class="bg-body border-bottom">
       {{^_disableNavbar}}
       <nav id="autocollapse" class="navbar navbar-expand-md" role="navigation">
         <div class="container-xxl flex-nowrap">
           <a class="navbar-brand" href="{{_appLogoUrl}}{{^_appLogoUrl}}{{_rel}}{{/_appLogoUrl}}">
-            <img id="logo" class="svg logo" src="{{_rel}}{{{_appLogoPath}}}{{^_appLogoPath}}logo.svg{{/_appLogoPath}}" alt="Logo" >
+            <img id="logo" class="svg logo" src="{{_rel}}{{{_appLogoPath}}}{{^_appLogoPath}}logo.svg{{/_appLogoPath}}" alt="NetCord" >
             {{_appName}}
           </a>
           <button class="btn btn-lg d-md-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navpanel" aria-controls="navpanel" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,7 +114,7 @@
       <div class="content">
         <div class="actionbar">
           {{^_disableToc}}
-          <button class="btn btn-lg border-0 d-md-none" style="margin-top: -.65em; margin-left: -.8em"
+          <button class="btn btn-lg border-0 d-md-none"
               type="button" data-bs-toggle="offcanvas" data-bs-target="#tocOffcanvas"
               aria-controls="tocOffcanvas" aria-expanded="false" aria-label="Show table of contents">
             <i class="bi bi-list"></i>

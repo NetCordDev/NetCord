@@ -50,17 +50,17 @@ function toggleSnow() {
 let icons = [
   {
     icon: "bi bi-github",
-    tooltip: "Star on GitHub",
+    title: "Star on GitHub",
     href: "https://github.com/NetCordDev/NetCord",
   },
   {
     icon: "bi bi-discord",
-    tooltip: "Join us on Discord",
+    title: "Join us on Discord",
     href: "https://discord.gg/meaSHTGyUH",
   },
   {
     icon: "icon icon-ligatures",
-    tooltip: "Toggle ligatures",
+    title: "Toggle ligatures",
     onclick: toggleLigatures,
   },
 ];
@@ -77,7 +77,7 @@ if (month == 11) {
 
   const snowIcon = {
     icon: "bi icon-snow",
-    tooltip: "Toggle snow",
+    title: "Toggle snow",
     onclick: toggleSnow,
   };
   icons = [snowIcon, ...icons];
