@@ -46,6 +46,8 @@ jobs:
         run: |
           dotnet tool install docfx -g --version 2.78.3
           npm install
+          npm run lint
+          npm run test
           npm run build
 
       - name: Publish Packages

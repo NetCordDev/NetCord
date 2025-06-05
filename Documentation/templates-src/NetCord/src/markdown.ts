@@ -17,7 +17,6 @@ export async function renderMarkdown() {
   renderCodeCopy()
 
   await Promise.all([
-    //renderClickableImage(),
     renderMath(),
     renderMermaid()
   ])
@@ -86,56 +85,6 @@ function renderWordBreaks() {
         children.push(text)
       }
       e.replaceChildren(...children)
-    }
-  })
-}
-
-/**
- * Make images in articles clickable by wrapping the image in an anchor tag.
- * The image is clickable only if its size is larger than 200x200 and it is not already been wrapped in an anchor tag.
- */
-async function renderClickableImage() {
-  const { showLightbox } = await options()
-  const MIN_CLICKABLE_IMAGE_SIZE = 200
-  const imageLinks = Array.from(document.querySelectorAll<HTMLImageElement>('article a img[src]'))
-
-  document.querySelectorAll<HTMLImageElement>('article img[src]').forEach(img => {
-    if (shouldMakeClickable()) {
-      makeClickable()
-    } else {
-      img.addEventListener('load', () => {
-        if (shouldMakeClickable()) {
-          makeClickable()
-        }
-      })
-    }
-
-    function makeClickable() {
-      const a = document.createElement('a')
-      a.target = '_blank'
-      a.rel = 'noopener noreferrer nofollow'
-
-      if (img.parentElement.tagName === 'PICTURE') {
-        const picture = img.parentElement
-        picture.addEventListener('click', () => {
-          a.href = img.currentSrc
-          a.click()
-        })
-      } else {
-        a.href = img.src
-        img.replaceWith(a)
-        a.appendChild(img)
-      }
-    }
-
-    function shouldMakeClickable(): boolean {
-      if (showLightbox) {
-        return showLightbox(img)
-      }
-
-      return img.naturalWidth > MIN_CLICKABLE_IMAGE_SIZE &&
-        img.naturalHeight > MIN_CLICKABLE_IMAGE_SIZE &&
-        !imageLinks.includes(img)
     }
   })
 }
