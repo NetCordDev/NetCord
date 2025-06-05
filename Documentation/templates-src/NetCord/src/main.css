@@ -11,7 +11,7 @@
 }
 
 :root {
-  --bs-font-monospace: cascadia code, monospace;
+  --bs-font-monospace: "Cascadia Code", monospace;
   --light-blurple: #6c82ff;
   --blurple: #5865f2;
   --dark-blurple: #4752c4;
