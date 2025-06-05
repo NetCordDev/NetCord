@@ -341,14 +341,6 @@ code,
   color: var(--bs-emphasis-color);
 }
 
-pre > code .line-highlight {
-  background-color: #ff0;
-}
-
-[data-bs-theme="dark"] pre > code .line-highlight {
-  background-color: #323110;
-}
-
 .code-example {
   width: fit-content;
   max-width: 100%;

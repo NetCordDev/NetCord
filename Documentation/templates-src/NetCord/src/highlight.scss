@@ -4,7 +4,7 @@
  */
 
 @use "sass:meta";
-@use "highlight.js/scss/vs";
+@use "highlight.js/scss/base16/dirtysea";
 @use "bootstrap/scss/bootstrap";
 
 @include bootstrap.color-mode(dark) {
@@ -28,6 +28,6 @@ pre > code .line-highlight {
 
 @include bootstrap.color-mode(dark) {
   pre > code .line-highlight {
-    background-color: #4a4a00;
+    background-color: #323110;
   }
 }
