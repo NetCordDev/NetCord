@@ -6,7 +6,7 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
 
     public PaginationDirection? Direction { get; set; }
 
-    public int? Limit { get; set; }
+    public int? BatchSize { get; set; }
 
     internal static TProperties Prepare<TProperties>(TProperties? paginationProperties, T minValue, T maxValue, PaginationDirection defaultDirection, int defaultLimit) where TProperties : IPaginationProperties<T, TProperties>
     {
@@ -14,7 +14,7 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
         {
             var properties = TProperties.Create();
             properties.Direction = defaultDirection;
-            properties.Limit = defaultLimit;
+            properties.BatchSize = defaultLimit;
             return properties;
         }
 
@@ -38,8 +38,8 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
         else
             result.Direction = defaultDirection;
 
-        if (!result.Limit.HasValue)
-            result.Limit = defaultLimit;
+        if (!result.BatchSize.HasValue)
+            result.BatchSize = defaultLimit;
 
         return result;
     }
@@ -50,7 +50,7 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
         {
             var properties = TProperties.Create();
             properties.Direction = requiredDirection;
-            properties.Limit = defaultLimit;
+            properties.BatchSize = defaultLimit;
             return properties;
         }
 
@@ -66,8 +66,8 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
         else
             result.Direction = requiredDirection;
 
-        if (!result.Limit.HasValue)
-            result.Limit = defaultLimit;
+        if (!result.BatchSize.HasValue)
+            result.BatchSize = defaultLimit;
 
         return result;
     }

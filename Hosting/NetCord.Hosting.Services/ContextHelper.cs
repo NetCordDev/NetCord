@@ -1,10 +1,12 @@
 ﻿using System.Linq.Expressions;
 
+using NetCord.Services;
+
 namespace NetCord.Hosting.Services;
 
 internal static class ContextHelper
 {
-    public static Func<TArgument1, TArgument2, IServiceProvider, TContext> CreateContextDelegate<TArgument1, TArgument2, [DAM(DAMT.PublicConstructors)] TContext>()
+    public static Func<TArgument1, TArgument2, IServiceProvider, TContext> CreateContextDelegate<TArgument1, TArgument2, [DAM(DAMT.PublicConstructors)] TContext>(IServiceResolverProvider serviceResolverProvider)
     {
         var argument1Type = typeof(TArgument1);
         var argument2Type = typeof(TArgument2);
@@ -37,7 +39,7 @@ internal static class ContextHelper
                 else if (argument2Type.IsAssignableTo(parameterType))
                     arguments[argIndex++] = argument2;
                 else
-                    arguments[argIndex++] = NetCord.Services.Helpers.ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, Expression.Goto(next));
+                    arguments[argIndex++] = NetCord.Services.Helpers.ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, serviceResolverProvider, Expression.Goto(next));
             }
 
             expressions[expressionIndex++] = Expression.Return(ret, Expression.New(constructor, arguments), contextType);

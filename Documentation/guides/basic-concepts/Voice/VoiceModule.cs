@@ -2,6 +2,7 @@
 
 using NetCord;
 using NetCord.Gateway.Voice;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
@@ -35,13 +36,17 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // You also need to add a synchronization here. 'JoinVoiceChannelAsync' should not be used concurrently for the same guild
         var voiceClient = await client.JoinVoiceChannelAsync(
             guild.Id,
-            voiceState.ChannelId.GetValueOrDefault());
+            voiceState.ChannelId.GetValueOrDefault(),
+            new VoiceClientConfiguration
+            {
+                Logger = new ConsoleLogger(),
+            });
 
         // Connect
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Respond to the interaction
         await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
@@ -122,13 +127,17 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         var voiceClient = await client.JoinVoiceChannelAsync(
             guild.Id,
             voiceState.ChannelId.GetValueOrDefault(),
-            new() { RedirectInputStreams = true /* Required to receive voice */ });
+            new VoiceClientConfiguration
+            {
+                ReceiveHandler = new VoiceReceiveHandler(), // Required to receive voice
+                Logger = new ConsoleLogger(),
+            });
 
         // Connect
         await voiceClient.StartAsync();
 
         // Enter speaking state, to be able to send voice
-        await voiceClient.EnterSpeakingStateAsync(SpeakingFlags.Microphone);
+        await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Create a stream that sends voice to Discord
         var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
@@ -136,8 +145,8 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (args.UserId == userId)
-                return outStream.WriteAsync(args.Frame);
+            if (voiceClient.Cache.Users.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
+                outStream.Write(args.Frame);
             return default;
         };
 

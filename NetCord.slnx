@@ -1,0 +1,96 @@
+<Solution>
+  <Folder Name="/Documentation/">
+    <File Path="Documentation/.editorconfig" />
+    <File Path="Documentation/Directory.Build.props" />
+    <File Path="Documentation/Directory.Build.targets" />
+  </Folder>
+  <Folder Name="/Documentation/guides/" />
+  <Folder Name="/Documentation/guides/basic-concepts/">
+    <Project Path="Documentation/guides/basic-concepts/HttpInteractions/HttpInteractions.csproj" />
+    <Project Path="Documentation/guides/basic-concepts/RespondingToInteractions/RespondingToInteractions.csproj" />
+    <Project Path="Documentation/guides/basic-concepts/SendingMessages/SendingMessages.csproj" />
+    <Project Path="Documentation/guides/basic-concepts/Sharding/Sharding.csproj" />
+    <Project Path="Documentation/guides/basic-concepts/ShardingHosting/ShardingHosting.csproj" />
+    <Project Path="Documentation/guides/basic-concepts/Voice/Voice.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/events/">
+    <Project Path="Documentation/guides/events/FirstEvents/FirstEvents.csproj" />
+    <Project Path="Documentation/guides/events/FirstEventsHosting/FirstEventsHosting.csproj" />
+    <Project Path="Documentation/guides/events/Intents/Intents.csproj" />
+    <Project Path="Documentation/guides/events/IntentsHosting/IntentsHosting.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/getting-started/">
+    <Project Path="Documentation/guides/getting-started/Coding/Coding.csproj" />
+    <Project Path="Documentation/guides/getting-started/CodingHosting/CodingHosting.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/">
+    <Project Path="Documentation/guides/services/DependencyInjection/DependencyInjection.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/application-commands/">
+    <Project Path="Documentation/guides/services/application-commands/Introduction/Introduction.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/IntroductionHosting/IntroductionHosting.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/Localizations/Localizations.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/LocalizationsHosting/LocalizationsHosting.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/MultipleServices/MultipleServices.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/Parameters/Parameters.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/Permissions/Permissions.csproj" />
+    <Project Path="Documentation/guides/services/application-commands/Subcommands/Subcommands.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/component-interactions/">
+    <Project Path="Documentation/guides/services/component-interactions/Introduction/Introduction.csproj" />
+    <Project Path="Documentation/guides/services/component-interactions/IntroductionHosting/IntroductionHosting.csproj" />
+    <Project Path="Documentation/guides/services/component-interactions/Parameters/Parameters.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/CustomModuleBasesAndContexts/">
+    <Project Path="Documentation/guides/services/CustomModuleBasesAndContexts/CustomContexts/CustomContexts.csproj" />
+    <Project Path="Documentation/guides/services/CustomModuleBasesAndContexts/CustomModuleBases/CustomModuleBases.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/Preconditions/">
+    <Project Path="Documentation/guides/services/Preconditions/ParameterPreconditions/ParameterPreconditions.csproj" />
+    <Project Path="Documentation/guides/services/Preconditions/Preconditions/Preconditions.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/services/text-commands/">
+    <Project Path="Documentation/guides/services/text-commands/Aliases/Aliases.csproj" />
+    <Project Path="Documentation/guides/services/text-commands/Introduction/Introduction.csproj" />
+    <Project Path="Documentation/guides/services/text-commands/IntroductionHosting/IntroductionHosting.csproj" />
+    <Project Path="Documentation/guides/services/text-commands/Parameters/Parameters.csproj" />
+  </Folder>
+  <Folder Name="/Hosting/">
+    <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
+    <Project Path="Hosting/NetCord.Hosting.Services/NetCord.Hosting.Services.csproj" />
+    <Project Path="Hosting/NetCord.Hosting/NetCord.Hosting.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/SourceGenerators/">
+    <File Path="SourceGenerators/Directory.Build.props" />
+    <File Path="SourceGenerators/Directory.Build.targets" />
+    <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
+    <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
+    <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" />
+    <Project Path="SourceGenerators/Shared/Shared.csproj" />
+    <Project Path="SourceGenerators/UserAgentHeaderGenerator/UserAgentHeaderGenerator.csproj" />
+    <Project Path="SourceGenerators/WebSocketClientEventsGenerator/WebSocketClientEventsGenerator.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+    <File Path="Tests/Directory.Build.targets" />
+    <Project Path="Tests/ColorTest/ColorTest.csproj" />
+    <Project Path="Tests/MentionTest/MentionTest.csproj" />
+    <Project Path="Tests/NetCord.Test.Hosting.AspNetCore/NetCord.Test.Hosting.AspNetCore.csproj" />
+    <Project Path="Tests/NetCord.Test.Hosting/NetCord.Test.Hosting.csproj" />
+    <Project Path="Tests/NetCord.Test.Sharded.Hosting/NetCord.Test.Sharded.Hosting.csproj" />
+    <Project Path="Tests/NetCord.Test.Sharded/NetCord.Test.Sharded.csproj" />
+    <Project Path="Tests/NetCord.Test/NetCord.Test.csproj" />
+    <Project Path="Tests/SnowflakeTest/SnowflakeTest.csproj" />
+    <Project Path="Tests/TimestampTest/TimestampTest.csproj" />
+    <Project Path="Tests/TokenTest/TokenTest.csproj" />
+    <Project Path="Tests/VoiceEncryptionTest/VoiceEncryptionTest.csproj" />
+  </Folder>
+  <Project Path="NetCord.Services/NetCord.Services.csproj" />
+  <Project Path="NetCord/NetCord.csproj" />
+</Solution>

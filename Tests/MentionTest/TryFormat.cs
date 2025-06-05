@@ -1,8 +1,8 @@
 ﻿using System.Buffers;
 
 using NetCord;
-using NetCord.Gateway;
 using NetCord.Rest;
+using NetCord.Rest.RateLimits;
 
 namespace MentionTest;
 
@@ -49,13 +49,6 @@ public class TryFormat
                 Animated = true,
             }, id, null!))];
 
-    private static readonly IReadOnlyList<LogMessage> _messages =
-    [
-        NetCord.Gateway.LogMessage.Info("message"),
-        NetCord.Gateway.LogMessage.Info("message", "description"),
-        NetCord.Gateway.LogMessage.Error(new("message")),
-    ];
-
     private static readonly IReadOnlyList<CodeBlock> _codeBlocks =
     [
         new("code"),
@@ -72,6 +65,13 @@ public class TryFormat
     {
         Name = "name",
     }, "parentName", id)).ToArray();
+
+    private static readonly IReadOnlyList<Route> _routes =
+    [
+        new Route(HttpMethod.Post, "/interactions/{0}/{1}/callback", new(819892011364122624, "token")),
+        new Route(HttpMethod.Get, "/applications/{0}/emojis/{1}"),
+        new Route(HttpMethod.Patch, "/guilds/{0}/roles/{1}", new(740902788036558899)),
+    ];
 
     [TestMethod]
     public void User()
@@ -150,14 +150,6 @@ public class TryFormat
     }
 
     [TestMethod]
-    public void LogMessage()
-    {
-        TestTryFormat(TryFormat, _messages, m => m.ToString());
-
-        static bool TryFormat(Span<char> destination, out int charsWritten, LogMessage value) => value.TryFormat(destination, out charsWritten);
-    }
-
-    [TestMethod]
     public void CodeBlock()
     {
         TestTryFormat(TryFormat, _codeBlocks, c => c.ToString());
@@ -179,6 +171,14 @@ public class TryFormat
         TestTryFormat(TryFormat, _applicationCommandOptions, o => o.ToString());
 
         static bool TryFormat(Span<char> destination, out int charsWritten, ApplicationCommandOption value) => value.TryFormat(destination, out charsWritten);
+    }
+
+    [TestMethod]
+    public void Route()
+    {
+        TestTryFormat(TryFormat, _routes, r => r.ToString());
+
+        static bool TryFormat(Span<char> destination, out int charsWritten, Route value) => value.TryFormat(destination, out charsWritten);
     }
 
     private static void TestTryFormat<T>(TryFormatDelegate<T> tryFormat, IReadOnlyList<T> values, Func<T, string> getExpected)

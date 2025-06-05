@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public interface IUnknownComponent : IComponent
+public interface IUnknownComponent : IComponent, IComponentSectionAccessory
 {
     public ComponentType Type { get; }
 }
@@ -11,5 +11,6 @@ internal class UnknownComponent(JsonComponent jsonModel) : IUnknownComponent, IJ
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
+    public int Id => jsonModel.Id;
     public ComponentType Type => jsonModel.Type;
 }

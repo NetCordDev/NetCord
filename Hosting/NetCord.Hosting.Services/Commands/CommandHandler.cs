@@ -47,7 +47,7 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
             _handleAsync = &HandleMessageAsync;
 
         _getPrefixLengthAsync = GetGetPrefixLengthAsyncDelegate(optionsValue);
-        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>();
+        _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>(_commandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new CommandResultHandler<TContext>();
         _client = client;
     }

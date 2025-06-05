@@ -13,9 +13,9 @@ internal interface IPaginationProperties<T, TSelf> where T : struct where TSelf 
     public PaginationDirection? Direction { get; set; }
 
     /// <summary>
-    /// The number of items to download at once.
+    /// The maximum number of items to retrieve in a single request.
     /// </summary>
-    public int? Limit { get; set; }
+    public int? BatchSize { get; set; }
 
     protected static abstract TSelf Create();
 

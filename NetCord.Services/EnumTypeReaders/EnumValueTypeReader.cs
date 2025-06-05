@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Frozen;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 
@@ -45,7 +46,7 @@ internal static class EnumValueTypeReader
 internal class EnumValueTypeReader<T> : IEnumTypeReader where T : struct
 {
     private readonly TryParseDelegate<T> _tryParse;
-    private protected readonly IReadOnlyDictionary<T, object> _valuesDictionary;
+    private readonly FrozenDictionary<T, object> _valuesDictionary;
 
     [UnconditionalSuppressMessage("Trimming", "IL2070:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "Literal fields on enums can never be trimmed")]
     internal EnumValueTypeReader(Type enumType, TryParseDelegate<T> tryParse) : this(enumType, enumType.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic), tryParse)
@@ -55,7 +56,7 @@ internal class EnumValueTypeReader<T> : IEnumTypeReader where T : struct
     internal EnumValueTypeReader(Type enumType, FieldInfo[] fields, TryParseDelegate<T> tryParse)
     {
         int length = fields.Length;
-        Dictionary<T, object> valuesDictionary = new(length);
+        var pairs = new KeyValuePair<T, object>[length];
 
         for (var i = 0; i < length; i++)
         {
@@ -63,11 +64,11 @@ internal class EnumValueTypeReader<T> : IEnumTypeReader where T : struct
             var rawValue = field.GetRawConstantValue()!;
             var rawValueUnboxed = (T)rawValue;
             var value = Enum.ToObject(enumType, rawValue);
-            valuesDictionary[rawValueUnboxed] = value;
+            pairs[i] = new(rawValueUnboxed, value);
         }
 
         _tryParse = tryParse;
-        _valuesDictionary = valuesDictionary;
+        _valuesDictionary = pairs.ToFrozenDictionary();
     }
 
     public bool TryRead(ReadOnlyMemory<char> input, [MaybeNullWhen(false)] out object value)

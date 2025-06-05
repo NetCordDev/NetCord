@@ -9,17 +9,22 @@ public class RestClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    /// <inheritdoc cref="RestClientConfiguration.Hostname" />
     public string? Hostname { get; set; }
 
+    /// <inheritdoc cref="RestClientConfiguration.Version" />
     public ApiVersion? Version { get; set; }
 
+    /// <inheritdoc cref="RestClientConfiguration.RequestHandler" />
     public IRestRequestHandler? RequestHandler { get; set; }
 
+    /// <inheritdoc cref="RestClientConfiguration.DefaultRequestProperties" />
     public RestRequestProperties? DefaultRequestProperties { get; set; }
 
+    /// <inheritdoc cref="RestClientConfiguration.RateLimitManager" />
     public IRateLimitManager? RateLimitManager { get; set; }
 
-    internal RestClientConfiguration CreateConfiguration()
+    internal RestClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return new()
         {
@@ -28,6 +33,7 @@ public class RestClientOptions : IDiscordOptions
             RequestHandler = RequestHandler,
             DefaultRequestProperties = DefaultRequestProperties,
             RateLimitManager = RateLimitManager,
+            Logger = new RestMicrosoftExtensionsLogger(services),
         };
     }
 }

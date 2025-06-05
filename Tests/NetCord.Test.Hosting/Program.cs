@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Runtime.InteropServices;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NetCord;
@@ -8,6 +11,7 @@ using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.Commands;
 using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Rest;
+using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.ComponentInteractions;
@@ -51,11 +55,14 @@ builder.Services
     .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
     .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
     .AddGatewayEventHandler<ConnectHandler>()
-    .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>();
+    .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddSingleton("Wzium")
+    .AddKeyedSingleton("key", "Wzium2");
 
 var host = builder.Build()
     .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
     .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
+    .AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}")
     .AddSlashCommand("button", "Button!", () =>
     {
         return new InteractionMessageProperties()
@@ -63,19 +70,33 @@ var host = builder.Build()
             Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
         };
     })
-    .AddSlashCommand("exception", "Exception!", (Action<string>)((string s) => throw new("Exception!")))
+    .AddSlashCommand("exception", "Exception!", (Action<string>)(s => throw new("Exception!")))
     .AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
     .AddUserCommand("ping", () => "Pong!")
     .AddMessageCommand("Content", (RestMessage message) => message.Content)
     .AddUserCommand("Name", (GatewayClient client, ApplicationCommandContext context, User user) => user.Username)
     .AddMessageCommand("ping", () => "Pong!")
     .AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!")
-    .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((IServiceProvider provider, ButtonInteractionContext context) => throw new("Exception!")))
+    .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")))
     .AddCommand(["ping"], () => "Pong!")
     .AddCommand(["exception"], (Action)(() => throw new("Exception!")))
     .AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
     .AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD")
     .AddApplicationCommandModule<ApplicationCommandModule>()
+    .AddApplicationCommandModule<DITestModule>()
+    .AddSlashCommand("yellow", "Yellow!", builder =>
+    {
+        builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+        (string wzium,
+                                                  ApplicationCommandContext context,
+                                                  [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+        builder.AddSubCommand("blue", "Blue!", () => "blue");
+        builder.AddSubCommand("red", "Red!", builder =>
+        {
+            builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+            builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+        });
+    })
     .UseGatewayEventHandlers();
 
 await host.RunAsync();

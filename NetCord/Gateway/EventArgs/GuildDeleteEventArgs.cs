@@ -1,8 +1,18 @@
-﻿namespace NetCord.Gateway;
+﻿using NetCord.JsonModels;
 
-public class GuildDeleteEventArgs(ulong guildId, bool isUserDeleted)
+namespace NetCord.Gateway;
+
+public class GuildDeleteEventArgs(JsonGuild jsonModel) : IJsonModel<JsonGuild>
 {
-    public ulong GuildId { get; } = guildId;
+    JsonGuild IJsonModel<JsonGuild>.JsonModel => jsonModel;
 
-    public bool IsUserDeleted { get; } = isUserDeleted;
+    /// <summary>
+    /// The ID of the guild.
+    /// </summary>
+    public ulong GuildId => jsonModel.Id;
+
+    /// <summary>
+    /// Whether the guild is unavailable. If <see langword="false"/>, the bot was removed from the guild.
+    /// </summary>
+    public bool IsUnavailable => jsonModel.IsUnavailable;
 }

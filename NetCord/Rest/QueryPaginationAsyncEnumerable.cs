@@ -16,7 +16,7 @@ internal class QueryPaginationAsyncEnumerable<T, TFrom>(
     {
         var query = queryBuilder.ToString(paginationProperties.From);
 
-        var expectedCount = paginationProperties.Limit.GetValueOrDefault();
+        var expectedCount = paginationProperties.BatchSize.GetValueOrDefault();
 
         while (true)
         {

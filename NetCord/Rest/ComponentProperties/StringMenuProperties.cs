@@ -24,11 +24,8 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
 // Required not to serialize 'StringMenuProperties' as 'IEnumerable<out T>'
 // https://github.com/dotnet/runtime/issues/63791
-internal interface IStringMenuProperties
+internal interface IStringMenuProperties : IComponentProperties
 {
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType { get; }
-
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; }
 

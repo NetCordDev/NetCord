@@ -4,6 +4,10 @@ namespace NetCord.Rest;
 
 public partial class PremiumButtonProperties(ulong skuId) : IButtonProperties
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
     [JsonPropertyName("sku_id")]
     public ulong SkuId { get; set; } = skuId;
 

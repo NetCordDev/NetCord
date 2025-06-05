@@ -3,7 +3,7 @@
 namespace NetCord;
 
 [JsonConverter(typeof(JsonConverters.SafeStringEnumConverter<UserStatusType>))]
-public enum UserStatusType
+public enum UserStatusType : sbyte
 {
     [JsonPropertyName("online")]
     Online,

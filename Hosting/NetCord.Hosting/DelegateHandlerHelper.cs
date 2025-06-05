@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 
+using NetCord.Hosting.Services;
 using NetCord.Services.Helpers;
 
 namespace NetCord.Hosting;
@@ -17,7 +18,7 @@ internal class DelegateHandlerHelper
         {
             return parameters.TryGetValue(p.ParameterType, out var parameter)
                 ? parameter
-                : ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, Expression.Throw(ServiceProviderHelper.GetServiceNotFoundExceptionExpression(p)));
+                : ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, KeyedServiceResolverProvider.Instance, Expression.Throw(ServiceProviderHelper.GetServiceNotFoundExceptionExpression(p)));
         });
 
         var call = Expression.Invoke(Expression.Constant(handler), arguments);

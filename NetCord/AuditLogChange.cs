@@ -47,16 +47,26 @@ public class AuditLogChange<TValue> : AuditLogChange
 {
     public AuditLogChange(JsonAuditLogChange jsonModel, JsonTypeInfo<TValue> jsonTypeInfo) : base(jsonModel)
     {
-        NewValue = jsonModel.NewValue!.Value.ToObject(jsonTypeInfo);
-        OldValue = jsonModel.OldValue!.Value.ToObject(jsonTypeInfo);
+        var newValue = jsonModel.NewValue;
+        if (newValue.HasValue)
+            NewValue = newValue.GetValueOrDefault().ToObject(jsonTypeInfo);
+
+        var oldValue = jsonModel.OldValue;
+        if (oldValue.HasValue)
+            OldValue = oldValue.GetValueOrDefault().ToObject(jsonTypeInfo);
     }
 
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     public AuditLogChange(JsonAuditLogChange jsonModel) : base(jsonModel)
     {
-        NewValue = jsonModel.NewValue!.Value.ToObject<TValue>();
-        OldValue = jsonModel.OldValue!.Value.ToObject<TValue>();
+        var newValue = jsonModel.NewValue;
+        if (newValue.HasValue)
+            NewValue = newValue.GetValueOrDefault().ToObject<TValue>();
+
+        var oldValue = jsonModel.OldValue;
+        if (oldValue.HasValue)
+            OldValue = oldValue.GetValueOrDefault().ToObject<TValue>();
     }
 
     /// <summary>

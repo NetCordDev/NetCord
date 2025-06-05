@@ -60,7 +60,8 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     public Task Button()
     {
         ButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
-        ActionRowProperties actionRow = new([button]);
+        ButtonProperties button2 = new("click it2", "Click it2!", new(888159212109197382), ButtonStyle.Danger);
+        ActionRowProperties actionRow = new([button, button2]);
         MessageProperties messageBuilder = new()
         {
             Content = "This is button:",
@@ -184,7 +185,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         MessageProperties message = new()
         {
             Content = "Here is your menu:",
-            Components = [new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length }],
+            Components = [new StringMenuProperties("menu", values.Select(v => new StringMenuSelectOptionProperties(v, v))) { MaxValues = values.Length, ParentId = 122, Id = 10 }],
             MessageReference = MessageReferenceProperties.Reply(Context.Message.Id)
         };
         return SendAsync(message);

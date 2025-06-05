@@ -4,6 +4,10 @@ namespace NetCord.Rest;
 
 public partial class LinkButtonProperties : ICustomizableButtonProperties
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
     /// <summary>
     /// Url of the button.
     /// </summary>

@@ -3,20 +3,19 @@
  * The .NET Foundation licenses this file to you under the MIT license.
  */
 
-$enable-important-utilities: false;
-$container-max-widths: (
-  xxl: 1768px,
-) !default;
-
-@import "mixins";
-@import "bootstrap/scss/bootstrap";
-@import "highlight";
-@import "layout";
-@import "nav";
-@import "toc";
-@import "markdown";
-@import "search";
-@import "dotnet";
+@use "mixins";
+@use "bootstrap/scss/bootstrap" with (
+  $container-max-widths: (
+    xxl: 1768px
+  )
+);
+@use "highlight";
+@use "layout";
+@use "nav";
+@use "toc";
+@use "markdown";
+@use "search";
+@use "dotnet";
 
 h1,
 h2,
@@ -26,8 +25,7 @@ h5,
 h6,
 .xref,
 .text-break {
-  word-wrap: break-word;
-  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .divider {
@@ -76,7 +74,7 @@ article {
 
 @media print {
   @page {
-    margin: 0.4in;
+    margin: .4in;
   }
 }
 
@@ -93,7 +91,17 @@ article {
     .spacer {
       flex: 1;
       border-bottom: 1px dashed var(--bs-body-color);
-      margin: 0.4em;
+      margin: .4em;
     }
+  }
+}
+
+@view-transition {
+   navigation: auto;
+}
+
+@media (prefers-reduced-motion) {
+  @view-transition {
+    navigation: none;
   }
 }

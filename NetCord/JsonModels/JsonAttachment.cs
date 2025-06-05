@@ -1,5 +1,4 @@
-﻿using System.Net.Mime;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace NetCord.JsonModels;
 
@@ -14,9 +13,8 @@ public class JsonAttachment : JsonEntity
     [JsonPropertyName("description")]
     public string? Description { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.ContentTypeConverter))]
     [JsonPropertyName("content_type")]
-    public ContentType? ContentType { get; set; }
+    public string? ContentType { get; set; }
 
     [JsonPropertyName("size")]
     public int Size { get; set; }

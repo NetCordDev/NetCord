@@ -2,6 +2,7 @@
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;
@@ -22,7 +23,8 @@ internal static class ShardedGatewayClientConfigurationFactory
                                                            Func<Shard, int?>? largeThresholdFactory,
                                                            Func<Shard, PresenceProperties?>? presenceFactory,
                                                            int? shardCount,
-                                                           RestClientConfiguration? restClientConfiguration)
+                                                           RestClientConfiguration? restClientConfiguration,
+                                                           Func<Shard?, IGatewayLogger?>? loggerFactory)
     {
         return new()
         {
@@ -41,6 +43,7 @@ internal static class ShardedGatewayClientConfigurationFactory
             PresenceFactory = presenceFactory,
             ShardCount = shardCount,
             RestClientConfiguration = restClientConfiguration,
+            LoggerFactory = loggerFactory,
         };
     }
 }

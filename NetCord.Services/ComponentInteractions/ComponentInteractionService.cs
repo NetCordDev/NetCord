@@ -5,10 +5,14 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ComponentInteractions;
 
+#pragma warning disable IDE0032 // Use auto property
+
 public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IComponentInteractionService where TContext : IComponentInteractionContext
 {
     private readonly ComponentInteractionServiceConfiguration<TContext> _configuration = configuration ?? ComponentInteractionServiceConfiguration<TContext>.Default;
     private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
+
+    public ComponentInteractionServiceConfiguration<TContext> Configuration => _configuration;
 
     public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_interactions);
 

@@ -1,243 +1,194 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-import AnchorJs from "anchor-js";
-import { render, html, nothing, TemplateResult } from "lit-html";
-import { breakWordLit, meta, isExternalHref, loc, options } from "./helper";
-import { themePicker } from "./theme";
-import { TocNode } from "./toc";
+import AnchorJs from 'anchor-js'
+import { render, html, nothing, TemplateResult } from 'lit-html'
+import { breakWordLit, meta, isExternalHref, loc, options } from './helper'
+import { themePicker } from './theme'
+import { TocNode } from './toc'
 
 export type NavItem = {
-  name: string;
-  href: URL;
-};
+  name: string
+  href: URL
+}
 
 export type NavItemContainer = {
-  name: string;
-  items: NavItem[];
-};
+  name: string
+  items: NavItem[]
+}
 
 /**
  * @returns active navbar items
  */
 export async function renderNavbar(): Promise<NavItem[]> {
-  const navbar = document.getElementById("navbar");
+  const navbar = document.getElementById('navbar')
   if (!navbar) {
-    return [];
+    return []
   }
 
-  const { icons } = await options();
-  const navItems = await loadNavItems();
-  const activeItem = findActiveItem(navItems);
+  const { icons } = await options()
+  const navItems = await loadNavItems()
+  const activeItem = findActiveItem(navItems)
 
-  const menuItem = (item) => {
-    const current = item === activeItem ? "page" : false;
-    const active = item === activeItem ? "active" : null;
-    return html`<li class="nav-item">
-      <a class="nav-link ${active}" aria-current=${current} href=${item.href}
-        >${breakWordLit(item.name)}</a
-      >
-    </li>`;
-  };
+  const menuItem = item => {
+    const current = (item === activeItem ? 'page' : false)
+    const active = (item === activeItem ? 'active' : null)
+    return html`<li class='nav-item'><a class='nav-link ${active}' aria-current=${current} href=${item.href}>${breakWordLit(item.name)}</a></li>`
+  }
 
-  const menu = html` <ul class="navbar-nav">
-    ${navItems.map((item) => {
-      if ("items" in item) {
-        const active = item.items.some((i) => i === activeItem)
-          ? "active"
-          : null;
-        return html` <li class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle ${active}"
-            href="#"
-            role="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            ${breakWordLit(item.name)}
-          </a>
-          <ul class="dropdown-menu">
-            ${item.items.map(menuItem)}
-          </ul>
-        </li>`;
-      } else {
-        return menuItem(item);
-      }
-    })}
-  </ul>`;
+  const menu = html`
+    <ul class='navbar-nav'>${navItems.map(item => {
+    if ('items' in item) {
+      const active = item.items.some(i => i === activeItem) ? 'active' : null
+      return html`
+            <li class='nav-item dropdown'>
+              <a class='nav-link dropdown-toggle ${active}' href='#' role='button' data-bs-toggle='dropdown' aria-expanded='false'>
+                ${breakWordLit(item.name)}
+              </a>
+              <ul class='dropdown-menu'>${item.items.map(menuItem)}</ul>
+            </li>`
+    } else {
+      return menuItem(item)
+    }
+  })
+    }</ul>`
 
   async function renderCore() {
     function handleActiveEvent(event: Event) {
-      (event.target as Element).classList.add("icon-tooltip-active");
+      (event.target as Element).classList.add('icon-tooltip-active')
     }
 
-    const iconsForm = html` <form class="icons">
-      ${icons?.map(
-        (i) =>
-        {
-          if (i.href) {
-            return html`<a
-              class="btn border-0 icon-tooltip"
-              aria-label="${i.tooltip}"
-              tooltip="${i.tooltip}"
-              href="${i.href}"
-              @mouseover="${handleActiveEvent}"
-              @focus="${handleActiveEvent}"
-              ><i class="${i.icon} icon-content"></i
-            ></a>`;
-          } else if (i.onclick) {
-            return html`<button
-              type="button"
-              class="btn border-0 icon-tooltip"
-              aria-label="${i.tooltip}"
-              tooltip="${i.tooltip}"
-              @click="${i.onclick}"
-              @mouseover="${handleActiveEvent}"
-              @focus="${handleActiveEvent}"
-              ><i class="${i.icon} icon-content"></i
-            ></button>`;
+    const iconsForm = html`
+      <form class="icons">
+        ${icons?.map(
+          (i) => {
+            if (i.href) {
+              return html`<a
+                class="btn border-0 icon-tooltip"
+                aria-label="${i.title}"
+                tooltip="${i.title}"
+                href="${i.href}"
+                @mouseover="${handleActiveEvent}"
+                @focus="${handleActiveEvent}"
+                ><i class="${i.icon} icon-content"></i
+              ></a>`
+            } else if (i.onclick) {
+              return html`<button
+                type="button"
+                class="btn border-0 icon-tooltip"
+                aria-label="${i.title}"
+                tooltip="${i.title}"
+                @click="${i.onclick}"
+                @mouseover="${handleActiveEvent}"
+                @focus="${handleActiveEvent}"
+                ><i class="${i.icon} icon-content"></i
+              ></button>`
+            }
+
+            return nothing
           }
+        )}
+        ${await themePicker(renderCore, handleActiveEvent)}
+      </form>`
 
-          return nothing;
-        },
-      )}
-      ${await themePicker(renderCore, handleActiveEvent)}
-    </form>`;
-
-    render(html`${menu} ${iconsForm}`, navbar);
+    render(html`${menu} ${iconsForm}`, navbar)
   }
 
-  await renderCore();
+  await renderCore()
 
-  return activeItem ? [activeItem] : [];
+  return activeItem ? [activeItem] : []
 
   async function loadNavItems(): Promise<(NavItem | NavItemContainer)[]> {
-    const navrel = meta("docfx:navrel");
+    const navrel = meta('docfx:navrel')
     if (!navrel) {
-      return [];
+      return []
     }
 
-    const navUrl = new URL(
-      navrel.replace(/.html$/gi, ".json"),
-      window.location.href,
-    );
-    const { items } = await fetch(navUrl).then((res) => res.json());
+    const navUrl = new URL(navrel.replace(/.html$/gi, '.json'), window.location.href)
+    const { items } = await fetch(navUrl).then(res => res.json())
     return items.map((a: NavItem | NavItemContainer) => {
-      if ("items" in a) {
-        return {
-          name: a.name,
-          items: a.items.map((i) => ({
-            name: i.name,
-            href: new URL(i.href, navUrl),
-          })),
-        };
+      if ('items' in a) {
+        return { name: a.name, items: a.items.map(i => ({ name: i.name, href: new URL(i.href, navUrl) })) }
       }
-      return { name: a.name, href: new URL(a.href, navUrl) };
-    });
+      return { name: a.name, href: new URL(a.href, navUrl) }
+    })
   }
 }
 
 export function renderBreadcrumb(breadcrumb: (NavItem | TocNode)[]) {
-  const container = document.getElementById("breadcrumb");
+  const container = document.getElementById('breadcrumb')
   if (container) {
     render(
-      html` <ol class="breadcrumb">
-        ${breadcrumb.map(
-          (i) =>
-            html`<li class="breadcrumb-item">
-              <a href="${i.href}">${breakWordLit(i.name)}</a>
-            </li>`,
-        )}
-      </ol>`,
-      container,
-    );
+      html`
+        <ol class="breadcrumb">
+          ${breadcrumb.map(i => html`<li class="breadcrumb-item"><a href="${i.href}">${breakWordLit(i.name)}</a></li>`)}
+        </ol>`,
+      container)
   }
 }
 
 export async function renderInThisArticle() {
-  await renderAnchors();
-  const affix = document.getElementById("affix");
+  await renderAnchors()
+  const affix = document.getElementById('affix')
   if (affix) {
-    render(inThisArticle(), affix);
+    render(inThisArticle(), affix)
   }
 }
 
 async function renderAnchors() {
-  const anchors = new AnchorJs();
-  const { anchors: anchorsOptions } = await options();
-  anchors.options = Object.assign(
-    {
-      visible: "hover",
-      icon: "#",
-    },
-    anchorsOptions,
-  );
+  const anchors = new AnchorJs()
+  const { anchors: anchorsOptions } = await options()
+  anchors.options = Object.assign({
+    visible: 'hover',
+    icon: '#'
+  }, anchorsOptions)
 
-  anchors.add(
-    "article h2:not(.no-anchor), article h3:not(.no-anchor), article h4:not(.no-anchor)",
-  );
+  anchors.add('article h2:not(.no-anchor), article h3:not(.no-anchor), article h4:not(.no-anchor)')
 
   /* eslint-disable no-self-assign */
   if (location.hash) {
-    location.href = location.href;
+    location.href = location.href
   }
 }
 
 function inThisArticle(): TemplateResult {
-  const headings = Array.from(
-    document.querySelectorAll<HTMLHeadingElement>("article h2, article h3"),
-  );
+  const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>('article h2, article h3'))
 
   if (headings.length > 0) {
-    return html` <h5 class="border-bottom">${loc("inThisArticle")}</h5>
-      <ul>
-        ${headings.map((h) =>
-          h.tagName === "H2"
-            ? html`<li>
-                <a class="link-body-emphasis" href="#${h.id}"
-                  >${breakWordLit(h.innerText)}</a
-                >
-              </li>`
-            : html`<li>
-                <a class="link-secondary" href="#${h.id}"
-                  >${breakWordLit(h.innerText)}</a
-                >
-              </li>`,
-        )}
-      </ul>`;
+    return html`
+      <h5 class="border-bottom">${loc('inThisArticle')}</h5>
+      <ul>${headings.map(h => h.tagName === 'H2'
+        ? html`<li><a class="link-body-emphasis" href="#${h.id}">${breakWordLit(h.innerText)}</a></li>`
+        : html`<li><a class="link-secondary" href="#${h.id}">${breakWordLit(h.innerText)}</a></li>`
+    )}</ul>`
   }
 }
 
 function findActiveItem(items: (NavItem | NavItemContainer)[]): NavItem {
-  const url = new URL(window.location.href);
-  let activeItem: NavItem;
-  let maxPrefix = 0;
-  for (const item of items.map((i) => ("items" in i ? i.items : i)).flat()) {
+  const url = new URL(window.location.href)
+  let activeItem: NavItem
+  let maxPrefix = 0
+  for (const item of items.map(i => 'items' in i ? i.items : i).flat()) {
     if (isExternalHref(item.href)) {
-      continue;
+      continue
     }
-    const prefix = commonUrlPrefix(url, item.href);
-    if (prefix == maxPrefix) {
-      activeItem = undefined;
-    }
-    else if (prefix > maxPrefix) {
-      maxPrefix = prefix;
-      activeItem = item;
+    const prefix = commonUrlPrefix(url, item.href)
+    if (prefix === maxPrefix) {
+      activeItem = undefined
+    } else if (prefix > maxPrefix) {
+      maxPrefix = prefix
+      activeItem = item
     }
   }
-  return activeItem;
+  return activeItem
 }
 
 function commonUrlPrefix(url: URL, base: URL): number {
-  const urlSegments = url.pathname.split("/");
-  const baseSegments = base.pathname.split("/");
-  let i = 0;
-  while (
-    i < urlSegments.length &&
-    i < baseSegments.length &&
-    urlSegments[i] === baseSegments[i]
-  ) {
-    i++;
+  const urlSegments = url.pathname.split('/')
+  const baseSegments = base.pathname.split('/')
+  let i = 0
+  while (i < urlSegments.length && i < baseSegments.length && urlSegments[i] === baseSegments[i]) {
+    i++
   }
-  return i;
+  return i
 }

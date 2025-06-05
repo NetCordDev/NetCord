@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Rest;
 
-public class Sku(JsonModels.JsonSku jsonModel) : Entity, IJsonModel<JsonModels.JsonSku>
+public partial class Sku(JsonModels.JsonSku jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonSku>
 {
     JsonModels.JsonSku IJsonModel<JsonModels.JsonSku>.JsonModel => jsonModel;
 

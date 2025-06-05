@@ -4,7 +4,18 @@ namespace NetCord.Gateway;
 
 public partial record WebSocketPayloadProperties
 {
-    public WebSocketMessageType MessageType { get; set; }
-    public WebSocketMessageFlags MessageFlags { get; set; } = WebSocketMessageFlags.EndOfMessage;
-    public WebSocketRetryHandling RetryHandling { get; set; } = WebSocketRetryHandling.Retry;
+    /// <summary>
+    /// The type of message to send. Defaults to <see cref="WebSocketMessageType.Text"/>.
+    /// </summary>
+    public WebSocketMessageType? MessageType { get; set; }
+
+    /// <summary>
+    /// The flags to apply to the message. Defaults to <see cref="WebSocketMessageFlags.EndOfMessage"/>.
+    /// </summary>
+    public WebSocketMessageFlags? MessageFlags { get; set; }
+
+    /// <summary>
+    /// The retry handling to apply to the message. Defaults to <see cref="WebSocketRetryHandling.Retry"/>.
+    /// </summary>
+    public WebSocketRetryHandling? RetryHandling { get; set; }
 }

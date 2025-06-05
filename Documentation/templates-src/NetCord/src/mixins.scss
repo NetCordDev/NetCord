@@ -4,19 +4,18 @@
  */
 
 @mixin adjust-icon {
-  font-family: bootstrap-icons;
-  position: relative;
-  margin-right: 0.5em;
-  top: 0.2em;
-  font-size: 1.25em;
-  font-weight: normal;
-}
-
-@mixin underline-on-hover {
-  text-decoration: none;
-
-  &:hover,
-  &:focus {
-    text-decoration: underline;
+    font-family: bootstrap-icons;
+    position: relative;
+    margin-right: 0.5em;
+    top: 0.2em;
+    font-size: 1.25em;
+    font-weight: normal;
   }
-}
+
+  @mixin underline-on-hover {
+    text-decoration: none;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }

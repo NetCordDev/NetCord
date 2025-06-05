@@ -1,8 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
+using NetCord.JsonConverters;
+
 namespace NetCord.Rest;
 
-public enum MentionableValueType : byte
+[JsonConverter(typeof(SafeStringEnumConverter<MentionableValueType>))]
+public enum MentionableValueType : sbyte
 {
     [JsonPropertyName("user")]
     User,

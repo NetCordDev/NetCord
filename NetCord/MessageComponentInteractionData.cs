@@ -6,5 +6,7 @@ public abstract class MessageComponentInteractionData : ComponentInteractionData
     {
     }
 
+    public int Id => (int)_jsonModel.Id.GetValueOrDefault();
+
     public ComponentType ComponentType => _jsonModel.ComponentType.GetValueOrDefault();
 }

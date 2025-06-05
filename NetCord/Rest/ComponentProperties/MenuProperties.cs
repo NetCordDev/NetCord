@@ -6,8 +6,15 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
-public abstract partial class MenuProperties(string customId) : ComponentProperties
+public abstract partial class MenuProperties(string customId) : IComponentProperties
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("id")]
+    public int? Id { get; set; }
+
+    [JsonPropertyName("type")]
+    public abstract ComponentType ComponentType { get; }
+
     /// <summary>
     /// ID for the menu (max 100 characters).
     /// </summary>
@@ -41,4 +48,7 @@ public abstract partial class MenuProperties(string customId) : ComponentPropert
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
+
+    [JsonIgnore]
+    public int? ParentId { get; set; }
 }

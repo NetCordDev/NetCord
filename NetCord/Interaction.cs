@@ -26,7 +26,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
         Guild = guild;
         Channel = TextChannel.CreateFromJson(jsonModel.Channel!, client);
-        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e)).ToArray();
+        Entitlements = jsonModel.Entitlements.Select(e => new Entitlement(e, client)).ToArray();
 
         _sendResponseAsync = sendResponseAsync;
     }

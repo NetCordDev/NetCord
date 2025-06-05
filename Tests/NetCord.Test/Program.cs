@@ -6,11 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
 using NetCord.JsonModels;
+using NetCord.Logging;
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using NetCord.Services.Commands;
 using NetCord.Services.ComponentInteractions;
+using NetCord.Test.ApplicationCommands;
 
 namespace NetCord.Test;
 
@@ -20,6 +22,7 @@ internal static class Program
     {
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
+        Logger = new ConsoleLogger(LogLevel.Debug),
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
         //Compression = new UncompressedGatewayCompression(),
@@ -44,8 +47,8 @@ internal static class Program
         var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
         configuration = configuration with
         {
-            TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new ApplicationCommands.PermissionsTypeReader()),
-            ParameterNameProcessor = new SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>(),
+            TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader()),
+            ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
         };
@@ -53,6 +56,7 @@ internal static class Program
 
         ServiceCollection services = new();
         services.AddSingleton("wzium");
+        services.AddKeyedSingleton("key", "wzium2");
         services.AddSingleton(new HttpClient());
         services.AddSingleton(new Dictionary<ulong, SemaphoreSlim>());
         _serviceProvider = services.BuildServiceProvider();
@@ -60,10 +64,24 @@ internal static class Program
 
     private static async Task Main()
     {
-        _client.Log += Client_Log;
         _client.MessageCreate += Client_MessageCreate;
         _client.InteractionCreate += Client_InteractionCreate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
+
+        _client.GuildUserUpdate += async user =>
+        {
+            Console.WriteLine("A");
+            await Task.Delay(100);
+            Console.WriteLine("B");
+            throw new("X");
+        };
+
+        _client.GuildUserUpdate += user =>
+        {
+            Console.WriteLine("C");
+            throw new("D");
+        };
+
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
         _commandService.AddModules(assembly);
@@ -77,6 +95,22 @@ internal static class Program
         _channelMenuInteractionService.AddModules(assembly);
         _modalInteractionService.AddModules(assembly);
         _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
+        _slashCommandService.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}");
+
+        _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
+        {
+            builder.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
+            (string wzium,
+                                                      SlashCommandContext context,
+                                                      [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
+            builder.AddSubCommand("blue", "Blue!", () => "blue");
+            builder.AddSubCommand("red", "Red!", builder =>
+            {
+                builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
+                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => $"purple {s}");
+            });
+        });
+
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 
@@ -181,13 +215,5 @@ internal static class Program
                 }
             }
         }
-    }
-
-    private static ValueTask Client_Log(LogMessage message)
-    {
-        Console.ForegroundColor = message.Severity == LogSeverity.Info ? ConsoleColor.Cyan : ConsoleColor.DarkRed;
-        Console.WriteLine(message);
-        Console.ResetColor();
-        return default;
     }
 }

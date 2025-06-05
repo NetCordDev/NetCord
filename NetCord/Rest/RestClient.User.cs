@@ -33,7 +33,7 @@ public partial class RestClient
             g => g.Id,
             HttpMethod.Get,
             $"/users/@me/guilds",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_counts={paginationProperties.WithCounts}&"),
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), $"?with_counts={paginationProperties.WithCounts}&"),
             null,
             properties);
     }

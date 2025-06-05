@@ -27,7 +27,7 @@ public class EvalCommand : CommandModule<CommandContext>
         object? value;
         try
         {
-            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()).WithLanguageVersion(LanguageVersion.Preview).WithAllowUnsafe(true).AddImports(
+            value = await CSharpScript.EvaluateAsync(code, ScriptOptions.Default.AddReferences(Assembly.GetEntryAssembly()!).WithLanguageVersion(LanguageVersion.Preview).WithAllowUnsafe(true).AddImports(
                 "NetCord",
                 "NetCord.Rest",
                 "NetCord.Gateway",

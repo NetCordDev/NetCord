@@ -91,5 +91,7 @@ public record CommandServiceConfiguration<TContext> where TContext : ICommandCon
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
 
-    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = new CommandResultResolverProvider<TContext>();
+    public IResultResolverProvider<TContext> ResultResolverProvider { get; init; } = CommandResultResolverProvider<TContext>.Instance;
+
+    public IServiceResolverProvider ServiceResolverProvider { get; init; } = Services.ServiceResolverProvider.Instance;
 }

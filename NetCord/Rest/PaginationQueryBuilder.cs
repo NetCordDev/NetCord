@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal class PaginationQueryBuilder<T>(int limit, PaginationDirection direction, Func<T, string> toString, string baseQuery = "?") where T : struct
+internal class PaginationQueryBuilder<T>(int batchSize, PaginationDirection direction, Func<T, string> toString, string baseQuery = "?") where T : struct
 {
     private readonly string _direction = direction switch
     {
@@ -11,7 +11,7 @@ internal class PaginationQueryBuilder<T>(int limit, PaginationDirection directio
         _ => throw new ArgumentException($"The value of '{nameof(direction)}' is invalid."),
     };
 
-    private readonly StringBuilder _builder = new StringBuilder(baseQuery).Append("limit=").Append(limit);
+    private readonly StringBuilder _builder = new StringBuilder(baseQuery).Append("limit=").Append(batchSize);
 
     public override string ToString() => _builder.ToString();
 

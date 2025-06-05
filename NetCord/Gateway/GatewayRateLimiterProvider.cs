@@ -6,7 +6,7 @@ public class GatewayRateLimiterProvider(int limit, long duration) : IRateLimiter
 
     private sealed class GatewayRateLimiter(int limit, long duration) : IRateLimiter
     {
-        private readonly object _lock = new();
+        private readonly Lock _lock = new();
         private readonly int _limit = limit;
         private int _remaining = limit;
         private long _reset;

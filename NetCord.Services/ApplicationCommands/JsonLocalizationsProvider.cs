@@ -228,42 +228,42 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
         return result;
     }
 
-    internal interface ICommandsLocalization
+    private interface ICommandsLocalization
     {
         public IReadOnlyDictionary<string, CommandLocalization>? Commands { get; }
     }
 
-    internal interface INameLocalization
+    private interface INameLocalization
     {
         public string? Name { get; }
     }
 
-    internal interface IDescriptionLocalization
+    private interface IDescriptionLocalization
     {
         public string? Description { get; }
     }
 
-    internal interface ISubCommandsLocalization
+    private interface ISubCommandsLocalization
     {
         public IReadOnlyDictionary<string, CommandLocalization>? SubCommands { get; }
     }
 
-    internal interface IParametersLocalization
+    private interface IParametersLocalization
     {
         public IReadOnlyDictionary<string, ParameterLocalization>? Parameters { get; }
     }
 
-    internal interface IEnumsLocalization
+    private interface IEnumsLocalization
     {
         public IReadOnlyDictionary<string, EnumLocalization>? Enums { get; }
     }
 
-    internal interface IEnumLocalization
+    private interface IEnumLocalization
     {
         public IReadOnlyDictionary<string, EnumFieldLocalization>? Fields { get; }
     }
 
-    internal class Localization : ICommandsLocalization, IEnumsLocalization
+    private class Localization : ICommandsLocalization, IEnumsLocalization
     {
         [JsonPropertyName("commands")]
         public IReadOnlyDictionary<string, CommandLocalization>? Commands { get; set; }
@@ -272,7 +272,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
         public IReadOnlyDictionary<string, EnumLocalization>? Enums { get; set; }
     }
 
-    internal class CommandLocalization : INameLocalization, IDescriptionLocalization, ISubCommandsLocalization, IParametersLocalization
+    private class CommandLocalization : INameLocalization, IDescriptionLocalization, ISubCommandsLocalization, IParametersLocalization
     {
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -287,19 +287,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
         public IReadOnlyDictionary<string, ParameterLocalization>? Parameters { get; set; }
     }
 
-    internal class SubCommandLocalization : INameLocalization, IDescriptionLocalization, ISubCommandsLocalization
-    {
-        [JsonPropertyName("name")]
-        public string? Name { get; set; }
-
-        [JsonPropertyName("description")]
-        public string? Description { get; set; }
-
-        [JsonPropertyName("subcommands")]
-        public IReadOnlyDictionary<string, CommandLocalization>? SubCommands { get; set; }
-    }
-
-    internal class ParameterLocalization : INameLocalization, IDescriptionLocalization
+    private class ParameterLocalization : INameLocalization, IDescriptionLocalization
     {
         [JsonPropertyName("name")]
         public string? Name { get; set; }
@@ -309,7 +297,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
     }
 
     [JsonConverter(typeof(EnumLocalizationConverter))]
-    internal class EnumLocalization(IReadOnlyDictionary<string, EnumFieldLocalization>? fields) : IEnumLocalization
+    private class EnumLocalization(IReadOnlyDictionary<string, EnumFieldLocalization>? fields) : IEnumLocalization
     {
         public IReadOnlyDictionary<string, EnumFieldLocalization>? Fields { get; set; } = fields;
 
@@ -330,7 +318,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
     }
 
     [JsonConverter(typeof(EnumFieldLocalizationConverter))]
-    internal class EnumFieldLocalization(string name) : INameLocalization
+    private class EnumFieldLocalization(string name) : INameLocalization
     {
         public string? Name { get; set; } = name;
 
@@ -350,7 +338,7 @@ public partial class JsonLocalizationsProvider(JsonLocalizationsProviderConfigur
 
     [JsonSerializable(typeof(Localization))]
     [JsonSerializable(typeof(IReadOnlyDictionary<string, EnumFieldLocalization>))]
-    internal partial class LocalizationSerializerContext : JsonSerializerContext
+    private partial class LocalizationSerializerContext : JsonSerializerContext
     {
     }
 }

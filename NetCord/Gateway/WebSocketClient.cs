@@ -1,15 +1,18 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Buffers;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
 
-public abstract class WebSocketClient : IDisposable
+public abstract partial class WebSocketClient : IDisposable
 {
     private protected record ConnectionStateResult
     {
@@ -33,7 +36,7 @@ public abstract class WebSocketClient : IDisposable
 
         public CancellationTokenProvider DisconnectedTokenProvider { get; } = new();
 
-        private int _state;
+        private byte _state;
 
         public bool TryIndicateDisconnecting()
         {
@@ -53,7 +56,7 @@ public abstract class WebSocketClient : IDisposable
         }
     }
 
-    private protected sealed class State : IDisposable
+    private protected class State : IDisposable
     {
         private ConnectionState? _connectionState;
 
@@ -88,6 +91,10 @@ public abstract class WebSocketClient : IDisposable
             }
 
             return ConnectingResult.Success;
+        }
+
+        public virtual void Abort()
+        {
         }
 
         public enum ConnectingResult : byte
@@ -160,25 +167,47 @@ public abstract class WebSocketClient : IDisposable
 
     private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        _connectionProvider = configuration.WebSocketConnectionProvider ?? new WebSocketConnectionProvider();
+        _connectionProvider = configuration.WebSocketConnectionProvider ?? WebSocketConnectionProvider.Instance;
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
-        _defaultPayloadProperties = configuration.DefaultPayloadProperties is { } defaultPayloadProperties ? defaultPayloadProperties with { } : new();
+        _defaultPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
+        _logger = configuration.Logger ?? NullLogger.Instance;
     }
 
-    private protected static readonly WebSocketPayloadProperties _internalPayloadProperties = new()
+    private static InternalWebSocketPayloadProperties CreatePayloadProperties(WebSocketPayloadProperties? properties)
     {
-        MessageFlags = WebSocketMessageFlags.EndOfMessage,
-        RetryHandling = WebSocketRetryHandling.RetryRateLimit,
-    };
+        return properties switch
+        {
+            null => new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.Retry),
+            _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(),
+                                                        properties.MessageFlags.GetValueOrDefault(WebSocketMessageFlags.EndOfMessage),
+                                                        properties.RetryHandling.GetValueOrDefault(WebSocketRetryHandling.Retry))
+        };
+    }
+
+    private protected record struct InternalWebSocketPayloadProperties(WebSocketMessageType MessageType, WebSocketMessageFlags MessageFlags, WebSocketRetryHandling RetryHandling)
+    {
+        public readonly InternalWebSocketPayloadProperties Compose(WebSocketPayloadProperties? properties)
+        {
+            return properties switch
+            {
+                null => this,
+                _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(MessageType),
+                                                            properties.MessageFlags.GetValueOrDefault(MessageFlags),
+                                                            properties.RetryHandling.GetValueOrDefault(RetryHandling))
+            };
+        }
+    }
 
     private readonly IWebSocketConnectionProvider _connectionProvider;
     private readonly IReconnectStrategy _reconnectStrategy;
     private readonly IRateLimiterProvider _rateLimiterProvider;
-    private readonly WebSocketPayloadProperties _defaultPayloadProperties;
+    private readonly InternalWebSocketPayloadProperties _defaultPayloadProperties;
+    private protected readonly InternalWebSocketPayloadProperties _internalPayloadProperties = new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
+    private protected readonly IWebSocketLogger _logger;
 
     private State? _state;
 
@@ -195,57 +224,132 @@ public abstract class WebSocketClient : IDisposable
 
     private TimeSpan _latency;
 
-    public event Func<TimeSpan, ValueTask>? LatencyUpdate;
-    public event Func<ValueTask>? Resume;
-    public event Func<ValueTask>? Connecting;
-    public event Func<ValueTask>? Connect;
-    public event Func<bool, ValueTask>? Disconnect;
-    public event Func<ValueTask>? Close;
-    public event Func<LogMessage, ValueTask>? Log;
+    public partial event Func<TimeSpan, ValueTask>? LatencyUpdate;
+    public partial event Func<ValueTask>? Resume;
+    public partial event Func<ValueTask>? Connecting;
+    public partial event Func<ValueTask>? Connect;
+    public partial event Func<DisconnectEventArgs, ValueTask>? Disconnect;
+    public partial event Func<ValueTask>? Close;
+
+    private protected State GetState()
+    {
+        var state = _state;
+
+        if (state is null)
+            ThrowConnectionNotStarted();
+
+        return state;
+    }
+
+    private protected void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    {
+        try
+        {
+            _logger.Log(logLevel, state, exception, formatter);
+        }
+        catch
+        {
+        }
+    }
+
+    private protected static void AddEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
+    {
+        if (value is null)
+            return;
+
+        var currentHandlers = handlers;
+
+        while (true)
+        {
+            var newHandlers = currentHandlers.Add(value);
+            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
+            if (currentHandlers == oldHandlers)
+                break;
+        }
+    }
+
+    private protected static void RemoveEventHandler<T>(ref ImmutableList<T> handlers, T? value) where T : class
+    {
+        if (value is null)
+            return;
+
+        var currentHandlers = handlers;
+
+        while (true)
+        {
+            var newHandlers = currentHandlers.Remove(value);
+            var oldHandlers = Interlocked.CompareExchange(ref handlers, newHandlers, currentHandlers);
+            if (currentHandlers == oldHandlers)
+                break;
+        }
+    }
 
     private async void HandleConnecting()
     {
-        InvokeLog(LogMessage.Info("Connecting"));
-        await InvokeEventAsync(Connecting).ConfigureAwait(false);
+        Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connecting.");
+
+        await InvokeEventAsync(_connecting).ConfigureAwait(false);
     }
 
     private async void HandleConnected()
     {
         OnConnected();
-        InvokeLog(LogMessage.Info("Connected"));
-        await InvokeEventAsync(Connect).ConfigureAwait(false);
+
+        Log<object?>(LogLevel.Information, null, null, static (s, e) => "Connected.");
+
+        await InvokeEventAsync(_connect).ConfigureAwait(false);
     }
 
     private async void HandleDisconnected(State state, ConnectionState connectionState)
     {
-        var connection = connectionState.Connection;
-
-        var description = connection.CloseStatusDescription;
-        InvokeLog(LogMessage.Info("Disconnected", description is [.., '.'] ? description[..^1] : description));
-
-        var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
-
-        var disconnectTask = InvokeEventAsync(Disconnect, reconnect);
-
-        if (reconnect)
+        try
         {
-            connectionState.Dispose();
-            await ReconnectAsync(state).ConfigureAwait(false);
-        }
-        else
-        {
-            Interlocked.CompareExchange(ref _state, null, state);
-            connectionState.Dispose();
-            state.Dispose();
-        }
+            var connection = connectionState.Connection;
 
-        await disconnectTask.ConfigureAwait(false);
+            var description = connection.CloseStatusDescription;
+
+            Log(LogLevel.Information, description, null, static (s, e) =>
+            {
+                return s switch
+                {
+                    null or { Length: 0 } => "Disconnected.",
+                    [.., '.'] => $"Disconnected: {s}",
+                    _ => $"Disconnected: {s}.",
+                };
+            });
+
+            var reconnect = Reconnect((WebSocketCloseStatus?)connection.CloseStatus, description);
+
+            var disconnectTask = InvokeEventAsync(_disconnect, () => new DisconnectEventArgs(reconnect));
+
+            if (reconnect)
+            {
+                connectionState.Dispose();
+                await ResumeAsync(state).ConfigureAwait(false);
+            }
+            else
+            {
+                Interlocked.CompareExchange(ref _state, null, state);
+                connectionState.Dispose();
+                state.Dispose();
+            }
+
+            await disconnectTask.ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while handling the disconnection.{Environment.NewLine}{e}";
+            });
+        }
     }
 
     private async void HandleClosed()
     {
-        InvokeLog(LogMessage.Info("Closed"));
-        await InvokeEventAsync(Close).ConfigureAwait(false);
+        Log<object?>(LogLevel.Information, null, null, static (s, e) => "Closed.");
+
+        await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
     private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> data)
@@ -256,36 +360,49 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
-            await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while processing the payload.{Environment.NewLine}{e}";
+            });
+
+            try
+            {
+                await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
+            }
+            catch (Exception abortEx)
+            {
+                Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
+                {
+                    return $"An error occurred while aborting and resuming.{Environment.NewLine}{e}";
+                });
+            }
         }
     }
 
-    private protected async Task<ConnectionState> StartAsync(CancellationToken cancellationToken = default)
+    private protected async ValueTask<ConnectionState> StartAsync(State newState, CancellationToken cancellationToken = default)
     {
-        State state = new();
-        if (Interlocked.CompareExchange(ref _state, state, null) is not null)
+        if (Interlocked.CompareExchange(ref _state, newState, null) is not null)
         {
-            state.Dispose();
+            newState.Dispose();
             ThrowConnectionAlreadyStarted();
         }
 
         ConnectionState connectionState;
         try
         {
-            connectionState = await ConnectAsync(state, cancellationToken).ConfigureAwait(false);
+            connectionState = await ConnectAsync(newState, cancellationToken).ConfigureAwait(false);
         }
         catch
         {
-            Interlocked.CompareExchange(ref _state, null, state);
-            state.Dispose();
+            Interlocked.CompareExchange(ref _state, null, newState);
+            newState.Dispose();
             throw;
         }
 
         return connectionState;
     }
 
-    private protected async Task<ConnectionState> ConnectAsync(State state, CancellationToken cancellationToken = default)
+    private protected async ValueTask<ConnectionState> ConnectAsync(State state, CancellationToken cancellationToken = default)
     {
         var connection = _connectionProvider.CreateConnection();
         var rateLimiter = _rateLimiterProvider.CreateRateLimiter();
@@ -330,7 +447,7 @@ public abstract class WebSocketClient : IDisposable
     /// <param name="statusDescription">The status description to close with.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
-    public async Task CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
+    public async ValueTask CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
         var state = Interlocked.Exchange(ref _state, null);
 
@@ -347,14 +464,22 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex) when (ex is not ArgumentException)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while closing the connection.{Environment.NewLine}{e}";
+            });
+
             try
             {
                 connection.Abort();
+                state.Abort();
             }
             catch (Exception abortEx)
             {
-                InvokeLog(LogMessage.Error(abortEx));
+                Log<object?>(LogLevel.Error, null, abortEx, static (s, e) =>
+                {
+                    return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+                });
             }
         }
 
@@ -407,10 +532,14 @@ public abstract class WebSocketClient : IDisposable
         try
         {
             connectionState.Connection.Abort();
+            state.Abort();
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
@@ -422,7 +551,7 @@ public abstract class WebSocketClient : IDisposable
     {
     }
 
-    private protected ValueTask AbortAndReconnectAsync(State state, ConnectionState connectionState)
+    private protected ValueTask AbortAndResumeAsync(State state, ConnectionState connectionState)
     {
         if (!state.TryIndicateDisconnecting(connectionState))
             return default;
@@ -433,25 +562,48 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
         }
 
         connectionState.Dispose();
         HandleClosed();
 
-        return ReconnectAsync(state);
+        return ResumeAsync(state);
+    }
+
+    private protected ValueTask AbortAndRestartAsync(State state, ConnectionState connectionState)
+    {
+        if (!state.TryIndicateDisconnecting(connectionState))
+            return default;
+
+        try
+        {
+            connectionState.Connection.Abort();
+        }
+        catch (Exception ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
+            });
+        }
+
+        connectionState.Dispose();
+        HandleClosed();
+
+        return RestartAsync(state);
     }
 
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        properties ??= _defaultPayloadProperties;
+        var payloadProperties = _defaultPayloadProperties.Compose(properties);
 
         while (true)
         {
-            var state = _state;
-
-            if (state is null)
-                ThrowConnectionNotStarted();
+            var state = GetState();
 
             var task = state.ReadyTask;
 
@@ -468,7 +620,7 @@ public abstract class WebSocketClient : IDisposable
             }
             else
             {
-                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 {
                     var result = await task.WaitAsync(cancellationToken).ConfigureAwait(false);
                     if (result is ConnectionStateResult.Success successResult)
@@ -483,26 +635,26 @@ public abstract class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
 
-            if (!properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+            if (!payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 ThrowConnectionNotStarted();
         }
     }
 
-    private protected static async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, properties, cancellationToken).ConfigureAwait(false);
+        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private static async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties properties, CancellationToken cancellationToken = default)
+    private async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -527,10 +679,15 @@ public abstract class WebSocketClient : IDisposable
 
             if (result.RateLimited)
             {
-                if (properties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
+                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
                 {
                     try
                     {
+                        Log<object?>(LogLevel.Warning, result.ResetAfter, null, static (s, e) =>
+                        {
+                            return $"Rate limit exceeded. Retrying after {s} ms.";
+                        });
+
                         await Task.Delay(result.ResetAfter, linkedToken).ConfigureAwait(false);
                     }
                     catch (TaskCanceledException ex)
@@ -546,11 +703,13 @@ public abstract class WebSocketClient : IDisposable
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
 
+            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
+
             var timestamp = Environment.TickCount64;
 
             try
             {
-                await connectionState.Connection.SendAsync(buffer, properties.MessageType, properties.MessageFlags, linkedToken).ConfigureAwait(false);
+                await connectionState.Connection.SendAsync(buffer, payloadProperties.MessageType, payloadProperties.MessageFlags, linkedToken).ConfigureAwait(false);
             }
             catch (ArgumentException)
             {
@@ -585,7 +744,7 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract bool Reconnect(WebSocketCloseStatus? status, string? description);
 
-    private protected async ValueTask ReconnectAsync(State state)
+    private protected async ValueTask ResumeAsync(State state)
     {
         var cancellationToken = state.ClosedTokenProvider.Token;
 
@@ -607,7 +766,11 @@ public abstract class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
+                });
+
                 continue;
             }
 
@@ -617,12 +780,63 @@ public abstract class WebSocketClient : IDisposable
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while resuming the connection.{Environment.NewLine}{e}";
+                });
             }
 
             return;
         }
     }
+
+    private protected async ValueTask RestartAsync(State state)
+    {
+        var cancellationToken = state.ClosedTokenProvider.Token;
+
+        foreach (var delay in _reconnectStrategy.GetDelays())
+        {
+            try
+            {
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+            }
+            catch
+            {
+                return;
+            }
+
+            ConnectionState connectionState;
+            try
+            {
+                connectionState = await ConnectAsync(state, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
+                });
+
+                continue;
+            }
+
+            try
+            {
+                await SendIdentifyAsync(connectionState, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                {
+                    return $"An error occurred while restarting the connection.{Environment.NewLine}{e}";
+                });
+            }
+
+            return;
+        }
+    }
+
+    private protected abstract ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
     private protected abstract ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
@@ -638,7 +852,11 @@ public abstract class WebSocketClient : IDisposable
         }
         catch (Exception ex)
         {
-            InvokeLog(LogMessage.Error(ex));
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while creating the heartbeat timer.{Environment.NewLine}{e}";
+            });
+
             return;
         }
 
@@ -661,157 +879,255 @@ public abstract class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected abstract Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
-
-    private protected async void InvokeLog(LogMessage logMessage)
-    {
-        var log = Log;
-        if (log is not null)
-        {
-            try
-            {
-                await log(logMessage).ConfigureAwait(false);
-            }
-            catch
-            {
-            }
-        }
-    }
+    private protected abstract ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
-        => InvokeEventAsync(LatencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
+        => InvokeEventAsync(_latencyUpdate, latency, latency => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref _latency), Unsafe.As<TimeSpan, long>(ref latency)));
 
     private protected ValueTask InvokeResumeEventAsync()
-        => InvokeEventAsync(Resume);
+        => InvokeEventAsync(_resume);
 
-    private protected ValueTask InvokeEventAsync(Func<ValueTask>? @event)
+    private protected ValueTask InvokeEventAsync(ImmutableList<Func<ValueTask>> handlers, [CallerArgumentExpression(nameof(handlers))] string handlersName = "")
     {
-        if (@event is not null)
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            ValueTask task;
             try
             {
-                task = @event();
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i]();
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+                LogEventHandlerException(handlersName, ex);
 
-            return AwaitEventAsync(task);
+                tasks[i] = default;
+            }
         }
-        else
-            return default;
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
-        if (@event is not null)
-        {
-            var data = dataFunc();
+        int count = handlers.Count;
 
-            ValueTask task;
+        if (count is 0)
+            return default;
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
             try
             {
-                task = @event(data);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+                LogEventHandlerException(handlersName, ex);
 
-            return AwaitEventAsync(task);
+                tasks[i] = default;
+            }
         }
-        else
-            return default;
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
-        if (@event is not null)
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            ValueTask task;
             try
             {
-                task = @event(data);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+                LogEventHandlerException(handlersName, ex);
 
-            return AwaitEventAsync(task);
+                tasks[i] = default;
+            }
         }
-        else
-            return default;
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, T data, Action<T> updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
-        if (@event is not null)
+        int count = handlers.Count;
+
+        if (count is 0)
         {
-            ValueTask task;
+            updateCache(data);
+            return default;
+        }
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
             try
             {
-                task = @event(data);
-                updateData(data);
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                updateData(data);
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+                LogEventHandlerException(handlersName, ex);
 
-            return AwaitEventAsync(task);
+                tasks[i] = default;
+            }
         }
-        else
-        {
-            updateData(data);
-            return default;
-        }
+
+        updateCache(data);
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventAsync<T>(Func<T, ValueTask>? @event, Func<T> dataFunc, Action updateData)
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
-        if (@event is not null)
-        {
-            var data = dataFunc();
+        int count = handlers.Count;
 
-            ValueTask task;
+        if (count is 0)
+        {
+            updateCache();
+            return default;
+        }
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
             try
             {
-                task = @event(data);
-                updateData();
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
             {
-                updateData();
-                InvokeLog(LogMessage.Error(ex));
-                return default;
-            }
+                LogEventHandlerException(handlersName, ex);
 
-            return AwaitEventAsync(task);
+                tasks[i] = default;
+            }
         }
-        else
-        {
-            updateData();
-            return default;
-        }
+
+        updateCache();
+
+        return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private async ValueTask AwaitEventAsync(ValueTask task)
+    private protected ValueTask InvokeEventWithDisposalAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, Func<T> dataFunc, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
-        try
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var data = dataFunc();
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
         {
-            await task.ConfigureAwait(false);
+            try
+            {
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch (Exception ex)
+            {
+                LogEventHandlerException(handlersName, ex);
+
+                tasks[i] = default;
+            }
         }
-        catch (Exception ex)
+
+        disposeData(data);
+
+        return HandleTasksAsync(tasks, handlersName, count);
+    }
+
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
+    private async ValueTask HandleTasksAsync(ValueTask[] tasks, string handlersName, int count)
+    {
+        for (int i = 0; i < count; i++)
         {
-            InvokeLog(LogMessage.Error(ex));
+            try
+            {
+                await tasks[i].ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                LogEventHandlerException(handlersName, ex);
+            }
+        }
+
+        ArrayPool<ValueTask>.Shared.Return(tasks);
+    }
+
+    private void LogEventHandlerException(string handlersName, Exception ex)
+    {
+        Log(LogLevel.Error, handlersName, ex, static (s, e) =>
+        {
+            return $"An error occurred while invoking an event handler of '{new EventNameFormatter(s)}'.{Environment.NewLine}{e}";
+        });
+    }
+
+    private struct EventNameFormatter(string handlersName) : ISpanFormattable
+    {
+        public readonly string HandlersName => handlersName;
+
+        public readonly override string ToString()
+        {
+            return string.Create(HandlersName.Length - 1, HandlersName, static (span, handlersName) =>
+            {
+                span[0] = (char)(handlersName[1] & ~0x20);
+                handlersName.AsSpan(2).CopyTo(span[1..]);
+            });
+        }
+
+        public readonly string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            int resultLength = HandlersName.Length - 1;
+            if (destination.Length < resultLength)
+            {
+                charsWritten = 0;
+                return false;
+            }
+
+            destination[0] = (char)(HandlersName[1] & ~0x20);
+            HandlersName.AsSpan(2).CopyTo(destination[1..]);
+
+            charsWritten = resultLength;
+            return true;
         }
     }
 
@@ -830,7 +1146,7 @@ public abstract class WebSocketClient : IDisposable
     [DoesNotReturn]
     private static void ThrowRateLimitTriggered(int resetAfter)
     {
-        throw new InvalidOperationException("Rate limit triggered.");
+        throw new WebSocketRateLimitedException(resetAfter);
     }
 
     public void Dispose()

@@ -38,7 +38,7 @@ internal static class CollectionsUtils
             return source.Select(selector);
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>>? source, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>>? source, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         if (source is null)
             return CreateImmutableDictionary<TKey, TElement>();
@@ -46,7 +46,7 @@ internal static class CollectionsUtils
             return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(p => new KeyValuePair<TKey, TElement>(p.Key, elementSelector(p.Value))));
     }
 
-    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector) where TKey : notnull where TSource : class
     {
         if (source is null)
             return CreateImmutableDictionary<TKey, TSource>();
@@ -54,7 +54,7 @@ internal static class CollectionsUtils
             return source.ToImmutableDictionary(keySelector);
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this IEnumerable<TSource>? source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         if (source is null)
             return CreateImmutableDictionary<TKey, TElement>();
@@ -62,17 +62,17 @@ internal static class CollectionsUtils
             return source.ToImmutableDictionary(keySelector, elementSelector);
     }
 
-    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull where TSource : class
     {
         return CreateImmutableDictionary<TKey, TSource>().AddRange(source.Select(s => new KeyValuePair<TKey, TSource>(keySelector(s), s)));
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(s => new KeyValuePair<TKey, TElement>(keySelector(s), elementSelector(s))));
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>> source, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this IEnumerable<KeyValuePair<TKey, TSource>> source, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(p => new KeyValuePair<TKey, TElement>(p.Key, elementSelector(p.Value))));
     }
@@ -103,7 +103,7 @@ internal static class CollectionsUtils
             return source.Select(selector);
     }
 
-    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryOrEmpty<TSource, TKey>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull where TSource : class
     {
         if (source.IsDefaultOrEmpty)
             return CreateImmutableDictionary<TKey, TSource>();
@@ -111,7 +111,7 @@ internal static class CollectionsUtils
             return source.ToImmutableDictionary(keySelector);
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionaryOrEmpty<TSource, TKey, TElement>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         if (source.IsDefaultOrEmpty)
             return CreateImmutableDictionary<TKey, TElement>();
@@ -119,18 +119,18 @@ internal static class CollectionsUtils
             return source.ToImmutableDictionary(keySelector, elementSelector);
     }
 
-    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TSource, TKey>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TSource> ToImmutableDictionary<TSource, TKey>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull where TSource : class
     {
         return CreateImmutableDictionary<TKey, TSource>().AddRange(source.Select(s => new KeyValuePair<TKey, TSource>(keySelector(s), s)));
     }
 
-    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    public static ImmutableDictionary<TKey, TElement> ToImmutableDictionary<TSource, TKey, TElement>(this ImmutableArray<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
     {
         return CreateImmutableDictionary<TKey, TElement>().AddRange(source.Select(s => new KeyValuePair<TKey, TElement>(keySelector(s), elementSelector(s))));
     }
     #endregion
 
-    public static ImmutableDictionary<TKey, TElement> CreateImmutableDictionary<TKey, TElement>() where TKey : notnull => ImmutableDictionary<TKey, TElement>.Empty.WithComparers(null, new ReferenceEqualityComparer<TElement>());
+    public static ImmutableDictionary<TKey, TElement> CreateImmutableDictionary<TKey, TElement>() where TKey : notnull where TElement : class => ImmutableDictionary<TKey, TElement>.Empty.WithComparers(null, new ReferenceEqualityComparer<TElement>());
 
     private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
     {

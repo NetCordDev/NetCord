@@ -92,6 +92,13 @@ namespace NetCord;
 [JsonSerializable(typeof(IEnumerable<JsonPresence>))]
 [JsonSerializable(typeof(JsonEntity[]))]
 [JsonSerializable(typeof(TextInputProperties))]
+[JsonSerializable(typeof(IComponentSectionProperties))]
+[JsonSerializable(typeof(TextDisplayProperties))]
+[JsonSerializable(typeof(ComponentSectionThumbnailProperties))]
+[JsonSerializable(typeof(IMediaGalleryProperties))]
+[JsonSerializable(typeof(FileDisplayProperties))]
+[JsonSerializable(typeof(ComponentSeparatorProperties))]
+[JsonSerializable(typeof(IComponentContainerProperties))]
 [JsonSerializable(typeof(IEnumerable<ulong>))]
 [JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]
 [JsonSerializable(typeof(SlashCommandProperties))]
@@ -139,8 +146,8 @@ namespace NetCord;
 [JsonSerializable(typeof(GuildThreadProperties))]
 [JsonSerializable(typeof(JsonThreadUser[]))]
 [JsonSerializable(typeof(JsonRestGuildThreadPartialResult))]
-[JsonSerializable(typeof(JsonEmoji[]))]
 [JsonSerializable(typeof(JsonEmoji))]
+[JsonSerializable(typeof(JsonApplicationEmojisResult))]
 [JsonSerializable(typeof(GuildEmojiProperties))]
 [JsonSerializable(typeof(ApplicationEmojiProperties))]
 [JsonSerializable(typeof(GuildEmojiOptions))]
@@ -235,6 +242,8 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonGuildJoinRequestDeleteEventArgs))]
 [JsonSerializable(typeof(JsonMessagePollAnswerVotersResult))]
 [JsonSerializable(typeof(JsonMessagePollVoteEventArgs))]
+[JsonSerializable(typeof(JsonSubscription))]
+[JsonSerializable(typeof(JsonSubscription[]))]
 internal partial class Serialization : JsonSerializerContext
 {
 }

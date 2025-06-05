@@ -6,7 +6,7 @@ namespace NetCord.Services.Helpers;
 
 internal class InvocationHelper
 {
-    public static Func<object?[]?, TContext, IServiceProvider?, ValueTask> CreateModuleDelegate<TContext>(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, IEnumerable<Type> parameterTypes, IResultResolverProvider<TContext> resultResolverProvider)
+    public static Func<object?[]?, TContext, IServiceProvider?, ValueTask> CreateModuleDelegate<TContext>(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, IEnumerable<Type> parameterTypes, IResultResolverProvider<TContext> resultResolverProvider, IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
         var context = Expression.Parameter(typeof(TContext));
@@ -18,7 +18,7 @@ internal class InvocationHelper
         {
             var module = Expression.Variable(declaringType);
             instance = Expression.Block([module],
-                                        Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider)),
+                                        Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider, serviceResolverProvider)),
                                         Expression.Call(module, typeof(IBaseModule<TContext>).GetMethod(nameof(IBaseModule<TContext>.SetContext), BindingFlags.Instance | BindingFlags.NonPublic)!, context),
                                         module);
         }
@@ -34,13 +34,13 @@ internal class InvocationHelper
         return lambda.Compile();
     }
 
-    public static Func<object?[]?, TContext, IServiceProvider?, ValueTask> CreateHandlerDelegate<TContext>(Delegate handler, IEnumerable<ParameterInfo> serviceParameters, bool hasContext, IEnumerable<Type> parameterTypes, IResultResolverProvider<TContext> resultResolverProvider)
+    public static Func<object?[]?, TContext, IServiceProvider?, ValueTask> CreateHandlerDelegate<TContext>(Delegate handler, IEnumerable<ParameterInfo> serviceParameters, bool hasContext, IEnumerable<Type> parameterTypes, IResultResolverProvider<TContext> resultResolverProvider, IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
         var context = Expression.Parameter(typeof(TContext));
         var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
 
-        var serviceExpressions = serviceParameters.Select(p => ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, Expression.Throw(ServiceProviderHelper.GetServiceNotFoundExceptionExpression(p))));
+        var serviceExpressions = serviceParameters.Select(p => ServiceProviderHelper.GetGetServiceExpression(p, serviceProvider, serviceResolverProvider, Expression.Throw(ServiceProviderHelper.GetServiceNotFoundExceptionExpression(p))));
         var parameterExpressions = parameterTypes.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i, typeof(int))), p));
 
         var arguments = hasContext ? serviceExpressions.Append(context).Concat(parameterExpressions) : serviceExpressions.Concat(parameterExpressions);

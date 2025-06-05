@@ -12,16 +12,16 @@ Adding application commands with the .NET Generic Host is very easy. Use @NetCor
 ## [Bare Bones](#tab/bare-bones)
 
 First, add the following lines to the using section.
-[!code-cs[Program.cs](Introduction/Program.cs#L3-L5)]
+[!code-cs[Program.cs](Introduction/Program.cs#L4-L6)]
 
 Now, it's time to create @NetCord.Services.ApplicationCommands.ApplicationCommandService`1 instance and add application commands to it. You can do it by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddSlashCommand*, @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddUserCommand* or @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddMessageCommand* to add an application command using the minimal APIs way and/or by using @NetCord.Services.ApplicationCommands.ApplicationCommandService`1.AddModules(System.Reflection.Assembly) to add application command modules from an assembly.
-[!code-cs[Program.cs](Introduction/Program.cs#L12-L21)]
+[!code-cs[Program.cs](Introduction/Program.cs#L14-L23)]
 
 We can add a command handler now. If you used a context other than @NetCord.Services.ApplicationCommands.ApplicationCommandContext, you may need to change the interaction type of the handler to the appropriate one.
-[!code-cs[Program.cs](Introduction/Program.cs#L23-L45)]
+[!code-cs[Program.cs](Introduction/Program.cs#L25-L47)]
 
 Now, we should send the commands to Discord, to make them usable. Add the following line under the handler:
-[!code-cs[Program.cs](Introduction/Program.cs#L47-L48)]
+[!code-cs[Program.cs](Introduction/Program.cs#L49-L50)]
 
 ### The Final Product
 

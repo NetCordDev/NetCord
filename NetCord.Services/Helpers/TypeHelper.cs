@@ -6,7 +6,7 @@ namespace NetCord.Services.Helpers;
 
 internal static class TypeHelper
 {
-    public static Expression GetCreateInstanceExpression([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type moduleType, ParameterExpression serviceProvider)
+    public static Expression GetCreateInstanceExpression([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type moduleType, ParameterExpression serviceProvider, IServiceResolverProvider serviceResolverProvider)
     {
         var constructors = moduleType.GetConstructors();
         if (constructors.Length is 0)
@@ -33,7 +33,7 @@ internal static class TypeHelper
             {
                 if (parameters.All(p => p.IsOptional))
                 {
-                    expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, parameters, Expression.Empty())), moduleType));
+                    expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, serviceResolverProvider, parameters, Expression.Empty())), moduleType));
 
                     expressions.Add(Expression.Label(noServiceProvider));
                     expressions.Add(Expression.Return(ret, Expression.New(constructor, GetDefaultArguments(parameters)), moduleType));
@@ -48,7 +48,7 @@ internal static class TypeHelper
                     {
                         var next = noServiceProvider;
 
-                        expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, parameters, Expression.Goto(next))), moduleType));
+                        expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, serviceResolverProvider, parameters, Expression.Goto(next))), moduleType));
                         expressions.Add(Expression.Label(next));
 
                         expressions.Add(Expression.Return(ret, Expression.New(nextConstructor), moduleType));
@@ -59,7 +59,7 @@ internal static class TypeHelper
                     {
                         var next = Expression.Label();
 
-                        expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, parameters, Expression.Goto(next))), moduleType));
+                        expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, serviceResolverProvider, parameters, Expression.Goto(next))), moduleType));
                         expressions.Add(Expression.Label(next));
 
                         (constructor, parameters) = (nextConstructor, nextParameters);
@@ -69,7 +69,7 @@ internal static class TypeHelper
                 {
                     var next = noServiceProvider;
 
-                    expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, parameters, Expression.Goto(next))), moduleType));
+                    expressions.Add(Expression.Return(ret, Expression.New(constructor, GetArguments(serviceProvider, serviceResolverProvider, parameters, Expression.Goto(next))), moduleType));
                     expressions.Add(Expression.Label(next));
 
                     expressions.Add(Expression.Throw(Expression.New(typeof(InvalidOperationException).GetConstructor([typeof(string)])!, Expression.Constant($"Failed to initialize '{moduleType}'.", typeof(string)))));
@@ -84,14 +84,14 @@ internal static class TypeHelper
         return block;
     }
 
-    private static Expression[] GetArguments(ParameterExpression serviceProvider, ParameterInfo[] parameters, Expression notFound)
+    private static Expression[] GetArguments(ParameterExpression serviceProvider, IServiceResolverProvider serviceResolverProvider, ParameterInfo[] parameters, Expression notFound)
     {
         var parametersLength = parameters.Length;
         var arguments = new Expression[parametersLength];
         for (int i = 0; i < parametersLength; i++)
         {
             var parameter = parameters[i];
-            arguments[i] = ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, notFound);
+            arguments[i] = ServiceProviderHelper.GetGetServiceExpression(parameter, serviceProvider, serviceResolverProvider, notFound);
         }
 
         return arguments;

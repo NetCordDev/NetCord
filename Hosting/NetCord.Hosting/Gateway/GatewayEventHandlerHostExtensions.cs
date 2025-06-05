@@ -12,6 +12,11 @@ public static class GatewayEventHandlerHostExtensions
     private const string CheckId = "IL2075:'this' argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.";
     private const string Justification = "'DynamicDependencyAttribute' is applied to preserve the methods.";
 
+    /// <summary>
+    /// Registers all <see cref="IGatewayEventHandler"/> services to the <see cref="GatewayClient"/>.
+    /// </summary>
+    /// <param name="host">The <see cref="IHost"/> instance.</param>
+    /// <returns>The <see cref="IHost"/> instance.</returns>
     public static IHost UseGatewayEventHandlers(this IHost host)
     {
         var services = host.Services;
@@ -21,6 +26,11 @@ public static class GatewayEventHandlerHostExtensions
         return host;
     }
 
+    /// <summary>
+    /// Registers all <see cref="IShardedGatewayEventHandler"/> services to the <see cref="ShardedGatewayClient"/>.
+    /// </summary>
+    /// <param name="host">The <see cref="IHost"/> instance.</param>
+    /// <returns>The <see cref="IHost"/> instance.</returns>
     public static IHost UseShardedGatewayEventHandlers(this IHost host)
     {
         var services = host.Services;

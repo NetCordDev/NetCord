@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
+using NetCord.Logging;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -11,7 +12,7 @@ namespace NetCord.Gateway;
 /// <summary>
 /// The <see cref="GatewayClient"/> class allows applications to send and receive data from the Discord Gateway, such as events and resource requests.
 /// </summary>
-public partial class GatewayClient : WebSocketClient, IEntity
+public sealed partial class GatewayClient : WebSocketClient, IEntity
 {
     private readonly ConnectionPropertiesProperties _connectionProperties;
     private readonly int? _largeThreshold;
@@ -30,7 +31,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Required Intents: None <br/>
     /// Optional Intents: None
     /// </remarks>
-    public event Func<ReadyEventArgs, ValueTask>? Ready;
+    public partial event Func<ReadyEventArgs, ValueTask>? Ready;
 
     /// <summary>
     /// Sent when an application command's permissions are updated.
@@ -40,7 +41,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// Required Intents: None <br/>
     /// Optional Intents: None
     /// </remarks>
-    public event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
+    public partial event Func<ApplicationCommandPermission, ValueTask>? ApplicationCommandPermissionsUpdate;
 
     /// <summary>
     /// Sent when a rule is created.
@@ -50,7 +51,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleCreate;
+    public partial event Func<AutoModerationRule, ValueTask>? AutoModerationRuleCreate;
 
     /// <summary>
     /// Sent when a rule is updated.
@@ -60,7 +61,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleUpdate;
+    public partial event Func<AutoModerationRule, ValueTask>? AutoModerationRuleUpdate;
 
     /// <summary>
     /// Sent when a rule is deleted.
@@ -70,7 +71,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.AutoModerationConfiguration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<AutoModerationRule, ValueTask>? AutoModerationRuleDelete;
+    public partial event Func<AutoModerationRule, ValueTask>? AutoModerationRuleDelete;
 
     /// <summary>
     /// Sent when a rule is triggered and an action is executed (e.g. when a message is blocked).<br/>
@@ -89,7 +90,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///      </item>
     /// </list>
     /// </remarks>
-    public event Func<AutoModerationActionExecutionEventArgs, ValueTask>? AutoModerationActionExecution;
+    public partial event Func<AutoModerationActionExecutionEventArgs, ValueTask>? AutoModerationActionExecution;
 
     /// <summary>
     /// Sent when a new guild channel is created, relevant to the bot.
@@ -99,7 +100,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<IGuildChannel, ValueTask>? GuildChannelCreate;
+    public partial event Func<IGuildChannel, ValueTask>? GuildChannelCreate;
 
     /// <summary>
     /// Sent when a channel is updated. This is not sent with new messages, those are tracked by <see cref="MessageCreate"/> and <see cref="GuildThreadCreate"/>. This event may reference roles or guild members that no longer exist in the guild.
@@ -109,7 +110,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<IGuildChannel, ValueTask>? GuildChannelUpdate;
+    public partial event Func<IGuildChannel, ValueTask>? GuildChannelUpdate;
 
     /// <summary>
     /// Sent when a channel relevant to the bot is deleted.
@@ -119,7 +120,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<IGuildChannel, ValueTask>? GuildChannelDelete;
+    public partial event Func<IGuildChannel, ValueTask>? GuildChannelDelete;
 
     /// <summary>
     /// Sent when a thread is created, relevant to the bot, or when the current user is added to a thread.
@@ -129,7 +130,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildThreadCreateEventArgs, ValueTask>? GuildThreadCreate;
+    public partial event Func<GuildThreadCreateEventArgs, ValueTask>? GuildThreadCreate;
 
     /// <summary>
     /// Sent when a thread is updated. This is not sent with new messages, those are tracked by <see cref="MessageCreate"/>.
@@ -139,7 +140,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildThread, ValueTask>? GuildThreadUpdate;
+    public partial event Func<GuildThread, ValueTask>? GuildThreadUpdate;
 
     /// <summary>
     /// Sent when a thread relevant to the bot is deleted.
@@ -149,7 +150,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildThreadDeleteEventArgs, ValueTask>? GuildThreadDelete;
+    public partial event Func<GuildThreadDeleteEventArgs, ValueTask>? GuildThreadDelete;
 
     /// <summary>
     /// Sent when the current user gains access to a channel.<br/>
@@ -158,7 +159,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
+    public partial event Func<GuildThreadListSyncEventArgs, ValueTask>? GuildThreadListSync;
 
     /// <summary>
     /// Sent when the <see cref="Rest.GuildThreadUser"/> object for the bot is updated. This event is largely just a signal that you are a member of the thread.
@@ -168,7 +169,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
+    public partial event Func<GuildThreadUserUpdateEventArgs, ValueTask>? GuildThreadUserUpdate;
 
     /// <summary>
     /// Sent when anyone is added to or removed from a thread.<br/>
@@ -189,7 +190,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </remarks>
-    public event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
+    public partial event Func<GuildThreadUsersUpdateEventArgs, ValueTask>? GuildThreadUsersUpdate;
 
     /// <summary>
     /// Sent when a message is pinned or unpinned in a text channel. This is not sent when a pinned message is deleted.<br/>
@@ -198,7 +199,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>, <see cref="GatewayIntents.DirectMessages"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
+    public partial event Func<ChannelPinsUpdateEventArgs, ValueTask>? ChannelPinsUpdate;
 
     /// <summary>
     /// Sent when an entitlement is created.
@@ -208,7 +209,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Entitlement, ValueTask>? EntitlementCreate;
+    public partial event Func<Entitlement, ValueTask>? EntitlementCreate;
 
     /// <summary>
     /// Sent when an entitlement is updated. When an entitlement for a subscription is renewed, the <see cref="Entitlement.EndsAt"/> field may have an updated value with the new expiration date.
@@ -218,7 +219,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Entitlement, ValueTask>? EntitlementUpdate;
+    public partial event Func<Entitlement, ValueTask>? EntitlementUpdate;
 
     /// <summary>
     /// Sent when an entitlement is deleted. Entitlements are not deleted when they expire.
@@ -228,7 +229,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Entitlement, ValueTask>? EntitlementDelete;
+    public partial event Func<Entitlement, ValueTask>? EntitlementDelete;
 
     /// <summary>
     /// This event can be sent in three different scenarios (During an outage, the <see cref="Guild"/> object in scenarios 1 and 3 may be marked as unavailable):<br/>
@@ -259,7 +260,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     ///     </item>
     /// </list>
     /// </remarks>
-    public event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
+    public partial event Func<GuildCreateEventArgs, ValueTask>? GuildCreate;
 
     /// <summary>
     /// Sent when a guild is updated.
@@ -269,17 +270,17 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Guild, ValueTask>? GuildUpdate;
+    public partial event Func<Guild, ValueTask>? GuildUpdate;
 
     /// <summary>
     /// Sent when a guild becomes or was already unavailable due to an outage, or when the bot leaves / is removed from a guild.
     /// </summary>
     /// <remarks>
-    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUserDeleted"/> field is not true, the bot was removed from the guild.<br/>
+    /// The inner payload is an unavailable guild object. If the <see cref="GuildDeleteEventArgs.IsUnavailable"/> property is <see langword="false"/>, the bot was removed from the guild.<br/>
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
+    public partial event Func<GuildDeleteEventArgs, ValueTask>? GuildDelete;
 
     /// <summary>
     /// Sent when a guild audit log entry is created.
@@ -289,7 +290,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
+    public partial event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
 
     /// <summary>
     /// Sent when a user is banned from a guild.<br/>
@@ -298,7 +299,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
+    public partial event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
 
     /// <summary>
     /// Sent when a user is unbanned from a guild.<br/>
@@ -307,7 +308,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildBanEventArgs, ValueTask>? GuildBanRemove;
+    public partial event Func<GuildBanEventArgs, ValueTask>? GuildBanRemove;
 
     /// <summary>
     /// Sent when a guild's emojis have been updated.<br/>
@@ -316,7 +317,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildEmojisAndStickers"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildEmojisUpdateEventArgs, ValueTask>? GuildEmojisUpdate;
+    public partial event Func<GuildEmojisUpdateEventArgs, ValueTask>? GuildEmojisUpdate;
 
     /// <summary>
     /// Sent when a guild's stickers have been updated.<br/>
@@ -325,7 +326,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildEmojisAndStickers"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildStickersUpdateEventArgs, ValueTask>? GuildStickersUpdate;
+    public partial event Func<GuildStickersUpdateEventArgs, ValueTask>? GuildStickersUpdate;
 
     /// <summary>
     /// Sent when guild integrations are updated.<br/>
@@ -334,7 +335,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildIntegrationsUpdateEventArgs, ValueTask>? GuildIntegrationsUpdate;
+    public partial event Func<GuildIntegrationsUpdateEventArgs, ValueTask>? GuildIntegrationsUpdate;
 
     /// <summary>
     /// Sent when a new user joins a guild.
@@ -346,7 +347,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </remarks>
-    public event Func<GuildUser, ValueTask>? GuildUserAdd;
+    public partial event Func<GuildUser, ValueTask>? GuildUserAdd;
 
     /// <summary>
     /// Sent when a user is removed from a guild (leave/kick/ban).<br/>
@@ -357,7 +358,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </remarks>
-    public event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
+    public partial event Func<GuildUserRemoveEventArgs, ValueTask>? GuildUserRemove;
 
     /// <summary>
     /// Sent when a guild user is updated. This will also fire when the <see cref="GuildUser"/> object of a guild user changes.<br/>
@@ -368,7 +369,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </remarks>
-    public event Func<GuildUser, ValueTask>? GuildUserUpdate;
+    public partial event Func<GuildUser, ValueTask>? GuildUserUpdate;
 
     /// <summary>
     /// Sent in response to <see cref="RequestGuildUsersAsync(GuildUsersRequestProperties, WebSocketPayloadProperties, CancellationToken)"/>. You can use the <see cref="GuildUserChunkEventArgs.ChunkIndex"/> and <see cref="GuildUserChunkEventArgs.ChunkCount"/> to calculate how many chunks are left for your request.<br/>
@@ -377,7 +378,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
+    public partial event Func<GuildUserChunkEventArgs, ValueTask>? GuildUserChunk;
 
     /// <summary>
     /// Sent when a guild role is created.<br/>
@@ -386,7 +387,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Role, ValueTask>? RoleCreate;
+    public partial event Func<Role, ValueTask>? RoleCreate;
 
     /// <summary>
     /// Sent when a guild role is updated.<br/>
@@ -395,7 +396,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Role, ValueTask>? RoleUpdate;
+    public partial event Func<Role, ValueTask>? RoleUpdate;
 
     /// <summary>
     /// Sent when a guild role is deleted.<br/>
@@ -404,7 +405,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
+    public partial event Func<RoleDeleteEventArgs, ValueTask>? RoleDelete;
 
     /// <summary>
     /// Sent when a guild scheduled event is created.
@@ -414,7 +415,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
+    public partial event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventCreate;
 
     /// <summary>
     /// Sent when a guild scheduled event is updated.
@@ -424,7 +425,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
+    public partial event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventUpdate;
 
     /// <summary>
     /// Sent when a guild scheduled event is deleted.
@@ -434,7 +435,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventDelete;
+    public partial event Func<GuildScheduledEvent, ValueTask>? GuildScheduledEventDelete;
 
     /// <summary>
     /// Sent when a user has subscribed to a guild scheduled event.<br/>
@@ -443,7 +444,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserAdd;
+    public partial event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserAdd;
 
     /// <summary>
     /// Sent when a user has unsubscribed from a guild scheduled event.<br/>
@@ -452,7 +453,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildScheduledEvents"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserRemove;
+    public partial event Func<GuildScheduledEventUserEventArgs, ValueTask>? GuildScheduledEventUserRemove;
 
     /// <summary>
     /// Sent when an integration is created.
@@ -462,7 +463,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationCreate;
+    public partial event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationCreate;
 
     /// <summary>
     /// Sent when an integration is updated.
@@ -472,7 +473,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationUpdate;
+    public partial event Func<GuildIntegrationEventArgs, ValueTask>? GuildIntegrationUpdate;
 
     /// <summary>
     /// Sent when an integration is deleted.<br/>
@@ -481,7 +482,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildIntegrations"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<GuildIntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
+    public partial event Func<GuildIntegrationDeleteEventArgs, ValueTask>? GuildIntegrationDelete;
 
     /// <summary>
     /// Sent when a new invite to a channel is created. Only sent if the bot has the <see cref="Permissions.ManageChannels"/> permission for the relevant channel.<br/>
@@ -490,7 +491,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Invite, ValueTask>? InviteCreate;
+    public partial event Func<Invite, ValueTask>? InviteCreate;
 
     /// <summary>
     /// Sent when an invite is deleted. Only sent if the bot has the <see cref="Permissions.ManageChannels"/> permission for the relevant channel.<br/>
@@ -499,7 +500,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildInvites"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<InviteDeleteEventArgs, ValueTask>? InviteDelete;
+    public partial event Func<InviteDeleteEventArgs, ValueTask>? InviteDelete;
 
     /// <summary>
     /// Sent when a message is created.
@@ -544,7 +545,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
     /// </remarks>
-    public event Func<Message, ValueTask>? MessageCreate;
+    public partial event Func<Message, ValueTask>? MessageCreate;
 
     /// <summary>
     /// Sent when a message is updated.
@@ -589,7 +590,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Ephemeral messages do not use the guild channel. Because of this, they are tied to the <see cref="GatewayIntents.DirectMessages"/> intent, and the message object won't include a <see cref="Message.GuildId"/> or <see cref="Rest.RestMessage.Author"/>.
     /// </remarks>
-    public event Func<Message, ValueTask>? MessageUpdate;
+    public partial event Func<Message, ValueTask>? MessageUpdate;
 
     /// <summary>
     /// Sent when a message is deleted.<br/>
@@ -598,7 +599,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>, <see cref="GatewayIntents.DirectMessages"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageDeleteEventArgs, ValueTask>? MessageDelete;
+    public partial event Func<MessageDeleteEventArgs, ValueTask>? MessageDelete;
 
     /// <summary>
     /// Sent when multiple messages are deleted at once.<br/>
@@ -607,7 +608,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessages"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageDeleteBulkEventArgs, ValueTask>? MessageDeleteBulk;
+    public partial event Func<MessageDeleteBulkEventArgs, ValueTask>? MessageDeleteBulk;
 
     /// <summary>
     /// Sent when a user adds a reaction to a message.<br/>
@@ -616,7 +617,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageReactionAddEventArgs, ValueTask>? MessageReactionAdd;
+    public partial event Func<MessageReactionAddEventArgs, ValueTask>? MessageReactionAdd;
 
     /// <summary>
     /// Sent when a user removes a reaction from a message.<br/>
@@ -625,7 +626,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageReactionRemoveEventArgs, ValueTask>? MessageReactionRemove;
+    public partial event Func<MessageReactionRemoveEventArgs, ValueTask>? MessageReactionRemove;
 
     /// <summary>
     /// Sent when a user explicitly removes all reactions from a message.<br/>
@@ -634,7 +635,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageReactionRemoveAllEventArgs, ValueTask>? MessageReactionRemoveAll;
+    public partial event Func<MessageReactionRemoveAllEventArgs, ValueTask>? MessageReactionRemoveAll;
 
     /// <summary>
     /// Sent when a user removes all instances of a given emoji from the reactions of a message.<br/>
@@ -643,7 +644,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageReactions"/>, <see cref="GatewayIntents.DirectMessageReactions"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
+    public partial event Func<MessageReactionRemoveEmojiEventArgs, ValueTask>? MessageReactionRemoveEmoji;
 
     /// <summary>
     /// Sent when a user's presence or info, such as their name or avatar, is updated. Requires the <see cref="GatewayIntents.GuildPresences"/> intent.
@@ -655,7 +656,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/><br/>
     /// *Must also be enabled in the developer portal.
     /// </remarks>
-    public event Func<Presence, ValueTask>? PresenceUpdate;
+    public partial event Func<Presence, ValueTask>? PresenceUpdate;
 
     /// <summary>
     /// Sent when a user starts typing in a channel, and fires again every 10 seconds while they continue typing.<br/>
@@ -664,7 +665,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildMessageTyping"/>, <see cref="GatewayIntents.DirectMessageTyping"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<TypingStartEventArgs, ValueTask>? TypingStart;
+    public partial event Func<TypingStartEventArgs, ValueTask>? TypingStart;
 
     /// <summary>
     /// Sent when properties about the current bot's user change.
@@ -674,7 +675,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
+    public partial event Func<CurrentUser, ValueTask>? CurrentUserUpdate;
 
     /// <summary>
     /// Sent when someone sends an effect, such as an emoji reaction or a soundboard sound, in a voice channel the current user is connected to.
@@ -684,7 +685,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildVoiceStates"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<VoiceChannelEffectSendEventArgs, ValueTask>? VoiceChannelEffectSend;
+    public partial event Func<VoiceChannelEffectSendEventArgs, ValueTask>? VoiceChannelEffectSend;
 
     /// <summary>
     /// Sent when someone joins/leaves/moves voice channels.
@@ -694,7 +695,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildVoiceStates"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<VoiceState, ValueTask>? VoiceStateUpdate;
+    public partial event Func<VoiceState, ValueTask>? VoiceStateUpdate;
 
     /// <summary>
     /// Sent when a guild's voice server is updated. This is sent when initially connecting to voice, and when the current voice instance fails over to a new server.<br/>
@@ -703,7 +704,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<VoiceServerUpdateEventArgs, ValueTask>? VoiceServerUpdate;
+    public partial event Func<VoiceServerUpdateEventArgs, ValueTask>? VoiceServerUpdate;
 
     /// <summary>
     /// Sent when a guild channel's webhook is created, updated, or deleted.<br/>
@@ -712,11 +713,11 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildWebhooks"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
+    public partial event Func<WebhooksUpdateEventArgs, ValueTask>? WebhooksUpdate;
 
-    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
+    public partial event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteAdd;
 
-    public event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
+    public partial event Func<MessagePollVoteEventArgs, ValueTask>? MessagePollVoteRemove;
 
     /// <summary>
     /// Sent when a user uses an interaction.
@@ -726,7 +727,38 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: None
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<Interaction, ValueTask>? InteractionCreate;
+    public partial event Func<Interaction, ValueTask>? InteractionCreate;
+
+    /// <summary>
+    /// Sent when a Subscription for a Premium App is created.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="Subscription.Status"/> can be either <see cref="SubscriptionStatus.Inactive"/> or <see cref="SubscriptionStatus.Inactive"/> when this event is received. You will receive subsequent <see cref="SubscriptionUpdate"/> events if the status is updated to active. As a best practice, you should not grant any perks to users until the entitlements are created.
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public partial event Func<Subscription, ValueTask>? SubscriptionCreate;
+
+    /// <summary>
+    /// Sent when a subscription for a Premium App has been updated.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public partial event Func<Subscription, ValueTask>? SubscriptionUpdate;
+
+    /// <summary>
+    /// Sent when a Subscription for a Premium App has been deleted.
+    /// Inner payload is a <see cref="Subscription"/> object.
+    /// </summary>
+    /// <remarks>
+    /// <br/> Required Intents: None
+    /// <br/> Optional Intents: None
+    /// </remarks>
+    public partial event Func<Subscription, ValueTask>? SubscriptionDelete;
 
     /// <summary>
     /// Sent when a <see cref="StageInstance"/> is created (i.e. the Stage is now 'live').
@@ -736,7 +768,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<StageInstance, ValueTask>? StageInstanceCreate;
+    public partial event Func<StageInstance, ValueTask>? StageInstanceCreate;
 
     /// <summary>
     /// Sent when a <see cref="StageInstance"/> is updated.
@@ -746,7 +778,7 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<StageInstance, ValueTask>? StageInstanceUpdate;
+    public partial event Func<StageInstance, ValueTask>? StageInstanceUpdate;
 
     /// <summary>
     /// Sent when a <see cref="StageInstance"/> is deleted (i.e. the Stage has been closed).
@@ -756,22 +788,22 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <br/> Required Intents: <see cref="GatewayIntents.Guilds"/>
     /// <br/> Optional Intents: None
     /// </remarks>
-    public event Func<StageInstance, ValueTask>? StageInstanceDelete;
+    public partial event Func<StageInstance, ValueTask>? StageInstanceDelete;
 
     /// <summary>
     /// Not documented by Discord.
     /// </summary>
-    public event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
+    public partial event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
 
     /// <summary>
     /// Not documented by Discord.
     /// </summary>
-    public event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
+    public partial event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
 
     /// <summary>
     /// An unknown event.
     /// </summary>
-    public event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
+    public partial event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
 
     #endregion
 
@@ -819,7 +851,9 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <summary>
     /// Constructs a <see cref="GatewayClient"/> using the given <paramref name="token"/> and <paramref name="configuration"/>.
     /// </summary>
-    public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, (configuration ??= new()).RestClientConfiguration), configuration)
+    /// <param name="token">The token used to authenticate the <see cref="GatewayClient"/>.</param>
+    /// <param name="configuration">The configuration of the <see cref="GatewayClient"/>.</param>
+    public GatewayClient(IEntityToken token, GatewayClientConfiguration? configuration = null) : this(token, new(token, configuration ??= new()), configuration)
     {
         _disposeRest = true;
     }
@@ -842,7 +876,26 @@ public partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override void OnConnected()
     {
-        _compression.Initialize();
+        var compression = _compression;
+
+        try
+        {
+            compression.Initialize();
+        }
+        catch (Exception ex)
+        {
+            Log(LogLevel.Error, compression, ex, static (s, e) =>
+            {
+                return $"An error occurred while initializing '{s.Name}' compression.{Environment.NewLine}{e}";
+            });
+
+            return;
+        }
+
+        Log(LogLevel.Debug, compression, null, static (s, e) =>
+        {
+            return $"Using '{s.Name}' compression.";
+        });
     }
 
     private ValueTask SendIdentifyAsync(ConnectionState connectionState, PresenceProperties? presence = null, CancellationToken cancellationToken = default)
@@ -865,9 +918,9 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="presence">The presence to set.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
+    public async ValueTask StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
     }
 
@@ -878,14 +931,19 @@ public partial class GatewayClient : WebSocketClient, IEntity
     /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
-    public async Task ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
+    public async ValueTask ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(cancellationToken).ConfigureAwait(false);
+        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
         await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
         => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4010 or (WebSocketCloseStatus)4011 or (WebSocketCloseStatus)4012 or (WebSocketCloseStatus)4013 or (WebSocketCloseStatus)4014);
+
+    private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
+    {
+        return SendIdentifyAsync(connectionState, null, cancellationToken);
+    }
 
     private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
@@ -906,49 +964,72 @@ public partial class GatewayClient : WebSocketClient, IEntity
         return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalPayloadProperties, cancellationToken);
     }
 
-    private protected override Task ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
+    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
         var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 
-    private async Task HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
+    private async ValueTask HandlePayloadAsync(State state, ConnectionState connectionState, JsonGatewayPayload payload)
     {
         switch (payload.Opcode)
         {
             case GatewayOpcode.Dispatch:
                 SequenceNumber = payload.SequenceNumber.GetValueOrDefault();
+
+                Log(LogLevel.Debug, payload, null, static (s, e) =>
+                {
+                    return $"'{s.Event}' event received.";
+                });
+
                 try
                 {
                     await ProcessEventAsync(state, connectionState, payload).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    Log(LogLevel.Error, payload, ex, static (s, e) =>
+                    {
+                        return $"An error occurred while processing '{s.Event}' event.{Environment.NewLine}{e}";
+                    });
                 }
                 break;
             case GatewayOpcode.Heartbeat:
                 break;
             case GatewayOpcode.Reconnect:
-                InvokeLog(LogMessage.Info("Reconnect request"));
-                await AbortAndReconnectAsync(state, connectionState).ConfigureAwait(false);
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "A reconnect request received.");
+
+                await AbortAndResumeAsync(state, connectionState).ConfigureAwait(false);
                 break;
             case GatewayOpcode.InvalidSession:
-                InvokeLog(LogMessage.Info("Invalid session"));
+                Log<object?>(LogLevel.Information, null, null, static (s, e) => "The session has been invalidated.");
+
                 try
                 {
                     await SendIdentifyAsync(connectionState).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    InvokeLog(LogMessage.Error(ex));
+                    Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+                    {
+                        return $"An error occurred while sending the identify payload.{Environment.NewLine}{e}";
+                    });
                 }
                 break;
             case GatewayOpcode.Hello:
+                Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
+
                 StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 break;
             case GatewayOpcode.HeartbeatACK:
-                await UpdateLatencyAsync(_latencyTimer.Elapsed).ConfigureAwait(false);
+                var latency = _latencyTimer.Elapsed;
+
+                Log(LogLevel.Debug, latency, null, static (s, e) =>
+                {
+                    return $"Heartbeat acknowledged after {s.TotalMilliseconds:F0} ms.";
+                });
+
+                await UpdateLatencyAsync(latency).ConfigureAwait(false);
                 break;
         }
     }
@@ -992,10 +1073,12 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "READY":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Ready"));
+
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Ready.");
+
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
-                    await InvokeEventAsync(Ready, args, data =>
+                    await InvokeEventAsync(_ready, args, data =>
                     {
                         var cache = Cache;
                         cache = cache.CacheCurrentUser(data.User);
@@ -1013,7 +1096,9 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "RESUMED":
                 {
                     var latency = _latencyTimer.Elapsed;
-                    InvokeLog(LogMessage.Info("Resumed"));
+
+                    Log<object?>(LogLevel.Information, null, null, static (s, e) => "Resumed.");
+
                     var updateLatencyTask = UpdateLatencyAsync(latency);
                     var resumeTask = InvokeResumeEventAsync();
 
@@ -1025,74 +1110,74 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
                 {
-                    await InvokeEventAsync(ApplicationCommandPermissionsUpdate, () => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
+                    await InvokeEventAsync(_applicationCommandPermissionsUpdate, () => new(data.ToObject(Serialization.Default.JsonApplicationCommandGuildPermission))).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_CREATE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleCreate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleCreate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_UPDATE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleUpdate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleUpdate, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_RULE_DELETE":
                 {
-                    await InvokeEventAsync(AutoModerationRuleDelete, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationRuleDelete, () => new(data.ToObject(Serialization.Default.JsonAutoModerationRule), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "AUTO_MODERATION_ACTION_EXECUTION":
                 {
-                    await InvokeEventAsync(AutoModerationActionExecution, () => new(data.ToObject(Serialization.Default.JsonAutoModerationActionExecutionEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_autoModerationActionExecution, () => new(data.ToObject(Serialization.Default.JsonAutoModerationActionExecutionEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(GuildChannelCreate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelCreate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(GuildChannelUpdate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelUpdate, channel, channel => Cache = Cache.CacheGuildChannel(channel)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(GuildChannelDelete, channel, channel => Cache = Cache.RemoveGuildChannel(channel.GuildId, channel.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelDelete, channel, channel => Cache = Cache.RemoveGuildChannel(channel.GuildId, channel.Id)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
                 {
-                    await InvokeEventAsync(ChannelPinsUpdate, () => new(data.ToObject(Serialization.Default.JsonChannelPinsUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_channelPinsUpdate, () => new(data.ToObject(Serialization.Default.JsonChannelPinsUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(GuildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () => Cache = Cache.CacheGuildThread(thread)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadCreate, () => new(thread, json.NewlyCreated.GetValueOrDefault()), () => Cache = Cache.CacheGuildThread(thread)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var thread = GuildThread.CreateFromJson(json, Rest);
-                    await InvokeEventAsync(GuildThreadUpdate, thread, t => Cache = Cache.CacheGuildThread(t)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUpdate, thread, t => Cache = Cache.CacheGuildThread(t)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
                     var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(GuildThreadDelete, () => new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type), () => Cache = Cache.RemoveGuildThread(guildId, json.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadDelete, () => new(json.Id, guildId, json.ParentId.GetValueOrDefault(), json.Type), () => Cache = Cache.RemoveGuildThread(guildId, json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_LIST_SYNC":
@@ -1100,17 +1185,17 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var json = data.ToObject(Serialization.Default.JsonGuildThreadListSyncEventArgs);
                     GuildThreadListSyncEventArgs args = new(json, Rest);
                     var guildId = args.GuildId;
-                    await InvokeEventAsync(GuildThreadListSync, args, args => Cache = Cache.SyncGuildActiveThreads(guildId, args.Threads)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadListSync, args, args => Cache = Cache.SyncGuildActiveThreads(guildId, args.Threads)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBER_UPDATE":
                 {
-                    await InvokeEventAsync(GuildThreadUserUpdate, () => new(new(data.ToObject(Serialization.Default.JsonThreadUser), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUserUpdate, () => new(new(data.ToObject(Serialization.Default.JsonThreadUser), Rest), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_MEMBERS_UPDATE":
                 {
-                    await InvokeEventAsync(GuildThreadUsersUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildThreadUsersUpdateEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadUsersUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildThreadUsersUpdateEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_CREATE":
@@ -1118,11 +1203,11 @@ public partial class GatewayClient : WebSocketClient, IEntity
                     var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
                     var id = jsonGuild.Id;
                     if (jsonGuild.IsUnavailable)
-                        await InvokeEventAsync(GuildCreate, () => new(id, null)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildCreate, () => new(id, null)).ConfigureAwait(false);
                     else
                     {
                         Guild guild = new(jsonGuild, Id, Rest);
-                        await InvokeEventAsync(GuildCreate, () => new(id, guild), () => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildCreate, () => new(id, guild), () => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                     }
                 }
                 break;
@@ -1130,69 +1215,69 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var guildId = GetGuildId();
                     if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
-                        await InvokeEventAsync(GuildUpdate, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildUpdate, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_DELETE":
                 {
                     var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    await InvokeEventAsync(GuildDelete, () => new(jsonGuild.Id, !jsonGuild.IsUnavailable), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildDelete, () => new(jsonGuild), () => Cache = Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
                 {
-                    await InvokeEventAsync(GuildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildAuditLogEntryCreate, () => new(data.ToObject(Serialization.Default.JsonAuditLogEntry), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_ADD":
                 {
-                    await InvokeEventAsync(GuildBanAdd, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildBanAdd, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_BAN_REMOVE":
                 {
-                    await InvokeEventAsync(GuildBanRemove, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildBanRemove, () => new(data.ToObject(Serialization.Default.JsonGuildBanEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_EMOJIS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildEmojisUpdateEventArgs);
-                    await InvokeEventAsync(GuildEmojisUpdate, new(json, Rest), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildStickersUpdateEventArgs);
-                    await InvokeEventAsync(GuildStickersUpdate, new(json, Rest), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
                 {
-                    await InvokeEventAsync(GuildIntegrationsUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationsUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationsUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationsUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_ADD":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUser);
-                    await InvokeEventAsync(GuildUserAdd, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserAdd, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUser);
-                    await InvokeEventAsync(GuildUserUpdate, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserUpdate, new(json, GetGuildId(), Rest), user => Cache = Cache.CacheGuildUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBER_REMOVE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUserRemoveEventArgs);
-                    await InvokeEventAsync(GuildUserRemove, new(json, Rest), args => Cache = Cache.RemoveGuildUser(args.GuildId, args.User.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildUserRemove, new(json, Rest), args => Cache = Cache.RemoveGuildUser(args.GuildId, args.User.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_MEMBERS_CHUNK":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildUserChunkEventArgs);
-                    await InvokeEventAsync(GuildUserChunk, new(json, Rest), args =>
+                    await InvokeEventAsync(_guildUserChunk, new(json, Rest), args =>
                     {
                         var guildId = args.GuildId;
                         var cache = Cache.CacheGuildUsers(guildId, args.Users);
@@ -1206,162 +1291,177 @@ public partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_ROLE_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleCreate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleCreate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleEventArgs);
-                    await InvokeEventAsync(RoleUpdate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleUpdate, new(json.Role, json.GuildId, Rest), role => Cache = Cache.CacheRole(role)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_ROLE_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonRoleDeleteEventArgs);
-                    await InvokeEventAsync(RoleDelete, new(json), args => Cache = Cache.RemoveRole(args.GuildId, args.RoleId)).ConfigureAwait(false);
+                    await InvokeEventAsync(_roleDelete, new(json), args => Cache = Cache.RemoveRole(args.GuildId, args.RoleId)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventCreate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventCreate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventUpdate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUpdate, new(json, Rest), scheduledEvent => Cache = Cache.CacheGuildScheduledEvent(scheduledEvent)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(GuildScheduledEventDelete, new(json, Rest), scheduledEvent => Cache = Cache.RemoveGuildScheduledEvent(scheduledEvent.GuildId, scheduledEvent.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventDelete, new(json, Rest), scheduledEvent => Cache = Cache.RemoveGuildScheduledEvent(scheduledEvent.GuildId, scheduledEvent.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
                 {
-                    await InvokeEventAsync(GuildScheduledEventUserAdd, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUserAdd, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_REMOVE":
                 {
-                    await InvokeEventAsync(GuildScheduledEventUserRemove, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventUserRemove, () => new(data.ToObject(Serialization.Default.JsonGuildScheduledEventUserEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_CREATE":
                 {
-                    await InvokeEventAsync(GuildIntegrationCreate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationCreate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_UPDATE":
                 {
-                    await InvokeEventAsync(GuildIntegrationUpdate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationUpdate, () => new(new(data.ToObject(Serialization.Default.JsonIntegration), Rest), GetGuildId())).ConfigureAwait(false);
                 }
                 break;
             case "INTEGRATION_DELETE":
                 {
-                    await InvokeEventAsync(GuildIntegrationDelete, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildIntegrationDelete, () => new(data.ToObject(Serialization.Default.JsonGuildIntegrationDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "INTERACTION_CREATE":
                 {
-                    await InvokeEventAsync(InteractionCreate, () => Interaction.CreateFromJson(data.ToObject(Serialization.Default.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_interactionCreate, () => Interaction.CreateFromJson(data.ToObject(Serialization.Default.JsonInteraction), Cache, Rest)).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_CREATE":
+                {
+                    await InvokeEventAsync(_subscriptionCreate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_UPDATE":
+                {
+                    await InvokeEventAsync(_subscriptionUpdate, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
+                }
+                break;
+            case "SUBSCRIPTION_DELETE":
+                {
+                    await InvokeEventAsync(_subscriptionDelete, () => new(data.ToObject(Serialization.Default.JsonSubscription))).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_CREATE":
                 {
-                    await InvokeEventAsync(InviteCreate, () => new(data.ToObject(Serialization.Default.JsonInvite), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_inviteCreate, () => new(data.ToObject(Serialization.Default.JsonInvite), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "INVITE_DELETE":
                 {
-                    await InvokeEventAsync(InviteDelete, () => new(data.ToObject(Serialization.Default.JsonInviteDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_inviteDelete, () => new(data.ToObject(Serialization.Default.JsonInviteDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_CREATE":
                 {
-                    await InvokeEventAsync(MessageCreate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageCreate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_UPDATE":
                 {
-                    await InvokeEventAsync(MessageUpdate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageUpdate, () => Message.CreateFromJson(data.ToObject(Serialization.Default.JsonMessage), Cache, Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE":
                 {
-                    await InvokeEventAsync(MessageDelete, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageDelete, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_DELETE_BULK":
                 {
-                    await InvokeEventAsync(MessageDeleteBulk, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteBulkEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageDeleteBulk, () => new(data.ToObject(Serialization.Default.JsonMessageDeleteBulkEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_ADD":
                 {
-                    await InvokeEventAsync(MessageReactionAdd, () => new(data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionAdd, () => new(data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE":
                 {
-                    await InvokeEventAsync(MessageReactionRemove, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemove, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE_ALL":
                 {
-                    await InvokeEventAsync(MessageReactionRemoveAll, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveAllEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemoveAll, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveAllEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE_EMOJI":
                 {
-                    await InvokeEventAsync(MessageReactionRemoveEmoji, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEmojiEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionRemoveEmoji, () => new(data.ToObject(Serialization.Default.JsonMessageReactionRemoveEmojiEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "PRESENCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonPresence);
-                    await InvokeEventAsync(PresenceUpdate, new(json, null, Rest), presence => Cache = Cache.CachePresence(presence)).ConfigureAwait(false);
+                    await InvokeEventAsync(_presenceUpdate, new(json, null, Rest), presence => Cache = Cache.CachePresence(presence)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_CREATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceCreate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceCreate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceUpdate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceUpdate, new(json, Rest), stageInstance => Cache = Cache.CacheStageInstance(stageInstance)).ConfigureAwait(false);
                 }
                 break;
             case "STAGE_INSTANCE_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(StageInstanceDelete, new(json, Rest), stageInstance => Cache = Cache.RemoveStageInstance(stageInstance.GuildId, stageInstance.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceDelete, new(json, Rest), stageInstance => Cache = Cache.RemoveStageInstance(stageInstance.GuildId, stageInstance.Id)).ConfigureAwait(false);
                 }
                 break;
             case "TYPING_START":
                 {
-                    await InvokeEventAsync(TypingStart, () => new(data.ToObject(Serialization.Default.JsonTypingStartEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_typingStart, () => new(data.ToObject(Serialization.Default.JsonTypingStartEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "USER_UPDATE":
                 {
-                    await InvokeEventAsync(CurrentUserUpdate, new(data.ToObject(Serialization.Default.JsonUser), Rest), user => Cache = Cache.CacheCurrentUser(user)).ConfigureAwait(false);
+                    await InvokeEventAsync(_currentUserUpdate, new(data.ToObject(Serialization.Default.JsonUser), Rest), user => Cache = Cache.CacheCurrentUser(user)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_CHANNEL_EFFECT_SEND":
                 {
-                    await InvokeEventAsync(VoiceChannelEffectSend, () => new(data.ToObject(Serialization.Default.JsonVoiceChannelEffectSendEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_voiceChannelEffectSend, () => new(data.ToObject(Serialization.Default.JsonVoiceChannelEffectSendEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "VOICE_STATE_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonVoiceState);
-                    await InvokeEventAsync(VoiceStateUpdate, new(json, json.GuildId.GetValueOrDefault(), Rest), voiceState =>
+                    await InvokeEventAsync(_voiceStateUpdate, new(json, json.GuildId.GetValueOrDefault(), Rest), voiceState =>
                     {
                         if (voiceState.ChannelId.HasValue)
                             Cache = Cache.CacheVoiceState(voiceState);
@@ -1372,58 +1472,58 @@ public partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "VOICE_SERVER_UPDATE":
                 {
-                    await InvokeEventAsync(VoiceServerUpdate, () => new(data.ToObject(Serialization.Default.JsonVoiceServerUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_voiceServerUpdate, () => new(data.ToObject(Serialization.Default.JsonVoiceServerUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "WEBHOOKS_UPDATE":
                 {
-                    await InvokeEventAsync(WebhooksUpdate, () => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_webhooksUpdate, () => new(data.ToObject(Serialization.Default.JsonWebhooksUpdateEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_POLL_VOTE_ADD":
                 {
-                    await InvokeEventAsync(MessagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messagePollVoteAdd, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_POLL_VOTE_REMOVE":
                 {
-                    await InvokeEventAsync(MessagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_messagePollVoteRemove, () => new(data.ToObject(Serialization.Default.JsonMessagePollVoteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_CREATE":
                 {
-                    await InvokeEventAsync(EntitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementCreate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_UPDATE":
                 {
-                    await InvokeEventAsync(EntitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementUpdate, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "ENTITLEMENT_DELETE":
                 {
-                    await InvokeEventAsync(EntitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement))).ConfigureAwait(false);
+                    await InvokeEventAsync(_entitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_JOIN_REQUEST_UPDATE":
                 {
-                    await InvokeEventAsync(GuildJoinRequestUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestUpdateEventArgs), Rest)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildJoinRequestUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestUpdateEventArgs), Rest)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_JOIN_REQUEST_DELETE":
                 {
-                    await InvokeEventAsync(GuildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             default:
                 {
-                    await InvokeEventAsync(UnknownEvent, () => new(name, data)).ConfigureAwait(false);
+                    await InvokeEventAsync(_unknownEvent, () => new(name, data)).ConfigureAwait(false);
                 }
                 break;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        ulong GetGuildId() => data.GetProperty("guild_id").ToObject(Serialization.Default.UInt64);
+        ulong GetGuildId() => data.GetProperty("guild_id"u8).ToObject(Serialization.Default.UInt64);
     }
 
     protected override void Dispose(bool disposing)

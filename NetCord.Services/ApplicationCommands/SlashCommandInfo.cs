@@ -21,7 +21,8 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
+
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal SlashCommandInfo(string name,
@@ -54,18 +55,17 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider);
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
-    public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
+    public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override LocalizationPathSegment LocalizationPathSegment => new ApplicationCommandLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
@@ -136,11 +136,11 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         return new NotFoundResult("Command not found.");
     }
 
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>()
+    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Parameters;
         var count = parameters.Count;
         for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>();
+            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

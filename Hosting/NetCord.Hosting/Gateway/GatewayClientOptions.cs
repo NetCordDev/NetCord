@@ -23,37 +23,52 @@ public partial class GatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
     public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.LatencyTimer" />
     public ILatencyTimer? LatencyTimer { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public ApiVersion? Version { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
     public IGatewayClientCache? Cache { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public IGatewayCompression? Compression { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Intents" />
     public GatewayIntents? Intents { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Hostname" />
     public string? Hostname { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.ConnectionProperties" />
     public ConnectionPropertiesProperties? ConnectionProperties { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.LargeThreshold" />
     public int? LargeThreshold { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Presence" />
     public PresenceProperties? Presence { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.Shard" />
     public Shard? Shard { get; set; }
 
+    /// <inheritdoc cref="GatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
 
-    internal GatewayClientConfiguration CreateConfiguration()
+    internal GatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
         return GatewayClientConfigurationFactory.Create(WebSocketConnectionProvider,
                                                         RateLimiterProvider,
@@ -69,6 +84,7 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         LargeThreshold,
                                                         Presence,
                                                         Shard,
-                                                        RestClientConfiguration);
+                                                        RestClientConfiguration,
+                                                        new GatewayMicrosoftExtensionsLogger(services));
     }
 }

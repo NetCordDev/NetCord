@@ -14,8 +14,10 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
                                 ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
     {
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(RestMessage));
-        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider);
+
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+
+        _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal MessageCommandInfo(string name,
@@ -42,8 +44,10 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(RestMessage));
-        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider);
+
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+
+        _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _messageParameter;
@@ -51,8 +55,6 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override LocalizationPathSegment LocalizationPathSegment => new ApplicationCommandLocalizationPathSegment(Name);
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

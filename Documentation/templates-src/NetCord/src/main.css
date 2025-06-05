@@ -1,17 +1,17 @@
 @font-face {
-  font-family: Cascadia Code;
-  src: local(Cascadia Code Regular), url(cascadia-code.woff2) format(woff2);
+  font-family: "Cascadia Code";
+  src: local("Cascadia Code Regular"), url("cascadia-code.woff2") format(woff2);
   font-display: swap;
 }
 
 @font-face {
-  font-family: Franklin Gothic Heavy;
-  src: local(Franklin Gothic Heavy), url(franklin-gothic-heavy.woff2) format(woff2);
+  font-family: "Franklin Gothic Heavy";
+  src: local("Franklin Gothic Heavy"), url("franklin-gothic-heavy.woff2") format(woff2);
   font-display: swap;
 }
 
 :root {
-  --bs-font-monospace: Cascadia Code, monospace;
+  --bs-font-monospace: "Cascadia Code", monospace;
   --light-blurple: #6c82ff;
   --blurple: #5865f2;
   --dark-blurple: #4752c4;
@@ -33,14 +33,15 @@
 [data-bs-theme="dark"] {
   --tooltip-color: white;
   --bs-secondary-rgb: 170, 170, 170;
-  --bs-secondary: #aaaaaa;
+  --bs-secondary: #aaa;
   --bs-secondary-hover-rgb: 179, 179, 179;
   --bs-secondary-hover: #b3b3b3;
   --bs-code-color: #e685b5;
 }
 
 .link-secondary:hover, .link-secondary:focus {
-  color: var(--bs-secondary-hover-rgb);
+  color: var(--bs-secondary-hover-rgb) !important;
+  text-decoration-color: var(--bs-secondary-hover-rgb) !important;
 }
 
 .navbar-nav {
@@ -90,6 +91,10 @@
   padding: 10px;
 }
 
+code {
+  font-variant-ligatures: var(--ligatures);
+}
+
 pre code,
 article img {
   border-radius: 10px;
@@ -107,7 +112,7 @@ article img {
   display: block;
 }
 
-@keyframes fadeInUp {
+@keyframes fade-in-up {
   from {
     opacity: 0;
     transform: translateY(20px);
@@ -121,11 +126,11 @@ article img {
 
 article,
 .main {
-  animation: fadeInUp 0.5s ease both;
+  animation: fade-in-up 0.5s ease both;
 }
 
 .title {
-  font-family: Franklin Gothic Heavy;
+  font-family: "Franklin Gothic Heavy", sans-serif;
   font-size: 12em;
   margin-bottom: 0;
 }
@@ -152,10 +157,12 @@ article,
 }
 
 .bg-body {
-  z-index: 1;
   --bs-bg-opacity: 0;
+
+  z-index: 1;
   backdrop-filter: blur(10px) brightness(80%);
   -webkit-backdrop-filter: blur(10px) brightness(80%);
+  border-bottom: unset !important;
 }
 
 .border-bottom {
@@ -198,7 +205,7 @@ article,
     color: var(--bs-white);
   }
 
-.icon:before {
+.icon::before {
   display: inline-grid;
   white-space: nowrap;
   vertical-align: bottom;
@@ -211,15 +218,11 @@ article,
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-ligatures:before {
+.icon-ligatures::before {
   content: "!=";
   font-family: var(--bs-font-monospace);
   font-weight: 700;
   overflow: hidden;
-}
-
-code,
-.icon-ligatures:before {
   font-variant-ligatures: var(--ligatures);
 }
 
@@ -239,7 +242,7 @@ code,
   transition: inherit;
 }
 
-.icon-snow:before {
+.icon-snow::before {
   content: var(--snow-icon);
 }
 
@@ -292,9 +295,9 @@ code,
   padding: 2px 10px;
   color: var(--tooltip-color);
   font-size: 0.8em;
-  animation: tooltipFadeOutUp 0.15s ease both;
+  animation: tooltip-fade-out-up 0.15s ease both;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-  border-width: 3px 0 0 0;
+  border-width: 3px 0 0;
   border-top-style: solid;
   border-top-color: var(--tooltip-color);
   font-weight: 600;
@@ -303,14 +306,14 @@ code,
 
 .icon-tooltip-active.icon-tooltip:hover::after,
 .icon-tooltip-active.icon-tooltip:focus-visible::after {
-  animation: tooltipFadeInUp 0.15s ease both;
+  animation: tooltip-fade-in-up 0.15s ease both;
 }
 
 .navbar-collapse.collapsing .icon-tooltip-active.icon-tooltip::after {
   scale: 0;
 }
 
-@keyframes tooltipFadeInUp {
+@keyframes tooltip-fade-in-up {
   from {
     opacity: 0;
     transform: translate(calc(-50% - 8.4px), 0) translateY(10px);
@@ -322,7 +325,7 @@ code,
   }
 }
 
-@keyframes tooltipFadeOutUp {
+@keyframes tooltip-fade-out-up {
   from {
     opacity: 1;
     transform: translate(calc(-50% - 8.4px), 0) translateY(0);
@@ -348,6 +351,15 @@ code,
   .code-example pre code.hljs {
     padding: 1.5em !important;
   }
+
+.hljs-comment,
+.hljs-quote {
+  font-style: italic;
+}
+
+[data-bs-theme]:not([data-bs-theme="dark"]) .hljs {
+  background-color: #f5f5f5;
+}
 
 .code-example-section {
   margin-top: 100px;
@@ -386,14 +398,14 @@ code,
   padding: 20px;
   background-color: #f8f8f8;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 10%);
   text-align: left;
 }
 
 [data-bs-theme="dark"]
 .feature-item {
-  background-color: rgba(0, 0, 0, 0.11);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  background-color: rgb(0 0 0 / 11%);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 40%);
 }
 
 .feature-item h4 {

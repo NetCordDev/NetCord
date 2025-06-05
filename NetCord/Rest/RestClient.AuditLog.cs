@@ -24,7 +24,7 @@ public partial class RestClient
             e => e.Id,
             HttpMethod.Get,
             $"/guilds/{guildId}/audit-logs",
-            new(paginationProperties.Limit.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue
+            new(paginationProperties.BatchSize.GetValueOrDefault(), paginationProperties.Direction.GetValueOrDefault(), id => id.ToString(), userId.HasValue
                                                                                                                                             ? (actionType.HasValue
                                                                                                                                                 ? $"?user_id={userId.GetValueOrDefault()}&action_type={(int)actionType.GetValueOrDefault()}&"
                                                                                                                                                 : $"?user_id={userId.GetValueOrDefault()}&")

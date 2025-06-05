@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public abstract class EntityMenu(JsonComponent jsonModel, IReadOnlyList<ulong> defaultValues) : Menu(jsonModel)
+public abstract class EntityMenu(JsonComponent jsonModel, IReadOnlyList<ulong> defaultValues, int parentId) : Menu(jsonModel, parentId)
 {
-    public EntityMenu(JsonComponent jsonModel) : this(jsonModel, jsonModel.DefaultValues.SelectOrEmpty(d => d.Id).ToArray())
+    public EntityMenu(JsonComponent jsonModel, int parentId) : this(jsonModel, jsonModel.DefaultValues.SelectOrEmpty(d => d.Id).ToArray(), parentId)
     {
     }
 

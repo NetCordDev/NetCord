@@ -72,6 +72,32 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
+    public static IHost AddSlashCommand(this IHost host,
+                                        string name,
+                                        string description,
+                                        Action<SlashCommandBuilder> builder,
+                                        Permissions? defaultGuildUserPermissions = null,
+                                        bool? dMPermission = null,
+                                        bool defaultPermission = true,
+                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                        IEnumerable<InteractionContextType>? contexts = null,
+                                        bool nsfw = false,
+                                        ulong? guildId = null)
+    {
+        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
+        service.AddSlashCommand(name,
+                                description,
+                                builder,
+                                defaultGuildUserPermissions,
+                                dMPermission,
+                                defaultPermission,
+                                integrationTypes,
+                                contexts,
+                                nsfw,
+                                guildId);
+        return host;
+    }
+
     public static IHost AddUserCommand(this IHost host,
                                        string name,
                                        Delegate handler,
@@ -136,6 +162,32 @@ public static class ApplicationCommandServiceHostExtensions
         service.AddSlashCommand(name,
                                 description,
                                 handler,
+                                defaultGuildUserPermissions,
+                                dMPermission,
+                                defaultPermission,
+                                integrationTypes,
+                                contexts,
+                                nsfw,
+                                guildId);
+        return host;
+    }
+
+    public static IHost AddSlashCommand<TContext>(this IHost host,
+                                                  string name,
+                                                  string description,
+                                                  Action<SlashCommandBuilder> builder,
+                                                  Permissions? defaultGuildUserPermissions = null,
+                                                  bool? dMPermission = null,
+                                                  bool defaultPermission = true,
+                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                  IEnumerable<InteractionContextType>? contexts = null,
+                                                  bool nsfw = false,
+                                                  ulong? guildId = null) where TContext : IApplicationCommandContext
+    {
+        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
+        service.AddSlashCommand(name,
+                                description,
+                                builder,
                                 defaultGuildUserPermissions,
                                 dMPermission,
                                 defaultPermission,

@@ -109,9 +109,16 @@ internal class SortedList<T>(Comparison<T> comparison) : ICollection<T>, IReadOn
             _items[index] = default!;
     }
 
-    public IEnumerator<T> GetEnumerator() => (IEnumerator<T>)_items[.._size].GetEnumerator();
+    public IEnumerator<T> GetEnumerator()
+    {
+        var items = _items;
+        int size = _size;
 
-    IEnumerator IEnumerable.GetEnumerator() => _items[.._size].GetEnumerator();
+        for (var i = 0; i < size; i++)
+            yield return items[i];
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int IndexOf(T item) => Array.IndexOf(_items, item);
 }

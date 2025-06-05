@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
+using NetCord.Rest;
 
 namespace NetCord.Hosting.Gateway;
 
@@ -9,12 +10,28 @@ public static class ShardedGatewayClientServiceCollectionExtensions
 {
     // Configure
 
-    public static IServiceCollection ConfigureDiscordShardedGateway(this IServiceCollection services, Action<ShardedGatewayClientOptions> configureOptions)
+    /// <summary>
+    /// Configures a <see cref="ShardedGatewayClient"/> in the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to configure the <see cref="ShardedGatewayClient"/> on.</param>
+    /// <param name="configureOptions">A delegate to configure the <see cref="ShardedGatewayClient"/>.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection ConfigureDiscordShardedGateway(
+        this IServiceCollection services,
+        Action<ShardedGatewayClientOptions> configureOptions)
     {
         return services.ConfigureDiscordShardedGateway((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection ConfigureDiscordShardedGateway(this IServiceCollection services, Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
+    /// <summary>
+    /// Configures a <see cref="ShardedGatewayClient"/> in the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to configure the <see cref="ShardedGatewayClient"/> on.</param>
+    /// <param name="configureOptions">A delegate to configure the <see cref="ShardedGatewayClient"/>.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection ConfigureDiscordShardedGateway(
+        this IServiceCollection services,
+        Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
     {
         services
             .AddOptions<ShardedGatewayClientOptions>()
@@ -25,17 +42,39 @@ public static class ShardedGatewayClientServiceCollectionExtensions
 
     // Add
 
-    public static IServiceCollection AddDiscordShardedGateway(this IServiceCollection services)
+    /// <summary>
+    /// Adds a <see cref="ShardedGatewayClient"/> and its associated <see cref="RestClient"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="ShardedGatewayClient"/> to.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddDiscordShardedGateway(
+        this IServiceCollection services)
     {
         return services.AddDiscordShardedGateway((_, _) => { });
     }
 
-    public static IServiceCollection AddDiscordShardedGateway(this IServiceCollection services, Action<ShardedGatewayClientOptions> configureOptions)
+    /// <summary>
+    /// Adds a <see cref="ShardedGatewayClient"/> and its associated <see cref="RestClient"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="ShardedGatewayClient"/> to.</param>
+    /// <param name="configureOptions">A delegate to configure the <see cref="ShardedGatewayClient"/>.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddDiscordShardedGateway(
+        this IServiceCollection services,
+        Action<ShardedGatewayClientOptions> configureOptions)
     {
         return services.AddDiscordShardedGateway((options, _) => configureOptions(options));
     }
 
-    public static IServiceCollection AddDiscordShardedGateway(this IServiceCollection services, Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
+    /// <summary>
+    /// Adds a <see cref="ShardedGatewayClient"/> and its associated <see cref="RestClient"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="ShardedGatewayClient"/> to.</param>
+    /// <param name="configureOptions">A delegate to configure the <see cref="ShardedGatewayClient"/>.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddDiscordShardedGateway(
+        this IServiceCollection services,
+        Action<ShardedGatewayClientOptions, IServiceProvider> configureOptions)
     {
         services.AddSingleton<IValidateOptions<ShardedGatewayClientOptions>, ShardedGatewayClientOptions.Validator>();
 
@@ -55,7 +94,7 @@ public static class ShardedGatewayClientServiceCollectionExtensions
             if (token is not IEntityToken entityToken)
                 throw new InvalidOperationException($"Unable to initialize '{nameof(ShardedGatewayClient)}'. The provided token must implement the '{nameof(IEntityToken)}' interface.");
 
-            return new ShardedGatewayClient(entityToken, options.CreateConfiguration());
+            return new ShardedGatewayClient(entityToken, options.CreateConfiguration(services));
         });
         services.AddSingleton(services => services.GetRequiredService<ShardedGatewayClient>().Rest);
 
