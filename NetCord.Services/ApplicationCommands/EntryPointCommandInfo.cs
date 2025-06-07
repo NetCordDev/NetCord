@@ -35,14 +35,14 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                    bool nsfw,
                                    ulong? guildId,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                    defaultGuildUserPermissions,
-                                                                                                    dMPermission,
-                                                                                                    defaultPermission,
-                                                                                                    integrationTypes,
-                                                                                                    contexts,
-                                                                                                    nsfw,
-                                                                                                    guildId,
-                                                                                                    configuration)
+                                                                                                          defaultGuildUserPermissions,
+                                                                                                          dMPermission,
+                                                                                                          defaultPermission,
+                                                                                                          integrationTypes,
+                                                                                                          contexts,
+                                                                                                          nsfw,
+                                                                                                          guildId,
+                                                                                                          configuration)
     {
         Description = description;
 
