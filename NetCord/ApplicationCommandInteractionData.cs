@@ -21,7 +21,7 @@ public class ApplicationCommandInteractionData(JsonModels.JsonInteractionData js
     public ApplicationCommandType Type => _jsonModel.Type.GetValueOrDefault();
 
     /// <summary>
-    /// The ID of the guild the command is registered to.
+    /// The ID of the guild the <see cref="Rest.ApplicationCommand"/> is registered to.
     /// </summary>
     public ulong? GuildId => _jsonModel.GuildId;
 }
