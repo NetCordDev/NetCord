@@ -136,3 +136,36 @@ public class HttpMessageCommandContext(MessageCommandInteraction interaction, Re
     public User User => Interaction.User;
     public RestMessage Target => Interaction.Data.TargetMessage;
 }
+
+public class BaseEntryPointCommandContext(EntryPointCommandInteraction interaction) : IApplicationCommandContext
+{
+    public EntryPointCommandInteraction Interaction => interaction;
+
+    ApplicationCommandInteraction IApplicationCommandContext.Interaction => interaction;
+}
+
+public class EntryPointCommandContext(EntryPointCommandInteraction interaction, GatewayClient client)
+    : BaseEntryPointCommandContext(interaction),
+      IGatewayClientContext,
+      IGuildContext,
+      IChannelContext,
+      IUserContext
+{
+    public GatewayClient Client => client;
+    public Guild? Guild => Interaction.Guild;
+    public TextChannel Channel => Interaction.Channel;
+    public User User => Interaction.User;
+
+    ulong? IGuildContext.GuildId => Interaction.GuildId;
+}
+
+public class HttpEntryPointCommandContext(EntryPointCommandInteraction interaction, RestClient client)
+    : BaseEntryPointCommandContext(interaction),
+      IRestClientContext,
+      IChannelContext,
+      IUserContext
+{
+    public RestClient Client => client;
+    public TextChannel Channel => Interaction.Channel;
+    public User User => Interaction.User;
+}

@@ -92,6 +92,9 @@ public abstract partial class ApplicationCommandProperties
                 case MessageCommandProperties messageCommandProperties:
                     JsonSerializer.Serialize(writer, messageCommandProperties, Serialization.Default.MessageCommandProperties);
                     break;
+                case EntryPointCommandProperties entryPointCommandProperties:
+                    JsonSerializer.Serialize(writer, entryPointCommandProperties, Serialization.Default.EntryPointCommandProperties);
+                    break;
                 default:
                     throw new InvalidOperationException($"Invalid {nameof(ApplicationCommandProperties)} value.");
             }

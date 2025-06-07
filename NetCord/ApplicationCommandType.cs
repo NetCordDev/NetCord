@@ -19,4 +19,9 @@ public enum ApplicationCommandType
     /// UI-based. Displayed when right clicking or tapping on a message.
     /// </summary>
     Message = 3,
+
+    /// <summary>
+    /// UI-based. Represents the primary way to invoke an app's Activity.
+    /// </summary>
+    EntryPoint = 4,
 }

@@ -196,6 +196,30 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                                         _configuration));
     }
 
+    public void AddEntryPointCommand(string name,
+                                     string description,
+                                     Delegate? handler,
+                                     Permissions? defaultGuildUserPermissions = null,
+                                     bool? dMPermission = null,
+                                     bool defaultPermission = true,
+                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                     IEnumerable<InteractionContextType>? contexts = null,
+                                     bool nsfw = false,
+                                     ulong? guildId = null)
+    {
+        AddCommandInfo(new EntryPointCommandInfo<TContext>(name,
+                                                           description,
+                                                           handler,
+                                                           defaultGuildUserPermissions,
+                                                           dMPermission,
+                                                           defaultPermission,
+                                                           integrationTypes,
+                                                           contexts,
+                                                           nsfw,
+                                                           guildId,
+                                                           _configuration));
+    }
+
     void IApplicationCommandService.SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands)
     {
         _commands = commands.ToFrozenDictionary(c => c.Key, c => (ApplicationCommandInfo<TContext>)c.Value);
