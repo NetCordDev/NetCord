@@ -2,10 +2,19 @@
 
 public partial class RestClient
 {
-    public async Task SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<InteractionCallbackResponse?> SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = callback.Serialize())
-            await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", null, new(interactionId, interactionToken), properties, false, cancellationToken: cancellationToken).ConfigureAwait(false);
+        {
+            if (withResponse)
+                return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", "?with_response=True", new(interactionId, interactionToken), properties, false, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonInteractionCallbackResponse).ConfigureAwait(false), this);
+            else
+            {
+                await SendRequestAsync(HttpMethod.Post, content, $"/interactions/{interactionId}/{interactionToken}/callback", null, new(interactionId, interactionToken), properties, false, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+                return null;
+            }
+        }
     }
 
     [GenerateAlias([typeof(Interaction)], nameof(Interaction.ApplicationId), nameof(Interaction.Token))]

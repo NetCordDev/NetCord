@@ -87,12 +87,13 @@ public static class EndpointRouteBuilderExtensions
         }
 
         var response = context.Response;
-        var interaction = HttpInteractionFactory.Create(timestampAndBody.Span[timestampByteCount..], async (interaction, interactionCallback, properties, cancellationToken) =>
+        var interaction = HttpInteractionFactory.Create(timestampAndBody.Span[timestampByteCount..], async (interaction, interactionCallback, withResponse, properties, cancellationToken) =>
         {
             using var content = interactionCallback.Serialize();
             response.ContentType = content.Headers.ContentType!.ToString();
             await content.CopyToAsync(response.Body, cancellationToken).ConfigureAwait(false);
             await response.CompleteAsync().ConfigureAwait(false);
+            return null;
         }, client);
 
         ArrayPool<byte>.Shared.Return(timestampAndBodyArray);

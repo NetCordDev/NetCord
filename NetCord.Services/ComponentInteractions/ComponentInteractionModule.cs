@@ -4,7 +4,7 @@ namespace NetCord.Services.ComponentInteractions;
 
 public class ComponentInteractionModule<TContext> : BaseComponentInteractionModule<TContext> where TContext : IComponentInteractionContext
 {
-    public Task RespondAsync(InteractionCallback callback, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendResponseAsync(callback, properties, cancellationToken);
+    public Task<InteractionCallbackResponse?> RespondAsync(InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendResponseAsync(callback, withResponse, properties, cancellationToken);
 
     public Task<RestMessage> GetResponseAsync(RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.GetResponseAsync(properties, cancellationToken);
 

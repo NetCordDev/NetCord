@@ -107,8 +107,18 @@ internal static class Program
             builder.AddSubCommand("red", "Red!", builder =>
             {
                 builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
-                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => InteractionCallback.LaunchActivity /*$"purple {s}"*/);
+                builder.AddSubCommand("purple", "Purple!", async (SlashCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) =>
+                {
+                    var response = await context.Interaction.SendResponseAsync(InteractionCallback.LaunchActivity, true);
+                    await context.Interaction.SendFollowupMessageAsync(response?.Interaction.ActivityInstanceId ?? "No activity instance ID");
+                });
             });
+        });
+
+        _slashCommandService.AddSlashCommand("response-test", "Response Test!", async (SlashCommandContext context) =>
+        {
+            var response = await context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(), true);
+            await context.Interaction.SendFollowupMessageAsync(response!.Interaction.ResponseMessageId.GetValueOrDefault().ToString());
         });
 
         _slashCommandService.AddModules(assembly);
