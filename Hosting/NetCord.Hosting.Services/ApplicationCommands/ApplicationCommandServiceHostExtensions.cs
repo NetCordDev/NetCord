@@ -146,6 +146,32 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
+    public static IHost AddEntryPointCommand(this IHost host,
+                                                   string name,
+                                                   string description,
+                                                   Delegate? handler = null,
+                                                   Permissions? defaultGuildUserPermissions = null,
+                                                   bool? dMPermission = null,
+                                                   bool defaultPermission = true,
+                                                   IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                   IEnumerable<InteractionContextType>? contexts = null,
+                                                   bool nsfw = false,
+                                                   ulong? guildId = null)
+    {
+        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
+        service.AddEntryPointCommand(name,
+                                     description,
+                                     handler,
+                                     defaultGuildUserPermissions,
+                                     dMPermission,
+                                     defaultPermission,
+                                     integrationTypes,
+                                     contexts,
+                                     nsfw,
+                                     guildId);
+        return host;
+    }
+
     public static IHost AddSlashCommand<TContext>(this IHost host,
                                                   string name,
                                                   string description,
@@ -243,6 +269,32 @@ public static class ApplicationCommandServiceHostExtensions
                                   contexts,
                                   nsfw,
                                   guildId);
+        return host;
+    }
+
+    public static IHost AddEntryPointCommand<TContext>(this IHost host,
+                                                       string name,
+                                                       string description,
+                                                       Delegate? handler = null,
+                                                       Permissions? defaultGuildUserPermissions = null,
+                                                       bool? dMPermission = null,
+                                                       bool defaultPermission = true,
+                                                       IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                                       IEnumerable<InteractionContextType>? contexts = null,
+                                                       bool nsfw = false,
+                                                       ulong? guildId = null) where TContext : IApplicationCommandContext
+    {
+        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
+        service.AddEntryPointCommand(name,
+                                     description,
+                                     handler,
+                                     defaultGuildUserPermissions,
+                                     dMPermission,
+                                     defaultPermission,
+                                     integrationTypes,
+                                     contexts,
+                                     nsfw,
+                                     guildId);
         return host;
     }
 }
