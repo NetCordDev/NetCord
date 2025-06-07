@@ -147,16 +147,16 @@ public static class ApplicationCommandServiceHostExtensions
     }
 
     public static IHost AddEntryPointCommand(this IHost host,
-                                                   string name,
-                                                   string description,
-                                                   Delegate? handler = null,
-                                                   Permissions? defaultGuildUserPermissions = null,
-                                                   bool? dMPermission = null,
-                                                   bool defaultPermission = true,
-                                                   IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                   IEnumerable<InteractionContextType>? contexts = null,
-                                                   bool nsfw = false,
-                                                   ulong? guildId = null)
+                                             string name,
+                                             string description,
+                                             Delegate? handler = null,
+                                             Permissions? defaultGuildUserPermissions = null,
+                                             bool? dMPermission = null,
+                                             bool defaultPermission = true,
+                                             IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                             IEnumerable<InteractionContextType>? contexts = null,
+                                             bool nsfw = false,
+                                             ulong? guildId = null)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddEntryPointCommand(name,
