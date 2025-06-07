@@ -11,6 +11,8 @@ public class InteractionResolvedData
 
     public IReadOnlyDictionary<ulong, Channel>? Channels { get; }
 
+    public IReadOnlyDictionary<ulong, RestMessage>? Messages { get; }
+
     public IReadOnlyDictionary<ulong, Attachment>? Attachments { get; }
 
     public InteractionResolvedData(JsonInteractionResolvedData jsonModel, ulong? guildId, RestClient client)
@@ -56,6 +58,10 @@ public class InteractionResolvedData
         var channels = jsonModel.Channels;
         if (channels is not null)
             Channels = channels.ToDictionary(c => c.Key, c => Channel.CreateFromJson(c.Value, client));
+
+        var messages = jsonModel.Messages;
+        if (messages is not null)
+            Messages = messages.ToDictionary(m => m.Key, m => new RestMessage(m.Value, client));
 
         var attachments = jsonModel.Attachments;
         if (attachments is not null)

@@ -57,4 +57,15 @@ public interface IApplicationCommandService : IService
                                   IEnumerable<InteractionContextType>? contexts = null,
                                   bool nsfw = false,
                                   ulong? guildId = null);
+
+    public void AddEntryPointCommand(string name,
+                                     string description,
+                                     Delegate? handler = null,
+                                     Permissions? defaultGuildUserPermissions = null,
+                                     bool? dMPermission = null,
+                                     bool defaultPermission = true,
+                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                     IEnumerable<InteractionContextType>? contexts = null,
+                                     bool nsfw = false,
+                                     ulong? guildId = null);
 }

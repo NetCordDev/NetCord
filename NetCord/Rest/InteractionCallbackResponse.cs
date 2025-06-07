@@ -37,7 +37,7 @@ public class InteractionCallbackResponseResource : IJsonModel<JsonInteractionCal
 
     JsonInteractionCallbackResponseResource IJsonModel<JsonInteractionCallbackResponseResource>.JsonModel => _jsonModel;
     private readonly JsonInteractionCallbackResponseResource _jsonModel;
-    
+
     public InteractionCallbackType Type => _jsonModel.Type;
     public ActivityInstance? ActivityInstance { get; }
     public RestMessage? Message { get; }
@@ -46,6 +46,6 @@ public class InteractionCallbackResponseResource : IJsonModel<JsonInteractionCal
 public class ActivityInstance(JsonActivityInstance jsonModel) : IJsonModel<JsonActivityInstance>
 {
     JsonActivityInstance IJsonModel<JsonActivityInstance>.JsonModel => jsonModel;
- 
+
     public string Id => jsonModel.Id;
 }

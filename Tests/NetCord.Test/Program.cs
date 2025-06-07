@@ -39,6 +39,7 @@ internal static class Program
     private static readonly ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> _slashCommandService;
     private static readonly ApplicationCommandService<MessageCommandContext> _messageCommandService = new();
     private static readonly ApplicationCommandService<UserCommandContext> _userCommandService = new();
+    private static readonly ApplicationCommandService<EntryPointCommandContext> _entryPointCommandService = new();
 
     private static readonly ServiceProvider _serviceProvider;
 
@@ -129,10 +130,17 @@ internal static class Program
         _userCommandService.AddModules(assembly);
 
         _userCommandService.AddUserCommand("wziummm", (UserCommandContext context) => "wzium");
+
+        _entryPointCommandService.AddEntryPointCommand("launch-xd", "LOL", (EntryPointCommandContext context) =>
+        {
+            return InteractionCallback.LaunchActivity;
+        });
+
         ApplicationCommandServiceManager manager = new();
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
         manager.AddService(_userCommandService);
+        manager.AddService(_entryPointCommandService);
 
         await _client.StartAsync();
 
@@ -167,6 +175,7 @@ internal static class Program
             SlashCommandInteraction slashCommandInteraction => _slashCommandService.ExecuteAsync(new(slashCommandInteraction, _client), _serviceProvider),
             MessageCommandInteraction messageCommandInteraction => _messageCommandService.ExecuteAsync(new(messageCommandInteraction, _client), _serviceProvider),
             UserCommandInteraction userCommandInteraction => _userCommandService.ExecuteAsync(new(userCommandInteraction, _client), _serviceProvider),
+            EntryPointCommandInteraction entryPointCommandInteraction => _entryPointCommandService.ExecuteAsync(new(entryPointCommandInteraction, _client), _serviceProvider),
             StringMenuInteraction stringMenuInteraction => _stringMenuInteractionService.ExecuteAsync(new(stringMenuInteraction, _client), _serviceProvider),
             UserMenuInteraction userMenuInteraction => _userMenuInteractionService.ExecuteAsync(new(userMenuInteraction, _client), _serviceProvider),
             RoleMenuInteraction roleMenuInteraction => _roleMenuInteractionService.ExecuteAsync(new(roleMenuInteraction, _client), _serviceProvider),

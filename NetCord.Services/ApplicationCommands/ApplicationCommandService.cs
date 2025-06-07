@@ -76,7 +76,20 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
             slashCommandGroup = true;
         }
 
-        if (slashCommandGroup)
+        bool entryPointCommand = false;
+
+        foreach (var entryPointCommandAttribute in type.GetCustomAttributes<EntryPointCommandAttribute>())
+        {
+            if (slashCommandGroup)
+                throw new InvalidOperationException($"The type '{type}' cannot have both a slash command and an entry point command defined.");
+
+            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(entryPointCommandAttribute, configuration);
+            AddCommandInfo(entryPointCommandInfo);
+
+            entryPointCommand = true;
+        }
+
+        if (slashCommandGroup || entryPointCommand)
             return;
 
         foreach (var method in type.GetMethods())
@@ -95,6 +108,9 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
 
                 if (applicationCommandAttribute is MessageCommandAttribute messageCommandAttribute)
                     AddCommandInfo(new MessageCommandInfo<TContext>(method, type, messageCommandAttribute, configuration));
+
+                if (applicationCommandAttribute is EntryPointCommandAttribute entryPointCommandAttribute)
+                    AddCommandInfo(new EntryPointCommandInfo<TContext>(method, type, entryPointCommandAttribute, configuration));
             }
         }
     }
@@ -194,6 +210,30 @@ public class ApplicationCommandService<TContext>(ApplicationCommandServiceConfig
                                                         nsfw,
                                                         guildId,
                                                         _configuration));
+    }
+
+    public void AddEntryPointCommand(string name,
+                                     string description,
+                                     Delegate? handler = null,
+                                     Permissions? defaultGuildUserPermissions = null,
+                                     bool? dMPermission = null,
+                                     bool defaultPermission = true,
+                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
+                                     IEnumerable<InteractionContextType>? contexts = null,
+                                     bool nsfw = false,
+                                     ulong? guildId = null)
+    {
+        AddCommandInfo(new EntryPointCommandInfo<TContext>(name,
+                                                           description,
+                                                           handler,
+                                                           defaultGuildUserPermissions,
+                                                           dMPermission,
+                                                           defaultPermission,
+                                                           integrationTypes,
+                                                           contexts,
+                                                           nsfw,
+                                                           guildId,
+                                                           _configuration));
     }
 
     void IApplicationCommandService.SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands)

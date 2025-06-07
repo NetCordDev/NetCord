@@ -23,4 +23,15 @@ internal static class MethodHelper
                 throw new InvalidDefinitionException($"The command must have no parameters or a single parameter of type '{parameterType}'.", method);
         }
     }
+
+    public static void EnsureNoParameters(MethodInfo method)
+    {
+        EnsureNoParameters(method.GetParameters(), method);
+    }
+
+    public static void EnsureNoParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method)
+    {
+        if (parameters.Length is not 0)
+            throw new InvalidDefinitionException("The command must have no parameters.", method);
+    }
 }

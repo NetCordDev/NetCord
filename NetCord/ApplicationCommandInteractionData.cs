@@ -19,4 +19,9 @@ public class ApplicationCommandInteractionData(JsonModels.JsonInteractionData js
     /// The invoked <see cref="Rest.ApplicationCommand"/>'s type.
     /// </summary>
     public ApplicationCommandType Type => _jsonModel.Type.GetValueOrDefault();
+
+    /// <summary>
+    /// The ID of the guild the <see cref="Rest.ApplicationCommand"/> is registered to.
+    /// </summary>
+    public ulong? GuildId => _jsonModel.GuildId;
 }

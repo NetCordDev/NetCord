@@ -70,6 +70,7 @@ public abstract partial class Interaction : ClientEntity, IInteraction
                 ApplicationCommandType.ChatInput => new SlashCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 ApplicationCommandType.User => new UserCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 ApplicationCommandType.Message => new MessageCommandInteraction(jsonModel, guild, sendResponseAsync, client),
+                ApplicationCommandType.EntryPoint => new EntryPointCommandInteraction(jsonModel, guild, sendResponseAsync, client),
                 _ => throw new InvalidOperationException(),
             },
             InteractionType.MessageComponent => jsonModel.Data!.ComponentType.GetValueOrDefault() switch
