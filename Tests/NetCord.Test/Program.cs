@@ -107,7 +107,7 @@ internal static class Program
             builder.AddSubCommand("red", "Red!", builder =>
             {
                 builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
-                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => $"purple {s}");
+                builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) => InteractionCallback.LaunchActivity /*$"purple {s}"*/);
             });
         });
 

@@ -66,6 +66,12 @@ public partial class InteractionCallback : IHttpSerializable
     public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
         => new(InteractionCallbackType.Modal, modal);
 
+    /// <summary>
+    /// Launch the Activity associated with the app. Only available for apps with Activities enabled.
+    /// </summary>
+    public static InteractionCallback LaunchActivity
+        => new(InteractionCallbackType.LaunchActivity);
+
     public HttpContent Serialize()
     {
         switch (this)
