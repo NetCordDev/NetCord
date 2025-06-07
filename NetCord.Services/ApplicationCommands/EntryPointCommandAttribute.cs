@@ -1,10 +1,7 @@
-﻿using NetCord.Rest;
+﻿namespace NetCord.Services.ApplicationCommands;
 
-namespace NetCord.Services.ApplicationCommands;
-
-public class EntryPointCommandAttribute(string name, string description, EntryPointCommandHandler handler) : ApplicationCommandAttribute(name)
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
+public class EntryPointCommandAttribute(string name, string description) : ApplicationCommandAttribute(name)
 {
     public string Description { get; } = description;
-
-    public EntryPointCommandHandler Handler { get; } = handler;
 }

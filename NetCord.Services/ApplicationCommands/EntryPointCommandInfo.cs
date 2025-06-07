@@ -15,7 +15,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     {
         Description = attribute.Description;
 
-        Handler = attribute.Handler;
+        Handler = EntryPointCommandHandler.ApplicationHandler;
 
         MethodHelper.EnsureNoParameters(method);
 
@@ -50,7 +50,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
         {
             Handler = EntryPointCommandHandler.DiscordLaunchActivity;
             Preconditions = [];
-            _invokeAsync = (parameters, context, serviceProvider) => default;
+            _invokeAsync = EmptyInvokeAsync;
         }
         else
         {
@@ -67,6 +67,30 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
             _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         }
     }
+
+    internal EntryPointCommandInfo(EntryPointCommandAttribute attribute,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
+                                                                                                          attribute._defaultGuildUserPermissions,
+                                                                                                          attribute._dMPermission,
+#pragma warning disable CS0618 // Type or member is obsolete
+                                                                                                          attribute.DefaultPermission,
+#pragma warning restore CS0618 // Type or member is obsolete
+                                                                                                          attribute.IntegrationTypes,
+                                                                                                          attribute.Contexts,
+                                                                                                          attribute.Nsfw,
+                                                                                                          attribute._guildId,
+                                                                                                          configuration)
+    {
+        Description = attribute.Description;
+
+        Handler = EntryPointCommandHandler.DiscordLaunchActivity;
+
+        Preconditions = [];
+
+        _invokeAsync = EmptyInvokeAsync;
+    }
+
+    private static ValueTask EmptyInvokeAsync(object?[]? parameters, TContext context, IServiceProvider? serviceProvider) => default;
 
     public string Description { get; }
     public EntryPointCommandHandler Handler { get; }

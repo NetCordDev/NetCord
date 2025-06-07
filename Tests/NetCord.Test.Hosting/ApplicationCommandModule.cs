@@ -26,6 +26,12 @@ public class ApplicationCommandModule : ApplicationCommandModule<ApplicationComm
     {
         return message.Content.Length.ToString();
     }
+
+    [EntryPointCommand("Launch", "Launch!")]
+    public static InteractionCallback Launch()
+    {
+        return InteractionCallback.LaunchActivity;
+    }
 }
 
 public class DITestModule([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium) : ApplicationCommandModule<ApplicationCommandContext>
