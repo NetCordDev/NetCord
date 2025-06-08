@@ -353,20 +353,20 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
 public enum DeleteMessagesDays
 {
-    [SlashCommandChoice("Don't remove")]
+    [SlashCommandChoice(Name = "Don't remove")]
     DontRemove = 0 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 24 hours")]
+    [SlashCommandChoice(Name = "Last 24 hours")]
     Last24Hours = 1 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 2 days")]
+    [SlashCommandChoice(Name = "Last 2 days")]
     Last2Days = 2 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 3 days")]
+    [SlashCommandChoice(Name = "Last 3 days")]
     Last3Days = 3 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 4 days")]
+    [SlashCommandChoice(Name = "Last 4 days")]
     Last4Days = 4 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 5 days")]
+    [SlashCommandChoice(Name = "Last 5 days")]
     Last5Days = 5 * 24 * 60 * 60,
-    [SlashCommandChoice("Last 6 days")]
+    [SlashCommandChoice(Name = "Last 6 days")]
     Last6Days = 6 * 24 * 60 * 60,
-    [SlashCommandChoice("Last week")]
+    [SlashCommandChoice(Name = "Last week")]
     LastWeek = 7 * 24 * 60 * 60,
 }
