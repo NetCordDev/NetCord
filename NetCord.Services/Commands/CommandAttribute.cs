@@ -5,7 +5,7 @@
 /// </summary>
 /// <param name="aliases"><inheritdoc cref="Aliases" path="/summary" /></param>
 [AttributeUsage(AttributeTargets.Method)]
-public class CommandAttribute(params IReadOnlyList<string> aliases) : Attribute
+public class CommandAttribute(params string[] aliases) : Attribute
 {
     /// <summary>
     /// Aliases of the command.

@@ -53,18 +53,17 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         }
     }
 
-    public void AddCommand(IReadOnlyList<string> aliases, Delegate handler, int priority = 0)
+    public void AddCommand(IEnumerable<string> aliases, Delegate handler, int priority = 0)
     {
         CommandInfo<TContext> commandInfo = new(handler, priority, _configuration);
         AddCommandInfo(aliases, commandInfo, handler.Method);
     }
 
-    private void AddCommandInfo(IReadOnlyList<string> aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
+    private void AddCommandInfo(IEnumerable<string> aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
     {
-        int count = aliases.Count;
-        for (int i = 0; i < count; i++)
+        foreach (var alias in aliases)
         {
-            var aliasMemory = aliases[i].AsMemory();
+            var aliasMemory = alias.AsMemory();
 
             if (aliasMemory.Span.IndexOfAny(_parameterSeparators) >= 0)
                 throw new InvalidDefinitionException($"Any alias cannot contain '{nameof(_configuration.ParameterSeparators)}'.", method);
