@@ -3,7 +3,7 @@
 namespace NetCord.Rest;
 
 /// <summary>
-/// Slash commands are chat-based commands that are invoked by typing a slash (/) in the chat input box.
+/// Slash commands are application commands that are invoked by typing a slash (/) in the chat input box.
 /// They allow users to interact with your application.
 /// </summary>
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /> Must be lowercase.</param>
