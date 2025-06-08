@@ -20,7 +20,7 @@ public class SlashCommandParameterAttribute : Attribute
     public string? Description { get; init; }
 
     /// <summary>
-    /// Max value permitted for the parameter.
+    /// Maximum value permitted for the parameter.
     /// </summary>
     public double MaxValue
     {
