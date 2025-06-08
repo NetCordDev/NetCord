@@ -8,5 +8,5 @@ public interface ICommandService : IService
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>();
 
-    public void AddCommand(IEnumerable<string> aliases, Delegate handler, int priority = 0);
+    public void AddCommand(IReadOnlyList<string> aliases, Delegate handler, int priority = 0);
 }
