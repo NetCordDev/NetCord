@@ -10,7 +10,7 @@ public class CommandAttribute(params string[] aliases) : Attribute
     /// <summary>
     /// Aliases of the command.
     /// </summary>
-    public IReadOnlyList<string> Aliases { get; } = aliases;
+    public string[] Aliases { get; } = aliases;
 
     /// <summary>
     /// Priority of the command.
