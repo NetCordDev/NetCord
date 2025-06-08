@@ -17,6 +17,6 @@ public enum Animal
     Dog,
     Cat,
     Fish,
-    [SlashCommandChoice("Guinea Pig")]
+    [SlashCommandChoice(Name = "Guinea Pig")]
     GuineaPig,
 }

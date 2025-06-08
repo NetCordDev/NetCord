@@ -3,7 +3,7 @@
 namespace NetCord.Rest;
 
 /// <summary>
-/// Entry Point command serves as the primary way for users to open an app's Activity from the App Launcher.
+/// Entry point command serves as the primary way for users to open an app's Activity from the App Launcher.
 /// You can create only a single Entry Point command per app.
 /// </summary>
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /></param>

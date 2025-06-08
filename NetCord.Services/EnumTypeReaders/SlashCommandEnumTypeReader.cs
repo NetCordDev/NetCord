@@ -37,7 +37,7 @@ internal class SlashCommandEnumTypeReader<TContext>(Type enumType, FieldInfo[] f
 
             var attribute = field.GetCustomAttribute<SlashCommandChoiceAttribute>();
 
-            var name = attribute is null ? field.Name : attribute.Name;
+            var name = attribute is null ? field.Name : (attribute.Name ?? field.Name);
 
             ApplicationCommandOptionChoiceProperties result = new(name, value);
 
