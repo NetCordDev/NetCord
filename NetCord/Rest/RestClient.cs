@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 
 using NetCord.Gateway;
@@ -92,6 +93,18 @@ public sealed partial class RestClient : IDisposable
         return new(properties.RateLimitHandling.GetValueOrDefault(RestRateLimitHandling.Retry));
     }
 
+    private bool IsEnabled(LogLevel logLevel)
+    {
+        try
+        {
+            return _logger.IsEnabled(logLevel);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         try
@@ -160,10 +173,13 @@ public sealed partial class RestClient : IDisposable
 
             var rateLimiter = await AcquireRouteRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false);
 
-            Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute), null, static (s, e) =>
-            {
-                return $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.";
-            });
+            if (IsEnabled(LogLevel.Trace))
+                await LogRequestTraceAsync(route, fullRoute, messageFunc, cancellationToken).ConfigureAwait(false);
+            else
+                Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute), null, static (s, e) =>
+                {
+                    return $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.";
+                });
 
             var timestamp = Environment.TickCount64;
             HttpResponseMessage response;
@@ -177,10 +193,13 @@ public sealed partial class RestClient : IDisposable
                 throw;
             }
 
-            Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute, Response: response), null, static (s, e) =>
-            {
-                return $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.";
-            });
+            if (IsEnabled(LogLevel.Trace))
+                await LogResponseTraceAsync(route, fullRoute, response, cancellationToken).ConfigureAwait(false);
+            else
+                Log(LogLevel.Debug, (Route: route, FullRoute: fullRoute, Response: response), null, static (s, e) =>
+                {
+                    return $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.";
+                });
 
             var headers = response.Headers;
 
@@ -291,6 +310,70 @@ public sealed partial class RestClient : IDisposable
             else
                 throw new RestException(response.StatusCode, response.ReasonPhrase);
         }
+    }
+
+    private async Task LogRequestTraceAsync(Route route, FormattableString fullRoute, Func<HttpRequestMessage> messageFunc, CancellationToken cancellationToken)
+    {
+        var message = messageFunc();
+        string? contentString;
+        if (message.Content is { } content)
+        {
+            contentString = await content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+            if (contentString.Length is 0)
+                contentString = null;
+        }
+        else
+            contentString = null;
+
+        Log(LogLevel.Trace, (Route: route, FullRoute: fullRoute, ContentString: contentString, Message: message), null, static (s, e) =>
+        {
+            StringBuilder builder = new();
+            builder.Append($"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.");
+
+            if (s.ContentString is { } contentString)
+                AppendContent(builder, contentString);
+
+            return builder.ToString();
+        });
+    }
+
+    private async Task LogResponseTraceAsync(Route route, FormattableString fullRoute, HttpResponseMessage response, CancellationToken cancellationToken)
+    {
+        var contentString = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
+
+        Log(LogLevel.Trace, (Route: route, FullRoute: fullRoute, ContentString: contentString, Response: response), null, static (s, e) =>
+        {
+            StringBuilder builder = new();
+            builder.Append($"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.");
+
+            AppendHeaders(builder, s.Response.Headers);
+
+            var contentString = s.ContentString;
+            if (contentString.Length is not 0)
+                AppendContent(builder, contentString);
+
+            return builder.ToString();
+        });
+    }
+
+    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
+    {
+        builder.AppendLine();
+        builder.Append("Headers:");
+        foreach (var header in headers)
+        {
+            builder.AppendLine();
+            builder.Append(header.Key);
+            builder.Append(": ");
+            builder.AppendJoin(", ", header.Value);
+        }
+    }
+
+    private static void AppendContent(StringBuilder builder, string? contentString)
+    {
+        builder.AppendLine();
+        builder.AppendLine("Content:");
+        builder.Append(contentString);
     }
 
     private async ValueTask<IGlobalRateLimiter> AcquireGlobalRateLimiterAsync(Route route, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)

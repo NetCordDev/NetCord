@@ -11,6 +11,8 @@ internal class ShardedGatewayMicrosoftExtensionsLogger(int shardId, IServiceProv
     private readonly ILogger<GatewayClient> _gatewayLogger = services.GetRequiredService<ILogger<GatewayClient>>();
     private readonly EventId _eventId = new(shardId);
 
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel) => _gatewayLogger.IsEnabled((MSLogLevel)logLevel);
+
     void IGatewayLogger.Log<TState>(NCLogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         _gatewayLogger.Log((MSLogLevel)logLevel, _eventId, state, exception, formatter);

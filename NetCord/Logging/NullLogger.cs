@@ -8,6 +8,14 @@ public class NullLogger : IGatewayLogger, IRestLogger, IVoiceLogger, IWebSocketL
     {
     }
 
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel) => false;
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel) => false;
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel) => false;
+
+    bool IWebSocketLogger.IsEnabled(LogLevel logLevel) => false;
+
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
     }

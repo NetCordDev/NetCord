@@ -22,7 +22,7 @@ internal static class Program
     {
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
-        Logger = new ConsoleLogger(LogLevel.Debug),
+        Logger = new ConsoleLogger(LogLevel.Trace),
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
         //Compression = new UncompressedGatewayCompression(),

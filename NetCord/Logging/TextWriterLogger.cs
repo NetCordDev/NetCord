@@ -11,6 +11,12 @@ public class TextWriterLogger(TextWriter writer,
 {
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
+
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (logLevel < minimumLogLevel)
@@ -60,6 +66,12 @@ public class ShardedTextWriterLogger(int shardId,
     {
         return shard => new ShardedTextWriterLogger(shard.GetValueOrDefault().Id, writer, minimumLogLevel, formatProvider, timeProvider);
     }
+
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel) => logLevel >= minimumLogLevel;
 
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {

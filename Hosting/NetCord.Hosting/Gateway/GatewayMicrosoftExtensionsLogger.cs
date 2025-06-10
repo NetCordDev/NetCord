@@ -12,6 +12,10 @@ internal class GatewayMicrosoftExtensionsLogger(IServiceProvider services) : IGa
     private readonly ILogger<GatewayClient> _gatewayLogger = services.GetRequiredService<ILogger<GatewayClient>>();
     private readonly ILogger<RestClient> _restLogger = services.GetRequiredService<ILogger<RestClient>>();
 
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel) => _gatewayLogger.IsEnabled((MSLogLevel)logLevel);
+
+    bool IRestLogger.IsEnabled(NCLogLevel logLevel) => _restLogger.IsEnabled((MSLogLevel)logLevel);
+
     void IGatewayLogger.Log<TState>(NCLogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         _gatewayLogger.Log((MSLogLevel)logLevel, default, state, exception, formatter);
