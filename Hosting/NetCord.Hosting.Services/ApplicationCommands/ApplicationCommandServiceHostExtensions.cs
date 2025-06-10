@@ -7,6 +7,7 @@ namespace NetCord.Hosting.Services.ApplicationCommands;
 
 public static class ApplicationCommandServiceHostExtensions
 {
+    /// <inheritdoc cref="ApplicationCommandService{TContext}.AddModule" />
     public static IHost AddApplicationCommandModule(
         this IHost host,
         [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] Type type)
@@ -16,6 +17,7 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
+    /// <inheritdoc cref="ApplicationCommandService{TContext}.AddModule{T}" />
     public static IHost AddApplicationCommandModule<[DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] T>(
         this IHost host)
     {
@@ -24,6 +26,7 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
+    /// <inheritdoc cref="ApplicationCommandService{TContext}.AddModule" />
     public static IHost AddApplicationCommandModule<TContext>(
         this IHost host,
         [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] Type type)
@@ -35,6 +38,8 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
+    /// <inheritdoc cref="ApplicationCommandService{TContext}.AddModule{T}" />
+    /// <typeparam name="T"><inheritdoc cref="">></typeparam>
     public static IHost AddApplicationCommandModule<TContext,
                                                     [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] T>(
         this IHost host)

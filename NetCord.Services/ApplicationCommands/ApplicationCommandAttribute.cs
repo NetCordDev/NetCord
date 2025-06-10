@@ -51,7 +51,7 @@ public abstract class ApplicationCommandAttribute : Attribute
     public bool Nsfw { get; init; }
 
     /// <summary>
-    /// The ID of the guild where the application command is registered.
+    /// ID of the guild where the application command is registered.
     /// </summary>
     public ulong GuildId
     {
