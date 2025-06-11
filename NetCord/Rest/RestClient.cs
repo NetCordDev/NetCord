@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 
@@ -105,7 +106,7 @@ public sealed partial class RestClient : IDisposable
         }
     }
 
-    private void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    private void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter) where TState : allows ref struct
     {
         try
         {
@@ -317,23 +318,15 @@ public sealed partial class RestClient : IDisposable
         var message = messageFunc();
         string? contentString;
         if (message.Content is { } content)
-        {
             contentString = await content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
-            if (contentString.Length is 0)
-                contentString = null;
-        }
         else
             contentString = null;
 
         Log(LogLevel.Trace, (Route: route, FullRoute: fullRoute, ContentString: contentString, Message: message), null, static (s, e) =>
         {
-            StringBuilder builder = new();
-            builder.Append($"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.");
-
-            if (s.ContentString is { } contentString)
-                AppendContent(builder, contentString);
-
-            return builder.ToString();
+            return s.ContentString is { } contentString
+                ? $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'. Content:{Environment.NewLine}{contentString}"
+                : $"Sending a request to route '{s.Route.Method.Method} {s.FullRoute}'.";
         });
     }
 
@@ -343,30 +336,11 @@ public sealed partial class RestClient : IDisposable
 
         Log(LogLevel.Trace, (Route: route, FullRoute: fullRoute, ContentString: contentString, Response: response), null, static (s, e) =>
         {
-            StringBuilder builder = new();
-            builder.Append($"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}.");
-
-            AppendHeaders(builder, s.Response.Headers);
-
             var contentString = s.ContentString;
-            if (contentString.Length is not 0)
-                AppendContent(builder, contentString);
-
-            return builder.ToString();
+            return contentString.Length is 0
+                ? $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}."
+                : $"Received a response from route '{s.Route.Method.Method} {s.FullRoute}'. Status code: {(int)s.Response.StatusCode}. Content:{Environment.NewLine}{contentString}";
         });
-    }
-
-    private static void AppendHeaders(StringBuilder builder, HttpHeaders headers)
-    {
-        builder.AppendLine();
-        builder.Append("Headers:");
-        foreach (var header in headers)
-        {
-            builder.AppendLine();
-            builder.Append(header.Key);
-            builder.Append(": ");
-            builder.AppendJoin(", ", header.Value);
-        }
     }
 
     private static void AppendContent(StringBuilder builder, string? contentString)

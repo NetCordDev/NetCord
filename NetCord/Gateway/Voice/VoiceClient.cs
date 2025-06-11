@@ -187,6 +187,14 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
+        if (IsEnabled(LogLevel.Trace))
+            Log(LogLevel.Trace, payload, null, static (s, e) =>
+            {
+                return $"Received a payload: {Encoding.UTF8.GetString(s)}";
+            });
+        else
+            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Received a payload.");
+
         var jsonPayload = JsonSerializer.Deserialize(payload, Serialization.Default.JsonVoicePayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }

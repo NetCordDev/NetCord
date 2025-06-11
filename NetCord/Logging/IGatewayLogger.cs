@@ -4,5 +4,5 @@ public interface IGatewayLogger
 {
     public bool IsEnabled(LogLevel logLevel);
 
-    public void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter);
+    public void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter) where TState : allows ref struct;
 }

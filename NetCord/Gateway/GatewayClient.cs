@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
@@ -966,7 +967,17 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
-        var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
+        var json = _compression.Decompress(payload);
+
+        if (IsEnabled(LogLevel.Trace))
+            Log(LogLevel.Trace, json, null, static (s, e) =>
+            {
+                return $"Received a payload:{Environment.NewLine}{Encoding.UTF8.GetString(s)}";
+            });
+        else
+            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Received a payload.");
+
+        var jsonPayload = JsonSerializer.Deserialize(json, Serialization.Default.JsonGatewayPayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 

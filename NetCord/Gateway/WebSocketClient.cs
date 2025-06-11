@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
@@ -241,7 +242,19 @@ public abstract partial class WebSocketClient : IDisposable
         return state;
     }
 
-    private protected void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    private protected bool IsEnabled(LogLevel logLevel)
+    {
+        try
+        {
+            return _logger.IsEnabled(logLevel);
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private protected void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter) where TState : allows ref struct
     {
         try
         {
@@ -352,11 +365,11 @@ public abstract partial class WebSocketClient : IDisposable
         await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
-    private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> data)
+    private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> payload)
     {
         try
         {
-            await ProcessPayloadAsync(state, connectionState, data.Span).ConfigureAwait(false);
+            await ProcessPayloadAsync(state, connectionState, payload.Span).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -703,7 +716,13 @@ public abstract partial class WebSocketClient : IDisposable
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
 
-            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
+            if (IsEnabled(LogLevel.Trace))
+                Log(LogLevel.Trace, buffer, null, static (s, e) =>
+                {
+                    return $"Sending a payload:{Environment.NewLine}{new PayloadFormatter(s)}";
+                });
+            else
+                Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
 
             var timestamp = Environment.TickCount64;
 
@@ -1101,11 +1120,9 @@ public abstract partial class WebSocketClient : IDisposable
 
     private struct EventNameFormatter(string handlersName) : ISpanFormattable
     {
-        public readonly string HandlersName => handlersName;
-
         public readonly override string ToString()
         {
-            return string.Create(HandlersName.Length - 1, HandlersName, static (span, handlersName) =>
+            return string.Create(handlersName.Length - 1, handlersName, static (span, handlersName) =>
             {
                 span[0] = (char)(handlersName[1] & ~0x20);
                 handlersName.AsSpan(2).CopyTo(span[1..]);
@@ -1116,18 +1133,33 @@ public abstract partial class WebSocketClient : IDisposable
 
         public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
         {
-            int resultLength = HandlersName.Length - 1;
+            int resultLength = handlersName.Length - 1;
             if (destination.Length < resultLength)
             {
                 charsWritten = 0;
                 return false;
             }
 
-            destination[0] = (char)(HandlersName[1] & ~0x20);
-            HandlersName.AsSpan(2).CopyTo(destination[1..]);
+            destination[0] = (char)(handlersName[1] & ~0x20);
+            handlersName.AsSpan(2).CopyTo(destination[1..]);
 
             charsWritten = resultLength;
             return true;
+        }
+    }
+
+    private struct PayloadFormatter(ReadOnlyMemory<byte> payload) : ISpanFormattable
+    {
+        public readonly override string ToString()
+        {
+            return Encoding.UTF8.GetString(payload.Span);
+        }
+
+        public readonly string ToString(string? format, IFormatProvider? formatProvider) => ToString();
+
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+        {
+            return Encoding.UTF8.TryGetChars(payload.Span, destination, out charsWritten);
         }
     }
 
