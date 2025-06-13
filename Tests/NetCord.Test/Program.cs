@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -148,10 +147,9 @@ internal static class Program
         {
             await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
         }
-        catch (RestException ex)
+        catch (Exception ex)
         {
-            var error = ex.Error;
-            Console.WriteLine(error is null ? "No error returned." : JsonSerializer.Serialize(error, Discord.SerializerOptions));
+            Console.WriteLine(ex);
         }
 
         await Task.Delay(-1);
