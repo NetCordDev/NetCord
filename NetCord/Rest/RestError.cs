@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public class RestError(int code, string message, IRestErrorGroup? error)
+public sealed class RestError(int code, string message, IRestErrorGroup? error)
 {
     [JsonPropertyName("code")]
     public int Code { get; } = code;
@@ -14,6 +14,8 @@ public class RestError(int code, string message, IRestErrorGroup? error)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("errors")]
     public IRestErrorGroup? Error { get; } = error;
+
+    public override string ToString() => JsonSerializer.Serialize(this, Serialization.Default.RestError);
 }
 
 [JsonConverter(typeof(IRestErrorGroupConverter))]
