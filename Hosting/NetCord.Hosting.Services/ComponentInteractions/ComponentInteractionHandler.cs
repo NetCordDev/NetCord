@@ -16,8 +16,8 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
     where TInteraction : ComponentInteraction
     where TContext : IComponentInteractionContext
 {
-    private IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly ComponentInteractionService<TContext> _componentInteractionService;
     private readonly IServiceScopeFactory? _scopeFactory;
@@ -26,14 +26,17 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
     private readonly IComponentInteractionResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
 
+    private ExecutionContext? _initialExecutionContext;
+
     public ComponentInteractionHandler(IServiceProvider services,
+                                       IContextAccessor<TContext> contextAccessor,
                                        ILogger<ComponentInteractionHandler<TInteraction, TContext>> logger,
                                        ComponentInteractionService<TContext> interactionService,
                                        IOptions<ComponentInteractionServiceOptions<TInteraction, TContext>> options,
                                        GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _componentInteractionService = interactionService;
 
@@ -83,12 +86,17 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext>
         if (interaction is not TInteraction tInteraction)
             return default;
 
-        return handler.HandleInteractionAsyncCore(tInteraction, client, handler.Services);
+        return handler.HandleInteractionAsyncCore(tInteraction, client, handler._services);
     }
 
     private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
+        ExecutionContextHelper.CaptureOrRestore(ref _initialExecutionContext);
+
         var context = _createContext(interaction, client, services);
+
+        _contextAccessor.SetContext(context);
+
         var result = await _componentInteractionService.ExecuteAsync(context, services).ConfigureAwait(false);
 
         try

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
+using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.Commands;
 using NetCord.Hosting.Services.ComponentInteractions;
@@ -96,6 +97,15 @@ var host = builder.Build()
             builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
             builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
         });
+    })
+    .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context) =>
+    {
+        if (contextAccessor.Context is { } accessorContext)
+        {
+            return (accessorContext == context).ToString();
+        }
+
+        return "Context is null.";
     })
     .UseGatewayEventHandlers();
 

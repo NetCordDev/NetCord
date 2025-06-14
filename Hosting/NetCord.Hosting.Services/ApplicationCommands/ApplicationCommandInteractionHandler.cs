@@ -15,8 +15,8 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
       IHttpInteractionHandler
     where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
 {
-    private IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly ApplicationCommandService<TContext> _applicationCommandService;
     private readonly IServiceScopeFactory? _scopeFactory;
@@ -25,14 +25,17 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
     private readonly IApplicationCommandResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
 
+    private ExecutionContext? _initialExecutionContext;
+
     public ApplicationCommandInteractionHandler(IServiceProvider services,
+                                                IContextAccessor<TContext> contextAccessor,
                                                 ILogger<ApplicationCommandInteractionHandler<TInteraction, TContext>> logger,
                                                 ApplicationCommandService<TContext> applicationCommandService,
                                                 IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>> options,
                                                 GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _applicationCommandService = applicationCommandService;
 
@@ -82,12 +85,17 @@ internal partial class ApplicationCommandInteractionHandler<TInteraction, TConte
         if (interaction is not TInteraction tInteraction)
             return default;
 
-        return handler.HandleInteractionAsyncCore(tInteraction, client, handler.Services);
+        return handler.HandleInteractionAsyncCore(tInteraction, client, handler._services);
     }
 
     private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
+        ExecutionContextHelper.CaptureOrRestore(ref _initialExecutionContext);
+
         var context = _createContext(interaction, client, services);
+
+        _contextAccessor.SetContext(context);
+
         var result = await _applicationCommandService.ExecuteAsync(context, services).ConfigureAwait(false);
 
         try

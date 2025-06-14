@@ -144,6 +144,8 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
         services.AddSingleton<IComponentInteractionService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
 
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+
         services.AddSingleton<ComponentInteractionHandler<TInteraction, TContext>>();
         services.AddGatewayEventHandler(services => services.GetRequiredService<ComponentInteractionHandler<TInteraction, TContext>>());
         services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ComponentInteractionHandler<TInteraction, TContext>>());
