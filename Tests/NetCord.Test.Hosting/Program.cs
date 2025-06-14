@@ -100,12 +100,42 @@ var host = builder.Build()
     })
     .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context) =>
     {
+        string? content;
+
         if (contextAccessor.Context is { } accessorContext)
         {
-            return (accessorContext == context).ToString();
+            content = (accessorContext == context).ToString();
         }
+        else
+            content = "Context is null.";
 
-        return "Context is null.";
+        return new InteractionMessageProperties()
+            .WithContent(content)
+            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+    })
+    .AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
+    {
+        string? content;
+
+        if (contextAccessor.Context is { } accessorContext)
+            content = (accessorContext == context).ToString();
+        else
+            content = "Context is null.";
+
+        return content;
+    })
+    .AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextAccessor, CommandContext context) =>
+    {
+        string? content;
+
+        if (contextAccessor.Context is { } accessorContext)
+            content = (accessorContext == context).ToString();
+        else
+            content = "Context is null.";
+
+        return new ReplyMessageProperties()
+            .WithContent(content)
+            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
     })
     .UseGatewayEventHandlers();
 
