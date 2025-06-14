@@ -28,13 +28,11 @@ public class RestClientOptions : IDiscordOptions
 
     internal RestClientConfiguration CreateConfiguration(IServiceProvider services)
     {
-        var requestHandler = RequestHandler ?? CreateDefaultRequestHandler(services);
-
         return new()
         {
             Hostname = Hostname,
             Version = Version,
-            RequestHandler = requestHandler,
+            RequestHandler = RequestHandler ?? CreateDefaultRequestHandler(services),
             DefaultRequestProperties = DefaultRequestProperties,
             RateLimitManager = RateLimitManager,
             Logger = new RestMicrosoftExtensionsLogger(services),
