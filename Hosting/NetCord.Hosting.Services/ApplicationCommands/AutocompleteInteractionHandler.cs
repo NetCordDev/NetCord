@@ -29,8 +29,6 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
     private readonly IAutocompleteInteractionResultHandler<TAutocompleteContext> _resultHandler;
     private readonly GatewayClient? _client;
 
-    private ExecutionContext? _initialExecutionContext;
-
     public AutocompleteInteractionHandler(IServiceProvider services,
                                           IContextAccessor<TAutocompleteContext> contextAccessor,
                                           ILogger<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>> logger,
@@ -94,8 +92,6 @@ internal partial class AutocompleteInteractionHandler<TInteraction, TContext, TA
 
     private async ValueTask HandleInteractionAsyncCore(AutocompleteInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
-        ExecutionContextHelper.CaptureOrRestore(ref _initialExecutionContext);
-
         var context = _createContext(interaction, client, services);
 
         _contextAccessor.SetContext(context);

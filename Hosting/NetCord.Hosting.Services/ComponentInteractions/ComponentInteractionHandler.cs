@@ -26,8 +26,6 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
     private readonly IComponentInteractionResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
 
-    private ExecutionContext? _initialExecutionContext;
-
     public ComponentInteractionHandler(IServiceProvider services,
                                        IContextAccessor<TContext> contextAccessor,
                                        ILogger<ComponentInteractionHandler<TInteraction, TContext>> logger,
@@ -91,8 +89,6 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext>
 
     private async ValueTask HandleInteractionAsyncCore(TInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
-        ExecutionContextHelper.CaptureOrRestore(ref _initialExecutionContext);
-
         var context = _createContext(interaction, client, services);
 
         _contextAccessor.SetContext(context);

@@ -25,8 +25,6 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
     private readonly ICommandResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
 
-    private ExecutionContext? _initialExecutionContext;
-
     public CommandHandler(IServiceProvider services,
                           IContextAccessor<TContext> contextAccessor,
                           ILogger<CommandHandler<TContext>> logger,
@@ -134,8 +132,6 @@ internal partial class CommandHandler<TContext>
         var prefixLength = await _getPrefixLengthAsync(message, client, services).ConfigureAwait(false);
         if (prefixLength < 0)
             return;
-
-        ExecutionContextHelper.CaptureOrRestore(ref _initialExecutionContext);
 
         var context = _createContext(message, client, services);
 
