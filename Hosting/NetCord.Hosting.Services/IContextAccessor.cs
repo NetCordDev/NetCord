@@ -4,7 +4,7 @@ public interface IContextAccessor<TContext>
 {
     public TContext? Context { get; }
 
-    internal void SetContext(TContext? context);
+    internal void SetContext(TContext context);
 }
 
 internal class ContextAccessor<TContext> : IContextAccessor<TContext>
@@ -13,7 +13,7 @@ internal class ContextAccessor<TContext> : IContextAccessor<TContext>
 
     public TContext? Context => _context.Value;
 
-    void IContextAccessor<TContext>.SetContext(TContext? context)
+    void IContextAccessor<TContext>.SetContext(TContext context)
     {
         _context.Value = context;
     }
