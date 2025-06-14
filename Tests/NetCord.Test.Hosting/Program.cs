@@ -98,16 +98,16 @@ var host = builder.Build()
             builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
         });
     })
-    .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context) =>
+    .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
     {
         string? content;
 
         if (contextAccessor.Context is { } accessorContext)
         {
-            content = (accessorContext == context).ToString();
+            content = $"{accessorContext == context} {s}";
         }
         else
-            content = "Context is null.";
+            content = $"Context is null. {s}";
 
         return new InteractionMessageProperties()
             .WithContent(content)
