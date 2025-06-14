@@ -114,6 +114,8 @@ public static class CommandServiceServiceCollectionExtensions
         services.AddSingleton<ICommandService>(services => services.GetRequiredService<CommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<CommandService<TContext>>());
 
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+
         services.AddSingleton<CommandHandler<TContext>>();
         services.AddGatewayEventHandler(services => services.GetRequiredService<CommandHandler<TContext>>());
         services.AddShardedGatewayEventHandler(services => services.GetRequiredService<CommandHandler<TContext>>());

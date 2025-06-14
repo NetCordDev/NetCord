@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
+using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.Commands;
 using NetCord.Hosting.Services.ComponentInteractions;
@@ -96,6 +97,45 @@ var host = builder.Build()
             builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
             builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
         });
+    })
+    .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
+    {
+        string? content;
+
+        if (contextAccessor.Context is { } accessorContext)
+        {
+            content = $"{accessorContext == context} {s}";
+        }
+        else
+            content = $"Context is null. {s}";
+
+        return new InteractionMessageProperties()
+            .WithContent(content)
+            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+    })
+    .AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
+    {
+        string? content;
+
+        if (contextAccessor.Context is { } accessorContext)
+            content = (accessorContext == context).ToString();
+        else
+            content = "Context is null.";
+
+        return content;
+    })
+    .AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextAccessor, CommandContext context) =>
+    {
+        string? content;
+
+        if (contextAccessor.Context is { } accessorContext)
+            content = (accessorContext == context).ToString();
+        else
+            content = "Context is null.";
+
+        return new ReplyMessageProperties()
+            .WithContent(content)
+            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
     })
     .UseGatewayEventHandlers();
 

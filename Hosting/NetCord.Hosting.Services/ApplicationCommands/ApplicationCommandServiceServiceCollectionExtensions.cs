@@ -174,6 +174,8 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
 
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
         services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
@@ -238,6 +240,9 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<ApplicationCommandService<TContext>>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
+
+        services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
+        services.AddSingleton<IContextAccessor<TAutocompleteContext>, ContextAccessor<TAutocompleteContext>>();
 
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
         services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());

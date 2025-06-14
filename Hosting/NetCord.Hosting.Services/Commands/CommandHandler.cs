@@ -14,8 +14,8 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
       IShardedGatewayEventHandler<Message>
     where TContext : ICommandContext
 {
-    public IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly CommandService<TContext> _commandService;
     private readonly IServiceScopeFactory? _scopeFactory;
@@ -26,13 +26,14 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
     private readonly GatewayClient? _client;
 
     public CommandHandler(IServiceProvider services,
+                          IContextAccessor<TContext> contextAccessor,
                           ILogger<CommandHandler<TContext>> logger,
                           CommandService<TContext> commandService,
                           IOptions<CommandServiceOptions<TContext>> options,
                           GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _commandService = commandService;
 
@@ -123,7 +124,7 @@ internal partial class CommandHandler<TContext>
 
     private static ValueTask HandleMessageAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
     {
-        return handler.HandleMessageAsyncCore(message, client, handler.Services);
+        return handler.HandleMessageAsyncCore(message, client, handler._services);
     }
 
     private async ValueTask HandleMessageAsyncCore(Message message, GatewayClient client, IServiceProvider services)
@@ -133,6 +134,9 @@ internal partial class CommandHandler<TContext>
             return;
 
         var context = _createContext(message, client, services);
+
+        _contextAccessor.SetContext(context);
+
         var result = await _commandService.ExecuteAsync(prefixLength, context, services).ConfigureAwait(false);
 
         try

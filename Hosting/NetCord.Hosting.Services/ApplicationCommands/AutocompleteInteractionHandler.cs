@@ -19,8 +19,8 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
     where TContext : IApplicationCommandContext
     where TAutocompleteContext : IAutocompleteInteractionContext
 {
-    private IServiceProvider Services { get; }
-
+    private readonly IServiceProvider _services;
+    private readonly IContextAccessor<TAutocompleteContext> _contextAccessor;
     private readonly ILogger _logger;
     private readonly ApplicationCommandService<TContext, TAutocompleteContext> _applicationCommandService;
     private readonly IServiceScopeFactory? _scopeFactory;
@@ -30,13 +30,14 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
     private readonly GatewayClient? _client;
 
     public AutocompleteInteractionHandler(IServiceProvider services,
+                                          IContextAccessor<TAutocompleteContext> contextAccessor,
                                           ILogger<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>> logger,
                                           ApplicationCommandService<TContext, TAutocompleteContext> applicationCommandService,
                                           IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>> options,
                                           GatewayClient? client = null)
     {
-        Services = services;
-
+        _services = services;
+        _contextAccessor = contextAccessor;
         _logger = logger;
         _applicationCommandService = applicationCommandService;
 
@@ -86,12 +87,15 @@ internal partial class AutocompleteInteractionHandler<TInteraction, TContext, TA
         if (interaction is not AutocompleteInteraction autocompleteInteraction)
             return default;
 
-        return handler.HandleInteractionAsyncCore(autocompleteInteraction, client, handler.Services);
+        return handler.HandleInteractionAsyncCore(autocompleteInteraction, client, handler._services);
     }
 
     private async ValueTask HandleInteractionAsyncCore(AutocompleteInteraction interaction, GatewayClient? client, IServiceProvider services)
     {
         var context = _createContext(interaction, client, services);
+
+        _contextAccessor.SetContext(context);
+
         var result = await _applicationCommandService.ExecuteAutocompleteAsync(context, services).ConfigureAwait(false);
 
         try
