@@ -7,7 +7,7 @@ using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
-using NetCord.Rest;
+using NetCord.Hosting.Rest;
 
 namespace NetCord.Hosting.Gateway;
 
@@ -66,7 +66,7 @@ public partial class GatewayClientOptions : IDiscordOptions
     public Shard? Shard { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.RestClientConfiguration" />
-    public RestClientConfiguration? RestClientConfiguration { get; set; }
+    public RestClientOptions RestClientOptions { get; } = new();
 
     internal GatewayClientConfiguration CreateConfiguration(IServiceProvider services)
     {
@@ -84,7 +84,7 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         LargeThreshold,
                                                         Presence,
                                                         Shard,
-                                                        RestClientConfiguration,
+                                                        RestClientOptions.CreateConfiguration(services),
                                                         new GatewayMicrosoftExtensionsLogger(services));
     }
 }

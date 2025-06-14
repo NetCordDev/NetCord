@@ -1,4 +1,6 @@
-﻿using NetCord.Rest;
+﻿using System.Reflection;
+
+using NetCord.Rest;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Hosting.Rest;
@@ -26,14 +28,51 @@ public class RestClientOptions : IDiscordOptions
 
     internal RestClientConfiguration CreateConfiguration(IServiceProvider services)
     {
+        var requestHandler = RequestHandler ?? CreateDefaultRequestHandler(services);
+
         return new()
         {
             Hostname = Hostname,
             Version = Version,
-            RequestHandler = RequestHandler,
+            RequestHandler = requestHandler,
             DefaultRequestProperties = DefaultRequestProperties,
             RateLimitManager = RateLimitManager,
             Logger = new RestMicrosoftExtensionsLogger(services),
         };
+    }
+
+    private static MicrosoftExtensionsRestRequestHandler? CreateDefaultRequestHandler(IServiceProvider services)
+    {
+        var factoryType = Type.GetType("System.Net.Http.IHttpClientFactory,Microsoft.Extensions.Http");
+        if (factoryType is not null)
+        {
+            var method = factoryType.GetMethod("CreateClient", BindingFlags.Public | BindingFlags.Instance, [typeof(string)]);
+            if (method is null || method.ReturnType != typeof(HttpClient))
+                return null; // Wrong type
+
+            if (services.GetService(factoryType) is { } factory)
+            {
+                var client = (HttpClient)method.Invoke(factory, [nameof(RestClient)])!;
+
+                return new(client);
+            }
+        }
+
+        return null;
+    }
+}
+
+internal sealed class MicrosoftExtensionsRestRequestHandler(HttpClient httpClient) : IRestRequestHandler
+{
+    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) => httpClient.SendAsync(request, cancellationToken);
+
+    public void AddDefaultHeader(string name, IEnumerable<string> values)
+    {
+        httpClient.DefaultRequestHeaders.Add(name, values);
+    }
+
+    public void Dispose()
+    {
+        httpClient.Dispose();
     }
 }
