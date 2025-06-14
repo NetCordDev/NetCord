@@ -7,7 +7,7 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.Gateway;
 
-internal class GatewayMicrosoftExtensionsLogger(IServiceProvider services) : IGatewayLogger, IRestLogger
+internal class MicrosoftExtensionsGatewayLogger(IServiceProvider services) : IGatewayLogger, IRestLogger
 {
     private readonly ILogger<GatewayClient> _gatewayLogger = services.GetRequiredService<ILogger<GatewayClient>>();
     private readonly ILogger<RestClient> _restLogger = services.GetRequiredService<ILogger<RestClient>>();

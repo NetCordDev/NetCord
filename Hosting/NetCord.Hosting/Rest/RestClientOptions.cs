@@ -35,7 +35,7 @@ public class RestClientOptions : IDiscordOptions
             RequestHandler = RequestHandler ?? CreateDefaultRequestHandler(services),
             DefaultRequestProperties = DefaultRequestProperties,
             RateLimitManager = RateLimitManager,
-            Logger = new RestMicrosoftExtensionsLogger(services),
+            Logger = new MicrosoftExtensionsRestLogger(services),
         };
     }
 
@@ -57,20 +57,5 @@ public class RestClientOptions : IDiscordOptions
         }
 
         return null;
-    }
-}
-
-internal sealed class MicrosoftExtensionsRestRequestHandler(HttpClient httpClient) : IRestRequestHandler
-{
-    public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default) => httpClient.SendAsync(request, cancellationToken);
-
-    public void AddDefaultHeader(string name, IEnumerable<string> values)
-    {
-        httpClient.DefaultRequestHeaders.Add(name, values);
-    }
-
-    public void Dispose()
-    {
-        httpClient.Dispose();
     }
 }

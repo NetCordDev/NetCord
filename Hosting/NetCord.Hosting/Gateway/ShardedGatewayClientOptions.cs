@@ -144,9 +144,9 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
         IGatewayLogger? CreateLogger(Shard? shard)
         {
             if (shard.HasValue)
-                return new ShardedGatewayMicrosoftExtensionsLogger(shard.GetValueOrDefault().Id, services);
+                return new MicrosoftExtensionsShardedGatewayLogger(shard.GetValueOrDefault().Id, services);
 
-            return new RestMicrosoftExtensionsLogger(services);
+            return new MicrosoftExtensionsRestLogger(services);
         }
     }
 }

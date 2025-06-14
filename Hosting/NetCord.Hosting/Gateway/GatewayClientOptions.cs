@@ -85,6 +85,6 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         Presence,
                                                         Shard,
                                                         RestClientOptions.CreateConfiguration(services),
-                                                        new GatewayMicrosoftExtensionsLogger(services));
+                                                        new MicrosoftExtensionsGatewayLogger(services));
     }
 }

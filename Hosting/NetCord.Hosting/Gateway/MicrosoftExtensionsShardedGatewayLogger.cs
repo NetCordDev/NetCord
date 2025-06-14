@@ -6,7 +6,7 @@ using NetCord.Logging;
 
 namespace NetCord.Hosting.Gateway;
 
-internal class ShardedGatewayMicrosoftExtensionsLogger(int shardId, IServiceProvider services) : IGatewayLogger
+internal class MicrosoftExtensionsShardedGatewayLogger(int shardId, IServiceProvider services) : IGatewayLogger
 {
     private readonly ILogger<GatewayClient> _gatewayLogger = services.GetRequiredService<ILogger<GatewayClient>>();
     private readonly EventId _eventId = new(shardId);
