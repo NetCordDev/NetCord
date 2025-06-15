@@ -47,6 +47,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public string Token => _jsonModel.Token;
 
+    public int Version => _jsonModel.Version;
+
     public Permissions AppPermissions => _jsonModel.AppPermissions;
 
     public string UserLocale => _jsonModel.UserLocale!;

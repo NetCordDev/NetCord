@@ -32,6 +32,8 @@ public class PingInteraction : Entity, IInteraction
 
     public string Token => _jsonModel.Token;
 
+    public int Version => _jsonModel.Version;
+
     public Permissions AppPermissions => _jsonModel.AppPermissions;
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
