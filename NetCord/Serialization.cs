@@ -246,6 +246,9 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonSubscription))]
 [JsonSerializable(typeof(JsonSubscription[]))]
 [JsonSerializable(typeof(JsonInteractionCallbackResponse))]
+[JsonSerializable(typeof(JsonApplicationAuthorizedWebhookEventData))]
+[JsonSerializable(typeof(JsonApplicationDeauthorizedWebhookEventData))]
+[JsonSerializable(typeof(JsonWebhookEventArgs))]
 internal partial class Serialization : JsonSerializerContext
 {
 }

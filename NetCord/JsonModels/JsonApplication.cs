@@ -73,6 +73,15 @@ public class JsonApplication : JsonEntity
     [JsonPropertyName("role_connections_verification_url")]
     public string? RoleConnectionsVerificationUrl { get; set; }
 
+    [JsonPropertyName("event_webhooks_url")]
+    public string? EventWebhooksUrl { get; set; }
+
+    [JsonPropertyName("event_webhooks_status")]
+    public ApplicationEventWebhooksStatus EventWebhooksStatus { get; set; }
+
+    [JsonPropertyName("event_webhooks_types")]
+    public string[]? EventWebhooksTypes { get; set; }
+
     [JsonPropertyName("tags")]
     public string[]? Tags { get; set; }
 

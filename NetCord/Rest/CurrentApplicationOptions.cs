@@ -47,4 +47,16 @@ public partial class CurrentApplicationOptions
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("tags")]
     public IEnumerable<string>? Tags { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("event_webhooks_url")]
+    public string? EventWebhooksUrl { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("event_webhooks_status")]
+    public ApplicationEventWebhooksStatus? EventWebhooksStatus { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("event_webhooks_types")]
+    public IEnumerable<string>? EventWebhooksTypes { get; set; }
 }
