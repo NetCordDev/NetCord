@@ -6,8 +6,8 @@ namespace NetCord.Rest.JsonModels;
 
 internal class JsonApplicationAuthorizedWebhookEventData
 {
-    [JsonPropertyName("integration_id")]
-    public IntegrationType? IntegrationType { get; set; }
+    [JsonPropertyName("integration_type")]
+    public ApplicationIntegrationType? IntegrationType { get; set; }
 
     [JsonPropertyName("user")]
     public JsonUser User { get; set; }

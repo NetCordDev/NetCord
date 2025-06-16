@@ -31,7 +31,7 @@ public class ApplicationAuthorizedWebhookEventArgs : WebhookEventArgs
             Guild = new(guild, client);
     }
 
-    public IntegrationType? IntegrationType => _eventData.IntegrationType;
+    public ApplicationIntegrationType? IntegrationType => _eventData.IntegrationType;
 
     public User User { get; }
 
