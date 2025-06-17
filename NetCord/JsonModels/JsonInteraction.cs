@@ -31,6 +31,9 @@ public class JsonInteraction : JsonEntity
     [JsonPropertyName("token")]
     public string Token { get; set; }
 
+    [JsonPropertyName("version")]
+    public int Version { get; set; }
+
     [JsonPropertyName("message")]
     public JsonMessage? Message { get; set; }
 

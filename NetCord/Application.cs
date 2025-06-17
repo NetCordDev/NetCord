@@ -165,6 +165,21 @@ public partial class Application : ClientEntity, IJsonModel<JsonModels.JsonAppli
     public string? RoleConnectionsVerificationUrl => _jsonModel.RoleConnectionsVerificationUrl;
 
     /// <summary>
+    /// The application's event webhooks URL to receive webhook events.
+    /// </summary>
+    public string? EventWebhooksUrl => _jsonModel.EventWebhooksUrl;
+
+    /// <summary>
+    /// The application's event webhooks status.
+    /// </summary>
+    public ApplicationEventWebhooksStatus EventWebhooksStatus => _jsonModel.EventWebhooksStatus;
+
+    /// <summary>
+    /// The list of event webhook types that the application supports.
+    /// </summary>
+    public IReadOnlyList<string>? EventWebhooksTypes => _jsonModel.EventWebhooksTypes;
+
+    /// <summary>
     /// The application's tag list, describing its content and functionality. Max of 5 tags.
     /// </summary>
     public IReadOnlyList<string>? Tags => _jsonModel.Tags;

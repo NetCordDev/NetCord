@@ -12,6 +12,8 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
 
     public string Token { get; }
 
+    public int Version { get; }
+
     public Permissions AppPermissions { get; }
 
     public IReadOnlyList<Entitlement> Entitlements { get; }

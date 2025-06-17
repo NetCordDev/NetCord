@@ -15,7 +15,23 @@ builder.Services
     .AddHttpApplicationCommands()
     .AddHttpComponentInteractions()
     .AddHttpInteractionHandler<InteractionHandler>()
-    .AddHttpInteractionHandler((Interaction interaction, ILogger<Interaction> logger) => logger.LogInformation("Id: {}", interaction.Id));
+    .AddHttpInteractionHandler((Interaction interaction, ILogger<Interaction> logger) => logger.LogInformation("Id: {}", interaction.Id))
+    .AddWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>((ApplicationAuthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    {
+        logger.LogInformation("Authorized with {} at {}", eventArgs.User.Username, eventArgs.Timestamp);
+    })
+    .AddWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>((ApplicationDeauthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    {
+        logger.LogInformation("Deauthorized with {} at {}", eventArgs.User.Username, eventArgs.Timestamp);
+    })
+    .AddWebhookEventHandler<EntitlementCreateWebhookEventArgs>((EntitlementCreateWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    {
+        logger.LogInformation("Entitlement created for {} at {}", eventArgs.Entitlement.UserId, eventArgs.Timestamp);
+    })
+    .AddWebhookEventHandler<UnknownEventWebhookEventArgs>((UnknownEventWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    {
+        logger.LogInformation("An unknown event received {} at {}", eventArgs.Type, eventArgs.Timestamp);
+    });
 
 var app = builder.Build();
 
@@ -25,6 +41,8 @@ app
     .AddSlashCommand("echo", "Echo!", ([SlashCommandParameter(AutocompleteProviderType = typeof(EchoAutocompleteProvider))] string s) => s)
     .AddComponentInteraction("button", (string s) => $"Button! {s}");
 
-app.UseHttpInteractions("/");
+app.UseHttpInteractions("/interactions");
+
+app.UseWebhookEvents("/webhooks");
 
 await app.RunAsync();
