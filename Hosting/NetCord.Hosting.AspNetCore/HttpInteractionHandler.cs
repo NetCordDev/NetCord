@@ -33,7 +33,7 @@ internal sealed class HttpInteractionHandler(IServiceProvider services,
     {
         return data switch
         {
-            Interaction interaction => InvokeHandlersAsync(_handlers, () => interaction),
+            Interaction interaction => InvokeHandlersAsync(_handlers, interaction),
             PingInteraction pingInteraction => new(pingInteraction.SendResponseAsync(InteractionCallback.Pong)),
             _ => default,
         };

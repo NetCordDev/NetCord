@@ -13,30 +13,30 @@ internal class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
 {
     public WebhookEventHandler(IServiceProvider services, string pattern) : base(services, pattern)
     {
-        List<IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>> applicationAuthorizedHandlers = [];
-        List<IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>> applicationDeauthorizedHandlers = [];
-        List<IWebhookEventHandler<EntitlementCreateWebhookEventArgs>> entitlementCreateHandlers = [];
-        List<IWebhookEventHandler<UnknownEventWebhookEventArgs>> unknownHandlers = [];
+        List<IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>> applicationAuthorized = [];
+        List<IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>> applicationDeauthorized = [];
+        List<IWebhookEventHandler<EntitlementCreateWebhookEventArgs>> entitlementCreate = [];
+        List<IWebhookEventHandler<UnknownEventWebhookEventArgs>> unknownEvent = [];
 
         foreach (var handler in services.GetServices<IWebhookEventHandlerBase>())
         {
             if (handler is IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs> applicationAuthorizedHandler)
-                applicationAuthorizedHandlers.Add(applicationAuthorizedHandler);
+                applicationAuthorized.Add(applicationAuthorizedHandler);
 
             if (handler is IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs> applicationDeauthorizedHandler)
-                applicationDeauthorizedHandlers.Add(applicationDeauthorizedHandler);
+                applicationDeauthorized.Add(applicationDeauthorizedHandler);
 
             if (handler is IWebhookEventHandler<EntitlementCreateWebhookEventArgs> entitlementCreateHandler)
-                entitlementCreateHandlers.Add(entitlementCreateHandler);
+                entitlementCreate.Add(entitlementCreateHandler);
 
-            if (handler is IWebhookEventHandler<UnknownEventWebhookEventArgs> unknownHandler)
-                unknownHandlers.Add(unknownHandler);
+            if (handler is IWebhookEventHandler<UnknownEventWebhookEventArgs> unknownEventHandler)
+                unknownEvent.Add(unknownEventHandler);
         }
 
-        _applicationAuthorized = [.. applicationAuthorizedHandlers];
-        _applicationDeauthorized = [.. applicationDeauthorizedHandlers];
-        _entitlementCreate = [.. entitlementCreateHandlers];
-        _unknownEvents = [.. unknownHandlers];
+        _applicationAuthorized = [.. applicationAuthorized];
+        _applicationDeauthorized = [.. applicationDeauthorized];
+        _entitlementCreate = [.. entitlementCreate];
+        _unknownEvent = [.. unknownEvent];
 
         _logger = services.GetRequiredService<ILogger<WebhookEventHandler>>();
     }
@@ -47,7 +47,7 @@ internal class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
 
     private readonly IWebhookEventHandler<EntitlementCreateWebhookEventArgs>[] _entitlementCreate;
 
-    private readonly IWebhookEventHandler<UnknownEventWebhookEventArgs>[] _unknownEvents;
+    private readonly IWebhookEventHandler<UnknownEventWebhookEventArgs>[] _unknownEvent;
 
     private readonly ILogger<WebhookEventHandler> _logger;
 
@@ -77,7 +77,7 @@ internal class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
             "APPLICATION_AUTHORIZED" => InvokeHandlersAsync(_applicationAuthorized, () => new ApplicationAuthorizedWebhookEventArgs(data, _client)),
             "APPLICATION_DEAUTHORIZED" => InvokeHandlersAsync(_applicationDeauthorized, () => new ApplicationDeauthorizedWebhookEventArgs(data, _client)),
             "ENTITLEMENT_CREATE" => InvokeHandlersAsync(_entitlementCreate, () => new EntitlementCreateWebhookEventArgs(data, _client)),
-            _ => InvokeHandlersAsync(_unknownEvents, () => new UnknownEventWebhookEventArgs(data)),
+            _ => InvokeHandlersAsync(_unknownEvent, () => new UnknownEventWebhookEventArgs(data)),
         };
     }
 

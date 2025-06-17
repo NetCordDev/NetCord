@@ -11,7 +11,7 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.AspNetCore;
 
-internal abstract class HttpEventHandler<TRawData>
+internal abstract class HttpEventHandler<TRawData> where TRawData : class
 {
     public HttpEventHandler(IServiceProvider services, string pattern)
     {
@@ -33,6 +33,14 @@ internal abstract class HttpEventHandler<TRawData>
 
     public RoutePattern Pattern { get; }
 
+    protected abstract TRawData GetData(HttpContext context, ReadOnlySpan<byte> body);
+
+    protected abstract ValueTask HandleAsync(HttpContext context, TRawData data);
+
+    protected abstract ValueTask InvokeHandlerAsync<THandler, THandlerData>(THandler handler, THandlerData data);
+
+    protected abstract void LogHandlerException(Exception ex);
+
     public async Task HandleRequestAsync(HttpContext context)
     {
         var value = await ValidateAsync(context).ConfigureAwait(false);
@@ -51,7 +59,7 @@ internal abstract class HttpEventHandler<TRawData>
 
         var headers = request.Headers;
         if (!headers.TryGetValue("X-Signature-Ed25519", out var signatures) || !headers.TryGetValue("X-Signature-Timestamp", out var timestamps))
-            return default;
+            return null;
 
         var timestamp = timestamps[0]!;
         int timestampByteCount = Encoding.UTF8.GetByteCount(timestamp);
@@ -68,7 +76,7 @@ internal abstract class HttpEventHandler<TRawData>
         if (!_validator.Validate(signatures[0], timestampAndBody.Span))
         {
             ArrayPool<byte>.Shared.Return(timestampAndBodyArray);
-            return default;
+            return null;
         }
 
         var value = GetData(context, timestampAndBody.Span[timestampByteCount..]);
@@ -77,10 +85,6 @@ internal abstract class HttpEventHandler<TRawData>
 
         return value;
     }
-
-    protected abstract TRawData GetData(HttpContext context, ReadOnlySpan<byte> body);
-
-    protected abstract ValueTask HandleAsync(HttpContext context, TRawData data);
 
     protected ValueTask InvokeHandlersAsync<THandler, THandlerData>(THandler[] handlers, Func<THandlerData> dataFunc) where THandler : class where THandlerData : class
     {
@@ -155,8 +159,4 @@ internal abstract class HttpEventHandler<TRawData>
             }
         }
     }
-
-    protected abstract void LogHandlerException(Exception ex);
-
-    protected abstract ValueTask InvokeHandlerAsync<THandler, THandlerData>(THandler handler, THandlerData data);
 }
