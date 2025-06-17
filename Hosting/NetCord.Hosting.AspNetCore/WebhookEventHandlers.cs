@@ -6,6 +6,11 @@ public interface IWebhookEventHandlerBase
 
 public interface IWebhookEventHandler<T> : IWebhookEventHandlerBase
 {
+    /// <summary>
+    /// Handles the webhook event.
+    /// </summary>
+    /// <param name="arg">The event argument.</param>
+    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
     public ValueTask HandleAsync(T arg);
 }
 
