@@ -68,20 +68,6 @@ internal static class Program
         _client.InteractionCreate += Client_InteractionCreate;
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
 
-        _client.GuildUserUpdate += async user =>
-        {
-            Console.WriteLine("A");
-            await Task.Delay(100);
-            Console.WriteLine("B");
-            throw new("X");
-        };
-
-        _client.GuildUserUpdate += user =>
-        {
-            Console.WriteLine("C");
-            throw new("D");
-        };
-
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
         _commandService.AddModules(assembly);
@@ -163,6 +149,15 @@ internal static class Program
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, $"old: {change.OldValue} new: {change.NewValue}");
             else
                 await _client.Rest.SendMessageAsync(entry.TargetId!.Value, "Name hasn't changed");
+        }
+        else if (entry.ActionType is AuditLogEvent.GuildUserUpdate)
+        {
+            var channel = _client.Cache.Guilds[entry.GuildId].Channels.Values.OfType<TextChannel>().First();
+            
+            if (entry.TryGetChange<JsonGuildUser, DateTimeOffset?>(u => u.TimeOutUntil, out var change))
+                await channel.SendMessageAsync($"old: {change.OldValue} new: {change.NewValue}");
+            else
+                await channel.SendMessageAsync("Time out hasn't changed");
         }
     }
 
