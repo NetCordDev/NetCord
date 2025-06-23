@@ -59,7 +59,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
     {
         stringWriter.WriteLine();
 
-        stringWriter.Write("partial class GatewayEvent");
+        stringWriter.WriteLine("partial class GatewayEvent");
         stringWriter.Write("{");
 
         foreach (var eventSymbol in events)
@@ -171,7 +171,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
         stringWriter.WriteLine("partial class GatewayHandlerHostExtensions");
 
-        stringWriter.WriteLine("{");
+        stringWriter.Write("{");
 
         WriteRegisterDelegateHandlerMethod(stringWriter, events);
 
