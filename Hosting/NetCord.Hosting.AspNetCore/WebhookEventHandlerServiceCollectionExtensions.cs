@@ -48,7 +48,7 @@ public static class WebhookEventHandlerServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Adds all <see cref="IWebhookEventHandler"/> implementations from the specified assembly to the <see cref="IServiceCollection"/>.
+    /// Adds all public <see cref="IWebhookEventHandler"/> implementations from the specified assembly to the <see cref="IServiceCollection"/>.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IWebhookEventHandler"/> implementations to.</param>
     /// <param name="assembly">The assembly to scan for <see cref="IWebhookEventHandler"/> implementations.</param>

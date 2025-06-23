@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
+
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NetCord.Hosting;
 
@@ -38,6 +41,23 @@ public static class HttpInteractionHandlerServiceCollectionExtensions
     public static IServiceCollection AddHttpInteractionHandler(this IServiceCollection services, Delegate handler)
     {
         services.AddSingleton<IHttpInteractionHandler>(services => new DelegateHttpInteractionHandler(services, handler));
+        return services;
+    }
+
+    /// <summary>
+    /// Adds all public <see cref="IHttpInteractionHandler"/> implementations from the specified assembly to the <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IHttpInteractionHandler"/> implementations to.</param>
+    /// <param name="assembly">The assembly to scan for <see cref="IHttpInteractionHandler"/> implementations.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    [RequiresUnreferencedCode("Types might be removed")]
+    public static IServiceCollection AddHttpInteractionHandlers(this IServiceCollection services, Assembly assembly)
+    {
+        var handlerBase = typeof(IHttpInteractionHandler);
+
+        foreach (var handler in HandlerHelpers.GetHandlers(handlerBase, assembly))
+            services.AddSingleton(handlerBase, handler);
+
         return services;
     }
 }
