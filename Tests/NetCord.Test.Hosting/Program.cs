@@ -31,10 +31,10 @@ using NetCord.Test.Hosting;
 
 //builder.ConfigureServices(services =>
 //{
-//    //services.AddGatewayEventHandler<MessageReactionAddHandler>();
-//    //services.AddGatewayEventHandler<ConnectHandler>();
-//    //services.AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>();
-//    services.AddGatewayEventHandlers(typeof(Program).Assembly);
+//    //services.AddGatewayHandler<MessageReactionAddHandler>();
+//    //services.AddGatewayHandler<ConnectHandler>();
+//    //services.AddGatewayHandler<ChannelCreateUpdateDeleteHandler>();
+//    services.AddGatewayHandlers(typeof(Program).Assembly);
 //});
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -53,10 +53,10 @@ builder.Services
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddCommands()
-    .AddGatewayEventHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
-    .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
-    .AddGatewayEventHandler<ConnectHandler>()
-    .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>()
+    .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
+    .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
+    .AddGatewayHandler<ConnectHandler>()
+    .AddGatewayHandler<MessageReactionAddAndMessageDeleteHandler>()
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 
@@ -137,6 +137,6 @@ var host = builder.Build()
             .WithContent(content)
             .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
     })
-    .UseGatewayEventHandlers();
+    .UseGatewayHandlers();
 
 await host.RunAsync();

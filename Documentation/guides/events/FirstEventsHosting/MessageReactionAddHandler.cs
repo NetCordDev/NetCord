@@ -4,7 +4,7 @@ using NetCord.Rest;
 
 namespace MyBot;
 
-public class MessageReactionAddHandler(RestClient client) : IMessageReactionAddGatewayEventHandler
+public class MessageReactionAddHandler(RestClient client) : IMessageReactionAddGatewayHandler
 {
     public async ValueTask HandleAsync(MessageReactionAddEventArgs args)
     {

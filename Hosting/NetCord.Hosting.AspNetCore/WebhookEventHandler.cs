@@ -23,9 +23,9 @@ internal partial class WebhookEventHandler : HttpEventHandler<JsonWebhookEventAr
     {
         StorageBuilder builder = new();
 
-        foreach (var handler in services.GetServices<IWebhookEventHandler>())
+        foreach (var handler in services.GetServices<IWebhookHandler>())
         {
-            if (handler is IDelegateWebhookEventHandlerBase delegateHandler)
+            if (handler is IDelegateWebhookHandlerBase delegateHandler)
                 builder.RegisterDelegateHandler(delegateHandler);
             else
                 builder.RegisterClassHandler(handler);

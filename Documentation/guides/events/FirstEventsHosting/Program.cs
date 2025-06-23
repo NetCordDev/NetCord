@@ -14,9 +14,9 @@ builder.Services
                           | GatewayIntents.DirectMessageReactions
                           | GatewayIntents.GuildMessageReactions;
     })
-    .AddGatewayEventHandlers(typeof(Program).Assembly);
+    .AddGatewayHandlers(typeof(Program).Assembly);
 
 var host = builder.Build()
-    .UseGatewayEventHandlers();
+    .UseGatewayHandlers();
 
 await host.RunAsync();

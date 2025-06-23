@@ -16,6 +16,6 @@ builder.Services
 
 var host = builder.Build()
     .AddModules(typeof(Program).Assembly)
-    .UseGatewayEventHandlers();
+    .UseGatewayHandlers();
 
 await host.RunAsync();

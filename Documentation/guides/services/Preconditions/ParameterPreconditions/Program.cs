@@ -24,6 +24,6 @@ host.AddCommand(
         ([MustContain<CommandContext>("bye")] string text) => text);
 
 host.AddModules(typeof(Program).Assembly)
-    .UseGatewayEventHandlers();
+    .UseGatewayHandlers();
 
 await host.RunAsync();

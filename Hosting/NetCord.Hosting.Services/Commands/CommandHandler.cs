@@ -9,8 +9,8 @@ using NetCord.Services.Commands;
 namespace NetCord.Hosting.Services.Commands;
 
 internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
-    : IMessageCreateGatewayEventHandler,
-      IMessageCreateShardedGatewayEventHandler
+    : IMessageCreateGatewayHandler,
+      IMessageCreateShardedGatewayHandler
     where TContext : ICommandContext
 {
     private readonly IServiceProvider _services;

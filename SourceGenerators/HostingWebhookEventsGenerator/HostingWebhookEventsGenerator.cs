@@ -55,7 +55,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         {
             context.AddSource("WebhookEvent.g.cs", SourceText.From(GenerateEvents(attributesData), Encoding.UTF8));
 
-            context.AddSource("WebhookEventHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(attributesData), Encoding.UTF8));
+            context.AddSource("WebhookHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(attributesData), Encoding.UTF8));
 
             context.AddSource("WebhookEventHandler.g.cs", SourceText.From(GenerateWebhookEventHandler(attributesData), Encoding.UTF8));
         });
@@ -169,7 +169,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.Write("public interface I");
             stringWriter.Write(attributeData.EventName);
-            stringWriter.WriteLine("WebhookEventHandler : global::NetCord.Hosting.AspNetCore.IWebhookEventHandler");
+            stringWriter.WriteLine("WebhookHandler : global::NetCord.Hosting.AspNetCore.IWebhookHandler");
 
             stringWriter.WriteLine("{");
 
@@ -254,7 +254,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public void RegisterDelegateHandler(global::NetCord.Hosting.AspNetCore.IDelegateWebhookEventHandlerBase handler)");
+        stringWriter.WriteLine("public void RegisterDelegateHandler(global::NetCord.Hosting.AspNetCore.IDelegateWebhookHandlerBase handler)");
 
         stringWriter.WriteIndentation(2);
         stringWriter.Write("{");
@@ -267,11 +267,11 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine();
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("if (handler is global::NetCord.Hosting.AspNetCore.IDelegateWebhookEventHandler<");
+            stringWriter.Write("if (handler is global::NetCord.Hosting.AspNetCore.IDelegateWebhookHandler<");
 
             stringWriter.Write(eventArgs.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
 
-            stringWriter.Write("> delegateWebhookEventHandler");
+            stringWriter.Write("> delegateWebhookHandler");
 
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
@@ -280,7 +280,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(4);
-            stringWriter.Write("switch (delegateWebhookEventHandler");
+            stringWriter.Write("switch (delegateWebhookHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".RawName)");
 
@@ -302,7 +302,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
                 stringWriter.WriteIndentation(6);
                 stringWriter.Write(ToInternalName(attributeData.EventName));
-                stringWriter.Write(".Add(delegateWebhookEventHandler");
+                stringWriter.Write(".Add(delegateWebhookHandler");
                 stringWriter.Write(i);
                 stringWriter.WriteLine(".HandleAsync);");
 
@@ -331,7 +331,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(2);
-        stringWriter.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.AspNetCore.IWebhookEventHandler handler)");
+        stringWriter.WriteLine("public void RegisterClassHandler(global::NetCord.Hosting.AspNetCore.IWebhookHandler handler)");
 
         stringWriter.WriteIndentation(2);
         stringWriter.Write("{");
@@ -347,13 +347,13 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(3);
             stringWriter.Write("if (handler is global::NetCord.Hosting.AspNetCore.I");
             stringWriter.Write(attributeData.EventName);
-            stringWriter.Write("WebhookEventHandler webhookEventHandler");
+            stringWriter.Write("WebhookHandler webhookHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
 
             stringWriter.WriteIndentation(4);
             stringWriter.Write(ToInternalName(attributeData.EventName));
-            stringWriter.Write(".Add(webhookEventHandler");
+            stringWriter.Write(".Add(webhookHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".HandleAsync);");
         }

@@ -4,7 +4,7 @@ using NetCord.Hosting.Gateway;
 
 namespace NetCord.Test.Hosting;
 
-internal class ConnectHandler(ILogger<ConnectHandler> logger) : IConnectGatewayEventHandler
+internal class ConnectHandler(ILogger<ConnectHandler> logger) : IConnectGatewayHandler
 {
     public ValueTask HandleAsync()
     {

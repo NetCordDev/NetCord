@@ -31,6 +31,6 @@ host.AddSlashCommand(
                                                                                                 someService.GetSomeData()
                                                                                                            .Take(count)));
 
-host.UseGatewayEventHandlers();
+host.UseGatewayHandlers();
 
 await host.RunAsync();

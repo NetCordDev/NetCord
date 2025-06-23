@@ -11,8 +11,8 @@ namespace NetCord.Hosting.Services.ApplicationCommands;
 internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
                                                              TContext,
                                                              [DAM(DAMT.PublicConstructors)] TAutocompleteContext>
-    : IInteractionCreateGatewayEventHandler,
-      IInteractionCreateShardedGatewayEventHandler,
+    : IInteractionCreateGatewayHandler,
+      IInteractionCreateShardedGatewayHandler,
       IHttpInteractionHandler
     where TInteraction : ApplicationCommandInteraction
     where TContext : IApplicationCommandContext

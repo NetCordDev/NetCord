@@ -4,7 +4,7 @@ using NetCord.Hosting.Gateway;
 
 namespace NetCord.Test.Hosting;
 
-internal class ChannelCreateUpdateDeleteHandler(ILogger<ChannelCreateUpdateDeleteHandler> logger) : IGuildChannelCreateGatewayEventHandler, IGuildChannelUpdateGatewayEventHandler, IGuildChannelDeleteGatewayEventHandler
+internal class ChannelCreateUpdateDeleteHandler(ILogger<ChannelCreateUpdateDeleteHandler> logger) : IGuildChannelCreateGatewayHandler, IGuildChannelUpdateGatewayHandler, IGuildChannelDeleteGatewayHandler
 {
     public ValueTask HandleAsync(IGuildChannel channel)
     {

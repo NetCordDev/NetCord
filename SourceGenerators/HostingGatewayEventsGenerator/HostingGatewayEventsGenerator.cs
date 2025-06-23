@@ -26,9 +26,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         {
             context.AddSource("GatewayEvent.g.cs", SourceText.From(GenerateEvents(source), Encoding.UTF8));
 
-            context.AddSource("GatewayEventHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(source), Encoding.UTF8));
+            context.AddSource("GatewayHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(source), Encoding.UTF8));
 
-            context.AddSource("GatewayEventHandlerHostExtensions.g.cs", SourceText.From(GenerateHandlerRegistrationMethods(source), Encoding.UTF8));
+            context.AddSource("GatewayHandlerHostExtensions.g.cs", SourceText.From(GenerateHandlerRegistrationMethods(source), Encoding.UTF8));
         });
     }
 
@@ -96,12 +96,12 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         StringWriter stringWriter = new();
         Setup(stringWriter);
 
-        WriteGatewayEventHandlerInterfaces(stringWriter, events);
+        WriteGatewayHandlerInterfaces(stringWriter, events);
 
         return stringWriter.ToString();
     }
 
-    private void WriteGatewayEventHandlerInterfaces(StringWriter stringWriter, IEventSymbol[] events)
+    private void WriteGatewayHandlerInterfaces(StringWriter stringWriter, IEventSymbol[] events)
     {
         foreach (var eventSymbol in events)
         {
@@ -111,7 +111,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             stringWriter.Write("public interface I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.WriteLine("GatewayEventHandler : global::NetCord.Hosting.Gateway.IGatewayEventHandler");
+            stringWriter.WriteLine("GatewayHandler : global::NetCord.Hosting.Gateway.IGatewayHandler");
 
             stringWriter.WriteLine("{");
 
@@ -135,7 +135,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             stringWriter.Write("public interface I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.WriteLine("ShardedGatewayEventHandler : global::NetCord.Hosting.Gateway.IShardedGatewayEventHandler");
+            stringWriter.WriteLine("ShardedGatewayHandler : global::NetCord.Hosting.Gateway.IShardedGatewayHandler");
 
             stringWriter.WriteLine("{");
 
@@ -169,7 +169,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
     {
         stringWriter.WriteLine();
 
-        stringWriter.WriteLine("partial class GatewayEventHandlerHostExtensions");
+        stringWriter.WriteLine("partial class GatewayHandlerHostExtensions");
 
         stringWriter.WriteLine("{");
 
@@ -189,7 +189,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private static void RegisterDelegateHandler(global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.Gateway.IDelegateGatewayEventHandlerBase handler)");
+        stringWriter.WriteLine("private static void RegisterDelegateHandler(global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.Gateway.IDelegateGatewayHandlerBase handler)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.Write("{");
@@ -202,7 +202,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine();
 
             stringWriter.WriteIndentation(2);
-            stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.IDelegateGatewayEventHandler");
+            stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.IDelegateGatewayHandler");
 
             if (eventType.Arity is 2)
             {
@@ -211,7 +211,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.Write(">");
             }
 
-            stringWriter.Write(" delegateGatewayEventHandler");
+            stringWriter.Write(" delegateGatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
 
@@ -219,7 +219,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("switch (delegateGatewayEventHandler");
+            stringWriter.Write("switch (delegateGatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".Name)");
 
@@ -236,7 +236,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.WriteIndentation(5);
                 stringWriter.Write("client.");
                 stringWriter.Write(eventSymbol.Name);
-                stringWriter.Write(" += delegateGatewayEventHandler");
+                stringWriter.Write(" += delegateGatewayHandler");
                 stringWriter.Write(i);
                 stringWriter.WriteLine(".HandleAsync;");
 
@@ -265,7 +265,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private static void RegisterClassHandler(global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.Gateway.IGatewayEventHandler handler)");
+        stringWriter.WriteLine("private static void RegisterClassHandler(global::NetCord.Gateway.GatewayClient client, global::NetCord.Hosting.Gateway.IGatewayHandler handler)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.Write("{");
@@ -281,14 +281,14 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(2);
             stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write("GatewayEventHandler gatewayEventHandler");
+            stringWriter.Write("GatewayHandler gatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
 
             stringWriter.WriteIndentation(3);
             stringWriter.Write("client.");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write(" += gatewayEventHandler");
+            stringWriter.Write(" += gatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".HandleAsync;");
         }
@@ -302,7 +302,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private static void RegisterDelegateShardedHandler(global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.Gateway.IDelegateShardedGatewayEventHandlerBase handler)");
+        stringWriter.WriteLine("private static void RegisterDelegateShardedHandler(global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.Gateway.IDelegateShardedGatewayHandlerBase handler)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.Write("{");
@@ -315,7 +315,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine();
 
             stringWriter.WriteIndentation(2);
-            stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.IDelegateShardedGatewayEventHandler");
+            stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.IDelegateShardedGatewayHandler");
 
             if (eventType.Arity is 2)
             {
@@ -324,7 +324,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.Write(">");
             }
 
-            stringWriter.Write(" delegateGatewayEventHandler");
+            stringWriter.Write(" delegateGatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
 
@@ -332,7 +332,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("switch (delegateGatewayEventHandler");
+            stringWriter.Write("switch (delegateGatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".Name)");
 
@@ -349,7 +349,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
                 stringWriter.WriteIndentation(5);
                 stringWriter.Write("client.");
                 stringWriter.Write(eventSymbol.Name);
-                stringWriter.Write(" += delegateGatewayEventHandler");
+                stringWriter.Write(" += delegateGatewayHandler");
                 stringWriter.Write(i);
                 stringWriter.WriteLine(".HandleAsync;");
 
@@ -378,7 +378,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine();
 
         stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("private static void RegisterClassShardedHandler(global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.Gateway.IShardedGatewayEventHandler handler)");
+        stringWriter.WriteLine("private static void RegisterClassShardedHandler(global::NetCord.Gateway.ShardedGatewayClient client, global::NetCord.Hosting.Gateway.IShardedGatewayHandler handler)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.Write("{");
@@ -394,14 +394,14 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteIndentation(2);
             stringWriter.Write("if (handler is global::NetCord.Hosting.Gateway.I");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write("ShardedGatewayEventHandler gatewayEventHandler");
+            stringWriter.Write("ShardedGatewayHandler gatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(")");
 
             stringWriter.WriteIndentation(3);
             stringWriter.Write("client.");
             stringWriter.Write(eventSymbol.Name);
-            stringWriter.Write(" += gatewayEventHandler");
+            stringWriter.Write(" += gatewayHandler");
             stringWriter.Write(i);
             stringWriter.WriteLine(".HandleAsync;");
         }

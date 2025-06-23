@@ -41,7 +41,7 @@ var builder = Host.CreateDefaultBuilder(args)
 
 var host = builder.Build()
     .AddSlashCommand("square", "Square!", (int a) => $"{a}² = {a * a}")
-    .UseGatewayEventHandlers();
+    .UseGatewayHandlers();
 
 await host.RunAsync();
 ```

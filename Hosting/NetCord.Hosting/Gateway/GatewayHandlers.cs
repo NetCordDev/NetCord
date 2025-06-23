@@ -2,72 +2,72 @@
 
 namespace NetCord.Hosting.Gateway;
 
-public interface IGatewayEventHandler;
+public interface IGatewayHandler;
 
-internal interface IDelegateGatewayEventHandlerBase : IGatewayEventHandler
+internal interface IDelegateGatewayHandlerBase : IGatewayHandler
 {
     internal string Name { get; }
 }
 
-internal interface IDelegateGatewayEventHandler : IDelegateGatewayEventHandlerBase
+internal interface IDelegateGatewayHandler : IDelegateGatewayHandlerBase
 {
     public ValueTask HandleAsync();
 }
 
-internal interface IDelegateGatewayEventHandler<T> : IDelegateGatewayEventHandlerBase
+internal interface IDelegateGatewayHandler<T> : IDelegateGatewayHandlerBase
 {
     public ValueTask HandleAsync(T arg);
 }
 
-internal class DelegateGatewayEventHandler(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayEventHandler
+internal class DelegateGatewayHandler(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler
 {
     private readonly Func<IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<IServiceProvider, ValueTask>>(handler, []);
 
-    string IDelegateGatewayEventHandlerBase.Name => name;
+    string IDelegateGatewayHandlerBase.Name => name;
 
     public ValueTask HandleAsync() => _handler(services);
 }
 
-internal class DelegateGatewayEventHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayEventHandler<T>
+internal class DelegateGatewayHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateGatewayHandler<T>
 {
     private readonly Func<T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]);
 
-    string IDelegateGatewayEventHandlerBase.Name => name;
+    string IDelegateGatewayHandlerBase.Name => name;
 
     public ValueTask HandleAsync(T arg) => _handler(arg, services);
 }
 
-public interface IShardedGatewayEventHandler;
+public interface IShardedGatewayHandler;
 
-internal interface IDelegateShardedGatewayEventHandlerBase : IShardedGatewayEventHandler
+internal interface IDelegateShardedGatewayHandlerBase : IShardedGatewayHandler
 {
     internal string Name { get; }
 }
 
-internal interface IDelegateShardedGatewayEventHandler : IDelegateShardedGatewayEventHandlerBase
+internal interface IDelegateShardedGatewayHandler : IDelegateShardedGatewayHandlerBase
 {
     public ValueTask HandleAsync(GatewayClient client);
 }
 
-internal interface IDelegateShardedGatewayEventHandler<T> : IDelegateShardedGatewayEventHandlerBase
+internal interface IDelegateShardedGatewayHandler<T> : IDelegateShardedGatewayHandlerBase
 {
     public ValueTask HandleAsync(GatewayClient client, T arg);
 }
 
-internal class DelegateShardedGatewayEventHandler(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayEventHandler
+internal class DelegateShardedGatewayHandler(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayHandler
 {
     private readonly Func<GatewayClient, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<GatewayClient, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient)]);
 
-    string IDelegateShardedGatewayEventHandlerBase.Name => name;
+    string IDelegateShardedGatewayHandlerBase.Name => name;
 
     public ValueTask HandleAsync(GatewayClient client) => _handler(client, services);
 }
 
-internal class DelegateShardedGatewayEventHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayEventHandler<T>
+internal class DelegateShardedGatewayHandler<T>(string name, IServiceProvider services, Delegate handler) : IDelegateShardedGatewayHandler<T>
 {
     private readonly Func<GatewayClient, T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<GatewayClient, T, IServiceProvider, ValueTask>>(handler, [typeof(GatewayClient), typeof(T)]);
 
-    string IDelegateShardedGatewayEventHandlerBase.Name => name;
+    string IDelegateShardedGatewayHandlerBase.Name => name;
 
     public ValueTask HandleAsync(GatewayClient client, T arg) => _handler(client, arg, services);
 }
