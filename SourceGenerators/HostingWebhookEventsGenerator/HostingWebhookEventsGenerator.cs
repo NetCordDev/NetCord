@@ -162,7 +162,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
         foreach (var attributeData in attributesData)
         {
             var eventArgs = attributeData.EventArgs;
-            
+
             stringWriter.WriteLine();
 
             stringWriter.WriteXmlComment(eventArgs, 0);

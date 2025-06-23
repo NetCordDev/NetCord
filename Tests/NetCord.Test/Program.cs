@@ -153,7 +153,7 @@ internal static class Program
         else if (entry.ActionType is AuditLogEvent.GuildUserUpdate)
         {
             var channel = _client.Cache.Guilds[entry.GuildId].Channels.Values.OfType<TextChannel>().First();
-            
+
             if (entry.TryGetChange<JsonGuildUser, DateTimeOffset?>(u => u.TimeOutUntil, out var change))
                 await channel.SendMessageAsync($"old: {change.OldValue} new: {change.NewValue}");
             else
