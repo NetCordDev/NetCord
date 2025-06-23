@@ -62,7 +62,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// </summary>
     public ulong GuildId { get; }
 
-    private bool TryGetChangeModel<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out JsonAuditLogChange model)
+    private bool TryGetChangeModel<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [MaybeNullWhen(false)] out JsonAuditLogChange model)
     {
         var member = GetMemberAccess(expression);
         var name = member.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()!.Name;
@@ -73,7 +73,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
             return true;
         }
 
-        model = null!;
+        model = null;
         return false;
     }
 
@@ -87,7 +87,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <returns></returns>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
-    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [NotNullWhen(true)] out AuditLogChange<TValue> change) where TObject : JsonEntity
+    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, [MaybeNullWhen(false)] out AuditLogChange<TValue> change)
     {
         if (TryGetChangeModel(expression, out var model))
         {
@@ -95,7 +95,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
             return true;
         }
 
-        change = null!;
+        change = null;
         return false;
     }
 
@@ -109,7 +109,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <exception cref="EntityNotFoundException"></exception>
     [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
     [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.DeserializeAsync<TValue>(Stream, JsonSerializerOptions, CancellationToken)")]
-    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression) where TObject : JsonEntity
+    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression)
     {
         if (TryGetChange(expression, out var value))
             return value;
@@ -126,7 +126,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
     /// <param name="change">The result.</param>
     /// <returns></returns>
-    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo, [NotNullWhen(true)] out AuditLogChange<TValue> change) where TObject : JsonEntity
+    public bool TryGetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo, [MaybeNullWhen(false)] out AuditLogChange<TValue> change)
     {
         if (TryGetChangeModel(expression, out var model))
         {
@@ -134,7 +134,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
             return true;
         }
 
-        change = null!;
+        change = null;
         return false;
     }
 
@@ -147,7 +147,7 @@ public class AuditLogEntry : Entity, IJsonModel<JsonAuditLogEntry>
     /// <param name="jsonTypeInfo"><see cref="JsonTypeInfo{TValue}"/> of the object returned by <paramref name="expression"/>.</param>
     /// <returns></returns>
     /// <exception cref="EntityNotFoundException"></exception>
-    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo) where TObject : JsonEntity
+    public AuditLogChange<TValue> GetChange<TObject, TValue>(Expression<Func<TObject, TValue?>> expression, JsonTypeInfo<TValue> jsonTypeInfo)
     {
         if (TryGetChange(expression, jsonTypeInfo, out var value))
             return value;
