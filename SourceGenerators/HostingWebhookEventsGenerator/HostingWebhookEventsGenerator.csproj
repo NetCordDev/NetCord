@@ -1,5 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
+
 </Project>

@@ -506,7 +506,7 @@ public class RestClientMethodAliasesGenerator : IIncrementalGenerator
                 return parameters.Any(parameter => parameter.Name == name.Value);
 
             return true;
-        });
+        }, 1);
         return documentationWriter.ToString();
     }
 

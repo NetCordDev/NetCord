@@ -42,12 +42,12 @@ public static class StringWriterExtensions
         stringWriter.WriteLine(typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
     }
 
-    public static unsafe void WriteXmlComment(this StringWriter stringWriter, ISymbol symbol)
+    public static unsafe void WriteXmlComment(this StringWriter stringWriter, ISymbol symbol, int indentation)
     {
-        stringWriter.CopyXmlComment(symbol, _ => true);
+        stringWriter.CopyXmlComment(symbol, _ => true, indentation);
     }
 
-    public static unsafe void CopyXmlComment(this StringWriter stringWriter, ISymbol symbol, Func<XmlNode, bool> predicate)
+    public static unsafe void CopyXmlComment(this StringWriter stringWriter, ISymbol symbol, Func<XmlNode, bool> predicate, int indentation)
     {
         var comment = symbol.GetDocumentationCommentXml();
         if (string.IsNullOrEmpty(comment))
@@ -65,7 +65,7 @@ public static class StringWriterExtensions
             string? line;
             while ((line = stringReader.ReadLine()) is not null)
             {
-                stringWriter.WriteIndentation(1);
+                stringWriter.WriteIndentation(indentation);
                 stringWriter.Write("/// ");
                 if (line.StartsWith(Indentation))
                     stringWriter.Write(line.AsSpan(IndentationLength));

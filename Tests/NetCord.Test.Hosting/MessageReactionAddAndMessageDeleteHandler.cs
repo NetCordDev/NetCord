@@ -5,9 +5,7 @@ using NetCord.Hosting.Gateway;
 
 namespace NetCord.Test.Hosting;
 
-[GatewayEvent(nameof(GatewayClient.MessageReactionAdd))]
-[GatewayEvent(nameof(GatewayClient.MessageDelete))]
-internal class MessageReactionAddAndMessageDeleteHandler(ILogger<MessageReactionAddAndMessageDeleteHandler> logger) : IGatewayEventHandler<MessageReactionAddEventArgs>, IGatewayEventHandler<MessageDeleteEventArgs>
+internal class MessageReactionAddAndMessageDeleteHandler(ILogger<MessageReactionAddAndMessageDeleteHandler> logger) : IMessageReactionAddGatewayEventHandler, IMessageDeleteGatewayEventHandler
 {
     public ValueTask HandleAsync(MessageReactionAddEventArgs args)
     {

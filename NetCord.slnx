@@ -69,6 +69,8 @@
   <Folder Name="/SourceGenerators/">
     <File Path="SourceGenerators/Directory.Build.props" />
     <File Path="SourceGenerators/Directory.Build.targets" />
+    <Project Path="SourceGenerators/HostingGatewayEventsGenerator/HostingGatewayEventsGenerator.csproj" Id="39a63379-ec68-459f-9de4-63ddc98a391c" />
+    <Project Path="SourceGenerators/HostingWebhookEventsGenerator/HostingWebhookEventsGenerator.csproj" Id="677e7a80-3a4a-4591-bf7c-d3b3625224e5" />
     <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
     <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
     <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" />

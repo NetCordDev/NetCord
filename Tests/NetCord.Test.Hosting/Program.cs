@@ -53,7 +53,7 @@ builder.Services
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
     .AddCommands()
-    .AddGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
+    .AddGatewayEventHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
     .AddGatewayEventHandler<ChannelCreateUpdateDeleteHandler>()
     .AddGatewayEventHandler<ConnectHandler>()
     .AddGatewayEventHandler<MessageReactionAddAndMessageDeleteHandler>()

@@ -1,22 +1,24 @@
 ﻿namespace NetCord.Hosting.AspNetCore;
 
-public interface IWebhookEventHandlerBase
+public interface IWebhookEventHandler
 {
 }
 
-public interface IWebhookEventHandler<T> : IWebhookEventHandlerBase
+internal interface IDelegateWebhookEventHandlerBase : IWebhookEventHandler
 {
-    /// <summary>
-    /// Handles the webhook event.
-    /// </summary>
-    /// <param name="arg">The event argument.</param>
-    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous operation.</returns>
+    internal string? RawName { get; }
+}
+
+internal interface IDelegateWebhookEventHandler<T> : IDelegateWebhookEventHandlerBase
+{
     public ValueTask HandleAsync(T arg);
 }
 
-internal class DelegateWebhookEventHandler<T>(IServiceProvider services, Delegate handler) : IWebhookEventHandler<T>
+internal class DelegateWebhookEventHandler<T>(string? rawName, IServiceProvider services, Delegate handler) : IDelegateWebhookEventHandler<T>
 {
     private readonly Func<T, IServiceProvider, ValueTask> _handler = DelegateHandlerHelper.CreateHandler<Func<T, IServiceProvider, ValueTask>>(handler, [typeof(T)]);
+
+    string? IDelegateWebhookEventHandlerBase.RawName => rawName;
 
     public ValueTask HandleAsync(T arg) => _handler(arg, services);
 }

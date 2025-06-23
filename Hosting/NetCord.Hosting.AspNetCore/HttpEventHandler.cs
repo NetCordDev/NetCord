@@ -37,8 +37,6 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
 
     protected abstract ValueTask HandleAsync(HttpContext context, TRawData data);
 
-    protected abstract ValueTask InvokeHandlerAsync<THandler, THandlerData>(THandler handler, THandlerData data);
-
     protected abstract void LogHandlerException(Exception ex);
 
     public async Task HandleRequestAsync(HttpContext context)
@@ -86,7 +84,7 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
         return value;
     }
 
-    protected ValueTask InvokeHandlersAsync<THandler, THandlerData>(THandler[] handlers, Func<THandlerData> dataFunc) where THandler : class where THandlerData : class
+    protected ValueTask InvokeHandlersAsync<THandlerData>(Func<THandlerData, ValueTask>[] handlers, Func<THandlerData> dataFunc) where THandlerData : class
     {
         int length = handlers.Length;
 
@@ -102,7 +100,7 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
             try
             {
 #pragma warning disable CA2012 // Use ValueTasks correctly
-                tasks[i] = InvokeHandlerAsync(handlers[i], data);
+                tasks[i] = handlers[i](data);
 #pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
@@ -116,7 +114,7 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
         return HandleTasksAsync(length, tasks);
     }
 
-    protected ValueTask InvokeHandlersAsync<THandler, THandlerData>(THandler[] handlers, THandlerData data)
+    protected ValueTask InvokeHandlersAsync<THandlerData>(Func<THandlerData, ValueTask>[] handlers, THandlerData data)
     {
         int length = handlers.Length;
 
@@ -130,7 +128,7 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
             try
             {
 #pragma warning disable CA2012 // Use ValueTasks correctly
-                tasks[i] = InvokeHandlerAsync(handlers[i], data);
+                tasks[i] = handlers[i](data);
 #pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)

@@ -9,45 +9,34 @@ using NetCord.Rest.JsonModels;
 
 namespace NetCord.Hosting.AspNetCore;
 
-internal class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
+[GenerateHandler("APPLICATION_AUTHORIZED", typeof(ApplicationAuthorizedWebhookEventArgs))]
+[GenerateHandler("APPLICATION_DEAUTHORIZED", typeof(ApplicationDeauthorizedWebhookEventArgs))]
+[GenerateHandler("ENTITLEMENT_CREATE", typeof(EntitlementCreateWebhookEventArgs))]
+[GenerateHandler(null, typeof(UnknownEventWebhookEventArgs))]
+internal partial class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
 {
+    private partial class StorageBuilder;
+
+    private partial class Storage;
+
     public WebhookEventHandler(IServiceProvider services, string pattern) : base(services, pattern)
     {
-        List<IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>> applicationAuthorized = [];
-        List<IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>> applicationDeauthorized = [];
-        List<IWebhookEventHandler<EntitlementCreateWebhookEventArgs>> entitlementCreate = [];
-        List<IWebhookEventHandler<UnknownEventWebhookEventArgs>> unknownEvent = [];
+        StorageBuilder builder = new();
 
-        foreach (var handler in services.GetServices<IWebhookEventHandlerBase>())
+        foreach (var handler in services.GetServices<IWebhookEventHandler>())
         {
-            if (handler is IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs> applicationAuthorizedHandler)
-                applicationAuthorized.Add(applicationAuthorizedHandler);
-
-            if (handler is IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs> applicationDeauthorizedHandler)
-                applicationDeauthorized.Add(applicationDeauthorizedHandler);
-
-            if (handler is IWebhookEventHandler<EntitlementCreateWebhookEventArgs> entitlementCreateHandler)
-                entitlementCreate.Add(entitlementCreateHandler);
-
-            if (handler is IWebhookEventHandler<UnknownEventWebhookEventArgs> unknownEventHandler)
-                unknownEvent.Add(unknownEventHandler);
+            if (handler is IDelegateWebhookEventHandlerBase delegateHandler)
+                builder.RegisterDelegateHandler(delegateHandler);
+            else
+                builder.RegisterClassHandler(handler);
         }
 
-        _applicationAuthorized = [.. applicationAuthorized];
-        _applicationDeauthorized = [.. applicationDeauthorized];
-        _entitlementCreate = [.. entitlementCreate];
-        _unknownEvent = [.. unknownEvent];
+        _storage = builder.Build();
 
         _logger = services.GetRequiredService<ILogger<WebhookEventHandler>>();
     }
 
-    private readonly IWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>[] _applicationAuthorized;
-
-    private readonly IWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>[] _applicationDeauthorized;
-
-    private readonly IWebhookEventHandler<EntitlementCreateWebhookEventArgs>[] _entitlementCreate;
-
-    private readonly IWebhookEventHandler<UnknownEventWebhookEventArgs>[] _unknownEvent;
+    private readonly Storage _storage;
 
     private readonly ILogger<WebhookEventHandler> _logger;
 
@@ -68,22 +57,6 @@ internal class WebhookEventHandler : HttpEventHandler<JsonWebhookEventArgs>
         }
 
         return default;
-    }
-
-    private ValueTask HandleEventAsync(JsonWebhookEventArgs data)
-    {
-        return data.Event!.Type switch
-        {
-            "APPLICATION_AUTHORIZED" => InvokeHandlersAsync(_applicationAuthorized, () => new ApplicationAuthorizedWebhookEventArgs(data, _client)),
-            "APPLICATION_DEAUTHORIZED" => InvokeHandlersAsync(_applicationDeauthorized, () => new ApplicationDeauthorizedWebhookEventArgs(data, _client)),
-            "ENTITLEMENT_CREATE" => InvokeHandlersAsync(_entitlementCreate, () => new EntitlementCreateWebhookEventArgs(data, _client)),
-            _ => InvokeHandlersAsync(_unknownEvent, () => new UnknownEventWebhookEventArgs(data)),
-        };
-    }
-
-    protected override ValueTask InvokeHandlerAsync<THandler, THandlerData>(THandler handler, THandlerData data)
-    {
-        return Unsafe.As<THandler, IWebhookEventHandler<THandlerData>>(ref handler).HandleAsync(data);
     }
 
     protected override void LogHandlerException(Exception ex)

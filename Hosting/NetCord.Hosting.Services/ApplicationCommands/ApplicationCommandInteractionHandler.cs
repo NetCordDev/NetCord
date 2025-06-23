@@ -8,10 +8,9 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-[GatewayEvent(nameof(GatewayClient.InteractionCreate))]
 internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction, [DAM(DAMT.PublicConstructors)] TContext>
-    : IGatewayEventHandler<Interaction>,
-      IShardedGatewayEventHandler<Interaction>,
+    : IInteractionCreateGatewayEventHandler,
+      IInteractionCreateShardedGatewayEventHandler,
       IHttpInteractionHandler
     where TInteraction : ApplicationCommandInteraction where TContext : IApplicationCommandContext
 {
