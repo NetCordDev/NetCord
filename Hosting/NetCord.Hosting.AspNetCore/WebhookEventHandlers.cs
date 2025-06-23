@@ -1,8 +1,6 @@
 ﻿namespace NetCord.Hosting.AspNetCore;
 
-public interface IWebhookEventHandler
-{
-}
+public interface IWebhookEventHandler;
 
 internal interface IDelegateWebhookEventHandlerBase : IWebhookEventHandler
 {
