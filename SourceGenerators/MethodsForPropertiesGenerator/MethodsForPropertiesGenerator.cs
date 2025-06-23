@@ -93,7 +93,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
 
         stringWriter.WriteLine();
 
-        stringWriter.WriteXmlComment(symbol);
+        stringWriter.WriteXmlComment(symbol, 1);
 
         CopyApplicableAttributes(stringWriter, symbol);
 
@@ -147,7 +147,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         // First overload
         stringWriter.WriteLine();
 
-        stringWriter.WriteXmlComment(symbol);
+        stringWriter.WriteXmlComment(symbol, 1);
 
         CopyApplicableAttributes(stringWriter, symbol);
 
@@ -195,7 +195,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         // Second overload
         stringWriter.WriteLine();
 
-        stringWriter.WriteXmlComment(symbol);
+        stringWriter.WriteXmlComment(symbol, 1);
 
         CopyApplicableAttributes(stringWriter, symbol);
 

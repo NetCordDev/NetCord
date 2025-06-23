@@ -177,8 +177,8 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
 
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
 
         services.AddHostedService<ApplicationCommandServiceHostedService>();
@@ -245,13 +245,13 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IContextAccessor<TAutocompleteContext>, ContextAccessor<TAutocompleteContext>>();
 
         services.AddSingleton<ApplicationCommandInteractionHandler<TInteraction, TContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
 
         services.AddSingleton<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>();
-        services.AddGatewayEventHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
-        services.AddShardedGatewayEventHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
+        services.AddGatewayHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
+        services.AddShardedGatewayHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
 
         services.AddHostedService<ApplicationCommandServiceHostedService>();

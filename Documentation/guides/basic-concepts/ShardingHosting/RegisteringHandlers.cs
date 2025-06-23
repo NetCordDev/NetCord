@@ -18,10 +18,10 @@ internal class RegisteringHandlers
                                   | GatewayIntents.DirectMessages
                                   | GatewayIntents.MessageContent;
             })
-            .AddShardedGatewayEventHandlers(typeof(Program).Assembly);
+            .AddShardedGatewayHandlers(typeof(Program).Assembly);
 
         var host = builder.Build()
-            .UseShardedGatewayEventHandlers();
+            .UseShardedGatewayHandlers();
 
         await host.RunAsync();
     }

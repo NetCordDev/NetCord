@@ -23,6 +23,6 @@ host.AddSlashCommand("ping", "Ping!", () => "Pong!")
 host.AddModules(typeof(Program).Assembly);
 
 // Add handlers to handle the commands
-host.UseGatewayEventHandlers();
+host.UseGatewayHandlers();
 
 await host.RunAsync();

@@ -16,19 +16,19 @@ builder.Services
     .AddHttpComponentInteractions()
     .AddHttpInteractionHandler<InteractionHandler>()
     .AddHttpInteractionHandler((Interaction interaction, ILogger<Interaction> logger) => logger.LogInformation("Id: {}", interaction.Id))
-    .AddWebhookEventHandler<ApplicationAuthorizedWebhookEventArgs>((ApplicationAuthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    .AddWebhookHandler(WebhookEvent.ApplicationAuthorized, (ApplicationAuthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
     {
         logger.LogInformation("Authorized with {} at {}", eventArgs.User.Username, eventArgs.Timestamp);
     })
-    .AddWebhookEventHandler<ApplicationDeauthorizedWebhookEventArgs>((ApplicationDeauthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    .AddWebhookHandler(WebhookEvent.ApplicationDeauthorized, (ApplicationDeauthorizedWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
     {
         logger.LogInformation("Deauthorized with {} at {}", eventArgs.User.Username, eventArgs.Timestamp);
     })
-    .AddWebhookEventHandler<EntitlementCreateWebhookEventArgs>((EntitlementCreateWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    .AddWebhookHandler(WebhookEvent.EntitlementCreate, (EntitlementCreateWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
     {
         logger.LogInformation("Entitlement created for {} at {}", eventArgs.Entitlement.UserId, eventArgs.Timestamp);
     })
-    .AddWebhookEventHandler<UnknownEventWebhookEventArgs>((UnknownEventWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
+    .AddWebhookHandler(WebhookEvent.UnknownEvent, (UnknownEventWebhookEventArgs eventArgs, ILogger<WebhookEventArgs> logger) =>
     {
         logger.LogInformation("An unknown event received {} at {}", eventArgs.Type, eventArgs.Timestamp);
     });

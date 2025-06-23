@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +12,8 @@ internal sealed class HttpInteractionHandler(IServiceProvider services,
 {
     private readonly ILogger<HttpInteractionHandler> _logger = services.GetRequiredService<ILogger<HttpInteractionHandler>>();
 
-    private readonly IHttpInteractionHandler[] _handlers = [.. services.GetServices<IHttpInteractionHandler>()];
+    private readonly Func<Interaction, ValueTask>[] _handlers = [.. services.GetServices<IHttpInteractionHandler>()
+                                                                            .Select<IHttpInteractionHandler, Func<Interaction, ValueTask>>(h => h.HandleAsync)];
 
     protected override IInteraction GetData(HttpContext context, ReadOnlySpan<byte> body)
     {
@@ -37,11 +36,6 @@ internal sealed class HttpInteractionHandler(IServiceProvider services,
             PingInteraction pingInteraction => new(pingInteraction.SendResponseAsync(InteractionCallback.Pong)),
             _ => default,
         };
-    }
-
-    protected override ValueTask InvokeHandlerAsync<THandler, THandlerData>(THandler handler, THandlerData data)
-    {
-        return Unsafe.As<THandler, IHttpInteractionHandler>(ref handler).HandleAsync(Unsafe.As<THandlerData, Interaction>(ref data));
     }
 
     protected override void LogHandlerException(Exception ex)

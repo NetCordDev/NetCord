@@ -15,12 +15,12 @@ builder.Services
     .AddCommands()
     .ConfigureDiscordShardedGateway(o => (o.Presence, o.ShardCount) = (new(UserStatusType.Idle), 3))
     .AddDiscordShardedGateway()
-    .AddShardedGatewayEventHandler<Message>(nameof(GatewayClient.MessageCreate), (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
+    .AddShardedGatewayHandler(GatewayEvent.MessageCreate, (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
 
 var host = builder.Build();
 
 host.AddSlashCommand("ping", "Ping!", (ApplicationCommandContext context) => "Pong!")
     .AddCommand(["ping"], () => "Pong!")
-    .UseShardedGatewayEventHandlers();
+    .UseShardedGatewayHandlers();
 
 await host.RunAsync();
