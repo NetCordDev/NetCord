@@ -19,9 +19,6 @@ public class JsonGuildUser
     [JsonPropertyName("roles")]
     public ulong[] RoleIds { get; set; }
 
-    [JsonPropertyName("hoisted_role")]
-    public ulong? HoistedRoleId { get; set; }
-
     [JsonPropertyName("joined_at")]
     public DateTimeOffset JoinedAt { get; set; }
 

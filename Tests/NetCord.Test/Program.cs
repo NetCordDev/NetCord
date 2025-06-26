@@ -22,6 +22,10 @@ internal static class Program
         Intents = GatewayIntents.All,
         ConnectionProperties = ConnectionPropertiesProperties.IOS,
         Logger = new ConsoleLogger(LogLevel.Debug),
+        Presence = new(UserStatusType.DoNotDisturb)
+        {
+            Activities = [new("Custom Status", UserActivityType.Custom) { State = "XD" }],
+        }
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
         //Compression = new UncompressedGatewayCompression(),

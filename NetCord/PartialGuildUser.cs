@@ -41,11 +41,6 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     public IReadOnlyList<ulong> RoleIds => _jsonModel.RoleIds;
 
     /// <summary>
-    /// The ID of the user's hoisted role, used to categorize the user in the member list.
-    /// </summary>
-    public ulong? HoistedRoleId => _jsonModel.HoistedRoleId;
-
-    /// <summary>
     /// When the user joined the guild.
     /// </summary>
     public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
