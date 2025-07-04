@@ -66,7 +66,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         {
             stringWriter.WriteLine();
 
-            stringWriter.WriteXmlComment(eventSymbol, 1);
+            stringWriter.WriteInheritDoc(eventSymbol, 1);
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public static global::");
@@ -107,7 +107,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         {
             stringWriter.WriteLine();
 
-            stringWriter.WriteXmlComment(eventSymbol, 0);
+            stringWriter.WriteInheritDoc(eventSymbol, 0);
 
             stringWriter.Write("public interface I");
             stringWriter.Write(eventSymbol.Name);
@@ -131,7 +131,7 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine();
 
-            stringWriter.WriteXmlComment(eventSymbol, 0);
+            stringWriter.WriteInheritDoc(eventSymbol, 0);
 
             stringWriter.Write("public interface I");
             stringWriter.Write(eventSymbol.Name);
