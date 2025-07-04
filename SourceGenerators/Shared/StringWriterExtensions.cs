@@ -42,9 +42,12 @@ public static class StringWriterExtensions
         stringWriter.WriteLine(typeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
     }
 
-    public static unsafe void WriteXmlComment(this StringWriter stringWriter, ISymbol symbol, int indentation)
+    public static unsafe void WriteInheritDoc(this StringWriter stringWriter, ISymbol symbol, int indentation)
     {
-        stringWriter.CopyXmlComment(symbol, _ => true, indentation);
+        stringWriter.WriteIndentation(indentation);
+        stringWriter.Write("/// <inheritdoc cref=\"");
+        stringWriter.Write(symbol.GetDocumentationCommentId());
+        stringWriter.WriteLine("\" />");
     }
 
     public static unsafe void CopyXmlComment(this StringWriter stringWriter, ISymbol symbol, Func<XmlNode, bool> predicate, int indentation)

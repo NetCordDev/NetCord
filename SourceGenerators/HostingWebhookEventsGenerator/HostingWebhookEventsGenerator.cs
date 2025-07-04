@@ -119,7 +119,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine();
 
-            stringWriter.WriteXmlComment(eventArgs, 1);
+            stringWriter.WriteInheritDoc(eventArgs, 1);
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public static global::");
@@ -165,7 +165,7 @@ public class HostingWebhookEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine();
 
-            stringWriter.WriteXmlComment(eventArgs, 0);
+            stringWriter.WriteInheritDoc(eventArgs, 0);
 
             stringWriter.Write("public interface I");
             stringWriter.Write(attributeData.EventName);

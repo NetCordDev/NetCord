@@ -60,7 +60,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
             var hasArgs = eventType.Arity is 2;
 
-            stringWriter.WriteXmlComment(eventSymbol, 1);
+            stringWriter.WriteInheritDoc(eventSymbol, 1);
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public event ");
