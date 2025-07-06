@@ -31,11 +31,11 @@ For a bare-bones setup, you need to manually create an instance of @NetCord.Gate
 
 ### [.NET Generic Host](#tab/generic-host)
 
-To register event handlers with sharding in the .NET Generic Host, use @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to add all event handlers in an assembly and then call @NetCord.Hosting.Gateway.GatewayEventHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to bind these handlers to the sharded client.
+To register event handlers with sharding in the .NET Generic Host, use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to add all event handlers in an assembly and then call @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to bind these handlers to the sharded client.
 
 [!code-cs[Program.cs](ShardingHosting/RegisteringHandlers.cs?highlight=10,13#L12-L26)]
 
-When creating event handlers, implement @NetCord.Hosting.Gateway.IShardedGatewayEventHandler or @NetCord.Hosting.Gateway.IShardedGatewayEventHandler`1. Note the additional parameter representing the @NetCord.Gateway.GatewayClient that received the event.
+When creating event handlers, implement @NetCord.Hosting.Gateway.IShardedGatewayHandler or @NetCord.Hosting.Gateway.IShardedGatewayHandler`1. Note the additional parameter representing the @NetCord.Gateway.GatewayClient that received the event.
 [!code-cs[Program.cs](ShardingHosting/MessageUpdateHandler.cs)]
 
 ### [Bare Bones](#tab/bare-bones)
