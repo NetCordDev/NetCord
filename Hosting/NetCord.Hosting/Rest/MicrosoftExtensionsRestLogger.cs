@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using NetCord.Logging;
@@ -7,7 +6,7 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.Rest;
 
-internal class RestMicrosoftExtensionsLogger(IServiceProvider services) : IRestLogger, IGatewayLogger
+internal class MicrosoftExtensionsRestLogger(IServiceProvider services) : IRestLogger, IGatewayLogger
 {
     private readonly ILogger<RestClient> _logger = services.GetRequiredService<ILogger<RestClient>>();
 

@@ -40,6 +40,7 @@ using NetCord.Test.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .AddHttpClient()
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
     .ConfigureCommands(o => o.Prefix = ">")
