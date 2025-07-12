@@ -15,7 +15,7 @@ public interface IApplicationCommandInfo
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; }
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }
-    public ulong? GuildId { get; }
+    public bool Register { get; }
 
     public ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);
 }

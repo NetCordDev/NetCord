@@ -22,7 +22,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                                                                                           attribute.IntegrationTypes,
                                                                                                           attribute.Contexts,
                                                                                                           attribute.Nsfw,
-                                                                                                          attribute._guildId,
+                                                                                                          attribute.Register,
                                                                                                           configuration)
     {
         Description = attribute.Description;
@@ -62,7 +62,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
-                                   ulong? guildId,
+                                   bool register,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                           defaultGuildUserPermissions,
                                                                                                           dMPermission,
@@ -70,7 +70,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                                                                                           integrationTypes,
                                                                                                           contexts,
                                                                                                           nsfw,
-                                                                                                          guildId,
+                                                                                                          register,
                                                                                                           configuration)
     {
         Description = description;

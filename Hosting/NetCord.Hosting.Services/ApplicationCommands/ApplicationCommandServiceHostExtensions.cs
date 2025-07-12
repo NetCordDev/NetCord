@@ -56,7 +56,7 @@ public static class ApplicationCommandServiceHostExtensions
                                         IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                         IEnumerable<InteractionContextType>? contexts = null,
                                         bool nsfw = false,
-                                        ulong? guildId = null)
+                                        bool register = true)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddSlashCommand(name,
@@ -68,7 +68,7 @@ public static class ApplicationCommandServiceHostExtensions
                                 integrationTypes,
                                 contexts,
                                 nsfw,
-                                guildId);
+                                register);
         return host;
     }
 
@@ -82,7 +82,7 @@ public static class ApplicationCommandServiceHostExtensions
                                         IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                         IEnumerable<InteractionContextType>? contexts = null,
                                         bool nsfw = false,
-                                        ulong? guildId = null)
+                                        bool register = true)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddSlashCommand(name,
@@ -94,7 +94,7 @@ public static class ApplicationCommandServiceHostExtensions
                                 integrationTypes,
                                 contexts,
                                 nsfw,
-                                guildId);
+                                register);
         return host;
     }
 
@@ -107,7 +107,7 @@ public static class ApplicationCommandServiceHostExtensions
                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                        IEnumerable<InteractionContextType>? contexts = null,
                                        bool nsfw = false,
-                                       ulong? guildId = null)
+                                       bool register = true)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddUserCommand(name,
@@ -118,7 +118,7 @@ public static class ApplicationCommandServiceHostExtensions
                                integrationTypes,
                                contexts,
                                nsfw,
-                               guildId);
+                               register);
         return host;
     }
 
@@ -131,7 +131,7 @@ public static class ApplicationCommandServiceHostExtensions
                                           IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                           IEnumerable<InteractionContextType>? contexts = null,
                                           bool nsfw = false,
-                                          ulong? guildId = null)
+                                          bool register = true)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddMessageCommand(name,
@@ -142,7 +142,7 @@ public static class ApplicationCommandServiceHostExtensions
                                   integrationTypes,
                                   contexts,
                                   nsfw,
-                                  guildId);
+                                  register);
         return host;
     }
 
@@ -156,7 +156,7 @@ public static class ApplicationCommandServiceHostExtensions
                                              IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                              IEnumerable<InteractionContextType>? contexts = null,
                                              bool nsfw = false,
-                                             ulong? guildId = null)
+                                             bool register = true)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
         service.AddEntryPointCommand(name,
@@ -168,7 +168,7 @@ public static class ApplicationCommandServiceHostExtensions
                                      integrationTypes,
                                      contexts,
                                      nsfw,
-                                     guildId);
+                                     register);
         return host;
     }
 
@@ -182,7 +182,7 @@ public static class ApplicationCommandServiceHostExtensions
                                                   IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                                   IEnumerable<InteractionContextType>? contexts = null,
                                                   bool nsfw = false,
-                                                  ulong? guildId = null) where TContext : IApplicationCommandContext
+                                                  bool register = true) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddSlashCommand(name,
@@ -194,7 +194,7 @@ public static class ApplicationCommandServiceHostExtensions
                                 integrationTypes,
                                 contexts,
                                 nsfw,
-                                guildId);
+                                register);
         return host;
     }
 
@@ -208,7 +208,7 @@ public static class ApplicationCommandServiceHostExtensions
                                                   IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                                   IEnumerable<InteractionContextType>? contexts = null,
                                                   bool nsfw = false,
-                                                  ulong? guildId = null) where TContext : IApplicationCommandContext
+                                                  bool register = true) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddSlashCommand(name,
@@ -220,7 +220,7 @@ public static class ApplicationCommandServiceHostExtensions
                                 integrationTypes,
                                 contexts,
                                 nsfw,
-                                guildId);
+                                register);
         return host;
     }
 
@@ -233,7 +233,7 @@ public static class ApplicationCommandServiceHostExtensions
                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                                  IEnumerable<InteractionContextType>? contexts = null,
                                                  bool nsfw = false,
-                                                 ulong? guildId = null) where TContext : IApplicationCommandContext
+                                                 bool register = true) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddUserCommand(name,
@@ -244,7 +244,7 @@ public static class ApplicationCommandServiceHostExtensions
                                integrationTypes,
                                contexts,
                                nsfw,
-                               guildId);
+                               register);
         return host;
     }
 
@@ -257,7 +257,7 @@ public static class ApplicationCommandServiceHostExtensions
                                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                                     IEnumerable<InteractionContextType>? contexts = null,
                                                     bool nsfw = false,
-                                                    ulong? guildId = null) where TContext : IApplicationCommandContext
+                                                    bool register = true) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddMessageCommand(name,
@@ -268,7 +268,7 @@ public static class ApplicationCommandServiceHostExtensions
                                   integrationTypes,
                                   contexts,
                                   nsfw,
-                                  guildId);
+                                  register);
         return host;
     }
 
@@ -282,7 +282,7 @@ public static class ApplicationCommandServiceHostExtensions
                                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                                        IEnumerable<InteractionContextType>? contexts = null,
                                                        bool nsfw = false,
-                                                       ulong? guildId = null) where TContext : IApplicationCommandContext
+                                                       bool register = true) where TContext : IApplicationCommandContext
     {
         var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
         service.AddEntryPointCommand(name,
@@ -294,7 +294,7 @@ public static class ApplicationCommandServiceHostExtensions
                                      integrationTypes,
                                      contexts,
                                      nsfw,
-                                     guildId);
+                                     register);
         return host;
     }
 }

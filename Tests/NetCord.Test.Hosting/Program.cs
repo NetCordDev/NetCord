@@ -62,7 +62,7 @@ builder.Services
 
 var host = builder.Build()
     .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
+    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)))
     .AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}")
     .AddSlashCommand("button", "Button!", () =>
     {

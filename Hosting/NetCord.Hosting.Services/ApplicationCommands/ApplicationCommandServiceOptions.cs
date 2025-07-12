@@ -28,6 +28,8 @@ public class ApplicationCommandServiceOptions
     public ILocalizationsProvider? LocalizationsProvider { get; set; }
 
     public bool? UseScopes { get; set; }
+
+    public bool? AutoRegisterCommands { get; set; }
 }
 
 public class ApplicationCommandServiceOptions<TInteraction, TContext>
@@ -37,6 +39,8 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
     public Dictionary<Type, SlashCommandTypeReader<TContext>> TypeReaders { get; set; } = ApplicationCommandServiceConfiguration<TContext>.Default.TypeReaders.ToDictionary();
 
     public SlashCommandTypeReader<TContext>? EnumTypeReader { get; set; }
+
+    public IApplicationCommandServiceStorage<TContext>? Storage { get; set; }
 
     public bool? DefaultDMPermission { get; set; }
 
@@ -59,6 +63,8 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
     public ILocalizationsProvider? LocalizationsProvider { get; set; }
 
     public bool? UseScopes { get; set; }
+
+    public bool? AutoRegisterCommands { get; set; }
 
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
@@ -95,6 +101,10 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
         var useScopes = value.UseScopes;
         if (useScopes.HasValue)
             UseScopes = useScopes;
+
+        var autoRegisterCommands = value.AutoRegisterCommands;
+        if (autoRegisterCommands.HasValue)
+            AutoRegisterCommands = autoRegisterCommands;
     }
 
     internal ApplicationCommandServiceConfiguration<TContext> CreateConfiguration()
@@ -105,6 +115,7 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
         {
             TypeReaders = TypeReaders.ToImmutableDictionary(),
             EnumTypeReader = EnumTypeReader ?? configuration.EnumTypeReader,
+            Storage = Storage ?? configuration.Storage,
             DefaultDMPermission = DefaultDMPermission ?? configuration.DefaultDMPermission,
             DefaultIntegrationTypes = DefaultIntegrationTypes ?? configuration.DefaultIntegrationTypes,
             DefaultContexts = DefaultContexts ?? configuration.DefaultContexts,

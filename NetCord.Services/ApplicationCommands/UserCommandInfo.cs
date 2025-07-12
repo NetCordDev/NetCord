@@ -28,7 +28,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                              IEnumerable<ApplicationIntegrationType>? integrationTypes,
                              IEnumerable<InteractionContextType>? contexts,
                              bool nsfw,
-                             ulong? guildId,
+                             bool register,
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                     defaultGuildUserPermissions,
                                                                                                     dMPermission,
@@ -36,7 +36,7 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
                                                                                                     integrationTypes,
                                                                                                     contexts,
                                                                                                     nsfw,
-                                                                                                    guildId,
+                                                                                                    register,
                                                                                                     configuration)
     {
         var method = handler.Method;

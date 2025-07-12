@@ -47,7 +47,7 @@ client.InteractionCreate += async interaction =>
 };
 
 // Create the commands so that you can use them in the Discord client
-await applicationCommandService.CreateCommandsAsync(client.Rest, client.Id);
+await applicationCommandService.RegisterCommandsAsync(client.Rest, client.Id);
 
 await client.StartAsync();
 await Task.Delay(-1);

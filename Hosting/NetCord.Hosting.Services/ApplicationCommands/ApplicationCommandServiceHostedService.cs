@@ -1,16 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-internal class ApplicationCommandServiceHostedService(IServiceProvider services, ILogger<ApplicationCommandServiceHostedService> logger) : IHostedService
+internal class ApplicationCommandServiceHostedService(IServiceProvider services, ILogger<ApplicationCommandServiceHostedService> logger, IOptions<ApplicationCommandServiceOptions> options) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        var register = options.Value.AutoRegisterCommands;
+
+        if (register.HasValue && !register.GetValueOrDefault())
+            return;
+
         var client = services.GetRequiredService<RestClient>();
 
         if (client.Token is not IEntityToken token)
@@ -23,7 +29,7 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
         foreach (var service in services.GetServices<IApplicationCommandService>())
             applicationCommandServiceManager.AddService(service);
 
-        var commands = await applicationCommandServiceManager.CreateCommandsAsync(client, token.Id, true, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var commands = await applicationCommandServiceManager.RegisterCommandsAsync(client, token.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("{count} application command(s) registered.", commands.Count);
     }

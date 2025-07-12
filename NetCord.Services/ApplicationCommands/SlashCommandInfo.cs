@@ -34,7 +34,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
                               IEnumerable<ApplicationIntegrationType>? integrationTypes,
                               IEnumerable<InteractionContextType>? contexts,
                               bool nsfw,
-                              ulong? guildId,
+                              bool register,
                               ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                      defaultGuildUserPermissions,
                                                                                                      dMPermission,
@@ -42,7 +42,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
                                                                                                      integrationTypes,
                                                                                                      contexts,
                                                                                                      nsfw,
-                                                                                                     guildId,
+                                                                                                     register,
                                                                                                      configuration)
     {
         Description = description;

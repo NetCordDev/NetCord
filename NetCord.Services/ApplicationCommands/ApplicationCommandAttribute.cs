@@ -51,16 +51,7 @@ public abstract class ApplicationCommandAttribute : Attribute
     public bool Nsfw { get; init; }
 
     /// <summary>
-    /// The ID of the guild where the application command is registered.
+    /// Whether the application command should be registered by the service.
     /// </summary>
-    public ulong GuildId
-    {
-        get => _guildId.GetValueOrDefault();
-        init
-        {
-            _guildId = value;
-        }
-    }
-
-    internal readonly ulong? _guildId;
+    public bool Register { get; init; } = true;
 }

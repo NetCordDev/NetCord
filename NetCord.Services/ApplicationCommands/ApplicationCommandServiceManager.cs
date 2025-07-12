@@ -1,4 +1,6 @@
-﻿using NetCord.Rest;
+﻿using System.Runtime.CompilerServices;
+
+using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -11,54 +13,43 @@ public class ApplicationCommandServiceManager
         _services.Add(service);
     }
 
-    public async Task<IReadOnlyList<ApplicationCommand>> CreateCommandsAsync(RestClient client, ulong applicationId, bool includeGuildCommands = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ApplicationCommand>> RegisterCommandsAsync(RestClient client, ulong applicationId, ulong? guildId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        var services = _services.ToArray();
-        var serviceCommands = services.Select(s => (Service: s, Commands: new List<KeyValuePair<ulong, IApplicationCommandInfo>>(s.GetApproximateCommandsCount(includeGuildCommands)))).ToArray();
+        return RegisterCommandsAsync(_services, client, applicationId, guildId, properties, cancellationToken);
+    }
 
-        var globalInfos = serviceCommands.SelectMany(serviceCommands => serviceCommands.Service.GlobalCommands.Select(command => (serviceCommands.Service, serviceCommands.Commands, Command: command))).ToArray();
+    internal static async Task<IReadOnlyList<ApplicationCommand>> RegisterCommandsAsync(IReadOnlyList<IApplicationCommandService> services, RestClient client, ulong applicationId, ulong? guildId, RestRequestProperties? properties, CancellationToken cancellationToken)
+    {
+        var serviceCommands = services
+            .Select(service => (Service: service, Commands: service.Commands.Where(c => c.Register).ToArray()))
+            .Where(commands => commands.Commands.Length is not 0)
+            .Select(commands => (commands.Service, commands.Commands, RegisteredCommands: new KeyValuePair<ulong, IApplicationCommandInfo>[commands.Commands.Length]))
+            .ToArray();
 
-        int globalLength = globalInfos.Length;
-        var globalProperties = new ApplicationCommandProperties[globalLength];
-
-        for (int i = 0; i < globalLength; i++)
-            globalProperties[i] = await globalInfos[i].Command.GetRawValueAsync(cancellationToken).ConfigureAwait(false);
-
-        var created = await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, globalProperties, properties, cancellationToken).ConfigureAwait(false);
-
-        List<ApplicationCommand> result = new(globalLength);
-
-        foreach (var (command, (service, commands, commandInfo)) in created.Zip(globalInfos))
-        {
-            commands.Add(new(command.Id, commandInfo));
-            result.Add(command);
-        }
-
-        if (includeGuildCommands)
-        {
-            foreach (var guildCommandsGroup in serviceCommands.SelectMany(serviceCommands => serviceCommands.Service.GuildCommands.Select(c => (serviceCommands.Service, serviceCommands.Commands, GuildCommands: c))).GroupBy(c => c.GuildCommands.GuildId))
+        var commandsToCreate = serviceCommands
+            .SelectMany(commands =>
             {
-                var guildInfos = guildCommandsGroup.SelectMany(g => g.GuildCommands.Commands.Select(c => (g.Service, g.Commands, Command: c))).ToArray();
+                StrongBox<int> index = new();
+                return commands.Commands.Select(command => (Index: index, commands.RegisteredCommands, Command: command));
+            })
+            .ToArray();
 
-                var guildLength = guildInfos.Length;
-                var guildProperties = new ApplicationCommandProperties[guildLength];
+        int count = commandsToCreate.Length;
+        var commandProperties = new ApplicationCommandProperties[count];
 
-                for (int i = 0; i < guildLength; i++)
-                    guildProperties[i] = await guildInfos[i].Command.GetRawValueAsync(cancellationToken).ConfigureAwait(false);
+        for (int i = 0; i < count; i++)
+            commandProperties[i] = await commandsToCreate[i].Command.GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-                var guildCreated = await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildCommandsGroup.Key, guildProperties, properties, cancellationToken).ConfigureAwait(false);
+        var createdCommands = guildId.HasValue
+            ? await client.BulkOverwriteGuildApplicationCommandsAsync(applicationId, guildId.GetValueOrDefault(), commandProperties, properties, cancellationToken).ConfigureAwait(false)
+            : await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, commandProperties, properties, cancellationToken).ConfigureAwait(false);
 
-                foreach (var (command, (service, commands, commandInfo)) in guildCreated.Zip(guildInfos))
-                {
-                    commands.Add(new(command.Id, commandInfo));
-                    result.Add(command);
-                }
-            }
-        }
+        foreach (var (command, (index, registeredCommands, commandInfo)) in createdCommands.Zip(commandsToCreate))
+            registeredCommands[index.Value++] = new(command.Id, commandInfo);
 
-        foreach (var (service, commands) in serviceCommands)
-            service.SetCommands(commands);
+        foreach (var (service, _, registeredCommands) in serviceCommands)
+            service.AddCommands(registeredCommands);
 
-        return result;
+        return createdCommands;
     }
 }

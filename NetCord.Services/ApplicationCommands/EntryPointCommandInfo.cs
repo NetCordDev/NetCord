@@ -33,7 +33,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
-                                   ulong? guildId,
+                                   bool register,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                           defaultGuildUserPermissions,
                                                                                                           dMPermission,
@@ -41,7 +41,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                                                                                           integrationTypes,
                                                                                                           contexts,
                                                                                                           nsfw,
-                                                                                                          guildId,
+                                                                                                          register,
                                                                                                           configuration)
     {
         Description = description;
@@ -78,7 +78,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                                                                                           attribute.IntegrationTypes,
                                                                                                           attribute.Contexts,
                                                                                                           attribute.Nsfw,
-                                                                                                          attribute._guildId,
+                                                                                                          attribute.Register,
                                                                                                           configuration)
     {
         Description = attribute.Description;
