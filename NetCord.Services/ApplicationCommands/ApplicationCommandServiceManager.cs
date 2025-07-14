@@ -6,7 +6,18 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class ApplicationCommandServiceManager
 {
-    private readonly List<IApplicationCommandService> _services = [];
+    public ApplicationCommandServiceManager() : this([])
+    {
+    }
+
+    internal ApplicationCommandServiceManager(List<IApplicationCommandService> services)
+    {
+        _services = services;
+    }
+
+    private readonly List<IApplicationCommandService> _services;
+
+    public IReadOnlyList<IApplicationCommandService> Services => _services;
 
     public void AddService(IApplicationCommandService service)
     {
@@ -21,9 +32,12 @@ public class ApplicationCommandServiceManager
     internal static async Task<IReadOnlyList<ApplicationCommand>> RegisterCommandsAsync(IReadOnlyList<IApplicationCommandService> services, RestClient client, ulong applicationId, ulong? guildId, RestRequestProperties? properties, CancellationToken cancellationToken)
     {
         var serviceCommands = services
-            .Select(service => (Service: service, Commands: service.Commands.Where(c => c.Register).ToArray()))
-            .Where(commands => commands.Commands.Length is not 0)
-            .Select(commands => (commands.Service, commands.Commands, RegisteredCommands: new KeyValuePair<ulong, IApplicationCommandInfo>[commands.Commands.Length]))
+            .Select(service =>
+            {
+                var commands = service.Commands.Where(c => c.Register).ToArray();
+                int length = commands.Length;
+                return (Service: service, Commands: commands, RegisteredCommands: length is 0 ? [] : new KeyValuePair<ulong, IApplicationCommandInfo>[length]);
+            })
             .ToArray();
 
         var commandsToCreate = serviceCommands

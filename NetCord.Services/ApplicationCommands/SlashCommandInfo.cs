@@ -67,6 +67,8 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
+
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);

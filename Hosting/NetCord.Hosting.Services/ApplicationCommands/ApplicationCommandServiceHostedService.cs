@@ -1,35 +1,43 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-internal class ApplicationCommandServiceHostedService(IServiceProvider services, ILogger<ApplicationCommandServiceHostedService> logger, IOptions<ApplicationCommandServiceOptions> options) : IHostedService
+internal class ApplicationCommandServiceHostedService(IServiceProvider services, ILogger<ApplicationCommandServiceHostedService> logger) : IHostedService
 {
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
-        var register = options.Value.AutoRegisterCommands;
+        List<IApplicationCommandService> managerServices = [];
 
-        if (register.HasValue && !register.GetValueOrDefault())
-            return;
+        foreach (var serviceWithConfig in services.GetServices<ApplicationCommandServiceWithPartialConfiguration>())
+        {
+            var register = serviceWithConfig.AutoRegisterCommandsFunc();
+            if (!register.HasValue || register.Value)
+                managerServices.Add(serviceWithConfig.Service);
+        }
+
+        if (managerServices.Count is 0)
+            return Task.CompletedTask;
+
+        ApplicationCommandServiceManager manager = new(managerServices);
 
         var client = services.GetRequiredService<RestClient>();
 
         if (client.Token is not IEntityToken token)
             throw new InvalidOperationException($"'{nameof(IEntityToken)}' is required to create application commands.");
 
+        return RegisterCommandsAsync(manager, client, token.Id, cancellationToken);
+    }
+
+    private async Task RegisterCommandsAsync(ApplicationCommandServiceManager manager, RestClient client, ulong applicationId, CancellationToken cancellationToken)
+    {
         logger.LogInformation("Registering application commands.");
 
-        ApplicationCommandServiceManager applicationCommandServiceManager = new();
-
-        foreach (var service in services.GetServices<IApplicationCommandService>())
-            applicationCommandServiceManager.AddService(service);
-
-        var commands = await applicationCommandServiceManager.RegisterCommandsAsync(client, token.Id, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var commands = await manager.RegisterCommandsAsync(client, applicationId, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         logger.LogInformation("{count} application command(s) registered.", commands.Count);
     }

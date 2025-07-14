@@ -30,12 +30,12 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
         if (configuration is null)
         {
             _configuration = ApplicationCommandServiceConfiguration<TContext>.Default;
-            _storage = new NameApplicationCommandServiceStorage<TContext>();
+            _storage = new NameAndTypeApplicationCommandServiceStorage<TContext>();
         }
         else
         {
             _configuration = configuration;
-            _storage = configuration.Storage ?? new NameApplicationCommandServiceStorage<TContext>();
+            _storage = configuration.Storage ?? new NameAndTypeApplicationCommandServiceStorage<TContext>();
         }
     }
 

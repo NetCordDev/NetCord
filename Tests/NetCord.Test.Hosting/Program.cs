@@ -45,6 +45,7 @@ builder.Services
     .ConfigureCommands(o => o.Prefix = ">")
     .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
+    .ConfigureApplicationCommands(o => o.AutoRegisterCommands = true)
     .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
     .AddApplicationCommands(options =>
     {

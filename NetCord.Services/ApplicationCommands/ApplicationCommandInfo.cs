@@ -53,6 +53,8 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public bool Nsfw { get; }
     public bool Register { get; }
 
+    public abstract ApplicationCommandType Type { get; }
+
     public abstract ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
     public abstract ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);
 }

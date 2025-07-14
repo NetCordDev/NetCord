@@ -55,7 +55,7 @@ internal static class Program
             ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
-            //Storage = new NameApplicationCommandServiceStorage<SlashCommandContext>(),
+            //Storage = new NameAndTypeApplicationCommandServiceStorage<SlashCommandContext>(),
         };
         _slashCommandService = new(configuration);
 

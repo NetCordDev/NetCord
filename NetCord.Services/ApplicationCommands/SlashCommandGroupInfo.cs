@@ -109,6 +109,8 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
 
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
+
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);

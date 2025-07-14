@@ -98,6 +98,8 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
+
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var preconditionResult = await PreconditionsHelper.EnsureCanExecuteAsync(Preconditions, context, serviceProvider).ConfigureAwait(false);
