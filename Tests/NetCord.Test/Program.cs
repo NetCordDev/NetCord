@@ -128,7 +128,7 @@ internal static class Program
 
         await _client.StartAsync();
 
-        await RegisterCommandsAsync(false);
+        await RegisterCommandsAsync(true);
 
         await Task.Delay(-1);
     }

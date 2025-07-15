@@ -10,9 +10,16 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
 {
     public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
-        var data = context.Interaction.Data;
-        if (_storage.TryGetCommand(data, out var command) && command is IAutocompleteInfo autocompleteInfo)
-            return autocompleteInfo.InvokeAutocompleteAsync(context, data.Options, serviceProvider);
+        try
+        {
+            var data = context.Interaction.Data;
+            if (_storage.TryGetCommand(data, out var command) && command is IAutocompleteInfo autocompleteInfo)
+                return autocompleteInfo.InvokeAutocompleteAsync(context, data.Options, serviceProvider);
+        }
+        catch (Exception exception)
+        {
+            return new(new ExecutionExceptionResult(exception));
+        }
 
         return new(new NotFoundResult("Command not found."));
     }
@@ -263,16 +270,14 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
-        if (_storage.TryGetCommand(context.Interaction.Data, out var command))
+        try
         {
-            try
-            {
+            if (_storage.TryGetCommand(context.Interaction.Data, out var command))
                 return await command.InvokeAsync(context, _configuration, serviceProvider).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                return new ExecutionExceptionResult(exception);
-            }
+        }
+        catch (Exception exception)
+        {
+            return new ExecutionExceptionResult(exception);
         }
 
         return new NotFoundResult("Command not found.");
