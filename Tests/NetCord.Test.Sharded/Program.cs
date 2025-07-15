@@ -111,7 +111,7 @@ client.InteractionCreate += async (client, interaction) =>
             }
     }
 };
-var result = await slashCommandService.CreateCommandsAsync(client.Rest, token.Id);
+var result = await slashCommandService.RegisterCommandsAsync(client.Rest, token.Id);
 await client.StartAsync();
 
 await Task.Delay(-1);

@@ -162,7 +162,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         throw new();
     }
 
-    [SlashCommand("dżejuś", "Shows dżejuś", GuildId = 856183259972763669)]
+    [SlashCommand("dżejuś", "Shows dżejuś", Register = false)]
     public Task DzejusAsync()
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message("https://cdn.discordapp.com/attachments/927877869173084171/937493837335646238/dzejus.gif"));

@@ -22,7 +22,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                                                                                           attribute.IntegrationTypes,
                                                                                                           attribute.Contexts,
                                                                                                           attribute.Nsfw,
-                                                                                                          attribute._guildId,
+                                                                                                          attribute.Register,
                                                                                                           configuration)
     {
         Description = attribute.Description;
@@ -62,7 +62,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
-                                   ulong? guildId,
+                                   bool register,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                           defaultGuildUserPermissions,
                                                                                                           dMPermission,
@@ -70,7 +70,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                                                                                                           integrationTypes,
                                                                                                           contexts,
                                                                                                           nsfw,
-                                                                                                          guildId,
+                                                                                                          register,
                                                                                                           configuration)
     {
         Description = description;
@@ -108,6 +108,8 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
+
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

@@ -4,13 +4,9 @@ namespace NetCord.Services.ApplicationCommands;
 
 public interface IApplicationCommandService : IService
 {
-    internal IReadOnlyList<IApplicationCommandInfo> GlobalCommands { get; }
+    internal IReadOnlyList<IApplicationCommandInfo> Commands { get; }
 
-    internal IEnumerable<GuildCommands> GuildCommands { get; }
-
-    internal void SetCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands);
-
-    internal int GetApproximateCommandsCount(bool includeGuildCommands);
+    internal void AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands);
 
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type);
 
@@ -25,7 +21,7 @@ public interface IApplicationCommandService : IService
                                 IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                 IEnumerable<InteractionContextType>? contexts = null,
                                 bool nsfw = false,
-                                ulong? guildId = null);
+                                bool register = true);
 
     public void AddSlashCommand(string name,
                                 string description,
@@ -36,7 +32,7 @@ public interface IApplicationCommandService : IService
                                 IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                 IEnumerable<InteractionContextType>? contexts = null,
                                 bool nsfw = false,
-                                ulong? guildId = null);
+                                bool register = true);
 
     public void AddUserCommand(string name,
                                Delegate handler,
@@ -46,7 +42,7 @@ public interface IApplicationCommandService : IService
                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                IEnumerable<InteractionContextType>? contexts = null,
                                bool nsfw = false,
-                               ulong? guildId = null);
+                               bool register = true);
 
     public void AddMessageCommand(string name,
                                   Delegate handler,
@@ -56,7 +52,7 @@ public interface IApplicationCommandService : IService
                                   IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                   IEnumerable<InteractionContextType>? contexts = null,
                                   bool nsfw = false,
-                                  ulong? guildId = null);
+                                  bool register = true);
 
     public void AddEntryPointCommand(string name,
                                      string description,
@@ -67,5 +63,5 @@ public interface IApplicationCommandService : IService
                                      IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
                                      IEnumerable<InteractionContextType>? contexts = null,
                                      bool nsfw = false,
-                                     ulong? guildId = null);
+                                     bool register = true);
 }

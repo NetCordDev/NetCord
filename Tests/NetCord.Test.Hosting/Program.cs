@@ -40,11 +40,13 @@ using NetCord.Test.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .AddGatewayHandler(GatewayEvent.InteractionCreate, (Interaction interaction) => Console.WriteLine(interaction))
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
     .ConfigureCommands(o => o.Prefix = ">")
     .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
+    .ConfigureApplicationCommands(o => o.AutoRegisterCommands = true)
     .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
     .AddApplicationCommands(options =>
     {
@@ -62,7 +64,7 @@ builder.Services
 
 var host = builder.Build()
     .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands()!.Values.Select(c => c.Name)))
+    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)))
     .AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}")
     .AddSlashCommand("button", "Button!", () =>
     {

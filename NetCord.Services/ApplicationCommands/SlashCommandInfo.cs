@@ -34,7 +34,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
                               IEnumerable<ApplicationIntegrationType>? integrationTypes,
                               IEnumerable<InteractionContextType>? contexts,
                               bool nsfw,
-                              ulong? guildId,
+                              bool register,
                               ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                      defaultGuildUserPermissions,
                                                                                                      dMPermission,
@@ -42,7 +42,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
                                                                                                      integrationTypes,
                                                                                                      contexts,
                                                                                                      nsfw,
-                                                                                                     guildId,
+                                                                                                     register,
                                                                                                      configuration)
     {
         Description = description;
@@ -66,6 +66,8 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
+
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

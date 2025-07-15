@@ -71,6 +71,8 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public SlashCommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 
+    public IApplicationCommandServiceStorage<TContext>? Storage { get; init; }
+
     public bool DefaultDMPermission { get; init; } = true;
 
     public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; init; }

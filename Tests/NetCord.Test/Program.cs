@@ -55,6 +55,7 @@ internal static class Program
             ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
             LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
+            //Storage = new IdApplicationCommandServiceStorage<SlashCommandContext>(),
         };
         _slashCommandService = new(configuration);
 
@@ -125,24 +126,41 @@ internal static class Program
             return InteractionCallback.LaunchActivity;
         });
 
+        await _client.StartAsync();
+
+        await RegisterCommandsAsync(true);
+
+        await Task.Delay(-1);
+    }
+
+    private static async ValueTask RegisterCommandsAsync(bool globally)
+    {
         ApplicationCommandServiceManager manager = new();
+
         manager.AddService(_slashCommandService);
         manager.AddService(_messageCommandService);
         manager.AddService(_userCommandService);
-        manager.AddService(_entryPointCommandService);
 
-        await _client.StartAsync();
+        if (globally)
+            manager.AddService(_entryPointCommandService);
+
+        var client = _client.Rest;
+        var id = _client.Id;
+        ulong guildId = 856183259972763669;
 
         try
         {
-            await manager.CreateCommandsAsync(_client.Rest, _client.Id, true);
+            await manager.RegisterCommandsAsync(client, id, globally ? null : guildId);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
         }
 
-        await Task.Delay(-1);
+        if (globally)
+            await client.BulkOverwriteGuildApplicationCommandsAsync(id, guildId, []);
+        else
+            await _entryPointCommandService.RegisterCommandsAsync(client, id);
     }
 
     private static async ValueTask Client_GuildAuditLogEntryCreate(AuditLogEntry entry)

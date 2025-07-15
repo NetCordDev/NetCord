@@ -15,7 +15,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
                                                                                                                                                            attribute.IntegrationTypes,
                                                                                                                                                            attribute.Contexts,
                                                                                                                                                            attribute.Nsfw,
-                                                                                                                                                           attribute._guildId,
+                                                                                                                                                           attribute.Register,
                                                                                                                                                            configuration)
     {
     }
@@ -27,7 +27,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
                                              IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                              IEnumerable<InteractionContextType>? contexts,
                                              bool nsfw,
-                                             ulong? guildId,
+                                             bool register,
                                              ApplicationCommandServiceConfiguration<TContext> configuration)
     {
         Name = name;
@@ -39,7 +39,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
         IntegrationTypes = integrationTypes ?? configuration.DefaultIntegrationTypes;
         Contexts = contexts ?? configuration.DefaultContexts;
         Nsfw = nsfw;
-        GuildId = guildId;
+        Register = register;
     }
 
     public string Name { get; }
@@ -51,7 +51,9 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; }
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }
-    public ulong? GuildId { get; }
+    public bool Register { get; }
+
+    public abstract ApplicationCommandType Type { get; }
 
     public abstract ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider);
     public abstract ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);

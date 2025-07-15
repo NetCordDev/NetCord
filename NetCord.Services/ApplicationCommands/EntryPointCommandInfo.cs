@@ -33,7 +33,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
-                                   ulong? guildId,
+                                   bool register,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
                                                                                                           defaultGuildUserPermissions,
                                                                                                           dMPermission,
@@ -41,7 +41,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                                                                                           integrationTypes,
                                                                                                           contexts,
                                                                                                           nsfw,
-                                                                                                          guildId,
+                                                                                                          register,
                                                                                                           configuration)
     {
         Description = description;
@@ -78,7 +78,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
                                                                                                           attribute.IntegrationTypes,
                                                                                                           attribute.Contexts,
                                                                                                           attribute.Nsfw,
-                                                                                                          attribute._guildId,
+                                                                                                          attribute.Register,
                                                                                                           configuration)
     {
         Description = attribute.Description;
@@ -97,6 +97,8 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
+
+    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

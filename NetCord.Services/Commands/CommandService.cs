@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using NetCord.Services.Helpers;
@@ -11,7 +10,7 @@ namespace NetCord.Services.Commands;
 public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : ICommandService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
-    private readonly char[] _parameterSeparators = configuration.ParameterSeparators.ToArray();
+    private readonly char[] _parameterSeparators = [.. configuration.ParameterSeparators];
     private readonly Dictionary<ReadOnlyMemory<char>, SortedList<CommandInfo<TContext>>> _commands = new(configuration.IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase : ReadOnlyMemoryCharComparer.InvariantCulture);
 
     public CommandServiceConfiguration<TContext> Configuration => _configuration;
@@ -207,7 +206,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
                         isLastArgGood = true;
                     }
                     else if (lastCommand)
-                        return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
+                        return ParameterCountMismatchResult.TooFew;
                     else
                         goto NextCommand;
                 }
@@ -229,7 +228,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
                     goto Break;
                 }
                 else if (lastCommand)
-                    return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
+                    return ParameterCountMismatchResult.TooFew;
                 else
                     goto NextCommand;
                 paramIndex++;
@@ -237,7 +236,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
             if (arguments.Length != 0)
             {
                 if (lastCommand)
-                    return new ParameterCountMismatchResult(ParameterCountMismatchType.TooMany);
+                    return ParameterCountMismatchResult.TooMany;
                 else
                     continue;
             }
