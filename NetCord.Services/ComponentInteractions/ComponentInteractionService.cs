@@ -117,7 +117,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
                 {
                     index = arguments.Span.IndexOf(separator);
                     if (index == -1)
-                        return new ParameterCountMismatchResult(ParameterCountMismatchType.TooFew);
+                        return ParameterCountMismatchResult.TooFew;
 
                     currentArg = arguments[..index];
                     arguments = arguments[(index + 1)..];

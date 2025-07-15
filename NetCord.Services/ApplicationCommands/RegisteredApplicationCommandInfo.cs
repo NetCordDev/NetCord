@@ -1,3 +1,7 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+﻿using NetCord.Rest;
 
-public readonly record struct RegisteredApplicationCommandInfo<TContext>(ulong CommandId, ApplicationCommandInfo<TContext> CommandInfo) where TContext : IApplicationCommandContext;
+namespace NetCord.Services.ApplicationCommands;
+
+internal readonly record struct RegisteredApplicationCommandInfo(ApplicationCommand Command, IApplicationCommandInfo CommandInfo);
+
+public readonly record struct RegisteredApplicationCommandInfo<TContext>(ApplicationCommand Command, ApplicationCommandInfo<TContext> CommandInfo) where TContext : IApplicationCommandContext;

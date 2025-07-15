@@ -6,7 +6,7 @@ public interface IApplicationCommandService : IService
 {
     internal IReadOnlyList<IApplicationCommandInfo> Commands { get; }
 
-    internal void AddCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands);
+    internal void AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands);
 
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type);
 

@@ -245,9 +245,9 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
                                                            _configuration));
     }
 
-    void IApplicationCommandService.AddCommands(IEnumerable<KeyValuePair<ulong, IApplicationCommandInfo>> commands)
+    unsafe void IApplicationCommandService.AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands)
     {
-        _storage.AddRegisteredCommands(commands.Select(c => new RegisteredApplicationCommandInfo<TContext>(c.Key, (ApplicationCommandInfo<TContext>)c.Value)));
+        _storage.AddRegisteredCommands([.. commands.Select(c => new RegisteredApplicationCommandInfo<TContext>(c.Command, (ApplicationCommandInfo<TContext>)c.CommandInfo))]);
     }
 
     private void AddCommandInfo(ApplicationCommandInfo<TContext> applicationCommandInfo)

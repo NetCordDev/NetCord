@@ -36,7 +36,7 @@ public class ApplicationCommandServiceManager
             {
                 var commands = service.Commands.Where(c => c.Register).ToArray();
                 int length = commands.Length;
-                return (Service: service, Commands: commands, RegisteredCommands: length is 0 ? [] : new KeyValuePair<ulong, IApplicationCommandInfo>[length]);
+                return (Service: service, Commands: commands, RegisteredCommands: length is 0 ? [] : new RegisteredApplicationCommandInfo[length]);
             })
             .ToArray();
 
@@ -59,10 +59,10 @@ public class ApplicationCommandServiceManager
             : await client.BulkOverwriteGlobalApplicationCommandsAsync(applicationId, commandProperties, properties, cancellationToken).ConfigureAwait(false);
 
         foreach (var (command, (index, registeredCommands, commandInfo)) in createdCommands.Zip(commandsToCreate))
-            registeredCommands[index.Value++] = new(command.Id, commandInfo);
+            registeredCommands[index.Value++] = new(command, commandInfo);
 
         foreach (var (service, _, registeredCommands) in serviceCommands)
-            service.AddCommands(registeredCommands);
+            service.AddRegisteredCommands(registeredCommands);
 
         return createdCommands;
     }

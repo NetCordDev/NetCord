@@ -27,11 +27,17 @@ internal static class SlashCommandParametersHelper
     public static async ValueTask<IExecutionResult> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider, object?[] parametersToPass) where TContext : IApplicationCommandContext
     {
         int optionsCount = options.Count;
+        int parametersCount = parameters.Count;
         int parameterIndex = 0;
+
         for (int optionIndex = 0; optionIndex < optionsCount; parameterIndex++)
         {
+            if (parameterIndex >= parametersCount)
+                return ParametersMismatchResult.SlashCommandNotMatching;
+
             var parameter = parameters[parameterIndex];
             var option = options[optionIndex];
+
             object? value;
             if (parameter.Name == option.Name)
             {
@@ -57,15 +63,21 @@ internal static class SlashCommandParametersHelper
 
                 optionIndex++;
             }
-            else
+            else if (parameter.HasDefaultValue)
                 value = parameter.DefaultValue;
+            else
+                return ParametersMismatchResult.SlashCommandNotMatching;
 
             parametersToPass[parameterIndex] = value;
         }
-        int parametersCount = parameters.Count;
+
         while (parameterIndex < parametersCount)
         {
             var parameter = parameters[parameterIndex];
+
+            if (!parameter.HasDefaultValue)
+                return ParametersMismatchResult.SlashCommandNotMatching;
+
             parametersToPass[parameterIndex] = parameter.DefaultValue;
             parameterIndex++;
         }
