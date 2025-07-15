@@ -16,7 +16,7 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
         foreach (var serviceWithConfig in services.GetServices<ApplicationCommandServiceWithPartialConfiguration>())
         {
             var register = serviceWithConfig.AutoRegisterCommandsFunc();
-            if (!register.HasValue || register.Value)
+            if (register.GetValueOrDefault(true))
                 managerServices.Add(serviceWithConfig.Service);
         }
 
