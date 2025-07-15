@@ -38,7 +38,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             _storage = configuration.Storage ?? new NameAndTypeApplicationCommandServiceStorage<TContext>();
         }
     }
-    
+
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     private protected IApplicationCommandServiceStorage<TContext> _storage;
 
