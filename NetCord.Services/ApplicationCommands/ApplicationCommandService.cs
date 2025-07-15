@@ -38,11 +38,11 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             _storage = configuration.Storage ?? new NameAndTypeApplicationCommandServiceStorage<TContext>();
         }
     }
-
+    
     private protected readonly ApplicationCommandServiceConfiguration<TContext> _configuration;
     private protected IApplicationCommandServiceStorage<TContext> _storage;
 
-    internal readonly List<ApplicationCommandInfo<TContext>> _commands = [];
+    private readonly List<ApplicationCommandInfo<TContext>> _commands = [];
 
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.Commands => _commands;
 
