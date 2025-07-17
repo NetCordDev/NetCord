@@ -59,7 +59,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         {
             WriteWithMethod(stringWriter, property);
 
-            WriteAddMethodsIfApplicable(stringWriter, property);
+            WriteAddMethodIfApplicable(stringWriter, property);
         }
         stringWriter.WriteLine("}");
 
@@ -131,7 +131,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.WriteLine("}");
     }
 
-    private void WriteAddMethodsIfApplicable(StringWriter stringWriter, PropertyData property)
+    private void WriteAddMethodIfApplicable(StringWriter stringWriter, PropertyData property)
     {
         var symbol = property.Symbol;
 
@@ -144,7 +144,6 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         var propertyName = symbol.Name;
         var parameterName = ToCamelCaseName(propertyName);
 
-        // First overload
         stringWriter.WriteLine();
 
         stringWriter.WriteInheritDoc(symbol, 1);
@@ -158,7 +157,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.Write(containingType);
         stringWriter.Write(" Add");
         stringWriter.Write(propertyName);
-        stringWriter.Write("(System.Collections.Generic.IEnumerable<");
+        stringWriter.Write("(params System.Collections.Generic.IEnumerable<");
         stringWriter.Write(genericType);
         stringWriter.Write("> ");
         stringWriter.Write(parameterName);
@@ -178,52 +177,16 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.Write("return With");
         stringWriter.Write(propertyName);
         stringWriter.Write("(temp");
-        stringWriter.Write(propertyName);
-        stringWriter.Write(" is null ? (");
-        stringWriter.Write(parameterName);
-        stringWriter.Write(" ?? throw new System.ArgumentNullException(nameof(");
-        stringWriter.Write(parameterName);
+            stringWriter.Write(propertyName);
+            stringWriter.Write(" is null ? (");
+            stringWriter.Write(parameterName);
+            stringWriter.Write(" ?? throw new System.ArgumentNullException(nameof(");
+            stringWriter.Write(parameterName);
         stringWriter.Write("))) : System.Linq.Enumerable.Concat(temp");
         stringWriter.Write(propertyName);
         stringWriter.Write(", ");
         stringWriter.Write(parameterName);
         stringWriter.WriteLine("));");
-
-        stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("}");
-
-        // Second overload
-        stringWriter.WriteLine();
-
-        stringWriter.WriteInheritDoc(symbol, 1);
-
-        CopyApplicableAttributes(stringWriter, symbol);
-
-        stringWriter.WriteIndentation(1);
-        stringWriter.Write($"public ");
-        if (inherited)
-            stringWriter.Write("new ");
-        stringWriter.Write(containingType);
-        stringWriter.Write(" Add");
-        stringWriter.Write(propertyName);
-        stringWriter.Write("(params ");
-        stringWriter.Write(genericType);
-        stringWriter.Write("[] ");
-        stringWriter.Write(parameterName);
-        stringWriter.WriteLine(")");
-
-        stringWriter.WriteIndentation(1);
-        stringWriter.WriteLine("{");
-
-        stringWriter.WriteIndentation(2);
-        stringWriter.Write("return Add");
-        stringWriter.Write(propertyName);
-        stringWriter.Write("(");
-        stringWriter.Write("(System.Collections.Generic.IEnumerable<");
-        stringWriter.Write(genericType);
-        stringWriter.Write(">)");
-        stringWriter.Write(parameterName);
-        stringWriter.WriteLine(");");
 
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("}");
