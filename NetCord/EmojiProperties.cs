@@ -12,9 +12,9 @@ public partial class EmojiProperties
     [JsonPropertyName("name")]
     public string? Unicode { get; set; }
 
-    public EmojiProperties(ulong customEmojiId)
+    public EmojiProperties(ulong id)
     {
-        Id = customEmojiId;
+        Id = id;
     }
 
     public EmojiProperties(string unicode)
