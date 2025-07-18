@@ -54,4 +54,7 @@ public class JsonInteraction : JsonEntity
 
     [JsonPropertyName("context")]
     public InteractionContextType? Context { get; set; }
+
+    [JsonPropertyName("attachment_size_limit")]
+    public long AttachmentSizeLimit { get; set; }
 }

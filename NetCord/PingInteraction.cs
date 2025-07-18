@@ -38,5 +38,7 @@ public class PingInteraction : Entity, IInteraction
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
+    public long AttachmentSizeLimit => _jsonModel.AttachmentSizeLimit;
+
     public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
 }

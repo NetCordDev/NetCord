@@ -61,6 +61,8 @@ public abstract partial class Interaction : ClientEntity, IInteraction
 
     public InteractionContextType Context => _jsonModel.Context.GetValueOrDefault();
 
+    public long AttachmentSizeLimit => _jsonModel.AttachmentSizeLimit;
+
     public abstract InteractionData Data { get; }
 
     public static Interaction CreateFromJson(JsonModels.JsonInteraction jsonModel, Guild? guild, InteractionResponseDelegate sendResponseAsync, RestClient client)

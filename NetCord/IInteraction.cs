@@ -18,6 +18,8 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
 
     public IReadOnlyList<Entitlement> Entitlements { get; }
 
+    public long AttachmentSizeLimit { get; }
+
     public static IInteraction CreateFromJson(JsonModels.JsonInteraction jsonModel, InteractionResponseDelegate sendResponseAsync, RestClient client)
     {
         if (jsonModel.Type is InteractionType.Ping)

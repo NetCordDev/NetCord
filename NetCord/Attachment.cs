@@ -30,7 +30,7 @@ public class Attachment(JsonModels.JsonAttachment jsonModel) : Entity, IJsonMode
     /// <summary>
     /// Size of file in bytes.
     /// </summary>
-    public int Size => _jsonModel.Size;
+    public long Size => _jsonModel.Size;
 
     /// <summary>
     /// Source url of file.

@@ -17,7 +17,7 @@ public class JsonAttachment : JsonEntity
     public string? ContentType { get; set; }
 
     [JsonPropertyName("size")]
-    public int Size { get; set; }
+    public long Size { get; set; }
 
     [JsonPropertyName("url")]
     public string Url { get; set; }
