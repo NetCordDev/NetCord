@@ -60,9 +60,9 @@ public partial class AttachmentProperties : IHttpSerializable
 
     public virtual HttpContent Serialize() => new StreamContent(GetStream()!);
 
-    private protected void WriteCommonProperties(Utf8JsonWriter writer, int id)
+    private protected void WriteCommonProperties(Utf8JsonWriter writer, int attachmentId)
     {
-        writer.WriteNumber(_id, id);
+        writer.WriteNumber(_id, attachmentId);
 
         writer.WriteString(_fileName, FileName);
 
@@ -75,11 +75,11 @@ public partial class AttachmentProperties : IHttpSerializable
             writer.WriteString(_description, description);
     }
 
-    public virtual void Serialize(Utf8JsonWriter writer, int id)
+    public virtual void Serialize(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
-        WriteCommonProperties(writer, id);
+        WriteCommonProperties(writer, attachmentId);
 
         writer.WriteEndObject();
     }
@@ -150,11 +150,11 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
     }
 
-    public override void Serialize(Utf8JsonWriter writer, int id)
+    public override void Serialize(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
-        WriteCommonProperties(writer, id);
+        WriteCommonProperties(writer, attachmentId);
 
         writer.WriteString(_uploadedFileName, UploadedFileName);
 
