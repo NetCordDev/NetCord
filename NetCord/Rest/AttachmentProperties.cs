@@ -4,10 +4,10 @@ namespace NetCord.Rest;
 
 public partial class AttachmentProperties : IHttpSerializable
 {
-    private protected static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
-    private protected static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
-    private protected static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
-    private protected static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
+    private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
+    private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
+    private static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
+    private static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
     
     /// <summary>
     /// 
