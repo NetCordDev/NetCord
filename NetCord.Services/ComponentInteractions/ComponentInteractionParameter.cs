@@ -23,12 +23,12 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
         HasDefaultValue = parameter.HasDefaultValue;
 
         var attributesIEnumerable = parameter.GetCustomAttributes();
-        Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        var attributes = Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
         Type? typeReaderType;
-        if (Attributes.TryGetValue(typeof(ComponentInteractionParameterAttribute), out var attributes))
+        if (attributes.TryGetValue(typeof(ComponentInteractionParameterAttribute), out var componentInteractionParameterAttributes))
         {
-            var commandParameterAttribute = (ComponentInteractionParameterAttribute)attributes[0];
+            var commandParameterAttribute = (ComponentInteractionParameterAttribute)componentInteractionParameterAttributes[0];
             Name = commandParameterAttribute.Name ?? parameter.Name!;
             typeReaderType = commandParameterAttribute.TypeReaderType;
         }
@@ -38,15 +38,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
             typeReaderType = null;
         }
 
-        var type = Type = parameter.ParameterType;
-        Type elementType;
-        if (Attributes.ContainsKey(typeof(ParamArrayAttribute)))
-        {
-            Params = true;
-            elementType = ElementType = type.GetElementType()!;
-        }
-        else
-            elementType = ElementType = type;
+        var (_, elementType) = (Params, ElementType) = ParametersHelper.GetParamsInfo(parameter, Type = parameter.ParameterType, attributes, method);
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, IInteractionTypeReader, ComponentInteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 

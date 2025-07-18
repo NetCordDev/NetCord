@@ -24,8 +24,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         HasDefaultValue = parameter.HasDefaultValue;
 
         var attributesIEnumerable = parameter.GetCustomAttributes();
-        var attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
-        Attributes = attributes;
+        var attributes = Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
 
         Type? typeReaderType;
         if (attributes.TryGetValue(typeof(CommandParameterAttribute), out var commandParameterAttributes))
@@ -41,15 +40,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
             typeReaderType = null;
         }
 
-        var type = Type = parameter.ParameterType;
-        Type elementType;
-        if (attributes.ContainsKey(typeof(ParamArrayAttribute)))
-        {
-            Params = true;
-            elementType = ElementType = type.GetElementType()!;
-        }
-        else
-            elementType = ElementType = type;
+        var (_, elementType) = (Params, ElementType) = ParametersHelper.GetParamsInfo(parameter, Type = parameter.ParameterType, attributes, method);
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
