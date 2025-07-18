@@ -31,16 +31,19 @@ internal static class ParametersHelper
             return (true, parameterType.GetElementType()!);
         else if (attributes.ContainsKey(typeof(ParamCollectionAttribute)))
         {
-            var genericDefinition = parameterType.GetGenericTypeDefinition();
+            if (parameterType.IsGenericType)
+            {
+                var genericDefinition = parameterType.GetGenericTypeDefinition();
 
-            // Interfaces listed in https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/method-parameters#params-modifier
-            // that can be safely backed by an array
-            if (genericDefinition == typeof(IEnumerable<>)
-                || genericDefinition == typeof(IReadOnlyCollection<>)
-                || genericDefinition == typeof(IReadOnlyList<>))
-                return (true, parameterType.GetGenericArguments()[0]);
+                // Interfaces listed in https://learn.microsoft.com/dotnet/csharp/language-reference/keywords/method-parameters#params-modifier
+                // that can be safely backed by an array
+                if (genericDefinition == typeof(IEnumerable<>)
+                    || genericDefinition == typeof(IReadOnlyCollection<>)
+                    || genericDefinition == typeof(IReadOnlyList<>))
+                    return (true, parameterType.GetGenericArguments()[0]);
+            }
 
-            throw new InvalidDefinitionException($"Parameter '{parameter.Name}' is marked as 'params' but its type is not supported. Expected 'T[]', 'IEnumerable<T>', 'IReadOnlyCollection<T>' or 'IReadOnlyList<T>'.", member);
+            throw new InvalidDefinitionException($"Parameter '{parameter.Name}' is marked with either 'ParamArrayAttribute' or 'ParamCollectionAttribute', but its type is not supported. Expected 'T[]', 'IEnumerable<T>', 'IReadOnlyCollection<T>' or 'IReadOnlyList<T>'.", member);
         }
 
         return (false, parameterType);
