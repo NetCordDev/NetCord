@@ -177,11 +177,11 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
         stringWriter.Write("return With");
         stringWriter.Write(propertyName);
         stringWriter.Write("(temp");
-            stringWriter.Write(propertyName);
-            stringWriter.Write(" is null ? (");
-            stringWriter.Write(parameterName);
-            stringWriter.Write(" ?? throw new System.ArgumentNullException(nameof(");
-            stringWriter.Write(parameterName);
+        stringWriter.Write(propertyName);
+        stringWriter.Write(" is null ? (");
+        stringWriter.Write(parameterName);
+        stringWriter.Write(" ?? throw new System.ArgumentNullException(nameof(");
+        stringWriter.Write(parameterName);
         stringWriter.Write("))) : System.Linq.Enumerable.Concat(temp");
         stringWriter.Write(propertyName);
         stringWriter.Write(", ");

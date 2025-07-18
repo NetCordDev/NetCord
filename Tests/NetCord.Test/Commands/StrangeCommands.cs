@@ -100,7 +100,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     }
 
     [Command("s")]
-    public Task S([DefaultParameterValue(null)] params string[]? s)
+    public Task S([DefaultParameterValue(null)] params IEnumerable<string>? s)
     {
         if (s is not null)
             return ReplyAsync("s: " + string.Join('\n', s));

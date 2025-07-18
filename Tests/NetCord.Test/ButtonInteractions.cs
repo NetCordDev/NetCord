@@ -38,4 +38,10 @@ public class ButtonInteractions(string wzium) : ComponentInteractionModule<Butto
     {
         return RespondAsync(InteractionCallback.Message(paginationDirection.ToString()));
     }
+
+    [ComponentInteraction("list")]
+    public static string List(params IReadOnlyList<string> list)
+    {
+        return $"You selected: {string.Join(", ", list)}";
+    }
 }
