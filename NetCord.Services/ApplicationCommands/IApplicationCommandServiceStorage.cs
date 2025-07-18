@@ -17,6 +17,8 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
     private FrozenDictionary<ulong, ApplicationCommandInfo<TContext>> _commands = FrozenDictionary<ulong, ApplicationCommandInfo<TContext>>.Empty;
     private byte _registered;
 
+    public IReadOnlyList<RegisteredApplicationCommand<TContext>> GetRegisteredCommands() => [.. _commands.Select(p => new RegisteredApplicationCommand<TContext>(p.Key, p.Value))];
+
     public void AddCommand(ApplicationCommandInfo<TContext> command)
     {
     }
@@ -43,9 +45,11 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
 
 public class NameAndTypeApplicationCommandServiceStorage<TContext> : IApplicationCommandServiceStorage<TContext> where TContext : IApplicationCommandContext
 {
+    private readonly record struct Key(string Name, ApplicationCommandType Type);
+    
     private readonly Dictionary<Key, ApplicationCommandInfo<TContext>> _commands = [];
 
-    internal readonly record struct Key(string Name, ApplicationCommandType Type);
+    public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands.Values];
 
     public void AddCommand(ApplicationCommandInfo<TContext> command)
     {
