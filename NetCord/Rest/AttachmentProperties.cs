@@ -1,7 +1,14 @@
-﻿namespace NetCord.Rest;
+﻿using System.Text.Json;
+
+namespace NetCord.Rest;
 
 public partial class AttachmentProperties : IHttpSerializable
 {
+    private protected static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
+    private protected static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
+    private protected static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
+    private protected static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
+    
     /// <summary>
     /// 
     /// </summary>
@@ -52,6 +59,30 @@ public partial class AttachmentProperties : IHttpSerializable
     public virtual bool SupportsHttpSerialization => true;
 
     public virtual HttpContent Serialize() => new StreamContent(GetStream()!);
+
+    private protected void WriteCommonProperties(Utf8JsonWriter writer, int id)
+    {
+        writer.WriteNumber(_id, id);
+
+        writer.WriteString(_fileName, FileName);
+
+        var title = Title;
+        if (title is not null)
+            writer.WriteString(_title, title);
+
+        var description = Description;
+        if (description is not null)
+            writer.WriteString(_description, description);
+    }
+
+    public virtual void Serialize(Utf8JsonWriter writer, int id)
+    {
+        writer.WriteStartObject();
+
+        WriteCommonProperties(writer, id);
+
+        writer.WriteEndObject();
+    }
 
     internal static void AddAttachments(MultipartFormDataContent content, IEnumerable<AttachmentProperties>? attachments)
     {
@@ -105,6 +136,8 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 /// <param name="uploadedFileName">Name of the upload.</param>
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
+    private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");
+    
     /// <summary>
     /// Name of the upload.
     /// </summary>
@@ -115,5 +148,16 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
     public override HttpContent Serialize()
     {
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
+    }
+
+    public override void Serialize(Utf8JsonWriter writer, int id)
+    {
+        writer.WriteStartObject();
+
+        WriteCommonProperties(writer, id);
+
+        writer.WriteString(_uploadedFileName, UploadedFileName);
+
+        writer.WriteEndObject();
     }
 }
