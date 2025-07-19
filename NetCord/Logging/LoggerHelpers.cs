@@ -20,4 +20,9 @@ internal static class LoggerHelpers
             _ => throw new ArgumentOutOfRangeException(nameof(logLevel))
         };
     }
+
+    public static bool IsLogLevelEnabled(LogLevel logLevel, LogLevel minimumLogLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
 }
