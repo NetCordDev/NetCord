@@ -15,7 +15,7 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
 ComponentInteractionService<ButtonInteractionContext> interactionService = new();
 
 // Add a component interaction using minimal APIs
-interactionService.AddInteraction("ping", () => "Pong!");
+interactionService.AddComponentInteraction("ping", () => "Pong!");
 
 // Add component interactions from modules
 interactionService.AddModules(typeof(Program).Assembly);

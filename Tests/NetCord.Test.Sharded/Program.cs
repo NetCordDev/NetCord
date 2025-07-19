@@ -28,7 +28,7 @@ slashCommandService.AddSlashCommand("button", "Button!", () =>
 });
 
 ComponentInteractionService<ButtonInteractionContext> buttonInteractionService = new();
-buttonInteractionService.AddInteraction("button", () => "XD");
+buttonInteractionService.AddComponentInteraction("button", () => "XD");
 
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()

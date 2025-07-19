@@ -51,7 +51,7 @@ public static class ComponentInteractionServiceHostExtensions
                                                           Delegate handler)
     {
         var service = ServiceProviderServiceHelper.GetSingle<IComponentInteractionService>(host.Services);
-        service.AddInteraction(customId, handler);
+        service.AddComponentInteraction(customId, handler);
         return host;
     }
 
@@ -60,7 +60,7 @@ public static class ComponentInteractionServiceHostExtensions
                                                           Delegate handler) where TContext : IComponentInteractionContext
     {
         var service = host.Services.GetRequiredService<ComponentInteractionService<TContext>>();
-        service.AddInteraction(customId, handler);
+        service.AddComponentInteraction(customId, handler);
         return host;
     }
 }

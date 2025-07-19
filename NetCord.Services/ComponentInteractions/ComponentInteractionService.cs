@@ -49,7 +49,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         }
     }
 
-    public void AddInteraction(string customId, Delegate handler)
+    public void AddComponentInteraction(string customId, Delegate handler)
     {
         ComponentInteractionInfo<TContext> interactionInfo = new(handler, _configuration);
         _interactions.Add(customId.AsMemory(), interactionInfo);
