@@ -8,7 +8,7 @@ public partial class AttachmentProperties : IHttpSerializable
     private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
     private static readonly JsonEncodedText _title = JsonEncodedText.Encode("title");
     private static readonly JsonEncodedText _description = JsonEncodedText.Encode("description");
-    
+
     /// <summary>
     /// 
     /// </summary>
@@ -137,7 +137,7 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
     private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");
-    
+
     /// <summary>
     /// Name of the upload.
     /// </summary>
