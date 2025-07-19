@@ -19,4 +19,11 @@ internal class RestMicrosoftExtensionsLogger(IServiceProvider services) : IRestL
     void IGatewayLogger.Log<TState>(NCLogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
     }
+
+    bool IRestLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _logger.IsEnabled((MSLogLevel)logLevel);
+    }
+
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel) => false;
 }

@@ -43,6 +43,21 @@ public class TextWriterLogger(TextWriter writer,
 
         writer.WriteLine(value);
     }
+
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
 }
 
 public class ShardedTextWriterLogger(int shardId,
@@ -92,5 +107,20 @@ public class ShardedTextWriterLogger(int shardId,
                                   $"{GetTime(_timeProvider),-12:T}Voice          {GetConstantSizeLogLevelString(logLevel)}    {formatter(state, exception)}");
 
         writer.WriteLine(value);
+    }
+
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
+    }
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel)
+    {
+        return logLevel >= minimumLogLevel;
     }
 }

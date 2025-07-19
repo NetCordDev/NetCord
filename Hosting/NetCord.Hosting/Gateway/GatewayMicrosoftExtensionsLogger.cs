@@ -21,4 +21,14 @@ internal class GatewayMicrosoftExtensionsLogger(IServiceProvider services) : IGa
     {
         _restLogger.Log((MSLogLevel)logLevel, default, state, exception, formatter);
     }
+
+    bool IGatewayLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _gatewayLogger.IsEnabled((MSLogLevel)logLevel);
+    }
+
+    bool IRestLogger.IsEnabled(NCLogLevel logLevel)
+    {
+        return _restLogger.IsEnabled((MSLogLevel)logLevel);
+    }
 }
