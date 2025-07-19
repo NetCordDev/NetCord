@@ -6,4 +6,9 @@ internal class VoiceWebSocketLogger(IVoiceLogger logger) : IWebSocketLogger
     {
         logger.Log(logLevel, state, exception, formatter);
     }
+
+    public bool IsEnabled(LogLevel logLevel)
+    {
+        return logger.IsEnabled(logLevel);
+    }
 }

@@ -13,7 +13,7 @@ public class TextWriterLogger(TextWriter writer,
 
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
@@ -24,7 +24,7 @@ public class TextWriterLogger(TextWriter writer,
 
     void IRestLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
@@ -35,13 +35,28 @@ public class TextWriterLogger(TextWriter writer,
 
     void IVoiceLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
                                   $"{GetTime(_timeProvider),-12:T}Voice          {GetConstantSizeLogLevelString(logLevel)}    {formatter(state, exception)}");
 
         writer.WriteLine(value);
+    }
+
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
+    }
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
+    }
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
     }
 }
 
@@ -63,7 +78,7 @@ public class ShardedTextWriterLogger(int shardId,
 
     void IGatewayLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
@@ -74,7 +89,7 @@ public class ShardedTextWriterLogger(int shardId,
 
     void IRestLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
@@ -85,12 +100,27 @@ public class ShardedTextWriterLogger(int shardId,
 
     void IVoiceLogger.Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (logLevel < minimumLogLevel)
+        if (!IsLogLevelEnabled(logLevel, minimumLogLevel))
             return;
 
         var value = string.Create(formatProvider,
                                   $"{GetTime(_timeProvider),-12:T}Voice          {GetConstantSizeLogLevelString(logLevel)}    {formatter(state, exception)}");
 
         writer.WriteLine(value);
+    }
+
+    bool IGatewayLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
+    }
+
+    bool IRestLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
+    }
+
+    bool IVoiceLogger.IsEnabled(LogLevel logLevel)
+    {
+        return IsLogLevelEnabled(logLevel, minimumLogLevel);
     }
 }

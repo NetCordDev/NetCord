@@ -46,7 +46,7 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
 public class NameAndTypeApplicationCommandServiceStorage<TContext> : IApplicationCommandServiceStorage<TContext> where TContext : IApplicationCommandContext
 {
     private readonly record struct Key(string Name, ApplicationCommandType Type);
-    
+
     private readonly Dictionary<Key, ApplicationCommandInfo<TContext>> _commands = [];
 
     public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands.Values];
