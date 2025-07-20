@@ -16,11 +16,6 @@ public partial interface IMessageProperties
 
     public MessageFlags? Flags { get; set; }
 
-    internal static HttpContent Serialize<TMessage>(TMessage message, JsonTypeInfo<TMessage> messageTypeInfo) where TMessage : IMessageProperties
-    {
-        return Serialize(message, messageTypeInfo, message.Attachments);
-    }
-
     internal static HttpContent Serialize<TMessage>(TMessage message, JsonTypeInfo<TMessage> messageTypeInfo, IEnumerable<AttachmentProperties>? attachments)
     {
         JsonContent<TMessage> messageContent = new(message, messageTypeInfo);

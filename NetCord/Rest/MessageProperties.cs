@@ -51,7 +51,7 @@ public partial class MessageProperties : IHttpSerializable, IMessageProperties
 
     public HttpContent Serialize()
     {
-        return IMessageProperties.Serialize(this, Serialization.Default.MessageProperties);
+        return IMessageProperties.Serialize(this, Serialization.Default.MessageProperties, Attachments);
     }
 
     public static implicit operator MessageProperties(string content) => new()

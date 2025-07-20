@@ -39,7 +39,7 @@ public partial class InteractionMessageProperties : IHttpSerializable, IMessageP
 
     public HttpContent Serialize()
     {
-        return IMessageProperties.Serialize(this, Serialization.Default.InteractionMessageProperties);
+        return IMessageProperties.Serialize(this, Serialization.Default.InteractionMessageProperties, Attachments);
     }
 
     public static implicit operator InteractionMessageProperties(string content) => new()

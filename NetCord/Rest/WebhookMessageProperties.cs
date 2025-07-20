@@ -55,7 +55,7 @@ public partial class WebhookMessageProperties : IHttpSerializable, IMessagePrope
 
     public HttpContent Serialize()
     {
-        return IMessageProperties.Serialize(this, Serialization.Default.WebhookMessageProperties);
+        return IMessageProperties.Serialize(this, Serialization.Default.WebhookMessageProperties, Attachments);
     }
 
     public static implicit operator WebhookMessageProperties(string content) => new()
