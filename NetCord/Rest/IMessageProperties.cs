@@ -21,30 +21,29 @@ public partial interface IMessageProperties
         JsonContent<TMessage> messageContent = new(message, messageTypeInfo);
 
         if (attachments is null || (attachments.TryGetNonEnumeratedCount(out int count) && count is 0))
-            goto MessageContent;
+            return messageContent;
 
         MultipartFormDataContent multipartContent = [];
 
-        bool any = false;
+        bool anyAdded = false;
         int id = 0;
         foreach (var attachment in attachments)
         {
             if (attachment.SupportsHttpSerialization)
             {
                 multipartContent.Add(attachment.Serialize(), $"files[{id}]", attachment.FileName);
-                any = true;
+                anyAdded = true;
             }
 
             id++;
         }
 
-        if (any)
+        if (anyAdded)
         {
             multipartContent.Add(messageContent, "payload_json");
             return multipartContent;
         }
 
-        MessageContent:
         return messageContent;
     }
 }
