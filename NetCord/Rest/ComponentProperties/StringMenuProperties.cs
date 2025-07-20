@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -17,6 +18,11 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
+
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringMenuProperties);
+    }
 
     IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();

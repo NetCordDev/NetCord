@@ -25,7 +25,7 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
 
     public void AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo<TContext>> registeredCommands)
     {
-        if (Interlocked.CompareExchange(ref _registered, 1, 0) is 1)
+        if (Interlocked.Exchange(ref _registered, 1) is 1)
             ThrowCommandsAlreadyRegistered();
 
         _commands = registeredCommands.ToFrozenDictionary(c => c.Command.Id, c => c.CommandInfo);

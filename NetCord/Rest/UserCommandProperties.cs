@@ -1,4 +1,6 @@
-﻿namespace NetCord.Rest;
+﻿using System.Text.Json;
+
+namespace NetCord.Rest;
 
 /// <summary>
 /// User commands are application commands that appear on the context menu (right click or tap) of users.
@@ -7,4 +9,8 @@
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /></param>
 public partial class UserCommandProperties(string name) : ApplicationCommandProperties(ApplicationCommandType.User, name)
 {
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.UserCommandProperties);
+    }
 }

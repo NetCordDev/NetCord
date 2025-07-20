@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -26,6 +27,11 @@ public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperti
 
     IEnumerator<MediaGalleryItemProperties> IEnumerable<MediaGalleryItemProperties>.GetEnumerator() => Items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Items).GetEnumerator();
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IMediaGalleryProperties);
+    }
 }
 
 internal interface IMediaGalleryProperties : IComponentProperties

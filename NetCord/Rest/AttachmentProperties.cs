@@ -1,8 +1,9 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace NetCord.Rest;
 
-public partial class AttachmentProperties : IHttpSerializable
+public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<int>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
     private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
@@ -45,16 +46,20 @@ public partial class AttachmentProperties : IHttpSerializable
 
     protected Stream? GetStream()
     {
-        if (_read)
-            throw new InvalidOperationException("The attachment has already been sent.");
-        else
-            _read = true;
+        if (Interlocked.Exchange(ref _read, 1) is 1)
+            ThrowAttachmentAlreadySent();
 
         return _stream;
     }
 
+    [DoesNotReturn]
+    private static void ThrowAttachmentAlreadySent()
+    {
+        throw new InvalidOperationException("The attachment has already been sent.");
+    }
+
     private readonly Stream? _stream;
-    private bool _read;
+    private byte _read;
 
     public virtual bool SupportsHttpSerialization => true;
 
@@ -75,7 +80,7 @@ public partial class AttachmentProperties : IHttpSerializable
             writer.WriteString(_description, description);
     }
 
-    public virtual void Serialize(Utf8JsonWriter writer, int attachmentId)
+    public virtual void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
@@ -150,7 +155,7 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
     }
 
-    public override void Serialize(Utf8JsonWriter writer, int attachmentId)
+    public override void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 

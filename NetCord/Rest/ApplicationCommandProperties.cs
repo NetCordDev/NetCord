@@ -1,10 +1,12 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using NetCord.JsonConverters;
+
 namespace NetCord.Rest;
 
-[JsonConverter(typeof(ApplicationCommandPropertiesConverter))]
-public abstract partial class ApplicationCommandProperties
+[JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
+public abstract partial class ApplicationCommandProperties : IJsonSerializable
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {
@@ -75,29 +77,5 @@ public abstract partial class ApplicationCommandProperties
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 
-    public class ApplicationCommandPropertiesConverter : JsonConverter<ApplicationCommandProperties>
-    {
-        public override ApplicationCommandProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotImplementedException();
-
-        public override void Write(Utf8JsonWriter writer, ApplicationCommandProperties value, JsonSerializerOptions options)
-        {
-            switch (value)
-            {
-                case SlashCommandProperties slashCommandProperties:
-                    JsonSerializer.Serialize(writer, slashCommandProperties, Serialization.Default.SlashCommandProperties);
-                    break;
-                case UserCommandProperties userCommandProperties:
-                    JsonSerializer.Serialize(writer, userCommandProperties, Serialization.Default.UserCommandProperties);
-                    break;
-                case MessageCommandProperties messageCommandProperties:
-                    JsonSerializer.Serialize(writer, messageCommandProperties, Serialization.Default.MessageCommandProperties);
-                    break;
-                case EntryPointCommandProperties entryPointCommandProperties:
-                    JsonSerializer.Serialize(writer, entryPointCommandProperties, Serialization.Default.EntryPointCommandProperties);
-                    break;
-                default:
-                    throw new InvalidOperationException($"Invalid {nameof(ApplicationCommandProperties)} value.");
-            }
-        }
-    }
+    public abstract void WriteTo(Utf8JsonWriter writer);
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.ComponentModel;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
@@ -20,6 +21,11 @@ public partial class ComponentSectionProperties(IComponentSectionAccessoryProper
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(TextDisplayProperties component) => AddComponents(component);
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IComponentSectionProperties);
+    }
 
     IEnumerator<TextDisplayProperties> IEnumerable<TextDisplayProperties>.GetEnumerator() => Components.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();

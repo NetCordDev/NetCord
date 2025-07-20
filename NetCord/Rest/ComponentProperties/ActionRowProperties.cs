@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace NetCord.Rest;
 
@@ -15,6 +17,10 @@ namespace NetCord.Rest;
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
 public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : IComponentProperties, IEnumerable<IButtonProperties>
 {
+    private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
+    private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");
+    private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
+
     public ActionRowProperties() : this([])
     {
     }
@@ -40,4 +46,38 @@ public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons)
 
     IEnumerator<IButtonProperties> IEnumerable<IButtonProperties>.GetEnumerator() => Buttons.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Buttons).GetEnumerator();
+
+    private static void WriteActionRowStart(Utf8JsonWriter writer, int? actionRowId)
+    {
+        writer.WriteStartObject();
+
+        writer.WriteNumber(_type, 1);
+
+        if (actionRowId.HasValue)
+            writer.WriteNumber(_id, actionRowId.GetValueOrDefault());
+
+        writer.WritePropertyName(_components);
+    }
+
+    internal static void WriteActionRowLike<T>(Utf8JsonWriter writer, int? actionRowId, T value, JsonTypeInfo<T> jsonTypeInfo)
+    {
+        WriteActionRowStart(writer, actionRowId);
+
+        writer.WriteStartArray();
+
+        JsonSerializer.Serialize(writer, value, jsonTypeInfo);
+
+        writer.WriteEndArray();
+
+        writer.WriteEndObject();
+    }
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        WriteActionRowStart(writer, Id);
+
+        JsonSerializer.Serialize(writer, Buttons, Serialization.Default.IEnumerableIButtonProperties);
+
+        writer.WriteEndObject();
+    }
 }

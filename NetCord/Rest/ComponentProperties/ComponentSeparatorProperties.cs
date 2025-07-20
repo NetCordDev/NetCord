@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -18,4 +19,9 @@ public partial class ComponentSeparatorProperties : IComponentProperties
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("spacing")]
     public ComponentSeparatorSpacingSize? Spacing { get; set; }
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.ComponentSeparatorProperties);
+    }
 }

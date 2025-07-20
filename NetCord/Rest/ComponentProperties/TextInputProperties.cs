@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -42,4 +43,9 @@ public partial class TextInputProperties(string customId, TextInputStyle style, 
 
     [JsonIgnore]
     public int? ParentId { get; set; }
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.TextInputProperties);
+    }
 }

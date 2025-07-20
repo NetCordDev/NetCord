@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -16,4 +17,9 @@ public partial class TextDisplayProperties(string content) : IComponentPropertie
 
     [JsonPropertyName("content")]
     public string Content { get; set; } = content;
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.TextDisplayProperties);
+    }
 }
