@@ -39,12 +39,7 @@ public partial class InteractionMessageProperties : IHttpSerializable, IMessageP
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<InteractionMessageProperties>(this, Serialization.Default.InteractionMessageProperties), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.InteractionMessageProperties);
     }
 
     public static implicit operator InteractionMessageProperties(string content) => new()

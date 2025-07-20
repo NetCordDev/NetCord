@@ -13,11 +13,6 @@ public partial class ForumGuildThreadProperties(string name, ForumGuildThreadMes
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<ForumGuildThreadProperties>(this, Serialization.Default.ForumGuildThreadProperties), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Message.Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.ForumGuildThreadProperties, Message.Attachments);
     }
 }

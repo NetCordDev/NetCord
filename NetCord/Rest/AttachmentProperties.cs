@@ -88,20 +88,6 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
 
         writer.WriteEndObject();
     }
-
-    internal static void AddAttachments(MultipartFormDataContent content, IEnumerable<AttachmentProperties>? attachments)
-    {
-        if (attachments is not null)
-        {
-            int i = 0;
-            foreach (var attachment in attachments)
-            {
-                if (attachment.SupportsHttpSerialization)
-                    content.Add(attachment.Serialize(), $"files[{i}]", attachment.FileName);
-                i++;
-            }
-        }
-    }
 }
 
 /// <summary>
