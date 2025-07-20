@@ -100,5 +100,5 @@ public abstract partial class Interaction : ClientEntity, IInteraction
         return CreateFromJson(jsonModel, guild, (interaction, callback, withResponse, properties, cancellationToken) => client.SendInteractionResponseAsync(interaction.Id, interaction.Token, callback, withResponse, properties, cancellationToken), client);
     }
 
-    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => _sendResponseAsync(this, callback, withResponse, properties, cancellationToken);
 }

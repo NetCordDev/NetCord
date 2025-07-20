@@ -6,14 +6,14 @@ using NetCord.Rest;
 static async Task RespondAsync()
 {
     Interaction interaction = null!;
-    InteractionCallback callback = null!;
+    InteractionCallbackProperties callback = null!;
 
     await interaction.SendResponseAsync(callback);
 }
 
 static void Callbacks()
 {
-    InteractionCallback callback;
+    InteractionCallbackProperties callback;
 
     callback = InteractionCallback.Message("Here is a sample message interaction callback!");
 

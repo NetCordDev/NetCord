@@ -2,20 +2,12 @@
 
 namespace NetCord.Rest;
 
-public partial class InteractionCallback : IHttpSerializable
+public static class InteractionCallback
 {
-    [JsonPropertyName("type")]
-    public InteractionCallbackType Type { get; }
-
-    private protected InteractionCallback(InteractionCallbackType type)
-    {
-        Type = type;
-    }
-
     /// <summary>
     /// ACK a ping interaction.
     /// </summary>
-    public static InteractionCallback Pong
+    public static InteractionCallbackProperties Pong
         => new(InteractionCallbackType.Pong);
 
     /// <summary>
@@ -23,19 +15,19 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="message"></param>
     /// <returns></returns>
-    public static InteractionCallback<InteractionMessageProperties> Message(InteractionMessageProperties message)
+    public static InteractionCallbackProperties<InteractionMessageProperties> Message(InteractionMessageProperties message)
         => new(InteractionCallbackType.Message, message);
 
     /// <summary>
     /// ACK an interaction and modify a response later, the user sees a loading state.
     /// </summary>
-    public static InteractionCallback<InteractionMessageProperties> DeferredMessage(MessageFlags? flags = null)
+    public static InteractionCallbackProperties<InteractionMessageProperties> DeferredMessage(MessageFlags? flags = null)
         => new(InteractionCallbackType.DeferredMessage, new() { Flags = flags });
 
     /// <summary>
     /// For components, ACK an interaction and modify the original message later; the user does not see a loading state.
     /// </summary>
-    public static InteractionCallback DeferredModifyMessage
+    public static InteractionCallbackProperties DeferredModifyMessage
         => new(InteractionCallbackType.DeferredModifyMessage);
 
     /// <summary>
@@ -43,7 +35,7 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="action"></param>
     /// <returns></returns>
-    public static InteractionCallback<MessageOptions> ModifyMessage(Action<MessageOptions> action)
+    public static InteractionCallbackProperties<MessageOptions> ModifyMessage(Action<MessageOptions> action)
     {
         MessageOptions options = new();
         action(options);
@@ -55,7 +47,7 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="choices"></param>
     /// <returns></returns>
-    public static InteractionCallback<InteractionCallbackChoicesDataProperties> Autocomplete(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
+    public static InteractionCallbackProperties<InteractionCallbackChoicesDataProperties> Autocomplete(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
         => new(InteractionCallbackType.Autocomplete, new(choices));
 
     /// <summary>
@@ -63,47 +55,58 @@ public partial class InteractionCallback : IHttpSerializable
     /// </summary>
     /// <param name="modal"></param>
     /// <returns></returns>
-    public static InteractionCallback<ModalProperties> Modal(ModalProperties modal)
+    public static InteractionCallbackProperties<ModalProperties> Modal(ModalProperties modal)
         => new(InteractionCallbackType.Modal, modal);
 
     /// <summary>
     /// Launch the Activity associated with the app. Only available for apps with Activities enabled.
     /// </summary>
-    public static InteractionCallback LaunchActivity
+    public static InteractionCallbackProperties LaunchActivity
         => new(InteractionCallbackType.LaunchActivity);
+}
+
+public partial class InteractionCallbackProperties : IHttpSerializable
+{
+    [JsonPropertyName("type")]
+    public InteractionCallbackType Type { get; }
+
+    internal InteractionCallbackProperties(InteractionCallbackType type)
+    {
+        Type = type;
+    }
 
     public HttpContent Serialize()
     {
         return this switch
         {
-            InteractionCallback<InteractionMessageProperties> interactionCallback => IMessageProperties.Serialize(
+            InteractionCallbackProperties<InteractionMessageProperties> interactionCallback => IMessageProperties.Serialize(
                 interactionCallback,
-                Serialization.Default.InteractionCallbackInteractionMessageProperties,
+                Serialization.Default.InteractionCallbackPropertiesInteractionMessageProperties,
                 interactionCallback.Data.Attachments),
 
-            InteractionCallback<MessageOptions> interactionCallback => IMessageProperties.Serialize(
+            InteractionCallbackProperties<MessageOptions> interactionCallback => IMessageProperties.Serialize(
                 interactionCallback,
-                Serialization.Default.InteractionCallbackMessageOptions,
+                Serialization.Default.InteractionCallbackPropertiesMessageOptions,
                 interactionCallback.Data.Attachments),
 
-            InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback => new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(
+            InteractionCallbackProperties<InteractionCallbackChoicesDataProperties> interactionCallback => new JsonContent<InteractionCallbackProperties<InteractionCallbackChoicesDataProperties>>(
                 interactionCallback,
-                Serialization.Default.InteractionCallbackInteractionCallbackChoicesDataProperties),
+                Serialization.Default.InteractionCallbackPropertiesInteractionCallbackChoicesDataProperties),
 
-            InteractionCallback<ModalProperties> interactionCallback => new JsonContent<IInteractionCallback<IModalProperties>>(
+            InteractionCallbackProperties<ModalProperties> interactionCallback => new JsonContent<IInteractionCallbackProperties<IModalProperties>>(
                 interactionCallback,
-                Serialization.Default.IInteractionCallbackIModalProperties),
+                Serialization.Default.IInteractionCallbackPropertiesIModalProperties),
 
-            _ => new JsonContent<InteractionCallback>(
+            _ => new JsonContent<InteractionCallbackProperties>(
                 this,
-                Serialization.Default.InteractionCallback),
+                Serialization.Default.InteractionCallbackProperties),
         };
     }
 }
 
-public class InteractionCallback<T> : InteractionCallback, IInteractionCallback<T>
+public partial class InteractionCallbackProperties<T> : InteractionCallbackProperties, IInteractionCallbackProperties<T>
 {
-    internal InteractionCallback(InteractionCallbackType type, T data) : base(type)
+    internal InteractionCallbackProperties(InteractionCallbackType type, T data) : base(type)
     {
         Data = data;
     }
@@ -112,7 +115,7 @@ public class InteractionCallback<T> : InteractionCallback, IInteractionCallback<
     public T Data { get; }
 }
 
-internal interface IInteractionCallback<out T>
+internal interface IInteractionCallbackProperties<out T>
 {
     [JsonPropertyName("type")]
     public InteractionCallbackType Type { get; }

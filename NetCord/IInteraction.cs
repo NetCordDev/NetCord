@@ -1,4 +1,4 @@
-﻿global using InteractionResponseDelegate = System.Func<NetCord.IInteraction, NetCord.Rest.InteractionCallback, bool, NetCord.Rest.RestRequestProperties?, System.Threading.CancellationToken, System.Threading.Tasks.Task<NetCord.Rest.InteractionCallbackResponse?>>;
+﻿global using InteractionResponseDelegate = System.Func<NetCord.IInteraction, NetCord.Rest.InteractionCallbackProperties, bool, NetCord.Rest.RestRequestProperties?, System.Threading.CancellationToken, System.Threading.Tasks.Task<NetCord.Rest.InteractionCallbackResponse?>>;
 
 using NetCord.Rest;
 
@@ -28,5 +28,5 @@ public interface IInteraction : IEntity, ISpanFormattable, IJsonModel<JsonModels
         return Interaction.CreateFromJson(jsonModel, null, sendResponseAsync, client);
     }
 
-    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);
+    public Task<InteractionCallbackResponse?> SendResponseAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default);
 }
