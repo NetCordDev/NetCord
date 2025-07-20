@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace NetCord.Rest;
 
@@ -45,16 +46,20 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
 
     protected Stream? GetStream()
     {
-        if (_read)
-            throw new InvalidOperationException("The attachment has already been sent.");
-        else
-            _read = true;
+        if (Interlocked.Exchange(ref _read, 1) is 1)
+            ThrowAttachmentAlreadySent();
 
         return _stream;
     }
 
+    [DoesNotReturn]
+    private static void ThrowAttachmentAlreadySent()
+    {
+        throw new InvalidOperationException("The attachment has already been sent.");
+    }
+
     private readonly Stream? _stream;
-    private bool _read;
+    private byte _read;
 
     public virtual bool SupportsHttpSerialization => true;
 
