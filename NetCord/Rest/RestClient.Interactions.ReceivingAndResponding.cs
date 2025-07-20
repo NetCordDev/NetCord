@@ -2,7 +2,7 @@
 
 public partial class RestClient
 {
-    public async Task<InteractionCallbackResponse?> SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallback callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<InteractionCallbackResponse?> SendInteractionResponseAsync(ulong interactionId, string interactionToken, InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = callback.Serialize())
         {

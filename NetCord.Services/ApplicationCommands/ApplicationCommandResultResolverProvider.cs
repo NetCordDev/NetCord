@@ -21,35 +21,35 @@ public class ApplicationCommandResultResolverProvider<TContext> : IResultResolve
             return true;
         }
 
-        if (type == typeof(Task<InteractionCallback<InteractionMessageProperties>>))
+        if (type == typeof(Task<InteractionCallbackProperties<InteractionMessageProperties>>))
         {
             resolver = HandleTaskInteractionCallback<InteractionMessageProperties>;
             return true;
         }
 
-        if (type == typeof(Task<InteractionCallback<MessageOptions>>))
+        if (type == typeof(Task<InteractionCallbackProperties<MessageOptions>>))
         {
             resolver = HandleTaskInteractionCallback<MessageOptions>;
             return true;
         }
 
-        if (type == typeof(Task<InteractionCallback<InteractionCallbackChoicesDataProperties>>))
+        if (type == typeof(Task<InteractionCallbackProperties<InteractionCallbackChoicesDataProperties>>))
         {
             resolver = HandleTaskInteractionCallback<InteractionCallbackChoicesDataProperties>;
             return true;
         }
 
-        if (type == typeof(Task<InteractionCallback<ModalProperties>>))
+        if (type == typeof(Task<InteractionCallbackProperties<ModalProperties>>))
         {
             resolver = HandleTaskInteractionCallback<ModalProperties>;
             return true;
         }
 
-        if (type == typeof(Task<InteractionCallback>))
+        if (type == typeof(Task<InteractionCallbackProperties>))
         {
             resolver = async (result, context) =>
             {
-                var callback = await Unsafe.As<Task<InteractionCallback>>(result!).ConfigureAwait(false);
+                var callback = await Unsafe.As<Task<InteractionCallbackProperties>>(result!).ConfigureAwait(false);
                 await context.Interaction.SendResponseAsync(callback).ConfigureAwait(false);
             };
             return true;
@@ -81,11 +81,11 @@ public class ApplicationCommandResultResolverProvider<TContext> : IResultResolve
             return true;
         }
 
-        if (type.IsAssignableTo(typeof(InteractionCallback)))
+        if (type.IsAssignableTo(typeof(InteractionCallbackProperties)))
         {
             resolver = (result, context) =>
             {
-                var callback = Unsafe.As<InteractionCallback>(result!);
+                var callback = Unsafe.As<InteractionCallbackProperties>(result!);
                 return new(context.Interaction.SendResponseAsync(callback));
             };
             return true;
@@ -117,7 +117,7 @@ public class ApplicationCommandResultResolverProvider<TContext> : IResultResolve
 
     private static async ValueTask HandleTaskInteractionCallback<T>(object? result, TContext context)
     {
-        var callback = await Unsafe.As<Task<InteractionCallback<T>>>(result!).ConfigureAwait(false);
+        var callback = await Unsafe.As<Task<InteractionCallbackProperties<T>>>(result!).ConfigureAwait(false);
         await context.Interaction.SendResponseAsync(callback).ConfigureAwait(false);
     }
 }

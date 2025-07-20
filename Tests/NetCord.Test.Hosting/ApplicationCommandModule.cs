@@ -28,7 +28,7 @@ public class ApplicationCommandModule : ApplicationCommandModule<ApplicationComm
     }
 
     [EntryPointCommand("Launch", "Launch!")]
-    public static InteractionCallback Launch()
+    public static InteractionCallbackProperties Launch()
     {
         return InteractionCallback.LaunchActivity;
     }

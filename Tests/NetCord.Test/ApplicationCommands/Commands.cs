@@ -17,7 +17,7 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SubSlashCommand("remove", "Permission remove")]
-    public static InteractionCallback Remove(int i, Permissions permission)
+    public static InteractionCallbackProperties Remove(int i, Permissions permission)
     {
         _ = i;
         return InteractionCallback.Message(permission.ToString());
@@ -29,7 +29,7 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
     {
         [SubSlashCommand("u", "U")]
         [SubSlashCommand("user", "Permission list user")]
-        public static InteractionCallback User(int i, Permissions permission)
+        public static InteractionCallbackProperties User(int i, Permissions permission)
         {
             _ = i;
             return InteractionCallback.Message(permission.ToString());
@@ -230,7 +230,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [RequireNsfw<SlashCommandContext>()]
     [SlashCommand("nsfw", "You can use this command in nsfw channel"/*, Nsfw = true*/)]
-    public static InteractionCallback Nsfw()
+    public static InteractionCallbackProperties Nsfw()
     {
         return InteractionCallback.Message("You used nsfw command!");
     }
@@ -263,7 +263,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     }
 
     [SlashCommand("button", "Sends button")]
-    public static InteractionCallback Button()
+    public static InteractionCallbackProperties Button()
     {
         return InteractionCallback.Message(new()
         {
