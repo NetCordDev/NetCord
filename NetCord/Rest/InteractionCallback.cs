@@ -74,33 +74,30 @@ public partial class InteractionCallback : IHttpSerializable
 
     public HttpContent Serialize()
     {
-        switch (this)
+        return this switch
         {
-            case InteractionCallback<InteractionMessageProperties> interactionCallback:
-                MultipartFormDataContent content = new()
-                {
-                    { new JsonContent<InteractionCallback<InteractionMessageProperties>>(interactionCallback, Serialization.Default.InteractionCallbackInteractionMessageProperties), "payload_json" },
-                };
-                AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
-                return content;
+            InteractionCallback<InteractionMessageProperties> interactionCallback => IMessageProperties.Serialize(
+                interactionCallback,
+                Serialization.Default.InteractionCallbackInteractionMessageProperties,
+                interactionCallback.Data.Attachments),
 
-            case InteractionCallback<MessageOptions> interactionCallback:
-                content = new()
-                {
-                    { new JsonContent<InteractionCallback<MessageOptions>>(interactionCallback, Serialization.Default.InteractionCallbackMessageOptions), "payload_json" },
-                };
-                AttachmentProperties.AddAttachments(content, interactionCallback.Data.Attachments);
-                return content;
+            InteractionCallback<MessageOptions> interactionCallback => IMessageProperties.Serialize(
+                interactionCallback,
+                Serialization.Default.InteractionCallbackMessageOptions,
+                interactionCallback.Data.Attachments),
 
-            case InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback:
-                return new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(interactionCallback, Serialization.Default.InteractionCallbackInteractionCallbackChoicesDataProperties);
+            InteractionCallback<InteractionCallbackChoicesDataProperties> interactionCallback => new JsonContent<InteractionCallback<InteractionCallbackChoicesDataProperties>>(
+                interactionCallback,
+                Serialization.Default.InteractionCallbackInteractionCallbackChoicesDataProperties),
 
-            case InteractionCallback<ModalProperties> interactionCallback:
-                return new JsonContent<IInteractionCallback<IModalProperties>>(interactionCallback, Serialization.Default.IInteractionCallbackIModalProperties);
+            InteractionCallback<ModalProperties> interactionCallback => new JsonContent<IInteractionCallback<IModalProperties>>(
+                interactionCallback,
+                Serialization.Default.IInteractionCallbackIModalProperties),
 
-            default:
-                return new JsonContent<InteractionCallback>(this, Serialization.Default.InteractionCallback);
-        }
+            _ => new JsonContent<InteractionCallback>(
+                this,
+                Serialization.Default.InteractionCallback),
+        };
     }
 }
 

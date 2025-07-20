@@ -35,11 +35,6 @@ public partial class MessageOptions : IHttpSerializable
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<MessageOptions>(this, Serialization.Default.MessageOptions), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.MessageOptions, Attachments);
     }
 }

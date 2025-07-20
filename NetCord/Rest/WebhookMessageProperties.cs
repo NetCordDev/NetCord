@@ -55,12 +55,7 @@ public partial class WebhookMessageProperties : IHttpSerializable, IMessagePrope
 
     public HttpContent Serialize()
     {
-        MultipartFormDataContent content = new()
-        {
-            { new JsonContent<WebhookMessageProperties>(this, Serialization.Default.WebhookMessageProperties), "payload_json" },
-        };
-        AttachmentProperties.AddAttachments(content, Attachments);
-        return content;
+        return IMessageProperties.Serialize(this, Serialization.Default.WebhookMessageProperties, Attachments);
     }
 
     public static implicit operator WebhookMessageProperties(string content) => new()
