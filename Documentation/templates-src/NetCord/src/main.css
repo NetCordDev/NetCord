@@ -418,9 +418,9 @@ article,
     transform: translateY(-7px);
   }
 
-  .feature-item:hover::after {
-    pointer-events: auto;
-  }
+    .feature-item:hover::after {
+      pointer-events: auto;
+    }
 
 [data-bs-theme="dark"]
 .feature-item {
