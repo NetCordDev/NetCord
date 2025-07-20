@@ -32,11 +32,13 @@ public partial interface IMessageProperties
         {
             { messageContent, "payload_json" },
         };
+
         int id = 0;
         foreach (var attachment in attachments)
         {
             if (attachment.SupportsHttpSerialization)
                 multipartContent.Add(attachment.Serialize(), $"files[{id}]", attachment.FileName);
+
             id++;
         }
 
