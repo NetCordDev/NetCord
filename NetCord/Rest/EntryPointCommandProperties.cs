@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -29,4 +30,9 @@ public partial class EntryPointCommandProperties(string name, string description
     /// </summary>
     [JsonPropertyName("handler")]
     public EntryPointCommandHandler Handler { get; set; } = handler;
+
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.EntryPointCommandProperties);
+    }
 }

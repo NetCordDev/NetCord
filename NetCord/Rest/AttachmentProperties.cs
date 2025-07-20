@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-public partial class AttachmentProperties : IHttpSerializable
+public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<int>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
     private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");
@@ -75,7 +75,7 @@ public partial class AttachmentProperties : IHttpSerializable
             writer.WriteString(_description, description);
     }
 
-    public virtual void Serialize(Utf8JsonWriter writer, int attachmentId)
+    public virtual void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
@@ -150,7 +150,7 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
     }
 
-    public override void Serialize(Utf8JsonWriter writer, int attachmentId)
+    public override void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 

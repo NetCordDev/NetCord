@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -51,4 +52,6 @@ public abstract partial class MenuProperties(string customId) : IComponentProper
 
     [JsonIgnore]
     public int? ParentId { get; set; }
+
+    public abstract void WriteTo(Utf8JsonWriter writer);
 }

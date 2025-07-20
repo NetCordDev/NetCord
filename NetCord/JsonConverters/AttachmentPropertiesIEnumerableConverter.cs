@@ -16,7 +16,7 @@ public class AttachmentPropertiesIEnumerableConverter : JsonConverter<IEnumerabl
         int id = 0;
         foreach (var attachment in value)
         {
-            attachment.Serialize(writer, id);
+            attachment.WriteTo(writer, id);
             id++;
         }
 

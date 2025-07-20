@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -12,4 +13,9 @@ public partial class MentionableMenuProperties(string customId) : EntityMenuProp
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_values")]
     public IEnumerable<MentionableValueProperties>? DefaultValues { get; set; }
+
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.MentionableMenuProperties);
+    }
 }

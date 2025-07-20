@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -20,4 +21,9 @@ public partial class ComponentSectionThumbnailProperties(ComponentMediaPropertie
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("spoiler")]
     public bool Spoiler { get; set; }
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.ComponentSectionThumbnailProperties);
+    }
 }

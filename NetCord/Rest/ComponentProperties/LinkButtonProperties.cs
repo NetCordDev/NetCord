@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -65,5 +66,10 @@ public partial class LinkButtonProperties : ICustomizableButtonProperties
         Url = url;
         Label = label;
         Emoji = emoji;
+    }
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.LinkButtonProperties);
     }
 }

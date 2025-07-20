@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
@@ -29,4 +30,9 @@ public partial class SlashCommandProperties(string name, string description) : A
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("options")]
     public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
+
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.SlashCommandProperties);
+    }
 }

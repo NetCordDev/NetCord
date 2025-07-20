@@ -19,9 +19,8 @@ public sealed class RestError(int code, string message, IRestErrorGroup? error)
 }
 
 [JsonConverter(typeof(IRestErrorGroupConverter))]
-public interface IRestErrorGroup
+public interface IRestErrorGroup : IJsonSerializable
 {
-    private static readonly JsonEncodedText _errors = JsonEncodedText.Encode("_errors");
 
     public class IRestErrorGroupConverter : JsonConverter<IRestErrorGroup>
     {
@@ -61,20 +60,7 @@ public interface IRestErrorGroup
 
         public override void Write(Utf8JsonWriter writer, IRestErrorGroup value, JsonSerializerOptions options)
         {
-            switch (value)
-            {
-                case RestErrorGroup group:
-                    JsonSerializer.Serialize(writer, group.Errors, Serialization.Default.IReadOnlyDictionaryStringIRestErrorGroup);
-                    break;
-                case RestErrorDetailGroup group:
-                    writer.WriteStartObject();
-                    writer.WritePropertyName(_errors);
-                    JsonSerializer.Serialize(writer, group.Errors, Serialization.Default.IReadOnlyListRestErrorDetail);
-                    writer.WriteEndObject();
-                    break;
-                default:
-                    throw new InvalidOperationException($"Invalid {nameof(IRestErrorGroup)} value.");
-            }
+            value.WriteTo(writer);
         }
     }
 }
@@ -82,11 +68,26 @@ public interface IRestErrorGroup
 public class RestErrorGroup(IReadOnlyDictionary<string, IRestErrorGroup> errors) : IRestErrorGroup
 {
     public IReadOnlyDictionary<string, IRestErrorGroup> Errors { get; } = errors;
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, Errors, Serialization.Default.IReadOnlyDictionaryStringIRestErrorGroup);
+    }
 }
 
 public class RestErrorDetailGroup(IReadOnlyList<RestErrorDetail> errors) : IRestErrorGroup
 {
+    private static readonly JsonEncodedText _errors = JsonEncodedText.Encode("_errors");
+
     public IReadOnlyList<RestErrorDetail> Errors { get; } = errors;
+
+    public void WriteTo(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName(_errors);
+        JsonSerializer.Serialize(writer, Errors, Serialization.Default.IReadOnlyListRestErrorDetail);
+        writer.WriteEndObject();
+    }
 }
 
 public class RestErrorDetail(string code, string message)

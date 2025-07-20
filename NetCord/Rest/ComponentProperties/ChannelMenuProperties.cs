@@ -28,6 +28,11 @@ public partial class ChannelMenuProperties(string customId) : EntityMenuProperti
     [JsonPropertyName("channel_types")]
     public IEnumerable<ChannelType>? ChannelTypes { get; set; }
 
+    public override void WriteTo(Utf8JsonWriter writer)
+    {
+        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.ChannelMenuProperties);
+    }
+
     public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter
     {
         private static readonly JsonEncodedText _typeValue = JsonEncodedText.Encode("channel");
