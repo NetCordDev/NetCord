@@ -20,6 +20,6 @@ public class GuildWidget : Entity
     {
         _jsonModel = jsonModel;
         Channels = _jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
-        Users = _jsonModel.Users.ToImmutableDictionary(u => u.Id, u => new User(u, client));
+        Users = _jsonModel.Users.ToDictionary(u => u.Id, u => new User(u, client));
     }
 }
