@@ -8,5 +8,5 @@ public class GuildWelcomeScreen(JsonModels.JsonGuildWelcomeScreen jsonModel) : I
 
     public string? Description => jsonModel.Description;
 
-    public ImmutableDictionary<ulong, GuildWelcomeScreenChannel> WelcomeChannels { get; } = jsonModel.WelcomeChannels.ToImmutableDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
+    public IReadOnlyDictionary<ulong, GuildWelcomeScreenChannel> WelcomeChannels { get; } = jsonModel.WelcomeChannels.ToDictionary(w => w.ChannelId, w => new GuildWelcomeScreenChannel(w));
 }

@@ -6,19 +6,19 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public sealed record GatewayClientCache : IGatewayClientCache
+public sealed record ImmutableGatewayClientCache : IGatewayClientCache
 {
-    public GatewayClientCache()
+    public ImmutableGatewayClientCache()
     {
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
-    public GatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    public ImmutableGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
-        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client));
+        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client, this));
     }
 
     public CurrentUser? User => _user;
@@ -52,37 +52,46 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Users = Cast(guild.Users).SetItem(user.Id, user);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItem(user.Id, user))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<GuildUser> users)
+    public IGatewayClientCache CacheGuildUsers(ulong guildId, IReadOnlyList<GuildUser> users)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Users = Cast(guild.Users).SetItems(users.Select(u => new KeyValuePair<ulong, GuildUser>(u.Id, u)));
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.SetItems(users.Select(u => new KeyValuePair<ulong, GuildUser>(u.Id, u))))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<Presence> presences)
+    public IGatewayClientCache CachePresences(ulong guildId, IReadOnlyList<Presence> presences)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Presences = Cast(guild.Presences).SetItems(presences.Select(p => new KeyValuePair<ulong, Presence>(p.User.Id, p)));
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItems(presences.Select(p => new KeyValuePair<ulong, Presence>(p.User.Id, p))))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -95,9 +104,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Roles = Cast(guild.Roles).SetItem(role.Id, role);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Roles = g.Roles.SetItem(role.Id, role))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -110,37 +122,46 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.ScheduledEvents = Cast(guild.ScheduledEvents).SetItem(scheduledEvent.Id, scheduledEvent);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ScheduledEvents = g.ScheduledEvents.SetItem(scheduledEvent.Id, scheduledEvent))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache CacheGuildEmojis(ulong guildId, ImmutableDictionary<ulong, GuildEmoji> emojis)
+    public IGatewayClientCache CacheGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Emojis = emojis;
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Emojis = emojis)),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache CacheGuildStickers(ulong guildId, ImmutableDictionary<ulong, GuildSticker> stickers)
+    public IGatewayClientCache CacheGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Stickers = stickers;
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Stickers = stickers)),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -153,9 +174,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.ActiveThreads = Cast(guild.ActiveThreads).SetItem(thread.Id, thread);  
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = g.ActiveThreads.SetItem(thread.Id, thread))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -168,9 +192,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Channels = Cast(guild.Channels).SetItem(channel.Id, channel);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Channels = g.Channels.SetItem(channel.Id, channel))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -183,9 +210,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.StageInstances = Cast(guild.StageInstances).SetItem(stageInstance.Id, stageInstance);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.StageInstances = g.StageInstances.SetItem(stageInstance.Id, stageInstance))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -206,9 +236,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.VoiceStates = Cast(guild.VoiceStates).SetItem(voiceState.UserId, voiceState);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.VoiceStates = g.VoiceStates.SetItem(voiceState.UserId, voiceState))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -221,23 +254,29 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Presences = Cast(guild.Presences).SetItem(presence.User.Id, presence);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Presences = g.Presences.SetItem(presence.User.Id, presence))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
     }
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads)
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads)
     {
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.ActiveThreads = threads;
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = threads)),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -266,9 +305,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Users = Cast(guild.Users).Remove(userId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Users = g.Users.Remove(userId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -280,9 +322,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Roles = Cast(guild.Roles).Remove(roleId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Roles = g.Roles.Remove(roleId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -294,9 +339,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.ScheduledEvents = Cast(guild.ScheduledEvents).Remove(scheduledEventId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ScheduledEvents = g.ScheduledEvents.Remove(scheduledEventId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -308,9 +356,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.ActiveThreads = Cast(guild.ActiveThreads).Remove(threadId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.ActiveThreads = g.ActiveThreads.Remove(threadId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -322,9 +373,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.Channels = Cast(guild.Channels).Remove(channelId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.Channels = g.Channels.Remove(channelId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -336,9 +390,12 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.StageInstances = Cast(guild.StageInstances).Remove(stageInstanceId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.StageInstances = g.StageInstances.Remove(stageInstanceId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
@@ -350,13 +407,26 @@ public sealed record GatewayClientCache : IGatewayClientCache
         var guilds = _guilds;
         if (guilds.TryGetValue(guildId, out var guild))
         {
+            var newGuild = guild.Clone();
+            newGuild.VoiceStates = Cast(guild.VoiceStates).Remove(userId);
+
             return this with
             {
-                _guilds = guilds.SetItem(guildId, guild.With(g => g.VoiceStates = g.VoiceStates.Remove(userId))),
+                _guilds = guilds.SetItem(guildId, newGuild),
             };
         }
 
         return this;
+    }
+
+    public IReadOnlyDictionary<TKey, TElement> CreateDictionary<TSource, TKey, TElement>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
+    {
+        return source.ToImmutableDictionary(keySelector, elementSelector);
+    }
+
+    private static ImmutableDictionary<TKey, TElement> Cast<TKey, TElement>(IReadOnlyDictionary<TKey, TElement> dictionary) where TKey : notnull where TElement : class
+    {
+        return (ImmutableDictionary<TKey, TElement>)dictionary;
     }
 
     public void Dispose()

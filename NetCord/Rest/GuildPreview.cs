@@ -10,7 +10,7 @@ public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuil
     public GuildPreview(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : base(client)
     {
         _jsonModel = jsonModel;
-        Emojis = _jsonModel.Emojis.ToImmutableDictionaryOrEmpty(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Emojis = _jsonModel.Emojis.ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -23,7 +23,7 @@ public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuil
 
     public string? DiscoverySplashHash => _jsonModel.DiscoverySplashHash;
 
-    public ImmutableDictionary<ulong, GuildEmoji> Emojis { get; }
+    public IReadOnlyDictionary<ulong, GuildEmoji> Emojis { get; }
 
     public IReadOnlyList<string> Features => _jsonModel.Features;
 

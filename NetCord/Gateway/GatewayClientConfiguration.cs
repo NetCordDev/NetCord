@@ -34,7 +34,7 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestCl
     public ApiVersion? Version { get; init; }
 
     /// <summary>
-    /// The cache for the <see cref="GatewayClient"/>. Defaults to <see cref="GatewayClientCache"/>.
+    /// The cache for the <see cref="GatewayClient"/>. Defaults to <see cref="ImmutableGatewayClientCache"/>.
     /// </summary>
     public IGatewayClientCache? Cache { get; init; }
 

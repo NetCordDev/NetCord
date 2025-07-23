@@ -12,16 +12,16 @@ public class GuildWidget : Entity
 
     public string? InstantInvite => _jsonModel.InstantInvite;
 
-    public ImmutableDictionary<ulong, GuildWidgetChannel> Channels { get; }
+    public IReadOnlyDictionary<ulong, GuildWidgetChannel> Channels { get; }
 
-    public ImmutableDictionary<ulong, User> Users { get; }
+    public IReadOnlyDictionary<ulong, User> Users { get; }
 
     public int PresenceCount => _jsonModel.PresenceCount;
 
     public GuildWidget(JsonModels.JsonGuildWidget jsonModel, RestClient client)
     {
         _jsonModel = jsonModel;
-        Channels = _jsonModel.Channels.ToImmutableDictionary(c => c.Id, c => new GuildWidgetChannel(c));
+        Channels = _jsonModel.Channels.ToDictionary(c => c.Id, c => new GuildWidgetChannel(c));
         Users = _jsonModel.Users.ToImmutableDictionary(u => u.Id, u => new User(u, client));
     }
 }

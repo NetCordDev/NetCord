@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace NetCord;
 
@@ -135,7 +136,7 @@ internal static class CollectionsUtils
     private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
     {
         public bool Equals(T? x, T? y) => ReferenceEquals(x, y);
-        public int GetHashCode([DisallowNull] T obj) => obj.GetHashCode();
+        public int GetHashCode([DisallowNull] T obj) => RuntimeHelpers.GetHashCode(obj);
     }
 
     public static IEnumerable<T> GetReversedIEnumerable<T>(this T[] source)
