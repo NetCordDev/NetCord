@@ -14,13 +14,13 @@ public class Guild : RestGuild, ICloneable
     {
         var guildId = jsonModel.Id;
 
-        VoiceStates = dictionaryProvider.CreateDictionary(jsonModel.VoiceStates, s => s.UserId, s => new VoiceState(s, guildId, client));
-        Users = dictionaryProvider.CreateDictionary(jsonModel.Users, u => u.User.Id, u => new GuildUser(u, guildId, client));
-        Channels = dictionaryProvider.CreateDictionary(jsonModel.Channels, c => c.Id, c => IGuildChannel.CreateFromJson(c, guildId, client));
-        ActiveThreads = dictionaryProvider.CreateDictionary(jsonModel.ActiveThreads, t => t.Id, t => GuildThread.CreateFromJson(t, client));
-        StageInstances = dictionaryProvider.CreateDictionary(jsonModel.StageInstances, i => i.Id, i => new StageInstance(i, client));
-        Presences = dictionaryProvider.CreateDictionary(jsonModel.Presences, p => p.User.Id, p => new Presence(p, guildId, client));
-        ScheduledEvents = dictionaryProvider.CreateDictionary(jsonModel.ScheduledEvents, e => e.Id, e => new GuildScheduledEvent(e, client));
+        VoiceStates = dictionaryProvider.CreateDictionary(jsonModel.VoiceStates ?? [], s => s.UserId, s => new VoiceState(s, guildId, client));
+        Users = dictionaryProvider.CreateDictionary(jsonModel.Users ?? [], u => u.User.Id, u => new GuildUser(u, guildId, client));
+        Channels = dictionaryProvider.CreateDictionary(jsonModel.Channels ?? [], c => c.Id, c => IGuildChannel.CreateFromJson(c, guildId, client));
+        ActiveThreads = dictionaryProvider.CreateDictionary(jsonModel.ActiveThreads ?? [], t => t.Id, t => GuildThread.CreateFromJson(t, client));
+        StageInstances = dictionaryProvider.CreateDictionary(jsonModel.StageInstances ?? [], i => i.Id, i => new StageInstance(i, client));
+        Presences = dictionaryProvider.CreateDictionary(jsonModel.Presences ?? [], p => p.User.Id, p => new Presence(p, guildId, client));
+        ScheduledEvents = dictionaryProvider.CreateDictionary(jsonModel.ScheduledEvents ?? [], e => e.Id, e => new GuildScheduledEvent(e, client));
 
         IsOwner = jsonModel.OwnerId == clientId;
     }

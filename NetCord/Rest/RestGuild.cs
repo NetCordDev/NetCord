@@ -19,10 +19,10 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
     private protected RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(client)
     {
         _jsonModel = jsonModel;
-        Roles = dictionaryProvider.CreateDictionary(jsonModel.Roles, r => r.Id, r => new Role(r, Id, client));
+        Roles = dictionaryProvider.CreateDictionary(jsonModel.Roles ?? [], r => r.Id, r => new Role(r, Id, client));
         // Guild emoji always have Id.
-        Emojis = dictionaryProvider.CreateDictionary(jsonModel.Emojis, e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
-        Stickers = dictionaryProvider.CreateDictionary(jsonModel.Stickers, s => s.Id, s => new GuildSticker(s, client));
+        Emojis = dictionaryProvider.CreateDictionary(jsonModel.Emojis ?? [], e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = dictionaryProvider.CreateDictionary(jsonModel.Stickers ?? [], s => s.Id, s => new GuildSticker(s, client));
 
         var welcomeScreen = jsonModel.WelcomeScreen;
         if (welcomeScreen is not null)

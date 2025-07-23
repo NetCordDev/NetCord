@@ -57,7 +57,7 @@ public class JsonGuild : JsonEntity
     public JsonRole[] Roles { get; set; }
 
     [JsonPropertyName("emojis")]
-    public ImmutableArray<JsonEmoji> Emojis { get; set; }
+    public JsonEmoji[] Emojis { get; set; }
 
     [JsonPropertyName("features")]
     public string[] Features { get; set; }
@@ -153,7 +153,7 @@ public class JsonGuild : JsonEntity
     public JsonStageInstance[] StageInstances { get; set; }
 
     [JsonPropertyName("stickers")]
-    public ImmutableArray<JsonSticker> Stickers { get; set; }
+    public JsonSticker[] Stickers { get; set; }
 
     [JsonPropertyName("guild_scheduled_events")]
     public JsonGuildScheduledEvent[] ScheduledEvents { get; set; }

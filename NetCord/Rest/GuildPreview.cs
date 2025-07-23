@@ -9,6 +9,7 @@ public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuil
     {
         _jsonModel = jsonModel;
         Emojis = _jsonModel.Emojis.ToDictionary(e => e.Id.GetValueOrDefault(), e => new GuildEmoji(e, Id, client));
+        Stickers = _jsonModel.Stickers.ToDictionary(s => s.Id, s => new GuildSticker(s, client));
     }
 
     public override ulong Id => _jsonModel.Id;
@@ -30,4 +31,6 @@ public class GuildPreview : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuil
     public int ApproximatePresenceCount => _jsonModel.ApproximatePresenceCount.GetValueOrDefault();
 
     public string? Description => _jsonModel.Description;
+
+    public IReadOnlyDictionary<ulong, GuildSticker> Stickers { get; }
 }

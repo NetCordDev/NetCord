@@ -11,5 +11,5 @@ public class JsonGuildEmojisUpdateEventArgs
     public ulong GuildId { get; set; }
 
     [JsonPropertyName("emojis")]
-    public ImmutableArray<JsonEmoji> Emojis { get; set; }
+    public JsonEmoji[] Emojis { get; set; }
 }
