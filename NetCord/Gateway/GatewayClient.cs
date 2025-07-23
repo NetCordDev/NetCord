@@ -870,7 +870,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
         Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}&encoding=json&compress={compression.Name}", UriKind.Absolute);
-        Cache = configuration.Cache ?? new ImmutableGatewayClientCache();
+        Cache = configuration.Cache ?? new GatewayClientCache();
         Rest = rest;
     }
 

@@ -6,14 +6,14 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public sealed record ImmutableGatewayClientCache : IGatewayClientCache
+public sealed record GatewayClientCache : IGatewayClientCache
 {
-    public ImmutableGatewayClientCache()
+    public GatewayClientCache()
     {
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
-    public ImmutableGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    public GatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
         var userModel = jsonModel.User;
         if (userModel is not null)
