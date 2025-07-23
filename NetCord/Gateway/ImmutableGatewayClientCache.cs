@@ -175,7 +175,7 @@ public sealed record ImmutableGatewayClientCache : IGatewayClientCache
         if (guilds.TryGetValue(guildId, out var guild))
         {
             var newGuild = guild.Clone();
-            newGuild.ActiveThreads = Cast(guild.ActiveThreads).SetItem(thread.Id, thread);  
+            newGuild.ActiveThreads = Cast(guild.ActiveThreads).SetItem(thread.Id, thread);
 
             return this with
             {

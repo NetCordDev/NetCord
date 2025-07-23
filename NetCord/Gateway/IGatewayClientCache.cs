@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-namespace NetCord.Gateway;
+﻿namespace NetCord.Gateway;
 
 public interface IGatewayClientCache : IDictionaryProvider, IDisposable
 {

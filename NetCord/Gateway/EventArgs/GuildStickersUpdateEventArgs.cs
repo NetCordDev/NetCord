@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-
-using NetCord.Rest;
+﻿using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
