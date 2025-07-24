@@ -426,7 +426,10 @@ public sealed record GatewayClientCache : IGatewayClientCache
 
     private static ImmutableDictionary<TKey, TElement> Cast<TKey, TElement>(IReadOnlyDictionary<TKey, TElement> dictionary) where TKey : notnull where TElement : class
     {
-        return (ImmutableDictionary<TKey, TElement>)dictionary;
+        if (dictionary is ImmutableDictionary<TKey, TElement> immutableDictionary)
+            return immutableDictionary;
+
+        throw new ArgumentException("The dictionary must be a 'System.Collections.Immutable.ImmutableDictionary<TKey, TValue>'.", nameof(dictionary));
     }
 
     public void Dispose()
