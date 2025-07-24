@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
+using NetCord.Gateway.JsonModels;
 using NetCord.JsonModels;
 using NetCord.Rest;
 
@@ -35,6 +36,23 @@ public class Guild : RestGuild, ICloneable
         Presences = oldGuild.Presences;
         ScheduledEvents = oldGuild.ScheduledEvents;
         IsOwner = jsonModel.OwnerId == clientId;
+    }
+
+    private protected override void UpdateJsonModel(JsonGuild jsonModel)
+    {
+        // From RestGuild
+        jsonModel.Roles = [.. Roles.Values.Select(r => ((IJsonModel<JsonRole>)r).JsonModel)];
+        jsonModel.Emojis = [.. Emojis.Values.Select(e => ((IJsonModel<JsonEmoji>)e).JsonModel)];
+        jsonModel.Stickers = [.. Stickers.Values.Select(s => ((IJsonModel<JsonSticker>)s).JsonModel)];
+
+        // From Guild
+        jsonModel.VoiceStates = [.. VoiceStates.Values.Select(s => ((IJsonModel<JsonVoiceState>)s).JsonModel)];
+        jsonModel.Users = [.. Users.Values.Select(u => ((IJsonModel<JsonGuildUser>)u).JsonModel)];
+        jsonModel.Channels = [.. Channels.Values.Select(c => ((IJsonModel<JsonChannel>)c).JsonModel)];
+        jsonModel.ActiveThreads = [.. ActiveThreads.Values.Select(t => ((IJsonModel<JsonChannel>)t).JsonModel)];
+        jsonModel.StageInstances = [.. StageInstances.Values.Select(i => ((IJsonModel<JsonStageInstance>)i).JsonModel)];
+        jsonModel.Presences = [.. Presences.Values.Select(p => ((IJsonModel<JsonPresence>)p).JsonModel)];
+        jsonModel.ScheduledEvents = [.. ScheduledEvents.Values.Select(e => ((IJsonModel<JsonGuildScheduledEvent>)e).JsonModel)];
     }
 
     private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)

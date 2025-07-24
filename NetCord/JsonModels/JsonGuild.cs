@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 using NetCord.Gateway.JsonModels;
 using NetCord.Rest;
@@ -162,4 +163,6 @@ public class JsonGuild : JsonEntity
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
+
+    internal JsonGuild Clone() => Unsafe.As<JsonGuild>(MemberwiseClone());
 }

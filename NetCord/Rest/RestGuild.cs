@@ -1,22 +1,31 @@
 ﻿using System.Collections.Immutable;
 
 using NetCord.Gateway;
+using NetCord.JsonModels;
 
 namespace NetCord.Rest;
 
 /// <summary>
 /// Represents an isolated collection of users and channels, often referred to as a server in the UI.
 /// </summary>
-public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.JsonGuild>, IComparer<PartialGuildUser>
+public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<PartialGuildUser>
 {
-    NetCord.JsonModels.JsonGuild IJsonModel<NetCord.JsonModels.JsonGuild>.JsonModel => _jsonModel;
-    private protected readonly NetCord.JsonModels.JsonGuild _jsonModel;
+    JsonGuild IJsonModel<JsonGuild>.JsonModel
+    {
+        get
+        {
+            var jsonModel = _jsonModel.Clone();
+            UpdateJsonModel(jsonModel);
+            return jsonModel;
+        }
+    }
+    private protected readonly JsonGuild _jsonModel;
 
-    public RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client) : this(jsonModel, client, IDictionaryProvider.OfDictionary)
+    public RestGuild(JsonGuild jsonModel, RestClient client) : this(jsonModel, client, IDictionaryProvider.OfDictionary)
     {
     }
 
-    private protected RestGuild(NetCord.JsonModels.JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(client)
+    private protected RestGuild(JsonGuild jsonModel, RestClient client, IDictionaryProvider dictionaryProvider) : base(client)
     {
         _jsonModel = jsonModel;
         Roles = dictionaryProvider.CreateDictionary(jsonModel.Roles ?? [], r => r.Id, r => new Role(r, Id, client));
@@ -27,6 +36,10 @@ public partial class RestGuild : ClientEntity, IJsonModel<NetCord.JsonModels.Jso
         var welcomeScreen = jsonModel.WelcomeScreen;
         if (welcomeScreen is not null)
             WelcomeScreen = new(welcomeScreen);
+    }
+
+    private protected virtual void UpdateJsonModel(JsonGuild jsonModel)
+    {
     }
 
     public int Compare(PartialGuildUser? x, PartialGuildUser? y)
