@@ -10,15 +10,7 @@ namespace NetCord.Rest;
 /// </summary>
 public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<PartialGuildUser>
 {
-    JsonGuild IJsonModel<JsonGuild>.JsonModel
-    {
-        get
-        {
-            var jsonModel = _jsonModel.Clone();
-            UpdateJsonModel(jsonModel);
-            return jsonModel;
-        }
-    }
+    JsonGuild IJsonModel<JsonGuild>.JsonModel => GetJsonModel();
     private protected readonly JsonGuild _jsonModel;
 
     public RestGuild(JsonGuild jsonModel, RestClient client) : this(jsonModel, client, IDictionaryProvider.OfDictionary)
@@ -38,9 +30,7 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
             WelcomeScreen = new(welcomeScreen);
     }
 
-    private protected virtual void UpdateJsonModel(JsonGuild jsonModel)
-    {
-    }
+    private protected virtual JsonGuild GetJsonModel() => _jsonModel;
 
     public int Compare(PartialGuildUser? x, PartialGuildUser? y)
     {

@@ -38,8 +38,10 @@ public class Guild : RestGuild, ICloneable
         IsOwner = jsonModel.OwnerId == clientId;
     }
 
-    private protected override void UpdateJsonModel(JsonGuild jsonModel)
+    private protected override JsonGuild GetJsonModel()
     {
+        var jsonModel = _jsonModel.Clone();
+
         // From RestGuild
         jsonModel.Roles = [.. Roles.Values.Select(r => ((IJsonModel<JsonRole>)r).JsonModel)];
         jsonModel.Emojis = [.. Emojis.Values.Select(e => ((IJsonModel<JsonEmoji>)e).JsonModel)];
@@ -53,6 +55,8 @@ public class Guild : RestGuild, ICloneable
         jsonModel.StageInstances = [.. StageInstances.Values.Select(i => ((IJsonModel<JsonStageInstance>)i).JsonModel)];
         jsonModel.Presences = [.. Presences.Values.Select(p => ((IJsonModel<JsonPresence>)p).JsonModel)];
         jsonModel.ScheduledEvents = [.. ScheduledEvents.Values.Select(e => ((IJsonModel<JsonGuildScheduledEvent>)e).JsonModel)];
+
+        return jsonModel;
     }
 
     private static JsonGuild Copy(JsonGuild jsonModel, Guild oldGuild)
