@@ -419,14 +419,14 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IReadOnlyDictionary<TKey, TElement> CreateDictionary<TSource, TKey, TElement>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull where TElement : class
+    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector) where TKey : notnull where TValue : class
     {
         return source.ToImmutableDictionary(keySelector, elementSelector);
     }
 
-    private static ImmutableDictionary<TKey, TElement> Cast<TKey, TElement>(IReadOnlyDictionary<TKey, TElement> dictionary) where TKey : notnull where TElement : class
+    private static ImmutableDictionary<TKey, TValue> Cast<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary) where TKey : notnull where TValue : class
     {
-        if (dictionary is ImmutableDictionary<TKey, TElement> immutableDictionary)
+        if (dictionary is ImmutableDictionary<TKey, TValue> immutableDictionary)
             return immutableDictionary;
 
         throw new ArgumentException("The dictionary must be a 'System.Collections.Immutable.ImmutableDictionary<TKey, TValue>'.", nameof(dictionary));

@@ -131,7 +131,7 @@ internal static class CollectionsUtils
     }
     #endregion
 
-    public static ImmutableDictionary<TKey, TElement> CreateImmutableDictionary<TKey, TElement>() where TKey : notnull where TElement : class => ImmutableDictionary<TKey, TElement>.Empty.WithComparers(null, new ReferenceEqualityComparer<TElement>());
+    public static ImmutableDictionary<TKey, TValue> CreateImmutableDictionary<TKey, TValue>() where TKey : notnull where TValue : class => ImmutableDictionary<TKey, TValue>.Empty.WithComparers(null, new ReferenceEqualityComparer<TValue>());
 
     private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
     {
