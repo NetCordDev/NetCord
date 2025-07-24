@@ -7,18 +7,19 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public sealed record GatewayClientCache : IGatewayClientCache
+public sealed record ImmutableGatewayClientCache : IGatewayClientCache
 {
-    public GatewayClientCache()
+    public ImmutableGatewayClientCache()
     {
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }
 
-    public GatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    public ImmutableGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
         var userModel = jsonModel.User;
         if (userModel is not null)
             _user = new(userModel, client);
+
         _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client, this));
     }
 
@@ -35,7 +36,7 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return new()
         {
             User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            Guilds = _guilds.Select(p => ((IJsonModel<JsonGuild>)p.Value).JsonModel).ToArray(),
+            Guilds = [.. _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel)],
         };
     }
 
@@ -135,40 +136,6 @@ public sealed record GatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IGatewayClientCache CacheGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis)
-    {
-        var guilds = _guilds;
-        if (guilds.TryGetValue(guildId, out var guild))
-        {
-            var newGuild = guild.Clone();
-            newGuild.Emojis = emojis;
-
-            return this with
-            {
-                _guilds = guilds.SetItem(guildId, newGuild),
-            };
-        }
-
-        return this;
-    }
-
-    public IGatewayClientCache CacheGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers)
-    {
-        var guilds = _guilds;
-        if (guilds.TryGetValue(guildId, out var guild))
-        {
-            var newGuild = guild.Clone();
-            newGuild.Stickers = stickers;
-
-            return this with
-            {
-                _guilds = guilds.SetItem(guildId, newGuild),
-            };
-        }
-
-        return this;
-    }
-
     public IGatewayClientCache CacheGuildThread(GuildThread thread)
     {
         var guildId = thread.GuildId;
@@ -257,6 +224,40 @@ public sealed record GatewayClientCache : IGatewayClientCache
         {
             var newGuild = guild.Clone();
             newGuild.Presences = Cast(guild.Presences).SetItem(presence.User.Id, presence);
+
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, newGuild),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache SyncGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            var newGuild = guild.Clone();
+            newGuild.Emojis = emojis;
+
+            return this with
+            {
+                _guilds = guilds.SetItem(guildId, newGuild),
+            };
+        }
+
+        return this;
+    }
+
+    public IGatewayClientCache SyncGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers)
+    {
+        var guilds = _guilds;
+        if (guilds.TryGetValue(guildId, out var guild))
+        {
+            var newGuild = guild.Clone();
+            newGuild.Stickers = stickers;
 
             return this with
             {
