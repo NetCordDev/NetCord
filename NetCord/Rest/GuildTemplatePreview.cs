@@ -17,6 +17,6 @@ public class GuildTemplatePreview(JsonGuild jsonModel, RestClient client) : IJso
     public int AfkTimeout => jsonModel.AfkTimeout;
     public ulong? SystemChannelId => jsonModel.SystemChannelId;
     public SystemChannelFlags SystemChannelFlags => jsonModel.SystemChannelFlags;
-    public IReadOnlyDictionary<ulong, Role> Roles { get; } = jsonModel.Roles.ToDictionaryOrEmpty(r => new Role(r, 0, client));
-    public IReadOnlyDictionary<ulong, IGuildChannel> Channels { get; } = jsonModel.Channels.ToDictionaryOrEmpty(c => IGuildChannel.CreateFromJson(c, 0, client));
+    public IReadOnlyDictionary<ulong, Role> Roles { get; } = jsonModel.Roles.ToDictionaryOrEmpty(r => r.Id, r => new Role(r, 0, client));
+    public IReadOnlyDictionary<ulong, IGuildChannel> Channels { get; } = jsonModel.Channels.ToDictionaryOrEmpty(c => c.Id, c => IGuildChannel.CreateFromJson(c, 0, client));
 }

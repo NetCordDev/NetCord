@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
@@ -11,5 +10,5 @@ public class JsonGuildStickersUpdateEventArgs
     public ulong GuildId { get; set; }
 
     [JsonPropertyName("stickers")]
-    public ImmutableArray<JsonSticker> Stickers { get; set; }
+    public JsonSticker[] Stickers { get; set; }
 }

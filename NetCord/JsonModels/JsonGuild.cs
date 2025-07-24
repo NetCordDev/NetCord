@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 
 using NetCord.Gateway.JsonModels;
@@ -53,12 +53,11 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("explicit_content_filter")]
     public ContentFilter ContentFilter { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonRoleArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("roles")]
-    public ImmutableDictionary<ulong, JsonRole> Roles { get; set; }
+    public JsonRole[] Roles { get; set; }
 
     [JsonPropertyName("emojis")]
-    public ImmutableArray<JsonEmoji> Emojis { get; set; }
+    public JsonEmoji[] Emojis { get; set; }
 
     [JsonPropertyName("features")]
     public string[] Features { get; set; }
@@ -90,25 +89,20 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("member_count")]
     public int UserCount { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonVoiceStateArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("voice_states")]
-    public ImmutableDictionary<ulong, JsonVoiceState> VoiceStates { get; set; }
+    public JsonVoiceState[] VoiceStates { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonGuildUserArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("members")]
-    public ImmutableDictionary<ulong, JsonGuildUser> Users { get; set; }
+    public JsonGuildUser[] Users { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("channels")]
-    public ImmutableDictionary<ulong, JsonChannel> Channels { get; set; }
+    public JsonChannel[] Channels { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonChannelArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("threads")]
-    public ImmutableDictionary<ulong, JsonChannel> ActiveThreads { get; set; }
+    public JsonChannel[] ActiveThreads { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonPresenceArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("presences")]
-    public ImmutableDictionary<ulong, JsonPresence> Presences { get; set; }
+    public JsonPresence[] Presences { get; set; }
 
     [JsonPropertyName("max_presences")]
     public int? MaxPresences { get; set; }
@@ -155,20 +149,20 @@ public class JsonGuild : JsonEntity
     [JsonPropertyName("nsfw_level")]
     public NsfwLevel NsfwLevel { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonStageInstanceArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("stage_instances")]
-    public ImmutableDictionary<ulong, JsonStageInstance> StageInstances { get; set; }
+    public JsonStageInstance[] StageInstances { get; set; }
 
     [JsonPropertyName("stickers")]
-    public ImmutableArray<JsonSticker> Stickers { get; set; }
+    public JsonSticker[] Stickers { get; set; }
 
-    [JsonConverter(typeof(JsonConverters.JsonGuildScheduledEventArrayToImmutableDictionaryConverter))]
     [JsonPropertyName("guild_scheduled_events")]
-    public ImmutableDictionary<ulong, JsonGuildScheduledEvent> ScheduledEvents { get; set; }
+    public JsonGuildScheduledEvent[] ScheduledEvents { get; set; }
 
     [JsonPropertyName("premium_progress_bar_enabled")]
     public bool PremiumProgressBarEnabled { get; set; }
 
     [JsonPropertyName("safety_alerts_channel_id")]
     public ulong? SafetyAlertsChannelId { get; set; }
+
+    internal JsonGuild Clone() => Unsafe.As<JsonGuild>(MemberwiseClone());
 }

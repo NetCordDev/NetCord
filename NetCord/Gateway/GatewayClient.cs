@@ -1183,7 +1183,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "THREAD_LIST_SYNC":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildThreadListSyncEventArgs);
-                    GuildThreadListSyncEventArgs args = new(json, Rest);
+                    GuildThreadListSyncEventArgs args = new(json, Rest, Cache);
                     var guildId = args.GuildId;
                     await InvokeEventAsync(_guildThreadListSync, args, args => Cache = Cache.SyncGuildActiveThreads(guildId, args.Threads)).ConfigureAwait(false);
                 }
@@ -1206,7 +1206,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                         await InvokeEventAsync(_guildCreate, () => new(id, null)).ConfigureAwait(false);
                     else
                     {
-                        Guild guild = new(jsonGuild, Id, Rest);
+                        Guild guild = new(jsonGuild, Id, Rest, Cache);
                         await InvokeEventAsync(_guildCreate, () => new(id, guild), () => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                     }
                 }
@@ -1215,7 +1215,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 {
                     var guildId = GetGuildId();
                     if (Cache.Guilds.TryGetValue(guildId, out var oldGuild))
-                        await InvokeEventAsync(_guildUpdate, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
+                        await InvokeEventAsync(_guildUpdate, new(data.ToObject(Serialization.Default.JsonGuild), Id, oldGuild, Cache), guild => Cache = Cache.CacheGuild(guild)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_DELETE":
@@ -1242,13 +1242,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_EMOJIS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildEmojisUpdateEventArgs);
-                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest, Cache), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildStickersUpdateEventArgs);
-                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest, Cache), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":

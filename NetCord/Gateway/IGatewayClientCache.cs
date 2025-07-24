@@ -1,20 +1,18 @@
-﻿using System.Collections.Immutable;
+﻿namespace NetCord.Gateway;
 
-namespace NetCord.Gateway;
-
-public interface IGatewayClientCache : IDisposable
+public interface IGatewayClientCache : IDictionaryProvider, IDisposable
 {
     public CurrentUser? User { get; }
     public IReadOnlyDictionary<ulong, Guild> Guilds { get; }
 
     public IGatewayClientCache CacheGuild(Guild guild);
     public IGatewayClientCache CacheGuildUser(GuildUser user);
-    public IGatewayClientCache CacheGuildUsers(ulong guildId, IEnumerable<GuildUser> users);
-    public IGatewayClientCache CachePresences(ulong guildId, IEnumerable<Presence> presences);
+    public IGatewayClientCache CacheGuildUsers(ulong guildId, IReadOnlyList<GuildUser> users);
+    public IGatewayClientCache CachePresences(ulong guildId, IReadOnlyList<Presence> presences);
     public IGatewayClientCache CacheRole(Role role);
     public IGatewayClientCache CacheGuildScheduledEvent(GuildScheduledEvent scheduledEvent);
-    public IGatewayClientCache CacheGuildEmojis(ulong guildId, ImmutableDictionary<ulong, GuildEmoji> emojis);
-    public IGatewayClientCache CacheGuildStickers(ulong guildId, ImmutableDictionary<ulong, GuildSticker> stickers);
+    public IGatewayClientCache CacheGuildEmojis(ulong guildId, IReadOnlyDictionary<ulong, GuildEmoji> emojis);
+    public IGatewayClientCache CacheGuildStickers(ulong guildId, IReadOnlyDictionary<ulong, GuildSticker> stickers);
     public IGatewayClientCache CacheGuildThread(GuildThread thread);
     public IGatewayClientCache CacheGuildChannel(IGuildChannel channel);
     public IGatewayClientCache CacheStageInstance(StageInstance stageInstance);
@@ -22,7 +20,7 @@ public interface IGatewayClientCache : IDisposable
     public IGatewayClientCache CacheVoiceState(VoiceState voiceState);
     public IGatewayClientCache CachePresence(Presence presence);
 
-    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, ImmutableDictionary<ulong, GuildThread> threads);
+    public IGatewayClientCache SyncGuildActiveThreads(ulong guildId, IReadOnlyDictionary<ulong, GuildThread> threads);
     public IGatewayClientCache SyncGuilds(IReadOnlyList<ulong> guildIds);
 
     public IGatewayClientCache RemoveGuild(ulong guildId);
