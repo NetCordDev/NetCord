@@ -10,5 +10,5 @@ public class JsonGatewayClientCache
     public JsonUser? User { get; set; }
 
     [JsonPropertyName("guilds")]
-    public JsonGuild[] Guilds { get; set; }
+    public IReadOnlyList<JsonGuild> Guilds { get; set; }
 }

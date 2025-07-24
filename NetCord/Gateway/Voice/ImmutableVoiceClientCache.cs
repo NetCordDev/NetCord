@@ -4,7 +4,7 @@ using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 
-public sealed record VoiceClientCache : IVoiceClientCache
+public sealed class ImmutableVoiceClientCache : IVoiceClientCache
 {
     public uint Ssrc => _ssrc;
     public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
@@ -16,17 +16,17 @@ public sealed record VoiceClientCache : IVoiceClientCache
     private ImmutableDictionary<ulong, uint> _ssrcs;
     private ImmutableDictionary<uint, ulong> _users;
 
-    public VoiceClientCache()
+    public ImmutableVoiceClientCache()
     {
         _ssrcs = ImmutableDictionary<ulong, uint>.Empty;
         _users = ImmutableDictionary<uint, ulong>.Empty;
     }
 
-    public VoiceClientCache(JsonVoiceClientCache jsonModel)
+    public ImmutableVoiceClientCache(JsonVoiceClientCache jsonModel)
     {
         _ssrc = jsonModel.Ssrc;
-        _ssrcs = jsonModel.Ssrcs;
-        _users = jsonModel.Users;
+        _ssrcs = jsonModel.Ssrcs.ToImmutableDictionary();
+        _users = jsonModel.Users.ToImmutableDictionary();
     }
 
     public JsonVoiceClientCache ToJsonModel()
@@ -41,16 +41,19 @@ public sealed record VoiceClientCache : IVoiceClientCache
 
     public IVoiceClientCache CacheCurrentSsrc(uint ssrc)
     {
-        return this with
+        return new ImmutableVoiceClientCache()
         {
             _ssrc = ssrc,
+            _ssrcs = _ssrcs,
+            _users = _users,
         };
     }
 
     public IVoiceClientCache CacheUser(ulong userId, uint ssrc)
     {
-        return this with
+        return new ImmutableVoiceClientCache()
         {
+            _ssrc = _ssrc,
             _ssrcs = _ssrcs.SetItem(userId, ssrc),
             _users = _users.SetItem(ssrc, userId),
         };
@@ -63,8 +66,9 @@ public sealed record VoiceClientCache : IVoiceClientCache
         if (!ssrcs.TryGetValue(userId, out var ssrc))
             return this;
 
-        return this with
+        return new ImmutableVoiceClientCache()
         {
+            _ssrc = _ssrc,
             _ssrcs = ssrcs.Remove(userId),
             _users = _users.Remove(ssrc),
         };

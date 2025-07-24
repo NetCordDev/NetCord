@@ -36,7 +36,7 @@ public sealed record ImmutableGatewayClientCache : IGatewayClientCache
         return new()
         {
             User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            Guilds = [.. _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel)],
+            Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray(),
         };
     }
 

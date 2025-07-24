@@ -9,8 +9,8 @@ public class JsonVoiceClientCache
     public uint Ssrc { get; set; }
 
     [JsonPropertyName("ssrcs")]
-    public ImmutableDictionary<ulong, uint> Ssrcs { get; set; }
+    public IReadOnlyDictionary<ulong, uint> Ssrcs { get; set; }
 
     [JsonPropertyName("users")]
-    public ImmutableDictionary<uint, ulong> Users { get; set; }
+    public IReadOnlyDictionary<uint, ulong> Users { get; set; }
 }
