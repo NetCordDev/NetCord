@@ -429,7 +429,7 @@ public sealed record GatewayClientCache : IGatewayClientCache
         if (dictionary is ImmutableDictionary<TKey, TValue> immutableDictionary)
             return immutableDictionary;
 
-        throw new ArgumentException("The dictionary must be a 'System.Collections.Immutable.ImmutableDictionary<TKey, TValue>'.", nameof(dictionary));
+        throw new ArgumentException("The dictionary must be a 'System.Collections.Immutable.ImmutableDictionary<TKey, TValue>'. It should be created using a 'CreateDictionary<TSource, TKey, TValue>' method.", nameof(dictionary));
     }
 
     public void Dispose()
