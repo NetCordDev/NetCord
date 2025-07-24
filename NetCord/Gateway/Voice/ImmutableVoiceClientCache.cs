@@ -29,6 +29,18 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
         _users = jsonModel.Users.ToImmutableDictionary();
     }
 
+    private ImmutableVoiceClientCache(uint ssrc, ImmutableDictionary<ulong, uint> ssrcs, ImmutableDictionary<uint, ulong> users)
+    {
+        _ssrc = ssrc;
+        _ssrcs = ssrcs;
+        _users = users;
+    }
+
+    private static ImmutableVoiceClientCache Create(uint ssrc, ImmutableDictionary<ulong, uint> ssrcs, ImmutableDictionary<uint, ulong> users)
+    {
+        return new(ssrc, ssrcs, users);
+    }
+
     public JsonVoiceClientCache ToJsonModel()
     {
         return new()
@@ -41,22 +53,16 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
 
     public IVoiceClientCache CacheCurrentSsrc(uint ssrc)
     {
-        return new ImmutableVoiceClientCache()
-        {
-            _ssrc = ssrc,
-            _ssrcs = _ssrcs,
-            _users = _users,
-        };
+        return Create(ssrc,
+                      _ssrcs,
+                      _users);
     }
 
     public IVoiceClientCache CacheUser(ulong userId, uint ssrc)
     {
-        return new ImmutableVoiceClientCache()
-        {
-            _ssrc = _ssrc,
-            _ssrcs = _ssrcs.SetItem(userId, ssrc),
-            _users = _users.SetItem(ssrc, userId),
-        };
+        return Create(_ssrc,
+                      _ssrcs.SetItem(userId, ssrc),
+                      _users.SetItem(ssrc, userId));
     }
 
     public IVoiceClientCache RemoveUser(ulong userId)
@@ -66,12 +72,9 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
         if (!ssrcs.TryGetValue(userId, out var ssrc))
             return this;
 
-        return new ImmutableVoiceClientCache()
-        {
-            _ssrc = _ssrc,
-            _ssrcs = ssrcs.Remove(userId),
-            _users = _users.Remove(ssrc),
-        };
+        return Create(_ssrc,
+                      ssrcs.Remove(userId),
+                      _users.Remove(ssrc));
     }
 
     public void Dispose()
