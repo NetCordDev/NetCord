@@ -16,7 +16,7 @@ public class Guild : RestGuild, ICloneable
         var guildId = jsonModel.Id;
 
         VoiceStates = dictionaryProvider.CreateDictionary(jsonModel.VoiceStates ?? [], s => s.UserId, s => new VoiceState(s, guildId, client));
-        Users = dictionaryProvider.CreateDictionary(jsonModel.Users ?? [], u => u.User.Id, u => new GuildUser(u, guildId, client));
+        Users = dictionaryProvider.CreateDictionary(GetUsers(jsonModel.Users), u => u.User.Id, u => new GuildUser(u, guildId, client));
         Channels = dictionaryProvider.CreateDictionary(jsonModel.Channels ?? [], c => c.Id, c => IGuildChannel.CreateFromJson(c, guildId, client));
         ActiveThreads = dictionaryProvider.CreateDictionary(jsonModel.ActiveThreads ?? [], t => t.Id, t => GuildThread.CreateFromJson(t, client));
         StageInstances = dictionaryProvider.CreateDictionary(jsonModel.StageInstances ?? [], i => i.Id, i => new StageInstance(i, client));
@@ -24,6 +24,14 @@ public class Guild : RestGuild, ICloneable
         ScheduledEvents = dictionaryProvider.CreateDictionary(jsonModel.ScheduledEvents ?? [], e => e.Id, e => new GuildScheduledEvent(e, client));
 
         IsOwner = jsonModel.OwnerId == clientId;
+    }
+
+    private static IEnumerable<JsonGuildUser> GetUsers(JsonGuildUser[]? users)
+    {
+        if (users is null)
+            return [];
+
+        return users.DistinctBy(u => u.User.Id);
     }
 
     public Guild(JsonGuild jsonModel, ulong clientId, Guild oldGuild, IDictionaryProvider dictionaryProvider) : base(Copy(jsonModel, oldGuild), oldGuild._client, dictionaryProvider)
