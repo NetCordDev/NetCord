@@ -28,11 +28,15 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
 
     public JsonGatewayClientCache ToJsonModel()
     {
-        return new()
-        {
-            User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray(),
-        };
+        JsonGatewayClientCache jsonModel = new();
+
+        var user = _user;
+        if (user is not null)
+            jsonModel.User = ((IJsonModel<JsonUser>)user).JsonModel;
+
+        jsonModel.Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray();
+
+        return jsonModel;
     }
 
 #pragma warning disable IDE0032 // Use auto property

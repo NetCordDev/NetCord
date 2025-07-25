@@ -38,17 +38,21 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
 #pragma warning disable IDE0032 // Use auto property
-    private CurrentUser? _user;
+    private readonly CurrentUser? _user;
 #pragma warning restore IDE0032 // Use auto property
-    private ImmutableDictionary<ulong, Guild> _guilds;
+    private readonly ImmutableDictionary<ulong, Guild> _guilds;
 
     public JsonGatewayClientCache ToJsonModel()
     {
-        return new()
-        {
-            User = _user is null ? null : ((IJsonModel<JsonUser>)_user).JsonModel,
-            Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray(),
-        };
+        JsonGatewayClientCache jsonModel = new();
+
+        var user = _user;
+        if (user is not null)
+            jsonModel.User = ((IJsonModel<JsonUser>)user).JsonModel;
+
+        jsonModel.Guilds = _guilds.Values.Select(g => ((IJsonModel<JsonGuild>)g).JsonModel).ToArray();
+
+        return jsonModel;
     }
 
     public IGatewayClientCache CacheGuild(Guild guild)

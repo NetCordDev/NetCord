@@ -11,10 +11,10 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
     public IReadOnlyDictionary<uint, ulong> Users => _users;
 
 #pragma warning disable IDE0032 // Use auto property
-    private uint _ssrc;
+    private readonly uint _ssrc;
 #pragma warning restore IDE0032 // Use auto property
-    private ImmutableDictionary<ulong, uint> _ssrcs;
-    private ImmutableDictionary<uint, ulong> _users;
+    private readonly ImmutableDictionary<ulong, uint> _ssrcs;
+    private readonly ImmutableDictionary<uint, ulong> _users;
 
     public ImmutableVoiceClientCache()
     {
