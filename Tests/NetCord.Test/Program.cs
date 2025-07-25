@@ -25,7 +25,8 @@ internal static class Program
         Presence = new(UserStatusType.DoNotDisturb)
         {
             Activities = [new("Custom Status", UserActivityType.Custom) { State = "XD" }],
-        }
+        },
+        //Cache = new ConcurrentGatewayClientCache(),
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
         //Compression = new UncompressedGatewayCompression(),

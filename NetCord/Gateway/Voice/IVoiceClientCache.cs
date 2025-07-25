@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public interface IVoiceClientCache : IDisposable
+public interface IVoiceClientCache : IDictionaryProvider, IDisposable
 {
     public uint Ssrc { get; }
     public IReadOnlyDictionary<ulong, uint> Ssrcs { get; }

@@ -870,7 +870,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
         var compression = _compression = configuration.Compression ?? IGatewayCompression.CreateDefault();
         Uri = new($"wss://{configuration.Hostname ?? Discord.GatewayHostname}/?v={(int)configuration.Version.GetValueOrDefault(ApiVersion.V10)}&encoding=json&compress={compression.Name}", UriKind.Absolute);
-        Cache = configuration.Cache ?? new GatewayClientCache();
+        Cache = configuration.Cache ?? ImmutableGatewayClientCache.Empty;
         Rest = rest;
     }
 
@@ -1242,13 +1242,13 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_EMOJIS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildEmojisUpdateEventArgs);
-                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest, Cache), args => Cache = Cache.CacheGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildEmojisUpdate, new(json, Rest, Cache), args => Cache = Cache.SyncGuildEmojis(args.GuildId, args.Emojis)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_STICKERS_UPDATE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildStickersUpdateEventArgs);
-                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest, Cache), args => Cache = Cache.CacheGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildStickersUpdate, new(json, Rest, Cache), args => Cache = Cache.SyncGuildStickers(args.GuildId, args.Stickers)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_INTEGRATIONS_UPDATE":
