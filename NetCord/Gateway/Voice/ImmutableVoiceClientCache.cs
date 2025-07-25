@@ -77,6 +77,11 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
                       _users.Remove(ssrc));
     }
 
+    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector) where TKey : notnull where TValue : class
+    {
+        return source.ToImmutableDictionary(keySelector, elementSelector);
+    }
+
     public void Dispose()
     {
     }
