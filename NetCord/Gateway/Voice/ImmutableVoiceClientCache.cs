@@ -16,7 +16,9 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
     private readonly ImmutableDictionary<ulong, uint> _ssrcs;
     private readonly ImmutableDictionary<uint, ulong> _users;
 
-    public ImmutableVoiceClientCache()
+    public static ImmutableVoiceClientCache Empty { get; } = new();
+
+    private ImmutableVoiceClientCache()
     {
         _ssrcs = ImmutableDictionary<ulong, uint>.Empty;
         _users = ImmutableDictionary<uint, ulong>.Empty;

@@ -9,7 +9,9 @@ namespace NetCord.Gateway;
 
 public sealed class ImmutableGatewayClientCache : IGatewayClientCache
 {
-    public ImmutableGatewayClientCache()
+    public static ImmutableGatewayClientCache Empty { get; } = new();
+
+    private ImmutableGatewayClientCache()
     {
         _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
     }

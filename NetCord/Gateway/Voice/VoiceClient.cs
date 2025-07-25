@@ -105,7 +105,7 @@ public sealed partial class VoiceClient : WebSocketClient
         GuildId = guildId;
         Token = token;
 
-        Cache = configuration.Cache ?? new ImmutableVoiceClientCache();
+        Cache = configuration.Cache ?? ImmutableVoiceClientCache.Empty;
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
         _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
