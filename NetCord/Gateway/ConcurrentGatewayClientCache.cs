@@ -280,7 +280,6 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
             stageInstances.TryRemove(stageInstanceId, out _);
         }
 
-
         return this;
     }
 
