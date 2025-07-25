@@ -388,12 +388,16 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
         return this;
     }
 
-    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector) where TKey : notnull where TValue : class
+    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
+        where TKey : notnull
+        where TValue : class
     {
         return source.ToImmutableDictionary(keySelector, elementSelector);
     }
 
-    private static ImmutableDictionary<TKey, TValue> Cast<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary) where TKey : notnull where TValue : class
+    private static ImmutableDictionary<TKey, TValue> Cast<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary)
+        where TKey : notnull
+        where TValue : class
     {
         if (dictionary is ImmutableDictionary<TKey, TValue> immutableDictionary)
             return immutableDictionary;

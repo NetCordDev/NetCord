@@ -62,7 +62,9 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
         return this;
     }
 
-    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector) where TKey : notnull where TValue : class
+    public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
+        where TKey : notnull
+        where TValue : class
     {
         return new ConcurrentDictionary<TKey, TValue>(source.Select(s => new KeyValuePair<TKey, TValue>(keySelector(s), elementSelector(s))));
     }
