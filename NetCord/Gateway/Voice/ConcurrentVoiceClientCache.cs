@@ -4,6 +4,37 @@ using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 
+internal sealed class EmptyConcurrentVoiceClientCacheProvider : ConcurrentVoiceClientCacheProvider
+{
+    public static EmptyConcurrentVoiceClientCacheProvider Instance { get; } = new();
+
+    private EmptyConcurrentVoiceClientCacheProvider()
+    {
+    }
+
+    public override ConcurrentVoiceClientCache Create() => new();
+}
+
+internal sealed class JsonConcurrentVoiceClientCacheProvider(JsonVoiceClientCache jsonModel) : ConcurrentVoiceClientCacheProvider
+{
+    public override ConcurrentVoiceClientCache Create() => new(jsonModel);
+}
+
+public abstract class ConcurrentVoiceClientCacheProvider : IVoiceClientCacheProvider
+{
+    public static ConcurrentVoiceClientCacheProvider Empty => EmptyConcurrentVoiceClientCacheProvider.Instance;
+
+    public static ConcurrentVoiceClientCacheProvider FromJson(JsonVoiceClientCache jsonModel) => new JsonConcurrentVoiceClientCacheProvider(jsonModel);
+
+    private protected ConcurrentVoiceClientCacheProvider()
+    {
+    }
+
+    IVoiceClientCache IVoiceClientCacheProvider.Create() => Create();
+
+    public abstract ConcurrentVoiceClientCache Create();
+}
+
 public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 {
     public uint Ssrc => _ssrc;

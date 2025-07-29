@@ -44,17 +44,20 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
 
     internal static ImmutableGatewayClientCache FromJson(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
     {
-        var user = jsonModel.User is { } userModel ? new CurrentUser(userModel, client) : null;
-
-        var guilds = CreateImmutableDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, Empty));
-
-        return Create(user,
-                      guilds);
+        return new(jsonModel, clientId, client);
     }
 
     private ImmutableGatewayClientCache()
     {
         _guilds = CollectionsUtils.EmptyImmutableDictionary<ulong, Guild>();
+    }
+
+    private ImmutableGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    {
+        if (jsonModel.User is { } userModel)
+            _user = new(userModel, client);
+
+        _guilds = CreateImmutableDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, this));
     }
 
     private ImmutableGatewayClientCache(CurrentUser? user, ImmutableDictionary<ulong, Guild> guilds)
