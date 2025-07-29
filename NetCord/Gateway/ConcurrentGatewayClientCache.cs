@@ -330,7 +330,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     {
         return CreateConcurrentDictionary(source, keySelector, elementSelector);
     }
-    
+
     private static ConcurrentDictionary<TKey, TValue> CreateConcurrentDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
         where TKey : notnull
         where TValue : class
