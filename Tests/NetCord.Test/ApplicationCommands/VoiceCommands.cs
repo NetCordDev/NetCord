@@ -48,7 +48,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 EncryptionProvider = encryptionProvider,
                 ReceiveHandler = new VoiceReceiveHandler(),
                 Logger = new ConsoleLogger(LogLevel.Debug),
-                //Cache = new ConcurrentVoiceClientCache(),
+                //CacheProvider = ConcurrentVoiceClientCacheProvider.Empty,
             });
         }
         finally
