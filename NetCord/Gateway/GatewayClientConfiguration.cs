@@ -34,9 +34,9 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestCl
     public ApiVersion? Version { get; init; }
 
     /// <summary>
-    /// The cache for the <see cref="GatewayClient"/>. Defaults to <see cref="ImmutableGatewayClientCache"/>.
+    /// The cache provider for the <see cref="GatewayClient"/>. Defaults to <see cref="ImmutableGatewayClientCacheProvider.Empty"/>.
     /// </summary>
-    public IGatewayClientCache? Cache { get; init; }
+    public IGatewayClientCacheProvider? CacheProvider { get; init; }
 
     /// <summary>
     /// The compression provider for the <see cref="GatewayClient"/>. Defaults to <see cref="ZstandardGatewayCompression"/> if available, otherwise <see cref="ZLibGatewayCompression"/>.

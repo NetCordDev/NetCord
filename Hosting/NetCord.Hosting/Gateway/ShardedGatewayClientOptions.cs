@@ -44,8 +44,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
-    public Func<Shard, IGatewayClientCache?>? CacheFactory { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheProviderFactory" />
+    public Func<Shard, IGatewayClientCacheProvider?>? CacheProviderFactory { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; set; }
@@ -91,8 +91,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.VersionFactory" />
     public ApiVersion? Version { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheFactory" />
-    public IGatewayClientCache? Cache { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.CacheProviderFactory" />
+    public IGatewayClientCacheProvider? CacheProvider { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.CompressionFactory" />
     public IGatewayCompression? Compression { get; set; }
@@ -117,7 +117,7 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
                                                                CreateFactory(ReconnectStrategy, ReconnectStrategyFactory),
                                                                CreateFactory(LatencyTimer, LatencyTimerFactory),
                                                                CreateFactory(Version, VersionFactory),
-                                                               CreateFactory(Cache, CacheFactory),
+                                                               CreateFactory(CacheProvider, CacheProviderFactory),
                                                                CreateFactory(Compression, CompressionFactory),
                                                                CreateFactory(Intents, IntentsFactory),
                                                                Hostname,

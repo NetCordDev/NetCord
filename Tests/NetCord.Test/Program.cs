@@ -26,7 +26,7 @@ internal static class Program
         {
             Activities = [new("Custom Status", UserActivityType.Custom) { State = "XD" }],
         },
-        //Cache = new ConcurrentGatewayClientCache(),
+        //CacheProvider = ConcurrentGatewayClientCacheProvider.Empty,
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
         //Compression = new UncompressedGatewayCompression(),

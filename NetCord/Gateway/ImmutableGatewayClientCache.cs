@@ -7,22 +7,54 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
+internal sealed class EmptyImmutableGatewayClientCacheProvider : ImmutableGatewayClientCacheProvider
+{
+    public static EmptyImmutableGatewayClientCacheProvider Instance { get; } = new();
+
+    private EmptyImmutableGatewayClientCacheProvider()
+    {
+    }
+
+    public override ImmutableGatewayClientCache Create(ulong clientId, RestClient client) => ImmutableGatewayClientCache.Empty;
+}
+
+internal sealed class JsonImmutableGatewayClientCacheProvider(JsonGatewayClientCache jsonModel) : ImmutableGatewayClientCacheProvider
+{
+    public override ImmutableGatewayClientCache Create(ulong clientId, RestClient client) => ImmutableGatewayClientCache.FromJson(jsonModel, clientId, client);
+}
+
+public abstract class ImmutableGatewayClientCacheProvider : IGatewayClientCacheProvider
+{
+    public static ImmutableGatewayClientCacheProvider Empty => EmptyImmutableGatewayClientCacheProvider.Instance;
+
+    public static ImmutableGatewayClientCacheProvider FromJson(JsonGatewayClientCache jsonModel) => new JsonImmutableGatewayClientCacheProvider(jsonModel);
+
+    private protected ImmutableGatewayClientCacheProvider()
+    {
+    }
+
+    IGatewayClientCache IGatewayClientCacheProvider.Create(ulong clientId, RestClient client) => Create(clientId, client);
+
+    public abstract ImmutableGatewayClientCache Create(ulong clientId, RestClient client);
+}
+
 public sealed class ImmutableGatewayClientCache : IGatewayClientCache
 {
-    public static ImmutableGatewayClientCache Empty { get; } = new();
+    internal static ImmutableGatewayClientCache Empty { get; } = new();
+
+    internal static ImmutableGatewayClientCache FromJson(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    {
+        var user = jsonModel.User is { } userModel ? new CurrentUser(userModel, client) : null;
+
+        var guilds = CreateImmutableDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, Empty));
+
+        return Create(user,
+                      guilds);
+    }
 
     private ImmutableGatewayClientCache()
     {
-        _guilds = CollectionsUtils.CreateImmutableDictionary<ulong, Guild>();
-    }
-
-    public ImmutableGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
-    {
-        var userModel = jsonModel.User;
-        if (userModel is not null)
-            _user = new(userModel, client);
-
-        _guilds = jsonModel.Guilds.ToImmutableDictionary(g => g.Id, g => new Guild(g, clientId, client, this));
+        _guilds = CollectionsUtils.EmptyImmutableDictionary<ulong, Guild>();
     }
 
     private ImmutableGatewayClientCache(CurrentUser? user, ImmutableDictionary<ulong, Guild> guilds)
@@ -391,6 +423,13 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
     }
 
     public IReadOnlyDictionary<TKey, TValue> CreateDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
+        where TKey : notnull
+        where TValue : class
+    {
+        return CreateImmutableDictionary(source, keySelector, elementSelector);
+    }
+
+    private static ImmutableDictionary<TKey, TValue> CreateImmutableDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
         where TKey : notnull
         where TValue : class
     {
