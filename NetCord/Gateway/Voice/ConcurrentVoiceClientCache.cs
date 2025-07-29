@@ -47,13 +47,13 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
     private readonly ConcurrentDictionary<ulong, uint> _ssrcs;
     private readonly ConcurrentDictionary<uint, ulong> _users;
 
-    public ConcurrentVoiceClientCache()
+    internal ConcurrentVoiceClientCache()
     {
         _ssrcs = new();
         _users = new();
     }
 
-    public ConcurrentVoiceClientCache(JsonVoiceClientCache jsonModel)
+    internal ConcurrentVoiceClientCache(JsonVoiceClientCache jsonModel)
     {
         _ssrc = jsonModel.Ssrc;
         _ssrcs = new(jsonModel.Ssrcs);
