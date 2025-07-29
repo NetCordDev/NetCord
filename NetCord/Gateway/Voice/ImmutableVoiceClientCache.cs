@@ -37,16 +37,6 @@ public abstract class ImmutableVoiceClientCacheProvider : IVoiceClientCacheProvi
 
 public sealed class ImmutableVoiceClientCache : IVoiceClientCache
 {
-    public uint Ssrc => _ssrc;
-    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
-    public IReadOnlyDictionary<uint, ulong> Users => _users;
-
-#pragma warning disable IDE0032 // Use auto property
-    private readonly uint _ssrc;
-#pragma warning restore IDE0032 // Use auto property
-    private readonly ImmutableDictionary<ulong, uint> _ssrcs;
-    private readonly ImmutableDictionary<uint, ulong> _users;
-
     internal static ImmutableVoiceClientCache Empty { get; } = new();
 
     internal static ImmutableVoiceClientCache FromJson(JsonVoiceClientCache jsonModel)
@@ -78,6 +68,16 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
     {
         return new(ssrc, ssrcs, users);
     }
+
+    public uint Ssrc => _ssrc;
+    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
+    public IReadOnlyDictionary<uint, ulong> Users => _users;
+
+#pragma warning disable IDE0032 // Use auto property
+    private readonly uint _ssrc;
+#pragma warning restore IDE0032 // Use auto property
+    private readonly ImmutableDictionary<ulong, uint> _ssrcs;
+    private readonly ImmutableDictionary<uint, ulong> _users;
 
     public JsonVoiceClientCache ToJsonModel()
     {

@@ -56,6 +56,11 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     public CurrentUser? User => _user;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
 
+#pragma warning disable IDE0032 // Use auto property
+    private CurrentUser? _user;
+#pragma warning restore IDE0032 // Use auto property
+    private readonly ConcurrentDictionary<ulong, Guild> _guilds;
+
     public JsonGatewayClientCache ToJsonModel()
     {
         JsonGatewayClientCache jsonModel = new();
@@ -68,11 +73,6 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
 
         return jsonModel;
     }
-
-#pragma warning disable IDE0032 // Use auto property
-    private CurrentUser? _user;
-#pragma warning restore IDE0032 // Use auto property
-    private readonly ConcurrentDictionary<ulong, Guild> _guilds;
 
     public IGatewayClientCache CacheGuild(Guild guild)
     {

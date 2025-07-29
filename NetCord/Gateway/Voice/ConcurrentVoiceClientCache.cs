@@ -37,16 +37,6 @@ public abstract class ConcurrentVoiceClientCacheProvider : IVoiceClientCacheProv
 
 public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 {
-    public uint Ssrc => _ssrc;
-    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
-    public IReadOnlyDictionary<uint, ulong> Users => _users;
-
-#pragma warning disable IDE0032 // Use auto property
-    private uint _ssrc;
-#pragma warning restore IDE0032 // Use auto property
-    private readonly ConcurrentDictionary<ulong, uint> _ssrcs;
-    private readonly ConcurrentDictionary<uint, ulong> _users;
-
     internal ConcurrentVoiceClientCache()
     {
         _ssrcs = new();
@@ -59,6 +49,16 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
         _ssrcs = new(jsonModel.Ssrcs);
         _users = new(jsonModel.Users);
     }
+
+    public uint Ssrc => _ssrc;
+    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
+    public IReadOnlyDictionary<uint, ulong> Users => _users;
+
+#pragma warning disable IDE0032 // Use auto property
+    private uint _ssrc;
+#pragma warning restore IDE0032 // Use auto property
+    private readonly ConcurrentDictionary<ulong, uint> _ssrcs;
+    private readonly ConcurrentDictionary<uint, ulong> _users;
 
     public JsonVoiceClientCache ToJsonModel()
     {
