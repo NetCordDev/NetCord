@@ -138,11 +138,11 @@ internal static class CollectionsUtils
         for (int i = source.Length - 1; i >= 0; i--)
             yield return source[i];
     }
-}
 
-file class ReferenceImmutableDictionary<TKey, TValue> where TKey : notnull where TValue : class
-{
-    public static ImmutableDictionary<TKey, TValue> Empty { get; } = ImmutableDictionary<TKey, TValue>.Empty.WithComparers(null, ReferenceEqualityComparer<TValue>.Instance);
+    private static class ReferenceImmutableDictionary<TKey, TValue> where TKey : notnull where TValue : class
+    {
+        public static ImmutableDictionary<TKey, TValue> Empty { get; } = ImmutableDictionary<TKey, TValue>.Empty.WithComparers(null, ReferenceEqualityComparer<TValue>.Instance);
+    }
 
     private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
     {
