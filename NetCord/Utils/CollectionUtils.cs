@@ -141,18 +141,6 @@ internal static class CollectionsUtils
 
     private static class ReferenceImmutableDictionary<TKey, TValue> where TKey : notnull where TValue : class
     {
-        public static ImmutableDictionary<TKey, TValue> Empty { get; } = ImmutableDictionary<TKey, TValue>.Empty.WithComparers(null, ReferenceEqualityComparer<TValue>.Instance);
-    }
-
-    private class ReferenceEqualityComparer<T> : IEqualityComparer<T>
-    {
-        public static ReferenceEqualityComparer<T> Instance { get; } = new();
-
-        private ReferenceEqualityComparer()
-        {
-        }
-
-        public bool Equals(T? x, T? y) => ReferenceEquals(x, y);
-        public int GetHashCode([DisallowNull] T obj) => RuntimeHelpers.GetHashCode(obj);
+        public static ImmutableDictionary<TKey, TValue> Empty { get; } = ImmutableDictionary<TKey, TValue>.Empty.WithComparers(null, ReferenceEqualityComparer.Instance);
     }
 }
