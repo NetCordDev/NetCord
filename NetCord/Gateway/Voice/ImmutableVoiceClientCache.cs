@@ -4,19 +4,45 @@ using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 
+internal sealed class EmptyImmutableVoiceClientCacheProvider : ImmutableVoiceClientCacheProvider
+{
+    public static EmptyImmutableVoiceClientCacheProvider Instance { get; } = new();
+
+    private EmptyImmutableVoiceClientCacheProvider()
+    {
+    }
+
+    public override ImmutableVoiceClientCache Create() => ImmutableVoiceClientCache.Empty;
+}
+
+internal sealed class JsonImmutableVoiceClientCacheProvider(JsonVoiceClientCache jsonModel) : ImmutableVoiceClientCacheProvider
+{
+    public override ImmutableVoiceClientCache Create() => ImmutableVoiceClientCache.FromJson(jsonModel);
+}
+
+public abstract class ImmutableVoiceClientCacheProvider : IVoiceClientCacheProvider
+{
+    public static ImmutableVoiceClientCacheProvider Empty => EmptyImmutableVoiceClientCacheProvider.Instance;
+
+    public static ImmutableVoiceClientCacheProvider FromJson(JsonVoiceClientCache jsonModel) => new JsonImmutableVoiceClientCacheProvider(jsonModel);
+
+    private protected ImmutableVoiceClientCacheProvider()
+    {
+    }
+
+    IVoiceClientCache IVoiceClientCacheProvider.Create() => Create();
+
+    public abstract ImmutableVoiceClientCache Create();
+}
+
 public sealed class ImmutableVoiceClientCache : IVoiceClientCache
 {
-    public uint Ssrc => _ssrc;
-    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
-    public IReadOnlyDictionary<uint, ulong> Users => _users;
+    internal static ImmutableVoiceClientCache Empty { get; } = new();
 
-#pragma warning disable IDE0032 // Use auto property
-    private readonly uint _ssrc;
-#pragma warning restore IDE0032 // Use auto property
-    private readonly ImmutableDictionary<ulong, uint> _ssrcs;
-    private readonly ImmutableDictionary<uint, ulong> _users;
-
-    public static ImmutableVoiceClientCache Empty { get; } = new();
+    internal static ImmutableVoiceClientCache FromJson(JsonVoiceClientCache jsonModel)
+    {
+        return new(jsonModel);
+    }
 
     private ImmutableVoiceClientCache()
     {
@@ -24,7 +50,7 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
         _users = ImmutableDictionary<uint, ulong>.Empty;
     }
 
-    public ImmutableVoiceClientCache(JsonVoiceClientCache jsonModel)
+    private ImmutableVoiceClientCache(JsonVoiceClientCache jsonModel)
     {
         _ssrc = jsonModel.Ssrc;
         _ssrcs = jsonModel.Ssrcs.ToImmutableDictionary();
@@ -42,6 +68,16 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
     {
         return new(ssrc, ssrcs, users);
     }
+
+    public uint Ssrc => _ssrc;
+    public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
+    public IReadOnlyDictionary<uint, ulong> Users => _users;
+
+#pragma warning disable IDE0032 // Use auto property
+    private readonly uint _ssrc;
+#pragma warning restore IDE0032 // Use auto property
+    private readonly ImmutableDictionary<ulong, uint> _ssrcs;
+    private readonly ImmutableDictionary<uint, ulong> _users;
 
     public JsonVoiceClientCache ToJsonModel()
     {

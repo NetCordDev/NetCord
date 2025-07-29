@@ -4,8 +4,52 @@ using NetCord.Gateway.Voice.JsonModels;
 
 namespace NetCord.Gateway.Voice;
 
+internal sealed class EmptyConcurrentVoiceClientCacheProvider : ConcurrentVoiceClientCacheProvider
+{
+    public static EmptyConcurrentVoiceClientCacheProvider Instance { get; } = new();
+
+    private EmptyConcurrentVoiceClientCacheProvider()
+    {
+    }
+
+    public override ConcurrentVoiceClientCache Create() => new();
+}
+
+internal sealed class JsonConcurrentVoiceClientCacheProvider(JsonVoiceClientCache jsonModel) : ConcurrentVoiceClientCacheProvider
+{
+    public override ConcurrentVoiceClientCache Create() => new(jsonModel);
+}
+
+public abstract class ConcurrentVoiceClientCacheProvider : IVoiceClientCacheProvider
+{
+    public static ConcurrentVoiceClientCacheProvider Empty => EmptyConcurrentVoiceClientCacheProvider.Instance;
+
+    public static ConcurrentVoiceClientCacheProvider FromJson(JsonVoiceClientCache jsonModel) => new JsonConcurrentVoiceClientCacheProvider(jsonModel);
+
+    private protected ConcurrentVoiceClientCacheProvider()
+    {
+    }
+
+    IVoiceClientCache IVoiceClientCacheProvider.Create() => Create();
+
+    public abstract ConcurrentVoiceClientCache Create();
+}
+
 public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 {
+    internal ConcurrentVoiceClientCache()
+    {
+        _ssrcs = new();
+        _users = new();
+    }
+
+    internal ConcurrentVoiceClientCache(JsonVoiceClientCache jsonModel)
+    {
+        _ssrc = jsonModel.Ssrc;
+        _ssrcs = new(jsonModel.Ssrcs);
+        _users = new(jsonModel.Users);
+    }
+
     public uint Ssrc => _ssrc;
     public IReadOnlyDictionary<ulong, uint> Ssrcs => _ssrcs;
     public IReadOnlyDictionary<uint, ulong> Users => _users;
@@ -15,19 +59,6 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 #pragma warning restore IDE0032 // Use auto property
     private readonly ConcurrentDictionary<ulong, uint> _ssrcs;
     private readonly ConcurrentDictionary<uint, ulong> _users;
-
-    public ConcurrentVoiceClientCache()
-    {
-        _ssrcs = new();
-        _users = new();
-    }
-
-    public ConcurrentVoiceClientCache(JsonVoiceClientCache jsonModel)
-    {
-        _ssrc = jsonModel.Ssrc;
-        _ssrcs = new(jsonModel.Ssrcs);
-        _users = new(jsonModel.Users);
-    }
 
     public JsonVoiceClientCache ToJsonModel()
     {

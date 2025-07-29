@@ -15,7 +15,7 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IReconnectStrategy? ReconnectStrategy { get; init; }
     public ILatencyTimer? LatencyTimer { get; init; }
     public VoiceApiVersion? Version { get; init; }
-    public IVoiceClientCache? Cache { get; init; }
+    public IVoiceClientCacheProvider? CacheProvider { get; init; }
     public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
     public IVoiceReceiveHandler? ReceiveHandler { get; init; }
     public IVoiceLogger? Logger { get; init; }

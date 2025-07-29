@@ -7,24 +7,59 @@ using NetCord.Rest;
 
 namespace NetCord.Gateway;
 
-public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
+internal sealed class EmptyConcurrentGatewayClientCacheProvider : ConcurrentGatewayClientCacheProvider
 {
-    public ConcurrentGatewayClientCache()
+    public static EmptyConcurrentGatewayClientCacheProvider Instance { get; } = new();
+
+    private EmptyConcurrentGatewayClientCacheProvider()
     {
-        _guilds = new();
     }
 
-    public ConcurrentGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
-    {
-        var userModel = jsonModel.User;
-        if (userModel is not null)
-            _user = new(userModel, client);
+    public override ConcurrentGatewayClientCache Create(ulong clientId, RestClient client) => new();
+}
 
-        _guilds = new(jsonModel.Guilds.Select(g => new KeyValuePair<ulong, Guild>(g.Id, new Guild(g, clientId, client, this))));
+internal sealed class JsonConcurrentGatewayClientCacheProvider(JsonGatewayClientCache jsonModel) : ConcurrentGatewayClientCacheProvider
+{
+    public override ConcurrentGatewayClientCache Create(ulong clientId, RestClient client) => new(jsonModel, clientId, client);
+}
+
+public abstract class ConcurrentGatewayClientCacheProvider : IGatewayClientCacheProvider
+{
+    public static ConcurrentGatewayClientCacheProvider Empty => EmptyConcurrentGatewayClientCacheProvider.Instance;
+
+    public static ConcurrentGatewayClientCacheProvider FromJson(JsonGatewayClientCache jsonModel) => new JsonConcurrentGatewayClientCacheProvider(jsonModel);
+
+    private protected ConcurrentGatewayClientCacheProvider()
+    {
+    }
+
+    IGatewayClientCache IGatewayClientCacheProvider.Create(ulong clientId, RestClient client) => Create(clientId, client);
+
+    public abstract ConcurrentGatewayClientCache Create(ulong clientId, RestClient client);
+}
+
+public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
+{
+    internal ConcurrentGatewayClientCache()
+    {
+        _guilds = [];
+    }
+
+    internal ConcurrentGatewayClientCache(JsonGatewayClientCache jsonModel, ulong clientId, RestClient client)
+    {
+        if (jsonModel.User is { } userModel)
+            _user = new CurrentUser(userModel, client);
+
+        _guilds = CreateConcurrentDictionary(jsonModel.Guilds, g => g.Id, g => new Guild(g, clientId, client, this));
     }
 
     public CurrentUser? User => _user;
     public IReadOnlyDictionary<ulong, Guild> Guilds => _guilds;
+
+#pragma warning disable IDE0032 // Use auto property
+    private CurrentUser? _user;
+#pragma warning restore IDE0032 // Use auto property
+    private readonly ConcurrentDictionary<ulong, Guild> _guilds;
 
     public JsonGatewayClientCache ToJsonModel()
     {
@@ -38,11 +73,6 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
 
         return jsonModel;
     }
-
-#pragma warning disable IDE0032 // Use auto property
-    private CurrentUser? _user;
-#pragma warning restore IDE0032 // Use auto property
-    private readonly ConcurrentDictionary<ulong, Guild> _guilds;
 
     public IGatewayClientCache CacheGuild(Guild guild)
     {
@@ -298,7 +328,14 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
         where TKey : notnull
         where TValue : class
     {
-        return new ConcurrentDictionary<TKey, TValue>(source.Select(s => new KeyValuePair<TKey, TValue>(keySelector(s), elementSelector(s))));
+        return CreateConcurrentDictionary(source, keySelector, elementSelector);
+    }
+
+    private static ConcurrentDictionary<TKey, TValue> CreateConcurrentDictionary<TSource, TKey, TValue>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> elementSelector)
+        where TKey : notnull
+        where TValue : class
+    {
+        return new(source.Select(s => new KeyValuePair<TKey, TValue>(keySelector(s), elementSelector(s))));
     }
 
     private static ConcurrentDictionary<TKey, TValue> Cast<TKey, TValue>(IReadOnlyDictionary<TKey, TValue> dictionary)

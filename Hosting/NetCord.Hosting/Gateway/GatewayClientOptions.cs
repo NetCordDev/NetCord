@@ -41,8 +41,8 @@ public partial class GatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public ApiVersion? Version { get; set; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
-    public IGatewayClientCache? Cache { get; set; }
+    /// <inheritdoc cref="GatewayClientConfiguration.CacheProvider" />
+    public IGatewayClientCacheProvider? CacheProvider { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public IGatewayCompression? Compression { get; set; }
@@ -76,7 +76,7 @@ public partial class GatewayClientOptions : IDiscordOptions
                                                         ReconnectStrategy,
                                                         LatencyTimer,
                                                         Version,
-                                                        Cache,
+                                                        CacheProvider,
                                                         Compression,
                                                         Intents,
                                                         Hostname,

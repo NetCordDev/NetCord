@@ -27,8 +27,8 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     /// <inheritdoc cref="GatewayClientConfiguration.Version" />
     public Func<Shard, ApiVersion?>? VersionFactory { get; init; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.Cache" />
-    public Func<Shard, IGatewayClientCache?>? CacheFactory { get; init; }
+    /// <inheritdoc cref="GatewayClientConfiguration.CacheProvider" />
+    public Func<Shard, IGatewayClientCacheProvider?>? CacheProviderFactory { get; init; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.Compression" />
     public Func<Shard, IGatewayCompression?>? CompressionFactory { get; init; }
