@@ -158,8 +158,8 @@ async static Task PropertiesAsync()
 
     component = new ActionRowProperties
     {
-        new ButtonProperties("welcome", "Welcome", new("👋"), ButtonStyle.Primary),
-        new ButtonProperties("hug", new EmojiProperties(356377264209920002), ButtonStyle.Success),
+        new ButtonProperties("welcome", "Welcome", EmojiProperties.Standard("👋"), ButtonStyle.Primary),
+        new ButtonProperties("hug", EmojiProperties.Custom(356377264209920002), ButtonStyle.Success),
         new ButtonProperties("goodbye", "Goodbye", ButtonStyle.Secondary)
         {
             Disabled = true,
@@ -170,8 +170,8 @@ async static Task PropertiesAsync()
 
     component = new ActionRowProperties()
         .AddButtons(
-            new ButtonProperties("welcome", "Welcome", new("👋"), ButtonStyle.Primary),
-            new ButtonProperties("hug", new EmojiProperties(356377264209920002), ButtonStyle.Success),
+            new ButtonProperties("welcome", "Welcome", EmojiProperties.Standard("👋"), ButtonStyle.Primary),
+            new ButtonProperties("hug", EmojiProperties.Custom(356377264209920002), ButtonStyle.Success),
             new ButtonProperties("goodbye", "Goodbye", ButtonStyle.Secondary)
                 .WithDisabled(),
             new LinkButtonProperties("https://netcord.dev", "Learn More"),
@@ -182,17 +182,17 @@ async static Task PropertiesAsync()
         new("Dog", "dog")
         {
             Default = true,
-            Emoji = new("🐶"),
+            Emoji = EmojiProperties.Standard("🐶"),
             Description = "A loyal companion",
         },
         new("Cat", "cat")
         {
-            Emoji = new("🐱"),
+            Emoji = EmojiProperties.Standard("🐱"),
             Description = "A curious feline",
         },
         new("Bird", "bird")
         {
-            Emoji = new("🐦"),
+            Emoji = EmojiProperties.Standard("🐦"),
             Description = "A chirpy flyer",
         },
     };
@@ -201,13 +201,13 @@ async static Task PropertiesAsync()
         .AddOptions(
             new StringMenuSelectOptionProperties("Dog", "dog")
                 .WithDefault()
-                .WithEmoji(new("🐶"))
+                .WithEmoji(EmojiProperties.Standard("🐶"))
                 .WithDescription("A loyal companion"),
             new StringMenuSelectOptionProperties("Cat", "cat")
-                .WithEmoji(new("🐱"))
+                .WithEmoji(EmojiProperties.Standard("🐱"))
                 .WithDescription("A curious feline"),
             new StringMenuSelectOptionProperties("Bird", "bird")
-                .WithEmoji(new("🐦"))
+                .WithEmoji(EmojiProperties.Standard("🐦"))
                 .WithDescription("A chirpy flyer"));
 
     component = new ChannelMenuProperties("channel")
