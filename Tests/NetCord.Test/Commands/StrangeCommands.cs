@@ -59,8 +59,8 @@ public partial class StrangeCommands : CommandModule<CommandContext>
     [Command("button")]
     public Task Button()
     {
-        ButtonProperties button = new("click it", "Click it!", new(888159212109197382), ButtonStyle.Success);
-        ButtonProperties button2 = new("click it2", "Click it2!", new(888159212109197382), ButtonStyle.Danger);
+        ButtonProperties button = new("click it", "Click it!", EmojiProperties.Custom(888159212109197382), ButtonStyle.Success);
+        ButtonProperties button2 = new("click it2", "Click it2!", EmojiProperties.Custom(888159212109197382), ButtonStyle.Danger);
         ActionRowProperties actionRow = new([button, button2]);
         MessageProperties messageBuilder = new()
         {

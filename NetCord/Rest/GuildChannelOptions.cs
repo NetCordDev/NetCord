@@ -66,7 +66,8 @@ public partial class GuildChannelOptions
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_reaction_emoji")]
-    public ForumGuildChannelDefaultReactionProperties? DefaultReactionEmoji { get; set; }
+    [JsonConverter(typeof(EmojiProperties.GuildChannelEmojiPropertiesConverter))]
+    public EmojiProperties? DefaultReactionEmoji { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_thread_rate_limit_per_user")]
