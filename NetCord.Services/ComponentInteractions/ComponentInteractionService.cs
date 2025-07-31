@@ -123,7 +123,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
                     arguments = arguments[(index + 1)..];
                 }
                 object? value;
-                if (parameter.HasDefaultValue && currentArg.IsEmpty)
+                if (parameter.IsOptional && currentArg.IsEmpty)
                     value = parameter.DefaultValue;
                 else
                 {
@@ -143,7 +143,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             }
             else
             {
-                if (parameter.HasDefaultValue && arguments.IsEmpty)
+                if (parameter.IsOptional && arguments.IsEmpty)
                     parametersToPass[paramIndex] = parameter.DefaultValue;
                 else
                 {

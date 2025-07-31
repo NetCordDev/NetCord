@@ -63,7 +63,7 @@ internal static class SlashCommandParametersHelper
 
                 optionIndex++;
             }
-            else if (parameter.HasDefaultValue)
+            else if (parameter.IsOptional)
                 value = parameter.DefaultValue;
             else
                 return ParametersMismatchResult.SlashCommandNotMatching;
@@ -75,7 +75,7 @@ internal static class SlashCommandParametersHelper
         {
             var parameter = parameters[parameterIndex];
 
-            if (!parameter.HasDefaultValue)
+            if (!parameter.IsOptional)
                 return ParametersMismatchResult.SlashCommandNotMatching;
 
             parametersToPass[parameterIndex] = parameter.DefaultValue;

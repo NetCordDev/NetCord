@@ -237,7 +237,22 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
 
     [SlashCommand("test2", "This is test")]
 #pragma warning disable IDE0060 // Remove unused parameter
-    public Task TestAsync(byte i1, decimal i2, double i3, Half i4, short i5, int i6, long i7, Int128 i8, nint i9, sbyte i10, float i11, ushort i12, uint i13, ulong i14, UInt128 i15, nuint i16)
+    public Task TestAsync(byte? i1 = 10,
+                          decimal? i2 = 10,
+                          double? i3 = 10,
+                          Half? i4 = default,
+                          short? i5 = 10,
+                          int? i6 = 10,
+                          long? i7 = 10,
+                          Int128? i8 = default,
+                          nint? i9 = 10,
+                          sbyte? i10 = 10,
+                          float? i11 = 10,
+                          ushort? i12 = 10,
+                          uint? i13 = 10,
+                          ulong? i14 = 10,
+                          UInt128? i15 = default,
+                          nuint? i16 = 10)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
         return RespondAsync(InteractionCallback.Message("Wzium"));

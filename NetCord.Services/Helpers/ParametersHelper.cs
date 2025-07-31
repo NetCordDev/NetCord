@@ -60,7 +60,7 @@ internal static class ParametersHelper
         {
             if (underlyingType is null)
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
 
                 if (typeReaders.TryGetValue(type, out var typeReader))
                     resultTypeReader = typeReader;
@@ -73,7 +73,7 @@ internal static class ParametersHelper
             }
             else
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
 
                 if (typeReaders.TryGetValue(type, out var typeReader) || typeReaders.TryGetValue(underlyingType, out typeReader))
                     resultTypeReader = typeReader;
@@ -89,12 +89,12 @@ internal static class ParametersHelper
         {
             if (underlyingType is null)
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetNonUnderlyingTypeDefaultValue(type, parameter) : null;
                 resultNonNullableType = type;
             }
             else
             {
-                resultDefaultValue = parameter.HasDefaultValue ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
+                resultDefaultValue = parameter.IsOptional ? ParameterHelper.GetUnderlyingTypeDefaultValue(underlyingType, parameter) : null;
                 resultNonNullableType = underlyingType;
             }
 
