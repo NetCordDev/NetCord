@@ -114,7 +114,7 @@ internal static class ParameterHelper
     public static object? GetUnderlyingEnumDefaultValue(Type type, ParameterInfo parameter)
     {
         var defaultValue = GetUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
-        return mightNeedConversion && defaultValue is not null ? Enum.ToObject(type, defaultValue) : null;
+        return mightNeedConversion && defaultValue is not null ? Enum.ToObject(type, defaultValue) : defaultValue;
     }
 
     private static object? GetNonUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
