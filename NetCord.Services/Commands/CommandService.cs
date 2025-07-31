@@ -172,7 +172,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
 
                         if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
                         {
-                            if (parameter.HasDefaultValue && paramIndex != maxParamIndex)
+                            if (parameter.IsOptional && paramIndex != maxParamIndex)
                             {
                                 parametersToPass[paramIndex] = parameter.DefaultValue;
                                 isLastArgGood = true;
@@ -200,7 +200,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
                         isLastArgGood = false;
                         Skip:;
                     }
-                    else if (parameter.HasDefaultValue)
+                    else if (parameter.IsOptional)
                     {
                         parametersToPass[paramIndex] = parameter.DefaultValue;
                         isLastArgGood = true;
@@ -222,7 +222,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
                     }
                     goto Break;
                 }
-                else if (parameter.HasDefaultValue)
+                else if (parameter.IsOptional)
                 {
                     parametersToPass[paramIndex] = parameter.DefaultValue;
                     goto Break;

@@ -7,50 +7,50 @@ namespace NetCord.Services.Helpers;
 
 internal static class ParameterHelper
 {
-    public static object? GetParameterDefaultValue(Type type, ParameterInfo parameter)
-    {
-        var underlyingType = Nullable.GetUnderlyingType(type);
-        return underlyingType is null
-            ? GetNonUnderlyingTypeDefaultValue(type, parameter)
-            : GetUnderlyingTypeDefaultValue(underlyingType, parameter);
-    }
-
     public static object? GetNonUnderlyingTypeDefaultValue(Type type, ParameterInfo parameter)
     {
         if (!type.IsValueType)
-            return parameter.DefaultValue;
+            return GetNonUnderlyingTypeRawDefaultValue(parameter, out _);
         else if (type.IsPrimitive)
         {
-            var defaultValue = parameter.DefaultValue;
-            if (type == typeof(nint))
-                return (nint)(int)defaultValue!;
-            else if (type == typeof(nuint))
-                return (nuint)(uint)defaultValue!;
-            else
-                return defaultValue;
+            var defaultValue = GetNonUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
+
+            if (mightNeedConversion)
+            {
+                if (type == typeof(nint))
+                    return (nint)(int)defaultValue!;
+                else if (type == typeof(nuint))
+                    return (nuint)(uint)defaultValue!;
+            }
+
+            return defaultValue;
         }
         else if (type == typeof(decimal) || type.IsEnum)
-            return parameter.DefaultValue;
+            return GetNonUnderlyingTypeRawDefaultValue(parameter, out _);
         else
-            return GetDefaultValue(type);
+            return GetTypeDefaultValue(type);
     }
 
-    public static object? GetUnderlyingTypeDefaultValue(Type type, ParameterInfo parameter)
+    public static object? GetUnderlyingTypeDefaultValue(Type underlyingType, ParameterInfo parameter)
     {
-        if (type.IsPrimitive)
+        if (underlyingType.IsPrimitive)
         {
-            var defaultValue = parameter.DefaultValue;
-            if (type == typeof(nint))
-                return defaultValue is null ? null : (nint)(int)defaultValue;
-            else if (type == typeof(nuint))
-                return defaultValue is null ? null : (nuint)(uint)defaultValue;
-            else
-                return defaultValue;
+            var defaultValue = GetUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
+
+            if (mightNeedConversion)
+            {
+                if (underlyingType == typeof(nint))
+                    return defaultValue is null ? null : (nint)(int)defaultValue;
+                else if (underlyingType == typeof(nuint))
+                    return defaultValue is null ? null : (nuint)(uint)defaultValue;
+            }
+
+            return defaultValue;
         }
-        else if (type == typeof(decimal))
-            return parameter.DefaultValue;
-        else if (type.IsEnum)
-            return GetUnderlyingEnumDefaultValue(type, parameter);
+        else if (underlyingType == typeof(decimal))
+            return GetUnderlyingTypeRawDefaultValue(parameter, out _);
+        else if (underlyingType.IsEnum)
+            return GetUnderlyingEnumDefaultValue(underlyingType, parameter);
         else
             return null;
     }
@@ -66,19 +66,23 @@ internal static class ParameterHelper
     public static Expression GetNonUnderlyingTypeDefaultValueExpression(Type type, ParameterInfo parameter)
     {
         if (!type.IsValueType)
-            return Expression.Constant(parameter.DefaultValue, type);
+            return Expression.Constant(GetNonUnderlyingTypeRawDefaultValue(parameter, out _), type);
         else if (type.IsPrimitive)
         {
-            var defaultValue = parameter.DefaultValue;
-            if (type == typeof(nint))
-                return Expression.Constant((nint)(int)defaultValue!, type);
-            else if (type == typeof(nuint))
-                return Expression.Constant((nuint)(uint)defaultValue!, type);
-            else
-                return Expression.Constant(defaultValue, type);
+            var defaultValue = GetNonUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
+
+            if (mightNeedConversion)
+            {
+                if (type == typeof(nint))
+                    return Expression.Constant((nint)(int)defaultValue!, type);
+                else if (type == typeof(nuint))
+                    return Expression.Constant((nuint)(uint)defaultValue!, type);
+            }
+
+            return Expression.Constant(defaultValue, type);
         }
         else if (type == typeof(decimal) || type.IsEnum)
-            return Expression.Constant(parameter.DefaultValue, type);
+            return Expression.Constant(GetNonUnderlyingTypeRawDefaultValue(parameter, out _), type);
         else
             return Expression.Default(type);
     }
@@ -87,16 +91,20 @@ internal static class ParameterHelper
     {
         if (underlyingType.IsPrimitive)
         {
-            var defaultValue = parameter.DefaultValue;
-            if (underlyingType == typeof(nint))
-                return Expression.Constant(defaultValue is null ? null : (nint)(int)defaultValue, type);
-            else if (underlyingType == typeof(nuint))
-                return Expression.Constant(defaultValue is null ? null : (nuint)(uint)defaultValue, type);
-            else
-                return Expression.Constant(defaultValue, type);
+            var defaultValue = GetUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
+
+            if (mightNeedConversion)
+            {
+                if (underlyingType == typeof(nint))
+                    return Expression.Constant(defaultValue is null ? null : (nint)(int)defaultValue, type);
+                else if (underlyingType == typeof(nuint))
+                    return Expression.Constant(defaultValue is null ? null : (nuint)(uint)defaultValue, type);
+            }
+
+            return Expression.Constant(defaultValue, type);
         }
         else if (underlyingType == typeof(decimal))
-            return Expression.Constant(parameter.DefaultValue, type);
+            return Expression.Constant(GetUnderlyingTypeRawDefaultValue(parameter, out _), type);
         else if (underlyingType.IsEnum)
             return Expression.Constant(GetUnderlyingEnumDefaultValue(underlyingType, parameter), type);
         else
@@ -105,10 +113,26 @@ internal static class ParameterHelper
 
     public static object? GetUnderlyingEnumDefaultValue(Type type, ParameterInfo parameter)
     {
-        var defaultValue = parameter.DefaultValue;
-        return defaultValue is null ? null : Enum.ToObject(type, defaultValue);
+        var defaultValue = GetUnderlyingTypeRawDefaultValue(parameter, out bool mightNeedConversion);
+        return mightNeedConversion && defaultValue is not null ? Enum.ToObject(type, defaultValue) : defaultValue;
+    }
+
+    private static object? GetNonUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
+    {
+        if (mightNeedConversion = parameter.HasDefaultValue)
+            return parameter.DefaultValue;
+
+        return GetTypeDefaultValue(parameter.ParameterType);
+    }
+
+    private static object? GetUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
+    {
+        if (mightNeedConversion = parameter.HasDefaultValue)
+            return parameter.DefaultValue;
+
+        return null;
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2067:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "This does not actually require constructors to work")]
-    private static object? GetDefaultValue(Type type) => RuntimeHelpers.GetUninitializedObject(type);
+    private static object? GetTypeDefaultValue(Type type) => RuntimeHelpers.GetUninitializedObject(type);
 }

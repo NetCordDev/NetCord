@@ -12,7 +12,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
     public Type ElementType { get; }
     public Type NonNullableElementType { get; }
     public Type Type { get; }
-    public bool HasDefaultValue { get; }
+    public bool IsOptional { get; }
     public object? DefaultValue { get; }
     public bool Remainder { get; }
     public bool Params { get; }
@@ -21,7 +21,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
 
     internal CommandParameter(ParameterInfo parameter, MethodInfo method, CommandServiceConfiguration<TContext> configuration)
     {
-        HasDefaultValue = parameter.HasDefaultValue;
+        IsOptional = parameter.IsOptional;
 
         var attributesIEnumerable = parameter.GetCustomAttributes();
         var attributes = Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());

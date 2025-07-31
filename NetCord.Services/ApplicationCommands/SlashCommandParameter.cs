@@ -15,7 +15,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     public SlashCommandTypeReader<TContext> TypeReader { get; }
     public Type Type { get; }
     public Type NonNullableType { get; }
-    public bool HasDefaultValue { get; }
+    public bool IsOptional { get; }
     public object? DefaultValue { get; }
     public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Name { get; }
@@ -37,7 +37,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
     internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
-        HasDefaultValue = parameter.HasDefaultValue;
+        IsOptional = parameter.IsOptional;
         var attributesIEnumerable = parameter.GetCustomAttributes();
         Attributes = attributesIEnumerable.ToRankedFrozenDictionary(a => a.GetType());
         LocalizationsProvider = configuration.LocalizationsProvider;
@@ -60,7 +60,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             else
             {
                 if (!choicesProviderType.IsAssignableTo(typeof(IChoicesProvider<TContext>)))
-                    throw new InvalidOperationException($"'{choicesProviderType}' is not assignable to '{nameof(IChoicesProvider<TContext>)}<{typeof(TContext).Name}>'.");
+                    throw new InvalidOperationException($"'{choicesProviderType}' is not assignable to '{nameof(IChoicesProvider<>)}<{typeof(TContext).Name}>'.");
                 ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
             }
 
@@ -100,7 +100,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MinValue = MinValue,
             MaxLength = MaxLength,
             MinLength = MinLength,
-            Required = !HasDefaultValue,
+            Required = !IsOptional,
             Autocomplete = _invokeAutocompleteAsync is not null,
             Choices = ChoicesProvider is null ? null : await ChoicesProvider.GetChoicesAsync(this).ConfigureAwait(false),
             ChannelTypes = AllowedChannelTypes,
@@ -126,7 +126,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
         var context = Expression.Parameter(typeof(TAutocompleteContext));
         var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-        var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod(nameof(IAutocompleteProvider<TAutocompleteContext>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
+        var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod(nameof(IAutocompleteProvider<>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
         var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider, serviceResolverProvider),
                                    getChoicesAsyncMethod,
                                    option, context);
