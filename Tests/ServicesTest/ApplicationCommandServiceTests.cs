@@ -1,6 +1,6 @@
 ﻿namespace ServicesTest;
 
 [TestClass]
-public class ApplicationCommandServiceTests
+public class ApplicationCommandServiceTests : ServiceTests<ApplicationCommandServiceTester>
 {
 }
