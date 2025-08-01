@@ -11,6 +11,8 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
 
     public override bool SupportsReadOnlyMemoryChar => false;
 
+    public override bool SupportsUser => true;
+
     private ApplicationCommandInteraction CreateInteraction(string name, string[] argumentValues, IReadOnlyList<string> argumentNames, ApplicationCommandType type)
     {
         JsonInteraction jsonModel = new()

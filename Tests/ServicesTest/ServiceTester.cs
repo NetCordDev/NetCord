@@ -11,6 +11,8 @@ public abstract class ServiceTester
 
     public abstract bool SupportsReadOnlyMemoryChar { get; }
 
+    public abstract bool SupportsUser { get; }
+
     public abstract ValueTask ExecuteNoArgumentsAsync(string commandName, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null);
 
     public abstract ValueTask ExecuteSingleArgumentAsync(string commandName, string argument, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null);

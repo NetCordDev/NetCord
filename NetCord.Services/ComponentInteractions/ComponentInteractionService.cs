@@ -10,11 +10,11 @@ namespace NetCord.Services.ComponentInteractions;
 public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IComponentInteractionService where TContext : IComponentInteractionContext
 {
     private readonly ComponentInteractionServiceConfiguration<TContext> _configuration = configuration ?? ComponentInteractionServiceConfiguration<TContext>.Default;
-    private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _interactions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
+    private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _componentInteractions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
     public ComponentInteractionServiceConfiguration<TContext> Configuration => _configuration;
 
-    public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_interactions);
+    public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetComponentInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_componentInteractions);
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
@@ -45,14 +45,14 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             if (interactionAttribute is null)
                 continue;
             ComponentInteractionInfo<TContext> interactionInfo = new(method, type, configuration);
-            _interactions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
+            _componentInteractions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
         }
     }
 
     public void AddComponentInteraction(string customId, Delegate handler)
     {
         ComponentInteractionInfo<TContext> interactionInfo = new(handler, _configuration);
-        _interactions.Add(customId.AsMemory(), interactionInfo);
+        _componentInteractions.Add(customId.AsMemory(), interactionInfo);
     }
 
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
@@ -212,6 +212,6 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
 
     private bool TryGetInteractionInfo(ReadOnlyMemory<char> customId, [MaybeNullWhen(false)] out ComponentInteractionInfo<TContext> result)
     {
-        return _interactions.TryGetValue(customId, out result);
+        return _componentInteractions.TryGetValue(customId, out result);
     }
 }

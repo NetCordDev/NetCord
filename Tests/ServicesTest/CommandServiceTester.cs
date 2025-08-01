@@ -10,6 +10,8 @@ public sealed class CommandServiceTester : ServiceTester
 
     public override bool SupportsReadOnlyMemoryChar => true;
 
+    public override bool SupportsUser => true;
+
     private Message CreateMessage(string content)
     {
         JsonMessage jsonModel = new()

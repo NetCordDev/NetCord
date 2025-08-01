@@ -291,10 +291,10 @@ public abstract class ServiceTests<TTester> where TTester : ServiceTester, new()
                     casted = null;
 
                 await _tester.ExecuteSingleArgumentAsync(
-                        "test",
-                        valueString,
-                        casted.HasValue ? ResultHandler.DataMatch(casted.GetValueOrDefault()) : ResultHandler.ParseFail(),
-                        (T number) => Body.Data(number)).ConfigureAwait(false);
+                    "test",
+                    valueString,
+                    casted.HasValue ? ResultHandler.DataMatch(casted.GetValueOrDefault()) : ResultHandler.ParseFail(),
+                    (T number) => Body.Data(number)).ConfigureAwait(false);
             }
         }
     }
@@ -339,7 +339,8 @@ public abstract class ServiceTests<TTester> where TTester : ServiceTester, new()
 
         // Only optional attribute reference types
         await OnlyOptionalAttributeReferenceType<string>().ConfigureAwait(false);
-        await OnlyOptionalAttributeReferenceType<User>().ConfigureAwait(false);
+        if (_tester.SupportsUser)
+            await OnlyOptionalAttributeReferenceType<User>().ConfigureAwait(false);
 
         // Optional with custom default value value types
         await OptionalWithCustomDefaultValueValueType((sbyte)10, (sbyte n = 10) => Body.Data(n)).ConfigureAwait(false);
@@ -386,7 +387,8 @@ public abstract class ServiceTests<TTester> where TTester : ServiceTester, new()
 
         // Optional with default value reference types
         await OptionalWithDefaultValueReferenceType<string>().ConfigureAwait(false);
-        await OptionalWithDefaultValueReferenceType<User>().ConfigureAwait(false);
+        if (_tester.SupportsUser)
+            await OptionalWithDefaultValueReferenceType<User>().ConfigureAwait(false);
 
         async ValueTask OnlyOptionalAttributeValueType<T>() where T : struct
         {
