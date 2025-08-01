@@ -120,7 +120,17 @@ internal static class ParameterHelper
     private static object? GetNonUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
     {
         if (mightNeedConversion = parameter.HasDefaultValue)
-            return parameter.DefaultValue;
+        {
+            var defaultValue = parameter.DefaultValue;
+
+            if (defaultValue is null) // The default value may be null for non-nullable value types
+            {
+                mightNeedConversion = false;
+                return GetTypeDefaultValue(parameter.ParameterType);
+            }
+
+            return defaultValue;
+        }
 
         return GetTypeDefaultValue(parameter.ParameterType);
     }
@@ -134,5 +144,5 @@ internal static class ParameterHelper
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2067:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "This does not actually require constructors to work")]
-    private static object? GetTypeDefaultValue(Type type) => RuntimeHelpers.GetUninitializedObject(type);
+    private static object? GetTypeDefaultValue(Type type) => type.IsValueType ? RuntimeHelpers.GetUninitializedObject(type) : null;
 }
