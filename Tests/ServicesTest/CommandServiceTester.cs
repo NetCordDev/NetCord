@@ -4,13 +4,20 @@ using NetCord.Services.Commands;
 
 namespace ServicesTest;
 
-public sealed class CommandServiceTester : ServiceTester
+public sealed class CommandServiceTesterSession
 {
-    public override bool SupportsBigInteger => true;
+    public CommandServiceTesterSession(GatewayClient client)
+    {
+        _client = client;
 
-    public override bool SupportsReadOnlyMemoryChar => true;
+        _service = new(_config = CommandServiceConfiguration<CommandContext>.Default);
+    }
 
-    public override bool SupportsUser => true;
+    private readonly GatewayClient _client;
+
+    private readonly CommandServiceConfiguration<CommandContext> _config;
+
+    private readonly CommandService<CommandContext> _service;
 
     private Message CreateMessage(string content)
     {
@@ -26,25 +33,21 @@ public sealed class CommandServiceTester : ServiceTester
         return new(jsonModel, null, null, _client.Rest);
     }
 
-    public async ValueTask ExecuteMultipleAsync(string[] commands, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
+    public string GetCommandName(string command)
     {
-        foreach (var command in commands)
-            await ExecuteAsync(command, resultHandler, handler, services).ConfigureAwait(false);
+        return command.Split([.. _config.ParameterSeparators])[0];
     }
 
-    public async ValueTask ExecuteAsync(string command, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
+    public void AddCommand(string commandName, Delegate handler, int priority = 0)
     {
-        var config = CommandServiceConfiguration<CommandContext>.Default;
+        _service.AddCommand([commandName], handler, priority);
+    }
 
-        CommandService<CommandContext> service = new(config);
-
-        var commandName = command.Split([.. config.ParameterSeparators])[0];
-
-        service.AddCommand([commandName], handler);
-
+    public async ValueTask ExecuteAsync(string command, ResultHandler resultHandler, IServiceProvider? services = null)
+    {
         var message = CreateMessage(command);
         CommandContext context = new(message, _client);
-        var result = await service.ExecuteAsync(0, context, services).ConfigureAwait(false);
+        var result = await _service.ExecuteAsync(0, context, services).ConfigureAwait(false);
 
         try
         {
@@ -55,14 +58,39 @@ public sealed class CommandServiceTester : ServiceTester
             Assert.Fail($"Assertion failed for command '{command}'.\n{ex.Message}");
         }
     }
+}
+
+public sealed class CommandServiceTester : ServiceTester
+{
+    public override bool SupportsBigInteger => true;
+
+    public override bool SupportsReadOnlyMemoryChar => true;
+
+    public override bool SupportsUser => true;
+
+    public CommandServiceTesterSession StartSession()
+    {
+        return new CommandServiceTesterSession(_client);
+    }
+
+    public ValueTask ExecuteAsync(string command, ResultHandler resultHandler, Delegate handler, int priority = 0, IServiceProvider? services = null)
+    {
+        var session = StartSession();
+
+        var commandName = session.GetCommandName(command);
+
+        session.AddCommand(commandName, handler, priority);
+
+        return session.ExecuteAsync(command, resultHandler, services);
+    }
 
     public override ValueTask ExecuteNoArgumentsAsync(string commandName, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
     {
-        return ExecuteAsync(commandName, resultHandler, handler, services);
+        return ExecuteAsync(commandName, resultHandler, handler, services: services);
     }
 
     public override ValueTask ExecuteSingleArgumentAsync(string commandName, string argument, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
     {
-        return ExecuteAsync($"{commandName} {argument}", resultHandler, handler, services);
+        return ExecuteAsync($"{commandName} {argument}", resultHandler, handler, services: services);
     }
 }

@@ -6,7 +6,7 @@ public class ComponentInteractionServiceTests : ServiceTests<ComponentInteractio
     [TestMethod]
     public async ValueTask Basic()
     {
-        await _tester.ExecuteRawAsync("test", null, ResultHandler.Success(), () => { }).ConfigureAwait(false);
+        await _tester.ExecuteRawAsync("test", null, ResultHandler.DataMatch("test"), () => Body.Data("test")).ConfigureAwait(false);
     }
 
     [TestMethod]
@@ -22,6 +22,6 @@ public class ComponentInteractionServiceTests : ServiceTests<ComponentInteractio
         await _tester.ExecuteRawAsync("test", "test:", ResultHandler.DataMatch((string?)null), (string? s = null) => Body.Data(s)).ConfigureAwait(false);
 
         // https://github.com/dotnet/roslyn/issues/79752
-        //await _tester.ExecuteRawAsync("test", "test:", ResultHandler.DataMatch(Array.Empty<string>()), (params string[] s) => Body.Data(s)).ConfigureAwait(false);
+        //await _tester.ExecuteRawAsync("test", "test:", ResultHandler.DataMatch(Array.Empty<string>()), (params string[] s) => Body.DataItem(s)).ConfigureAwait(false);
     }
 }

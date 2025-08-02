@@ -6,7 +6,7 @@ public class ApplicationCommandServiceTests : ServiceTests<ApplicationCommandSer
     [TestMethod]
     public async ValueTask Basic()
     {
-        await _tester.ExecuteAsync("test", [], ResultHandler.Success(), () => { }).ConfigureAwait(false);
+        await _tester.ExecuteAsync("test", [], ResultHandler.DataMatch("test"), () => Body.Data("test")).ConfigureAwait(false);
     }
 
     [TestMethod]
