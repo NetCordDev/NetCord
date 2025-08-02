@@ -46,11 +46,6 @@ public class ComponentInteractionServiceTester : ServiceTester
 
         service.AddComponentInteraction(customIdBase, handler);
 
-        //string customId;
-
-        //if (customIdArguments is null)
-        //    customId = customIdBase;
-        //else
         if (customId is null)
         {
             var componentInteraction = service.GetComponentInteractions().Values.First();
