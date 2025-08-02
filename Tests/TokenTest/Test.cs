@@ -9,7 +9,7 @@ public class Test
     public void BotTokenTest()
     {
         var tokenId = 803377270878109726uL;
-        var rawToken = "ODAzMzc3MjcwODc4MTA5NzI2.GAVT0D.DDNY-77JFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
+        var rawToken = "ODAzMzc3MjcwODc4MTA5NzI2.tHis.IS.not.A.ReAl.tOkeN";
 
         BotToken token = new(rawToken);
 
@@ -21,7 +21,7 @@ public class Test
 
         Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
 
-        rawToken = "ODAzMzc3MjcwODc4MTA5Nz2s.GAVT0D.DDNY-77JFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
+        rawToken = "ODAzMzc3MjcwODc4MTA5Nz2s.tHis.IS.not.A.ReAl.tOkeN";
 
         Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
 
@@ -32,7 +32,7 @@ public class Test
     [TestMethod]
     public void BearerTokenTest()
     {
-        var rawToken = "PX47ggGjGyUiZVxUKi9owQ2ObzVZfg";
+        var rawToken = "THisiSnOtaReAltoKEN";
 
         BearerToken token = new(rawToken);
 

@@ -5,7 +5,7 @@ namespace ServicesTest;
 
 public abstract class ServiceTester
 {
-    protected readonly GatewayClient _client = new(new BotToken("ODAzMzc3MjcwODc4MTA5NzI2.GAVT0D.DDNY-77JFnrMDZxSSwlq3WdlZH-3grIPBPKrSA"));
+    protected readonly GatewayClient _client = new(new BotToken("ODAzMzc3MjcwODc4MTA5NzI2.tHis.IS.not.A.ReAl.tOkeN"));
 
     public abstract bool SupportsBigInteger { get; }
 
