@@ -28,7 +28,7 @@ internal static class ParameterHelper
         else if (type == typeof(decimal) || type.IsEnum)
             return GetNonUnderlyingTypeRawDefaultValue(parameter, out _);
         else
-            return GetTypeDefaultValue(type);
+            return GetUninitializedObject(type);
     }
 
     public static object? GetUnderlyingTypeDefaultValue(Type underlyingType, ParameterInfo parameter)
@@ -119,10 +119,22 @@ internal static class ParameterHelper
 
     private static object? GetNonUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
     {
-        if (mightNeedConversion = parameter.HasDefaultValue)
-            return parameter.DefaultValue;
+        if (parameter.HasDefaultValue)
+        {
+            var defaultValue = parameter.DefaultValue;
 
-        return GetTypeDefaultValue(parameter.ParameterType);
+            // The default value may be null for non-nullable value types, in which case we return the default value for that type
+            if (defaultValue is not null)
+            {
+                mightNeedConversion = true;
+                return defaultValue;
+            }
+        }
+
+        mightNeedConversion = false;
+
+        var type = parameter.ParameterType;
+        return type.IsValueType ? GetUninitializedObject(type) : null;
     }
 
     private static object? GetUnderlyingTypeRawDefaultValue(ParameterInfo parameter, out bool mightNeedConversion)
@@ -134,5 +146,5 @@ internal static class ParameterHelper
     }
 
     [UnconditionalSuppressMessage("Trimming", "IL2067:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The parameter of method does not have matching annotations.", Justification = "This does not actually require constructors to work")]
-    private static object? GetTypeDefaultValue(Type type) => RuntimeHelpers.GetUninitializedObject(type);
+    private static object? GetUninitializedObject(Type type) => RuntimeHelpers.GetUninitializedObject(type);
 }

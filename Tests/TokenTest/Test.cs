@@ -9,7 +9,7 @@ public class Test
     public void BotTokenTest()
     {
         var tokenId = 803377270878109726uL;
-        var rawToken = "ODAzMzc3MjcwODc4MTA5NzI2.GAVT0D.DDNY-77JFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
+        var rawToken = "ODAzMzc3MjcwODc4MTA5NzI2.tHis.IS.not.A.ReAl.tOkeN";
 
         BotToken token = new(rawToken);
 
@@ -19,20 +19,20 @@ public class Test
 
         rawToken = "ODAzMzc3MjcwOFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(rawToken));
 
-        rawToken = "ODAzMzc3MjcwODc4MTA5Nz2s.GAVT0D.DDNY-77JFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
+        rawToken = "ODAzMzc3MjcwODc4MTA5Nz2s.tHis.IS.not.A.ReAl.tOkeN";
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(rawToken));
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(null!));
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(string.Empty));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(null!));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(string.Empty));
     }
 
     [TestMethod]
     public void BearerTokenTest()
     {
-        var rawToken = "PX47ggGjGyUiZVxUKi9owQ2ObzVZfg";
+        var rawToken = "THisiSnOtaReAltoKEN";
 
         BearerToken token = new(rawToken);
 
