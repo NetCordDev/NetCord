@@ -26,9 +26,6 @@ public class CommandServiceTests : ServiceTests<CommandServiceTester>
                 "test\n\n  \n\n    \n\n \n\n\ntest"
             ],
             ResultHandler.DataMatch("test"),
-            (string s) =>
-            {
-                Body.Data(s);
-            }).ConfigureAwait(false);
+            (string s) => Body.Data(s)).ConfigureAwait(false);
     }
 }

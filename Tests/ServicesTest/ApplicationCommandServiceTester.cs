@@ -13,7 +13,7 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
 
     public override bool SupportsUser => true;
 
-    private ApplicationCommandInteraction CreateInteraction(string name, string[] argumentValues, IReadOnlyList<string> argumentNames, ApplicationCommandType type)
+    private ApplicationCommandInteraction CreateInteraction(string name, string?[] argumentValues, IReadOnlyList<string> argumentNames, ApplicationCommandType type)
     {
         JsonInteraction jsonModel = new()
         {
@@ -24,14 +24,13 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
                 Name = name,
                 Options =
                 [..
-                    argumentValues.Select(
-                        (a, i) =>
-                            new JsonApplicationCommandInteractionDataOption()
-                            {
-                                Name = argumentNames[i],
-                                Type = ApplicationCommandOptionType.String,
-                                Value = a,
-                            }
+                    argumentValues.Index().Where(x => x.Item is not null).Select(x =>
+                        new JsonApplicationCommandInteractionDataOption()
+                        {
+                            Name = argumentNames[x.Index],
+                            Type = ApplicationCommandOptionType.String,
+                            Value = x.Item,
+                        }
                     )
                 ],
             },
@@ -43,7 +42,7 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
         return (ApplicationCommandInteraction)Interaction.CreateFromJson(jsonModel, null, (_, _, _, _, _) => Task.FromResult<InteractionCallbackResponse?>(null), _client.Rest);
     }
 
-    public async ValueTask ExecuteAsync(string commandName, string[] arguments, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
+    public async ValueTask ExecuteAsync(string commandName, string?[] arguments, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
     {
         NameAndTypeApplicationCommandServiceStorage<ApplicationCommandContext> storage = new();
 
@@ -80,7 +79,7 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
         return ExecuteAsync(commandName, [], resultHandler, handler, services);
     }
 
-    public override ValueTask ExecuteSingleArgumentAsync(string commandName, string argument, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
+    public override ValueTask ExecuteSingleArgumentAsync(string commandName, string? argument, ResultHandler resultHandler, Delegate handler, IServiceProvider? services = null)
     {
         return ExecuteAsync(commandName, [argument], resultHandler, handler, services);
     }
