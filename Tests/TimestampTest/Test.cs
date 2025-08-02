@@ -77,7 +77,7 @@ public class Test
         foreach (var input in notValid)
         {
             Assert.IsFalse(Timestamp.TryParse(input, out _));
-            Assert.ThrowsException<FormatException>(() => Timestamp.Parse(input));
+            Assert.ThrowsExactly<FormatException>(() => Timestamp.Parse(input));
         }
     }
 }

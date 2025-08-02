@@ -19,14 +19,14 @@ public class Test
 
         rawToken = "ODAzMzc3MjcwOFnrMDZxSSwlq3WdlZH-3grIPBPKrSA";
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(rawToken));
 
         rawToken = "ODAzMzc3MjcwODc4MTA5Nz2s.tHis.IS.not.A.ReAl.tOkeN";
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(rawToken));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(rawToken));
 
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(null!));
-        Assert.ThrowsException<ArgumentException>(() => new BotToken(string.Empty));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(null!));
+        Assert.ThrowsExactly<ArgumentException>(() => new BotToken(string.Empty));
     }
 
     [TestMethod]

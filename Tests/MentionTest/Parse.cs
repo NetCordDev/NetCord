@@ -100,7 +100,7 @@ public unsafe class Parse
         };
 
         foreach (var badMention in badMentions)
-            Assert.ThrowsException<FormatException>(() => parse(badMention));
+            Assert.ThrowsExactly<FormatException>(() => parse(badMention));
     }
 
     public static void TryParseTest<T>(delegate*<ReadOnlySpan<char>, out T?, bool> tryParse, T expected, Func<T, string> validMentionFunc)
