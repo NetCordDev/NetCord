@@ -165,7 +165,19 @@ public sealed partial class VoiceClient : WebSocketClient
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
-        => status is not ((WebSocketCloseStatus)4004 or (WebSocketCloseStatus)4006 or (WebSocketCloseStatus)4009 or (WebSocketCloseStatus)4014);
+    {
+        return status is not (
+            (WebSocketCloseStatus)4004 or
+            (WebSocketCloseStatus)4006 or
+            (WebSocketCloseStatus)4009 or
+            (WebSocketCloseStatus)4011 or
+            (WebSocketCloseStatus)4012 or
+            (WebSocketCloseStatus)4014 or
+            (WebSocketCloseStatus)4016 or
+            (WebSocketCloseStatus)4021 or
+            (WebSocketCloseStatus)4022
+        );
+    }
 
     private protected override ValueTask TryResumeAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
