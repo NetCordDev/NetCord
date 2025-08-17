@@ -45,7 +45,7 @@ public interface IEntityToken : IToken, IEntity
     [SkipLocalsInit]
     protected static bool TryGetTokenId(ReadOnlySpan<char> token, out ulong id)
     {
-        const int MaxSnowflakeLength = 19;
+        const int MaxSnowflakeLength = 20;
         const int MaxBase64Length = ((MaxSnowflakeLength * 4) + 2) / 3;
         const int MaxBase64LengthWithPadding = (MaxSnowflakeLength + 2) * 4 / 3;
 
