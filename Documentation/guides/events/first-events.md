@@ -5,7 +5,7 @@
 The preferred way to receive events with the .NET Generic Host is by implementing appropriate @"NetCord.Hosting.Gateway.IGatewayHandler"s. An example of such an interface is @NetCord.Hosting.Gateway.IMessageCreateGatewayHandler.
 
 Use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddGatewayHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add all event handlers in an assembly.
-[!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=17,20)]
+[!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=17)]
 
 ### MessageCreate Event
 Now it's time to implement your MessageCreate event handler!
