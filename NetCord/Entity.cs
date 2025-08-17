@@ -6,7 +6,7 @@ public abstract class Entity : IEntity, ISpanFormattable, IEquatable<Entity>
 {
     public abstract ulong Id { get; }
 
-    public DateTimeOffset CreatedAt => Snowflake.CreatedAt(Id);
+    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
 
     public static bool operator ==(Entity? left, Entity? right) => left is null ? right is null : right is not null && left.Id == right.Id;
 

@@ -161,7 +161,7 @@ public partial class StrangeCommands : CommandModule<CommandContext>
         var fields = new EmbedFieldProperties[]
         {
             new() { Name = "Id", Value = id.ToString()! },
-            new() { Name = "Created At", Value = new Timestamp(Snowflake.CreatedAt(id)).ToString() },
+            new() { Name = "Created At", Value = new Timestamp(Snowflake.Timestamp(id)).ToString() },
             new() { Name = "Internal Worker Id", Value = Snowflake.InternalWorkerId(id).ToString() },
             new() { Name = "Internal Process Id", Value = Snowflake.InternalProcessId(id).ToString() },
             new() { Name = "Increment", Value = Snowflake.Increment(id).ToString() },

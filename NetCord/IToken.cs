@@ -22,7 +22,7 @@ public class BotToken : IEntityToken
 
     public ulong Id { get; }
 
-    public DateTimeOffset CreatedAt => Snowflake.CreatedAt(Id);
+    public DateTimeOffset CreatedAt => Snowflake.Timestamp(Id);
 }
 
 public class BearerToken : IToken

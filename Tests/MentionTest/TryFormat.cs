@@ -15,7 +15,7 @@ public class TryFormat
 
     private static readonly IReadOnlyList<Timestamp> _timestamps = _ids.SelectMany<ulong, Timestamp>(id =>
     {
-        var timestamp = Snowflake.CreatedAt(id);
+        var timestamp = Snowflake.Timestamp(id);
         return
         [
             new(timestamp),
