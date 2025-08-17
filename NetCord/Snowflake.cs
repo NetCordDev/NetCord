@@ -54,7 +54,7 @@ public static class Snowflake
             }
         }
 
-        var c = discordTimestamp << 22;
+        var t = discordTimestamp << 22;
 
         var w = (ulong)(internalWorkerId << 17);
 
@@ -62,7 +62,7 @@ public static class Snowflake
 
         var i = (ulong)increment;
 
-        return c | w | p | i;
+        return t | w | p | i;
 
         Throw:
         ThrowArgumentOutOfRange(parameterName);
