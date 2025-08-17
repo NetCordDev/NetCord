@@ -6,10 +6,10 @@ uid: component-interactions
 
 ## [.NET Generic Host](#tab/generic-host)
 
-Adding component interactions with the .NET Generic Host is very easy. Use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceServiceCollectionExtensions.AddComponentInteractions``2(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add a component interaction service to your host builder. Then, use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceHostExtensions.AddComponentInteraction* to add a component interaction using the minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add component interaction modules from an assembly. You also need to use @NetCord.Hosting.Gateway.GatewayHandlerHostExtensions.UseGatewayHandlers(Microsoft.Extensions.Hosting.IHost) to bind the service event handlers.
+Adding component interactions with the .NET Generic Host is very easy. Use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceServiceCollectionExtensions.AddComponentInteractions``2(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add a component interaction service to your host builder. Then, use @NetCord.Hosting.Services.ComponentInteractions.ComponentInteractionServiceHostExtensions.AddComponentInteraction* to add a component interaction using the minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add component interaction modules from an assembly.
 
 Unlike application commands, component interactions require maintaining context for each interaction, as the data between component interaction types can vary significantly. While it's possible to use a single context for all component interactions and cast them as needed, it's generally recommended to use distinct contexts for different types of component interactions. This is why multiple services are added to the service collection here - each one handles a specific type of component interaction. However, you likely won't need all of them, so feel free to remove the ones that aren't relevant to your use case.
-[!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=13-19,24-30,33,36)]
+[!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=13-19,24-30,33)]
 
 ## [Bare Bones](#tab/bare-bones)
 

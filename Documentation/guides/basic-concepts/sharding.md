@@ -33,7 +33,7 @@ For a bare-bones setup, you need to manually create an instance of @NetCord.Gate
 
 To register event handlers with sharding in the .NET Generic Host, use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to add all event handlers in an assembly and then call @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to bind these handlers to the sharded client.
 
-[!code-cs[Program.cs](ShardingHosting/RegisteringHandlers.cs?highlight=10,13#L12-L26)]
+[!code-cs[Program.cs](ShardingHosting/RegisteringHandlers.cs?highlight=10#L12-L25)]
 
 When creating event handlers, implement @NetCord.Hosting.Gateway.IShardedGatewayHandler. Note the additional parameter representing the @NetCord.Gateway.GatewayClient that received the event.
 [!code-cs[Program.cs](ShardingHosting/MessageUpdateHandler.cs)]

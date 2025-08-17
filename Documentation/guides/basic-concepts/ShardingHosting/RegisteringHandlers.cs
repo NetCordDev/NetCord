@@ -20,8 +20,7 @@ internal class RegisteringHandlers
             })
             .AddShardedGatewayHandlers(typeof(Program).Assembly);
 
-        var host = builder.Build()
-            .UseShardedGatewayHandlers();
+        var host = builder.Build();
 
         await host.RunAsync();
     }

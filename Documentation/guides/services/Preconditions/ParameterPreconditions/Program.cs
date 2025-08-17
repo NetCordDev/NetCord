@@ -23,7 +23,6 @@ host.AddCommand(
         aliases: ["bye"],
         ([MustContain<CommandContext>("bye")] string text) => text);
 
-host.AddModules(typeof(Program).Assembly)
-    .UseGatewayHandlers();
+host.AddModules(typeof(Program).Assembly);
 
 await host.RunAsync();

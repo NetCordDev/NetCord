@@ -16,7 +16,6 @@ builder.Services
     })
     .AddGatewayHandlers(typeof(Program).Assembly);
 
-var host = builder.Build()
-    .UseGatewayHandlers();
+var host = builder.Build();
 
 await host.RunAsync();

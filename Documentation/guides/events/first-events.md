@@ -4,8 +4,8 @@
 
 The preferred way to receive events with the .NET Generic Host is by implementing appropriate @"NetCord.Hosting.Gateway.IGatewayHandler"s. An example of such an interface is @NetCord.Hosting.Gateway.IMessageCreateGatewayHandler.
 
-First, use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddGatewayHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add all event handlers in an assembly. You also need to call @NetCord.Hosting.Gateway.GatewayHandlerHostExtensions.UseGatewayHandlers(Microsoft.Extensions.Hosting.IHost) to bind the handlers to the client.
-[!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=17,20)]
+Use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddGatewayHandlers(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly) to add all event handlers in an assembly.
+[!code-cs[Program.cs](FirstEventsHosting/Program.cs?highlight=17)]
 
 ### MessageCreate Event
 Now it's time to implement your MessageCreate event handler!
@@ -23,7 +23,7 @@ When you run this code, when someone reacts to a message, the bot will notify ev
 Other events work similar to these. You can play with them if you want!
 
 > [!NOTE]
-> When using @NetCord.Gateway.ShardedGatewayClient, you need to implement @NetCord.Hosting.Gateway.IShardedGatewayHandler instead. An example of such an interface is @NetCord.Hosting.Gateway.IMessageCreateShardedGatewayHandler. You also need to use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to add event handlers and @NetCord.Hosting.Gateway.GatewayHandlerHostExtensions.UseShardedGatewayHandlers* to bind them instead. See @sharding?text=Sharding for more information.
+> When using @NetCord.Gateway.ShardedGatewayClient, you need to implement @NetCord.Hosting.Gateway.IShardedGatewayHandler instead. An example of such an interface is @NetCord.Hosting.Gateway.IMessageCreateShardedGatewayHandler. You also need to use @NetCord.Hosting.Gateway.GatewayHandlerServiceCollectionExtensions.AddShardedGatewayHandlers* to add event handlers. See @sharding?text=Sharding for more information.
 
 ## [Bare Bones](#tab/bare-bones)
 

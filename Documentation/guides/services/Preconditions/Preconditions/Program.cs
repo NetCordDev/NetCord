@@ -27,7 +27,6 @@ host.AddSlashCommand(
         description: "Hi!",
         [RequireAnimatedAvatar<ApplicationCommandContext>] () => "Hi! You can use this command because your avatar is animated!");
 
-host.AddModules(typeof(Program).Assembly)
-    .UseGatewayHandlers();
+host.AddModules(typeof(Program).Assembly);
 
 await host.RunAsync();

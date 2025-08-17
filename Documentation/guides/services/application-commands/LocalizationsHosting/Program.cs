@@ -15,7 +15,6 @@ builder.Services
     .AddDiscordGateway();
 
 var host = builder.Build()
-    .AddModules(typeof(Program).Assembly)
-    .UseGatewayHandlers();
+    .AddModules(typeof(Program).Assembly);
 
 await host.RunAsync();
