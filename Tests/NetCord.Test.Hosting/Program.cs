@@ -138,7 +138,6 @@ var host = builder.Build()
         return new ReplyMessageProperties()
             .WithContent(content)
             .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
-    })
-    .UseGatewayHandlers();
+    });
 
 await host.RunAsync();

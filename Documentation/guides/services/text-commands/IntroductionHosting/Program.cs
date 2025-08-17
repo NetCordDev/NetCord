@@ -18,7 +18,4 @@ host.AddCommand(["ping"], () => "Pong!");
 // Add commands from modules
 host.AddModules(typeof(Program).Assembly);
 
-// Add handlers to handle the commands
-host.UseGatewayHandlers();
-
 await host.RunAsync();

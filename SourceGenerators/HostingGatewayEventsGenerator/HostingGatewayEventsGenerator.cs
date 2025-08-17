@@ -28,7 +28,9 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             context.AddSource("GatewayHandlerInterfaces.g.cs", SourceText.From(GenerateHandlerInterfaces(source), Encoding.UTF8));
 
-            context.AddSource("GatewayHandlerHostExtensions.g.cs", SourceText.From(GenerateHandlerRegistrationMethods(source), Encoding.UTF8));
+            context.AddSource("GatewayClientHostedService.g.cs", SourceText.From(GenerateHandlerRegistrationMethods(source), Encoding.UTF8));
+
+            context.AddSource("ShardedGatewayClientHostedService.g.cs", SourceText.From(GenerateShardedHandlerRegistrationMethods(source), Encoding.UTF8));
         });
     }
 
@@ -165,17 +167,38 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
         return stringWriter.ToString();
     }
 
+    private string GenerateShardedHandlerRegistrationMethods(IEventSymbol[] events)
+    {
+        StringWriter stringWriter = new();
+        Setup(stringWriter);
+
+        WriteRegisterShardedHandlerMethods(stringWriter, events);
+
+        return stringWriter.ToString();
+    }
+
     private void WriteRegisterHandlerMethods(StringWriter stringWriter, IEventSymbol[] events)
     {
         stringWriter.WriteLine();
 
-        stringWriter.WriteLine("partial class GatewayHandlerHostExtensions");
+        stringWriter.WriteLine("partial class GatewayClientHostedService");
 
         stringWriter.Write("{");
 
         WriteRegisterDelegateHandlerMethod(stringWriter, events);
 
         WriteRegisterClassHandlerMethod(stringWriter, events);
+
+        stringWriter.WriteLine("}");
+    }
+
+    private void WriteRegisterShardedHandlerMethods(StringWriter stringWriter, IEventSymbol[] events)
+    {
+        stringWriter.WriteLine();
+
+        stringWriter.WriteLine("partial class ShardedGatewayClientHostedService");
+
+        stringWriter.Write("{");
 
         WriteRegisterDelegateShardedHandlerMethod(stringWriter, events);
 

@@ -32,7 +32,4 @@ host.AddComponentInteraction<ButtonInteractionContext>("ping", () => "Pong!")
 // Add component interactions from modules
 host.AddModules(typeof(Program).Assembly);
 
-// Add handlers to handle the component interactions
-host.UseGatewayHandlers();
-
 await host.RunAsync();
