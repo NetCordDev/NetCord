@@ -33,7 +33,7 @@ public interface IUnknownRateLimitMetadata
     public JsonElement Data { get; }
 }
 
-internal class UnknownRateLimitMetadata(JsonElement data) : RateLimitMetadata
+internal class UnknownRateLimitMetadata(JsonElement data) : RateLimitMetadata, IUnknownRateLimitMetadata
 {
     public JsonElement Data => data;
 }
