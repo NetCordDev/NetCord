@@ -7,7 +7,7 @@ uid: application-commands
 ## [.NET Generic Host](#tab/generic-host)
 
 Adding application commands with the .NET Generic Host is very easy. Use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceServiceCollectionExtensions.AddApplicationCommands(Microsoft.Extensions.DependencyInjection.IServiceCollection) to add the application command service to your host builder. Then, use @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddSlashCommand*, @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddUserCommand* or @NetCord.Hosting.Services.ApplicationCommands.ApplicationCommandServiceHostExtensions.AddMessageCommand* to add an application command using the minimal APIs way and/or use @NetCord.Hosting.Services.ServicesHostExtensions.AddModules(Microsoft.Extensions.Hosting.IHost,System.Reflection.Assembly) to add application command modules from an assembly.
-[!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=13,18-20,23,26)]
+[!code-cs[Program.cs](IntroductionHosting/Program.cs?highlight=13,18-20,23)]
 
 ## [Bare Bones](#tab/bare-bones)
 
