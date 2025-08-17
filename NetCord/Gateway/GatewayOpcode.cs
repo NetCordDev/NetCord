@@ -3,7 +3,7 @@
 /// <summary>
 /// Contains all valid opcodes sent/received by the client.
 /// </summary>
-internal enum GatewayOpcode : byte
+public enum GatewayOpcode : byte
 {
     /// <summary>
     /// An event was dispatched.

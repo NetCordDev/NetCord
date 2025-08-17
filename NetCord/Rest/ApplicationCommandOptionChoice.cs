@@ -35,8 +35,9 @@ public class ApplicationCommandOptionChoice : IJsonModel<JsonModels.JsonApplicat
     public ApplicationCommandOptionChoice(JsonModels.JsonApplicationCommandOptionChoice jsonModel)
     {
         _jsonModel = jsonModel;
-        JsonElement value = jsonModel.Value;
-        if (value.ValueKind == JsonValueKind.String)
+
+        var value = jsonModel.Value;
+        if (value.ValueKind is JsonValueKind.String)
         {
             ValueString = value.GetString()!;
             ValueType = ApplicationCommandOptionChoiceValueType.String;

@@ -34,6 +34,16 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<ReadyEventArgs, ValueTask>? Ready;
 
     /// <summary>
+    /// Sent when the application has been rate limited for a gateway opcode.
+    /// The inner payload is an <see cref="RateLimitedEventArgs"/> object.<br/>
+    /// </summary>
+    /// <remarks>
+    /// Required Intents: None <br/>
+    /// Optional Intents: None
+    /// </remarks>
+    public partial event Func<RateLimitedEventArgs, ValueTask>? RateLimited;
+
+    /// <summary>
     /// Sent when an application command's permissions are updated.
     /// The inner payload is an <see cref="ApplicationCommandPermission"/> object.
     /// </summary>
@@ -1107,6 +1117,11 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
                     await updateLatencyTask.ConfigureAwait(false);
                     await resumeTask.ConfigureAwait(false);
+                }
+                break;
+            case "RATE_LIMITED":
+                {
+                    await InvokeEventAsync(_rateLimited, () => new(data.ToObject(Serialization.Default.JsonRateLimitedEventArgs))).ConfigureAwait(false);
                 }
                 break;
             case "APPLICATION_COMMAND_PERMISSIONS_UPDATE":
