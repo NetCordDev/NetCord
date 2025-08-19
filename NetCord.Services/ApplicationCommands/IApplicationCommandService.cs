@@ -8,6 +8,8 @@ public interface IApplicationCommandService : IService
 
     internal void AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands);
 
+    public IReadOnlyList<IApplicationCommandInfo> GetCommands();
+
     public void AddModule([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type);
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] T>();
