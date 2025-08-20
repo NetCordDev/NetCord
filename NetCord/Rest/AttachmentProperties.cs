@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<int>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
@@ -95,6 +96,7 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
 /// </summary>
 /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
 /// <param name="stream">Content of the file encoded in Base64.</param>
+[GenerateMethodsForProperties]
 public partial class Base64AttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
     public override HttpContent Serialize()
@@ -110,6 +112,7 @@ public partial class Base64AttachmentProperties(string fileName, Stream stream) 
 /// </summary>
 /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
 /// <param name="stream">Content of the file encoded in Quoted-Printable.</param>
+[GenerateMethodsForProperties]
 public partial class QuotedPrintableAttachmentProperties(string fileName, Stream stream) : AttachmentProperties(fileName, stream)
 {
     public override HttpContent Serialize()
@@ -125,6 +128,7 @@ public partial class QuotedPrintableAttachmentProperties(string fileName, Stream
 /// </summary>
 /// <param name="fileName">Name of the file (max 1024 characters for attachments sent by message, 2-30 characters for attachments used for sticker creation).</param>
 /// <param name="uploadedFileName">Name of the upload.</param>
+[GenerateMethodsForProperties]
 public partial class GoogleCloudPlatformAttachmentProperties(string fileName, string uploadedFileName) : AttachmentProperties(fileName)
 {
     private static readonly JsonEncodedText _uploadedFileName = JsonEncodedText.Encode("uploaded_filename");

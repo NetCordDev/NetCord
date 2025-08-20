@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class InviteProperties
 {
     [JsonPropertyName("max_age")]

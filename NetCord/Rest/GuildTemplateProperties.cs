@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildTemplateProperties(string name)
 {
     [JsonPropertyName("name")]

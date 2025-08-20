@@ -2,6 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
+[GenerateMethodsForProperties]
 public partial class SpeakingProperties(SpeakingFlags speaking)
 {
     [JsonPropertyName("speaking")]

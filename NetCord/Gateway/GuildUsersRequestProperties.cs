@@ -2,6 +2,7 @@
 
 namespace NetCord.Gateway;
 
+[GenerateMethodsForProperties]
 public partial class GuildUsersRequestProperties(ulong guildId)
 {
     [JsonPropertyName("guild_id")]

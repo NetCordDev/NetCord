@@ -6,6 +6,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="url">Url of the thumbnail.</param>
+[GenerateMethodsForProperties]
 public partial class EmbedThumbnailProperties(string? url)
 {
     /// <summary>

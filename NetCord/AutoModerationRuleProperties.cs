@@ -2,6 +2,7 @@
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class AutoModerationRuleProperties(string name, AutoModerationRuleEventType eventType, AutoModerationRuleTriggerType triggerType, IEnumerable<AutoModerationActionProperties> actions)
 {
     [JsonPropertyName("name")]

@@ -6,6 +6,7 @@ namespace NetCord.Rest;
 /// Url of the image.
 /// </summary>
 /// <param name="url"></param>
+[GenerateMethodsForProperties]
 public partial class EmbedImageProperties(string? url)
 {
     /// <summary>

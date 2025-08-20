@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(ApplicationCommandOptionChoicePropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial class ApplicationCommandOptionChoiceProperties
 {
     /// <summary>
@@ -48,6 +49,7 @@ public partial class ApplicationCommandOptionChoiceProperties
         ValueType = ApplicationCommandOptionChoiceValueType.Numeric;
     }
 
+    [GenerateMethodsForProperties]
     public partial class ApplicationCommandOptionChoicePropertiesConverter : JsonConverter<ApplicationCommandOptionChoiceProperties>
     {
         private static readonly JsonEncodedText _name = JsonEncodedText.Encode("name");

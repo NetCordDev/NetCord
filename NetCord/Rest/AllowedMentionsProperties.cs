@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(AllowedMentionsConverter))]
+[GenerateMethodsForProperties]
 public partial class AllowedMentionsProperties
 {
     /// <summary>

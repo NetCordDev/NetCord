@@ -7,6 +7,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
+[GenerateMethodsForProperties]
 public abstract partial class MenuProperties(string customId) : IComponentProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

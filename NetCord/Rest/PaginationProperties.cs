@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial record PaginationProperties<T> : IPaginationProperties<T, PaginationProperties<T>> where T : struct
 {
     public T? From { get; set; }

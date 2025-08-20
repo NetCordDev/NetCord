@@ -15,6 +15,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="buttons">Buttons of the action row (max 5).</param>
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
+[GenerateMethodsForProperties]
 public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : IComponentProperties, IEnumerable<IButtonProperties>
 {
     private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");

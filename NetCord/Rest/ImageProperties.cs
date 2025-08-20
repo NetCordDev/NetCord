@@ -14,6 +14,7 @@ namespace NetCord.Rest;
 /// <param name="data">The data of the image.</param>
 /// <param name="isBase64">Whether <paramref name="data"/> is in Base64 format.</param>
 [JsonConverter(typeof(ImagePropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial struct ImageProperties(ImageFormat format, ReadOnlyMemory<byte> data, bool isBase64 = false)
 {
     /// <summary>

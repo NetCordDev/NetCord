@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [CollectionBuilder(typeof(MediaGalleryProperties), nameof(Create))]
+[GenerateMethodsForProperties]
 public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperties> items) : IComponentProperties, IMediaGalleryProperties, IEnumerable<MediaGalleryItemProperties>
 {
     public MediaGalleryProperties() : this([])
@@ -40,6 +41,7 @@ internal interface IMediaGalleryProperties : IComponentProperties
     public IEnumerable<MediaGalleryItemProperties> Items { get; }
 }
 
+[GenerateMethodsForProperties]
 public partial class MediaGalleryItemProperties(ComponentMediaProperties media)
 {
     [JsonPropertyName("media")]

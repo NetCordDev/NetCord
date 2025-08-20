@@ -2,6 +2,7 @@
 
 namespace NetCord.Gateway;
 
+[GenerateMethodsForProperties]
 public partial class UserActivityProperties(string name, UserActivityType type)
 {
     [JsonPropertyName("name")]

@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GoogleCloudPlatformStorageBucketProperties(string fileName, long fileSize)
 {
     public GoogleCloudPlatformStorageBucketProperties(string fileName) : this(fileName, 1)

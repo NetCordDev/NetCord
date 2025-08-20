@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ComponentSectionProperties(IComponentSectionAccessoryProperties accessory, IEnumerable<TextDisplayProperties> components) : IComponentProperties, IComponentSectionProperties, IEnumerable<TextDisplayProperties>
 {
     public ComponentSectionProperties(IComponentSectionAccessoryProperties accessory) : this(accessory, [])

@@ -65,6 +65,7 @@ public static class InteractionCallback
         => new(InteractionCallbackType.LaunchActivity);
 }
 
+[GenerateMethodsForProperties]
 public partial class InteractionCallbackProperties : IHttpSerializable
 {
     [JsonPropertyName("type")]
@@ -104,6 +105,7 @@ public partial class InteractionCallbackProperties : IHttpSerializable
     }
 }
 
+[GenerateMethodsForProperties]
 public partial class InteractionCallbackProperties<T> : InteractionCallbackProperties, IInteractionCallbackProperties<T>
 {
     internal InteractionCallbackProperties(InteractionCallbackType type, T data) : base(type)

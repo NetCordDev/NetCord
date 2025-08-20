@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(GuildUsersSearchPaginationPropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial record GuildUsersSearchPaginationProperties : PaginationProperties<GuildUsersSearchTimestamp>, IPaginationProperties<GuildUsersSearchTimestamp, GuildUsersSearchPaginationProperties>
 {
     public IEnumerable<IGuildUsersSearchQuery>? OrQuery { get; set; }

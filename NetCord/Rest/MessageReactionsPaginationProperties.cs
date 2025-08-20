@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial record MessageReactionsPaginationProperties : PaginationProperties<ulong>, IPaginationProperties<ulong, MessageReactionsPaginationProperties>
 {
     public ReactionType? Type { get; set; }

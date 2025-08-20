@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class EmojiProperties
 {
     private EmojiProperties()

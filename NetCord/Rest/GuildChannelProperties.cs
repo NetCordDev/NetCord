@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildChannelProperties(string name, ChannelType type)
 {
     [JsonPropertyName("name")]

@@ -8,6 +8,7 @@ namespace NetCord.Rest;
 /// <param name="type">Type of the prompt.</param>
 /// <param name="options">Options available within the prompt.</param>
 /// <param name="title">Title of the prompt.</param>
+[GenerateMethodsForProperties]
 public partial class GuildOnboardingPromptProperties(GuildOnboardingPromptType type, IEnumerable<GuildOnboardingPromptOptionProperties> options, string title)
 {
     /// <summary>

@@ -2,6 +2,7 @@
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class AutoModerationRuleOptions
 {
     internal AutoModerationRuleOptions()

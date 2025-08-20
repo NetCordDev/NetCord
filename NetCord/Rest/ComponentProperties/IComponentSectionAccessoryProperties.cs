@@ -5,6 +5,7 @@ using NetCord.JsonConverters;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(JsonSerializableConverter<IComponentSectionAccessoryProperties>))]
+[GenerateMethodsForProperties]
 public partial interface IComponentSectionAccessoryProperties : IJsonSerializable
 {
     /// <summary>

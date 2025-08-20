@@ -9,6 +9,7 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
+[GenerateMethodsForProperties]
 public partial class ChannelMenuProperties(string customId) : EntityMenuProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.ChannelMenu;
