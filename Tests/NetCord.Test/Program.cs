@@ -1,9 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 using Microsoft.Extensions.DependencyInjection;
 
 using NetCord.Gateway;
+using NetCord.Gateway.WebSockets;
 using NetCord.JsonModels;
 using NetCord.Logging;
 using NetCord.Rest;
@@ -26,6 +28,10 @@ internal static class Program
         {
             Activities = [new("Custom Status", UserActivityType.Custom) { State = "XD" }],
         },
+        //WebSocketConnectionProvider = new WebSocketConnectionProvider(new()
+        //{
+        //    ConfigureConnectionOptions = options => { },
+        //}),
         //CacheProvider = ConcurrentGatewayClientCacheProvider.Empty,
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),
