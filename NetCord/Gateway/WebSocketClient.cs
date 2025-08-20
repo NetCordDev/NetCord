@@ -167,7 +167,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected WebSocketClient(IWebSocketClientConfiguration configuration)
     {
-        _connectionProvider = configuration.WebSocketConnectionProvider ?? WebSocketConnectionProvider.Instance;
+        _connectionProvider = configuration.WebSocketConnectionProvider ?? new WebSocketConnectionProvider();
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
