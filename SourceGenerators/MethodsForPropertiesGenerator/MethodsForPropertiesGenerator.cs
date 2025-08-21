@@ -50,7 +50,7 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
             {
                 var symbolsMissingAttribute = data.Left.Except(data.Right, SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>();
 
-                return data.Left.Select(symbol => (Data)new Data.Success(symbol)).Concat(symbolsMissingAttribute.Select(symbol => new Data.Error(symbol)));
+                return data.Right.Select(symbol => (Data)new Data.Success(symbol)).Concat(symbolsMissingAttribute.Select(symbol => (Data)new Data.Error(symbol)));
             });
 
         context.RegisterSourceOutput(typeSymbols, (context, data) =>
