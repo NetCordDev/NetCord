@@ -72,7 +72,7 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
         if (startedThread is not null)
             StartedThread = GuildThread.CreateFromJson(startedThread, client);
 
-        Components = jsonModel.Components.SelectOrEmpty(IComponent.CreateFromJson).ToArray();
+        Components = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
         Stickers = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 
         var roleSubscriptionData = jsonModel.RoleSubscriptionData;

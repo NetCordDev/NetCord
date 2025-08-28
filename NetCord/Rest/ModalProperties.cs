@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class ModalProperties(string customId, string title, IEnumerable<IComponentProperties> components) : IModalProperties, IEnumerable<IComponentProperties>
+public partial class ModalProperties(string customId, string title, IEnumerable<IModalComponentProperties> components) : IModalProperties, IEnumerable<IModalComponentProperties>
 {
     public ModalProperties(string customId, string title) : this(customId, title, [])
     {
@@ -17,16 +17,16 @@ public partial class ModalProperties(string customId, string title, IEnumerable<
     public string Title { get; set; } = title;
 
     [JsonPropertyName("components")]
-    public IEnumerable<IComponentProperties> Components { get; set; } = components;
+    public IEnumerable<IModalComponentProperties> Components { get; set; } = components;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Add(IComponentProperties component) => AddComponents(component);
+    public void Add(IModalComponentProperties component) => AddComponents(component);
 
-    IEnumerator<IComponentProperties> IEnumerable<IComponentProperties>.GetEnumerator() => Components.GetEnumerator();
+    IEnumerator<IModalComponentProperties> IEnumerable<IModalComponentProperties>.GetEnumerator() => Components.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
 }
 
-// Required not to serialize 'ModalProperties' as 'IEnumerable<out T>'
+// Required not to serialize 'ModalProperties' as 'IEnumerable<out TData>'
 // https://github.com/dotnet/runtime/issues/63791
 internal interface IModalProperties
 {
@@ -37,5 +37,5 @@ internal interface IModalProperties
     public string Title { get; set; }
 
     [JsonPropertyName("components")]
-    public IEnumerable<IComponentProperties> Components { get; set; }
+    public IEnumerable<IModalComponentProperties> Components { get; set; }
 }

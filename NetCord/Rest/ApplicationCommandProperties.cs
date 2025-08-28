@@ -6,7 +6,7 @@ using NetCord.JsonConverters;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
-public abstract partial class ApplicationCommandProperties : IJsonSerializable
+public abstract partial class ApplicationCommandProperties : IJsonSerializable<ApplicationCommandProperties>
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {

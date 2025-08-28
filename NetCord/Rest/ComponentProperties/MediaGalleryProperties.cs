@@ -6,8 +6,11 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0306 // Simplify collection initialization
+
 [CollectionBuilder(typeof(MediaGalleryProperties), nameof(Create))]
-public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperties> items) : IComponentProperties, IMediaGalleryProperties, IEnumerable<MediaGalleryItemProperties>
+public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperties> items) : IMessageComponentProperties, IComponentContainerComponentProperties, IMediaGalleryProperties, IEnumerable<MediaGalleryItemProperties>
 {
     public MediaGalleryProperties() : this([])
     {
@@ -23,14 +26,24 @@ public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperti
     public void Add(MediaGalleryItemProperties item) => AddItems(item);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static ActionRowProperties Create(ReadOnlySpan<IButtonProperties> buttons) => new(buttons.ToArray());
+    public static MediaGalleryProperties Create(ReadOnlySpan<MediaGalleryItemProperties> items) => new(items.ToArray());
 
     IEnumerator<MediaGalleryItemProperties> IEnumerable<MediaGalleryItemProperties>.GetEnumerator() => Items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Items).GetEnumerator();
 
-    public void WriteTo(Utf8JsonWriter writer)
+    private void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.IMediaGalleryProperties);
+    }
+
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
     }
 }
 

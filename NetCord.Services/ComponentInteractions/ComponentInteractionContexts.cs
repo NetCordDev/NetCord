@@ -360,7 +360,7 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<IComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -374,7 +374,7 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
     public RestClient Client => client;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<IComponent> Components => Interaction.Data.Components;
+    public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
 }
 
 static file class Utils

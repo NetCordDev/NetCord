@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace NetCord.Rest;
 
-public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<int>
+public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable<AttachmentProperties, int>
 {
     private static readonly JsonEncodedText _id = JsonEncodedText.Encode("id");
     private static readonly JsonEncodedText _fileName = JsonEncodedText.Encode("filename");

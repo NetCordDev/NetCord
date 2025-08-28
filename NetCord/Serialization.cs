@@ -114,6 +114,7 @@ namespace NetCord;
 [JsonSerializable(typeof(RoleMenuProperties))]
 [JsonSerializable(typeof(MentionableMenuProperties))]
 [JsonSerializable(typeof(ChannelMenuProperties))]
+[JsonSerializable(typeof(LabelProperties))]
 [JsonSerializable(typeof(ForumGuildThreadProperties))]
 [JsonSerializable(typeof(InteractionCallbackProperties<InteractionMessageProperties>))]
 [JsonSerializable(typeof(InteractionCallbackProperties<MessageOptions>))]
@@ -251,6 +252,4 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonWebhookEventArgs))]
 [JsonSerializable(typeof(JsonRateLimitedEventArgs))]
 [JsonSerializable(typeof(JsonRequestGuildUsersRateLimitMetadata))]
-internal partial class Serialization : JsonSerializerContext
-{
-}
+internal partial class Serialization : JsonSerializerContext;

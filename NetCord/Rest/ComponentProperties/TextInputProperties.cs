@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class TextInputProperties(string customId, TextInputStyle style, string label) : IComponentProperties
+public partial class TextInputProperties(string customId, TextInputStyle style) : ILabelComponentProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
@@ -17,9 +17,6 @@ public partial class TextInputProperties(string customId, TextInputStyle style, 
 
     [JsonPropertyName("style")]
     public TextInputStyle Style { get; set; } = style;
-
-    [JsonPropertyName("label")]
-    public string Label { get; set; } = label;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("min_length")]
@@ -41,11 +38,8 @@ public partial class TextInputProperties(string customId, TextInputStyle style, 
     [JsonPropertyName("placeholder")]
     public string? Placeholder { get; set; }
 
-    [JsonIgnore]
-    public int? ParentId { get; set; }
-
-    public void WriteTo(Utf8JsonWriter writer)
+    void IJsonSerializable<ILabelComponentProperties>.WriteTo(Utf8JsonWriter writer)
     {
-        ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.TextInputProperties);
+        JsonSerializer.Serialize(writer, this, Serialization.Default.TextInputProperties);
     }
 }

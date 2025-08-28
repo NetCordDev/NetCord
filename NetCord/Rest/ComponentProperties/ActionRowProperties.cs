@@ -13,9 +13,9 @@ namespace NetCord.Rest;
 /// <summary>
 /// 
 /// </summary>
-/// <param name="buttons">Buttons of the action row (max 5).</param>
+/// <param name="components">Components of the action row (max 5).</param>
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
-public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons) : IComponentProperties, IEnumerable<IButtonProperties>
+public partial class ActionRowProperties(IEnumerable<IActionRowComponentProperties> components) : IMessageComponentProperties, IComponentContainerComponentProperties, IEnumerable<IActionRowComponentProperties>
 {
     private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");
     private static readonly JsonEncodedText _components = JsonEncodedText.Encode("components");
@@ -25,27 +25,27 @@ public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons)
     {
     }
 
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.ActionRow;
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
 
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType => ComponentType.ActionRow;
-
     /// <summary>
-    /// Buttons of the action row (max 5).
+    /// Components of the action row (max 5).
     /// </summary>
     [JsonPropertyName("components")]
-    public IEnumerable<IButtonProperties> Buttons { get; set; } = buttons;
+    public IEnumerable<IActionRowComponentProperties> Components { get; set; } = components;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Add(IButtonProperties button) => AddButtons(button);
+    public void Add(IActionRowComponentProperties component) => AddComponents(component);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static ActionRowProperties Create(ReadOnlySpan<IButtonProperties> buttons) => new(buttons.ToArray());
+    public static ActionRowProperties Create(ReadOnlySpan<IActionRowComponentProperties> components) => new(components.ToArray());
 
-    IEnumerator<IButtonProperties> IEnumerable<IButtonProperties>.GetEnumerator() => Buttons.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Buttons).GetEnumerator();
+    IEnumerator<IActionRowComponentProperties> IEnumerable<IActionRowComponentProperties>.GetEnumerator() => Components.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
 
     private static void WriteActionRowStart(Utf8JsonWriter writer, int? actionRowId)
     {
@@ -72,12 +72,22 @@ public partial class ActionRowProperties(IEnumerable<IButtonProperties> buttons)
         writer.WriteEndObject();
     }
 
-    public void WriteTo(Utf8JsonWriter writer)
+    private void WriteTo(Utf8JsonWriter writer)
     {
         WriteActionRowStart(writer, Id);
 
-        JsonSerializer.Serialize(writer, Buttons, Serialization.Default.IEnumerableIButtonProperties);
+        JsonSerializer.Serialize(writer, Components, Serialization.Default.IEnumerableIButtonProperties);
 
         writer.WriteEndObject();
+    }
+
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
     }
 }

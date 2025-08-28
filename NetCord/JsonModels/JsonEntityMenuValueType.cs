@@ -4,8 +4,8 @@ using NetCord.JsonConverters;
 
 namespace NetCord.JsonModels;
 
-[JsonConverter(typeof(SafeStringEnumConverter<JsonSelectMenuDefaultValueType>))]
-public enum JsonSelectMenuDefaultValueType : sbyte
+[JsonConverter(typeof(SafeStringEnumConverter<JsonEntityMenuValueType>))]
+public enum JsonEntityMenuValueType : sbyte
 {
     [JsonPropertyName("user")]
     User,

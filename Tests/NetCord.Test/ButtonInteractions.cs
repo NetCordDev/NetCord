@@ -17,13 +17,16 @@ public class ButtonInteractions(string wzium) : ComponentInteractionModule<Butto
 
         return RespondAsync(InteractionCallback.Modal(new($"wzium:{Context.User.Id}", $"Wzium user {wzium}",
         [
-            new TextInputProperties("reason", TextInputStyle.Paragraph, "Reason")
-            {
-                Placeholder = "Because of not wziumming",
-                Required = false,
-                MinLength = 5,
-                MaxLength = 20,
-            },
+            new LabelProperties(
+                "Reason",
+                new TextInputProperties("reason", TextInputStyle.Paragraph)
+                {
+                    Placeholder = "Because of not wziumming",
+                    Required = false,
+                    MinLength = 5,
+                    MaxLength = 20,
+                }
+            ),
         ])));
     }
 

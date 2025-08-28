@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class MentionableMenuDefaultValue(JsonSelectMenuDefaultValue jsonModel) : Entity
+public class MentionableMenuDefaultValue(JsonEntityMenuValue jsonModel) : Entity
 {
     public override ulong Id { get; } = jsonModel.Id;
 

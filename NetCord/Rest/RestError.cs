@@ -19,9 +19,8 @@ public sealed class RestError(int code, string message, IRestErrorGroup? error)
 }
 
 [JsonConverter(typeof(IRestErrorGroupConverter))]
-public interface IRestErrorGroup : IJsonSerializable
+public interface IRestErrorGroup : IJsonSerializable<IRestErrorGroup>
 {
-
     public class IRestErrorGroupConverter : JsonConverter<IRestErrorGroup>
     {
         public override IRestErrorGroup? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -69,7 +68,7 @@ public class RestErrorGroup(IReadOnlyDictionary<string, IRestErrorGroup> errors)
 {
     public IReadOnlyDictionary<string, IRestErrorGroup> Errors { get; } = errors;
 
-    public void WriteTo(Utf8JsonWriter writer)
+    void IJsonSerializable<IRestErrorGroup>.WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, Errors, Serialization.Default.IReadOnlyDictionaryStringIRestErrorGroup);
     }
@@ -81,7 +80,7 @@ public class RestErrorDetailGroup(IReadOnlyList<RestErrorDetail> errors) : IRest
 
     public IReadOnlyList<RestErrorDetail> Errors { get; } = errors;
 
-    public void WriteTo(Utf8JsonWriter writer)
+    void IJsonSerializable<IRestErrorGroup>.WriteTo(Utf8JsonWriter writer)
     {
         writer.WriteStartObject();
         writer.WritePropertyName(_errors);

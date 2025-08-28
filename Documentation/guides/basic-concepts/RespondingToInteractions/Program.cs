@@ -29,41 +29,41 @@ static void Callbacks()
 
     callback = InteractionCallback.Modal(new("intro", "Introduce Yourself")
     {
-        new TextInputProperties("name", TextInputStyle.Short, "First Name"),
-        new TextInputProperties("bio", TextInputStyle.Paragraph, "Your Bio"),
+        new LabelProperties("First Name", new TextInputProperties("name", TextInputStyle.Short)),
+        new LabelProperties("Your Bio", new TextInputProperties("bio", TextInputStyle.Paragraph)),
     });
 
     callback = InteractionCallback.Modal(new ModalProperties("intro", "Introduce Yourself")
         .AddComponents(
-            new TextInputProperties("name", TextInputStyle.Short, "First Name"),
-            new TextInputProperties("bio", TextInputStyle.Paragraph, "Your Bio")));
+            new LabelProperties("First Name", new TextInputProperties("name", TextInputStyle.Short)),
+            new LabelProperties("Your Bio", new TextInputProperties("bio", TextInputStyle.Paragraph))));
 
     callback = InteractionCallback.Modal(new("intro", "Introduce Yourself")
     {
-        new TextInputProperties("name", TextInputStyle.Short, "First Name")
+        new LabelProperties("First Name", new TextInputProperties("name", TextInputStyle.Short)
         {
             MinLength = 2,
             MaxLength = 32,
             Placeholder = "Enter your name",
-        },
-        new TextInputProperties("bio", TextInputStyle.Paragraph, "Your Bio")
+        }),
+        new LabelProperties("Your Bio", new TextInputProperties("bio", TextInputStyle.Paragraph)
         {
             MinLength = 10,
             Required = false,
             Value = "I love programming!",
-        },
+        }),
     });
 
     callback = InteractionCallback.Modal(new ModalProperties("intro", "Introduce Yourself")
         .AddComponents(
-            new TextInputProperties("name", TextInputStyle.Short, "First Name")
+            new LabelProperties("First Name", new TextInputProperties("name", TextInputStyle.Short)
                 .WithMinLength(2)
                 .WithMaxLength(32)
-                .WithPlaceholder("Enter your name"),
-            new TextInputProperties("bio", TextInputStyle.Paragraph, "Your Bio")
+                .WithPlaceholder("Enter your name")),
+            new LabelProperties("Your Bio", new TextInputProperties("bio", TextInputStyle.Paragraph)
                 .WithMinLength(10)
                 .WithRequired(false)
-                .WithValue("I love programming!")));
+                .WithValue("I love programming!"))));
 
     callback = InteractionCallback.Autocomplete([new("Dog", "dog"), new("Cat", "cat")]);
 

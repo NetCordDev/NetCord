@@ -2,11 +2,11 @@
 
 namespace NetCord;
 
-public class ActionRow(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class ActionRow(JsonComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
 
-    public IReadOnlyList<IButton> Buttons { get; } = jsonModel.Components!.Select(IButton.CreateFromJson).ToArray();
+    public IReadOnlyList<IActionRowComponent> Components { get; } = jsonModel.Components!.Select(IActionRowComponent.CreateFromJson).ToArray();
 }

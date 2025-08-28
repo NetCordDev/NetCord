@@ -22,7 +22,12 @@ public partial class PremiumButtonProperties(ulong skuId) : IButtonProperties
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
-    public void WriteTo(Utf8JsonWriter writer)
+    void IJsonSerializable<IActionRowComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.PremiumButtonProperties);
+    }
+
+    void IJsonSerializable<IComponentSectionAccessoryComponentProperties>.WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.PremiumButtonProperties);
     }

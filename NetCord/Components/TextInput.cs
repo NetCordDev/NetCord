@@ -2,12 +2,11 @@
 
 namespace NetCord;
 
-public class TextInput(JsonComponent jsonModel, int parentId) : IComponent, IJsonModel<JsonComponent>
+public class TextInput(JsonComponent jsonModel) : ILabelComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public string CustomId => jsonModel.CustomId!;
     public string Value => jsonModel.Value!;
-    public int ParentId => parentId;
 }

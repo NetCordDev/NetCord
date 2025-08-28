@@ -13,22 +13,27 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
     public override ComponentType ComponentType => ComponentType.StringMenu;
 
-    [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
+
+    public bool? Required { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
         ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringMenuProperties);
     }
 
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IStringMenuProperties);
+    }
     IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
 }
 
-// Required not to serialize 'StringMenuProperties' as 'IEnumerable<out T>'
+// Required not to serialize 'StringMenuProperties' as 'IEnumerable<out TData>'
 // https://github.com/dotnet/runtime/issues/63791
 internal interface IStringMenuProperties : IComponentProperties
 {
@@ -53,4 +58,8 @@ internal interface IStringMenuProperties : IComponentProperties
 
     [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
 }

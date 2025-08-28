@@ -7,14 +7,14 @@ namespace NetCord.Rest;
 /// 
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
-public abstract partial class MenuProperties(string customId) : IComponentProperties
+public abstract partial class MenuProperties(string customId) : IMessageComponentProperties, ILabelComponentProperties
 {
+    [JsonPropertyName("type")]
+    public abstract ComponentType ComponentType { get; }
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
-
-    [JsonPropertyName("type")]
-    public abstract ComponentType ComponentType { get; }
 
     /// <summary>
     /// ID for the menu (max 100 characters).
@@ -53,5 +53,17 @@ public abstract partial class MenuProperties(string customId) : IComponentProper
     [JsonIgnore]
     public int? ParentId { get; set; }
 
-    public abstract void WriteTo(Utf8JsonWriter writer);
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToMessage(writer);
+    }
+
+    void IJsonSerializable<ILabelComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToLabel(writer);
+    }
+
+    private protected abstract void WriteToMessage(Utf8JsonWriter writer);
+
+    private protected abstract void WriteToLabel(Utf8JsonWriter writer);
 }
