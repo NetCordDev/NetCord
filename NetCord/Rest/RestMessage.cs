@@ -238,9 +238,9 @@ public partial class RestMessage : ClientEntity, IJsonModel<NetCord.JsonModels.J
     public GuildThread? StartedThread { get; }
 
     /// <summary>
-    /// A list of <see cref="IComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
+    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
     /// </summary>
-    public IReadOnlyList<IComponent> Components { get; }
+    public IReadOnlyList<IMessageComponent> Components { get; }
 
     /// <summary>
     /// Contains stickers contained in the message, if any.
