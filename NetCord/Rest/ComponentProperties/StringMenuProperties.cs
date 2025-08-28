@@ -15,8 +15,6 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
 
-    public bool? Required { get; set; }
-
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
 
@@ -33,7 +31,7 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
 }
 
-// Required not to serialize 'StringMenuProperties' as 'IEnumerable<out TData>'
+// Required not to serialize 'StringMenuProperties' as 'IEnumerable<out T>'
 // https://github.com/dotnet/runtime/issues/63791
 internal interface IStringMenuProperties : IComponentProperties
 {

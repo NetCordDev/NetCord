@@ -26,7 +26,7 @@ public partial class ModalProperties(string customId, string title, IEnumerable<
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
 }
 
-// Required not to serialize 'ModalProperties' as 'IEnumerable<out TData>'
+// Required not to serialize 'ModalProperties' as 'IEnumerable<out T>'
 // https://github.com/dotnet/runtime/issues/63791
 internal interface IModalProperties
 {

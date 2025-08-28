@@ -50,6 +50,13 @@ public abstract partial class MenuProperties(string customId) : IMessageComponen
     [JsonPropertyName("disabled")]
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Whether the menu is required to answer in a modal. Defaults to <see langword="true"/>.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
+
     [JsonIgnore]
     public int? ParentId { get; set; }
 

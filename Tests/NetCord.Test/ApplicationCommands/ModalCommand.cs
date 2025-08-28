@@ -36,7 +36,7 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
                 {
                     new StringMenuSelectOptionProperties("Yes", "yes"),
                     new StringMenuSelectOptionProperties("No", "no"),
-                }.WithId(12).WithRequired(true)
+                }.WithId(12).WithRequired(false)
             ).WithId(13),
         ])));
     }

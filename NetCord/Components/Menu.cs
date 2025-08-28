@@ -13,5 +13,6 @@ public abstract class Menu(JsonComponent jsonModel, int parentId) : IMessageComp
     public int? MinValues => _jsonModel.MinValues;
     public int? MaxValues => _jsonModel.MaxValues;
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
+    public bool? Required => _jsonModel.Required;
     public int ParentId => parentId;
 }
