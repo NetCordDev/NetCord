@@ -26,6 +26,10 @@ internal static class Program
         {
             Activities = [new("Custom Status", UserActivityType.Custom) { State = "XD" }],
         },
+        //WebSocketConnectionProvider = new WebSocketConnectionProvider(new()
+        //{
+        //    ConfigureConnectionOptions = options => { },
+        //}),
         //CacheProvider = ConcurrentGatewayClientCacheProvider.Empty,
         //Compression = new ZstandardGatewayCompression(),
         //Compression = new ZLibGatewayCompression(),

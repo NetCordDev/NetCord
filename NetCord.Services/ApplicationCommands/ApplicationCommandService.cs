@@ -53,6 +53,8 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.Commands => _commands;
 
+    IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GetCommands() => [.. _commands];
+
     public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
     public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands];
