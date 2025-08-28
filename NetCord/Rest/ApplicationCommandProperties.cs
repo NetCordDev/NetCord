@@ -77,5 +77,10 @@ public abstract partial class ApplicationCommandProperties : IJsonSerializable<A
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 
-    public abstract void WriteTo(Utf8JsonWriter writer);
+    void IJsonSerializable<ApplicationCommandProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    private protected abstract void WriteTo(Utf8JsonWriter writer);
 }

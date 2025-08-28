@@ -31,7 +31,7 @@ public partial class SlashCommandProperties(string name, string description) : A
     [JsonPropertyName("options")]
     public IEnumerable<ApplicationCommandOptionProperties>? Options { get; set; }
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.SlashCommandProperties);
     }
