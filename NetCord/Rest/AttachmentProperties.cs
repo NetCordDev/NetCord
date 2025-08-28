@@ -82,7 +82,7 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
 
     void IJsonSerializable<AttachmentProperties, int>.WriteTo(Utf8JsonWriter writer, int attachmentId) => WriteTo(writer, attachmentId);
 
-    protected virtual void WriteTo(Utf8JsonWriter writer, int attachmentId)
+    protected internal virtual void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
@@ -143,7 +143,7 @@ public partial class GoogleCloudPlatformAttachmentProperties(string fileName, st
         throw new NotSupportedException($"'{nameof(GoogleCloudPlatformAttachmentProperties)}' does not support HTTP serialization.");
     }
 
-    protected override void WriteTo(Utf8JsonWriter writer, int attachmentId)
+    protected internal override void WriteTo(Utf8JsonWriter writer, int attachmentId)
     {
         writer.WriteStartObject();
 
