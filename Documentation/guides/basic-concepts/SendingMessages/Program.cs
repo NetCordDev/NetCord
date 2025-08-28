@@ -154,7 +154,7 @@ async static Task PropertiesAsync()
 
     message.AddAttachments(attachment);
 
-    IComponentProperties component;
+    IMessageComponentProperties component;
 
     component = new ActionRowProperties
     {
@@ -169,7 +169,7 @@ async static Task PropertiesAsync()
     };
 
     component = new ActionRowProperties()
-        .AddButtons(
+        .AddComponents(
             new ButtonProperties("welcome", "Welcome", EmojiProperties.Standard("👋"), ButtonStyle.Primary),
             new ButtonProperties("hug", EmojiProperties.Custom(356377264209920002), ButtonStyle.Success),
             new ButtonProperties("goodbye", "Goodbye", ButtonStyle.Secondary)

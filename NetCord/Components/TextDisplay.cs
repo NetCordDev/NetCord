@@ -2,10 +2,10 @@
 
 namespace NetCord;
 
-public class TextDisplay(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class TextDisplay(JsonComponent jsonModel) : IMessageComponent, IModalComponent, IComponentContainerComponent, IComponentSectionComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public string Content => jsonModel.Content!;
+    public string Content { get; } = jsonModel.Content ?? string.Empty;
 }

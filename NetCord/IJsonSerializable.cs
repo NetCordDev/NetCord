@@ -2,12 +2,12 @@
 
 namespace NetCord;
 
-public interface IJsonSerializable
+public interface IJsonSerializable<TSelf> where TSelf : IJsonSerializable<TSelf>
 {
     public void WriteTo(Utf8JsonWriter writer);
 }
 
-internal interface IJsonSerializable<in T>
+internal interface IJsonSerializable<TSelf, in TData> where TSelf : IJsonSerializable<TSelf, TData>
 {
-    public void WriteTo(Utf8JsonWriter writer, T data);
+    public void WriteTo(Utf8JsonWriter writer, TData data);
 }

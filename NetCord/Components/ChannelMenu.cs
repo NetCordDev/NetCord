@@ -4,5 +4,5 @@ namespace NetCord;
 
 public class ChannelMenu(JsonComponent jsonModel, int parentId) : EntityMenu(jsonModel, parentId)
 {
-    public IReadOnlyList<ChannelType> ChannelTypes => _jsonModel.ChannelTypes!;
+    public IReadOnlyList<ChannelType> ChannelTypes { get; } = jsonModel.ChannelTypes ?? [];
 }

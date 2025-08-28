@@ -1,11 +1,6 @@
-﻿using System.Text.Json.Serialization;
+﻿namespace NetCord.Rest;
 
-using NetCord.JsonConverters;
-
-namespace NetCord.Rest;
-
-[JsonConverter(typeof(JsonSerializableConverter<IButtonProperties>))]
-public partial interface IButtonProperties : IComponentSectionAccessoryProperties, IJsonSerializable
+public partial interface IButtonProperties : IActionRowComponentProperties, IComponentSectionAccessoryComponentProperties
 {
     /// <summary>
     /// Style of the button.

@@ -18,4 +18,5 @@ public enum ComponentType
     Separator = 14,
     ContentInventoryEntry = 16,
     Container = 17,
+    Label = 18,
 }

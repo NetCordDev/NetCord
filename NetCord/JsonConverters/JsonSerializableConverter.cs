@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.JsonConverters;
 
-public class JsonSerializableConverter<TValue> : JsonConverter<TValue> where TValue : IJsonSerializable
+public class JsonSerializableConverter<TValue> : JsonConverter<TValue> where TValue : IJsonSerializable<TValue>
 {
     public override TValue? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) => throw new NotSupportedException();
 

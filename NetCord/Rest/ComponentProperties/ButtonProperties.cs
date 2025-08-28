@@ -3,23 +3,20 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
-public partial class ButtonProperties : ICustomizableButtonProperties, IComponentSectionAccessoryProperties
+public partial class ButtonProperties : ICustomizableButtonProperties, IComponentSectionAccessoryComponentProperties, IInteractiveComponentProperties
 {
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.Button;
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
 
-    /// <summary>
-    /// Developer-defined identifier for the button (max 100 characters).
-    /// </summary>
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; }
 
     [JsonPropertyName("style")]
     public ButtonStyle Style { get; set; }
-
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType => ComponentType.Button;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("label")]
@@ -74,8 +71,18 @@ public partial class ButtonProperties : ICustomizableButtonProperties, IComponen
         Style = style;
     }
 
-    public void WriteTo(Utf8JsonWriter writer)
+    private void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.ButtonProperties);
+    }
+
+    void IJsonSerializable<IActionRowComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentSectionAccessoryComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public abstract class Menu(JsonComponent jsonModel, int parentId) : IComponent, IJsonModel<JsonComponent>
+public abstract class Menu(JsonComponent jsonModel, int parentId) : IMessageComponent, ILabelComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private protected readonly JsonComponent _jsonModel = jsonModel;
@@ -13,5 +13,6 @@ public abstract class Menu(JsonComponent jsonModel, int parentId) : IComponent, 
     public int? MinValues => _jsonModel.MinValues;
     public int? MaxValues => _jsonModel.MaxValues;
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
+    public bool? Required => _jsonModel.Required;
     public int ParentId => parentId;
 }

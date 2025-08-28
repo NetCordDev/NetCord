@@ -32,7 +32,7 @@ public class JsonComponent
     public ulong? SkuId { get; set; }
 
     [JsonPropertyName("options")]
-    public JsonMenuSelectOption[] Options { get; set; }
+    public JsonMenuSelectOption[]? Options { get; set; }
 
     [JsonPropertyName("channel_types")]
     public ChannelType[]? ChannelTypes { get; set; }
@@ -41,7 +41,7 @@ public class JsonComponent
     public string? Placeholder { get; set; }
 
     [JsonPropertyName("default_values")]
-    public JsonSelectMenuDefaultValue[]? DefaultValues { get; set; }
+    public JsonEntityMenuDefaultValue[]? DefaultValues { get; set; }
 
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
@@ -93,4 +93,10 @@ public class JsonComponent
 
     [JsonPropertyName("items")]
     public JsonComponent[]? Items { get; set; }
+
+    [JsonPropertyName("component")]
+    public JsonComponent? Component { get; set; }
+
+    [JsonPropertyName("values")]
+    public string[]? SelectedValues { get; set; }
 }

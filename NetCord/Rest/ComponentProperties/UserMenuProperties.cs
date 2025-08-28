@@ -17,9 +17,14 @@ public partial class UserMenuProperties(string customId) : EntityMenuProperties(
     [JsonPropertyName("default_values")]
     public IEnumerable<ulong>? DefaultValues { get; set; }
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
         ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.UserMenuProperties);
+    }
+
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.UserMenuProperties);
     }
 
     public class DefaultValuesConverter : MenuPropertiesDefaultValuesConverter

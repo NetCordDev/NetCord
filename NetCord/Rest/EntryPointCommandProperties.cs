@@ -31,7 +31,7 @@ public partial class EntryPointCommandProperties(string name, string description
     [JsonPropertyName("handler")]
     public EntryPointCommandHandler Handler { get; set; } = handler;
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.EntryPointCommandProperties);
     }

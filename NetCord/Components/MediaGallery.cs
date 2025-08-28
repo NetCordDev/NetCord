@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class MediaGallery(JsonComponent jsonModel) : IComponent, IJsonModel<JsonComponent>
+public class MediaGallery(JsonComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 

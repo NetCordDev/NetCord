@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class ComponentSectionThumbnail(JsonComponent jsonModel) : IComponentSectionAccessory, IJsonModel<JsonComponent>
+public class ComponentSectionThumbnail(JsonComponent jsonModel) : IComponentSectionAccessoryComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 
