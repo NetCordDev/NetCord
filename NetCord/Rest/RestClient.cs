@@ -154,9 +154,6 @@ public sealed partial class RestClient : IDisposable
 
     private async Task<Stream> SendRequestAsync(Route route, FormattableString fullRoute, bool global, Func<HttpRequestMessage> messageFunc, InternalRestRequestProperties requestProperties, CancellationToken cancellationToken)
     {
-        messageFunc().Content?.ReadAsStreamAsync().Result.CopyTo(Console.OpenStandardOutput());
-        Console.WriteLine();
-
         while (true)
         {
             var globalRateLimiter = global ? await AcquireGlobalRateLimiterAsync(route, requestProperties, cancellationToken).ConfigureAwait(false) : null;
