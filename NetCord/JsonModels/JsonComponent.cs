@@ -41,7 +41,7 @@ public class JsonComponent
     public string? Placeholder { get; set; }
 
     [JsonPropertyName("default_values")]
-    public JsonEntityMenuValue[]? DefaultValues { get; set; }
+    public JsonEntityMenuDefaultValue[]? DefaultValues { get; set; }
 
     [JsonPropertyName("min_values")]
     public int? MinValues { get; set; }
