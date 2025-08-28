@@ -148,5 +148,8 @@ public interface IInteractiveComponent : IComponent
 
 public interface IComponent
 {
+    /// <summary>
+    /// Unique identifier for the component.
+    /// </summary>
     public int Id { get; }
 }
