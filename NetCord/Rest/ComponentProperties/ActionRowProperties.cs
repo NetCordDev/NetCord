@@ -76,7 +76,7 @@ public partial class ActionRowProperties(IEnumerable<IActionRowComponentProperti
     {
         WriteActionRowStart(writer, Id);
 
-        JsonSerializer.Serialize(writer, Components, Serialization.Default.IEnumerableIButtonProperties);
+        JsonSerializer.Serialize(writer, Components, Serialization.Default.IEnumerableIActionRowComponentProperties);
 
         writer.WriteEndObject();
     }
