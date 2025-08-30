@@ -79,7 +79,7 @@ internal static class Program
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
 
         var assembly = Assembly.GetEntryAssembly()!;
-        _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
+        _commandService.AddCommand(new(["pol"], ([Optional] object? o, CommandContext context) => "xd"));
         _commandService.AddModules(assembly);
 
         _buttonInteractionService.AddModules(assembly);

@@ -9,7 +9,7 @@ using NetCord.Test.Sharded;
 
 CommandService<CommandContext> commandService = new();
 commandService.AddModule<ExampleModule>();
-commandService.AddCommand(["pong"], ReplyMessageProperties () => "ping!");
+commandService.AddCommand(new(["pong"], ReplyMessageProperties () => "ping!"));
 
 var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
 //configuration = configuration with

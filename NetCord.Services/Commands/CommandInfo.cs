@@ -24,9 +24,11 @@ public class CommandInfo<TContext> where TContext : ICommandContext
         Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
     }
 
-    internal CommandInfo(Delegate handler, int priority, CommandServiceConfiguration<TContext> configuration)
+    internal CommandInfo(CommandBuilder builder, CommandServiceConfiguration<TContext> configuration)
     {
-        Priority = priority;
+        Priority = builder.Priority;
+
+        var handler = builder.Handler;
 
         var method = handler.Method;
 

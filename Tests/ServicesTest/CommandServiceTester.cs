@@ -40,7 +40,7 @@ public sealed class CommandServiceTesterSession
 
     public void AddCommand(string commandName, Delegate handler, int priority = 0)
     {
-        _service.AddCommand([commandName], handler, priority);
+        _service.AddCommand(new CommandBuilder([commandName], handler).WithPriority(priority));
     }
 
     public async ValueTask ExecuteAsync(string command, ResultHandler resultHandler, IServiceProvider? services = null)

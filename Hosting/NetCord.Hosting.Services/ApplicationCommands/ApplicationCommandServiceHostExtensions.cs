@@ -60,8 +60,8 @@ public static class ApplicationCommandServiceHostExtensions
 
     public static SlashCommandGroupBuilder AddSlashCommandGroup(this IHost host, string name, string description, Action<SlashCommandGroupBuilder> builder)
     {
-        var commandBuilder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
-        return commandBuilder.AddSlashCommandGroup(name, description, builder);
+        var commandsBuilder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return commandsBuilder.AddSlashCommandGroup(name, description, builder);
     }
 
     public static UserCommandBuilder AddUserCommand(this IHost host, string name, Delegate handler)
@@ -99,8 +99,8 @@ public static class ApplicationCommandServiceHostExtensions
     public static SlashCommandGroupBuilder AddSlashCommandGroup<TContext>(this IHost host, string name, string description, Action<SlashCommandGroupBuilder> builder)
         where TContext : IApplicationCommandContext
     {
-        var commandBuilder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
-        return commandBuilder.AddSlashCommandGroup(name, description, builder);
+        var commandsBuilder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return commandsBuilder.AddSlashCommandGroup(name, description, builder);
     }
 
     public static UserCommandBuilder AddUserCommand<TContext>(this IHost host, string name, Delegate handler)

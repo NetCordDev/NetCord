@@ -21,7 +21,7 @@ public interface IApplicationCommandsBuilder
 
 public interface IApplicationCommandsBuilder<TContext> : IApplicationCommandsBuilder where TContext : IApplicationCommandContext;
 
-internal class ApplicationCommandsBuilder<TContext>(IApplicationCommandService service) : IApplicationCommandsBuilder<TContext> where TContext : IApplicationCommandContext
+internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TContext> service) : IApplicationCommandsBuilder<TContext> where TContext : IApplicationCommandContext
 {
     private List<ApplicationCommandBuilder> _builders = [];
 
@@ -75,8 +75,7 @@ internal class ApplicationCommandsBuilder<TContext>(IApplicationCommandService s
 
         for (int i = 0; i < count; i++)
         {
-            var builder = builders[i];
-            switch (builder)
+            switch (builders[i])
             {
                 case SlashCommandBuilder slashCommandBuilder:
                     service.AddSlashCommand(slashCommandBuilder);

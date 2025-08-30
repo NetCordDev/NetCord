@@ -52,10 +52,10 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         }
     }
 
-    public void AddCommand(IEnumerable<string> aliases, Delegate handler, int priority = 0)
+    public void AddCommand(CommandBuilder builder)
     {
-        CommandInfo<TContext> commandInfo = new(handler, priority, _configuration);
-        AddCommandInfo(aliases, commandInfo, handler.Method);
+        CommandInfo<TContext> info = new(builder, _configuration);
+        AddCommandInfo(builder.Aliases, info, builder.Handler.Method);
     }
 
     private void AddCommandInfo(IEnumerable<string> aliases, CommandInfo<TContext> commandInfo, MethodInfo method)
