@@ -35,11 +35,10 @@ builder.Services
 
 var app = builder.Build();
 
-app
-    .AddSlashCommand("ping", "Ping!", (IServiceProvider provider, HttpApplicationCommandContext context) => "Pong!")
-    .AddSlashCommand("button", "Button!", (string s) => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties($"button:{s}", "Button!", ButtonStyle.Primary)])))
-    .AddSlashCommand("echo", "Echo!", ([SlashCommandParameter(AutocompleteProviderType = typeof(EchoAutocompleteProvider))] string s) => s)
-    .AddComponentInteraction("button", (string s) => $"Button! {s}");
+app.AddSlashCommand("ping", "Ping!", (IServiceProvider provider, HttpApplicationCommandContext context) => "Pong!");
+app.AddSlashCommand("button", "Button!", (string s) => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties($"button:{s}", "Button!", ButtonStyle.Primary)])));
+app.AddSlashCommand("echo", "Echo!", ([SlashCommandParameter(AutocompleteProviderType = typeof(EchoAutocompleteProvider))] string s) => s);
+app.AddComponentInteraction("button", (string s) => $"Button! {s}");
 
 app.UseHttpInteractions("/interactions");
 

@@ -15,9 +15,9 @@ GatewayClient client = new(new BotToken("Token from Discord Developer Portal"), 
 ApplicationCommandService<ApplicationCommandContext> applicationCommandService = new();
 
 // Add commands using minimal APIs
-applicationCommandService.AddSlashCommand("ping", "Ping!", () => "Pong!");
-applicationCommandService.AddUserCommand("Username", (User user) => user.Username);
-applicationCommandService.AddMessageCommand("Length", (RestMessage message) => message.Content.Length.ToString());
+applicationCommandService.AddSlashCommand(new SlashCommandBuilder("ping", "Ping!", () => "Pong!"));
+applicationCommandService.AddUserCommand(new UserCommandBuilder("Username", (User user) => user.Username));
+applicationCommandService.AddMessageCommand(new MessageCommandBuilder("Length", (RestMessage message) => message.Content.Length.ToString()));
 
 // Add commands from modules
 applicationCommandService.AddModules(typeof(Program).Assembly);

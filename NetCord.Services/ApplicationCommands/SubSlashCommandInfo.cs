@@ -28,15 +28,17 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal SubSlashCommandInfo(string name, string description, Delegate handler, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandInfo(SubSlashCommandBuilder builder, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
-        Name = name;
+        var name = Name = builder.Name;
 
         var localizationPath = LocalizationPath = path.Add(new SubSlashCommandLocalizationPathSegment(name));
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = description;
+        Description = builder.Description;
+
+        var handler = builder.Handler;
 
         var method = handler.Method;
 

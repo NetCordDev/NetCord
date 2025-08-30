@@ -133,128 +133,36 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
         }
     }
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Delegate handler,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                bool register = true)
+    public void AddSlashCommand(SlashCommandBuilder builder)
     {
-        SlashCommandInfo<TContext> slashCommandInfo = new(name,
-                                                          description,
-                                                          handler,
-                                                          defaultGuildUserPermissions,
-                                                          dMPermission,
-                                                          defaultPermission,
-                                                          integrationTypes,
-                                                          contexts,
-                                                          nsfw,
-                                                          register,
-                                                          _configuration);
-        OnAutocompleteAdd(slashCommandInfo);
-        AddCommandInfo(slashCommandInfo);
+        SlashCommandInfo<TContext> info = new(builder, _configuration);
+        OnAutocompleteAdd(info);
+        AddCommandInfo(info);
     }
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Action<SlashCommandBuilder> builder,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                bool register = true)
+    public void AddSlashCommandGroup(SlashCommandGroupBuilder builder)
     {
-        SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(name,
-                                                                    description,
-                                                                    builder,
-                                                                    defaultGuildUserPermissions,
-                                                                    dMPermission,
-                                                                    defaultPermission,
-                                                                    integrationTypes,
-                                                                    contexts,
-                                                                    nsfw,
-                                                                    register,
-                                                                    _configuration);
-
-        OnAutocompleteAdd(slashCommandGroupInfo);
-        AddCommandInfo(slashCommandGroupInfo);
+        SlashCommandGroupInfo<TContext> info = new(builder, _configuration);
+        OnAutocompleteAdd(info);
+        AddCommandInfo(info);
     }
 
-    public void AddUserCommand(string name,
-                               Delegate handler,
-                               Permissions? defaultGuildUserPermissions = null,
-                               bool? dMPermission = null,
-                               bool defaultPermission = true,
-                               IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                               IEnumerable<InteractionContextType>? contexts = null,
-                               bool nsfw = false,
-                               bool register = true)
+    public void AddUserCommand(UserCommandBuilder builder)
     {
-        AddCommandInfo(new UserCommandInfo<TContext>(name,
-                                                     handler,
-                                                     defaultGuildUserPermissions,
-                                                     dMPermission,
-                                                     defaultPermission,
-                                                     integrationTypes,
-                                                     contexts,
-                                                     nsfw,
-                                                     register,
-                                                     _configuration));
+        AddCommandInfo(new UserCommandInfo<TContext>(builder, _configuration));
     }
 
-    public void AddMessageCommand(string name,
-                                  Delegate handler,
-                                  Permissions? defaultGuildUserPermissions = null,
-                                  bool? dMPermission = null,
-                                  bool defaultPermission = true,
-                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                  IEnumerable<InteractionContextType>? contexts = null,
-                                  bool nsfw = false,
-                                  bool register = true)
+    public void AddMessageCommand(MessageCommandBuilder builder)
     {
-        AddCommandInfo(new MessageCommandInfo<TContext>(name,
-                                                        handler,
-                                                        defaultGuildUserPermissions,
-                                                        dMPermission,
-                                                        defaultPermission,
-                                                        integrationTypes,
-                                                        contexts,
-                                                        nsfw,
-                                                        register,
-                                                        _configuration));
+        AddCommandInfo(new MessageCommandInfo<TContext>(builder, _configuration));
     }
 
-    public void AddEntryPointCommand(string name,
-                                     string description,
-                                     Delegate? handler = null,
-                                     Permissions? defaultGuildUserPermissions = null,
-                                     bool? dMPermission = null,
-                                     bool defaultPermission = true,
-                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                     IEnumerable<InteractionContextType>? contexts = null,
-                                     bool nsfw = false,
-                                     bool register = true)
+    public void AddEntryPointCommand(EntryPointCommandBuilder builder)
     {
-        AddCommandInfo(new EntryPointCommandInfo<TContext>(name,
-                                                           description,
-                                                           handler,
-                                                           defaultGuildUserPermissions,
-                                                           dMPermission,
-                                                           defaultPermission,
-                                                           integrationTypes,
-                                                           contexts,
-                                                           nsfw,
-                                                           register,
-                                                           _configuration));
+        AddCommandInfo(new EntryPointCommandInfo<TContext>(builder, _configuration));
     }
 
-    unsafe void IApplicationCommandService.AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands)
+    void IApplicationCommandService.AddRegisteredCommands(IReadOnlyList<RegisteredApplicationCommandInfo> commands)
     {
         _storage.AddRegisteredCommands([.. commands.Select(c => new RegisteredApplicationCommandInfo<TContext>(c.Command, (ApplicationCommandInfo<TContext>)c.CommandInfo))]);
     }

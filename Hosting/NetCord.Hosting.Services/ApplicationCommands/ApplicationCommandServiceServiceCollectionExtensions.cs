@@ -174,7 +174,16 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext>>());
 
-        services.AddSingleton(services => new ApplicationCommandServiceWithPartialConfiguration(services.GetRequiredService<ApplicationCommandService<TContext>>(), () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>>().Value.AutoRegisterCommands));
+        services.AddSingleton<IApplicationCommandsBuilder<TContext>, ApplicationCommandsBuilder<TContext>>();
+        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new ApplicationCommandServiceData(
+                services.GetRequiredService<ApplicationCommandService<TContext>>(),
+                services.GetRequiredService<IApplicationCommandsBuilder<TContext>>(),
+                () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext>>>().Value.AutoRegisterCommands);
+        });
 
         services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
 
@@ -243,7 +252,16 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
 
-        services.AddSingleton(services => new ApplicationCommandServiceWithPartialConfiguration(services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>(), () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>().Value.AutoRegisterCommands));
+        services.AddSingleton<IApplicationCommandsBuilder<TContext>, ApplicationCommandsBuilder<TContext>>();
+        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new ApplicationCommandServiceData(
+                services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>(),
+                services.GetRequiredService<IApplicationCommandsBuilder<TContext>>(),
+                () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>().Value.AutoRegisterCommands);
+        });
 
         services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
         services.AddSingleton<IContextAccessor<TAutocompleteContext>, ContextAccessor<TAutocompleteContext>>();

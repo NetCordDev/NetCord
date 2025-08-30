@@ -14,56 +14,13 @@ public interface IApplicationCommandService : IService
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] T>();
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Delegate handler,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                bool register = true);
+    public void AddSlashCommand(SlashCommandBuilder builder);
 
-    public void AddSlashCommand(string name,
-                                string description,
-                                Action<SlashCommandBuilder> builder,
-                                Permissions? defaultGuildUserPermissions = null,
-                                bool? dMPermission = null,
-                                bool defaultPermission = true,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                IEnumerable<InteractionContextType>? contexts = null,
-                                bool nsfw = false,
-                                bool register = true);
+    public void AddSlashCommandGroup(SlashCommandGroupBuilder builder);
 
-    public void AddUserCommand(string name,
-                               Delegate handler,
-                               Permissions? defaultGuildUserPermissions = null,
-                               bool? dMPermission = null,
-                               bool defaultPermission = true,
-                               IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                               IEnumerable<InteractionContextType>? contexts = null,
-                               bool nsfw = false,
-                               bool register = true);
+    public void AddUserCommand(UserCommandBuilder builder);
 
-    public void AddMessageCommand(string name,
-                                  Delegate handler,
-                                  Permissions? defaultGuildUserPermissions = null,
-                                  bool? dMPermission = null,
-                                  bool defaultPermission = true,
-                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                  IEnumerable<InteractionContextType>? contexts = null,
-                                  bool nsfw = false,
-                                  bool register = true);
+    public void AddMessageCommand(MessageCommandBuilder builder);
 
-    public void AddEntryPointCommand(string name,
-                                     string description,
-                                     Delegate? handler = null,
-                                     Permissions? defaultGuildUserPermissions = null,
-                                     bool? dMPermission = null,
-                                     bool defaultPermission = true,
-                                     IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                     IEnumerable<InteractionContextType>? contexts = null,
-                                     bool nsfw = false,
-                                     bool register = true);
+    public void AddEntryPointCommand(EntryPointCommandBuilder builder);
 }

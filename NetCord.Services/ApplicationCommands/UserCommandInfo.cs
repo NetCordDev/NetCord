@@ -20,25 +20,12 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal UserCommandInfo(string name,
-                             Delegate handler,
-                             Permissions? defaultGuildUserPermissions,
-                             bool? dMPermission,
-                             bool defaultPermission,
-                             IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                             IEnumerable<InteractionContextType>? contexts,
-                             bool nsfw,
-                             bool register,
-                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                    defaultGuildUserPermissions,
-                                                                                                    dMPermission,
-                                                                                                    defaultPermission,
-                                                                                                    integrationTypes,
-                                                                                                    contexts,
-                                                                                                    nsfw,
-                                                                                                    register,
+    internal UserCommandInfo(UserCommandBuilder builder,
+                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
                                                                                                     configuration)
     {
+        var handler = builder.Handler;
+
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);

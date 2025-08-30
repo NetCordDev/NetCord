@@ -13,11 +13,13 @@ internal class ApplicationCommandServiceHostedService(IServiceProvider services,
     {
         List<IApplicationCommandService> managerServices = [];
 
-        foreach (var serviceWithConfig in services.GetServices<ApplicationCommandServiceWithPartialConfiguration>())
+        foreach (var serviceData in services.GetServices<ApplicationCommandServiceData>())
         {
-            var register = serviceWithConfig.AutoRegisterCommandsFunc();
+            serviceData.Builder.Build();
+
+            var register = serviceData.AutoRegisterCommandsFunc();
             if (register.GetValueOrDefault(true))
-                managerServices.Add(serviceWithConfig.Service);
+                managerServices.Add(serviceData.Service);
         }
 
         if (managerServices.Count is 0)

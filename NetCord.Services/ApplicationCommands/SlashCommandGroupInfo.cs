@@ -13,16 +13,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
-                                                                                                          attribute._defaultGuildUserPermissions,
-                                                                                                          attribute._dMPermission,
-#pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                          attribute.DefaultPermission,
-#pragma warning restore CS0618 // Type or member is obsolete
-                                                                                                          attribute.IntegrationTypes,
-                                                                                                          attribute.Contexts,
-                                                                                                          attribute.Nsfw,
-                                                                                                          attribute.Register,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
                                                                                                           configuration)
     {
         Description = attribute.Description;
@@ -53,53 +44,37 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
-    internal SlashCommandGroupInfo(string name,
-                                   string description,
-                                   Action<SlashCommandBuilder> builder,
-                                   Permissions? defaultGuildUserPermissions,
-                                   bool? dMPermission,
-                                   bool defaultPermission,
-                                   IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                                   IEnumerable<InteractionContextType>? contexts,
-                                   bool nsfw,
-                                   bool register,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                          defaultGuildUserPermissions,
-                                                                                                          dMPermission,
-                                                                                                          defaultPermission,
-                                                                                                          integrationTypes,
-                                                                                                          contexts,
-                                                                                                          nsfw,
-                                                                                                          register,
+    internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
                                                                                                           configuration)
     {
-        Description = description;
+        Description = builder.Description;
 
         Preconditions = [];
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
-        SlashCommandBuilder slashCommandBuilder = new();
-        builder(slashCommandBuilder);
+        //SlashCommandBuilder slashCommandBuilder = new();
+        //builder(slashCommandBuilder);
 
-        var subCommandsInfo = slashCommandBuilder.SubCommands;
-        int subCommandsCount = subCommandsInfo.Count;
+        var subCommandBuilders = builder._subCommandBuilders;
+        int subCommandCount = subCommandBuilders.Count;
 
-        for (int i = 0; i < subCommandsCount; i++)
+        for (int i = 0; i < subCommandCount; i++)
         {
-            var subCommandInfo = subCommandsInfo[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandInfo.Name, subCommandInfo.Description, subCommandInfo.Handler, configuration, LocalizationPath);
-            subCommands.Add(new(subCommandInfo.Name, subCommand));
+            var subCommandBuilder = subCommandBuilders[i];
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath);
+            subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
-        var subCommandGroupsInfo = slashCommandBuilder.SubCommandGroups;
-        int subCommandGroupsCount = subCommandGroupsInfo.Count;
+        var subCommandGroupBuilders = builder._subCommandGroupBuilders;
+        int subCommandGroupCount = subCommandGroupBuilders.Count;
 
-        for (int i = 0; i < subCommandGroupsCount; i++)
+        for (int i = 0; i < subCommandGroupCount; i++)
         {
-            var subCommandGroupInfo = subCommandGroupsInfo[i];
-            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupInfo.Name, subCommandGroupInfo.Description, subCommandGroupInfo.Builder, configuration, LocalizationPath);
-            subCommands.Add(new(subCommandGroupInfo.Name, subCommandGroup));
+            var subCommandGroupBuilder = subCommandGroupBuilders[i];
+            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath);
+            subCommands.Add(new(subCommandGroupBuilder.Name, subCommandGroup));
         }
 
         SubCommands = subCommands.ToFrozenDictionary();

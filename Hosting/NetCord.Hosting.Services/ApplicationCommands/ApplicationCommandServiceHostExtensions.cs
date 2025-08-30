@@ -46,255 +46,81 @@ public static class ApplicationCommandServiceHostExtensions
         return host;
     }
 
-    public static IHost AddSlashCommand(this IHost host,
-                                        string name,
-                                        string description,
-                                        Delegate handler,
-                                        Permissions? defaultGuildUserPermissions = null,
-                                        bool? dMPermission = null,
-                                        bool defaultPermission = true,
-                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                        IEnumerable<InteractionContextType>? contexts = null,
-                                        bool nsfw = false,
-                                        bool register = true)
+    public static SlashCommandBuilder AddSlashCommand(this IHost host, string name, string description, Delegate handler)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
-        service.AddSlashCommand(name,
-                                description,
-                                handler,
-                                defaultGuildUserPermissions,
-                                dMPermission,
-                                defaultPermission,
-                                integrationTypes,
-                                contexts,
-                                nsfw,
-                                register);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return builder.AddSlashCommand(name, description, handler);
     }
 
-    public static IHost AddSlashCommand(this IHost host,
-                                        string name,
-                                        string description,
-                                        Action<SlashCommandBuilder> builder,
-                                        Permissions? defaultGuildUserPermissions = null,
-                                        bool? dMPermission = null,
-                                        bool defaultPermission = true,
-                                        IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                        IEnumerable<InteractionContextType>? contexts = null,
-                                        bool nsfw = false,
-                                        bool register = true)
+    public static SlashCommandGroupBuilder AddSlashCommandGroup(this IHost host, string name, string description)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
-        service.AddSlashCommand(name,
-                                description,
-                                builder,
-                                defaultGuildUserPermissions,
-                                dMPermission,
-                                defaultPermission,
-                                integrationTypes,
-                                contexts,
-                                nsfw,
-                                register);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return builder.AddSlashCommandGroup(name, description);
     }
 
-    public static IHost AddUserCommand(this IHost host,
-                                       string name,
-                                       Delegate handler,
-                                       Permissions? defaultGuildUserPermissions = null,
-                                       bool? dMPermission = null,
-                                       bool defaultPermission = true,
-                                       IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                       IEnumerable<InteractionContextType>? contexts = null,
-                                       bool nsfw = false,
-                                       bool register = true)
+    public static SlashCommandGroupBuilder AddSlashCommandGroup(this IHost host, string name, string description, Action<SlashCommandGroupBuilder> builder)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
-        service.AddUserCommand(name,
-                               handler,
-                               defaultGuildUserPermissions,
-                               dMPermission,
-                               defaultPermission,
-                               integrationTypes,
-                               contexts,
-                               nsfw,
-                               register);
-        return host;
+        var commandBuilder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return commandBuilder.AddSlashCommandGroup(name, description, builder);
     }
 
-    public static IHost AddMessageCommand(this IHost host,
-                                          string name,
-                                          Delegate handler,
-                                          Permissions? defaultGuildUserPermissions = null,
-                                          bool? dMPermission = null,
-                                          bool defaultPermission = true,
-                                          IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                          IEnumerable<InteractionContextType>? contexts = null,
-                                          bool nsfw = false,
-                                          bool register = true)
+    public static UserCommandBuilder AddUserCommand(this IHost host, string name, Delegate handler)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
-        service.AddMessageCommand(name,
-                                  handler,
-                                  defaultGuildUserPermissions,
-                                  dMPermission,
-                                  defaultPermission,
-                                  integrationTypes,
-                                  contexts,
-                                  nsfw,
-                                  register);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return builder.AddUserCommand(name, handler);
     }
 
-    public static IHost AddEntryPointCommand(this IHost host,
-                                             string name,
-                                             string description,
-                                             Delegate? handler = null,
-                                             Permissions? defaultGuildUserPermissions = null,
-                                             bool? dMPermission = null,
-                                             bool defaultPermission = true,
-                                             IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                             IEnumerable<InteractionContextType>? contexts = null,
-                                             bool nsfw = false,
-                                             bool register = true)
+    public static MessageCommandBuilder AddMessageCommand(this IHost host, string name, Delegate handler)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IApplicationCommandService>(host.Services);
-        service.AddEntryPointCommand(name,
-                                     description,
-                                     handler,
-                                     defaultGuildUserPermissions,
-                                     dMPermission,
-                                     defaultPermission,
-                                     integrationTypes,
-                                     contexts,
-                                     nsfw,
-                                     register);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return builder.AddMessageCommand(name, handler);
     }
 
-    public static IHost AddSlashCommand<TContext>(this IHost host,
-                                                  string name,
-                                                  string description,
-                                                  Delegate handler,
-                                                  Permissions? defaultGuildUserPermissions = null,
-                                                  bool? dMPermission = null,
-                                                  bool defaultPermission = true,
-                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                  IEnumerable<InteractionContextType>? contexts = null,
-                                                  bool nsfw = false,
-                                                  bool register = true) where TContext : IApplicationCommandContext
+    public static EntryPointCommandBuilder AddEntryPointCommand(this IHost host, string name, string description)
     {
-        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddSlashCommand(name,
-                                description,
-                                handler,
-                                defaultGuildUserPermissions,
-                                dMPermission,
-                                defaultPermission,
-                                integrationTypes,
-                                contexts,
-                                nsfw,
-                                register);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IApplicationCommandsBuilder>(host.Services);
+        return builder.AddEntryPointCommand(name, description);
     }
 
-    public static IHost AddSlashCommand<TContext>(this IHost host,
-                                                  string name,
-                                                  string description,
-                                                  Action<SlashCommandBuilder> builder,
-                                                  Permissions? defaultGuildUserPermissions = null,
-                                                  bool? dMPermission = null,
-                                                  bool defaultPermission = true,
-                                                  IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                  IEnumerable<InteractionContextType>? contexts = null,
-                                                  bool nsfw = false,
-                                                  bool register = true) where TContext : IApplicationCommandContext
+    public static SlashCommandBuilder AddSlashCommand<TContext>(this IHost host, string name, string description, Delegate handler)
+        where TContext : IApplicationCommandContext
     {
-        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddSlashCommand(name,
-                                description,
-                                builder,
-                                defaultGuildUserPermissions,
-                                dMPermission,
-                                defaultPermission,
-                                integrationTypes,
-                                contexts,
-                                nsfw,
-                                register);
-        return host;
+        var builder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return builder.AddSlashCommand(name, description, handler);
     }
 
-    public static IHost AddUserCommand<TContext>(this IHost host,
-                                                 string name,
-                                                 Delegate handler,
-                                                 Permissions? defaultGuildUserPermissions = null,
-                                                 bool? dMPermission = null,
-                                                 bool defaultPermission = true,
-                                                 IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                 IEnumerable<InteractionContextType>? contexts = null,
-                                                 bool nsfw = false,
-                                                 bool register = true) where TContext : IApplicationCommandContext
+    public static SlashCommandGroupBuilder AddSlashCommandGroup<TContext>(this IHost host, string name, string description)
+        where TContext : IApplicationCommandContext
     {
-        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddUserCommand(name,
-                               handler,
-                               defaultGuildUserPermissions,
-                               dMPermission,
-                               defaultPermission,
-                               integrationTypes,
-                               contexts,
-                               nsfw,
-                               register);
-        return host;
+        var builder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return builder.AddSlashCommandGroup(name, description);
     }
 
-    public static IHost AddMessageCommand<TContext>(this IHost host,
-                                                    string name,
-                                                    Delegate handler,
-                                                    Permissions? defaultGuildUserPermissions = null,
-                                                    bool? dMPermission = null,
-                                                    bool defaultPermission = true,
-                                                    IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                    IEnumerable<InteractionContextType>? contexts = null,
-                                                    bool nsfw = false,
-                                                    bool register = true) where TContext : IApplicationCommandContext
+    public static SlashCommandGroupBuilder AddSlashCommandGroup<TContext>(this IHost host, string name, string description, Action<SlashCommandGroupBuilder> builder)
+        where TContext : IApplicationCommandContext
     {
-        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddMessageCommand(name,
-                                  handler,
-                                  defaultGuildUserPermissions,
-                                  dMPermission,
-                                  defaultPermission,
-                                  integrationTypes,
-                                  contexts,
-                                  nsfw,
-                                  register);
-        return host;
+        var commandBuilder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return commandBuilder.AddSlashCommandGroup(name, description, builder);
     }
 
-    public static IHost AddEntryPointCommand<TContext>(this IHost host,
-                                                       string name,
-                                                       string description,
-                                                       Delegate? handler = null,
-                                                       Permissions? defaultGuildUserPermissions = null,
-                                                       bool? dMPermission = null,
-                                                       bool defaultPermission = true,
-                                                       IEnumerable<ApplicationIntegrationType>? integrationTypes = null,
-                                                       IEnumerable<InteractionContextType>? contexts = null,
-                                                       bool nsfw = false,
-                                                       bool register = true) where TContext : IApplicationCommandContext
+    public static UserCommandBuilder AddUserCommand<TContext>(this IHost host, string name, Delegate handler)
+        where TContext : IApplicationCommandContext
     {
-        var service = host.Services.GetRequiredService<ApplicationCommandService<TContext>>();
-        service.AddEntryPointCommand(name,
-                                     description,
-                                     handler,
-                                     defaultGuildUserPermissions,
-                                     dMPermission,
-                                     defaultPermission,
-                                     integrationTypes,
-                                     contexts,
-                                     nsfw,
-                                     register);
-        return host;
+        var builder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return builder.AddUserCommand(name, handler);
+    }
+
+    public static MessageCommandBuilder AddMessageCommand<TContext>(this IHost host, string name, Delegate handler)
+        where TContext : IApplicationCommandContext
+    {
+        var builder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return builder.AddMessageCommand(name, handler);
+    }
+
+    public static EntryPointCommandBuilder AddEntryPointCommand<TContext>(this IHost host, string name, string description)
+        where TContext : IApplicationCommandContext
+    {
+        var builder = host.Services.GetRequiredService<IApplicationCommandsBuilder<TContext>>();
+        return builder.AddEntryPointCommand(name, description);
     }
 }

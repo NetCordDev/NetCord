@@ -19,13 +19,13 @@ var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
-slashCommandService.AddSlashCommand("button", "Button!", () =>
+slashCommandService.AddSlashCommand(new("button", "Button!", () =>
 {
     return new InteractionMessageProperties()
     {
         Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
     };
-});
+}));
 
 ComponentInteractionService<ButtonInteractionContext> buttonInteractionService = new();
 buttonInteractionService.AddComponentInteraction("button", () => "XD");

@@ -36,31 +36,28 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
-    internal SubSlashCommandGroupInfo(string name, string description, Action<SubSlashCommandBuilder> builder, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandGroupInfo(SubSlashCommandGroupBuilder builder, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
-        Name = name;
+        var name = Name = builder.Name;
 
         var localizationPath = LocalizationPath = path.Add(new SubSlashCommandGroupLocalizationPathSegment(name));
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = description;
+        Description = builder.Description;
 
         Preconditions = [];
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
-        SubSlashCommandBuilder slashCommandBuilder = new();
-        builder(slashCommandBuilder);
+        var subCommandBuilders = builder._subCommands;
+        int subCommandCount = subCommandBuilders.Count;
 
-        var subCommandsInfo = slashCommandBuilder.SubCommands;
-        int subCommandsCount = subCommandsInfo.Count;
-
-        for (int i = 0; i < subCommandsCount; i++)
+        for (int i = 0; i < subCommandCount; i++)
         {
-            var subCommandInfo = subCommandsInfo[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandInfo.Name, subCommandInfo.Description, subCommandInfo.Handler, configuration, localizationPath);
-            subCommands.Add(new(subCommandInfo.Name, subCommand));
+            var subCommandBuilder = subCommandBuilders[i];
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, localizationPath);
+            subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
         SubCommands = subCommands.ToFrozenDictionary();

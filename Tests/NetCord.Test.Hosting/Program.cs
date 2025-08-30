@@ -62,82 +62,104 @@ builder.Services
     .AddSingleton("Wzium")
     .AddKeyedSingleton("key", "Wzium2");
 
-var host = builder.Build()
-    .AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}")
-    .AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)))
-    .AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}")
-    .AddSlashCommand("button", "Button!", () =>
+var host = builder.Build();
+
+host.AddSlashCommand("ping", "Ping!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s = "wzium") => $"Pong! {s}");
+host.AddSlashCommand("help", "Help!", (ApplicationCommandService<ApplicationCommandContext> slashCommandService, ApplicationCommandContext context) => string.Join('\n', slashCommandService.GetCommands().Select(c => c.Name)));
+host.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")][Optional][DefaultParameterValue(null)] string? keyedWzium, string wzium, ApplicationCommandContext context) => $"{keyedWzium} {wzium}");
+host.AddSlashCommand("button", "Button!", () =>
+{
+    return new InteractionMessageProperties()
     {
-        return new InteractionMessageProperties()
-        {
-            Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
-        };
-    })
-    .AddSlashCommand("exception", "Exception!", (Action<string>)(s => throw new("Exception!")))
-    .AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])))
-    .AddUserCommand("ping", () => "Pong!")
-    .AddMessageCommand("Content", (RestMessage message) => message.Content)
-    .AddUserCommand("Name", (GatewayClient client, ApplicationCommandContext context, User user) => user.Username)
-    .AddMessageCommand("ping", () => "Pong!")
-    .AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!")
-    .AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")))
-    .AddCommand(["ping"], () => "Pong!")
-    .AddCommand(["exception"], (Action)(() => throw new("Exception!")))
-    .AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])))
-    .AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD")
-    .AddApplicationCommandModule<ApplicationCommandModule>()
-    .AddApplicationCommandModule<DITestModule>()
-    .AddSlashCommand("yellow", "Yellow!", builder =>
+        Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
+    };
+});
+host.AddSlashCommand("exception", "Exception!", (Action<string>)(s => throw new("Exception!")));
+host.AddSlashCommand("exception-button", "Exception button!", () => new InteractionMessageProperties().AddComponents(new ActionRowProperties([new ButtonProperties("exception", "Exception!", ButtonStyle.Danger)])));
+host.AddUserCommand("ping", () => "Pong!");
+host.AddMessageCommand("Content", (RestMessage message) => message.Content);
+host.AddUserCommand("Name", (GatewayClient client, ApplicationCommandContext context, User user) => user.Username);
+host.AddMessageCommand("ping", () => "Pong!");
+host.AddComponentInteraction<ButtonInteractionContext>("button", () => "Button!");
+host.AddComponentInteraction<ButtonInteractionContext>("exception", (Action<IServiceProvider, ButtonInteractionContext>)((provider, context) => throw new("Exception!")));
+host.AddCommand(["ping"], () => "Pong!");
+host.AddCommand(["exception"], (Action)(() => throw new("Exception!")));
+host.AddSlashCommand("menu", "Create a menu!", () => new InteractionMessageProperties().AddComponents(new StringMenuProperties("menu", [new StringMenuSelectOptionProperties("xd", "xd"), new StringMenuSelectOptionProperties("ad", "ad")])));
+host.AddComponentInteraction<StringMenuInteractionContext>("menu", () => "XD");
+host.AddApplicationCommandModule<ApplicationCommandModule>();
+host.AddApplicationCommandModule<DITestModule>();
+
+host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
+ {
+     builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+     (string wzium,
+                                               ApplicationCommandContext context,
+                                               [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+
+     builder.AddSubCommand("blue", "Blue!", () => "blue");
+
+     builder.AddSubCommandGroup("red", "Red!", builder =>
+     {
+         builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+         builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+     });
+ });
+
+//var yellowGroup = host.AddSlashCommandGroup("yellow", "Yellow!");
+
+//yellowGroup.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+//                                             (string wzium,
+//                                              ApplicationCommandContext context,
+//                                              [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+
+//yellowGroup.AddSubCommand("blue", "Blue!", () => "blue");
+
+//var redYellowGroup = yellowGroup.AddSubCommandGroup("red", "Red!");
+
+//redYellowGroup.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+
+//redYellowGroup.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+
+host.AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
+{
+    string? content;
+
+    if (contextAccessor.Context is { } accessorContext)
     {
-        builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
-        (string wzium,
-                                                  ApplicationCommandContext context,
-                                                  [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
-        builder.AddSubCommand("blue", "Blue!", () => "blue");
-        builder.AddSubCommand("red", "Red!", builder =>
-        {
-            builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
-            builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
-        });
-    })
-    .AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
-    {
-        string? content;
+        content = $"{accessorContext == context} {s}";
+    }
+    else
+        content = $"Context is null. {s}";
 
-        if (contextAccessor.Context is { } accessorContext)
-        {
-            content = $"{accessorContext == context} {s}";
-        }
-        else
-            content = $"Context is null. {s}";
+    return new InteractionMessageProperties()
+        .WithContent(content)
+        .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+});
 
-        return new InteractionMessageProperties()
-            .WithContent(content)
-            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
-    })
-    .AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
-    {
-        string? content;
+host.AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
+{
+    string? content;
 
-        if (contextAccessor.Context is { } accessorContext)
-            content = (accessorContext == context).ToString();
-        else
-            content = "Context is null.";
+    if (contextAccessor.Context is { } accessorContext)
+        content = (accessorContext == context).ToString();
+    else
+        content = "Context is null.";
 
-        return content;
-    })
-    .AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextAccessor, CommandContext context) =>
-    {
-        string? content;
+    return content;
+});
 
-        if (contextAccessor.Context is { } accessorContext)
-            content = (accessorContext == context).ToString();
-        else
-            content = "Context is null.";
+host.AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextAccessor, CommandContext context) =>
+{
+    string? content;
 
-        return new ReplyMessageProperties()
-            .WithContent(content)
-            .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
-    });
+    if (contextAccessor.Context is { } accessorContext)
+        content = (accessorContext == context).ToString();
+    else
+        content = "Context is null.";
+
+    return new ReplyMessageProperties()
+        .WithContent(content)
+        .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+});
 
 await host.RunAsync();

@@ -25,27 +25,13 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal SlashCommandInfo(string name,
-                              string description,
-                              Delegate handler,
-                              Permissions? defaultGuildUserPermissions,
-                              bool? dMPermission,
-                              bool defaultPermission,
-                              IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                              IEnumerable<InteractionContextType>? contexts,
-                              bool nsfw,
-                              bool register,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                     defaultGuildUserPermissions,
-                                                                                                     dMPermission,
-                                                                                                     defaultPermission,
-                                                                                                     integrationTypes,
-                                                                                                     contexts,
-                                                                                                     nsfw,
-                                                                                                     register,
+    internal SlashCommandInfo(SlashCommandBuilder builder,
+                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
                                                                                                      configuration)
     {
-        Description = description;
+        Description = builder.Description;
+
+        var handler = builder.Handler;
 
         var method = handler.Method;
 
