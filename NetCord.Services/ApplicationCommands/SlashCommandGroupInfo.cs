@@ -54,9 +54,6 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
-        //SlashCommandBuilder slashCommandBuilder = new();
-        //builder(slashCommandBuilder);
-
         var subCommandBuilders = builder._subCommandBuilders;
         int subCommandCount = subCommandBuilders.Count;
 
