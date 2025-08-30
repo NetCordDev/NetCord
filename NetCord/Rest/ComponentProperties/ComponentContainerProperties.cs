@@ -11,32 +11,32 @@ namespace NetCord.Rest;
 
 [CollectionBuilder(typeof(ComponentContainerProperties), nameof(Create))]
 [GenerateMethodsForProperties]
-public partial class ComponentContainerProperties(IEnumerable<IComponentProperties> components) : IComponentProperties, IComponentContainerProperties, IEnumerable<IComponentProperties>
+public partial class ComponentContainerProperties(IEnumerable<IComponentContainerComponentProperties> components) : IMessageComponentProperties, IComponentContainerProperties, IEnumerable<IComponentContainerComponentProperties>
 {
     public ComponentContainerProperties() : this([])
     {
     }
 
-    public int? Id { get; set; }
-
     public ComponentType ComponentType => ComponentType.Container;
+
+    public int? Id { get; set; }
 
     public Color? AccentColor { get; set; }
 
     public bool Spoiler { get; set; }
 
-    public IEnumerable<IComponentProperties> Components { get; set; } = components;
+    public IEnumerable<IComponentContainerComponentProperties> Components { get; set; } = components;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public void Add(IComponentProperties component) => AddComponents(component);
+    public void Add(IComponentContainerComponentProperties component) => AddComponents(component);
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static ComponentContainerProperties Create(ReadOnlySpan<IComponentProperties> components) => new(components.ToArray());
+    public static ComponentContainerProperties Create(ReadOnlySpan<IComponentContainerComponentProperties> components) => new(components.ToArray());
 
-    IEnumerator<IComponentProperties> IEnumerable<IComponentProperties>.GetEnumerator() => Components.GetEnumerator();
+    IEnumerator<IComponentContainerComponentProperties> IEnumerable<IComponentContainerComponentProperties>.GetEnumerator() => Components.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Components).GetEnumerator();
 
-    public void WriteTo(Utf8JsonWriter writer)
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.IComponentContainerProperties);
     }
@@ -53,5 +53,5 @@ internal interface IComponentContainerProperties : IComponentProperties
     public bool Spoiler { get; }
 
     [JsonPropertyName("components")]
-    public IEnumerable<IComponentProperties> Components { get; }
+    public IEnumerable<IComponentContainerComponentProperties> Components { get; }
 }

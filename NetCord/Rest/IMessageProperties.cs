@@ -13,7 +13,7 @@ public partial interface IMessageProperties
 
     public IEnumerable<AttachmentProperties>? Attachments { get; set; }
 
-    public IEnumerable<IComponentProperties>? Components { get; set; }
+    public IEnumerable<IMessageComponentProperties>? Components { get; set; }
 
     public MessageFlags? Flags { get; set; }
 

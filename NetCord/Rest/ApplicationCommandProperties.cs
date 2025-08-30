@@ -7,7 +7,7 @@ namespace NetCord.Rest;
 
 [JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
 [GenerateMethodsForProperties]
-public abstract partial class ApplicationCommandProperties : IJsonSerializable
+public abstract partial class ApplicationCommandProperties : IJsonSerializable<ApplicationCommandProperties>
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
     {
@@ -78,5 +78,10 @@ public abstract partial class ApplicationCommandProperties : IJsonSerializable
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 
-    public abstract void WriteTo(Utf8JsonWriter writer);
+    void IJsonSerializable<ApplicationCommandProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    private protected abstract void WriteTo(Utf8JsonWriter writer);
 }

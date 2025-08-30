@@ -54,6 +54,7 @@ builder.Services
     })
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddComponentInteractions<StringMenuInteraction, StringMenuInteractionContext>()
+    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
     .AddCommands()
     .AddGatewayHandler(GatewayEvent.MessageCreate, (Message message, ILogger<Message> logger) => logger.LogInformation("Content: {}", message.Content))
     .AddGatewayHandler<ChannelCreateUpdateDeleteHandler>()
@@ -133,7 +134,7 @@ host.AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAcce
 
     return new InteractionMessageProperties()
         .WithContent(content)
-        .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+        .AddComponents(new ActionRowProperties().AddComponents(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
 });
 
 host.AddComponentInteraction<ButtonInteractionContext>("context-accessor", (IContextAccessor<ButtonInteractionContext> contextAccessor, ButtonInteractionContext context) =>
@@ -159,7 +160,25 @@ host.AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextA
 
     return new ReplyMessageProperties()
         .WithContent(content)
-        .AddComponents(new ActionRowProperties().AddButtons(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
+        .AddComponents(new ActionRowProperties().AddComponents(new ButtonProperties("context-accessor", "Test", ButtonStyle.Primary)));
 });
+
+host.AddSlashCommand("modal", "Modal", () =>
+{
+    return InteractionCallback.Modal(new ModalProperties("modal", "Modal")
+        {
+            new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
+            new TextDisplayProperties("""
+                ```cs
+                Console.WriteLine("Wzium");
+                ```
+                """),
+            new LabelProperties("User", new UserMenuProperties("user")),
+            new LabelProperties("Channel", new ChannelMenuProperties("channel")),
+            new LabelProperties("Role", new RoleMenuProperties("role")),
+        });
+});
+
+host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => new InteractionMessageProperties().WithContent("a").WithFlags(MessageFlags.Ephemeral));
 
 await host.RunAsync();

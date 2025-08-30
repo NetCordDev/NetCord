@@ -10,7 +10,7 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class UserCommandProperties(string name) : ApplicationCommandProperties(ApplicationCommandType.User, name)
 {
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.UserCommandProperties);
     }

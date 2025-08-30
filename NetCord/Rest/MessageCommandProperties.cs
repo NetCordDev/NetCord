@@ -10,7 +10,7 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class MessageCommandProperties(string name) : ApplicationCommandProperties(ApplicationCommandType.Message, name)
 {
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.MessageCommandProperties);
     }

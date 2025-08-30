@@ -1,6 +1,19 @@
-﻿namespace NetCord;
+﻿using NetCord.Rest;
 
-public class ModalInteractionData(JsonModels.JsonInteractionData jsonModel) : ComponentInteractionData(jsonModel)
+namespace NetCord;
+
+public class ModalInteractionData : ComponentInteractionData
 {
-    public IReadOnlyList<IComponent> Components { get; } = jsonModel.Components!.Select(IComponent.CreateFromJson).ToArray();
+    public ModalInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : base(jsonModel)
+    {
+        Components = jsonModel.Components!.Select(IModalComponent.CreateFromJson).ToArray();
+
+        var resolvedData = jsonModel.ResolvedData;
+        if (resolvedData is not null)
+            ResolvedData = new(resolvedData, guildId, client);
+    }
+
+    public IReadOnlyList<IModalComponent> Components { get; }
+
+    public InteractionResolvedData? ResolvedData { get; }
 }

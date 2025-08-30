@@ -6,9 +6,9 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class ComponentSectionProperties(IComponentSectionAccessoryProperties accessory, IEnumerable<TextDisplayProperties> components) : IComponentProperties, IComponentSectionProperties, IEnumerable<TextDisplayProperties>
+public partial class ComponentSectionProperties(IComponentSectionAccessoryComponentProperties accessory, IEnumerable<TextDisplayProperties> components) : IMessageComponentProperties, IComponentContainerComponentProperties, IComponentSectionProperties, IEnumerable<TextDisplayProperties>
 {
-    public ComponentSectionProperties(IComponentSectionAccessoryProperties accessory) : this(accessory, [])
+    public ComponentSectionProperties(IComponentSectionAccessoryComponentProperties accessory) : this(accessory, [])
     {
     }
 
@@ -18,14 +18,24 @@ public partial class ComponentSectionProperties(IComponentSectionAccessoryProper
 
     public IEnumerable<TextDisplayProperties> Components { get; set; } = components;
 
-    public IComponentSectionAccessoryProperties Accessory { get; set; } = accessory;
+    public IComponentSectionAccessoryComponentProperties Accessory { get; set; } = accessory;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(TextDisplayProperties component) => AddComponents(component);
 
-    public void WriteTo(Utf8JsonWriter writer)
+    private void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.IComponentSectionProperties);
+    }
+
+    void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
     }
 
     IEnumerator<TextDisplayProperties> IEnumerable<TextDisplayProperties>.GetEnumerator() => Components.GetEnumerator();
@@ -38,5 +48,5 @@ internal interface IComponentSectionProperties : IComponentProperties
     public IEnumerable<TextDisplayProperties> Components { get; }
 
     [JsonPropertyName("accessory")]
-    public IComponentSectionAccessoryProperties Accessory { get; }
+    public IComponentSectionAccessoryComponentProperties Accessory { get; }
 }

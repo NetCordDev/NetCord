@@ -77,7 +77,7 @@ For message component interactions, you can modify the message they are attached
 
 ## Responding with a Modal
 
-Modals are interactive forms users can fill out. Use @"NetCord.Rest.InteractionCallback.Modal*?text=InteractionCallback.Modal" to create a modal callback. Each modal can include up to five text inputs, but no other component types are supported.
+Modals are interactive forms users can fill out. Use @"NetCord.Rest.InteractionCallback.Modal*?text=InteractionCallback.Modal" to create a modal callback. Each modal can include up to five components.
 
 # [Classic Syntax](#tab/classic-syntax)
 

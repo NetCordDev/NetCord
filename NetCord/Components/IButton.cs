@@ -1,8 +1,7 @@
 ﻿namespace NetCord;
 
-public interface IButton : IComponentSectionAccessory
+public interface IButton : IActionRowComponent, IComponentSectionAccessoryComponent
 {
-    public int Id { get; }
     public bool Disabled { get; }
 
     public new static IButton CreateFromJson(JsonModels.JsonComponent jsonModel)

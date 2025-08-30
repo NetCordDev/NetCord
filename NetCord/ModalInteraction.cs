@@ -14,7 +14,7 @@ public class ModalInteraction : ComponentInteraction
             Message = new(message, guild, Channel, client);
         }
 
-        Data = new(jsonModel.Data!);
+        Data = new(jsonModel.Data!, jsonModel.GuildId, client);
     }
 
     /// <summary>

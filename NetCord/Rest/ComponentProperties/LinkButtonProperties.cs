@@ -6,6 +6,9 @@ namespace NetCord.Rest;
 [GenerateMethodsForProperties]
 public partial class LinkButtonProperties : ICustomizableButtonProperties
 {
+    [JsonPropertyName("type")]
+    public ComponentType ComponentType => ComponentType.Button;
+
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
     public int? Id { get; set; }
@@ -18,9 +21,6 @@ public partial class LinkButtonProperties : ICustomizableButtonProperties
 
     [JsonPropertyName("style")]
     public ButtonStyle Style => (ButtonStyle)5;
-
-    [JsonPropertyName("type")]
-    public ComponentType ComponentType => ComponentType.Button;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("label")]
@@ -69,8 +69,18 @@ public partial class LinkButtonProperties : ICustomizableButtonProperties
         Emoji = emoji;
     }
 
-    public void WriteTo(Utf8JsonWriter writer)
+    private void WriteTo(Utf8JsonWriter writer)
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.LinkButtonProperties);
+    }
+
+    void IJsonSerializable<IActionRowComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentSectionAccessoryComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
     }
 }

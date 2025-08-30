@@ -14,17 +14,20 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
 
     public override ComponentType ComponentType => ComponentType.StringMenu;
 
-    [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; } = options;
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     public void Add(StringMenuSelectOptionProperties option) => AddOptions(option);
 
-    public override void WriteTo(Utf8JsonWriter writer)
+    private protected override void WriteToMessage(Utf8JsonWriter writer)
     {
         ActionRowProperties.WriteActionRowLike(writer, ParentId, this, Serialization.Default.IStringMenuProperties);
     }
 
+    private protected override void WriteToLabel(Utf8JsonWriter writer)
+    {
+        JsonSerializer.Serialize(writer, this, Serialization.Default.IStringMenuProperties);
+    }
     IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
 }
@@ -54,4 +57,8 @@ internal interface IStringMenuProperties : IComponentProperties
 
     [JsonPropertyName("options")]
     public IEnumerable<StringMenuSelectOptionProperties> Options { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    [JsonPropertyName("required")]
+    public bool? Required { get; set; }
 }
