@@ -83,7 +83,7 @@ internal static class Program
         _commandService.AddModules(assembly);
 
         _buttonInteractionService.AddModules(assembly);
-        _buttonInteractionService.AddComponentInteraction("wziummm", (ButtonInteractionContext context) => "wzium");
+        _buttonInteractionService.AddComponentInteraction(new("wziummm", (ButtonInteractionContext context) => "wzium"));
         _stringMenuInteractionService.AddModules(assembly);
         _userMenuInteractionService.AddModules(assembly);
         _roleMenuInteractionService.AddModules(assembly);

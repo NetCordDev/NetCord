@@ -144,12 +144,24 @@ public static class ComponentInteractionServiceServiceCollectionExtensions
         services.AddSingleton<IComponentInteractionService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ComponentInteractionService<TContext>>());
 
+        services.AddSingleton<IComponentInteractionsBuilder<TContext>, ComponentInteractionsBuilder<TContext>>();
+        services.AddSingleton<IComponentInteractionsBuilder>(services => services.GetRequiredService<IComponentInteractionsBuilder<TContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new ComponentInteractionServiceData(
+                services.GetRequiredService<ComponentInteractionService<TContext>>(),
+                services.GetRequiredService<IComponentInteractionsBuilder<TContext>>());
+        });
+
         services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
 
         services.AddSingleton<ComponentInteractionHandler<TInteraction, TContext>>();
         services.AddGatewayHandler(services => services.GetRequiredService<ComponentInteractionHandler<TInteraction, TContext>>());
         services.AddShardedGatewayHandler(services => services.GetRequiredService<ComponentInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ComponentInteractionHandler<TInteraction, TContext>>());
+
+        services.AddHostedService<ComponentInteractionServiceHostedService>();
 
         return services;
     }

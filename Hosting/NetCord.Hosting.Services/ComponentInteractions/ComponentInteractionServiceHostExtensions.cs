@@ -46,21 +46,16 @@ public static class ComponentInteractionServiceHostExtensions
         return host;
     }
 
-    public static IHost AddComponentInteraction(this IHost host,
-                                                          string customId,
-                                                          Delegate handler)
+    public static ComponentInteractionBuilder AddComponentInteraction(this IHost host, string customId, Delegate handler)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<IComponentInteractionService>(host.Services);
-        service.AddComponentInteraction(customId, handler);
-        return host;
+        var builder = ServiceProviderServiceHelper.GetSingle<IComponentInteractionsBuilder>(host.Services);
+        return builder.AddComponentInteraction(customId, handler);
     }
 
-    public static IHost AddComponentInteraction<TContext>(this IHost host,
-                                                          string customId,
-                                                          Delegate handler) where TContext : IComponentInteractionContext
+    public static ComponentInteractionBuilder AddComponentInteraction<TContext>(this IHost host, string customId, Delegate handler)
+        where TContext : IComponentInteractionContext
     {
-        var service = host.Services.GetRequiredService<ComponentInteractionService<TContext>>();
-        service.AddComponentInteraction(customId, handler);
-        return host;
+        var builder = host.Services.GetRequiredService<IComponentInteractionsBuilder<TContext>>();
+        return builder.AddComponentInteraction(customId, handler);
     }
 }

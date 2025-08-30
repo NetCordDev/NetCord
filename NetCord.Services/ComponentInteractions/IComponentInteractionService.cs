@@ -8,5 +8,5 @@ public interface IComponentInteractionService : IService
 
     public void AddModule<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>();
 
-    public void AddComponentInteraction(string customId, Delegate handler);
+    public void AddComponentInteraction(ComponentInteractionBuilder builder);
 }
