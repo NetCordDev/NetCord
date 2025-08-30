@@ -17,9 +17,9 @@ internal class CommandsBuilder<TContext>(CommandService<TContext> service) : ICo
 
     public CommandBuilder AddCommand(IEnumerable<string> aliases, Delegate handler)
     {
-        CommandBuilder commandBuilder = new(aliases, handler);
-        _builders.Add(commandBuilder);
-        return commandBuilder;
+        CommandBuilder result = new(aliases, handler);
+        _builders.Add(result);
+        return result;
     }
 
     public void Build()

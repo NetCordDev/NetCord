@@ -24,8 +24,11 @@ internal class ComponentInteractionsBuilder<TContext>(ComponentInteractionServic
 
     public void Build()
     {
-        foreach (var builder in _builders)
-            service.AddComponentInteraction(builder);
+        var builders = _builders;
+        int count = builders.Count;
+
+        for (int i = 0; i < count; i++)
+            service.AddComponentInteraction(builders[i]);
 
         _builders = [];
     }
