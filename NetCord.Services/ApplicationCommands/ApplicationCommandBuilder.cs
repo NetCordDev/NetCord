@@ -74,6 +74,7 @@ public partial class SubSlashCommandBuilder(string name, string description, Del
     public Delegate Handler => handler;
 }
 
+[GenerateMethodsForProperties]
 public partial class SubSlashCommandGroupBuilder(string name, string description)
 {
     internal readonly List<SubSlashCommandBuilder> _subCommands = [];
