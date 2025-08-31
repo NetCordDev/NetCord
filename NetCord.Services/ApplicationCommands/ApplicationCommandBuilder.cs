@@ -7,10 +7,6 @@ public abstract partial class ApplicationCommandBuilder
 
     public Permissions? DefaultGuildUserPermissions { get; set; }
 
-    public bool? DMPermission { get; set; }
-
-    public bool DefaultPermission { get; set; } = true;
-
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; set; }
 
     public IEnumerable<InteractionContextType>? Contexts { get; set; }

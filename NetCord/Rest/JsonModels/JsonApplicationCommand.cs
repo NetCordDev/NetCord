@@ -33,14 +33,6 @@ public class JsonApplicationCommand : JsonEntity
     [JsonPropertyName("default_member_permissions")]
     public Permissions? DefaultGuildUserPermissions { get; set; }
 
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    [JsonPropertyName("dm_permission")]
-    public bool? DMPermission { get; set; }
-
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    [JsonPropertyName("default_permission")]
-    public bool DefaultPermission { get; set; } = true;
-
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }
 

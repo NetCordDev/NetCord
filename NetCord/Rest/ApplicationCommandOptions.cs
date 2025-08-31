@@ -52,22 +52,6 @@ public partial class ApplicationCommandOptions
     public Permissions? DefaultGuildUserPermissions { get; set; }
 
     /// <summary>
-    /// Indicates whether the command is available in DMs with the app.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("dm_permission")]
-    public bool? DMPermission { get; set; }
-
-    /// <summary>
-    /// Indicates whether the command is enabled by default when the app is added to a guild.
-    /// </summary>
-    [Obsolete("Replaced by 'DefaultGuildUserPermissions'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("default_permission")]
-    public bool? DefaultPermission { get; set; }
-
-    /// <summary>
     /// Installation context(s) where the command is available.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

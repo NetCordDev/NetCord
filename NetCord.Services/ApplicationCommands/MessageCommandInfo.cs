@@ -72,8 +72,6 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,

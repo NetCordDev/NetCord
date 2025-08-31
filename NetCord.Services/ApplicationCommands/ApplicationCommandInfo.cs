@@ -9,10 +9,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     private protected ApplicationCommandInfo(ApplicationCommandAttribute attribute,
                                              ApplicationCommandServiceConfiguration<TContext> configuration) : this(attribute.Name,
                                                                                                                     attribute._defaultGuildUserPermissions,
-                                                                                                                    attribute._dMPermission,
-#pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                                    attribute.DefaultPermission,
-#pragma warning restore CS0618 // Type or member is obsolete
                                                                                                                     attribute.IntegrationTypes,
                                                                                                                     attribute.Contexts,
                                                                                                                     attribute.Nsfw,
@@ -24,8 +20,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     private protected ApplicationCommandInfo(ApplicationCommandBuilder builder,
                                              ApplicationCommandServiceConfiguration<TContext> configuration) : this(builder.Name,
                                                                                                                     builder.DefaultGuildUserPermissions,
-                                                                                                                    builder.DMPermission,
-                                                                                                                    builder.DefaultPermission,
                                                                                                                     builder.IntegrationTypes,
                                                                                                                     builder.Contexts,
                                                                                                                     builder.Nsfw,
@@ -36,8 +30,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
 
     private ApplicationCommandInfo(string name,
                                    Permissions? defaultGuildUserPermissions,
-                                   bool? dMPermission,
-                                   bool defaultPermission,
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
@@ -48,8 +40,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
         LocalizationsProvider = configuration.LocalizationsProvider;
         LocalizationPath = [new ApplicationCommandLocalizationPathSegment(name)];
         DefaultGuildUserPermissions = defaultGuildUserPermissions;
-        DMPermission = dMPermission.HasValue ? dMPermission.GetValueOrDefault() : configuration.DefaultDMPermission;
-        DefaultPermission = defaultPermission;
         IntegrationTypes = integrationTypes ?? configuration.DefaultIntegrationTypes;
         Contexts = contexts ?? configuration.DefaultContexts;
         Nsfw = nsfw;
@@ -60,8 +50,6 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
     public Permissions? DefaultGuildUserPermissions { get; }
-    public bool DMPermission { get; }
-    public bool DefaultPermission { get; }
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; }
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }

@@ -73,8 +73,6 @@ public record ApplicationCommandServiceConfiguration<TContext> where TContext : 
 
     public IApplicationCommandServiceStorage<TContext>? Storage { get; init; }
 
-    public bool DefaultDMPermission { get; init; } = true;
-
     public IEnumerable<ApplicationIntegrationType>? DefaultIntegrationTypes { get; init; }
 
     public IEnumerable<InteractionContextType>? DefaultContexts { get; init; }

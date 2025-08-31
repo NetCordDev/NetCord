@@ -24,23 +24,6 @@ public abstract class ApplicationCommandAttribute : Attribute
 
     internal readonly Permissions? _defaultGuildUserPermissions;
 
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DMPermission" />
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    public bool DMPermission
-    {
-        get => _dMPermission.GetValueOrDefault();
-        init
-        {
-            _dMPermission = value;
-        }
-    }
-
-    internal readonly bool? _dMPermission;
-
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultPermission" />
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    public bool DefaultPermission { get; init; } = true;
-
     /// <inheritdoc cref="Rest.ApplicationCommandProperties.IntegrationTypes" />
     public ApplicationIntegrationType[]? IntegrationTypes { get; init; }
 

@@ -97,18 +97,14 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new EntryPointCommandProperties(Name, Description, Handler)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }
