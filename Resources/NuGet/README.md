@@ -39,8 +39,9 @@ var builder = Host.CreateDefaultBuilder(args)
     .UseDiscordGateway()
     .UseApplicationCommands();
 
-var host = builder.Build()
-    .AddSlashCommand("square", "Square!", (int a) => $"{a}² = {a * a}");
+var host = builder.Build();
+
+host.AddSlashCommand("square", "Square!", (int a) => $"{a}² = {a * a}");
 
 await host.RunAsync();
 ```
