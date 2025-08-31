@@ -19,9 +19,15 @@ public interface IApplicationCommandsBuilder
     public void Build();
 }
 
-public interface IApplicationCommandsBuilder<TContext> : IApplicationCommandsBuilder where TContext : IApplicationCommandContext;
+public interface IApplicationCommandsBuilder<TContext> : IApplicationCommandsBuilder
+    where TContext : IApplicationCommandContext;
 
-internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TContext> service) : IApplicationCommandsBuilder<TContext> where TContext : IApplicationCommandContext
+public interface IApplicationCommandsBuilder<TContext, TAutocompleteContext> : IApplicationCommandsBuilder<TContext>
+    where TContext : IApplicationCommandContext
+    where TAutocompleteContext : IAutocompleteInteractionContext;
+
+internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TContext> service) : IApplicationCommandsBuilder<TContext>
+    where TContext : IApplicationCommandContext
 {
     private List<ApplicationCommandBuilder> _builders = [];
 
@@ -98,3 +104,7 @@ internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TC
         _builders = [];
     }
 }
+
+internal class ApplicationCommandsBuilder<TContext, TAutocompleteContext>(ApplicationCommandService<TContext, TAutocompleteContext> service) : ApplicationCommandsBuilder<TContext>(service), IApplicationCommandsBuilder<TContext, TAutocompleteContext>
+    where TContext : IApplicationCommandContext
+    where TAutocompleteContext : IAutocompleteInteractionContext;

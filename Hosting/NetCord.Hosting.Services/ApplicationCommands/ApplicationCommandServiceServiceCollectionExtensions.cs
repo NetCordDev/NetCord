@@ -252,14 +252,15 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddSingleton<IApplicationCommandService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>());
 
-        services.AddSingleton<IApplicationCommandsBuilder<TContext>, ApplicationCommandsBuilder<TContext>>();
-        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext>>());
+        services.AddSingleton<IApplicationCommandsBuilder<TContext, TAutocompleteContext>, ApplicationCommandsBuilder<TContext, TAutocompleteContext>>();
+        services.AddSingleton<IApplicationCommandsBuilder<TContext>>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>());
+        services.AddSingleton<IApplicationCommandsBuilder>(services => services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>());
 
         services.AddSingleton(services =>
         {
             return new ApplicationCommandServiceData(
                 services.GetRequiredService<ApplicationCommandService<TContext, TAutocompleteContext>>(),
-                services.GetRequiredService<IApplicationCommandsBuilder<TContext>>(),
+                services.GetRequiredService<IApplicationCommandsBuilder<TContext, TAutocompleteContext>>(),
                 () => services.GetRequiredService<IOptions<ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompleteContext>>>().Value.AutoRegisterCommands);
         });
 
