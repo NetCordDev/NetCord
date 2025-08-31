@@ -9,8 +9,6 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 
-#pragma warning disable NC0001
-
 public class ApplicationCommandServiceOptions
 {
     public bool? DefaultDMPermission { get; set; }

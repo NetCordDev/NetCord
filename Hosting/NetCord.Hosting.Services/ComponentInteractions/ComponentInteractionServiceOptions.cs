@@ -9,8 +9,6 @@ using NetCord.Services.ComponentInteractions;
 
 namespace NetCord.Hosting.Services.ComponentInteractions;
 
-#pragma warning disable NC0001
-
 public class ComponentInteractionServiceOptions
 {
     /// <summary>

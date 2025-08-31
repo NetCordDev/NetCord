@@ -9,8 +9,6 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
 
-#pragma warning disable NC0001
-
 public class CommandServiceOptions
 {
     /// <summary>
