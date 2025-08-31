@@ -40,7 +40,7 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Default required permissions to use the command.
     /// </summary>
-    public Permissions? DefaultGuildUserPermissions => _jsonModel.DefaultGuildUserPermissions;
+    public Permissions? DefaultGuildPermissions => _jsonModel.DefaultGuildPermissions;
 
     /// <summary>
     /// Parameters for the command (max 25).

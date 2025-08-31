@@ -8,7 +8,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
 {
     private protected ApplicationCommandInfo(ApplicationCommandAttribute attribute,
                                              ApplicationCommandServiceConfiguration<TContext> configuration) : this(attribute.Name,
-                                                                                                                    attribute._defaultGuildUserPermissions,
+                                                                                                                    attribute._defaultGuildPermissions,
                                                                                                                     attribute.IntegrationTypes,
                                                                                                                     attribute.Contexts,
                                                                                                                     attribute.Nsfw,
@@ -19,7 +19,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
 
     private protected ApplicationCommandInfo(ApplicationCommandBuilder builder,
                                              ApplicationCommandServiceConfiguration<TContext> configuration) : this(builder.Name,
-                                                                                                                    builder.DefaultGuildUserPermissions,
+                                                                                                                    builder.DefaultGuildPermissions,
                                                                                                                     builder.IntegrationTypes,
                                                                                                                     builder.Contexts,
                                                                                                                     builder.Nsfw,
@@ -29,7 +29,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     }
 
     private ApplicationCommandInfo(string name,
-                                   Permissions? defaultGuildUserPermissions,
+                                   Permissions? defaultGuildPermissions,
                                    IEnumerable<ApplicationIntegrationType>? integrationTypes,
                                    IEnumerable<InteractionContextType>? contexts,
                                    bool nsfw,
@@ -39,7 +39,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
         Name = name;
         LocalizationsProvider = configuration.LocalizationsProvider;
         LocalizationPath = [new ApplicationCommandLocalizationPathSegment(name)];
-        DefaultGuildUserPermissions = defaultGuildUserPermissions;
+        DefaultGuildPermissions = defaultGuildPermissions;
         IntegrationTypes = integrationTypes ?? configuration.DefaultIntegrationTypes;
         Contexts = contexts ?? configuration.DefaultContexts;
         Nsfw = nsfw;
@@ -49,7 +49,7 @@ public abstract class ApplicationCommandInfo<TContext> : IApplicationCommandInfo
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
-    public Permissions? DefaultGuildUserPermissions { get; }
+    public Permissions? DefaultGuildPermissions { get; }
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; }
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }

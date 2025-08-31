@@ -87,18 +87,16 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         for (int i = 0; i < count; i++)
             options[i] = await parameters[i].GetRawValueAsync(cancellationToken).ConfigureAwait(false);
 
-#pragma warning disable CS0618 // Type or member is obsolete
         return new SlashCommandProperties(Name, Description)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             Options = options,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public async ValueTask<IExecutionResult> InvokeAutocompleteAsync<TAutocompleteContext>(TAutocompleteContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IServiceProvider? serviceProvider) where TAutocompleteContext : IAutocompleteInteractionContext

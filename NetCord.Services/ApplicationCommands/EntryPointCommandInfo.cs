@@ -101,7 +101,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,

@@ -31,7 +31,7 @@ public class JsonApplicationCommand : JsonEntity
     public JsonApplicationCommandOption[]? Options { get; set; }
 
     [JsonPropertyName("default_member_permissions")]
-    public Permissions? DefaultGuildUserPermissions { get; set; }
+    public Permissions? DefaultGuildPermissions { get; set; }
 
     [JsonPropertyName("nsfw")]
     public bool Nsfw { get; set; }

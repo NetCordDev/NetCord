@@ -39,7 +39,7 @@ public abstract partial class ApplicationCommandProperties : IJsonSerializable<A
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_member_permissions")]
-    public Permissions? DefaultGuildUserPermissions { get; set; }
+    public Permissions? DefaultGuildPermissions { get; set; }
 
     /// <summary>
     /// Installation context(s) where the command is available.

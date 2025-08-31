@@ -5,7 +5,7 @@ public abstract partial class ApplicationCommandBuilder
 {
     public string Name { get; }
 
-    public Permissions? DefaultGuildUserPermissions { get; set; }
+    public Permissions? DefaultGuildPermissions { get; set; }
 
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; set; }
 

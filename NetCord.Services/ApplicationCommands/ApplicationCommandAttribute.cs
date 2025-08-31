@@ -12,17 +12,17 @@ public abstract class ApplicationCommandAttribute : Attribute
     /// <inheritdoc cref="Rest.ApplicationCommandProperties.Name" />
     public string Name { get; }
 
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultGuildUserPermissions" />
-    public Permissions DefaultGuildUserPermissions
+    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultGuildPermissions" />
+    public Permissions DefaultGuildPermissions
     {
-        get => _defaultGuildUserPermissions.GetValueOrDefault();
+        get => _defaultGuildPermissions.GetValueOrDefault();
         init
         {
-            _defaultGuildUserPermissions = value;
+            _defaultGuildPermissions = value;
         }
     }
 
-    internal readonly Permissions? _defaultGuildUserPermissions;
+    internal readonly Permissions? _defaultGuildPermissions;
 
     /// <inheritdoc cref="Rest.ApplicationCommandProperties.IntegrationTypes" />
     public ApplicationIntegrationType[]? IntegrationTypes { get; init; }

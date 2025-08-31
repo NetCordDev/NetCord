@@ -67,15 +67,13 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new MessageCommandProperties(Name)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

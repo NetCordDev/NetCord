@@ -7,7 +7,7 @@ namespace MyBot;
 public class ExampleModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     [SlashCommand("mention-everyone", "Mentions @everyone",
-        DefaultGuildUserPermissions = Permissions.MentionEveryone,
+        DefaultGuildPermissions = Permissions.MentionEveryone,
         Contexts = [InteractionContextType.Guild])]
     public static InteractionMessageProperties MentionEveryone()
     {
