@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class TestEntitlementProperties(ulong skuId, ulong ownerId, TestEntitlementOwnerType ownerType)
 {
     [JsonPropertyName("sku_id")]

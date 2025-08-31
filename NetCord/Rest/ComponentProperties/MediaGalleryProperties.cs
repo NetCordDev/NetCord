@@ -10,6 +10,7 @@ namespace NetCord.Rest;
 #pragma warning disable IDE0306 // Simplify collection initialization
 
 [CollectionBuilder(typeof(MediaGalleryProperties), nameof(Create))]
+[GenerateMethodsForProperties]
 public partial class MediaGalleryProperties(IEnumerable<MediaGalleryItemProperties> items) : IMessageComponentProperties, IComponentContainerComponentProperties, IMediaGalleryProperties, IEnumerable<MediaGalleryItemProperties>
 {
     public MediaGalleryProperties() : this([])
@@ -53,6 +54,7 @@ internal interface IMediaGalleryProperties : IComponentProperties
     public IEnumerable<MediaGalleryItemProperties> Items { get; }
 }
 
+[GenerateMethodsForProperties]
 public partial class MediaGalleryItemProperties(ComponentMediaProperties media)
 {
     [JsonPropertyName("media")]

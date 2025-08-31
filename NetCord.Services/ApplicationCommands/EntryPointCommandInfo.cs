@@ -24,27 +24,13 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal EntryPointCommandInfo(string name,
-                                   string description,
-                                   Delegate? handler,
-                                   Permissions? defaultGuildUserPermissions,
-                                   bool? dMPermission,
-                                   bool defaultPermission,
-                                   IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                                   IEnumerable<InteractionContextType>? contexts,
-                                   bool nsfw,
-                                   bool register,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                          defaultGuildUserPermissions,
-                                                                                                          dMPermission,
-                                                                                                          defaultPermission,
-                                                                                                          integrationTypes,
-                                                                                                          contexts,
-                                                                                                          nsfw,
-                                                                                                          register,
+    internal EntryPointCommandInfo(EntryPointCommandBuilder builder,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
                                                                                                           configuration)
     {
-        Description = description;
+        Description = builder.Description;
+
+        var handler = builder.Handler;
 
         if (handler is null)
         {
@@ -69,16 +55,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     }
 
     internal EntryPointCommandInfo(EntryPointCommandAttribute attribute,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute.Name,
-                                                                                                          attribute._defaultGuildUserPermissions,
-                                                                                                          attribute._dMPermission,
-#pragma warning disable CS0618 // Type or member is obsolete
-                                                                                                          attribute.DefaultPermission,
-#pragma warning restore CS0618 // Type or member is obsolete
-                                                                                                          attribute.IntegrationTypes,
-                                                                                                          attribute.Contexts,
-                                                                                                          attribute.Nsfw,
-                                                                                                          attribute.Register,
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
                                                                                                           configuration)
     {
         Description = attribute.Description;
@@ -120,18 +97,14 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new EntryPointCommandProperties(Name, Description, Handler)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
             DescriptionLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(DescriptionLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

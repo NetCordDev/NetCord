@@ -10,6 +10,7 @@ namespace NetCord.Rest;
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /></param>
 /// <param name="description"><inheritdoc cref="Description" path="/summary" /></param>
 /// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
+[GenerateMethodsForProperties]
 public partial class EntryPointCommandProperties(string name, string description, EntryPointCommandHandler handler) : ApplicationCommandProperties(ApplicationCommandType.EntryPoint, name)
 {
     /// <summary>

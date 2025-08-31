@@ -1,0 +1,4 @@
+﻿using NetCord.Services.ComponentInteractions;
+
+namespace NetCord.Hosting.Services.ComponentInteractions;
+internal record ComponentInteractionServiceData(IComponentInteractionService Service, IComponentInteractionsBuilder Builder);

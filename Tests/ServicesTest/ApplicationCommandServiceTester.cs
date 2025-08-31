@@ -53,7 +53,7 @@ public sealed class ApplicationCommandServiceTester : ServiceTester
 
         ApplicationCommandService<ApplicationCommandContext> service = new(config);
 
-        service.AddSlashCommand(commandName, commandName, handler);
+        service.AddSlashCommand(new(commandName, commandName, handler));
 
         var command = (SlashCommandInfo<ApplicationCommandContext>)storage.GetCommands()[0];
 

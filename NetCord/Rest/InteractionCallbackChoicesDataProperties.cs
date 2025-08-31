@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class InteractionCallbackChoicesDataProperties(IEnumerable<ApplicationCommandOptionChoiceProperties>? choices)
 {
     [JsonPropertyName("choices")]

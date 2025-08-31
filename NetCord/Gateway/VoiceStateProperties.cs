@@ -2,6 +2,7 @@
 
 namespace NetCord.Gateway;
 
+[GenerateMethodsForProperties]
 public partial class VoiceStateProperties(ulong guildId, ulong? channelId)
 {
     [JsonPropertyName("guild_id")]

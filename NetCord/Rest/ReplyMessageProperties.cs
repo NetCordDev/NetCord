@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ReplyMessageProperties : IMessageProperties
 {
     public string? Content { get; set; }

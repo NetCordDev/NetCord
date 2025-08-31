@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class MessageReferenceProperties
 {
     public static MessageReferenceProperties Reply(ulong messageId, bool failIfNotExists = true)

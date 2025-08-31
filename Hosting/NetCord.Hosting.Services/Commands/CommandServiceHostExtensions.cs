@@ -46,23 +46,16 @@ public static class CommandServiceHostExtensions
         return host;
     }
 
-    public static IHost AddCommand(this IHost host,
-                                   IEnumerable<string> aliases,
-                                   Delegate handler,
-                                   int priority = 0)
+    public static CommandBuilder AddCommand(this IHost host, IEnumerable<string> aliases, Delegate handler)
     {
-        var service = ServiceProviderServiceHelper.GetSingle<ICommandService>(host.Services);
-        service.AddCommand(aliases, handler, priority);
-        return host;
+        var commandsBuilder = ServiceProviderServiceHelper.GetSingle<ICommandsBuilder>(host.Services);
+        return commandsBuilder.AddCommand(aliases, handler);
     }
 
-    public static IHost AddCommand<TContext>(this IHost host,
-                                             IEnumerable<string> aliases,
-                                             Delegate handler,
-                                             int priority = 0) where TContext : ICommandContext
+    public static CommandBuilder AddCommand<TContext>(this IHost host, IEnumerable<string> aliases, Delegate handler)
+        where TContext : ICommandContext
     {
-        var service = host.Services.GetRequiredService<CommandService<TContext>>();
-        service.AddCommand(aliases, handler, priority);
-        return host;
+        var builder = host.Services.GetRequiredService<ICommandsBuilder<TContext>>();
+        return builder.AddCommand(aliases, handler);
     }
 }

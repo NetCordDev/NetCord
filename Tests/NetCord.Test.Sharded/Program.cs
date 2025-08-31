@@ -9,7 +9,7 @@ using NetCord.Test.Sharded;
 
 CommandService<CommandContext> commandService = new();
 commandService.AddModule<ExampleModule>();
-commandService.AddCommand(["pong"], ReplyMessageProperties () => "ping!");
+commandService.AddCommand(new(["pong"], ReplyMessageProperties () => "ping!"));
 
 var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.Default;
 //configuration = configuration with
@@ -19,16 +19,16 @@ var configuration = ApplicationCommandServiceConfiguration<SlashCommandContext>.
 
 ApplicationCommandService<SlashCommandContext, AutocompleteInteractionContext> slashCommandService = new(configuration);
 slashCommandService.AddModule<ExampleModule2>();
-slashCommandService.AddSlashCommand("button", "Button!", () =>
+slashCommandService.AddSlashCommand(new("button", "Button!", () =>
 {
     return new InteractionMessageProperties()
     {
         Components = [new ActionRowProperties([new ButtonProperties("button", "Button!", ButtonStyle.Primary)])],
     };
-});
+}));
 
 ComponentInteractionService<ButtonInteractionContext> buttonInteractionService = new();
-buttonInteractionService.AddComponentInteraction("button", () => "XD");
+buttonInteractionService.AddComponentInteraction(new("button", () => "XD"));
 
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()

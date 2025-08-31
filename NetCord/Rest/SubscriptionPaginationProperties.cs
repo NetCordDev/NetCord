@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial record SubscriptionPaginationProperties : PaginationProperties<ulong>, IPaginationProperties<ulong, SubscriptionPaginationProperties>
 {
     /// <summary>

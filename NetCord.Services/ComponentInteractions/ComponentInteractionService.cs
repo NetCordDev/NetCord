@@ -49,10 +49,10 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         }
     }
 
-    public void AddComponentInteraction(string customId, Delegate handler)
+    public void AddComponentInteraction(ComponentInteractionBuilder builder)
     {
-        ComponentInteractionInfo<TContext> interactionInfo = new(handler, _configuration);
-        _componentInteractions.Add(customId.AsMemory(), interactionInfo);
+        ComponentInteractionInfo<TContext> info = new(builder, _configuration);
+        _componentInteractions.Add(builder.CustomId.AsMemory(), info);
     }
 
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)

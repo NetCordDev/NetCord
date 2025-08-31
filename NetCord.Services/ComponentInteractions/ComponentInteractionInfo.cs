@@ -37,8 +37,10 @@ public class ComponentInteractionInfo<TContext> where TContext : IComponentInter
         return result;
     }
 
-    internal ComponentInteractionInfo(Delegate handler, ComponentInteractionServiceConfiguration<TContext> configuration)
+    internal ComponentInteractionInfo(ComponentInteractionBuilder builder, ComponentInteractionServiceConfiguration<TContext> configuration)
     {
+        var handler = builder.Handler;
+
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);

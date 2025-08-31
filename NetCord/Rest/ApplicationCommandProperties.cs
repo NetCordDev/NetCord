@@ -6,6 +6,7 @@ using NetCord.JsonConverters;
 namespace NetCord.Rest;
 
 [JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
+[GenerateMethodsForProperties]
 public abstract partial class ApplicationCommandProperties : IJsonSerializable<ApplicationCommandProperties>
 {
     private protected ApplicationCommandProperties(ApplicationCommandType type, string name)
@@ -38,23 +39,7 @@ public abstract partial class ApplicationCommandProperties : IJsonSerializable<A
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("default_member_permissions")]
-    public Permissions? DefaultGuildUserPermissions { get; set; }
-
-    /// <summary>
-    /// Indicates whether the command is available in DMs with the app.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("dm_permission")]
-    public bool? DMPermission { get; set; }
-
-    /// <summary>
-    /// Indicates whether the command is enabled by default when the app is added to a guild.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("default_permission")]
-    public bool? DefaultPermission { get; set; }
+    public Permissions? DefaultGuildPermissions { get; set; }
 
     /// <summary>
     /// Installation context(s) where the command is available.

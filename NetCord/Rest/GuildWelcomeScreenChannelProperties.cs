@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildWelcomeScreenChannelProperties(ulong channelId, string description)
 {
     [JsonPropertyName("channel_id")]

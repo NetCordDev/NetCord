@@ -114,11 +114,23 @@ public static class CommandServiceServiceCollectionExtensions
         services.AddSingleton<ICommandService>(services => services.GetRequiredService<CommandService<TContext>>());
         services.AddSingleton<IService>(services => services.GetRequiredService<CommandService<TContext>>());
 
+        services.AddSingleton<ICommandsBuilder<TContext>, CommandsBuilder<TContext>>();
+        services.AddSingleton<ICommandsBuilder>(services => services.GetRequiredService<ICommandsBuilder<TContext>>());
+
+        services.AddSingleton(services =>
+        {
+            return new CommandServiceData(
+                services.GetRequiredService<CommandService<TContext>>(),
+                services.GetRequiredService<ICommandsBuilder<TContext>>());
+        });
+
         services.AddSingleton<IContextAccessor<TContext>, ContextAccessor<TContext>>();
 
         services.AddSingleton<CommandHandler<TContext>>();
         services.AddGatewayHandler(services => services.GetRequiredService<CommandHandler<TContext>>());
         services.AddShardedGatewayHandler(services => services.GetRequiredService<CommandHandler<TContext>>());
+
+        services.AddHostedService<CommandServiceHostedService>();
 
         return services;
     }

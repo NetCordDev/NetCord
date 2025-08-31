@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ForumGuildThreadProperties(string name, ForumGuildThreadMessageProperties message) : GuildThreadFromMessageProperties(name), IHttpSerializable
 {
     [JsonPropertyName("message")]

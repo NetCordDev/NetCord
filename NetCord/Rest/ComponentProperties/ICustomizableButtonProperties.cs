@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial interface ICustomizableButtonProperties : IButtonProperties
 {
     /// <summary>

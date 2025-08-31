@@ -20,25 +20,12 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
-    internal MessageCommandInfo(string name,
-                                Delegate handler,
-                                Permissions? defaultGuildUserPermissions,
-                                bool? dMPermission,
-                                bool defaultPermission,
-                                IEnumerable<ApplicationIntegrationType>? integrationTypes,
-                                IEnumerable<InteractionContextType>? contexts,
-                                bool nsfw,
-                                bool register,
-                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(name,
-                                                                                                       defaultGuildUserPermissions,
-                                                                                                       dMPermission,
-                                                                                                       defaultPermission,
-                                                                                                       integrationTypes,
-                                                                                                       contexts,
-                                                                                                       nsfw,
-                                                                                                       register,
+    internal MessageCommandInfo(MessageCommandBuilder builder,
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
                                                                                                        configuration)
     {
+        var handler = builder.Handler;
+
         var method = handler.Method;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
@@ -80,17 +67,13 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     public override async ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
     {
-#pragma warning disable CS0618 // Type or member is obsolete
         return new MessageCommandProperties(Name)
         {
             NameLocalizations = LocalizationsProvider is null ? null : await LocalizationsProvider.GetLocalizationsAsync(LocalizationPath.Add(NameLocalizationPathSegment.Instance), cancellationToken).ConfigureAwait(false),
-            DefaultGuildUserPermissions = DefaultGuildUserPermissions,
-            DMPermission = DMPermission,
-            DefaultPermission = DefaultPermission,
+            DefaultGuildPermissions = DefaultGuildPermissions,
             IntegrationTypes = IntegrationTypes,
             Contexts = Contexts,
             Nsfw = Nsfw,
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

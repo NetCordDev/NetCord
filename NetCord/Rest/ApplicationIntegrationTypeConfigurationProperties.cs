@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ApplicationIntegrationTypeConfigurationProperties
 {
     [JsonPropertyName("oauth2_install_params")]

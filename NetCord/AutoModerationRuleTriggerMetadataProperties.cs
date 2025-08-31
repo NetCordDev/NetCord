@@ -2,6 +2,7 @@
 
 namespace NetCord;
 
+[GenerateMethodsForProperties]
 public partial class AutoModerationRuleTriggerMetadataProperties
 {
     [JsonPropertyName("keyword_filter")]

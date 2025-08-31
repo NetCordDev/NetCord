@@ -9,6 +9,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /> Must be lowercase.</param>
 /// <param name="description"><inheritdoc cref="Description" path="/summary" /></param>
+[GenerateMethodsForProperties]
 public partial class SlashCommandProperties(string name, string description) : ApplicationCommandProperties(ApplicationCommandType.ChatInput, name)
 {
     /// <summary>

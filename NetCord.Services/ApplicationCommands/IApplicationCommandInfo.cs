@@ -9,9 +9,7 @@ public interface IApplicationCommandInfo
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
-    public Permissions? DefaultGuildUserPermissions { get; }
-    public bool DMPermission { get; }
-    public bool DefaultPermission { get; }
+    public Permissions? DefaultGuildPermissions { get; }
     public IEnumerable<ApplicationIntegrationType>? IntegrationTypes { get; }
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }

@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ButtonProperties : ICustomizableButtonProperties, IComponentSectionAccessoryComponentProperties, IInteractiveComponentProperties
 {
     [JsonPropertyName("type")]

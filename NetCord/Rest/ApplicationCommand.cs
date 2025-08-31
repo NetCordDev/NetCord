@@ -40,24 +40,12 @@ public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonMo
     /// <summary>
     /// Default required permissions to use the command.
     /// </summary>
-    public Permissions? DefaultGuildUserPermissions => _jsonModel.DefaultGuildUserPermissions;
-
-    /// <summary>
-    /// Indicates whether the command is available in DMs with the app.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    public bool DMPermission => _jsonModel.DMPermission.GetValueOrDefault();
+    public Permissions? DefaultGuildPermissions => _jsonModel.DefaultGuildPermissions;
 
     /// <summary>
     /// Parameters for the command (max 25).
     /// </summary>
     public IReadOnlyList<ApplicationCommandOption> Options { get; } = jsonModel.Options.SelectOrEmpty(o => new ApplicationCommandOption(o, jsonModel.Name, jsonModel.Id)).ToArray();
-
-    /// <summary>
-    /// Indicates whether the command is enabled by default when the app is added to a guild.
-    /// </summary>
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    public bool DefaultPermission => _jsonModel.DefaultPermission;
 
     /// <summary>
     /// Indicates whether the command is age-restricted.

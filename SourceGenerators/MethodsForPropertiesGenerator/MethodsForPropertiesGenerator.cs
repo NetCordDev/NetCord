@@ -23,14 +23,63 @@ public class MethodsForPropertiesGenerator : IIncrementalGenerator
 
     private const string NullableQualifiedName = "System.Nullable`1";
 
+    private const string GenerateMethodsForPropertiesAttributeQualifiedName = "NetCord.GenerateMethodsForPropertiesAttribute";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var typeSymbols = context.SyntaxProvider.CreateSyntaxProvider(FilterNodes, (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!);
+        context.RegisterPostInitializationOutput(context =>
+        {
+            context.AddSource("GenerateMethodsForPropertiesAttribute.g.cs",
+                """
+                #nullable enable
+                
+                namespace NetCord;
 
-        context.RegisterSourceOutput(typeSymbols, (context, source) => context.AddSource($"{source.ToQualifiedName()}.g.cs", SourceText.From(GenerateMethods(source), Encoding.UTF8)));
+                [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct)]
+                internal class GenerateMethodsForPropertiesAttribute : Attribute;
+
+                """);
+        });
+
+        var typeSymbolsWithSuffix = context.SyntaxProvider.CreateSyntaxProvider(FilterNodesName, (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!);
+
+        var typeSymbolsWithAttribute = context.SyntaxProvider.ForAttributeWithMetadataName(GenerateMethodsForPropertiesAttributeQualifiedName, FilterNodesMetadata, (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.TargetNode)!);
+
+        var typeSymbols = typeSymbolsWithSuffix.Collect().Combine(typeSymbolsWithAttribute.Collect())
+            .SelectMany((data, cancellationToken) =>
+            {
+                var symbolsMissingAttribute = data.Left.Except(data.Right, SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>();
+
+                return data.Right.Select(symbol => (Data)new Data.Success(symbol)).Concat(symbolsMissingAttribute.Select(symbol => (Data)new Data.Error(symbol)));
+            });
+
+        context.RegisterSourceOutput(typeSymbols, (context, data) =>
+        {
+            switch (data)
+            {
+                case Data.Success { Symbol: var symbol }:
+                    context.AddSource($"{symbol.ToQualifiedName()}.g.cs", SourceText.From(GenerateMethods(symbol), Encoding.UTF8));
+                    break;
+                case Data.Error { Symbol: var symbol }:
+                    context.ReportDiagnostic(Diagnostic.Create("NC0001",
+                                                               "Analyzer",
+                                                               $"The type '{symbol.ToQualifiedName()}' has a suffix 'Properties' or 'Options' but is missing a '{GenerateMethodsForPropertiesAttributeQualifiedName}' attribute",
+                                                               DiagnosticSeverity.Warning,
+                                                               DiagnosticSeverity.Warning,
+                                                               true,
+                                                               1,
+                                                               location: symbol.Locations[0]));
+                    break;
+            }
+        });
     }
 
-    private bool FilterNodes(SyntaxNode node, CancellationToken cancellationToken)
+    private bool FilterNodesMetadata(SyntaxNode node, CancellationToken cancellationToken)
+    {
+        return node is TypeDeclarationSyntax typeDeclarationSyntax && typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword);
+    }
+
+    private bool FilterNodesName(SyntaxNode node, CancellationToken cancellationToken)
     {
         if (node is TypeDeclarationSyntax typeDeclarationSyntax && typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PublicKeyword))
         {

@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public sealed partial class RestRequestProperties
 {
     /// <summary>

@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class InteractionMessageProperties : IHttpSerializable, IMessageProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

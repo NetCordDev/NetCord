@@ -2,6 +2,7 @@
 
 namespace NetCord.Gateway;
 
+[GenerateMethodsForProperties]
 public partial class ConnectionPropertiesProperties
 {
     public static ConnectionPropertiesProperties Default => new()

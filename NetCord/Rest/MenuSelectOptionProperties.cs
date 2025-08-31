@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class StringMenuSelectOptionProperties(string label, string value)
 {
     [JsonPropertyName("label")]

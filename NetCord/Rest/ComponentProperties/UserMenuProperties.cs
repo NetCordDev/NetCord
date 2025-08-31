@@ -5,6 +5,7 @@ using NetCord.JsonConverters;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class UserMenuProperties(string customId) : EntityMenuProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.UserMenu;

@@ -19,7 +19,7 @@ builder.Services
 
 var host = builder.Build();
 
-host.AddSlashCommand("ping", "Ping!", (ApplicationCommandContext context) => "Pong!")
-    .AddCommand(["ping"], () => "Pong!");
+host.AddSlashCommand("ping", "Ping!", (ApplicationCommandContext context) => "Pong!");
+host.AddCommand(["ping"], () => "Pong!");
 
 await host.RunAsync();

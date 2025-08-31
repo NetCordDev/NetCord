@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class StageInstanceProperties(ulong channelId, string topic)
 {
     [JsonPropertyName("channel_id")]

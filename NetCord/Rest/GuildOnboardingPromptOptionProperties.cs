@@ -8,6 +8,7 @@ namespace NetCord.Rest;
 /// <param name="channelIds">IDs for channels a member is added to when the option is selected.</param>
 /// <param name="roleIds">IDs for roles assigned to a member when the option is selected.</param>
 /// <param name="title">Title of the option.</param>
+[GenerateMethodsForProperties]
 public partial class GuildOnboardingPromptOptionProperties(IEnumerable<ulong>? channelIds, IEnumerable<ulong>? roleIds, string title)
 {
     /// <summary>

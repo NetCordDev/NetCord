@@ -7,6 +7,7 @@ namespace NetCord;
 /// </summary>
 /// <param name="question">The question of the poll.</param>
 /// <param name="answers">Each of the answers available in the poll, up to 10.</param>
+[GenerateMethodsForProperties]
 public partial class MessagePollProperties(MessagePollMediaProperties question, IEnumerable<MessagePollAnswerProperties> answers)
 {
     /// <summary>

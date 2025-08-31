@@ -12,34 +12,17 @@ public abstract class ApplicationCommandAttribute : Attribute
     /// <inheritdoc cref="Rest.ApplicationCommandProperties.Name" />
     public string Name { get; }
 
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultGuildUserPermissions" />
-    public Permissions DefaultGuildUserPermissions
+    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultGuildPermissions" />
+    public Permissions DefaultGuildPermissions
     {
-        get => _defaultGuildUserPermissions.GetValueOrDefault();
+        get => _defaultGuildPermissions.GetValueOrDefault();
         init
         {
-            _defaultGuildUserPermissions = value;
+            _defaultGuildPermissions = value;
         }
     }
 
-    internal readonly Permissions? _defaultGuildUserPermissions;
-
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DMPermission" />
-    [Obsolete($"Replaced by '{nameof(Contexts)}'.")]
-    public bool DMPermission
-    {
-        get => _dMPermission.GetValueOrDefault();
-        init
-        {
-            _dMPermission = value;
-        }
-    }
-
-    internal readonly bool? _dMPermission;
-
-    /// <inheritdoc cref="Rest.ApplicationCommandProperties.DefaultPermission" />
-    [Obsolete($"Replaced by '{nameof(DefaultGuildUserPermissions)}'.")]
-    public bool DefaultPermission { get; init; } = true;
+    internal readonly Permissions? _defaultGuildPermissions;
 
     /// <inheritdoc cref="Rest.ApplicationCommandProperties.IntegrationTypes" />
     public ApplicationIntegrationType[]? IntegrationTypes { get; init; }

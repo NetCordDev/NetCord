@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class MentionableMenuProperties(string customId) : EntityMenuProperties(customId)
 {
     public override ComponentType ComponentType => ComponentType.MentionableMenu;

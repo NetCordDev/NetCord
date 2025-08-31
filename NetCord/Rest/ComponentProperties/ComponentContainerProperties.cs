@@ -10,6 +10,7 @@ namespace NetCord.Rest;
 #pragma warning disable IDE0306 // Simplify collection initialization
 
 [CollectionBuilder(typeof(ComponentContainerProperties), nameof(Create))]
+[GenerateMethodsForProperties]
 public partial class ComponentContainerProperties(IEnumerable<IComponentContainerComponentProperties> components) : IMessageComponentProperties, IComponentContainerProperties, IEnumerable<IComponentContainerComponentProperties>
 {
     public ComponentContainerProperties() : this([])

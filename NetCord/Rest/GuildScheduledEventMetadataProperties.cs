@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GuildScheduledEventMetadataProperties(string location)
 {
     [JsonPropertyName("location")]

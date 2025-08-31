@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class PermissionOverwriteProperties(ulong id, PermissionOverwriteType type)
 {
     [JsonPropertyName("id")]

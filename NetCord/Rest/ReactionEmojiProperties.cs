@@ -1,5 +1,6 @@
 ﻿namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ReactionEmojiProperties
 {
     public string Name { get; set; }

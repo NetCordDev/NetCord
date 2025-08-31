@@ -15,6 +15,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="components">Components of the action row (max 5).</param>
 [CollectionBuilder(typeof(ActionRowProperties), nameof(Create))]
+[GenerateMethodsForProperties]
 public partial class ActionRowProperties(IEnumerable<IActionRowComponentProperties> components) : IMessageComponentProperties, IComponentContainerComponentProperties, IEnumerable<IActionRowComponentProperties>
 {
     private static readonly JsonEncodedText _type = JsonEncodedText.Encode("type");

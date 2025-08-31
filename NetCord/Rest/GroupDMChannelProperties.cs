@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class GroupDMChannelProperties(IEnumerable<string> accessTokens)
 {
     [JsonPropertyName("access_tokens")]

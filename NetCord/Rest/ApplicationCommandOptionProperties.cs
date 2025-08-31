@@ -8,6 +8,7 @@ namespace NetCord.Rest;
 /// <param name="type">Type of the option.</param>
 /// <param name="name">Name of the option (1-32 characters).</param>
 /// <param name="description">Description of the option (1-100 characters).</param>
+[GenerateMethodsForProperties]
 public partial class ApplicationCommandOptionProperties(ApplicationCommandOptionType type, string name, string description)
 {
     /// <summary>

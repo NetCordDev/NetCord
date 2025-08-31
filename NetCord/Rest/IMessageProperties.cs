@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial interface IMessageProperties
 {
     public string? Content { get; set; }

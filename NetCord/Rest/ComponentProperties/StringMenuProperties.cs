@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class StringMenuProperties(string customId, IEnumerable<StringMenuSelectOptionProperties> options) : MenuProperties(customId), IStringMenuProperties, IEnumerable<StringMenuSelectOptionProperties>
 {
     public StringMenuProperties(string customId) : this(customId, [])

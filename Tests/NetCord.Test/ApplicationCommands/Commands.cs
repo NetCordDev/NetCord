@@ -75,7 +75,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return RespondAsync(InteractionCallback.Message(channel.ToString()));
     }
 
-    [SlashCommand("test", "it's test", DefaultGuildUserPermissions = Permissions.AddReactions)]
+    [SlashCommand("test", "it's test", DefaultGuildPermissions = Permissions.AddReactions)]
     public Task TestAsync([SlashCommandParameter(MinValue = 10, MaxValue = 100)] int i1, int i2, int i3, int i4 = 4, int i5 = 5, int i6 = 6)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));

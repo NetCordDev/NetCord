@@ -7,6 +7,7 @@ namespace NetCord.Rest;
 /// They are a great way to surface quick actions for your app that target users.
 /// </summary>
 /// <param name="name"><inheritdoc cref="ApplicationCommandProperties.Name" path="/summary" /></param>
+[GenerateMethodsForProperties]
 public partial class UserCommandProperties(string name) : ApplicationCommandProperties(ApplicationCommandType.User, name)
 {
     private protected override void WriteTo(Utf8JsonWriter writer)

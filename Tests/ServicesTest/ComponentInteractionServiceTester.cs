@@ -44,7 +44,7 @@ public class ComponentInteractionServiceTester : ServiceTester
     {
         ComponentInteractionService<ComponentInteractionContext> service = new();
 
-        service.AddComponentInteraction(customIdBase, handler);
+        service.AddComponentInteraction(new(customIdBase, handler));
 
         if (customId is null)
         {

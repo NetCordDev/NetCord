@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Gateway;
 
 [JsonConverter(typeof(PartySizePropertiesConverter))]
+[GenerateMethodsForProperties]
 public partial class PartySizeProperties(int currentSize, int maxSize)
 {
     public int CurrentSize { get; set; } = currentSize;

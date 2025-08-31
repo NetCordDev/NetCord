@@ -2,6 +2,7 @@
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ApplicationEmojiProperties(string name, ImageProperties image)
 {
     [JsonPropertyName("name")]

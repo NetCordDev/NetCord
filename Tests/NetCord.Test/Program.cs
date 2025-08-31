@@ -79,57 +79,59 @@ internal static class Program
         _client.GuildAuditLogEntryCreate += Client_GuildAuditLogEntryCreate;
 
         var assembly = Assembly.GetEntryAssembly()!;
-        _commandService.AddCommand(["pol"], ([Optional] object? o, CommandContext context) => "xd");
+        _commandService.AddCommand(new(["pol"], ([Optional] object? o, CommandContext context) => "xd"));
         _commandService.AddModules(assembly);
 
         _buttonInteractionService.AddModules(assembly);
-        _buttonInteractionService.AddComponentInteraction("wziummm", (ButtonInteractionContext context) => "wzium");
+        _buttonInteractionService.AddComponentInteraction(new("wziummm", (ButtonInteractionContext context) => "wzium"));
         _stringMenuInteractionService.AddModules(assembly);
         _userMenuInteractionService.AddModules(assembly);
         _roleMenuInteractionService.AddModules(assembly);
         _mentionableMenuInteractionService.AddModules(assembly);
         _channelMenuInteractionService.AddModules(assembly);
         _modalInteractionService.AddModules(assembly);
-        _slashCommandService.AddSlashCommand("ping", "Ping!", (SlashCommandContext context, string s) => s);
-        _slashCommandService.AddSlashCommand("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}");
+        _slashCommandService.AddSlashCommand(new("ping", "Ping!", (SlashCommandContext context, string s) => s));
+        _slashCommandService.AddSlashCommand(new("keyed-di", "Test of keyed DI", ([FromKeyedServices("key")] string keyedWzium, string wzium, SlashCommandContext context) => $"{keyedWzium} {wzium}"));
 
-        _slashCommandService.AddSlashCommand("yellow", "Yellow!", builder =>
+        SlashCommandGroupBuilder yellowGroup = new("yellow", "Yellow!");
         {
-            builder.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
+            yellowGroup.AddSubCommand("green", "Green!", [RequireContext<SlashCommandContext>(RequiredContext.DM)]
             (string wzium,
-                                                      SlashCommandContext context,
-                                                      [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
-            builder.AddSubCommand("blue", "Blue!", () => "blue");
-            builder.AddSubCommand("red", "Red!", builder =>
+                                                          SlashCommandContext context,
+                                                          [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string value) => $"green {value}, wzium: {wzium}");
+
+            yellowGroup.AddSubCommand("blue", "Blue!", () => "blue");
+
+            var redYellowGroup = yellowGroup.AddSubCommandGroup("red", "Red!");
             {
-                builder.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
-                builder.AddSubCommand("purple", "Purple!", async (SlashCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) =>
+                redYellowGroup.AddSubCommand("orange", "Orange!", [RequireContext<SlashCommandContext>(RequiredContext.DM)] () => "orange");
+
+                redYellowGroup.AddSubCommand("purple", "Purple!", async (SlashCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(DDGAutocomplete))] string s) =>
                 {
                     var response = await context.Interaction.SendResponseAsync(InteractionCallback.LaunchActivity, true);
                     await context.Interaction.SendFollowupMessageAsync(response?.Interaction.ActivityInstanceId ?? "No activity instance ID");
                 });
-            });
-        });
+            }
+        }
 
-        _slashCommandService.AddSlashCommand("response-test", "Response Test!", async (SlashCommandContext context) =>
+        _slashCommandService.AddSlashCommandGroup(yellowGroup);
+
+        _slashCommandService.AddSlashCommand(new("response-test", "Response Test!", async (SlashCommandContext context) =>
         {
             var response = await context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage(), true);
             await context.Interaction.SendFollowupMessageAsync(response!.Interaction.ResponseMessageId.GetValueOrDefault().ToString());
-        });
+        }));
 
         _slashCommandService.AddModules(assembly);
         _messageCommandService.AddModules(assembly);
 
-        _messageCommandService.AddMessageCommand("wziummm", InteractionMessageProperties (MessageCommandContext context) => new() { Components = [new ActionRowProperties([new ButtonProperties("wziummm", "WZIUM", ButtonStyle.Success)])] });
+        _messageCommandService.AddMessageCommand(new("wziummm", InteractionMessageProperties (MessageCommandContext context) => new() { Components = [new ActionRowProperties([new ButtonProperties("wziummm", "WZIUM", ButtonStyle.Success)])] }));
 
         _userCommandService.AddModules(assembly);
 
-        _userCommandService.AddUserCommand("wziummm", (UserCommandContext context) => "wzium");
+        _userCommandService.AddUserCommand(new("wziummm", (UserCommandContext context) => "wzium"));
 
-        _entryPointCommandService.AddEntryPointCommand("launch-xd", "LOL", (EntryPointCommandContext context) =>
-        {
-            return InteractionCallback.LaunchActivity;
-        });
+        _entryPointCommandService.AddEntryPointCommand(new EntryPointCommandBuilder("launch-xd", "LOL").WithHandler((EntryPointCommandContext context) => InteractionCallback.LaunchActivity));
 
         await _client.StartAsync();
 

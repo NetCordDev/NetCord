@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class ModalProperties(string customId, string title, IEnumerable<IModalComponentProperties> components) : IModalProperties, IEnumerable<IModalComponentProperties>
 {
     public ModalProperties(string customId, string title) : this(customId, title, [])

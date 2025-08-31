@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Rest;
 
+[GenerateMethodsForProperties]
 public partial class TextInputProperties(string customId, TextInputStyle style) : ILabelComponentProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
