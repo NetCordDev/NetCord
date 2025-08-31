@@ -41,18 +41,29 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         var configuration = _configuration;
         foreach (var method in type.GetMethods())
         {
-            ComponentInteractionAttribute? interactionAttribute = method.GetCustomAttribute<ComponentInteractionAttribute>();
-            if (interactionAttribute is null)
+            var attribute = method.GetCustomAttribute<ComponentInteractionAttribute>();
+            if (attribute is null)
                 continue;
-            ComponentInteractionInfo<TContext> interactionInfo = new(method, type, configuration);
-            _componentInteractions.Add(interactionAttribute.CustomId.AsMemory(), interactionInfo);
+
+            ComponentInteractionInfo<TContext> info = new(method, type, configuration);
+            AddComponentInteractionInfo(attribute.CustomId, info, method);
         }
     }
 
     public void AddComponentInteraction(ComponentInteractionBuilder builder)
     {
         ComponentInteractionInfo<TContext> info = new(builder, _configuration);
-        _componentInteractions.Add(builder.CustomId.AsMemory(), info);
+        AddComponentInteractionInfo(builder.CustomId, info, builder.Handler.Method);
+    }
+
+    private void AddComponentInteractionInfo(string customId, ComponentInteractionInfo<TContext> info, MethodInfo method)
+    {
+        var customIdMemory = customId.AsMemory();
+
+        if (customIdMemory.Span.Contains(_configuration.ParameterSeparator))
+            throw new InvalidDefinitionException($"The custom ID cannot contain '{nameof(_configuration.ParameterSeparator)}'.", method);
+
+        _componentInteractions.Add(customIdMemory, info);
     }
 
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
