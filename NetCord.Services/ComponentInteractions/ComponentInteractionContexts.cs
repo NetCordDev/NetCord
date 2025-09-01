@@ -16,8 +16,12 @@ public class ComponentInteractionContext(ComponentInteraction interaction, Gatew
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -30,7 +34,10 @@ public class HttpComponentInteractionContext(ComponentInteraction interaction, R
       IChannelContext
 {
     public RestClient Client => client;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 }
 
@@ -50,9 +57,14 @@ public class MessageComponentInteractionContext(MessageComponentInteraction inte
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -66,8 +78,12 @@ public class HttpMessageComponentInteractionContext(MessageComponentInteraction 
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 }
 
@@ -87,9 +103,14 @@ public class ButtonInteractionContext(ButtonInteraction interaction, GatewayClie
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -103,8 +124,12 @@ public class HttpButtonInteractionContext(ButtonInteraction interaction, RestCli
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
 }
 
@@ -124,10 +149,16 @@ public class StringMenuInteractionContext(StringMenuInteraction interaction, Gat
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -141,9 +172,14 @@ public class HttpStringMenuInteractionContext(StringMenuInteraction interaction,
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<string> SelectedValues => Interaction.Data.SelectedValues;
 }
 
@@ -163,10 +199,16 @@ public class EntityMenuInteractionContext(EntityMenuInteraction interaction, Gat
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -180,9 +222,14 @@ public class HttpEntityMenuInteractionContext(EntityMenuInteraction interaction,
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<ulong> SelectedValues => Interaction.Data.SelectedValues;
 }
 
@@ -202,10 +249,16 @@ public class UserMenuInteractionContext(UserMenuInteraction interaction, Gateway
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<User> SelectedUsers { get; } = Utils.GetUserMenuValues(interaction);
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -219,9 +272,14 @@ public class HttpUserMenuInteractionContext(UserMenuInteraction interaction, Res
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<User> SelectedUsers { get; } = Utils.GetUserMenuValues(interaction);
 }
 
@@ -241,10 +299,16 @@ public class RoleMenuInteractionContext(RoleMenuInteraction interaction, Gateway
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Role> SelectedRoles { get; } = Utils.GetRoleMenuValues(interaction);
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -258,9 +322,14 @@ public class HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, Res
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Role> SelectedRoles { get; } = Utils.GetRoleMenuValues(interaction);
 }
 
@@ -280,10 +349,16 @@ public class MentionableMenuInteractionContext(MentionableMenuInteraction intera
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Mentionable> SelectedMentionables { get; } = Utils.GetMentionableMenuValues(interaction);
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -297,9 +372,14 @@ public class HttpMentionableMenuInteractionContext(MentionableMenuInteraction in
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Mentionable> SelectedMentionables { get; } = Utils.GetMentionableMenuValues(interaction);
 }
 
@@ -319,10 +399,16 @@ public class ChannelMenuInteractionContext(ChannelMenuInteraction interaction, G
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Channel> SelectedChannels { get; } = Utils.GetChannelMenuValues(interaction);
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -336,9 +422,14 @@ public class HttpChannelMenuInteractionContext(ChannelMenuInteraction interactio
       IChannelContext
 {
     public RestClient Client => client;
+
     public RestMessage Message => Interaction.Message;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<Channel> SelectedChannels { get; } = Utils.GetChannelMenuValues(interaction);
 }
 
@@ -357,9 +448,14 @@ public class ModalInteractionContext(ModalInteraction interaction, GatewayClient
       IChannelContext
 {
     public GatewayClient Client => client;
+
     public User User => Interaction.User;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -372,8 +468,12 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
       IChannelContext
 {
     public RestClient Client => client;
+
     public User User => Interaction.User;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
 }
 

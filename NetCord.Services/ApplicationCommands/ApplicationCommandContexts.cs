@@ -16,8 +16,12 @@ public class ApplicationCommandContext(ApplicationCommandInteraction interaction
       IUserContext
 {
     public GatewayClient Client => client;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -30,7 +34,10 @@ public class HttpApplicationCommandContext(ApplicationCommandInteraction interac
       IUserContext
 {
     public RestClient Client => client;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 }
 
@@ -49,8 +56,12 @@ public class SlashCommandContext(SlashCommandInteraction interaction, GatewayCli
       IUserContext
 {
     public GatewayClient Client => client;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -63,7 +74,10 @@ public class HttpSlashCommandContext(SlashCommandInteraction interaction, RestCl
       IUserContext
 {
     public RestClient Client => client;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 }
 
@@ -82,9 +96,14 @@ public class UserCommandContext(UserCommandInteraction interaction, GatewayClien
       IUserContext
 {
     public GatewayClient Client => client;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
+
     public User Target => Interaction.Data.TargetUser;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -97,8 +116,12 @@ public class HttpUserCommandContext(UserCommandInteraction interaction, RestClie
       IUserContext
 {
     public RestClient Client => client;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
+
     public User Target => Interaction.Data.TargetUser;
 }
 
@@ -117,9 +140,14 @@ public class MessageCommandContext(MessageCommandInteraction interaction, Gatewa
       IUserContext
 {
     public GatewayClient Client => client;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
+
     public RestMessage Target => Interaction.Data.TargetMessage;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -132,8 +160,12 @@ public class HttpMessageCommandContext(MessageCommandInteraction interaction, Re
       IUserContext
 {
     public RestClient Client => client;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
+
     public RestMessage Target => Interaction.Data.TargetMessage;
 }
 
@@ -152,8 +184,12 @@ public class EntryPointCommandContext(EntryPointCommandInteraction interaction, 
       IUserContext
 {
     public GatewayClient Client => client;
+
     public Guild? Guild => Interaction.Guild;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -166,6 +202,9 @@ public class HttpEntryPointCommandContext(EntryPointCommandInteraction interacti
       IUserContext
 {
     public RestClient Client => client;
+
+    /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
+
     public User User => Interaction.User;
 }
