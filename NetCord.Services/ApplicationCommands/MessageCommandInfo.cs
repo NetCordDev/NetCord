@@ -39,11 +39,10 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
     private readonly bool _messageParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.Message;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.Message;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

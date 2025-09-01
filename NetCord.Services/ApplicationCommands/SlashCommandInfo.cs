@@ -46,14 +46,13 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
+    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

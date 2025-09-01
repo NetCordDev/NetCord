@@ -69,13 +69,12 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     private static ValueTask EmptyInvokeAsync(object?[]? parameters, TContext context, IServiceProvider? serviceProvider) => default;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
     public string Description { get; }
     public EntryPointCommandHandler Handler { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
