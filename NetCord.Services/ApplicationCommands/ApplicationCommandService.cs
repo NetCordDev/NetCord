@@ -6,8 +6,20 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ApplicationCommands;
 
+/// <summary>
+/// Provides functionality for managing and executing application commands with autocomplete support.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
+/// <typeparam name="TAutocompleteContext">The context the invoked autocomplete interactions use.</typeparam>
+/// <param name="configuration">The configuration for the application command service.</param>
 public class ApplicationCommandService<TContext, TAutocompleteContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : ApplicationCommandService<TContext>(configuration) where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
+    /// <summary>
+    /// Executes an autocomplete interaction.
+    /// </summary>
+    /// <param name="context">The autocomplete interaction context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         try
@@ -30,8 +42,14 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
     }
 }
 
+/// <summary>
+/// Provides functionality for managing and executing application commands.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
 public class ApplicationCommandService<TContext> : IApplicationCommandService where TContext : IApplicationCommandContext
 {
+    /// <inheritdoc cref="ApplicationCommandService{TContext}" path="/summary" />
+    /// <param name="configuration">The configuration for the application command service.</param>
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
         if (configuration is null)
@@ -55,8 +73,12 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GetCommands() => [.. _commands];
 
+    /// <summary>
+    /// The configuration for the application command service.
+    /// </summary>
     public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
+    /// <inheritdoc cref="IApplicationCommandService.GetCommands" />
     public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands];
 
     [RequiresUnreferencedCode("Types might be removed")]
@@ -178,6 +200,12 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
         return ApplicationCommandServiceManager.RegisterCommandsAsync([this], client, applicationId, guildId, properties, cancellationToken);
     }
 
+    /// <summary>
+    /// Executes an application command.
+    /// </summary>
+    /// <param name="context">The application command context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         try
