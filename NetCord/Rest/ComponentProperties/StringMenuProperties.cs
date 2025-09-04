@@ -28,6 +28,7 @@ public partial class StringMenuProperties(string customId, IEnumerable<StringMen
     {
         JsonSerializer.Serialize(writer, this, Serialization.Default.IStringMenuProperties);
     }
+
     IEnumerator<StringMenuSelectOptionProperties> IEnumerable<StringMenuSelectOptionProperties>.GetEnumerator() => Options.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)Options).GetEnumerator();
 }

@@ -8,7 +8,7 @@ namespace NetCord.Rest;
 /// </summary>
 /// <param name="customId">ID for the menu (max 100 characters).</param>
 [GenerateMethodsForProperties]
-public abstract partial class MenuProperties(string customId) : IMessageComponentProperties, ILabelComponentProperties
+public abstract partial class MenuProperties(string customId) : IMessageComponentProperties, IComponentContainerComponentProperties, ILabelComponentProperties
 {
     [JsonPropertyName("type")]
     public abstract ComponentType ComponentType { get; }
@@ -62,6 +62,11 @@ public abstract partial class MenuProperties(string customId) : IMessageComponen
     public int? ParentId { get; set; }
 
     void IJsonSerializable<IMessageComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteToMessage(writer);
+    }
+
+    void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
     {
         WriteToMessage(writer);
     }
