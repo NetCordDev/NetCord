@@ -31,4 +31,3 @@ We can add a command handler now.
 ### Example Module
 
 [!code-cs[ExampleModule.cs](Introduction/ExampleModule.cs)]
-
