@@ -32,8 +32,3 @@ We can add a command handler now.
 
 [!code-cs[ExampleModule.cs](Introduction/ExampleModule.cs)]
 
-***
-
-### Example Module with Context
-
-[!code-cs[ExampleModuleWithContext.cs](Introduction/ExampleModuleWithContext.cs)]
