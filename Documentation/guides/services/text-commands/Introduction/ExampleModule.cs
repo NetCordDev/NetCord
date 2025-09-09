@@ -4,9 +4,6 @@ namespace MyBot;
 
 public class ExampleModule : CommandModule<CommandContext>
 {
-    [Command("pong")]
-    public static string Pong() => "Ping!";
-    
     [Command("ping")]
-    public string PongWithContext() => $"Pong with {Context.Client.Id}";
+    public string Ping() => $"Pong! {Math.Round(Context.Client.Latency.TotalMilliseconds)} ms";
 }
