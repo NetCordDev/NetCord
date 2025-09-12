@@ -121,18 +121,35 @@ public partial class VoiceClient
                 SessionSetExternalSender(_session, new(p, externalSender.Length));
         }
 
-        public unsafe ValueTask OnMlsProposalsAsync(ConnectionState connectionState, ReadOnlySpan<byte> proposals)
+        public ValueTask OnMlsProposalsAsync(ConnectionState connectionState, ReadOnlySpan<byte> proposals)
         {
             var recognizedUserIds = GetRecognizedUserIds(out var buffer);
 
             Libdavec.Buffer commitWelcome;
-            fixed (byte* proposalsP = proposals)
-                commitWelcome = SessionProcessProposals(_session, new(proposalsP, proposals.Length), recognizedUserIds, (nuint)recognizedUserIds.Length);
+            unsafe
+            {
+                fixed (byte* proposalsP = proposals)
+                    commitWelcome = SessionProcessProposals(_session, new(proposalsP, proposals.Length), recognizedUserIds, (nuint)recognizedUserIds.Length);
+            }
 
             FreeRecognizedUserIdsBuffer(buffer);
 
-            if (commitWelcome.Data is not null)
-                return SendMlsCommitWelcomeAsync(connectionState, commitWelcome);
+            bool sendCommitWelcome;
+            unsafe
+            {
+                sendCommitWelcome = commitWelcome.Data is not null;
+            }
+
+            if (sendCommitWelcome)
+            {
+                return ContinueAsync(connectionState, commitWelcome);
+
+                async ValueTask ContinueAsync(ConnectionState connectionState, Libdavec.Buffer commitWelcome)
+                {
+                    using (commitWelcome)
+                        await SendMlsCommitWelcomeAsync(connectionState, commitWelcome).ConfigureAwait(false);
+                }
+            }
 
             return default;
         }
@@ -146,10 +163,18 @@ public partial class VoiceClient
                     processingResult = SessionProcessCommit(_session, new(p, commit.Length));
             }
 
-            if (processingResult.Ignored)
-                return default;
+            return ContinueAsync(connectionState, transitionId, processingResult);
 
-            return HandleRosterUpdatedAsync(connectionState, transitionId, processingResult.RosterUpdate);
+            async ValueTask ContinueAsync(ConnectionState connectionState, ushort transitionId, CommitProcessingResult processingResult)
+            {
+                using (processingResult)
+                {
+                    if (processingResult.Ignored)
+                        return;
+
+                    await HandleRosterUpdatedAsync(connectionState, transitionId, processingResult.RosterUpdate).ConfigureAwait(false);
+                }
+            }
         }
 
         public ValueTask OnMlsWelcomeAsync(ConnectionState connectionState, ushort transitionId, ReadOnlySpan<byte> welcome)
@@ -165,7 +190,13 @@ public partial class VoiceClient
 
             FreeRecognizedUserIdsBuffer(buffer);
 
-            return HandleRosterUpdatedAsync(connectionState, transitionId, rosterMap);
+            return ContinueAsync();
+
+            async ValueTask ContinueAsync()
+            {
+                using (rosterMap)
+                    await HandleRosterUpdatedAsync(connectionState, transitionId, rosterMap).ConfigureAwait(false);
+            }
         }
 
         private void SetDecryptorsPassthroughMode(bool infinite, int transitionExpirySeconds)
@@ -190,40 +221,40 @@ public partial class VoiceClient
             }
         }
 
-        private unsafe ReadOnlySpan<nint> GetRecognizedUserIds(out nint[] buffer)
+        private unsafe ReadOnlySpan<nint> GetRecognizedUserIds(out nint[] pointers)
         {
             var users = client.Cache.Users;
 
             int count = users.Count + 1;
 
-            buffer = ArrayPool<nint>.Shared.Rent(count);
+            pointers = ArrayPool<nint>.Shared.Rent(count);
 
-            var result = buffer.AsSpan(0, count);
+            var buffer = (byte*)NativeMemory.Alloc((nuint)(count * MaxSnowflakeCStringSize));
+
+            var result = pointers.AsSpan(0, count);
 
             int i = 0;
+            int written = 0;
             foreach (var userId in users)
-                AddUserId(ref result[i++], userId);
+                AddUserId(ref result[i++], ref written, buffer, userId);
 
-            AddUserId(ref result[i], client.UserId);
+            AddUserId(ref result[i], ref written, buffer, client.UserId);
 
             return result;
 
-            static void AddUserId(ref nint value, ulong userId)
+            static void AddUserId(ref nint pointer, ref int written, byte* buffer, ulong userId)
             {
-                value = (nint)NativeMemory.Alloc(MaxSnowflakeCStringSize);
-                var span = SnowflakeToCString(userId, new((void*)value, MaxSnowflakeCStringSize));
+                var start = buffer + written;
+                var writtenSpan = SnowflakeToCString(userId, new(start, MaxSnowflakeCStringSize));
+                pointer = (nint)start;
+                written += writtenSpan.Length;
             }
         }
 
         private unsafe static void FreeRecognizedUserIdsBuffer(nint[] recognizedUserIds)
         {
-            int count = recognizedUserIds.Length;
-            for (int i = 0; i < count; i++)
-            {
-                var ptr = (void*)recognizedUserIds[i];
-                if (ptr is not null)
-                    NativeMemory.Free(ptr);
-            }
+            var buffer = (byte*)recognizedUserIds[0];
+            NativeMemory.Free(buffer);
             ArrayPool<nint>.Shared.Return(recognizedUserIds);
         }
 
@@ -268,7 +299,7 @@ public partial class VoiceClient
 
         private void SetupKeyRatchetForUser(ulong userId, uint ssrc, ushort protocolVersion)
         {
-            var result = GetUserKeyRatchet(userId, protocolVersion);
+            using var result = GetUserKeyRatchet(userId, protocolVersion);
 
             var decryptor = _decryptors.GetOrAdd(ssrc, ssrc =>
             {
@@ -277,17 +308,18 @@ public partial class VoiceClient
                 return decryptor;
             });
 
-            if (result is { BaseSecret.Data: not null })
-                DecryptorTransitionToKeyRatchet(decryptor, result.GetValueOrDefault(), 10);
+            if (result is { BaseSecret.Data: not null } keyRatchet)
+                DecryptorTransitionToKeyRatchet(decryptor, keyRatchet, 10);
         }
 
         private void SetupEncryptionKeyRatchet(ushort protocolVersion)
         {
-            var result = GetUserKeyRatchet(client.UserId, protocolVersion);
+            using var result = GetUserKeyRatchet(client.UserId, protocolVersion);
             if (result is { BaseSecret.Data: not null } keyRatchet)
                 EncryptorSetKeyRatchet(_encryptor, keyRatchet);
         }
 
+        [SkipLocalsInit]
         private HashRatchet? GetUserKeyRatchet(ulong userId, ushort protocolVersion)
         {
             if (protocolVersion is DisabledVersion)
@@ -298,16 +330,23 @@ public partial class VoiceClient
             return SessionGetKeyRatchet(_session, byteUserId);
         }
 
-        private ValueTask SendMlsKeyPackageAsync(ConnectionState connectionState)
+        private async ValueTask SendMlsKeyPackageAsync(ConnectionState connectionState)
         {
-            var keyPackage = SessionGetMarshalledKeyPackage(_session);
-            var payload = new byte[keyPackage.Length + 1];
-            keyPackage.AsSpan().CopyTo(payload.AsSpan(1));
+            int payloadLength;
+            byte[] payload;
+            using (var keyPackage = SessionGetMarshalledKeyPackage(_session))
+            {
+                payloadLength = (int)keyPackage.Length + 1;
+                payload = ArrayPool<byte>.Shared.Rent(payloadLength);
+
+                keyPackage.AsSpan().CopyTo(payload.AsSpan(1));
+            }
+
             payload[0] = (byte)VoiceOpcode.DaveMlsKeyPackage;
 
-            return client.SendConnectionPayloadAsync(connectionState, payload, client._internalBinaryPayloadProperties);
+            await client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), client._internalBinaryPayloadProperties).ConfigureAwait(false);
 
-            // TODO: Send keyPackage to the voice gateway using the MLS_KEY_PACKAGE (26) opcode
+            ArrayPool<byte>.Shared.Return(payload);
         }
 
         private ValueTask SendTransitionReadyAsync(ConnectionState connectionState, ushort transitionId)
@@ -315,21 +354,21 @@ public partial class VoiceClient
             VoicePayloadProperties<DaveTransitionReadyProperties> readyPayload = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
 
             return client.SendConnectionPayloadAsync(connectionState, readyPayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveTransitionReadyProperties), client._internalTextPayloadProperties);
-
-            // TODO: Send the transition ready message to the voice gateway using the DAVE_PROTOCOL_READY_FOR_TRANSITION (23) opcode
         }
 
-        private ValueTask SendMlsCommitWelcomeAsync(ConnectionState connectionState, Libdavec.Buffer commitWelcomeMessage)
+        private async ValueTask SendMlsCommitWelcomeAsync(ConnectionState connectionState, Libdavec.Buffer commitWelcomeMessage)
         {
             var commitWelcomeSpan = commitWelcomeMessage.AsSpan();
 
-            var payload = new byte[commitWelcomeSpan.Length + 1];
+            int payloadLength = commitWelcomeSpan.Length + 1;
+            var payload = ArrayPool<byte>.Shared.Rent(payloadLength);
+
             commitWelcomeSpan.CopyTo(payload.AsSpan(1));
             payload[0] = (byte)VoiceOpcode.DaveMlsCommitWelcome;
 
-            return client.SendConnectionPayloadAsync(connectionState, payload, client._internalBinaryPayloadProperties);
+            await client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), client._internalBinaryPayloadProperties).ConfigureAwait(false);
 
-            // TODO: Send the commit welcome message to the voice gateway using the MLS_COMMIT_WELCOME (28) opcode
+            ArrayPool<byte>.Shared.Return(payload);
         }
 
         private ValueTask SendMlsInvalidCommitWelcomeAsync(ConnectionState connectionState, ushort transitionId)
@@ -337,8 +376,6 @@ public partial class VoiceClient
             VoicePayloadProperties<DaveMlsInvalidCommitWelcomeProperties> invalidCommitWelcomePayload = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
 
             return client.SendConnectionPayloadAsync(connectionState, invalidCommitWelcomePayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveMlsInvalidCommitWelcomeProperties), client._internalTextPayloadProperties);
-
-            // TODO: Send the invalid commit welcome message to the voice gateway using the MLS_INVALID_COMMIT_WELCOME (31) opcode
         }
 
         [SkipLocalsInit]
@@ -368,6 +405,9 @@ public partial class VoiceClient
         public void Dispose()
         {
             _session.Dispose();
+            _encryptor.Dispose();
+            foreach (var decryptor in _decryptors.Values)
+                decryptor.Dispose();
         }
     }
 }

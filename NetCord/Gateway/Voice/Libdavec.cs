@@ -1,9 +1,5 @@
-﻿using System.Buffers;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-
-[assembly: DisableRuntimeMarshalling]
 
 namespace NetCord.Gateway.Voice;
 
@@ -33,7 +29,7 @@ internal unsafe static partial class Libdavec
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct Buffer
+    public struct Buffer : IDisposable
     {
         public byte* Data;
         public nuint Length;
@@ -55,60 +51,68 @@ internal unsafe static partial class Libdavec
             return new(Data, (int)Length);
         }
 
-        public readonly Memory<byte> AsMemory()
+        public readonly void Dispose()
         {
-            return new UnmanagedMemoryManager(Data, (int)Length).Memory;
-        }
-
-        private sealed unsafe class UnmanagedMemoryManager(byte* pointer, int length) : MemoryManager<byte>
-        {
-            public override Span<byte> GetSpan() => new(pointer, length);
-
-            public override MemoryHandle Pin(int elementIndex = 0)
-            {
-                return new MemoryHandle(pointer + elementIndex);
-            }
-
-            public override void Unpin()
-            {
-            }
-
-            protected override void Dispose(bool disposing)
-            {
-            }
+            BufferFree(this);
         }
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct HashRatchet
+    public struct HashRatchet : IDisposable
     {
         public ushort CipherSuite;
         public Buffer BaseSecret;
+
+        public readonly void Dispose()
+        {
+            BaseSecret.Dispose();
+        }
     }
 
     [NativeMarshalling(typeof(CommitProcessingResultMarshaller))]
     [StructLayout(LayoutKind.Sequential)]
-    public struct CommitProcessingResult
+    public struct CommitProcessingResult : IDisposable
     {
         public bool Failed;
         public bool Ignored;
         public RosterMapHandle RosterUpdate;
+
+        public readonly void Dispose()
+        {
+            RosterUpdate.Dispose();
+        }
     }
 
     [CustomMarshaller(typeof(CommitProcessingResult), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
     [CustomMarshaller(typeof(CommitProcessingResult), MarshalMode.ManagedToUnmanagedOut, typeof(ManagedToUnmanagedOut))]
     internal static unsafe class CommitProcessingResultMarshaller
     {
-        public static class ManagedToUnmanagedIn
+        public struct ManagedToUnmanagedIn
         {
-            public static InternalCommitProcessingResult ConvertToUnmanaged(CommitProcessingResult managed)
+            private bool _addRefd;
+            private CommitProcessingResult _value;
+
+            public void FromManaged(CommitProcessingResult value)
             {
+                _value = value;
+                value.RosterUpdate.DangerousAddRef(ref _addRefd);
+            }
+
+            public InternalCommitProcessingResult ToUnmanaged()
+            {
+                var value = _value;
                 return new()
                 {
-                    Failed = managed.Failed,
-                    Ignored = managed.Ignored,
-                    RosterUpdate = managed.RosterUpdate.DangerousGetHandle(),
+                    Failed = value.Failed,
+                    Ignored = value.Ignored,
+                    RosterUpdate = value.RosterUpdate.DangerousGetHandle(),
                 };
+            }
+
+            public readonly void Free()
+            {
+                if (_addRefd)
+                    _value.RosterUpdate.DangerousRelease();
             }
         }
 
@@ -149,11 +153,14 @@ internal unsafe static partial class Libdavec
         }
     }
 
+    // Delegates
+    public delegate void MlsFailureCallback(byte* context, byte* authSessionId);
+
+    public delegate void ProtocolVersionChangedCallback();
+
     // Session methods
     [LibraryImport(DllName, EntryPoint = "dave_max_supported_protocol_version")]
     public static partial ushort MaxSupportedProtocolVersion();
-
-    public delegate void MlsFailureCallback(byte* context, byte* authSessionId);
 
     [LibraryImport(DllName, EntryPoint = "dave_session_create")]
     public static partial SessionHandle SessionCreate(ReadOnlySpan<byte> context, ReadOnlySpan<byte> authSessionId, MlsFailureCallback mlsFailureCallback);
@@ -220,7 +227,7 @@ internal unsafe static partial class Libdavec
     public static partial nuint EncryptorEncrypt(EncryptorHandle encryptor, MediaType mediaType, uint ssrc, Buffer frame, Buffer encryptedFrame);
 
     [LibraryImport(DllName, EntryPoint = "dave_encryptor_set_protocol_version_changed_callback")]
-    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, delegate* unmanaged[Cdecl]<void> callback);
+    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, ProtocolVersionChangedCallback callback);
 
     // Decryptor methods
     [LibraryImport(DllName, EntryPoint = "dave_decryptor_create")]
@@ -259,8 +266,8 @@ internal unsafe static partial class Libdavec
     [LibraryImport(DllName, EntryPoint = "dave_buffer_free")]
     public static partial void BufferFree(Buffer buffer);
 
-    //[LibraryImport(DllName, EntryPoint = "dave_commit_processing_result_free")]
-    //public static partial void CommitProcessingResultFree(CommitProcessingResult result);
+    [LibraryImport(DllName, EntryPoint = "dave_commit_processing_result_free")]
+    public static partial void CommitProcessingResultFree(CommitProcessingResult result);
 
     [LibraryImport(DllName, EntryPoint = "dave_hash_ratchet_free")]
     public static partial void HashRatchetFree(HashRatchet ratchet);
