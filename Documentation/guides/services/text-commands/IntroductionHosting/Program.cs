@@ -13,7 +13,7 @@ builder.Services
 var host = builder.Build();
 
 // Add a command using minimal APIs
-host.AddCommand(["ping"], () => "Pong!");
+host.AddCommand(["pong"], () => "Ping!");
 
 // Add commands from modules
 host.AddModules(typeof(Program).Assembly);
