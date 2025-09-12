@@ -145,7 +145,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         voiceClient.VoiceReceive += args =>
         {
             // Pass current user voice directly to the output to create echo
-            if (voiceClient.Cache.Users.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
+            if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
                 outStream.Write(args.Frame);
             return default;
         };

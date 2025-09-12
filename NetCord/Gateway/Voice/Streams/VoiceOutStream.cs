@@ -48,40 +48,68 @@ internal class VoiceOutStream(VoiceClient client) : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        if (client._udpState is not { Connection: var connection, Encryption: var encryption })
+        if (client._udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
         {
             ThrowConnectionNotStarted();
             return;
         }
 
+        var daveEncryptor = session.GetEncryptor();
+
+        byte[]? daveArray = null;
+        if (session.GetProtocolVersion() is not 0)
+        {
+            var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
+            daveArray = ArrayPool<byte>.Shared.Rent(length);
+            int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer, daveArray);
+            buffer = daveArray.AsSpan(0, written);
+        }
+
         int datagramLength = buffer.Length + encryption.Expansion + 12;
 
-        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
+        var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
 
-        WriteDatagram(buffer, new(array, 0, datagramLength), encryption);
+        WriteDatagram(buffer, new(datagramArray, 0, datagramLength), encryption);
 
-        connection.Send(new(array, 0, datagramLength));
+        if (daveArray is not null)
+            ArrayPool<byte>.Shared.Return(daveArray);
 
-        ArrayPool<byte>.Shared.Return(array);
+        connection.Send(new(datagramArray, 0, datagramLength));
+
+        ArrayPool<byte>.Shared.Return(datagramArray);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        if (client._udpState is not { Connection: var connection, Encryption: var encryption })
+        if (client._udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
         {
             ThrowConnectionNotStarted();
             return;
         }
 
+        var daveEncryptor = session.GetEncryptor();
+
+        byte[]? daveArray = null;
+        if (session.GetProtocolVersion() is not 0)
+        {
+            var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
+            daveArray = ArrayPool<byte>.Shared.Rent(length);
+            int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer.Span, daveArray);
+            buffer = daveArray.AsMemory(0, written);
+        }
+
         int datagramLength = buffer.Length + encryption.Expansion + 12;
 
-        var array = ArrayPool<byte>.Shared.Rent(datagramLength);
+        var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
 
-        WriteDatagram(buffer.Span, new(array, 0, datagramLength), encryption);
+        WriteDatagram(buffer.Span, new(datagramArray, 0, datagramLength), encryption);
 
-        await connection.SendAsync(new(array, 0, datagramLength), cancellationToken).ConfigureAwait(false);
+        if (daveArray is not null)
+            ArrayPool<byte>.Shared.Return(daveArray);
 
-        ArrayPool<byte>.Shared.Return(array);
+        await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
+
+        ArrayPool<byte>.Shared.Return(datagramArray);
     }
 
     private void WriteDatagram(ReadOnlySpan<byte> buffer, Span<byte> datagram, IVoiceEncryption encryption)

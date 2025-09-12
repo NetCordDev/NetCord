@@ -12,10 +12,15 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
+    private async Task<VoiceClient> JoinAsync(IVoiceGuildChannel? channel, VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
-        if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
+        ulong channelId;
+        if (channel is not null)
+            channelId = channel.Id;
+        else if (guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
+            channelId = state.ChannelId.GetValueOrDefault();
+        else
             throw new("You are not in a voice channel!");
 
         var client = Context.Client;
@@ -43,7 +48,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
             }) : null;
 
-            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
+            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, channelId, new()
             {
                 EncryptionProvider = encryptionProvider,
                 ReceiveHandler = new VoiceReceiveHandler(),
@@ -65,11 +70,11 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(VoiceEncryption? encryption = null)
+    public async Task PlayAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        var voiceClient = await JoinAsync(encryption, args =>
+        var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
                 cancellationTokenSource.Cancel();
@@ -104,11 +109,11 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("echo", "Echo!")]
-    public async Task EchoAsync(VoiceEncryption? encryption = null)
+    public async Task EchoAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
     {
         TaskCompletionSource taskCompletionSource = new();
 
-        var voiceClient = await JoinAsync(encryption, args =>
+        var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
                 taskCompletionSource.TrySetResult();
@@ -132,6 +137,39 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         };
 
         await taskCompletionSource.Task;
+    }
+
+    [SlashCommand("record", "Record!")]
+    public async Task RecordAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
+    {
+        TaskCompletionSource taskCompletionSource = new();
+
+        using var ffmpeg = Process.Start(new ProcessStartInfo
+        {
+            FileName = "ffmpeg",
+            Arguments = $"-f s16le -ar 48000 -ac 2 -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
+            RedirectStandardInput = true,
+        })!;
+
+        var voiceClient = await JoinAsync(channel, encryption, args =>
+        {
+            if (!args.Reconnect)
+                taskCompletionSource.TrySetResult();
+
+            return default;
+        });
+        await RespondAsync(InteractionCallback.Message("Recording!"));
+
+        OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Short, VoiceChannels.Stereo);
+
+        voiceClient.VoiceReceive += args =>
+        {
+            opusDecodeStream.Write(args.Frame);
+            return default;
+        };
+
+        await taskCompletionSource.Task;
+        ffmpeg.Kill();
     }
 
     public enum VoiceEncryption : byte

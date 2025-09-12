@@ -46,7 +46,7 @@ public static class GatewayClientExtensions
             (state, server) = await WaitForEventsAsync(tokenSource.Token).ConfigureAwait(false);
         }
 
-        return new(userId, state.SessionId, server.Endpoint!, guildId, server.Token, configuration);
+        return new(userId, state.SessionId, server.Endpoint!, guildId, channelId, server.Token, configuration);
 
         ValueTask HandleVoiceStateUpdateAsync(VoiceState arg)
         {
