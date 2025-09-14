@@ -190,9 +190,9 @@ public partial class VoiceClient
 
             FreeRecognizedUserIdsBuffer(buffer);
 
-            return ContinueAsync();
+            return ContinueAsync(connectionState, transitionId, rosterMap);
 
-            async ValueTask ContinueAsync()
+            async ValueTask ContinueAsync(ConnectionState connectionState, ushort transitionId, RosterMapHandle rosterMap)
             {
                 using (rosterMap)
                     await HandleRosterUpdatedAsync(connectionState, transitionId, rosterMap).ConfigureAwait(false);
