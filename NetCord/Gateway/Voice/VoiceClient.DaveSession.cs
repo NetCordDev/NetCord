@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -34,11 +35,13 @@ public partial class VoiceClient
             => (int)DecryptorGetMaxPlaintextByteSize(decryptor, MediaType.Audio, (nuint)ciphertextByteSize);
     }
 
-    internal class DaveSession(VoiceClient client, MlsFailureCallback mlsFailureCallback) : IDisposable
+    internal class DaveSession(VoiceClient client, MlsFailureCallbackDelegate mlsFailureCallback) : IDisposable
     {
         private const int MaxSnowflakeCStringSize = 21;
 
         private const int MlsNewGroupExpectedEpoch = 1;
+
+        private readonly MlsFailureCallbackDelegate _mlsFailureCallback = mlsFailureCallback;
 
         private readonly SessionHandle _session = SessionCreate(""u8, ""u8, mlsFailureCallback);
 
@@ -49,6 +52,24 @@ public partial class VoiceClient
         private readonly EncryptorHandle _encryptor = EncryptorCreate();
 
         private readonly ConcurrentDictionary<uint, DecryptorHandle> _decryptors = [];
+
+        unsafe static DaveSession()
+        {
+            SetLogSink(&LogSink);
+        }
+
+        private unsafe static void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
+        {
+            LogSinkInternal(severity, file, line, message);
+        }
+
+        [Conditional("DEBUG")]
+        private unsafe static void LogSinkInternal(LoggingSeverity severity, byte* file, int line, byte* message)
+        {
+            var fileString = Marshal.PtrToStringUTF8((nint)file);
+            var messageString = Marshal.PtrToStringUTF8((nint)message);
+            Debug.WriteLine($"Libdave at {fileString}:{line}: {messageString}");
+        }
 
         public static ushort GetMaxSupportedProtocolVersion()
         {

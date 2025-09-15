@@ -11,23 +11,6 @@ internal unsafe static partial class Libdavec
 
     public const int DisabledVersion = 0;
 
-    public enum MediaType : byte
-    {
-        Audio = 0,
-        Video = 1,
-    }
-
-    public enum CodecType : byte
-    {
-        Unknown = 0,
-        Opus = 1,
-        Vp8 = 2,
-        Vp9 = 3,
-        H264 = 4,
-        H265 = 5,
-        Av1 = 6,
-    }
-
     [StructLayout(LayoutKind.Sequential)]
     public struct Buffer : IDisposable
     {
@@ -153,17 +136,47 @@ internal unsafe static partial class Libdavec
         }
     }
 
+    public enum LoggingSeverity : int
+    {
+        Verbose = 0,
+        Info = 1,
+        Warning = 2,
+        Error = 3,
+        None = 4,
+    }
+
+    public enum MediaType : byte
+    {
+        Audio = 0,
+        Video = 1,
+    }
+
+    public enum CodecType : byte
+    {
+        Unknown = 0,
+        Opus = 1,
+        Vp8 = 2,
+        Vp9 = 3,
+        H264 = 4,
+        H265 = 5,
+        Av1 = 6,
+    }
+
     // Delegates
-    public delegate void MlsFailureCallback(byte* context, byte* authSessionId);
+    public delegate void MlsFailureCallbackDelegate(byte* context, byte* authSessionId);
 
-    public delegate void ProtocolVersionChangedCallback();
+    public delegate void ProtocolVersionChangedCallbackDelegate();
 
-    // Session methods
+    // Global methods
+    [LibraryImport(DllName, EntryPoint = "dave_set_log_sink")]
+    public static partial void SetLogSink(delegate*<LoggingSeverity, byte*, int, byte*, void> sink); // LoggingSeverity severity, byte* file, int line, byte* message
+
     [LibraryImport(DllName, EntryPoint = "dave_max_supported_protocol_version")]
     public static partial ushort MaxSupportedProtocolVersion();
 
+    // Session methods
     [LibraryImport(DllName, EntryPoint = "dave_session_create")]
-    public static partial SessionHandle SessionCreate(ReadOnlySpan<byte> context, ReadOnlySpan<byte> authSessionId, MlsFailureCallback mlsFailureCallback);
+    public static partial SessionHandle SessionCreate(ReadOnlySpan<byte> context, ReadOnlySpan<byte> authSessionId, MlsFailureCallbackDelegate mlsFailureCallback);
 
     [LibraryImport(DllName, EntryPoint = "dave_session_free")]
     public static partial void SessionFree(nint session);
@@ -227,7 +240,7 @@ internal unsafe static partial class Libdavec
     public static partial nuint EncryptorEncrypt(EncryptorHandle encryptor, MediaType mediaType, uint ssrc, Buffer frame, Buffer encryptedFrame);
 
     [LibraryImport(DllName, EntryPoint = "dave_encryptor_set_protocol_version_changed_callback")]
-    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, ProtocolVersionChangedCallback callback);
+    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, ProtocolVersionChangedCallbackDelegate callback);
 
     // Decryptor methods
     [LibraryImport(DllName, EntryPoint = "dave_decryptor_create")]
