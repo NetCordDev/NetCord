@@ -30,4 +30,10 @@ public class JsonMessageSnapshotMessage
 
     [JsonPropertyName("mention_roles")]
     public ulong[] MentionedRoleIds { get; set; }
+
+    [JsonPropertyName("components")]
+    public JsonComponent[]? Components { get; set; }
+
+    [JsonPropertyName("sticker_items")]
+    public JsonMessageSticker[]? Stickers { get; set; }
 }
