@@ -70,7 +70,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
+    public async Task PlayAsync(IVoiceGuildChannel? channel = null, bool loop = true, VoiceEncryption? encryption = null)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -88,24 +88,30 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         await RespondAsync(InteractionCallback.Message($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
-        using var ffmpeg = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ffmpeg",
-            Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
-            RedirectStandardOutput = true,
-        })!;
 
         var token = cancellationTokenSource.Token;
-        try
+        do
         {
-            await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
-            await opusEncodeStream.FlushAsync(token);
-            await Task.Delay(-1, token);
+            using var ffmpeg = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
+                RedirectStandardOutput = true,
+            })!;
+            try
+            {
+                await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
+                await opusEncodeStream.FlushAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
+                ffmpeg.Kill();
+                return;
+            }
         }
-        catch (OperationCanceledException)
-        {
-            ffmpeg.Kill();
-        }
+        while (loop);
+
+        await Task.Delay(-1, token);
     }
 
     [SlashCommand("echo", "Echo!")]
