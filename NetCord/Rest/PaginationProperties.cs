@@ -45,6 +45,30 @@ public partial record PaginationProperties<T> : IPaginationProperties<T, Paginat
         return result;
     }
 
+    internal static TProperties PrepareWithOffset<TProperties>(TProperties? paginationProperties, T minValue, PaginationDirection defaultDirection, int defaultLimit) where TProperties : IPaginationProperties<T, TProperties>
+    {
+        if (paginationProperties is null)
+        {
+            var properties = TProperties.Create();
+            properties.Direction = defaultDirection;
+            properties.BatchSize = defaultLimit;
+            return properties;
+        }
+
+        var result = TProperties.Create(paginationProperties);
+
+        if (!result.Direction.HasValue)
+            result.Direction = defaultDirection;
+
+        if (!result.From.HasValue)
+            result.From = minValue;
+
+        if (!result.BatchSize.HasValue)
+            result.BatchSize = defaultLimit;
+
+        return result;
+    }
+
     internal static TProperties PrepareWithDirectionValidation<TProperties>(TProperties? paginationProperties, PaginationDirection requiredDirection, int defaultLimit) where TProperties : IPaginationProperties<T, TProperties>
     {
         if (paginationProperties is null)
