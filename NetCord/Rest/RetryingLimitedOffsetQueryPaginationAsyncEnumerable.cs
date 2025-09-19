@@ -2,9 +2,10 @@
 
 namespace NetCord.Rest;
 
-internal class OffsetQueryPaginationAsyncEnumerable<T, TFrom>(
+internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
     RestClient client,
     PaginationProperties<TFrom> paginationProperties,
+    TFrom maxOffset,
     Func<Stream, Task<(IEnumerable<T> Results, bool Retry)>> convertAsync,
     HttpMethod method,
     FormattableString endpoint,
@@ -27,6 +28,9 @@ internal class OffsetQueryPaginationAsyncEnumerable<T, TFrom>(
 
         while (true)
         {
+            if (offset > maxOffset)
+                yield break;
+
             var (results, retry) = await convertAsync(await client.SendRequestAsync(method, endpoint, query, resourceInfo, properties, global, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
 
             int count = 0;

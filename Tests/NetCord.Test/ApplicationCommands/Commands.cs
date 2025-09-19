@@ -59,12 +59,15 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         if (channel is not null)
             searchProperties.AddChannelIds(channel.Id);
 
+        int count = 0;
+
         await foreach (var result in Context.Guild!.SearchMessagesAsync(searchProperties))
         {
             switch (result)
             {
                 case GuildMessageSearchResult.Success successResult:
                     Console.WriteLine(successResult.Message.Content);
+                    count++;
                     break;
                 case GuildMessageSearchResult.Indexing indexingResult:
                     Console.WriteLine($"Waiting {indexingResult.RetryAfter} seconds");
@@ -72,6 +75,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
                     break;
             }
         }
+
+        Console.WriteLine($"Listed {count} messages!");
     }
 
     [SlashCommand("cv2", "Components V2")]

@@ -50,9 +50,10 @@ public partial class RestClient
     {
         paginationProperties = GuildMessagesSearchPaginationProperties.PrepareWithOffset(paginationProperties, 0, PaginationDirection.After, 25);
 
-        return new OffsetQueryPaginationAsyncEnumerable<GuildMessageSearchResult, int>(
+        return new RetryingLimitedOffsetQueryPaginationAsyncEnumerable<GuildMessageSearchResult, int>(
             this,
             paginationProperties,
+            9975,
             async streamParam =>
             {
                 var jsonModel = await streamParam.ToObjectAsync(Serialization.Default.JsonGuildMessagesSearchResult).ConfigureAwait(false);
