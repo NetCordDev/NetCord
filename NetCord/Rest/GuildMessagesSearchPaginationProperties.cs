@@ -7,7 +7,7 @@ public partial record GuildMessagesSearchPaginationProperties : PaginationProper
 
     public int? Slop { get; set; }
 
-    public IEnumerable<string>? Contents { get; set; }
+    public string? Content { get; set; }
 
     public IEnumerable<ulong>? AuthorIds { get; set; }
 

@@ -100,11 +100,8 @@ public partial class RestClient
             if (paginationProperties.Slop is { } slop)
                 AppendQueryParameterT(ref handler, "slop", slop);
 
-            if (paginationProperties.Contents is { } contents)
-            {
-                foreach (var content in contents)
-                    AppendQueryParameter(ref handler, "content", Uri.EscapeDataString(content));
-            }
+            if (paginationProperties.Content is { } content)
+                AppendQueryParameter(ref handler, "content", Uri.EscapeDataString(content));
 
             if (paginationProperties.AuthorIds is { } authorIds)
             {

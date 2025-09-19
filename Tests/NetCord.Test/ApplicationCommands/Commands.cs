@@ -54,7 +54,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         GuildMessagesSearchPaginationProperties searchProperties = new();
 
         if (query is not null)
-            searchProperties.AddContents(query);
+            searchProperties.WithContent(query);
 
         if (channel is not null)
             searchProperties.AddChannelIds(channel.Id);
