@@ -132,7 +132,7 @@ public partial class RestClient
             if (paginationProperties.Mentions is { } mentions)
             {
                 foreach (var mention in mentions)
-                    AppendQueryParameterT(ref handler, "mention", mention);
+                    AppendQueryParameterT(ref handler, "mentions", mention);
             }
 
             if (paginationProperties.MentionEveryone is { } mentionEveryone)
