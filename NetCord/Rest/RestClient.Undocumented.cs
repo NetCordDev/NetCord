@@ -98,11 +98,17 @@ public partial class RestClient
                 });
             }
 
+            if (paginationProperties.Content is { } content)
+                AppendQueryParameter(ref handler, "content", Uri.EscapeDataString(content));
+
             if (paginationProperties.Slop is { } slop)
                 AppendQueryParameterT(ref handler, "slop", slop);
 
-            if (paginationProperties.Content is { } content)
-                AppendQueryParameter(ref handler, "content", Uri.EscapeDataString(content));
+            if (paginationProperties.Contents is { } contents)
+            {
+                foreach (var contentsItem in contents)
+                    AppendQueryParameter(ref handler, "contents", Uri.EscapeDataString(contentsItem));
+            }
 
             if (paginationProperties.AuthorIds is { } authorIds)
             {

@@ -5,9 +5,11 @@ public partial record GuildMessagesSearchPaginationProperties : PaginationProper
 {
     public GuildMessagesSearchSortingMode? SortBy { get; set; }
 
+    public string? Content { get; set; }
+
     public int? Slop { get; set; }
 
-    public string? Content { get; set; }
+    public IEnumerable<string>? Contents { get; set; }
 
     public IEnumerable<ulong>? AuthorIds { get; set; }
 

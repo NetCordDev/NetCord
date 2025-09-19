@@ -47,21 +47,70 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("search", "Search for messages!")]
-    public async Task SearchAsync(string? query = null, TextGuildChannel? channel = null)
+    public async Task SearchAsync(int? from = null,
+                                  PaginationDirection? direction = null,
+                                  int? batchSize = null,
+                                  GuildMessagesSearchSortingMode? sortBy = null,
+                                  string? content = null,
+                                  int? slop = null,
+                                  string? contents = null,
+                                  User? author = null,
+                                  GuildMessagesSearchAuthorTypes? authorTypes = null,
+                                  string? mention = null,
+                                  bool? mentionEveryone = null,
+                                  string? minId = null,
+                                  string? maxId = null,
+                                  GuildMessagesSearchHasOptions? has = null,
+                                  string? linkHostname = null,
+                                  string? embedProvider = null,
+                                  GuildMessagesSearchEmbedTypes? embedTypes = null,
+                                  string? attachmentExtension = null,
+                                  string? attachmentFilename = null,
+                                  bool? pinned = null,
+                                  string? commandId = null,
+                                  string? commandName = null,
+                                  bool? includeNsfw = null,
+                                  TextChannel? channel = null,
+                                  int? limit = null)
     {
         await RespondAsync(InteractionCallback.Message("Searching..."));
 
-        GuildMessagesSearchPaginationProperties searchProperties = new();
-
-        if (query is not null)
-            searchProperties.WithContent(query);
-
-        if (channel is not null)
-            searchProperties.AddChannelIds(channel.Id);
+        GuildMessagesSearchPaginationProperties searchProperties = new()
+        {
+            From = from,
+            Direction = direction,
+            BatchSize = batchSize,
+            SortBy = sortBy,
+            Content = content,
+            Slop = slop,
+            Contents = contents is not null ?[contents] : null,
+            AuthorIds = author is not null ? [author.Id] : null,
+            AuthorTypes = authorTypes,
+            Mentions = mention is not null ? [Snowflake.Parse(mention)] : null,
+            MentionEveryone = mentionEveryone,
+            MinId = minId is not null ? Snowflake.Parse(minId) : null,
+            MaxId = maxId is not null ? Snowflake.Parse(maxId) : null,
+            Has = has,
+            LinkHostnames = linkHostname is not null ? [linkHostname] : null,
+            EmbedProviders = embedProvider is not null ? [embedProvider] : null,
+            EmbedTypes = embedTypes,
+            AttachmentExtensions = attachmentExtension is not null ? [attachmentExtension] : null,
+            AttachmentFilenames = attachmentFilename is not null ? [attachmentFilename] : null,
+            Pinned = pinned,
+            CommandId = commandId is not null ? Snowflake.Parse(commandId) : null,
+            CommandName = commandName,
+            IncludeNsfw = includeNsfw,
+            ChannelIds = channel is not null ? [channel.Id] : null
+        };
 
         int count = 0;
 
-        await foreach (var result in Context.Guild!.SearchMessagesAsync(searchProperties))
+        var results = Context.Guild!.SearchMessagesAsync(searchProperties);
+
+        if (limit.HasValue)
+            results = results.Take(limit.GetValueOrDefault());
+
+        await foreach (var result in results)
         {
             switch (result)
             {
