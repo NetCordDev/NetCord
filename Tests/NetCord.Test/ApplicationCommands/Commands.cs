@@ -46,6 +46,34 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
+    [SlashCommand("search", "Search for messages!")]
+    public async Task SearchAsync(string? query = null, TextGuildChannel? channel = null)
+    {
+        await RespondAsync(InteractionCallback.Message("Searching..."));
+
+        GuildMessagesSearchPaginationProperties searchProperties = new();
+
+        if (query is not null)
+            searchProperties.AddContents(query);
+
+        if (channel is not null)
+            searchProperties.AddChannelIds(channel.Id);
+
+        await foreach (var result in Context.Guild!.SearchMessagesAsync(searchProperties))
+        {
+            switch (result)
+            {
+                case GuildMessageSearchResult.Indexing indexingResult:
+                    Console.WriteLine($"Waiting {indexingResult.RetryAfter} seconds");
+                    await Task.Delay(indexingResult.RetryAfter * 1000);
+                    break;
+                case GuildMessageSearchResult.Success success:
+                    Console.WriteLine(success.Message.Content);
+                    break;
+            }
+        }
+    }
+
     [SlashCommand("cv2", "Components V2")]
     public static InteractionMessageProperties CV2()
     {
@@ -81,8 +109,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo")]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
+    [SlashCommand("ddg", "Search using DuckDuckGo")]
+    public Task DdgAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}"));
     }

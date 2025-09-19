@@ -238,7 +238,7 @@ namespace NetCord;
 [JsonSerializable(typeof(UsernamesGuildUsersSearchQuery))]
 [JsonSerializable(typeof(SafetySignalsGuildUsersSearchQuery))]
 [JsonSerializable(typeof(GuildUsersSearchTimestamp))]
-[JsonSerializable(typeof(JsonGuildUserSearchResult))]
+[JsonSerializable(typeof(JsonGuildUsersSearchResult))]
 [JsonSerializable(typeof(GuildUsersSearchPaginationProperties))]
 [JsonSerializable(typeof(JsonGuildJoinRequestUpdateEventArgs))]
 [JsonSerializable(typeof(JsonGuildJoinRequestDeleteEventArgs))]
@@ -252,4 +252,5 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonWebhookEventArgs))]
 [JsonSerializable(typeof(JsonRateLimitedEventArgs))]
 [JsonSerializable(typeof(JsonRequestGuildUsersRateLimitMetadata))]
+[JsonSerializable(typeof(JsonGuildMessagesSearchResult))]
 internal partial class Serialization : JsonSerializerContext;
