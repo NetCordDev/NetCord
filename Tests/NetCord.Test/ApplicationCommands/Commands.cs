@@ -63,12 +63,12 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         {
             switch (result)
             {
+                case GuildMessageSearchResult.Success successResult:
+                    Console.WriteLine(successResult.Message.Content);
+                    break;
                 case GuildMessageSearchResult.Indexing indexingResult:
                     Console.WriteLine($"Waiting {indexingResult.RetryAfter} seconds");
                     await Task.Delay(indexingResult.RetryAfter * 1000);
-                    break;
-                case GuildMessageSearchResult.Success success:
-                    Console.WriteLine(success.Message.Content);
                     break;
             }
         }
