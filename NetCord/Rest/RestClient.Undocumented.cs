@@ -214,7 +214,7 @@ public partial class RestClient
                 if (embedTypes.HasFlag(GuildMessagesSearchEmbedTypes.Video))
                     AppendQueryParameter(ref handler, EmbedTypeName, "video");
                 if (embedTypes.HasFlag(GuildMessagesSearchEmbedTypes.Gifv))
-                    AppendQueryParameter(ref handler, EmbedTypeName, "gifv");
+                    AppendQueryParameter(ref handler, EmbedTypeName, "gif");
                 if (embedTypes.HasFlag(GuildMessagesSearchEmbedTypes.Sound))
                     AppendQueryParameter(ref handler, EmbedTypeName, "sound");
                 if (embedTypes.HasFlag(GuildMessagesSearchEmbedTypes.Article))
