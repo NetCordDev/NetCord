@@ -28,9 +28,6 @@ internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
 
         while (true)
         {
-            if (offset > maxOffset)
-                yield break;
-
             var (results, retry) = await convertAsync(await client.SendRequestAsync(method, endpoint, query, resourceInfo, properties, global, cancellationToken).ConfigureAwait(false)).ConfigureAwait(false);
 
             int count = 0;
@@ -45,7 +42,12 @@ internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
                 if (count != expectedCount)
                     yield break;
 
-                query = queryBuilder.ToString(offset += increment);
+                offset += increment;
+
+                if (offset > maxOffset)
+                    yield break;
+
+                query = queryBuilder.ToString(offset);
             }
         }
     }
