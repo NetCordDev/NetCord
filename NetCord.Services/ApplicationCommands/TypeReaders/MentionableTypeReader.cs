@@ -8,11 +8,11 @@ public class MentionableTypeReader<TContext> : SlashCommandTypeReader<TContext> 
     {
         var slashInteraction = (SlashCommandInteraction)context.Interaction;
         var resolvedData = slashInteraction.Data.ResolvedData!;
-        var roles = resolvedData.Roles;
         var id = Snowflake.Parse(value);
-        if (roles is not null && roles.TryGetValue(id, out var role))
-            return new(TypeReaderResult.Success(new Mentionable(role)));
-        else
-            return new(TypeReaderResult.Success(new Mentionable(resolvedData.Users![id])));
+
+        if (resolvedData.Users is { } users && users.TryGetValue(id, out var user))
+            return new(TypeReaderResult.Success(new Mentionable.User(user)));
+
+        return new(TypeReaderResult.Success(new Mentionable.Role(resolvedData.Roles![id])));
     }
 }

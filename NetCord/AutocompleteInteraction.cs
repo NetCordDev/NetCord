@@ -7,3 +7,7 @@ public class AutocompleteInteraction(JsonModels.JsonInteraction jsonModel, Guild
 {
     public override AutocompleteInteractionData Data { get; } = new(jsonModel.Data!, jsonModel.GuildId, client);
 }
+
+public class AutocompleteInteractionData(JsonModels.JsonInteractionData jsonModel, ulong? guildId, RestClient client) : SlashCommandInteractionData(jsonModel, guildId, client)
+{
+}

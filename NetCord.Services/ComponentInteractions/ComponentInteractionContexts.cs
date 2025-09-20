@@ -206,7 +206,7 @@ public class UserMenuInteractionContext(UserMenuInteraction interaction, Gateway
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<User> SelectedUsers { get; } = Utils.GetUserMenuValues(interaction);
+    public IReadOnlyList<User> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -222,7 +222,7 @@ public class HttpUserMenuInteractionContext(UserMenuInteraction interaction, Res
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<User> SelectedUsers { get; } = Utils.GetUserMenuValues(interaction);
+    public IReadOnlyList<User> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseRoleMenuInteractionContext(RoleMenuInteraction interaction) : IComponentInteractionContext
@@ -245,7 +245,7 @@ public class RoleMenuInteractionContext(RoleMenuInteraction interaction, Gateway
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Role> SelectedRoles { get; } = Utils.GetRoleMenuValues(interaction);
+    public IReadOnlyList<Role> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -261,7 +261,7 @@ public class HttpRoleMenuInteractionContext(RoleMenuInteraction interaction, Res
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Role> SelectedRoles { get; } = Utils.GetRoleMenuValues(interaction);
+    public IReadOnlyList<Role> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseMentionableMenuInteractionContext(MentionableMenuInteraction interaction) : IComponentInteractionContext
@@ -284,7 +284,7 @@ public class MentionableMenuInteractionContext(MentionableMenuInteraction intera
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Mentionable> SelectedMentionables { get; } = Utils.GetMentionableMenuValues(interaction);
+    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -300,7 +300,7 @@ public class HttpMentionableMenuInteractionContext(MentionableMenuInteraction in
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Mentionable> SelectedMentionables { get; } = Utils.GetMentionableMenuValues(interaction);
+    public IReadOnlyList<Mentionable> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseChannelMenuInteractionContext(ChannelMenuInteraction interaction) : IComponentInteractionContext
@@ -323,7 +323,7 @@ public class ChannelMenuInteractionContext(ChannelMenuInteraction interaction, G
     public User User => Interaction.User;
     public Guild? Guild => Interaction.Guild;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Channel> SelectedChannels { get; } = Utils.GetChannelMenuValues(interaction);
+    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
 }
@@ -339,7 +339,7 @@ public class HttpChannelMenuInteractionContext(ChannelMenuInteraction interactio
     public RestMessage Message => Interaction.Message;
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
-    public IReadOnlyList<Channel> SelectedChannels { get; } = Utils.GetChannelMenuValues(interaction);
+    public IReadOnlyList<Channel> SelectedValues => Interaction.Data.SelectedValues;
 }
 
 public class BaseModalInteractionContext(ModalInteraction interaction) : IComponentInteractionContext
@@ -375,86 +375,4 @@ public class HttpModalInteractionContext(ModalInteraction interaction, RestClien
     public User User => Interaction.User;
     public TextChannel Channel => Interaction.Channel;
     public IReadOnlyList<IModalComponent> Components => Interaction.Data.Components;
-}
-
-static file class Utils
-{
-    public static IReadOnlyList<User> GetUserMenuValues(UserMenuInteraction interaction)
-    {
-        var data = interaction.Data;
-        var resolvedData = data.ResolvedData;
-
-        IReadOnlyList<User> result;
-
-        if (resolvedData is null)
-            result = [];
-        else
-        {
-            var users = resolvedData.Users!;
-            result = data.SelectedValues.Select(v => users[v]).ToArray();
-        }
-
-        return result;
-    }
-
-    public static IReadOnlyList<Role> GetRoleMenuValues(RoleMenuInteraction interaction)
-    {
-        var data = interaction.Data;
-        var resolvedData = data.ResolvedData;
-
-        IReadOnlyList<Role> result;
-
-        if (resolvedData is null)
-            result = [];
-        else
-        {
-            var roles = resolvedData.Roles!;
-            result = data.SelectedValues.Select(v => roles[v]).ToArray();
-        }
-
-        return result;
-    }
-
-    public static IReadOnlyList<Mentionable> GetMentionableMenuValues(MentionableMenuInteraction interaction)
-    {
-        var data = interaction.Data;
-        var resolvedData = data.ResolvedData;
-
-        IReadOnlyList<Mentionable> result;
-
-        if (resolvedData is null)
-            result = [];
-        else
-        {
-            var users = resolvedData.Users;
-            var roles = resolvedData.Roles;
-            result = users is null
-                ? roles is null
-                    ? []
-                    : data.SelectedValues.Select(v => new Mentionable(roles[v])).ToArray()
-                : roles is null
-                    ? data.SelectedValues.Select(v => new Mentionable(users[v])).ToArray()
-                    : data.SelectedValues.Select(v => users.TryGetValue(v, out var user) ? new Mentionable(user) : new Mentionable(roles[v])).ToArray();
-        }
-
-        return result;
-    }
-
-    public static IReadOnlyList<Channel> GetChannelMenuValues(ChannelMenuInteraction interaction)
-    {
-        var data = interaction.Data;
-        var resolvedData = data.ResolvedData;
-
-        IReadOnlyList<Channel> result;
-
-        if (resolvedData is null)
-            result = [];
-        else
-        {
-            var channels = resolvedData.Channels!;
-            result = data.SelectedValues.Select(v => channels[v]).ToArray();
-        }
-
-        return result;
-    }
 }
