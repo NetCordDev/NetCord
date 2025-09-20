@@ -83,7 +83,7 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
             SortBy = sortBy,
             Content = content,
             Slop = slop,
-            Contents = contents is not null ?[contents] : null,
+            Contents = contents is not null ? [contents] : null,
             AuthorIds = author is not null ? [author.Id] : null,
             AuthorTypes = authorTypes,
             Mentions = mention is not null ? [Snowflake.Parse(mention)] : null,
@@ -219,22 +219,23 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("add-role", "Adds role to user or users")]
     public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] Role roleToAdd)
     {
-        if (mentionable.Type == MentionableType.Role)
+        if (mentionable is Mentionable.Role { Value: var role })
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-            var roleId = mentionable.Role!.Id;
+            var roleId = role.Id;
             foreach (var user in Context.Client.Cache.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
                 await user.AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
-                x.Content = $"Role {roleToAdd} was given to users with {mentionable.Role} role";
+                x.Content = $"Role {roleToAdd} was given to users with {role} role";
                 x.AllowedMentions = AllowedMentionsProperties.None;
             });
         }
         else
         {
-            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd.Id);
-            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
+            var user = ((Mentionable.User)mentionable).Value;
+            await ((GuildUser)user).AddRoleAsync(roleToAdd.Id);
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {user}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
 

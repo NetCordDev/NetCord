@@ -8,6 +8,6 @@ public class UserMenuInteractions : ComponentInteractionModule<UserMenuInteracti
     [ComponentInteraction("users")]
     public Task UsersAsync()
     {
-        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedUsers)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedValues)}"));
     }
 }
