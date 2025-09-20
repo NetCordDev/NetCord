@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.event.workflow_run.event == 'pull_request' }}
     runs-on: ubuntu-latest
 
-    permissions: 
+    permissions:
       pull-requests: write
       actions: read
 
@@ -46,7 +46,7 @@ jobs:
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Deploy Documentation Preview
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
@@ -57,7 +57,7 @@ jobs:
           target: ~/NetCord/preview/html/${{ steps.pr-context.outputs.number }}
 
       - name: Notify Documentation Preview
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.number }}
         with:

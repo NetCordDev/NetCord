@@ -3,21 +3,21 @@ name: Build and Publish
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+-*'
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
-         fetch-depth: 0
-         filter: tree:0
+          fetch-depth: 0
+          filter: tree:0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
 
@@ -39,7 +39,7 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
 
       - name: Build Documentation
         working-directory: Documentation
@@ -61,7 +61,7 @@ jobs:
           dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
@@ -71,7 +71,7 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
-          
+
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
