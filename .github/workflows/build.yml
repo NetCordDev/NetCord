@@ -10,21 +10,21 @@ on:
       - stable
       - alpha
     tags-ignore:
-      - '[0-9]+.[0-9]+.[0-9]+'
-      - '[0-9]+.[0-9]+.[0-9]+-*'
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5.0.0
         with:
-         fetch-depth: 0
-         filter: tree:0
+          fetch-depth: 0
+          filter: tree:0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5.0.0
         with:
           global-json-file: global.json
 
@@ -46,7 +46,7 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5.0.0
 
       - name: Build Documentation
         working-directory: Documentation
@@ -58,7 +58,7 @@ jobs:
           npm run build
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: Build Artifacts
           path: |
@@ -69,7 +69,7 @@ jobs:
             Hosting/NetCord.Hosting.AspNetCore/bin/Release
 
       - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: Documentation Artifacts
           path: Documentation/_site
