@@ -4,14 +4,14 @@ internal static class EntityMenuHelper
 {
     public static User[] GetUserValues(string[] selectedValues, InteractionResolvedData resolvedData)
     {
-        var users = resolvedData.Users!;
-        return selectedValues.Select(v => users[Snowflake.Parse(v)]).ToArray();
+        var users = resolvedData.Users;
+        return selectedValues.Select(v => users![Snowflake.Parse(v)]).ToArray();
     }
 
     public static Role[] GetRoleValues(string[] selectedValues, InteractionResolvedData resolvedData)
     {
-        var roles = resolvedData.Roles!;
-        return selectedValues.Select(v => roles[Snowflake.Parse(v)]).ToArray();
+        var roles = resolvedData.Roles;
+        return selectedValues.Select(v => roles![Snowflake.Parse(v)]).ToArray();
     }
 
     public static Mentionable[] GetMentionableValues(string[] selectedValues, InteractionResolvedData resolvedData)
@@ -33,7 +33,7 @@ internal static class EntityMenuHelper
 
     public static Channel[] GetChannelValues(string[] selectedValues, InteractionResolvedData resolvedData)
     {
-        var channels = resolvedData.Channels!;
-        return selectedValues.Select(v => channels[Snowflake.Parse(v)]).ToArray();
+        var channels = resolvedData.Channels;
+        return selectedValues.Select(v => channels![Snowflake.Parse(v)]).ToArray();
     }
 }
