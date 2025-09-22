@@ -91,20 +91,20 @@ host.AddApplicationCommandModule<ApplicationCommandModule>();
 host.AddApplicationCommandModule<DITestModule>();
 
 host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
- {
-     builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
-     (string wzium,
-                                               ApplicationCommandContext context,
-                                               [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+{
+    builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                              ApplicationCommandContext context,
+                                              [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
 
-     builder.AddSubCommand("blue", "Blue!", () => "blue");
+    builder.AddSubCommand("blue", "Blue!", () => "blue");
 
-     builder.AddSubCommandGroup("red", "Red!", builder =>
-     {
-         builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
-         builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
-     });
- });
+    builder.AddSubCommandGroup("red", "Red!", builder =>
+    {
+        builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+    });
+});
 
 //var yellowGroup = host.AddSlashCommandGroup("yellow", "Yellow!");
 
@@ -165,18 +165,18 @@ host.AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextA
 
 host.AddSlashCommand("modal", "Modal", () =>
 {
-    return InteractionCallback.Modal(new ModalProperties("modal", "Modal")
-        {
-            new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
-            new TextDisplayProperties("""
-                ```cs
-                Console.WriteLine("Wzium");
-                ```
-                """),
-            new LabelProperties("User", new UserMenuProperties("user")),
-            new LabelProperties("Channel", new ChannelMenuProperties("channel")),
-            new LabelProperties("Role", new RoleMenuProperties("role")),
-        });
+    return new ModalProperties("modal", "Modal")
+    {
+        new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
+        new TextDisplayProperties("""
+            ```cs
+            Console.WriteLine("Wzium");
+            ```
+            """),
+        new LabelProperties("User", new UserMenuProperties("user")),
+        new LabelProperties("Channel", new ChannelMenuProperties("channel")),
+        new LabelProperties("Role", new RoleMenuProperties("role")),
+    };
 });
 
 host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => new InteractionMessageProperties().WithContent("a").WithFlags(MessageFlags.Ephemeral));
