@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class TextInputProperties(string customId, TextInputStyle style) : ILabelComponentProperties
+public partial class TextInputProperties(string customId, TextInputStyle style) : IInteractiveComponentProperties, ILabelComponentProperties
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("id")]
