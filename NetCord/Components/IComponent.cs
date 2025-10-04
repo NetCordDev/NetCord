@@ -133,6 +133,7 @@ public interface ILabelComponent : IComponent
             ComponentType.RoleMenu => new RoleMenu(jsonModel, labelId, resolvedData),
             ComponentType.MentionableMenu => new MentionableMenu(jsonModel, labelId, resolvedData),
             ComponentType.ChannelMenu => new ChannelMenu(jsonModel, labelId, resolvedData),
+            ComponentType.FileUpload => new FileUpload(jsonModel, resolvedData),
             _ => new UnknownLabelComponent(jsonModel),
         };
     }
@@ -141,7 +142,7 @@ public interface ILabelComponent : IComponent
 public interface IInteractiveComponent : IComponent
 {
     /// <summary>
-    /// Developer-defined identifier for the button (max 100 characters).
+    /// Developer-defined identifier for the component (max 100 characters).
     /// </summary>
     public string CustomId { get; }
 }

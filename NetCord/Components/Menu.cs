@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public abstract class Menu(JsonComponent jsonModel, int parentId) : IMessageComponent, ILabelComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
+public abstract class Menu(JsonComponent jsonModel, int parentId) : IInteractiveComponent, IMessageComponent, ILabelComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
     private protected readonly JsonComponent _jsonModel = jsonModel;

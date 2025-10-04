@@ -115,6 +115,7 @@ namespace NetCord;
 [JsonSerializable(typeof(MentionableMenuProperties))]
 [JsonSerializable(typeof(ChannelMenuProperties))]
 [JsonSerializable(typeof(LabelProperties))]
+[JsonSerializable(typeof(FileUploadProperties))]
 [JsonSerializable(typeof(ForumGuildThreadProperties))]
 [JsonSerializable(typeof(InteractionCallbackProperties<InteractionMessageProperties>))]
 [JsonSerializable(typeof(InteractionCallbackProperties<MessageOptions>))]

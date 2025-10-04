@@ -19,4 +19,5 @@ public enum ComponentType
     ContentInventoryEntry = 16,
     Container = 17,
     Label = 18,
+    FileUpload = 19,
 }

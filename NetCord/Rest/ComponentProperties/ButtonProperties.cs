@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class ButtonProperties : ICustomizableButtonProperties, IComponentSectionAccessoryComponentProperties, IInteractiveComponentProperties
+public partial class ButtonProperties : IInteractiveComponentProperties, ICustomizableButtonProperties, IComponentSectionAccessoryComponentProperties
 {
     [JsonPropertyName("type")]
     public ComponentType ComponentType => ComponentType.Button;

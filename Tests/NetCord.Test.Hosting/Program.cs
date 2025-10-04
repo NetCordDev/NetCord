@@ -40,6 +40,7 @@ using NetCord.Test.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .AddSingleton<HttpClient>()
     .AddGatewayHandler(GatewayEvent.InteractionCreate, (Interaction interaction) => Console.WriteLine(interaction))
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
@@ -176,6 +177,31 @@ host.AddSlashCommand("modal", "Modal", () =>
         new LabelProperties("User", new UserMenuProperties("user")),
         new LabelProperties("Channel", new ChannelMenuProperties("channel")),
         new LabelProperties("Role", new RoleMenuProperties("role")),
+    };
+});
+
+host.AddSlashCommand("file-upload", "File Upload!", () =>
+{
+    return new ModalProperties("file upload", "File Upload")
+    {
+        new LabelProperties("Upload", new FileUploadProperties("xd").WithRequired(false).WithMinValues(2).WithMaxValues(3)),
+    };
+});
+
+host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
+{
+    var attachments = context.Components.OfType<Label>()
+                                        .Select(l => l.Component)
+                                        .OfType<FileUpload>()
+                                        .SelectMany(u => u.Attachments)
+                                        .ToArray();
+
+    return new InteractionMessageProperties()
+    {
+        Flags = MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        Attachments = await Task.WhenAll(attachments.Select(async a => new AttachmentProperties(a.FileName, await client.GetStreamAsync(a.Url)))),
+        Components = attachments.Select(a => (IMessageComponentProperties)new FileDisplayProperties(new($"attachment://{a.FileName}")))
+                                .Prepend(new TextDisplayProperties("Uploaded files:"))
     };
 });
 

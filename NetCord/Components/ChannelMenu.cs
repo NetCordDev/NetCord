@@ -23,5 +23,4 @@ public class ChannelMenu : EntityMenu
     public IReadOnlyList<ChannelType> ChannelTypes { get; }
 
     public new IReadOnlyList<Channel>? SelectedValues { get; }
-
 }

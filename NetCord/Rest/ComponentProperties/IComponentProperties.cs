@@ -36,7 +36,7 @@ public partial interface ILabelComponentProperties : IComponentProperties, IJson
 public partial interface IInteractiveComponentProperties : IComponentProperties
 {
     /// <summary>
-    /// Developer-defined identifier for the button (max 100 characters).
+    /// Developer-defined identifier for the component (max 100 characters).
     /// </summary>
     [JsonPropertyName("custom_id")]
     public string CustomId { get; set; }
