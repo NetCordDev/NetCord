@@ -1,4 +1,6 @@
-﻿using NetCord.Services;
+﻿using System.Collections;
+
+using NetCord.Services;
 
 namespace ServicesTest;
 
@@ -23,6 +25,18 @@ public class ResultHandler(Action<IExecutionResult> handler)
             Assert.IsInstanceOfType<ResultDataException<TData>>(exceptionResult.Exception, out var dataException);
 
             Assert.AreEqual(expectedData, dataException.Data, "The data returned from the exception does not match the expected data.");
+        });
+    }
+
+    public static ResultHandler DataMatchCollection<TCollection>(TCollection expectedCollection) where TCollection : IEnumerable
+    {
+        return new(result =>
+        {
+            Assert.IsInstanceOfType<IExceptionResult>(result, out var exceptionResult);
+
+            Assert.IsInstanceOfType<ResultDataException<TCollection>>(exceptionResult.Exception, out var dataException);
+
+            CollectionAssert.AreEqual(expectedCollection.Cast<object>().ToArray(), dataException.Data.Cast<object>().ToArray(), "The collection returned from the exception does not match the expected collection.");
         });
     }
 
