@@ -28,6 +28,10 @@ public class ResultHandler(Action<IExecutionResult> handler)
 
     public static ResultHandler ParseFail()
     {
-        return new(Assert.IsInstanceOfType<TypeReaderFailResult>);
+        return new(result =>
+        {
+            var resultTypeName = result.GetType().Name;
+            Assert.EndsWith("TypeReaderFailResult", resultTypeName, $"Expected a type reader to fail, got '{resultTypeName}' instead");
+        });
     }
 }

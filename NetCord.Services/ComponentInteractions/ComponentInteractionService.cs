@@ -19,7 +19,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -91,7 +91,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content;
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = default;
         }
@@ -100,7 +100,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content[..index];
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = content[(index + 1)..];
         }
@@ -140,7 +140,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
                 {
                     var typeReaderResult = await parameter.ReadAsync(currentArg, context, configuration, serviceProvider).ConfigureAwait(false);
 
-                    if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                    if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                         return typeReaderResult;
 
                     value = typeReaderSuccessResult.Value;
@@ -187,7 +187,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         {
             var typeReaderResult = await parameter.ReadAsync(arguments[ranges[i]], context, configuration, serviceProvider).ConfigureAwait(false);
 
-            if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+            if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                 return typeReaderResult;
 
             var value = typeReaderSuccessResult.Value;

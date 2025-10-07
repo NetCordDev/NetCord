@@ -4,7 +4,7 @@ using NetCord.Services.EnumTypeReaders;
 
 namespace NetCord.Services.Commands.TypeReaders;
 
-public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
+public class EnumTypeReader<TContext> : CommandTypeParser<TContext> where TContext : ICommandContext
 {
     private readonly EnumTypeReaderManager<IEnumTypeReader, CommandParameter<TContext>, CommandParameter<TContext>, CommandServiceConfiguration<TContext>> _enumTypeReaderManager;
     private readonly Dictionary<Type, bool> _byValueTypes = [];
@@ -29,11 +29,11 @@ public class EnumTypeReader<TContext> : CommandTypeReader<TContext> where TConte
         static CommandParameter<TContext> GetKey(CommandParameter<TContext> parameter) => parameter;
     }
 
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<CommandTypeParserResult> ParseAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, configuration).TryRead(input, out var value))
-            return new(TypeReaderResult.Success(value));
+            return new(CommandTypeParserResult.Success(value));
 
-        return new(TypeReaderResult.ParseFail(parameter.Name));
+        return new(CommandTypeParserResult.ParseFail(parameter.Name));
     }
 }

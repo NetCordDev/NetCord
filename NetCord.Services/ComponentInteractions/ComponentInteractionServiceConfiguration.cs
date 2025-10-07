@@ -55,10 +55,13 @@ public record ComponentInteractionServiceConfiguration<TContext> where TContext 
     public ComponentInteractionTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 
     /// <summary>
-    /// Default = <see langword="false"/>
+    /// Defaults to <see langword="false"/>
     /// </summary>
     public bool IgnoreCase { get; init; }
 
+    /// <summary>
+    /// Defaults to <c>":"</c>.
+    /// </summary>
     public char ParameterSeparator { get; init; } = ':';
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;

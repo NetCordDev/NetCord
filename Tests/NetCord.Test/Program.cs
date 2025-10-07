@@ -80,6 +80,19 @@ internal static class Program
 
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(new(["pol"], ([Optional] object? o, CommandContext context) => "xd"));
+
+        CommandGroupBuilder xdBuilder = new(["xd"]);
+
+        xdBuilder.AddSubCommand(["xd"], () => "XD XD!");
+
+        xdBuilder.AddSubCommand(["wz"], () => "XD WZ!");
+
+        var xdWzGroup = xdBuilder.AddSubCommandGroup(["wz"]);
+
+        xdWzGroup.AddSubCommand(["wz"], () => "XD WZ WZ!");
+
+        _commandService.AddCommandGroup(xdBuilder);
+
         _commandService.AddModules(assembly);
 
         _buttonInteractionService.AddModules(assembly);

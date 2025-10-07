@@ -47,7 +47,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask<CommandTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         try
         {
@@ -55,7 +55,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         }
         catch (Exception ex)
         {
-            return new TypeReaderExceptionResult(ex);
+            return new CommandTypeReaderExceptionResult(ex);
         }
     }
 

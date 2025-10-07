@@ -78,7 +78,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         var option = options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -107,7 +107,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)

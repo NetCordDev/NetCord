@@ -122,6 +122,22 @@ host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
 
 //redYellowGroup.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
 
+host.AddCommandGroup(["yellow"], builder =>
+{
+    builder.AddSubCommand(["green"], [RequireContext<CommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                      CommandContext context,
+                                      string value) => $"green {value}, wzium: {wzium}");
+
+    builder.AddSubCommand(["blue"], () => "blue");
+
+    builder.AddSubCommandGroup(["red"], builder =>
+    {
+        builder.AddSubCommand(["orange"], [RequireContext<CommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand(["purple"], (string s) => $"purple {s}");
+    });
+});
+
 host.AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
 {
     string? content;

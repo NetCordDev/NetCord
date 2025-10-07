@@ -6,6 +6,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Test.Commands;
 
+[Command("strange")]
 public partial class StrangeCommands : CommandModule<CommandContext>
 {
     [Command("x")]

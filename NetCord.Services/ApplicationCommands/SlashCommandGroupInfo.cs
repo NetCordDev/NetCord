@@ -31,7 +31,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
         foreach (var nested in type.GetNestedTypes())
         {
-            if (!nested.IsAssignableTo(baseType))
+            if (!ServiceHelpers.IsModule(baseType, nested))
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
@@ -92,7 +92,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         var slashCommandInteraction = (SlashCommandInteraction)context.Interaction;
         var option = slashCommandInteraction.Data.Options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -124,7 +124,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
