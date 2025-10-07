@@ -1,4 +1,6 @@
-﻿using NetCord.Services;
+﻿using System.Collections;
+
+using NetCord.Services;
 
 namespace ServicesTest;
 
@@ -26,8 +28,24 @@ public class ResultHandler(Action<IExecutionResult> handler)
         });
     }
 
+    public static ResultHandler DataMatchCollection<TCollection>(TCollection expectedCollection) where TCollection : IEnumerable
+    {
+        return new(result =>
+        {
+            Assert.IsInstanceOfType<IExceptionResult>(result, out var exceptionResult);
+
+            Assert.IsInstanceOfType<ResultDataException<TCollection>>(exceptionResult.Exception, out var dataException);
+
+            CollectionAssert.AreEqual(expectedCollection.Cast<object>().ToArray(), dataException.Data.Cast<object>().ToArray(), "The collection returned from the exception does not match the expected collection.");
+        });
+    }
+
     public static ResultHandler ParseFail()
     {
-        return new(Assert.IsInstanceOfType<TypeReaderFailResult>);
+        return new(result =>
+        {
+            var resultTypeName = result.GetType().Name;
+            Assert.EndsWith("TypeReaderFailResult", resultTypeName, $"Expected a type reader to fail, got '{resultTypeName}' instead");
+        });
     }
 }

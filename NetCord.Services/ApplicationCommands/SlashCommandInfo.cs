@@ -117,7 +117,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
             return SuccessResult.Instance;
         }
 
-        return new NotFoundResult("Command not found.");
+        return NotFoundResult.Command;
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)

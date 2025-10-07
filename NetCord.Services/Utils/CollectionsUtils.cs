@@ -25,10 +25,12 @@ internal static class CollectionsUtils
                 ((List<TSource>)list).Add(s);
             else
             {
-                list =
-                [
+#pragma warning disable IDE0028 // Simplify collection initialization
+                list = new List<TSource>(1)
+                {
                     s
-                ];
+                };
+#pragma warning restore IDE0028 // Simplify collection initialization
                 result.Add(key, list);
             }
         }
@@ -46,10 +48,12 @@ internal static class CollectionsUtils
                 ((List<TElement>)list).Add(element);
             else
             {
-                list =
-                [
+#pragma warning disable IDE0028 // Simplify collection initialization
+                list = new List<TElement>(1)
+                {
                     element
-                ];
+                };
+#pragma warning restore IDE0028 // Simplify collection initialization
                 result.Add(key, list);
             }
         }

@@ -41,17 +41,17 @@ internal static class SlashCommandParametersHelper
             object? value;
             if (parameter.Name == option.Name)
             {
-                TypeReaderResult typeReaderResult;
+                SlashCommandTypeReaderResult typeReaderResult;
                 try
                 {
                     typeReaderResult = await parameter.TypeReader.ReadAsync(option.Value!, context, parameter, configuration, serviceProvider).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    return new TypeReaderExceptionResult(ex);
+                    return new SlashCommandTypeReaderExceptionResult(ex);
                 }
 
-                if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                if (typeReaderResult is not SlashCommandTypeReaderSuccessResult typeReaderSuccessResult)
                     return typeReaderResult;
 
                 value = typeReaderSuccessResult.Value;

@@ -45,7 +45,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
     }
 
-    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask<ComponentInteractionTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         try
         {
@@ -53,7 +53,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
         }
         catch (Exception ex)
         {
-            return new TypeReaderExceptionResult(ex);
+            return new ComponentInteractionTypeReaderExceptionResult(ex);
         }
     }
 

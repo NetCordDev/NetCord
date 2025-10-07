@@ -5,7 +5,7 @@ namespace NetCord.Services.Helpers;
 
 internal static partial class TimeSpanTypeReaderHelper
 {
-    public static TypeReaderResult Read(string input, bool ignoreCase, CultureInfo cultureInfo, string parameterName)
+    public static TimeSpan? Read(string input, bool ignoreCase, CultureInfo cultureInfo)
     {
         var timeSpan = GetRegex(ignoreCase).Match(input);
         if (timeSpan.Success)
@@ -64,11 +64,11 @@ internal static partial class TimeSpanTypeReaderHelper
                     seconds = 0;
             }
 
-            return TypeReaderResult.Success(new TimeSpan(days, hours, minutes, seconds));
+            return new TimeSpan(days, hours, minutes, seconds);
         }
 
         Fail:
-        return TypeReaderResult.ParseFail(parameterName);
+        return null;
     }
 
     private static Regex GetRegex(bool ignoreCase) => ignoreCase ? GetIgnoreCaseRegex() : GetRegex();

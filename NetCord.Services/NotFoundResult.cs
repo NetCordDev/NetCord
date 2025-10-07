@@ -1,6 +1,14 @@
 ﻿namespace NetCord.Services;
 
-public class NotFoundResult(string message) : IFailResult
+public class NotFoundResult : IFailResult
 {
-    public string Message { get; } = message;
+    internal static NotFoundResult Command { get; } = new("Command not found.");
+    internal static NotFoundResult ComponentInteraction { get; } = new("Component interaction not found.");
+
+    private NotFoundResult(string message)
+    {
+        Message = message;
+    }
+
+    public string Message { get; }
 }
