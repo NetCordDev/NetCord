@@ -5,6 +5,7 @@ using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -18,12 +19,16 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         Description = attribute.Description;
 
         var parameters = Parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, localizationPath);
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
@@ -36,11 +41,15 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
-        Description = builder.Description;
-
         var handler = builder.Handler;
 
         var method = handler.Method;
+
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
+        Description = builder.Description;
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
@@ -48,7 +57,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
@@ -56,6 +65,7 @@ public class SubSlashCommandInfo<TContext> : ISubSlashCommandInfo<TContext> wher
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }

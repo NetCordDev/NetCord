@@ -14,6 +14,7 @@ public interface IApplicationCommandInfo
     public IEnumerable<InteractionContextType>? Contexts { get; }
     public bool Nsfw { get; }
     public bool Register { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
 
     public ValueTask<ApplicationCommandProperties> GetRawValueAsync(CancellationToken cancellationToken = default);
 }

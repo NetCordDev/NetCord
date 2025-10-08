@@ -1,10 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace NetCord.Services.Helpers;
 
 internal static class PreconditionsHelper
 {
-    public static IReadOnlyList<PreconditionAttribute<TContext>> GetPreconditions<TContext>(params MemberInfo[] members)
+    public static IReadOnlyList<PreconditionAttribute<TContext>> GetPreconditions<TContext>(MemberInfo mainMember, Attribute[] mainMemberAttributes, params MemberInfo[] members)
     {
         List<PreconditionAttribute<TContext>> preconditions = [];
 
@@ -12,35 +13,67 @@ internal static class PreconditionsHelper
         {
             foreach (var attribute in member.GetCustomAttributes())
             {
-                if (attribute is not IPreconditionAttribute iPreconditionAttribute)
+                if (!CheckPrecondition<TContext>(attribute, member, out var precondition))
                     continue;
 
-                if (iPreconditionAttribute is not PreconditionAttribute<TContext> preconditionAttribute)
-                    throw new InvalidDefinitionException($"'{iPreconditionAttribute.GetType()}' has invalid '{nameof(TContext)}'.", member);
-
-                preconditions.Add(preconditionAttribute);
+                preconditions.Add(precondition);
             }
+        }
+
+        foreach (var attribute in mainMemberAttributes)
+        {
+            if (!CheckPrecondition<TContext>(attribute, mainMember, out var precondition))
+                continue;
+
+            preconditions.Add(precondition);
         }
 
         return preconditions;
     }
 
-    public static IReadOnlyList<ParameterPreconditionAttribute<TContext>> GetParameterPreconditions<TContext>(IEnumerable<Attribute> attributes, MethodInfo method)
+    public static IReadOnlyList<ParameterPreconditionAttribute<TContext>> GetParameterPreconditions<TContext>(Attribute[] attributes, MethodInfo method)
     {
         List<ParameterPreconditionAttribute<TContext>> preconditions = [];
 
         foreach (var attribute in attributes)
         {
-            if (attribute is not IParameterPreconditionAttribute iPreconditionAttribute)
+            if (!CheckParameterPrecondition<TContext>(attribute, method, out var precondition))
                 continue;
 
-            if (iPreconditionAttribute is not ParameterPreconditionAttribute<TContext> preconditionAttribute)
-                throw new InvalidDefinitionException($"'{iPreconditionAttribute.GetType()}' has invalid '{nameof(TContext)}'.", method);
-
-            preconditions.Add(preconditionAttribute);
+            preconditions.Add(precondition);
         }
 
         return preconditions;
+    }
+
+    private static bool CheckPrecondition<TContext>(Attribute attribute, MemberInfo member, [MaybeNullWhen(false)] out PreconditionAttribute<TContext> precondition)
+    {
+        if (attribute is not IPreconditionAttribute iPreconditionAttribute)
+        {
+            precondition = null;
+            return false;
+        }
+
+        if (iPreconditionAttribute is not PreconditionAttribute<TContext> preconditionAttribute)
+            throw new InvalidDefinitionException($"The '{nameof(TContext)}' used for '{iPreconditionAttribute.GetType()}' does not match the expected context '{typeof(TContext)}'", member);
+
+        precondition = preconditionAttribute;
+        return true;
+    }
+
+    private static bool CheckParameterPrecondition<TContext>(Attribute attribute, MemberInfo member, [MaybeNullWhen(false)] out ParameterPreconditionAttribute<TContext> precondition)
+    {
+        if (attribute is not IParameterPreconditionAttribute iPreconditionAttribute)
+        {
+            precondition = null;
+            return false;
+        }
+
+        if (iPreconditionAttribute is not ParameterPreconditionAttribute<TContext> preconditionAttribute)
+            throw new InvalidDefinitionException($"The '{nameof(TContext)}' used for '{iPreconditionAttribute.GetType()}' does not match the expected context '{typeof(TContext)}'", member);
+
+        precondition = preconditionAttribute;
+        return true;
     }
 
     public static async ValueTask<PreconditionResult> EnsureCanExecuteAsync<TContext>(IReadOnlyList<PreconditionAttribute<TContext>> preconditions, TContext context, IServiceProvider? serviceProvider)

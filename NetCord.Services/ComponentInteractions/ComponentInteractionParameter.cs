@@ -22,8 +22,8 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
     {
         IsOptional = parameter.IsOptional;
 
-        var attributesIEnumerable = parameter.GetCustomAttributes();
-        var attributes = Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        var parameterAttributes = Attribute.GetCustomAttributes(parameter);
+        var attributes = Attributes = parameterAttributes.ToRankedFrozenDictionary(a => a.GetType());
 
         Type? typeReaderType;
         if (attributes.TryGetValue(typeof(ComponentInteractionParameterAttribute), out var componentInteractionParameterAttributes))
@@ -42,7 +42,7 @@ public class ComponentInteractionParameter<TContext> where TContext : IComponent
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, IInteractionTypeReader, ComponentInteractionTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(parameterAttributes, method);
     }
 
     public async ValueTask<ComponentInteractionTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
