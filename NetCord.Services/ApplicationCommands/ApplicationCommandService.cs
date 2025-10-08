@@ -101,7 +101,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             if (slashCommandGroup)
                 throw new InvalidOperationException($"The type '{type}' cannot have both a slash command and an entry point command defined.");
 
-            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(entryPointCommandAttribute, configuration);
+            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(type, entryPointCommandAttribute, configuration);
             AddCommandInfo(entryPointCommandInfo);
 
             entryPointCommand = true;

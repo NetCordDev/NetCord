@@ -14,11 +14,13 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          type,
+                                                                                                          out var typeAttributes)
     {
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, typeAttributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
@@ -46,7 +48,9 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
     internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          null,
+                                                                                                          out _)
     {
         Description = builder.Description;
 

@@ -15,7 +15,7 @@ internal static class CollectionsUtils
         return ToRankedDictionary(source, keySelector, elementSelector).ToFrozenDictionary();
     }
 
-    public static Dictionary<TKey, IReadOnlyList<TSource>> ToRankedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
+    private static Dictionary<TKey, IReadOnlyList<TSource>> ToRankedDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) where TKey : notnull
     {
         Dictionary<TKey, IReadOnlyList<TSource>> result = [];
         foreach (var s in source)
@@ -37,7 +37,7 @@ internal static class CollectionsUtils
         return result;
     }
 
-    public static Dictionary<TKey, IReadOnlyList<TElement>> ToRankedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
+    private static Dictionary<TKey, IReadOnlyList<TElement>> ToRankedDictionary<TSource, TKey, TElement>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TElement> elementSelector) where TKey : notnull
     {
         Dictionary<TKey, IReadOnlyList<TElement>> result = [];
         foreach (var s in source)

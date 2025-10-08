@@ -5,6 +5,7 @@ using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -18,9 +19,13 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        var attributes = Attribute.GetCustomAttributes(type);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, attributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
@@ -44,6 +49,8 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        Attributes = FrozenDictionary<Type, IReadOnlyList<Attribute>>.Empty;
+
         Description = builder.Description;
 
         Preconditions = [];
@@ -66,6 +73,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }

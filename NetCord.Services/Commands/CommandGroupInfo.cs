@@ -11,6 +11,7 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
 {
     public IReadOnlyList<string> Aliases { get; }
     public int Priority { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<ICommandInfo<TContext>>> SubCommands { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -21,6 +22,10 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
         Aliases = attribute.Aliases.ToArray();
 
         Priority = attribute.Priority;
+
+        var attributes = Attribute.GetCustomAttributes(type);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
 
         var comparer = configuration.Comparer;
 
@@ -63,7 +68,7 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
 
         SubCommands = subCommands.ToFrozenDictionary(p => p.Key, p => (IReadOnlyList<ICommandInfo<TContext>>)p.Value, comparer);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, attributes);
     }
 
     internal CommandGroupInfo(CommandGroupBuilder builder, CommandServiceConfiguration<TContext> configuration)
@@ -71,6 +76,8 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
         Aliases = builder.Aliases.ToArray();
 
         Priority = builder.Priority;
+
+        Attributes = FrozenDictionary<Type, IReadOnlyList<Attribute>>.Empty;
 
         var comparer = configuration.Comparer;
 

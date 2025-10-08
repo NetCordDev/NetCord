@@ -10,6 +10,7 @@ public class CommandInfo<TContext> : ICommandInfo<TContext> where TContext : ICo
 {
     public IReadOnlyList<string> Aliases { get; }
     public int Priority { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public IReadOnlyList<CommandParameter<TContext>> Parameters { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
@@ -21,12 +22,16 @@ public class CommandInfo<TContext> : ICommandInfo<TContext> where TContext : ICo
 
         Priority = attribute.Priority;
 
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         var parameters = GetParameters(method.GetParameters(), method, configuration);
         Parameters = parameters;
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(useModulePreconditions ? [declaringType, method] : [method]);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes, useModulePreconditions ? [declaringType] : []);
     }
 
     internal CommandInfo(CommandBuilder builder, CommandServiceConfiguration<TContext> configuration)
@@ -39,6 +44,10 @@ public class CommandInfo<TContext> : ICommandInfo<TContext> where TContext : ICo
 
         var method = handler.Method;
 
+        var attributes = Attribute.GetCustomAttributes(method);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
         var parameters = GetParameters(split.Parameters, method, configuration);
@@ -46,7 +55,7 @@ public class CommandInfo<TContext> : ICommandInfo<TContext> where TContext : ICo
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
     }
 
     private static CommandParameter<TContext>[] GetParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, CommandServiceConfiguration<TContext> configuration)
