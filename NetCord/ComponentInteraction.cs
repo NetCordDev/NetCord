@@ -15,7 +15,7 @@ public abstract class ComponentInteraction : Interaction
 
 public class ComponentInteractionData : InteractionData
 {
-    private protected ComponentInteractionData(JsonModels.JsonInteractionData jsonModel) : base(jsonModel)
+    private protected ComponentInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
     {
     }
 
