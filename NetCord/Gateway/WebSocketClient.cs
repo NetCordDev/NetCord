@@ -1103,7 +1103,7 @@ public abstract partial class WebSocketClient : IDisposable
     {
         public readonly string HandlersName => handlersName;
 
-        public readonly override string ToString()
+        public override readonly string ToString()
         {
             return string.Create(HandlersName.Length - 1, HandlersName, static (span, handlersName) =>
             {

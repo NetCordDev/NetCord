@@ -6,5 +6,5 @@ public interface IGuildContext : IContext
 {
     public Guild? Guild { get; }
 
-    internal protected ulong? GuildId { get; }
+    protected internal ulong? GuildId { get; }
 }

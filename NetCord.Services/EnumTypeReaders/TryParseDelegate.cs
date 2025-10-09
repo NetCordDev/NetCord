@@ -8,6 +8,6 @@ internal static class TryParseDelegateHelper
 {
     public static unsafe TryParseDelegate<T> Create<T>(delegate*<ReadOnlySpan<char>, NumberStyles, IFormatProvider?, out T, bool> tryParse, NumberStyles numberStyles, CultureInfo cultureInfo) where T : struct
     {
-        return (ReadOnlySpan<char> input, out T value) => tryParse(input, numberStyles, cultureInfo, out value);
+        return (input, out value) => tryParse(input, numberStyles, cultureInfo, out value);
     }
 }
