@@ -33,7 +33,8 @@ buttonInteractionService.AddComponentInteraction(new("button", () => "XD"));
 BotToken token = new(Environment.GetEnvironmentVariable("token")!);
 ShardedGatewayClient client = new(token, new()
 {
-    ShardCount = 3,
+    TotalShardCount = 2,
+    ShardRange = ..,
     IntentsFactory = shard => GatewayIntents.All,
     PresenceFactory = shard => new(UserStatusType.Online)
     {
@@ -47,6 +48,7 @@ ShardedGatewayClient client = new(token, new()
     },
     LoggerFactory = ShardedConsoleLogger.GetFactory(LogLevel.Debug),
 });
+
 client.MessageCreate += async (client, message) =>
 {
     if (message.Author.IsBot)
@@ -112,6 +114,7 @@ client.InteractionCreate += async (client, interaction) =>
     }
 };
 var result = await slashCommandService.RegisterCommandsAsync(client.Rest, token.Id);
+
 await client.StartAsync();
 
 await Task.Delay(-1);

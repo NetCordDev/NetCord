@@ -8,6 +8,8 @@ using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
 
+using static NetCord.Gateway.GatewayClientThrowHelper;
+
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
@@ -440,22 +442,15 @@ public abstract partial class WebSocketClient : IDisposable
         return connectionState;
     }
 
-    /// <summary>
-    /// Closes the <see cref="WebSocketClient"/>.
-    /// </summary>
-    /// <param name="status">The status to close with.</param>
-    /// <param name="statusDescription">The status description to close with.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns></returns>
-    public async ValueTask CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
+    internal async ValueTask<bool> CloseIfStartedAsync(WebSocketCloseStatus status, string? statusDescription, CancellationToken cancellationToken)
     {
         var state = Interlocked.Exchange(ref _state, null);
 
         if (state is null)
-            ThrowConnectionNotStarted();
+            return false;
 
         if (!state.TryIndicateClosing(out var connectionState))
-            return;
+            return true;
 
         var connection = connectionState.Connection;
         try
@@ -486,6 +481,21 @@ public abstract partial class WebSocketClient : IDisposable
         connectionState.Dispose();
         state.Dispose();
         HandleClosed();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Closes the <see cref="WebSocketClient"/>.
+    /// </summary>
+    /// <param name="status">The status to close with.</param>
+    /// <param name="statusDescription">The status description to close with.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    public async ValueTask CloseAsync(WebSocketCloseStatus status = WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
+    {
+        if (!await CloseIfStartedAsync(status, statusDescription, cancellationToken).ConfigureAwait(false))
+            ThrowConnectionNotStarted();
     }
 
     private async Task ReadAsync(State state, ConnectionState connectionState)
@@ -1129,18 +1139,6 @@ public abstract partial class WebSocketClient : IDisposable
             charsWritten = resultLength;
             return true;
         }
-    }
-
-    [DoesNotReturn]
-    private static void ThrowConnectionAlreadyStarted()
-    {
-        throw new InvalidOperationException("Connection already started.");
-    }
-
-    [DoesNotReturn]
-    private static void ThrowConnectionNotStarted(Exception? innerException = null)
-    {
-        throw new InvalidOperationException("Connection not started.", innerException);
     }
 
     [DoesNotReturn]

@@ -1,27 +1,53 @@
+using System.Buffers;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 using NetCord.Rest;
+
+using static NetCord.Gateway.GatewayClientThrowHelper;
 
 namespace NetCord.Gateway;
 
 public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>, IEntity, IDisposable
 {
+    private class State : IDisposable
+    {
+        public GatewayClient[]? Clients { get; set; }
+
+        public Task ConnectingTask => _connectingCompletionSource.Task;
+
+        private readonly TaskCompletionSource _connectingCompletionSource = new();
+
+        public CancellationTokenProvider DisconnectedTokenProvider { get; } = new();
+
+        public void IndicateStoppedConnecting()
+        {
+            _connectingCompletionSource.TrySetResult();
+        }
+
+        public void Dispose()
+        {
+            if (Clients is { } clients)
+            {
+                int length = clients.Length;
+                for (int i = 0; i < length; i++)
+                    clients[i].Dispose();
+            }
+
+            DisconnectedTokenProvider.Dispose();
+        }
+    }
+
     private readonly ShardedGatewayClientConfiguration _configuration;
-    private readonly ShardedGatewayClientEventManager _eventManager;
 
-    private readonly object _clientsLock = new();
-    private GatewayClient[] _clients = [];
+    private readonly ReaderWriterLockSlim _eventsLock = new();
 
-    private CancellationTokenSource? _startCancellationTokenSource;
-    private readonly Lock _startLock = new();
-
-    private bool _initialized;
+    private State? _state;
 
     public ShardedGatewayClient(IEntityToken token, ShardedGatewayClientConfiguration? configuration = null)
     {
         Token = token;
         _configuration = configuration = CreateConfiguration(configuration);
-        _eventManager = new();
         Rest = new(token, configuration);
     }
 
@@ -44,25 +70,57 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                                    _ => null,
                                                                    null,
                                                                    null,
+                                                                   null,
+                                                                   null,
                                                                    _ => null);
         }
 
+        var (shardRange, totalShardCount) = (configuration.ShardRange, configuration.TotalShardCount);
+        if (shardRange.HasValue)
+        {
+            if (!totalShardCount.HasValue)
+                throw new InvalidOperationException($"When '{nameof(ShardedGatewayClientConfiguration.ShardRange)}' is specified in the configuration, '{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}' must also be specified.");
+            else if (totalShardCount.GetValueOrDefault() <= 0)
+                ThrowInvalidTotalShardCount();
+
+            int length = totalShardCount.GetValueOrDefault();
+
+            if (!TryGetOffsetAndLength(shardRange.GetValueOrDefault(), length, out _, out _))
+                ThrowInvalidShardRange();
+        }
+        else if (totalShardCount.HasValue && totalShardCount.GetValueOrDefault() <= 0)
+            ThrowInvalidTotalShardCount();
+
         return ShardedGatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory ?? (_ => null),
-                                                               configuration.RateLimiterProviderFactory ?? (_ => null),
-                                                               configuration.DefaultPayloadPropertiesFactory ?? (_ => null),
-                                                               configuration.ReconnectStrategyFactory ?? (_ => null),
-                                                               configuration.LatencyTimerFactory ?? (_ => null),
-                                                               configuration.VersionFactory ?? (_ => ApiVersion.V10),
-                                                               configuration.CacheProviderFactory ?? (_ => null),
-                                                               configuration.CompressionFactory ?? (_ => null),
-                                                               configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
-                                                               configuration.Hostname,
-                                                               configuration.ConnectionPropertiesFactory ?? (_ => null),
-                                                               configuration.LargeThresholdFactory ?? (_ => null),
-                                                               configuration.PresenceFactory ?? (_ => null),
-                                                               configuration.ShardCount,
-                                                               configuration.RestClientConfiguration,
-                                                               configuration.LoggerFactory ?? (_ => null));
+                                                                   configuration.RateLimiterProviderFactory ?? (_ => null),
+                                                                   configuration.DefaultPayloadPropertiesFactory ?? (_ => null),
+                                                                   configuration.ReconnectStrategyFactory ?? (_ => null),
+                                                                   configuration.LatencyTimerFactory ?? (_ => null),
+                                                                   configuration.VersionFactory ?? (_ => ApiVersion.V10),
+                                                                   configuration.CacheProviderFactory ?? (_ => null),
+                                                                   configuration.CompressionFactory ?? (_ => null),
+                                                                   configuration.IntentsFactory ?? (_ => GatewayIntents.AllNonPrivileged),
+                                                                   configuration.Hostname,
+                                                                   configuration.ConnectionPropertiesFactory ?? (_ => null),
+                                                                   configuration.LargeThresholdFactory ?? (_ => null),
+                                                                   configuration.PresenceFactory ?? (_ => null),
+                                                                   configuration.MaxConcurrency,
+                                                                   shardRange,
+                                                                   totalShardCount,
+                                                                   configuration.RestClientConfiguration,
+                                                                   configuration.LoggerFactory ?? (_ => null));
+    }
+
+    [DoesNotReturn]
+    private static void ThrowInvalidShardRange()
+    {
+        throw new InvalidOperationException($"'{nameof(ShardedGatewayClientConfiguration.ShardRange)}' specified in the configuration is invalid for '{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}'.");
+    }
+
+    [DoesNotReturn]
+    private static void ThrowInvalidTotalShardCount()
+    {
+        throw new InvalidOperationException($"'{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}' specified in the configuration cannot be lower than or equal to 0.");
     }
 
     /// <summary>
@@ -79,13 +137,30 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
     public DateTimeOffset CreatedAt => Token.CreatedAt;
 
-    public GatewayClient this[int shardId] => _clients[shardId];
+    public GatewayClient this[int shardId]
+    {
+        get
+        {
+            if (_state is not { Clients: { } clients })
+            {
+                ThrowConnectionNotStarted();
+                return null!;
+            }
+
+            return clients[shardId];
+        }
+    }
 
     public GatewayClient this[ulong guildId]
     {
         get
         {
-            var clients = _clients;
+            if (_state is not { Clients: { } clients })
+            {
+                ThrowConnectionNotStarted();
+                return null!;
+            }
+
             return clients[Snowflake.ShardId(guildId, clients.Length)];
         }
     }
@@ -93,131 +168,151 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     /// <summary>
     /// The count of shards of the <see cref="ShardedGatewayClient"/>.
     /// </summary>
-    public int Count => _clients.Length;
+    public int Count => _state is { Clients: { } clients } ? clients.Length : 0;
 
     public async ValueTask StartAsync(Func<Shard, PresenceProperties?>? presenceFactory = null, CancellationToken cancellationToken = default)
     {
-        CancellationTokenSource startCancellationTokenSource;
-        lock (_startLock)
+        State newState = new();
+        if (Interlocked.CompareExchange(ref _state, newState, null) is not null)
         {
-            if (_startCancellationTokenSource is not null)
-                throw new InvalidOperationException("The client is already connected.");
-
-            startCancellationTokenSource = _startCancellationTokenSource = new();
+            newState.Dispose();
+            ThrowConnectionAlreadyStarted();
         }
 
-        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, startCancellationTokenSource.Token);
-        var linkedToken = linkedTokenSource.Token;
+        var disconnectedToken = newState.DisconnectedTokenProvider.Token;
 
-        var oldInitialized = _initialized;
-        _initialized = false;
-
-        presenceFactory ??= _ => null;
+        using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(disconnectedToken, cancellationToken);
 
         try
         {
-            var rest = Rest;
-            var info = await rest.GetGatewayBotAsync(cancellationToken: linkedToken).ConfigureAwait(false);
-
-            var configuration = _configuration;
-            var shardCount = configuration.ShardCount ?? info.ShardCount;
-            var startLimit = info.SessionStartLimit;
-            var total = startLimit.Total;
-
-            if (shardCount > total)
-                throw new InvalidOperationException($"Shard count ({shardCount}) is greater than the total ({total}).");
-
-            var remaining = startLimit.Remaining;
-            var now = Environment.TickCount64;
-            var resetAfter = startLimit.ResetAfter;
-
-            var maxConcurrency = Math.Min(startLimit.MaxConcurrency, shardCount);
-
-            DisposeClients(_clients, oldInitialized);
-
-            var clientsLock = _clientsLock;
-            var clients = new GatewayClient[shardCount];
-            _clients = clients;
-
-            var tasks = new Task[maxConcurrency];
-
-            var token = Token;
-
-            await ConnectBucketAsync(0).ConfigureAwait(false);
-
-            for (int bucket = maxConcurrency; bucket < shardCount; bucket += maxConcurrency)
-            {
-                await Task.Delay(5000, linkedToken).ConfigureAwait(false);
-                await ConnectBucketAsync(bucket).ConfigureAwait(false);
-            }
-
-            _initialized = true;
-
-            async Task ConnectBucketAsync(int bucket)
-            {
-                int count = Math.Min(maxConcurrency, shardCount - bucket);
-                for (int i = 0; i < count; i++)
-                {
-                    await WaitForRateLimitAsync().ConfigureAwait(false);
-
-                    tasks[i] = ConnectShardAsync(bucket + i).AsTask();
-                }
-
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-
-                async ValueTask WaitForRateLimitAsync()
-                {
-                    if (remaining == 0)
-                    {
-                        TimeSpan elapsed = new((Environment.TickCount64 - now) * TimeSpan.TicksPerMillisecond);
-                        if (elapsed < resetAfter)
-                            await Task.Delay(resetAfter - elapsed, linkedToken).ConfigureAwait(false);
-
-                        remaining = total - 1;
-                    }
-                    else
-                        remaining--;
-                }
-
-                ValueTask ConnectShardAsync(int shardId)
-                {
-                    Shard shard = new(shardId, shardCount);
-                    var gatewayClientConfiguration = GetGatewayClientConfiguration(shard);
-                    GatewayClient client;
-                    lock (clientsLock)
-                    {
-                        linkedToken.ThrowIfCancellationRequested();
-                        clients[shardId] = client = new(token, rest, gatewayClientConfiguration);
-                    }
-                    HookEvents(client);
-                    return client.StartAsync(presenceFactory(shard), cancellationToken: linkedToken);
-                }
-            }
+            await StartAsyncCore(newState, presenceFactory, linkedTokenSource.Token).ConfigureAwait(false);
         }
-        catch
+        finally
         {
-            var clients = _clients;
-            _clients = [];
-            if (clients is not null)
-            {
-                int count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    var client = clients[i];
-                    if (client is null)
-                        break;
-
-                    client.Dispose();
-                }
-            }
-            _startCancellationTokenSource = null;
-            throw;
+            newState.IndicateStoppedConnecting();
         }
     }
 
-    private GatewayClientConfiguration GetGatewayClientConfiguration(Shard shard)
+    private static bool TryGetOffsetAndLength(Range range, int length, out int offset, out int outLength)
+    {
+        var start = range.Start.GetOffset(length);
+        var end = range.End.GetOffset(length);
+
+        if ((uint)end > (uint)length || (uint)start >= (uint)end)
+        {
+            offset = default;
+            outLength = default;
+            return false;
+        }
+
+        offset = start;
+        outLength = end - start;
+        return true;
+    }
+
+    private async ValueTask StartAsyncCore(State newState, Func<Shard, PresenceProperties?>? presenceFactory, CancellationToken cancellationToken)
     {
         var configuration = _configuration;
+
+        var (configMaxConcurrency, configTotalShardCount, configShardRange) = (configuration.MaxConcurrency, configuration.TotalShardCount, configuration.ShardRange);
+
+        int maxConcurrency, totalShardCount;
+
+        if (!configMaxConcurrency.HasValue || !configTotalShardCount.HasValue)
+        {
+            var info = await Rest.GetGatewayBotAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            maxConcurrency = configMaxConcurrency ?? info.SessionStartLimit.MaxConcurrency;
+            totalShardCount = configTotalShardCount ?? info.ShardCount;
+        }
+        else
+            (maxConcurrency, totalShardCount) = (configMaxConcurrency.GetValueOrDefault(), configTotalShardCount.GetValueOrDefault());
+
+        int startShardId, count;
+
+        if (configShardRange.HasValue)
+        {
+            if (!TryGetOffsetAndLength(configShardRange.GetValueOrDefault(), totalShardCount, out startShardId, out count))
+                ThrowInvalidShardRange();
+        }
+        else
+            (startShardId, count) = (0, totalShardCount);
+
+        var token = Token;
+        var rest = Rest;
+
+        var clients = new GatewayClient[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            Shard shard = new(startShardId + i, totalShardCount);
+            clients[i] = new(token, rest, GetGatewayClientConfiguration(configuration, shard));
+        }
+
+        var eventsLock = _eventsLock;
+
+        eventsLock.EnterWriteLock();
+        try
+        {
+            HookHandlers(clients);
+
+            newState.Clients = clients;
+        }
+        finally
+        {
+            eventsLock.ExitWriteLock();
+        }
+
+        var tasks = ArrayPool<Task>.Shared.Rent(maxConcurrency);
+
+        await ConnectBucketAsync(tasks,
+                                 clients,
+                                 startShardId,
+                                 0,
+                                 totalShardCount,
+                                 maxConcurrency,
+                                 presenceFactory,
+                                 cancellationToken).ConfigureAwait(false);
+
+        for (int offset = maxConcurrency; offset < count; offset += maxConcurrency)
+        {
+            await Task.Delay(5000, cancellationToken).ConfigureAwait(false);
+
+            await ConnectBucketAsync(tasks,
+                                     clients,
+                                     startShardId,
+                                     offset,
+                                     totalShardCount,
+                                     maxConcurrency,
+                                     presenceFactory,
+                                     cancellationToken).ConfigureAwait(false);
+        }
+
+        ArrayPool<Task>.Shared.Return(tasks);
+
+        static Task ConnectBucketAsync(Task[] tasks,
+                                       GatewayClient[] clients,
+                                       int startShardId,
+                                       int bucketOffset,
+                                       int totalShardCount,
+                                       int maxConcurrency,
+                                       Func<Shard, PresenceProperties?>? presenceFactory,
+                                       CancellationToken cancellationToken)
+        {
+            int count = Math.Min(maxConcurrency, totalShardCount - bucketOffset);
+
+            for (int i = 0; i < count; i++)
+            {
+                var client = clients[bucketOffset + i];
+                tasks[i] = client.StartAsync(presenceFactory?.Invoke(new(startShardId + bucketOffset + i, totalShardCount)), cancellationToken).AsTask();
+            }
+
+            return Task.WhenAll(tasks.AsSpan(0, count));
+        }
+    }
+
+    private static GatewayClientConfiguration GetGatewayClientConfiguration(ShardedGatewayClientConfiguration configuration, Shard shard)
+    {
         return GatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory!(shard),
                                                         configuration.RateLimiterProviderFactory!(shard),
                                                         configuration.DefaultPayloadPropertiesFactory!(shard),
@@ -238,176 +333,261 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
     public async ValueTask CloseAsync(System.Net.WebSockets.WebSocketCloseStatus status = System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, string? statusDescription = null, CancellationToken cancellationToken = default)
     {
-        var startCancellationTokenSource = _startCancellationTokenSource;
-        var clients = _clients;
-        if (startCancellationTokenSource is null)
-            throw new InvalidOperationException("The client is not connected.");
+        var state = Interlocked.Exchange(ref _state, null);
 
-        lock (_clientsLock)
-            startCancellationTokenSource.Cancel();
-        startCancellationTokenSource.Dispose();
+        if (state is null)
+            ThrowConnectionNotStarted();
 
-        await Task.WhenAll((_initialized ? clients : clients.TakeWhile(clients => clients is not null)).Select(client => client.CloseAsync(status, statusDescription, cancellationToken).AsTask())).ConfigureAwait(false);
-
-        _startCancellationTokenSource = null;
-    }
-
-    public IEnumerator<GatewayClient> GetEnumerator() => ((IEnumerable<GatewayClient>)_clients).GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => _clients.GetEnumerator();
-
-    private void HookEvent(GatewayClient client, Lock @lock, ref Func<GatewayClient, ValueTask>? eventRef, Func<ValueTask> @delegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
-    {
-        lock (@lock)
+        try
         {
-            if (eventRef is not null)
-            {
-                if (_eventManager.AddEvent(client, @lock, @delegate))
-                    addGatewayClientEvent(client, @delegate);
-            }
+            state.DisconnectedTokenProvider.Cancel();
+
+            await state.ConnectingTask.ConfigureAwait(false);
+
+            if (state.Clients is { } clients)
+                await Task.WhenAll(clients.Select(c => (Task)c.CloseIfStartedAsync(status, statusDescription, cancellationToken).AsTask())).ConfigureAwait(false);
+        }
+        finally
+        {
+            state.Dispose();
         }
     }
 
-    private void HookEvent<T>(GatewayClient client, Lock @lock, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<T, ValueTask> @delegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
+    public void Abort()
     {
-        lock (@lock)
+        var state = Interlocked.Exchange(ref _state, null);
+
+        if (state is not { Clients: { } clients })
+            return;
+
+        try
         {
-            if (eventRef is not null)
-            {
-                if (_eventManager.AddEvent(client, @lock, @delegate))
-                    addGatewayClientEvent(client, @delegate);
-            }
-        }
-    }
-
-    private void HookEvent(Lock @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Func<GatewayClient, Func<ValueTask>> getDelegate, Action<GatewayClient, Func<ValueTask>> addGatewayClientEvent)
-    {
-        lock (@lock)
-        {
-            var oldEvent = eventRef;
-            eventRef += value;
-            if (oldEvent is null && eventRef is not null)
-            {
-                var clients = _clients;
-                var eventManager = _eventManager;
-                int count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    var client = clients[i];
-                    if (client is null)
-                        break;
-
-                    var @delegate = getDelegate(client);
-                    eventManager.AddEvent(client, @lock, @delegate);
-                    addGatewayClientEvent(client, @delegate);
-                }
-            }
-        }
-    }
-
-    private void HookEvent<T>(Lock @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Func<GatewayClient, Func<T, ValueTask>> getDelegate, Action<GatewayClient, Func<T, ValueTask>> addGatewayClientEvent)
-    {
-        lock (@lock)
-        {
-            var oldEvent = eventRef;
-            eventRef += value;
-            if (oldEvent is null && eventRef is not null)
-            {
-                var clients = _clients;
-                var eventManager = _eventManager;
-                int count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    var client = clients[i];
-                    if (client is null)
-                        break;
-
-                    var @delegate = getDelegate(client);
-                    eventManager.AddEvent(client, @lock, @delegate);
-                    addGatewayClientEvent(client, @delegate);
-                }
-            }
-        }
-    }
-
-    private void UnhookEvent(Lock @lock, Func<GatewayClient, ValueTask>? value, ref Func<GatewayClient, ValueTask>? eventRef, Action<GatewayClient, Func<ValueTask>> removeGatewayClientEvent)
-    {
-        lock (@lock)
-        {
-            var newEvent = eventRef - value;
-            if (eventRef is not null && newEvent is null)
-            {
-                var clients = _clients;
-                var eventManager = _eventManager;
-                int count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    var client = clients[i];
-                    if (client is null)
-                        break;
-
-                    if (eventManager.RemoveEvent(client, @lock, out var @delegate))
-                        removeGatewayClientEvent(client, @delegate);
-                }
-            }
-            eventRef = newEvent;
-        }
-    }
-
-    private void UnhookEvent<T>(Lock @lock, Func<GatewayClient, T, ValueTask>? value, ref Func<GatewayClient, T, ValueTask>? eventRef, Action<GatewayClient, Func<T, ValueTask>> removeGatewayClientEvent)
-    {
-        lock (@lock)
-        {
-            var newEvent = (Func<GatewayClient, T, ValueTask>?)Delegate.Remove(eventRef, value);
-            if (eventRef is not null && newEvent is null)
-            {
-                var clients = _clients;
-                var eventManager = _eventManager;
-                int count = clients.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    var client = clients[i];
-                    if (client is null)
-                        break;
-
-                    if (eventManager.RemoveEvent<T>(client, @lock, out var @delegate))
-                        removeGatewayClientEvent(client, @delegate);
-                }
-            }
-            eventRef = newEvent;
-        }
-    }
-
-    private static void DisposeClients(GatewayClient[] clients, bool initialized)
-    {
-        var length = clients.Length;
-        if (initialized)
-        {
+            int length = clients.Length;
             for (int i = 0; i < length; i++)
-                clients[i].Dispose();
+                clients[i].Abort();
         }
-        else
+        finally
         {
-            for (int i = 0; i < length; i++)
-            {
-                var client = clients[i];
-                if (client is null)
-                    break;
+            state.Dispose();
+        }
+    }
 
-                client.Dispose();
+    public IEnumerator<GatewayClient> GetEnumerator()
+    {
+        return ((IEnumerable<GatewayClient>)(_state?.Clients ?? [])).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return (_state?.Clients ?? []).GetEnumerator();
+    }
+
+    private static void HookHandlersToClients(GatewayClient[] clients, Dictionary<Func<GatewayClient, ValueTask>, List<Func<ValueTask>[]>> @event, Action<GatewayClient, Func<ValueTask>> addHandler)
+    {
+        foreach (var pair in @event)
+        {
+            var handler = pair.Key;
+            var list = pair.Value;
+
+            int count = list.Count;
+            for (int i = 0; i < count; i++)
+            {
+                HookHandlerToClients(handler, clients, addHandler, out var handlers);
+                list[i] = handlers;
             }
+        }
+    }
+
+    private static void HookHandlersToClients<T>(GatewayClient[] clients, Dictionary<Func<GatewayClient, T, ValueTask>, List<Func<T, ValueTask>[]>> @event, Action<GatewayClient, Func<T, ValueTask>> addHandler)
+    {
+        foreach (var pair in @event)
+        {
+            var handler = pair.Key;
+            var list = pair.Value;
+
+            int count = list.Count;
+            for (int i = 0; i < count; i++)
+            {
+                HookHandlerToClients(handler, clients, addHandler, out var handlers);
+                list[i] = handlers;
+            }
+        }
+    }
+
+    private void AddHandler(Dictionary<Func<GatewayClient, ValueTask>, List<Func<ValueTask>[]>> @event, Lock eventLock, Func<GatewayClient, ValueTask>? handler, Action<GatewayClient, Func<ValueTask>> addHandler)
+    {
+        if (handler is null)
+            return;
+
+        var eventsLock = _eventsLock;
+
+        eventsLock.EnterReadLock();
+        try
+        {
+            lock (eventLock)
+            {
+                if (!@event.TryGetValue(handler, out var list))
+                    @event[handler] = list = new(1);
+
+                if (_state is { Clients: { } clients })
+                {
+                    HookHandlerToClients(handler, clients, addHandler, out var handlers);
+                    list.Add(handlers);
+                }
+                else
+                    list.Add([]);
+            }
+        }
+        finally
+        {
+            eventsLock.ExitReadLock();
+        }
+    }
+
+    private void AddHandler<T>(Dictionary<Func<GatewayClient, T, ValueTask>, List<Func<T, ValueTask>[]>> @event, Lock eventLock, Func<GatewayClient, T, ValueTask>? handler, Action<GatewayClient, Func<T, ValueTask>> addHandler)
+    {
+        if (handler is null)
+            return;
+
+        var eventsLock = _eventsLock;
+
+        eventsLock.EnterReadLock();
+        try
+        {
+            lock (eventLock)
+            {
+                if (!@event.TryGetValue(handler, out var list))
+                    @event[handler] = list = new(1);
+
+                if (_state is { Clients: { } clients })
+                {
+                    HookHandlerToClients(handler, clients, addHandler, out var handlers);
+                    list.Add(handlers);
+                }
+                else
+                    list.Add([]);
+            }
+        }
+        finally
+        {
+            eventsLock.ExitReadLock();
+        }
+    }
+
+    private static void HookHandlerToClients(Func<GatewayClient, ValueTask> handler, GatewayClient[] clients, Action<GatewayClient, Func<ValueTask>> addHandler, out Func<ValueTask>[] handlers)
+    {
+        int length = clients.Length;
+
+        handlers = new Func<ValueTask>[length];
+
+        for (int i = 0; i < length; i++)
+        {
+            var client = clients[i];
+
+            addHandler(client, handlers[i] = () => handler(client));
+        }
+    }
+
+    private static void HookHandlerToClients<T>(Func<GatewayClient, T, ValueTask> handler, GatewayClient[] clients, Action<GatewayClient, Func<T, ValueTask>> addHandler, out Func<T, ValueTask>[] handlers)
+    {
+        int length = clients.Length;
+
+        handlers = new Func<T, ValueTask>[length];
+
+        for (int i = 0; i < length; i++)
+        {
+            var client = clients[i];
+
+            addHandler(client, handlers[i] = args => handler(client, args));
+        }
+    }
+
+    private void RemoveHandler(Dictionary<Func<GatewayClient, ValueTask>, List<Func<ValueTask>[]>> @event, Lock eventLock, Func<GatewayClient, ValueTask>? handler, Action<GatewayClient, Func<ValueTask>> removeHandler)
+    {
+        if (handler is null)
+            return;
+
+        var eventsLock = _eventsLock;
+
+        eventsLock.EnterReadLock();
+        try
+        {
+            lock (eventLock)
+            {
+                if (!@event.TryGetValue(handler, out var list))
+                    return;
+
+                int lastIndex = list.Count - 1;
+                var handlers = list[lastIndex];
+
+                if (lastIndex is 0)
+                    @event.Remove(handler);
+                else
+                {
+                    list.RemoveAt(lastIndex);
+                    list.TrimExcess();
+                }
+
+                if (_state is { Clients: { } clients })
+                {
+                    var length = clients.Length;
+
+                    for (int i = 0; i < length; i++)
+                        removeHandler(clients[i], handlers[i]);
+                }
+            }
+        }
+        finally
+        {
+            eventsLock.ExitReadLock();
+        }
+    }
+
+    private void RemoveHandler<T>(Dictionary<Func<GatewayClient, T, ValueTask>, List<Func<T, ValueTask>[]>> @event, Lock eventLock, Func<GatewayClient, T, ValueTask>? handler, Action<GatewayClient, Func<T, ValueTask>> removeHandler)
+    {
+        if (handler is null)
+            return;
+
+        var eventsLock = _eventsLock;
+
+        eventsLock.EnterReadLock();
+        try
+        {
+            lock (eventLock)
+            {
+                if (!@event.TryGetValue(handler, out var list))
+                    return;
+
+                int lastIndex = list.Count - 1;
+                var handlers = list[lastIndex];
+
+                if (lastIndex is 0)
+                    @event.Remove(handler);
+                else
+                {
+                    list.RemoveAt(lastIndex);
+                    list.TrimExcess();
+                }
+
+                if (_state is { Clients: { } clients })
+                {
+                    var length = clients.Length;
+
+                    for (int i = 0; i < length; i++)
+                        removeHandler(clients[i], handlers[i]);
+                }
+            }
+        }
+        finally
+        {
+            eventsLock.ExitReadLock();
         }
     }
 
     public void Dispose()
     {
-        var startCancellationTokenSource = _startCancellationTokenSource;
-        if (startCancellationTokenSource is null)
-            return;
+        _eventsLock.Dispose();
 
-        lock (_clientsLock)
-            startCancellationTokenSource.Cancel();
-        startCancellationTokenSource.Dispose();
-
-        DisposeClients(_clients, _initialized);
+        _state?.Dispose();
     }
 }
