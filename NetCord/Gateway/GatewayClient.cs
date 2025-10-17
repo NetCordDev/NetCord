@@ -801,16 +801,6 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<StageInstance, ValueTask>? StageInstanceDelete;
 
     /// <summary>
-    /// Not documented by Discord.
-    /// </summary>
-    public partial event Func<GuildJoinRequestUpdateEventArgs, ValueTask>? GuildJoinRequestUpdate;
-
-    /// <summary>
-    /// Not documented by Discord.
-    /// </summary>
-    public partial event Func<GuildJoinRequestDeleteEventArgs, ValueTask>? GuildJoinRequestDelete;
-
-    /// <summary>
     /// An unknown event.
     /// </summary>
     public partial event Func<UnknownEventEventArgs, ValueTask>? UnknownEvent;
@@ -1519,16 +1509,6 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "ENTITLEMENT_DELETE":
                 {
                     await InvokeEventAsync(_entitlementDelete, () => new(data.ToObject(Serialization.Default.JsonEntitlement), Rest)).ConfigureAwait(false);
-                }
-                break;
-            case "GUILD_JOIN_REQUEST_UPDATE":
-                {
-                    await InvokeEventAsync(_guildJoinRequestUpdate, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestUpdateEventArgs), Rest)).ConfigureAwait(false);
-                }
-                break;
-            case "GUILD_JOIN_REQUEST_DELETE":
-                {
-                    await InvokeEventAsync(_guildJoinRequestDelete, () => new(data.ToObject(Serialization.Default.JsonGuildJoinRequestDeleteEventArgs))).ConfigureAwait(false);
                 }
                 break;
             default:
