@@ -274,6 +274,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         int bucketStartShardId = startShardId;
 
         // 'shardCount = exceedingShardId - startShardId' in this case
+        // 'remainder = bucketStartShardId - bucketShardOffset'
         int bucketShardCount = Math.Min(maxConcurrency - remainder, shardCount);
 
         while (true)
