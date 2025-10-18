@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 using NetCord.Rest;
 
@@ -426,16 +427,19 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         {
             lock (eventLock)
             {
-                if (!@event.TryGetValue(handler, out var list))
-                    @event[handler] = list = new(1);
+                ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(@event, handler, out var exists);
+
+                if (!exists)
+                    list = new(1);
+
+                Func<ValueTask>[] handlers;
 
                 if (_state is { Clients: { } clients })
-                {
-                    HookHandlerToClients(handler, clients, addHandler, out var handlers);
-                    list.Add(handlers);
-                }
+                    HookHandlerToClients(handler, clients, addHandler, out handlers);
                 else
-                    list.Add([]);
+                    handlers = [];
+
+                list!.Add(handlers);
             }
         }
         finally
@@ -456,16 +460,19 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         {
             lock (eventLock)
             {
-                if (!@event.TryGetValue(handler, out var list))
-                    @event[handler] = list = new(1);
+                ref var list = ref CollectionsMarshal.GetValueRefOrAddDefault(@event, handler, out var exists);
+
+                if (!exists)
+                    list = new(1);
+
+                Func<T, ValueTask>[] handlers;
 
                 if (_state is { Clients: { } clients })
-                {
-                    HookHandlerToClients(handler, clients, addHandler, out var handlers);
-                    list.Add(handlers);
-                }
+                    HookHandlerToClients(handler, clients, addHandler, out handlers);
                 else
-                    list.Add([]);
+                    handlers = [];
+
+                list!.Add(handlers);
             }
         }
         finally
