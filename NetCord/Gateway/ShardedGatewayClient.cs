@@ -219,6 +219,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     private async ValueTask StartAsyncCore(State newState, Func<Shard, PresenceProperties?>? presenceFactory, CancellationToken cancellationToken)
     {
         var configuration = _configuration;
+        var rest = Rest;
 
         var (configMaxConcurrency, configTotalShardCount, configShardRange) = (configuration.MaxConcurrency, configuration.TotalShardCount, configuration.ShardRange);
 
@@ -226,7 +227,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
         if (!configMaxConcurrency.HasValue || !configTotalShardCount.HasValue)
         {
-            var info = await Rest.GetGatewayBotAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            var info = await rest.GetGatewayBotAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             maxConcurrency = configMaxConcurrency ?? info.SessionStartLimit.MaxConcurrency;
             totalShardCount = configTotalShardCount ?? info.ShardCount;
@@ -245,7 +246,6 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
             (startShardId, shardCount) = (0, totalShardCount);
 
         var token = Token;
-        var rest = Rest;
 
         var clients = new GatewayClient[shardCount];
 
