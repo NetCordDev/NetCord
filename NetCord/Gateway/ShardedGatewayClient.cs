@@ -76,21 +76,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                                    _ => null);
         }
 
-        var (shardRange, totalShardCount) = (configuration.ShardRange, configuration.TotalShardCount);
-        if (shardRange.HasValue)
-        {
-            if (!totalShardCount.HasValue)
-                throw new InvalidOperationException($"When '{nameof(ShardedGatewayClientConfiguration.ShardRange)}' is specified in the configuration, '{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}' must also be specified.");
-            else if (totalShardCount.GetValueOrDefault() <= 0)
-                ThrowInvalidTotalShardCount();
-
-            int length = totalShardCount.GetValueOrDefault();
-
-            if (!TryGetOffsetAndLength(shardRange.GetValueOrDefault(), length, out _, out _))
-                ThrowInvalidShardRange();
-        }
-        else if (totalShardCount.HasValue && totalShardCount.GetValueOrDefault() <= 0)
-            ThrowInvalidTotalShardCount();
+        ValidateConfiguration(configuration);
 
         return ShardedGatewayClientConfigurationFactory.Create(configuration.WebSocketConnectionProviderFactory ?? (_ => null),
                                                                    configuration.RateLimiterProviderFactory ?? (_ => null),
@@ -106,10 +92,29 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
                                                                    configuration.LargeThresholdFactory ?? (_ => null),
                                                                    configuration.PresenceFactory ?? (_ => null),
                                                                    configuration.MaxConcurrency,
-                                                                   shardRange,
-                                                                   totalShardCount,
+                                                                   configuration.ShardRange,
+                                                                   configuration.TotalShardCount,
                                                                    configuration.RestClientConfiguration,
                                                                    configuration.LoggerFactory ?? (_ => null));
+    }
+
+    private static void ValidateConfiguration(ShardedGatewayClientConfiguration configuration)
+    {
+        if (configuration.ShardRange is { } shardRange)
+        {
+            if (configuration.TotalShardCount is not { } totalShardCount)
+                throw new InvalidOperationException($"When '{nameof(ShardedGatewayClientConfiguration.ShardRange)}' is specified in the configuration, '{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}' must also be specified.");
+            else if (totalShardCount <= 0)
+                ThrowInvalidTotalShardCount();
+
+            if (!TryGetOffsetAndLength(shardRange, totalShardCount, out _, out _))
+                ThrowInvalidShardRange();
+        }
+        else if (configuration.TotalShardCount is { } totalShardCount && totalShardCount <= 0)
+            ThrowInvalidTotalShardCount();
+
+        if (configuration.MaxConcurrency is { } maxConcurrency && maxConcurrency <= 0)
+            throw new InvalidOperationException($"'{nameof(ShardedGatewayClientConfiguration.MaxConcurrency)}' specified in the configuration cannot be lower than or equal to 0.");
     }
 
     [DoesNotReturn]
