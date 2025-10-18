@@ -229,22 +229,22 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         else
             (maxConcurrency, totalShardCount) = (configMaxConcurrency.GetValueOrDefault(), configTotalShardCount.GetValueOrDefault());
 
-        int startShardId, count;
+        int startShardId, shardCount;
 
         if (configShardRange.HasValue)
         {
-            if (!TryGetOffsetAndLength(configShardRange.GetValueOrDefault(), totalShardCount, out startShardId, out count))
+            if (!TryGetOffsetAndLength(configShardRange.GetValueOrDefault(), totalShardCount, out startShardId, out shardCount))
                 ThrowInvalidShardRange();
         }
         else
-            (startShardId, count) = (0, totalShardCount);
+            (startShardId, shardCount) = (0, totalShardCount);
 
         var token = Token;
         var rest = Rest;
 
-        var clients = new GatewayClient[count];
+        var clients = new GatewayClient[shardCount];
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < shardCount; i++)
         {
             Shard shard = new(startShardId + i, totalShardCount);
             clients[i] = new(token, rest, GetGatewayClientConfiguration(configuration, shard));
@@ -266,50 +266,36 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
 
         var tasks = ArrayPool<Task>.Shared.Rent(maxConcurrency);
 
-        await ConnectBucketAsync(tasks,
-                                 clients,
-                                 startShardId,
-                                 0,
-                                 totalShardCount,
-                                 maxConcurrency,
-                                 presenceFactory,
-                                 cancellationToken).ConfigureAwait(false);
+        int exceedingShardId = startShardId + shardCount;
 
-        for (int offset = maxConcurrency; offset < count; offset += maxConcurrency)
+        int remainder = startShardId % maxConcurrency;
+
+        int bucketShardOffset = startShardId - remainder;
+        int bucketStartShardId = startShardId;
+
+        // 'shardCount = exceedingShardId - startShardId' in this case
+        int bucketShardCount = Math.Min(maxConcurrency - remainder, shardCount);
+
+        while (true)
         {
+            for (int i = 0; i < bucketShardCount; i++)
+            {
+                int shardId = bucketStartShardId + i;
+                tasks[i] = clients[shardId - startShardId].StartAsync(presenceFactory?.Invoke(new(shardId, totalShardCount)), cancellationToken).AsTask();
+            }
+
+            await Task.WhenAll(tasks.AsSpan(0, bucketShardCount)).ConfigureAwait(false);
+
+            if ((bucketShardOffset += maxConcurrency) >= exceedingShardId)
+                break;
+
             await Task.Delay(5000, cancellationToken).ConfigureAwait(false);
 
-            await ConnectBucketAsync(tasks,
-                                     clients,
-                                     startShardId,
-                                     offset,
-                                     totalShardCount,
-                                     maxConcurrency,
-                                     presenceFactory,
-                                     cancellationToken).ConfigureAwait(false);
+            // 'maxConcurrency = maxConcurrency - remainder' in this case
+            bucketShardCount = Math.Min(maxConcurrency, exceedingShardId - (bucketStartShardId = bucketShardOffset));
         }
 
         ArrayPool<Task>.Shared.Return(tasks);
-
-        static Task ConnectBucketAsync(Task[] tasks,
-                                       GatewayClient[] clients,
-                                       int startShardId,
-                                       int bucketOffset,
-                                       int totalShardCount,
-                                       int maxConcurrency,
-                                       Func<Shard, PresenceProperties?>? presenceFactory,
-                                       CancellationToken cancellationToken)
-        {
-            int count = Math.Min(maxConcurrency, totalShardCount - bucketOffset);
-
-            for (int i = 0; i < count; i++)
-            {
-                var client = clients[bucketOffset + i];
-                tasks[i] = client.StartAsync(presenceFactory?.Invoke(new(startShardId + bucketOffset + i, totalShardCount)), cancellationToken).AsTask();
-            }
-
-            return Task.WhenAll(tasks.AsSpan(0, count));
-        }
     }
 
     private static GatewayClientConfiguration GetGatewayClientConfiguration(ShardedGatewayClientConfiguration configuration, Shard shard)
