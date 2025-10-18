@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.Collections;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
@@ -483,7 +484,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         {
             var client = clients[i];
 
-            addHandler(client, handlers[i] = () => handler(client));
+            addHandler(client, handlers[i] = [StackTraceHidden] () => handler(client));
         }
     }
 
@@ -497,7 +498,7 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
         {
             var client = clients[i];
 
-            addHandler(client, handlers[i] = args => handler(client, args));
+            addHandler(client, handlers[i] = [StackTraceHidden] (args) => handler(client, args));
         }
     }
 
