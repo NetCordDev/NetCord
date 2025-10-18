@@ -22,7 +22,9 @@ internal static class ShardedGatewayClientConfigurationFactory
                                                            Func<Shard, ConnectionPropertiesProperties?>? connectionPropertiesFactory,
                                                            Func<Shard, int?>? largeThresholdFactory,
                                                            Func<Shard, PresenceProperties?>? presenceFactory,
-                                                           int? shardCount,
+                                                           int? maxConcurrency,
+                                                           Range? shardRange,
+                                                           int? totalShardCount,
                                                            RestClientConfiguration? restClientConfiguration,
                                                            Func<Shard?, IGatewayLogger?>? loggerFactory)
     {
@@ -41,7 +43,9 @@ internal static class ShardedGatewayClientConfigurationFactory
             ConnectionPropertiesFactory = connectionPropertiesFactory,
             LargeThresholdFactory = largeThresholdFactory,
             PresenceFactory = presenceFactory,
-            ShardCount = shardCount,
+            MaxConcurrency = maxConcurrency,
+            ShardRange = shardRange,
+            TotalShardCount = totalShardCount,
             RestClientConfiguration = restClientConfiguration,
             LoggerFactory = loggerFactory,
         };
