@@ -60,17 +60,19 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected class State : IDisposable
     {
+        private readonly Lock _lock = new();
+
+        private TaskCompletionSource<ConnectionStateResult> _readyCompletionSource = new();
+
         private ConnectionState? _connectionState;
 
         public CancellationTokenProvider ClosedTokenProvider { get; } = new();
 
         public Task<ConnectionStateResult> ReadyTask => _readyCompletionSource.Task;
 
-        private TaskCompletionSource<ConnectionStateResult> _readyCompletionSource = new();
-
         public void IndicateReady(ConnectionState connectionState)
         {
-            lock (ClosedTokenProvider)
+            lock (_lock)
             {
                 if (_connectionState != connectionState)
                     return;
@@ -81,7 +83,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         public ConnectingResult TryIndicateConnecting(ConnectionState connectionState)
         {
-            lock (ClosedTokenProvider)
+            lock (_lock)
             {
                 if (ClosedTokenProvider.IsCancellationRequested)
                     return ConnectingResult.Closed;
@@ -108,7 +110,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         public void IndicateConnectingFailed(ConnectionState connectionState)
         {
-            lock (ClosedTokenProvider)
+            lock (_lock)
             {
                 _ = connectionState.TryIndicateDisconnecting();
 
@@ -121,7 +123,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         public bool TryIndicateClosing([MaybeNullWhen(false)] out ConnectionState connectionState)
         {
-            lock (ClosedTokenProvider)
+            lock (_lock)
             {
                 ClosedTokenProvider.Cancel();
 
@@ -143,7 +145,7 @@ public abstract partial class WebSocketClient : IDisposable
 
         public bool TryIndicateDisconnecting(ConnectionState connectionState)
         {
-            lock (ClosedTokenProvider)
+            lock (_lock)
             {
                 if (_connectionState != connectionState || !connectionState.TryIndicateDisconnecting())
                     return false;
@@ -155,6 +157,20 @@ public abstract partial class WebSocketClient : IDisposable
             }
 
             return true;
+        }
+
+        public WebSocketStatus GetStatus()
+        {
+            var readyTask = _readyCompletionSource.Task;
+
+            return readyTask.Status switch
+            {
+                TaskStatus.RanToCompletion => readyTask.Result is ConnectionStateResult.Success
+                                                    ? WebSocketStatus.Ready
+                                                    : WebSocketStatus.Connecting,
+                TaskStatus.Canceled => WebSocketStatus.Disconnected,
+                _ => WebSocketStatus.Connecting,
+            };
         }
 
         public void Dispose()
@@ -215,6 +231,9 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract Uri Uri { get; }
 
+    /// <summary>
+    /// The latency of the <see cref="WebSocketClient"/>.
+    /// </summary>
     public TimeSpan Latency
     {
         get
@@ -225,6 +244,11 @@ public abstract partial class WebSocketClient : IDisposable
     }
 
     private TimeSpan _latency;
+
+    /// <summary>
+    /// The status of the <see cref="WebSocketClient"/>.
+    /// </summary>
+    public WebSocketStatus Status => _state is { } state ? state.GetStatus() : WebSocketStatus.Disconnected;
 
     public partial event Func<TimeSpan, ValueTask>? LatencyUpdate;
     public partial event Func<ValueTask>? Resume;
