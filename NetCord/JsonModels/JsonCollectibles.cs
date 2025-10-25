@@ -5,5 +5,5 @@ namespace NetCord.JsonModels;
 public class JsonCollectibles
 {
     [JsonPropertyName("nameplate")]
-    public JsonNameplate Nameplate { get; set; }
+    public JsonNameplate? Nameplate { get; set; }
 }
