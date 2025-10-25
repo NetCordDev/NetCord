@@ -22,6 +22,9 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
 
         if (jsonModel.Collectibles is { } collectibles)
             Collectibles = new(collectibles);
+
+        if (jsonModel.PrimaryGuild is { } primaryGuild)
+            PrimaryGuild = new(primaryGuild);
     }
 
     /// <summary>
@@ -201,6 +204,14 @@ public partial class User : ClientEntity, IJsonModel<JsonModels.JsonUser>
     /// Requires the <c>identify</c> OAuth2 scope.
     /// </remarks>
     public Collectibles? Collectibles { get; }
+
+    /// <summary>
+    /// The user's primary guild.
+    /// </summary>
+    /// <remarks>
+    /// Requires the <c>identify</c> OAuth2 scope.
+    /// </remarks>
+    public UserPrimaryGuild? PrimaryGuild { get; }
 
     /// <summary>
     /// Whether the user has a set custom avatar.
