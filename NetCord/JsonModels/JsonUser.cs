@@ -53,6 +53,12 @@ public class JsonUser : JsonEntity
     [JsonPropertyName("avatar_decoration_data")]
     public JsonAvatarDecorationData? AvatarDecorationData { get; set; }
 
+    [JsonPropertyName("collectibles")]
+    public JsonCollectibles? Collectibles { get; set; }
+
+    [JsonPropertyName("primary_guild")]
+    public JsonUserPrimaryGuild? PrimaryGuild { get; set; }
+
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
 }

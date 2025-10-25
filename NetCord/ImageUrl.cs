@@ -218,6 +218,11 @@ public class ImageUrl : ISpanFormattable
         return new($"/guilds/{guildId}/users/{userId}/banners/{bannerHash}", GetExtension(bannerHash, format));
     }
 
+    public static ImageUrl GuildTagBadge(ulong guildId, string badgeHash, ImageFormat format)
+    {
+        return new($"/guild-tag-badges/{guildId}/{badgeHash}", GetFormat(format));
+    }
+
     public static ImageUrl GuildWidget(ulong guildId, GuildWidgetStyle? style = null, string? hostname = null, ApiVersion? version = null)
     {
         return new GuildWidgetUrl(guildId, style, hostname, version);
