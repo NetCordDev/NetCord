@@ -57,7 +57,7 @@ public class JsonUser : JsonEntity
     public JsonCollectibles? Collectibles { get; set; }
 
     [JsonPropertyName("primary_guild")]
-    public JsonUserPrimaryGuild PrimaryGuild { get; set; }
+    public JsonUserPrimaryGuild? PrimaryGuild { get; set; }
 
     [JsonPropertyName("member")]
     public JsonGuildUser? GuildUser { get; set; }
