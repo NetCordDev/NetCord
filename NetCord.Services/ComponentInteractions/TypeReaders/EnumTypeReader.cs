@@ -8,7 +8,7 @@ public class EnumTypeReader<TContext> : ComponentInteractionTypeReader<TContext>
 
     public unsafe EnumTypeReader()
     {
-        _enumTypeReaderManager = new(&GetKey, (type, parameter, configuration) => EnumValueTypeReader.Create(type, configuration.CultureInfo));
+        _enumTypeReaderManager = new(&GetKey, static (type, parameter, configuration) => EnumValueTypeReader.Create(type, configuration.CultureInfo));
 
         static Type GetKey(ComponentInteractionParameter<TContext> parameter) => parameter.NonNullableElementType;
     }

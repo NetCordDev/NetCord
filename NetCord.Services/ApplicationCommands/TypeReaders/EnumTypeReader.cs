@@ -11,7 +11,7 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public unsafe EnumTypeReader()
     {
-        _enumTypeReaderManager = new(&GetKey, (type, parameter, configuration) => new SlashCommandEnumTypeReader<TContext>(type));
+        _enumTypeReaderManager = new(&GetKey, static (type, parameter, configuration) => new SlashCommandEnumTypeReader<TContext>(type));
 
         static Type GetKey(SlashCommandParameter<TContext> parameter) => parameter.NonNullableType;
     }
