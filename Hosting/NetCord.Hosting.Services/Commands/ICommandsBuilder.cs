@@ -50,7 +50,7 @@ internal class CommandsBuilder<TContext>(CommandService<TContext> service) : ICo
 
     public void Build()
     {
-        var (builders, groupBuilders) = _data;
+        var (builders, groupBuilders) = Interlocked.Exchange(ref _data, new());
 
         int buildersCount = builders.Count;
 
@@ -61,7 +61,5 @@ internal class CommandsBuilder<TContext>(CommandService<TContext> service) : ICo
 
         for (int i = 0; i < groupBuildersCount; i++)
             service.AddCommandGroup(groupBuilders[i]);
-
-        _data = new();
     }
 }
