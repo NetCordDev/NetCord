@@ -26,6 +26,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    public bool? AutoStartStop { get; set; }
+
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.WebSocketConnectionProviderFactory" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; set; }
 

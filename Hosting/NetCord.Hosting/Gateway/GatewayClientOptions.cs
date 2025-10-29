@@ -23,6 +23,8 @@ public partial class GatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    public bool? AutoStartStop { get; set; }
+
     /// <inheritdoc cref="GatewayClientConfiguration.WebSocketConnectionProvider" />
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; set; }
 
