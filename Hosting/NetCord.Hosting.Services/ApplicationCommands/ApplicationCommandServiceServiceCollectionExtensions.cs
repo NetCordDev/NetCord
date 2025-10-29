@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 using NetCord.Hosting.Gateway;
@@ -192,6 +193,8 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddShardedGatewayHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<ApplicationCommandInteractionHandler<TInteraction, TContext>>());
 
+        services.TryAddTransient(CreateServiceManager);
+
         services.AddHostedService<ApplicationCommandServiceHostedService>();
 
         return services;
@@ -277,8 +280,23 @@ public static class ApplicationCommandServiceServiceCollectionExtensions
         services.AddShardedGatewayHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
         services.AddHttpInteractionHandler(services => services.GetRequiredService<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>>());
 
+        services.TryAddTransient(CreateServiceManager);
+
         services.AddHostedService<ApplicationCommandServiceHostedService>();
 
         return services;
+    }
+
+    private static ApplicationCommandServiceManager CreateServiceManager(IServiceProvider services)
+    {
+        List<IApplicationCommandService> managerServices = [];
+
+        foreach (var serviceData in services.GetServices<ApplicationCommandServiceData>())
+        {
+            serviceData.Builder.Build();
+            managerServices.Add(serviceData.Service);
+        }
+
+        return new(managerServices);
     }
 }

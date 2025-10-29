@@ -24,12 +24,10 @@ internal class ComponentInteractionsBuilder<TContext>(ComponentInteractionServic
 
     public void Build()
     {
-        var builders = _builders;
+        var builders = Interlocked.Exchange(ref _builders, []);
         int count = builders.Count;
 
         for (int i = 0; i < count; i++)
             service.AddComponentInteraction(builders[i]);
-
-        _builders = [];
     }
 }
