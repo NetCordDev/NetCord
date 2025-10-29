@@ -10,11 +10,6 @@ internal partial class ShardedGatewayClientHostedService(IServiceProvider servic
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var options = services.GetRequiredService<IOptions<ShardedGatewayClientOptions>>().Value;
-
-        if (!options.AutoStartStop.GetValueOrDefault(true))
-            return Task.CompletedTask;
-
         var client = services.GetRequiredService<ShardedGatewayClient>();
 
         foreach (var handler in services.GetServices<IShardedGatewayHandler>())
@@ -25,7 +20,11 @@ internal partial class ShardedGatewayClientHostedService(IServiceProvider servic
                 RegisterClassShardedHandler(client, handler);
         }
 
-        return client.StartAsync(cancellationToken: cancellationToken).AsTask();
+        var options = services.GetRequiredService<IOptions<ShardedGatewayClientOptions>>().Value;
+
+        return options.AutoStartStop.GetValueOrDefault(true)
+            ? client.StartAsync(cancellationToken: cancellationToken).AsTask()
+            : Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)

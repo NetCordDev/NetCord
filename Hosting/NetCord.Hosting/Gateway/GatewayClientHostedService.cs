@@ -10,11 +10,6 @@ internal partial class GatewayClientHostedService(IServiceProvider services) : I
 {
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
-
-        if (!options.AutoStartStop.GetValueOrDefault(true))
-            return Task.CompletedTask;
-
         var client = services.GetRequiredService<GatewayClient>();
 
         foreach (var handler in services.GetServices<IGatewayHandler>())
@@ -25,7 +20,11 @@ internal partial class GatewayClientHostedService(IServiceProvider services) : I
                 RegisterClassHandler(client, handler);
         }
 
-        return client.StartAsync(cancellationToken: cancellationToken).AsTask();
+        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
+
+        return options.AutoStartStop.GetValueOrDefault(true)
+            ? client.StartAsync(cancellationToken: cancellationToken).AsTask()
+            : Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
