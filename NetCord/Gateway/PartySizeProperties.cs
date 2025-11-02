@@ -5,11 +5,11 @@ namespace NetCord.Gateway;
 
 [JsonConverter(typeof(PartySizePropertiesConverter))]
 [GenerateMethodsForProperties]
-public partial class PartySizeProperties(int currentSize, int maxSize)
+public partial class PartySizeProperties(long currentSize, long maxSize)
 {
-    public int CurrentSize { get; set; } = currentSize;
+    public long CurrentSize { get; set; } = currentSize;
 
-    public int MaxSize { get; set; } = maxSize;
+    public long MaxSize { get; set; } = maxSize;
 
     public class PartySizePropertiesConverter : JsonConverter<PartySizeProperties>
     {
