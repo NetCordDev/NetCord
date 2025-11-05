@@ -62,7 +62,7 @@ public partial class SlashCommandGroupBuilder(string name, string description) :
     /// <param name="name"><inheritdoc cref="SubSlashCommandBuilder.Name" path="/summary" /></param>
     /// <param name="description"><inheritdoc cref="SubSlashCommandBuilder.Description" path="/summary" /></param>
     /// <param name="handler"><inheritdoc cref="SubSlashCommandBuilder.Handler" path="/summary" /></param>
-    /// <returns></returns>
+    /// <returns>The created sub command builder.</returns>
     public SubSlashCommandBuilder AddSubCommand(string name, string description, Delegate handler)
     {
         SubSlashCommandBuilder result = new(name, description, handler);
@@ -75,7 +75,7 @@ public partial class SlashCommandGroupBuilder(string name, string description) :
     /// </summary>
     /// <param name="name"><inheritdoc cref="SubSlashCommandGroupBuilder.Name" path="/summary" /></param>
     /// <param name="description"><inheritdoc cref="SubSlashCommandGroupBuilder.Description" path="/summary" /></param>
-    /// <returns></returns>
+    /// <returns>The created sub command group builder.</returns>
     public SubSlashCommandGroupBuilder AddSubCommandGroup(string name, string description)
     {
         SubSlashCommandGroupBuilder result = new(name, description);
@@ -87,6 +87,7 @@ public partial class SlashCommandGroupBuilder(string name, string description) :
     /// <param name="name" />
     /// <param name="description" />
     /// <param name="builder">A delegate that builds the sub command group.</param>
+    /// <returns>The created sub command group builder.</returns>
     public SubSlashCommandGroupBuilder AddSubCommandGroup(string name, string description, Action<SubSlashCommandGroupBuilder> builder)
     {
         SubSlashCommandGroupBuilder result = new(name, description);
@@ -96,7 +97,7 @@ public partial class SlashCommandGroupBuilder(string name, string description) :
     }
 }
 
-/// <inheritdoc cref="SlashCommandAttribute" />
+/// <inheritdoc cref="SubSlashCommandAttribute" />
 /// <param name="name" />
 /// <param name="description" />
 /// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
@@ -115,7 +116,7 @@ public partial class SubSlashCommandBuilder(string name, string description, Del
     public Delegate Handler => handler;
 }
 
-/// <inheritdoc cref="SlashCommandAttribute" />
+/// <inheritdoc cref="SubSlashCommandAttribute" />
 /// <param name="name" />
 /// <param name="description" />
 [GenerateMethodsForProperties]
