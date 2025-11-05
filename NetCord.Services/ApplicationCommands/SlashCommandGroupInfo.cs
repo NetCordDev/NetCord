@@ -14,11 +14,13 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          type,
+                                                                                                          out var typeAttributes)
     {
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, typeAttributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
@@ -31,7 +33,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
         foreach (var nested in type.GetNestedTypes())
         {
-            if (!nested.IsAssignableTo(baseType))
+            if (!ServiceHelpers.IsModule(baseType, nested))
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
@@ -46,7 +48,9 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
     internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          null,
+                                                                                                          out _)
     {
         Description = builder.Description;
 
@@ -91,7 +95,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         var slashCommandInteraction = (SlashCommandInteraction)context.Interaction;
         var option = slashCommandInteraction.Data.Options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -123,7 +127,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)

@@ -4,8 +4,8 @@ public class AttachmentTypeReader<TContext> : SlashCommandTypeReader<TContext> w
 {
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Attachment;
 
-    public override ValueTask<TypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
-        return new(TypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Attachments![Snowflake.Parse(value)]));
+        return new(SlashCommandTypeReaderResult.Success(((SlashCommandInteraction)context.Interaction).Data.ResolvedData!.Attachments![Snowflake.Parse(value)]));
     }
 }

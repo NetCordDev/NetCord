@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Services.Commands.TypeReaders;
 
-public class ReadOnlyMemoryOfCharTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
+public class ReadOnlyMemoryOfCharTypeReader<TContext> : CommandTypeParser<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(TypeReaderResult.Success(input));
+    public override ValueTask<CommandTypeParserResult> ParseAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider) => new(CommandTypeParserResult.Success(input));
 }

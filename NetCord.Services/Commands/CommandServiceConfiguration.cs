@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Buffers;
+using System.Collections.Immutable;
 using System.Globalization;
 
 namespace NetCord.Services.Commands;
@@ -9,6 +10,8 @@ public record CommandServiceConfiguration<TContext> where TContext : ICommandCon
 
     private CommandServiceConfiguration()
     {
+        char[] defaultSeparators = [' ', '\n'];
+        _parameterSeparators = new(defaultSeparators, SearchValues.Create(defaultSeparators));
     }
 
     public ImmutableDictionary<Type, CommandTypeReader<TContext>> TypeReaders { get; init; } = new Dictionary<Type, CommandTypeReader<TContext>>()
@@ -80,14 +83,31 @@ public record CommandServiceConfiguration<TContext> where TContext : ICommandCon
     public CommandTypeReader<TContext> EnumTypeReader { get; init; } = new TypeReaders.EnumTypeReader<TContext>();
 
     /// <summary>
-    /// Default = ' ', '\n'
+    /// Defaults to <c>[' ', '\n']</c>.
     /// </summary>
-    public IEnumerable<char> ParameterSeparators { get; init; } = [' ', '\n'];
+    public IEnumerable<char> ParameterSeparators
+    {
+        get
+        {
+            return _parameterSeparators.Item1;
+        }
+        init
+        {
+            _parameterSeparators = new(value, SearchValues.Create(value.ToArray()));
+        }
+    }
+
+    internal SearchValues<char> ParameterSeparatorsSearchValues => _parameterSeparators.Item2;
+
+    private readonly Tuple<IEnumerable<char>, SearchValues<char>> _parameterSeparators;
 
     /// <summary>
-    /// Default = <see langword="true"/>
+    /// Defaults to <see langword="true"/>.
     /// </summary>
     public bool IgnoreCase { get; init; } = true;
+
+    internal ReadOnlyMemoryCharComparer Comparer => IgnoreCase ? ReadOnlyMemoryCharComparer.InvariantCultureIgnoreCase
+                                                               : ReadOnlyMemoryCharComparer.InvariantCulture;
 
     public CultureInfo CultureInfo { get; init; } = CultureInfo.InvariantCulture;
 

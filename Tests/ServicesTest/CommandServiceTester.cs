@@ -43,6 +43,13 @@ public sealed class CommandServiceTesterSession
         _service.AddCommand(new CommandBuilder([commandName], handler).WithPriority(priority));
     }
 
+    public void AddCommandGroup(string commandName, Action<CommandGroupBuilder> builder)
+    {
+        CommandGroupBuilder group = new([commandName]);
+        builder(group);
+        _service.AddCommandGroup(group);
+    }
+
     public async ValueTask ExecuteAsync(string command, ResultHandler resultHandler, IServiceProvider? services = null)
     {
         var message = CreateMessage(command);

@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-public class TextInput(JsonComponent jsonModel) : ILabelComponent, IJsonModel<JsonComponent>
+public class TextInput(JsonComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
 

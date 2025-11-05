@@ -38,6 +38,7 @@ public interface IApplicationCommandInfo
 
     /// <inheritdoc cref="ApplicationCommandAttribute.Register" />
     public bool Register { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
 
     /// <summary>
     /// Gets the raw value of the command that can be used to create it.

@@ -12,7 +12,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     internal SlashCommandInfo(MethodInfo method,
                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                               SlashCommandAttribute attribute,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         Description = attribute.Description;
 
@@ -20,14 +20,16 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal SlashCommandInfo(SlashCommandBuilder builder,
                               ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                     configuration)
+                                                                                                     configuration,
+                                                                                                     builder.Handler.Method,
+                                                                                                     out var methodAttributes)
     {
         Description = builder.Description;
 
@@ -41,7 +43,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
@@ -49,8 +51,8 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     public override ApplicationCommandType Type => ApplicationCommandType.ChatInput;
     public string Description { get; }
     public IReadOnlyList<SlashCommandParameter<TContext>> Parameters { get; }
-    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, SlashCommandParameter<TContext>> ParametersDictionary { get; }
+    public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
 
@@ -116,7 +118,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
             return SuccessResult.Instance;
         }
 
-        return new NotFoundResult("Command not found.");
+        return NotFoundResult.Command;
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)

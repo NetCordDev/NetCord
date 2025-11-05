@@ -33,7 +33,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
             return new(new ExecutionExceptionResult(exception));
         }
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
@@ -84,7 +84,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -123,7 +123,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             if (slashCommandGroup)
                 throw new InvalidOperationException($"The type '{type}' cannot have both a slash command and an entry point command defined.");
 
-            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(entryPointCommandAttribute, configuration);
+            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(type, entryPointCommandAttribute, configuration);
             AddCommandInfo(entryPointCommandInfo);
 
             entryPointCommand = true;
@@ -218,7 +218,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             return new ExecutionExceptionResult(exception);
         }
 
-        return new NotFoundResult("Command not found.");
+        return NotFoundResult.Command;
     }
 
     private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)

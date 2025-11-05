@@ -54,4 +54,14 @@ public class MessageSnapshotMessage(JsonMessageSnapshotMessage jsonModel, ulong?
     /// A list of IDs corresponding to roles specifically mentioned in the message.
     /// </summary>
     public IReadOnlyList<ulong> MentionedRoleIds => jsonModel.MentionedRoleIds;
+
+    /// <summary>
+    /// A list of <see cref="IMessageComponent"/> objects, contains components like <see cref="Button"/>s, <see cref="ActionRow"/>s, or other interactive components if any are present.
+    /// </summary>
+    public IReadOnlyList<IMessageComponent> Components { get; } = jsonModel.Components.SelectOrEmpty(IMessageComponent.CreateFromJson).ToArray();
+
+    /// <summary>
+    /// Contains stickers contained in the message, if any.
+    /// </summary>
+    public IReadOnlyList<MessageSticker> Stickers { get; } = jsonModel.Stickers.SelectOrEmpty(s => new MessageSticker(s, client)).ToArray();
 }

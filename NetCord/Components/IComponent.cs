@@ -65,9 +65,9 @@ public interface IComponentContainerComponent : IComponent
             ComponentType.Button => new ActionRow(jsonModel),
             ComponentType.StringMenu => new StringMenu(firstComponent, jsonModel.Id),
             ComponentType.UserMenu => new UserMenu(firstComponent, jsonModel.Id),
-            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
             ComponentType.RoleMenu => new RoleMenu(firstComponent, jsonModel.Id),
             ComponentType.MentionableMenu => new MentionableMenu(firstComponent, jsonModel.Id),
+            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
             _ => new UnknownComponentContainerComponent(jsonModel),
         };
     }
@@ -100,9 +100,9 @@ public interface IMessageComponent : IComponent
             ComponentType.Button => new ActionRow(jsonModel),
             ComponentType.StringMenu => new StringMenu(firstComponent, jsonModel.Id),
             ComponentType.UserMenu => new UserMenu(firstComponent, jsonModel.Id),
-            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
             ComponentType.RoleMenu => new RoleMenu(firstComponent, jsonModel.Id),
             ComponentType.MentionableMenu => new MentionableMenu(firstComponent, jsonModel.Id),
+            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
             _ => new UnknownMessageComponent(jsonModel),
         };
     }
@@ -110,12 +110,12 @@ public interface IMessageComponent : IComponent
 
 public interface IModalComponent : IComponent
 {
-    public static IModalComponent CreateFromJson(JsonComponent jsonModel)
+    public static IModalComponent CreateFromJson(JsonComponent jsonModel, InteractionResolvedData? resolvedData)
     {
         return jsonModel.Type switch
         {
             ComponentType.TextDisplay => new TextDisplay(jsonModel),
-            ComponentType.Label => new Label(jsonModel),
+            ComponentType.Label => new Label(jsonModel, resolvedData),
             _ => new UnknownModalComponent(jsonModel),
         };
     }
@@ -123,16 +123,17 @@ public interface IModalComponent : IComponent
 
 public interface ILabelComponent : IComponent
 {
-    public static ILabelComponent CreateFromJson(JsonComponent jsonModel, int labelId)
+    public static ILabelComponent CreateFromJson(JsonComponent jsonModel, int labelId, InteractionResolvedData? resolvedData)
     {
         return jsonModel.Type switch
         {
             ComponentType.TextInput => new TextInput(jsonModel),
             ComponentType.StringMenu => new StringMenu(jsonModel, labelId),
-            ComponentType.UserMenu => new UserMenu(jsonModel, labelId),
-            ComponentType.ChannelMenu => new ChannelMenu(jsonModel, labelId),
-            ComponentType.RoleMenu => new RoleMenu(jsonModel, labelId),
-            ComponentType.MentionableMenu => new MentionableMenu(jsonModel, labelId),
+            ComponentType.UserMenu => new UserMenu(jsonModel, labelId, resolvedData),
+            ComponentType.RoleMenu => new RoleMenu(jsonModel, labelId, resolvedData),
+            ComponentType.MentionableMenu => new MentionableMenu(jsonModel, labelId, resolvedData),
+            ComponentType.ChannelMenu => new ChannelMenu(jsonModel, labelId, resolvedData),
+            ComponentType.FileUpload => new FileUpload(jsonModel, resolvedData),
             _ => new UnknownLabelComponent(jsonModel),
         };
     }
@@ -141,7 +142,7 @@ public interface ILabelComponent : IComponent
 public interface IInteractiveComponent : IComponent
 {
     /// <summary>
-    /// Developer-defined identifier for the button (max 100 characters).
+    /// Developer-defined identifier for the component (max 100 characters).
     /// </summary>
     public string CustomId { get; }
 }

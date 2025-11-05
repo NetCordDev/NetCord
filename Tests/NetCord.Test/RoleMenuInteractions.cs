@@ -8,6 +8,6 @@ public class RoleMenuInteractions : ComponentInteractionModule<RoleMenuInteracti
     [ComponentInteraction("roles")]
     public Task RolesAsync()
     {
-        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedRoles)}"));
+        return RespondAsync(InteractionCallback.Message($"You selected: {string.Join(", ", Context.SelectedValues)}"));
     }
 }

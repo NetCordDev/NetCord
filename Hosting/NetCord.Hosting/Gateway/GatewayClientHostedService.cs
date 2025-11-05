@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using NetCord.Gateway;
 
@@ -19,11 +20,20 @@ internal partial class GatewayClientHostedService(IServiceProvider services) : I
                 RegisterClassHandler(client, handler);
         }
 
-        return client.StartAsync(cancellationToken: cancellationToken).AsTask();
+        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
+
+        return options.AutoStartStop.GetValueOrDefault(true)
+            ? client.StartAsync(cancellationToken: cancellationToken).AsTask()
+            : Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
+        var options = services.GetRequiredService<IOptions<GatewayClientOptions>>().Value;
+
+        if (!options.AutoStartStop.GetValueOrDefault(true))
+            return Task.CompletedTask;
+
         var client = services.GetRequiredService<GatewayClient>();
 
         return client.CloseAsync(cancellationToken: cancellationToken).AsTask();

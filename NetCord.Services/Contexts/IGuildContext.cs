@@ -13,5 +13,5 @@ public interface IGuildContext : IContext
     /// <remarks>May be <see langword="null"/> if the handled command or interaction was invoked outside of a guild or if the guild has not been cached.</remarks>
     public Guild? Guild { get; }
 
-    internal protected ulong? GuildId { get; }
+    protected internal ulong? GuildId { get; }
 }

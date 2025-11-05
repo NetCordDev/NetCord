@@ -1,40 +1,37 @@
-﻿using System.Text;
+﻿namespace NetCord.Rest;
 
-namespace NetCord.Rest;
-
-internal class PaginationQueryBuilder<T>(int batchSize, PaginationDirection direction, Func<T, string> toString, string baseQuery = "?") where T : struct
+internal sealed class PaginationQueryBuilder<T>(int batchSize,
+                                                string fromQueryName,
+                                                Func<T, string> toString,
+                                                string baseQuery = "?") where T : struct
 {
-    private readonly string _direction = direction switch
+    public PaginationQueryBuilder(int batchSize,
+                                  PaginationDirection direction,
+                                  Func<T, string> toString,
+                                  string baseQuery = "?") : this(batchSize,
+                                                                 GetFromQueryName(direction),
+                                                                 toString,
+                                                                 baseQuery)
     {
-        PaginationDirection.Before => "before",
-        PaginationDirection.After => "after",
-        _ => throw new ArgumentException($"The value of '{nameof(direction)}' is invalid."),
-    };
+    }
 
-    private readonly StringBuilder _builder = new StringBuilder(baseQuery).Append("limit=").Append(batchSize);
+    private static string GetFromQueryName(PaginationDirection direction)
+    {
+        return direction switch
+        {
+            PaginationDirection.Before => "before",
+            PaginationDirection.After => "after",
+            _ => throw new ArgumentException($"The value of '{nameof(direction)}' is invalid."),
+        };
+    }
 
-    public override string ToString() => _builder.ToString();
+    public override string ToString() => $"{baseQuery}limit={batchSize}";
 
     public string ToString(T? from)
     {
-        var builder = _builder;
-
         if (from.HasValue)
-        {
-            int length = builder.Length;
+            return $"{baseQuery}limit={batchSize}&{fromQueryName}={toString(from.GetValueOrDefault())}";
 
-            builder.Append('&')
-                   .Append(_direction)
-                   .Append('=')
-                   .Append(toString(from.GetValueOrDefault()));
-
-            var result = builder.ToString();
-
-            builder.Length = length;
-
-            return result;
-        }
-
-        return builder.ToString();
+        return ToString();
     }
 }

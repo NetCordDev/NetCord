@@ -46,6 +46,88 @@ public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
 
 public class Commands : ApplicationCommandModule<SlashCommandContext>
 {
+    [SlashCommand("search", "Search for messages!")]
+    public async Task SearchAsync(int? from = null,
+                                  PaginationDirection? direction = null,
+                                  int? batchSize = null,
+                                  GuildMessagesSearchSortingMode? sortBy = null,
+                                  string? content = null,
+                                  int? slop = null,
+                                  string? contents = null,
+                                  User? author = null,
+                                  GuildMessagesSearchAuthorTypes? authorTypes = null,
+                                  string? mention = null,
+                                  bool? mentionEveryone = null,
+                                  string? minId = null,
+                                  string? maxId = null,
+                                  GuildMessagesSearchHasOptions? has = null,
+                                  string? linkHostname = null,
+                                  string? embedProvider = null,
+                                  GuildMessagesSearchEmbedTypes? embedTypes = null,
+                                  string? attachmentExtension = null,
+                                  string? attachmentFilename = null,
+                                  bool? pinned = null,
+                                  string? commandId = null,
+                                  string? commandName = null,
+                                  bool? includeNsfw = null,
+                                  TextChannel? channel = null,
+                                  int? limit = null)
+    {
+        await RespondAsync(InteractionCallback.Message("Searching..."));
+
+        GuildMessagesSearchPaginationProperties searchProperties = new()
+        {
+            From = from,
+            Direction = direction,
+            BatchSize = batchSize,
+            SortBy = sortBy,
+            Content = content,
+            Slop = slop,
+            Contents = contents is not null ? [contents] : null,
+            AuthorIds = author is not null ? [author.Id] : null,
+            AuthorTypes = authorTypes,
+            Mentions = mention is not null ? [Snowflake.Parse(mention)] : null,
+            MentionEveryone = mentionEveryone,
+            MinId = minId is not null ? Snowflake.Parse(minId) : null,
+            MaxId = maxId is not null ? Snowflake.Parse(maxId) : null,
+            Has = has,
+            LinkHostnames = linkHostname is not null ? [linkHostname] : null,
+            EmbedProviders = embedProvider is not null ? [embedProvider] : null,
+            EmbedTypes = embedTypes,
+            AttachmentExtensions = attachmentExtension is not null ? [attachmentExtension] : null,
+            AttachmentFilenames = attachmentFilename is not null ? [attachmentFilename] : null,
+            Pinned = pinned,
+            CommandId = commandId is not null ? Snowflake.Parse(commandId) : null,
+            CommandName = commandName,
+            IncludeNsfw = includeNsfw,
+            ChannelIds = channel is not null ? [channel.Id] : null
+        };
+
+        int count = 0;
+
+        var results = Context.Guild!.SearchMessagesAsync(searchProperties);
+
+        if (limit.HasValue)
+            results = results.Take(limit.GetValueOrDefault());
+
+        await foreach (var result in results)
+        {
+            switch (result)
+            {
+                case GuildMessageSearchResult.Success successResult:
+                    Console.WriteLine(successResult.Message.Content);
+                    count++;
+                    break;
+                case GuildMessageSearchResult.Indexing indexingResult:
+                    Console.WriteLine($"Waiting {indexingResult.RetryAfter} seconds");
+                    await Task.Delay(indexingResult.RetryAfter * 1000);
+                    break;
+            }
+        }
+
+        Console.WriteLine($"Listed {count} messages!");
+    }
+
     [SlashCommand("cv2", "Components V2")]
     public static InteractionMessageProperties CV2()
     {
@@ -81,8 +163,8 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"{i1} {i2} {i3} {i4} {i5} {i6}"));
     }
 
-    [SlashCommand("search", "Search using DuckDuckGo")]
-    public Task SearchAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
+    [SlashCommand("ddg", "Search using DuckDuckGo")]
+    public Task DdgAsync([SlashCommandParameter(Description = "Search text", AutocompleteProviderType = typeof(DDGAutocomplete), MaxLength = 500)] string searchQuery)
     {
         return Context.Interaction.SendResponseAsync(InteractionCallback.Message($"https://duckduckgo.com/?q={Uri.EscapeDataString(searchQuery)}"));
     }
@@ -137,22 +219,23 @@ public class Commands : ApplicationCommandModule<SlashCommandContext>
     [SlashCommand("add-role", "Adds role to user or users")]
     public async Task AddRole(Mentionable mentionable, [SlashCommandParameter(Name = "role", Description = "Role to give")] Role roleToAdd)
     {
-        if (mentionable.Type == MentionableType.Role)
+        if (mentionable is Mentionable.Role { Value: var role })
         {
             await Context.Interaction.SendResponseAsync(InteractionCallback.DeferredMessage());
-            var roleId = mentionable.Role!.Id;
+            var roleId = role.Id;
             foreach (var user in Context.Client.Cache.Guilds[Context.Guild!.Id].Users.Values.Where(u => u.RoleIds.Contains(roleId) && !u.RoleIds.Contains(roleToAdd.Id)))
                 await user.AddRoleAsync(roleToAdd.Id);
             await Context.Interaction.ModifyResponseAsync(x =>
             {
-                x.Content = $"Role {roleToAdd} was given to users with {mentionable.Role} role";
+                x.Content = $"Role {roleToAdd} was given to users with {role} role";
                 x.AllowedMentions = AllowedMentionsProperties.None;
             });
         }
         else
         {
-            await ((GuildUser)mentionable.User!).AddRoleAsync(roleToAdd.Id);
-            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {mentionable.User}", AllowedMentions = AllowedMentionsProperties.None }));
+            var user = ((Mentionable.User)mentionable).Value;
+            await ((GuildUser)user).AddRoleAsync(roleToAdd.Id);
+            await Context.Interaction.SendResponseAsync(InteractionCallback.Message(new() { Content = $"Role {roleToAdd} was given {user}", AllowedMentions = AllowedMentionsProperties.None }));
         }
     }
 

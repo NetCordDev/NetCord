@@ -46,7 +46,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
 
         WriteEvents(stringWriter, events);
 
-        WriteHookEventsMethod(stringWriter, events);
+        WriteHookHandlersMethod(stringWriter, events);
 
         stringWriter.WriteLine("}");
 
@@ -58,14 +58,13 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
         foreach (var eventSymbol in events)
         {
             var eventType = (INamedTypeSymbol)eventSymbol.Type;
-            var hasArgs = eventType.Arity is 2;
 
             stringWriter.WriteInheritDoc(eventSymbol, 1);
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public event ");
 
-            WriteEventType(stringWriter, eventType);
+            WriteShardedEventType(stringWriter, eventType);
 
             stringWriter.Write("? ");
             stringWriter.WriteLine(eventSymbol.Name);
@@ -80,26 +79,14 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("HookEvent(");
+            stringWriter.Write("AddHandler(");
 
             var internalName = ToInternalName(eventSymbol.Name);
 
             stringWriter.Write(internalName);
-            stringWriter.Write("Lock, value, ref ");
+            stringWriter.Write(", ");
             stringWriter.Write(internalName);
-            stringWriter.Write(", client => ");
-
-            if (hasArgs)
-                stringWriter.Write("a => ");
-            else
-                stringWriter.Write("() => ");
-
-            stringWriter.Write(internalName);
-
-            if (hasArgs)
-                stringWriter.Write("!(client, a), (c, e) => c.");
-            else
-                stringWriter.Write("!(client), (c, e) => c.");
+            stringWriter.Write("Lock, value, (c, e) => c.");
 
             stringWriter.Write(eventSymbol.Name);
             stringWriter.WriteLine(" += e);");
@@ -114,11 +101,11 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("{");
 
             stringWriter.WriteIndentation(3);
-            stringWriter.Write("UnhookEvent(");
+            stringWriter.Write("RemoveHandler(");
             stringWriter.Write(internalName);
-            stringWriter.Write("Lock, value, ref ");
+            stringWriter.Write(", ");
             stringWriter.Write(internalName);
-            stringWriter.Write(", (c, e) => c.");
+            stringWriter.Write("Lock, value, (c, e) => c.");
             stringWriter.Write(eventSymbol.Name);
             stringWriter.WriteLine(" -= e);");
 
@@ -129,13 +116,13 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine("}");
 
             stringWriter.WriteIndentation(1);
-            stringWriter.Write("private ");
-
+            stringWriter.Write("private System.Collections.Generic.Dictionary<");
+            WriteShardedEventType(stringWriter, eventType);
+            stringWriter.Write(", List<");
             WriteEventType(stringWriter, eventType);
-
-            stringWriter.Write("? ");
+            stringWriter.Write("[]>> ");
             stringWriter.Write(internalName);
-            stringWriter.WriteLine(";");
+            stringWriter.WriteLine(" = [];");
 
             stringWriter.WriteIndentation(1);
             stringWriter.Write("private readonly System.Threading.Lock ");
@@ -145,43 +132,26 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
         }
     }
 
-    private void WriteHookEventsMethod(StringWriter stringWriter, IEventSymbol[] events)
+    private void WriteHookHandlersMethod(StringWriter stringWriter, IEventSymbol[] events)
     {
         stringWriter.WriteIndentation(1);
-        stringWriter.Write("private void HookEvents(");
+        stringWriter.Write("private void HookHandlers(");
         stringWriter.Write(GatewayClientName);
-        stringWriter.WriteLine(" client)");
+        stringWriter.WriteLine("[] clients)");
 
         stringWriter.WriteIndentation(1);
         stringWriter.WriteLine("{");
 
         foreach (var eventSymbol in events)
         {
-            var eventType = (INamedTypeSymbol)eventSymbol.Type;
-            var hasArgs = eventType.Arity is 2;
-
             stringWriter.WriteIndentation(2);
 
-            stringWriter.Write("HookEvent(client, ");
+            stringWriter.Write("HookHandlersToClients(clients, ");
 
             var internalName = ToInternalName(eventSymbol.Name);
-
-            stringWriter.Write(internalName);
-            stringWriter.Write("Lock, ref ");
             stringWriter.Write(internalName);
 
-            if (hasArgs)
-                stringWriter.Write(", a => ");
-            else
-                stringWriter.Write(", () => ");
-
-            stringWriter.Write(internalName);
-
-            if (hasArgs)
-                stringWriter.Write("!(client, a), (c, e) => c.");
-            else
-                stringWriter.Write("!(client), (c, e) => c.");
-
+            stringWriter.Write(", (c, e) => c.");
             stringWriter.Write(eventSymbol.Name);
             stringWriter.WriteLine(" += e);");
         }
@@ -190,7 +160,7 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
         stringWriter.WriteLine("}");
     }
 
-    private static void WriteEventType(StringWriter stringWriter, INamedTypeSymbol eventType)
+    private static void WriteShardedEventType(StringWriter stringWriter, INamedTypeSymbol eventType)
     {
         stringWriter.Write(eventType.ContainingNamespace.ToDisplayString());
         stringWriter.Write(".");
@@ -209,6 +179,33 @@ public class ShardedGatewayClientEventsGenerator : IIncrementalGenerator
             stringWriter.Write(".");
             stringWriter.Write(typeArgument.Name);
         }
+        stringWriter.Write(">");
+    }
+
+    private static void WriteEventType(StringWriter stringWriter, INamedTypeSymbol eventType)
+    {
+        stringWriter.Write(eventType.ContainingNamespace.ToDisplayString());
+        stringWriter.Write(".");
+        stringWriter.Write(eventType.Name);
+        stringWriter.Write("<");
+
+        var typeArguments = eventType.TypeArguments;
+        int length = typeArguments.Length;
+
+        int i = 0;
+        while (true)
+        {
+            var typeArgument = typeArguments[i];
+            stringWriter.Write(typeArgument.ContainingNamespace.ToDisplayString());
+            stringWriter.Write(".");
+            stringWriter.Write(typeArgument.Name);
+
+            if (++i >= length)
+                break;
+
+            stringWriter.Write(", ");
+        }
+
         stringWriter.Write(">");
     }
 

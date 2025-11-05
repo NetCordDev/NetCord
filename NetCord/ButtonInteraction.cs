@@ -7,3 +7,7 @@ public class ButtonInteraction(JsonModels.JsonInteraction jsonModel, Guild? guil
 {
     public override ButtonInteractionData Data { get; } = new(jsonModel.Data!);
 }
+
+public class ButtonInteractionData(JsonModels.JsonInteractionData jsonModel) : MessageComponentInteractionData(jsonModel)
+{
+}

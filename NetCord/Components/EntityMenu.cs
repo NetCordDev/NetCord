@@ -4,21 +4,37 @@ namespace NetCord;
 
 public abstract class EntityMenu : Menu
 {
-    public EntityMenu(JsonComponent jsonModel, IReadOnlyList<ulong> defaultValues, int parentId) : base(jsonModel, parentId)
+    private protected EntityMenu(JsonComponent jsonModel, int parentId) : base(jsonModel, parentId)
+    {
+        DefaultValues = jsonModel.DefaultValues.SelectOrEmpty(v => v.Id).ToArray();
+    }
+
+    private protected EntityMenu(JsonComponent jsonModel, IReadOnlyList<ulong> defaultValues, int parentId) : base(jsonModel, parentId)
+    {
+        DefaultValues = defaultValues;
+    }
+
+    private protected EntityMenu(JsonComponent jsonModel, int parentId, IReadOnlyList<ulong> selectedValues) : base(jsonModel, parentId)
+    {
+        DefaultValues = jsonModel.DefaultValues.SelectOrEmpty(v => v.Id).ToArray();
+
+        SelectedValues = selectedValues;
+    }
+
+    private protected EntityMenu(JsonComponent jsonModel, IReadOnlyList<ulong> defaultValues, int parentId, IReadOnlyList<ulong> selectedValues) : base(jsonModel, parentId)
     {
         DefaultValues = defaultValues;
 
-        if (jsonModel.SelectedValues is { Length: int length } selectedValues)
-        {
-            var result = new ulong[length];
-            for (var i = 0; i < length; i++)
-                result[i] = Snowflake.Parse(selectedValues[i]);
-            SelectedValues = result;
-        }
+        SelectedValues = selectedValues;
     }
 
-    public EntityMenu(JsonComponent jsonModel, int parentId) : this(jsonModel, jsonModel.DefaultValues.SelectOrEmpty(d => d.Id).ToArray(), parentId)
+    private protected static unsafe IReadOnlyList<ulong> GetSelectedValues<T>(JsonComponent jsonModel, delegate*<string[], InteractionResolvedData, T[]> getValues, out T[] values, InteractionResolvedData? resolvedData) where T : Entity
     {
+        if (resolvedData is not null)
+            return new EntityArrayWrapper<T>(values = getValues(jsonModel.SelectedValues!, resolvedData));
+
+        values = [];
+        return [];
     }
 
     public IReadOnlyList<ulong> DefaultValues { get; }
