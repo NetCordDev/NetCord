@@ -4,6 +4,9 @@ using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
 
+/// <summary>
+/// Base interface for <see cref="ApplicationCommandService{TContext}"/>.
+/// </summary>
 public interface IApplicationCommandService : IService
 {
     internal IReadOnlyList<IApplicationCommandInfo> Commands { get; }
