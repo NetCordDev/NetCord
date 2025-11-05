@@ -26,10 +26,10 @@ public class AutocompleteInteractionContext(AutocompleteInteraction interaction,
 {
     public GatewayClient Client => client;
     public Guild? Guild => Interaction.Guild;
-    
+
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
-    
+
     public User User => Interaction.User;
 
     ulong? IGuildContext.GuildId => Interaction.GuildId;
@@ -47,9 +47,9 @@ public class HttpAutocompleteInteractionContext(AutocompleteInteraction interact
       IUserContext
 {
     public RestClient Client => client;
-    
+
     /// <inheritdoc cref="IChannelContext.Channel" path="/summary" />
     public TextChannel Channel => Interaction.Channel;
-    
+
     public User User => Interaction.User;
 }
