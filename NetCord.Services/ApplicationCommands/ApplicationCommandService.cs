@@ -49,7 +49,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
 public class ApplicationCommandService<TContext> : IApplicationCommandService where TContext : IApplicationCommandContext
 {
     /// <inheritdoc cref="ApplicationCommandService{TContext}" path="/summary" />
-    /// <param name="configuration">The configuration for the application command service.</param>
+    /// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
         if (configuration is null)
