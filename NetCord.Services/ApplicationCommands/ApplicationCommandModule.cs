@@ -6,7 +6,7 @@ namespace NetCord.Services.ApplicationCommands;
 /// Represents a module for application commands.
 /// </summary>
 /// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
-public class ApplicationCommandModule<TContext> : BaseApplicationCommandModule<TContext> where TContext : IApplicationCommandContext
+public abstract class ApplicationCommandModule<TContext> : BaseApplicationCommandModule<TContext> where TContext : IApplicationCommandContext
 {
     /// <inheritdoc cref="Interaction.SendResponseAsync" />
     public Task<InteractionCallbackResponse?> RespondAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendResponseAsync(callback, withResponse, properties, cancellationToken);

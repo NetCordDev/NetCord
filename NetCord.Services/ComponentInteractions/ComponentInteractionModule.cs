@@ -6,7 +6,7 @@ namespace NetCord.Services.ComponentInteractions;
 /// Represents a module for component interactions.
 /// </summary>
 /// <typeparam name="TContext">The context the invoked component interactions use.</typeparam>
-public class ComponentInteractionModule<TContext> : BaseComponentInteractionModule<TContext> where TContext : IComponentInteractionContext
+public abstract class ComponentInteractionModule<TContext> : BaseComponentInteractionModule<TContext> where TContext : IComponentInteractionContext
 {
     /// <inheritdoc cref="Interaction.SendResponseAsync" />
     public Task<InteractionCallbackResponse?> RespondAsync(InteractionCallbackProperties callback, bool withResponse = false, RestRequestProperties? properties = null, CancellationToken cancellationToken = default) => Context.Interaction.SendResponseAsync(callback, withResponse, properties, cancellationToken);
