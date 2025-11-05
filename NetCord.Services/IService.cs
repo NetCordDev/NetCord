@@ -14,7 +14,7 @@ namespace NetCord.Services;
 public interface IService
 {
     /// <summary>
-    /// Scans the specified assembly for modules and registers them with the service.
+    /// Scans the specified assembly for public modules and registers them with the service.
     /// </summary>
     /// <param name="assembly">The assembly to scan for modules.</param>
     [RequiresUnreferencedCode("Types might be removed")]
