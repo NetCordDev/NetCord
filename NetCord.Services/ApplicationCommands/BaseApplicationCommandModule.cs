@@ -2,6 +2,10 @@
 
 #nullable disable
 
+/// <summary>
+/// Represents a base module for application commands.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
 public class BaseApplicationCommandModule<TContext> : IBaseModule<TContext> where TContext : IApplicationCommandContext
 {
     public TContext Context => _context;
