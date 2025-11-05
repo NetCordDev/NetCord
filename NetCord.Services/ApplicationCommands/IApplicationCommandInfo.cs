@@ -9,7 +9,7 @@ public interface IApplicationCommandInfo
     /// <summary>
     /// The type of the application command.
     /// </summary>
-    public abstract ApplicationCommandType Type { get; }
+    public ApplicationCommandType Type { get; }
 
     /// <inheritdoc cref="ApplicationCommandAttribute.Name" />
     public string Name { get; }
