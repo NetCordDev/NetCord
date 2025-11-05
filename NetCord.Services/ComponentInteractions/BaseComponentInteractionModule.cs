@@ -2,6 +2,10 @@
 
 #nullable disable
 
+/// <summary>
+/// Represents a base module for component interactions.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked component interactions use.</typeparam>
 public class BaseComponentInteractionModule<TContext> : IBaseModule<TContext> where TContext : IComponentInteractionContext
 {
     public TContext Context => _context;
