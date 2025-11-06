@@ -2,9 +2,9 @@
 
 namespace NetCord.Services.Commands.TypeReaders;
 
-public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TContext : ICommandContext
+public class ChannelTypeReader<TContext> : CommandTypeParser<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<CommandTypeParserResult> ParseAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
@@ -16,33 +16,33 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
         else
             return new(GetGuildChannel<Channel>(guild, input.Span));
 
-        return new(TypeReaderResult.Fail("The channel was not found."));
+        return new(CommandTypeParserResult.Fail("The channel was not found."));
     }
 
-    protected TypeReaderResult GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
+    protected CommandTypeParserResult GetChannel<T>(TextChannel channel, ReadOnlySpan<char> input)
     {
         if (Mention.TryParseChannel(input, out var id))
         {
             if (id == channel.Id && channel is T t)
-                return TypeReaderResult.Success(t);
+                return CommandTypeParserResult.Success(t);
         }
 
         if (channel is INamedChannel namedChannel)
         {
             if (input.SequenceEqual(namedChannel.Name) && channel is T t)
-                return TypeReaderResult.Success(t);
+                return CommandTypeParserResult.Success(t);
         }
 
         if (Snowflake.TryParse(input, out id))
         {
             if (id == channel.Id && channel is T t)
-                return TypeReaderResult.Success(t);
+                return CommandTypeParserResult.Success(t);
         }
 
-        return TypeReaderResult.Fail("The channel was not found.");
+        return CommandTypeParserResult.Fail("The channel was not found.");
     }
 
-    protected TypeReaderResult GetGuildChannel<T>(Guild guild, ReadOnlySpan<char> input)
+    protected CommandTypeParserResult GetGuildChannel<T>(Guild guild, ReadOnlySpan<char> input)
     {
         var channels = guild.Channels;
         var threads = guild.ActiveThreads;
@@ -53,12 +53,12 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
             if (channels.TryGetValue(id, out var channel))
             {
                 if (channel is T t)
-                    return TypeReaderResult.Success(t);
+                    return CommandTypeParserResult.Success(t);
             }
             else if (threads.TryGetValue(id, out var thread))
             {
                 if (thread is T t)
-                    return TypeReaderResult.Success(t);
+                    return CommandTypeParserResult.Success(t);
             }
         }
 
@@ -75,9 +75,9 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
                     {
                         var current2 = enumerator.Current;
                         if (input.SequenceEqual(current2.Name) && current2 is T)
-                            return TypeReaderResult.Fail("Too many channels found.");
+                            return CommandTypeParserResult.Fail("Too many channels found.");
                     }
-                    return TypeReaderResult.Success(t);
+                    return CommandTypeParserResult.Success(t);
                 }
             }
 
@@ -90,15 +90,15 @@ public class ChannelTypeReader<TContext> : CommandTypeReader<TContext> where TCo
             if (channels.TryGetValue(id, out var channel))
             {
                 if (channel is T t)
-                    return TypeReaderResult.Success(t);
+                    return CommandTypeParserResult.Success(t);
             }
             else if (threads.TryGetValue(id, out var thread))
             {
                 if (thread is T t)
-                    return TypeReaderResult.Success(t);
+                    return CommandTypeParserResult.Success(t);
             }
         }
 
-        return TypeReaderResult.Fail("The channel was not found.");
+        return CommandTypeParserResult.Fail("The channel was not found.");
     }
 }

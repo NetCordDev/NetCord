@@ -6,8 +6,20 @@ using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ApplicationCommands;
 
+/// <summary>
+/// Provides functionality for managing and executing application commands with autocomplete support.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
+/// <typeparam name="TAutocompleteContext">The context the invoked autocomplete interactions use.</typeparam>
+/// <param name="configuration">The configuration for the application command service.</param>
 public class ApplicationCommandService<TContext, TAutocompleteContext>(ApplicationCommandServiceConfiguration<TContext>? configuration = null) : ApplicationCommandService<TContext>(configuration) where TContext : IApplicationCommandContext where TAutocompleteContext : IAutocompleteInteractionContext
 {
+    /// <summary>
+    /// Executes an autocomplete interaction.
+    /// </summary>
+    /// <param name="context">The autocomplete interaction context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public ValueTask<IExecutionResult> ExecuteAutocompleteAsync(TAutocompleteContext context, IServiceProvider? serviceProvider = null)
     {
         try
@@ -21,7 +33,7 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
             return new(new ExecutionExceptionResult(exception));
         }
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
@@ -30,8 +42,14 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
     }
 }
 
+/// <summary>
+/// Provides functionality for managing and executing application commands.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked application commands use.</typeparam>
 public class ApplicationCommandService<TContext> : IApplicationCommandService where TContext : IApplicationCommandContext
 {
+    /// <inheritdoc cref="ApplicationCommandService{TContext}" path="/summary" />
+    /// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
     public ApplicationCommandService(ApplicationCommandServiceConfiguration<TContext>? configuration = null)
     {
         if (configuration is null)
@@ -55,14 +73,18 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
     IReadOnlyList<IApplicationCommandInfo> IApplicationCommandService.GetCommands() => [.. _commands];
 
+    /// <summary>
+    /// The configuration for the application command service.
+    /// </summary>
     public ApplicationCommandServiceConfiguration<TContext> Configuration => _configuration;
 
+    /// <inheritdoc cref="IApplicationCommandService.GetCommands" />
     public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands];
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseApplicationCommandModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -101,7 +123,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             if (slashCommandGroup)
                 throw new InvalidOperationException($"The type '{type}' cannot have both a slash command and an entry point command defined.");
 
-            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(entryPointCommandAttribute, configuration);
+            EntryPointCommandInfo<TContext> entryPointCommandInfo = new(type, entryPointCommandAttribute, configuration);
             AddCommandInfo(entryPointCommandInfo);
 
             entryPointCommand = true;
@@ -178,6 +200,12 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
         return ApplicationCommandServiceManager.RegisterCommandsAsync([this], client, applicationId, guildId, properties, cancellationToken);
     }
 
+    /// <summary>
+    /// Executes an application command.
+    /// </summary>
+    /// <param name="context">The application command context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         try
@@ -190,7 +218,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             return new ExecutionExceptionResult(exception);
         }
 
-        return new NotFoundResult("Command not found.");
+        return NotFoundResult.Command;
     }
 
     private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)

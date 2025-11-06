@@ -11,7 +11,7 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
     internal EntryPointCommandInfo(MethodInfo method,
                                    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                                    EntryPointCommandAttribute attribute,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         Description = attribute.Description;
 
@@ -19,14 +19,16 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
         MethodHelper.EnsureNoParameters(method);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal EntryPointCommandInfo(EntryPointCommandBuilder builder,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          builder.Handler?.Method,
+                                                                                                          out var methodAttributes)
     {
         Description = builder.Description;
 
@@ -48,15 +50,18 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
             MethodHelper.EnsureNoParameters(split.Parameters, method);
 
-            Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+            Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
             _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
         }
     }
 
-    internal EntryPointCommandInfo(EntryPointCommandAttribute attribute,
+    internal EntryPointCommandInfo(Type type,
+                                   EntryPointCommandAttribute attribute,
                                    ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
-                                                                                                          configuration)
+                                                                                                          configuration,
+                                                                                                          type,
+                                                                                                          out _)
     {
         Description = attribute.Description;
 
@@ -69,13 +74,12 @@ internal class EntryPointCommandInfo<TContext> : ApplicationCommandInfo<TContext
 
     private static ValueTask EmptyInvokeAsync(object?[]? parameters, TContext context, IServiceProvider? serviceProvider) => default;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
     public string Description { get; }
     public EntryPointCommandHandler Handler { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.EntryPoint;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

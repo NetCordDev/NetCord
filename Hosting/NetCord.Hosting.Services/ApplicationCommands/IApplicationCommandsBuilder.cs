@@ -76,7 +76,7 @@ internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TC
 
     public void Build()
     {
-        var builders = _builders;
+        var builders = Interlocked.Exchange(ref _builders, []);
         int count = builders.Count;
 
         for (int i = 0; i < count; i++)
@@ -100,8 +100,6 @@ internal class ApplicationCommandsBuilder<TContext>(ApplicationCommandService<TC
                     break;
             }
         }
-
-        _builders = [];
     }
 }
 

@@ -6,9 +6,9 @@ namespace NetCord.Test.ApplicationCommands;
 public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
 {
     [SlashCommand("wzium", "Wziums user")]
-    public Task WziumAsync(User user)
+    public static ModalProperties WziumAsync(User user)
     {
-        return RespondAsync(InteractionCallback.Modal(new($"wzium:{user.Id}", "Wzium user",
+        return new($"wzium:{user.Id}", "Wzium user",
         [
             new LabelProperties(
                 "Reason",
@@ -38,6 +38,6 @@ public class ModalCommand : ApplicationCommandModule<SlashCommandContext>
                     new StringMenuSelectOptionProperties("No", "no"),
                 }.WithId(12).WithRequired(false)
             ).WithId(13),
-        ])));
+        ]);
     }
 }

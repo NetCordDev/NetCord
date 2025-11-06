@@ -13,7 +13,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services
     .AddApplicationCommands()
     .AddCommands()
-    .ConfigureDiscordShardedGateway(o => (o.Presence, o.ShardCount) = (new(UserStatusType.Idle), 3))
+    .ConfigureDiscordShardedGateway(o => (o.Presence, o.TotalShardCount) = (new(UserStatusType.Idle), 3))
     .AddDiscordShardedGateway()
     .AddShardedGatewayHandler(GatewayEvent.MessageCreate, (Message message, GatewayClient client, ILogger<Message> logger) => logger.LogInformation(new EventId(client.Shard.GetValueOrDefault().Id), "Content: {}", message.Content));
 

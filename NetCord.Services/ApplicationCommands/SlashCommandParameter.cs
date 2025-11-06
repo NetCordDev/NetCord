@@ -38,15 +38,15 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
     internal SlashCommandParameter(ParameterInfo parameter, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
     {
         IsOptional = parameter.IsOptional;
-        var attributesIEnumerable = parameter.GetCustomAttributes();
-        Attributes = attributesIEnumerable.ToRankedFrozenDictionary(a => a.GetType());
+        var parameterAttributes = Attribute.GetCustomAttributes(parameter);
+        var attributes = Attributes = parameterAttributes.ToRankedFrozenDictionary(a => a.GetType());
         LocalizationsProvider = configuration.LocalizationsProvider;
 
         var type = Type = parameter.ParameterType;
 
-        if (Attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var attributes))
+        if (attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var slashCommandParameterAttributes))
         {
-            var slashCommandParameterAttribute = (SlashCommandParameterAttribute)attributes[0];
+            var slashCommandParameterAttribute = (SlashCommandParameterAttribute)slashCommandParameterAttributes[0];
             (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
             var name = Name = slashCommandParameterAttribute.Name ?? configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
@@ -87,7 +87,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             MinLength = TypeReader.GetMinLength(this, configuration);
         }
 
-        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(parameterAttributes, method);
     }
 
     public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync(CancellationToken cancellationToken = default)

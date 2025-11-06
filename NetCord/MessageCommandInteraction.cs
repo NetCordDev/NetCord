@@ -7,3 +7,8 @@ public class MessageCommandInteraction(JsonModels.JsonInteraction jsonModel, Gui
 {
     public override MessageCommandInteractionData Data { get; } = new(jsonModel.Data!, client);
 }
+
+public class MessageCommandInteractionData(JsonModels.JsonInteractionData jsonModel, RestClient client) : ApplicationCommandInteractionData(jsonModel)
+{
+    public RestMessage TargetMessage { get; } = new(jsonModel.ResolvedData!.Messages![jsonModel.TargetId.GetValueOrDefault()], client);
+}

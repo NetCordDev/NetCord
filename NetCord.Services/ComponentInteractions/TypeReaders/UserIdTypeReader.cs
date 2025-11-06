@@ -6,7 +6,7 @@ namespace NetCord.Services.ComponentInteractions.TypeReaders;
 
 public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContext> where TContext : IComponentInteractionContext
 {
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionParameter<TContext> parameter, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<ComponentInteractionTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionParameter<TContext> parameter, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
         if (guild is not null)
@@ -19,14 +19,14 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
             if (Snowflake.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return new(TypeReaderResult.Success(new UserId(id, user)));
+                return new(ComponentInteractionTypeReaderResult.Success(new UserId(id, user)));
             }
 
             // by mention
             if (Mention.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return new(TypeReaderResult.Success(new UserId(id, user)));
+                return new(ComponentInteractionTypeReaderResult.Success(new UserId(id, user)));
             }
 
             // by name and tag
@@ -37,7 +37,7 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
                 {
                     GuildUser? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return new(TypeReaderResult.Success(new UserId(user.Id, user)));
+                        return new(ComponentInteractionTypeReaderResult.Success(new UserId(user.Id, user)));
                 }
             }
             // by name or nickname
@@ -47,10 +47,10 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
                 if (len <= 32)
                 {
                     if (users.Values.TryGetSingle(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s, out var user))
-                        return new(TypeReaderResult.Success(new UserId(user.Id, user)));
+                        return new(ComponentInteractionTypeReaderResult.Success(new UserId(user.Id, user)));
 
                     if (user is not null)
-                        return new(TypeReaderResult.Fail("Too many users found."));
+                        return new(ComponentInteractionTypeReaderResult.Fail("Too many users found."));
                 }
             }
         }
@@ -64,14 +64,14 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
             if (Snowflake.TryParse(s, out ulong id))
             {
                 users.TryGetValue(id, out var user);
-                return new(TypeReaderResult.Success(new UserId(id, user)));
+                return new(ComponentInteractionTypeReaderResult.Success(new UserId(id, user)));
             }
 
             // by mention
             if (Mention.TryParseUser(span, out id))
             {
                 users.TryGetValue(id, out var user);
-                return new(TypeReaderResult.Success(new UserId(id, user)));
+                return new(ComponentInteractionTypeReaderResult.Success(new UserId(id, user)));
             }
 
             // by name and tag
@@ -82,7 +82,7 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
                 {
                     User? user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return new(TypeReaderResult.Success(new UserId(user.Id, user)));
+                        return new(ComponentInteractionTypeReaderResult.Success(new UserId(user.Id, user)));
                 }
             }
             // by name
@@ -91,14 +91,14 @@ public class UserIdTypeReader<TContext> : ComponentInteractionTypeReader<TContex
                 if (input.Length is <= 32 and >= 2)
                 {
                     if (users.Values.TryGetSingle(u => u.Username == s, out var user))
-                        return new(TypeReaderResult.Success(new UserId(user.Id, user)));
+                        return new(ComponentInteractionTypeReaderResult.Success(new UserId(user.Id, user)));
 
                     if (user is not null)
-                        return new(TypeReaderResult.Fail("Too many users found."));
+                        return new(ComponentInteractionTypeReaderResult.Fail("Too many users found."));
                 }
             }
         }
 
-        return new(TypeReaderResult.Fail("The user was not found."));
+        return new(ComponentInteractionTypeReaderResult.Fail("The user was not found."));
     }
 }

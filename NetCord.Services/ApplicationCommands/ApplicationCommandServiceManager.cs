@@ -4,8 +4,12 @@ using NetCord.Rest;
 
 namespace NetCord.Services.ApplicationCommands;
 
+/// <summary>
+/// Allows registration of application commands from multiple instances of <see cref="ApplicationCommandService{TContext}"/>.
+/// </summary>
 public class ApplicationCommandServiceManager
 {
+    /// <inheritdoc cref="ApplicationCommandServiceManager" />
     public ApplicationCommandServiceManager() : this([])
     {
     }
@@ -17,13 +21,29 @@ public class ApplicationCommandServiceManager
 
     private readonly List<IApplicationCommandService> _services;
 
+    /// <summary>
+    /// The application command services added to the manager.
+    /// </summary>
     public IReadOnlyList<IApplicationCommandService> Services => _services;
 
+    /// <summary>
+    /// Adds an application command service to the manager.
+    /// </summary>
+    /// <param name="service">The application command service to add.</param>
     public void AddService(IApplicationCommandService service)
     {
         _services.Add(service);
     }
 
+    /// <summary>
+    /// Registers the application commands to Discord.
+    /// </summary>
+    /// <param name="client">The <see cref="RestClient"/> to use for registration.</param>
+    /// <param name="applicationId">The application ID.</param>
+    /// <param name="guildId">The guild ID for guild-specific commands, or <see langword="null"/> for global commands.</param>
+    /// <param name="properties">The <see cref="RestClient"/>'s request properties to use for registration.</param>
+    /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
+    /// <returns>A task representing the registered application commands.</returns>
     public Task<IReadOnlyList<ApplicationCommand>> RegisterCommandsAsync(RestClient client, ulong applicationId, ulong? guildId = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         return RegisterCommandsAsync(_services, client, applicationId, guildId, properties, cancellationToken);

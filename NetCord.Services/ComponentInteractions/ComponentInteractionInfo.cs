@@ -2,6 +2,7 @@
 using System.Reflection;
 
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ComponentInteractions;
 
@@ -9,6 +10,7 @@ public class ComponentInteractionInfo<TContext> where TContext : IComponentInter
 {
     public IReadOnlyList<ComponentInteractionParameter<TContext>> Parameters { get; }
     public Func<object?[]?, TContext, IServiceProvider?, ValueTask> InvokeAsync { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     internal ComponentInteractionInfo(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, ComponentInteractionServiceConfiguration<TContext> configuration)
@@ -18,7 +20,27 @@ public class ComponentInteractionInfo<TContext> where TContext : IComponentInter
 
         InvokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        var attributes = Attribute.GetCustomAttributes(method);
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes, declaringType);
+    }
+
+    internal ComponentInteractionInfo(ComponentInteractionBuilder builder, ComponentInteractionServiceConfiguration<TContext> configuration)
+    {
+        var handler = builder.Handler;
+
+        var method = handler.Method;
+
+        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
+
+        var parameters = GetParameters(split.Parameters, method, configuration);
+        Parameters = parameters;
+
+        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
+
+        var attributes = Attribute.GetCustomAttributes(method);
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, attributes);
     }
 
     private static ComponentInteractionParameter<TContext>[] GetParameters(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, ComponentInteractionServiceConfiguration<TContext> configuration)
@@ -35,22 +57,6 @@ public class ComponentInteractionInfo<TContext> where TContext : IComponentInter
         }
 
         return result;
-    }
-
-    internal ComponentInteractionInfo(ComponentInteractionBuilder builder, ComponentInteractionServiceConfiguration<TContext> configuration)
-    {
-        var handler = builder.Handler;
-
-        var method = handler.Method;
-
-        var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
-
-        var parameters = GetParameters(split.Parameters, method, configuration);
-        Parameters = parameters;
-
-        InvokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, parameters.Select(p => p.Type), configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
-
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
     }
 
     internal ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)

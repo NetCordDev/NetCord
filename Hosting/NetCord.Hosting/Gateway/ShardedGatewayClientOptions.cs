@@ -26,6 +26,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
 
     public string? PublicKey { get; set; }
 
+    public bool? AutoStartStop { get; set; }
+
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.WebSocketConnectionProviderFactory" />
     public Func<Shard, IWebSocketConnectionProvider?>? WebSocketConnectionProviderFactory { get; set; }
 
@@ -65,8 +67,14 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.PresenceFactory" />
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ShardCount" />
-    public int? ShardCount { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.MaxConcurrency" />
+    public int? MaxConcurrency { get; set; }
+
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.ShardRange" />
+    public Range? ShardRange { get; set; }
+
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.TotalShardCount" />
+    public int? TotalShardCount { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RestClientConfiguration" />
     public RestClientConfiguration? RestClientConfiguration { get; set; }
@@ -124,7 +132,9 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
                                                                CreateFactory(ConnectionProperties, ConnectionPropertiesFactory),
                                                                CreateFactory(LargeThreshold, LargeThresholdFactory),
                                                                CreateFactory(Presence, PresenceFactory),
-                                                               ShardCount,
+                                                               MaxConcurrency,
+                                                               ShardRange,
+                                                               TotalShardCount,
                                                                RestClientConfiguration,
                                                                CreateLogger);
 

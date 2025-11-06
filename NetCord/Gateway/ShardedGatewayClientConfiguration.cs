@@ -49,9 +49,22 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     public Func<Shard, PresenceProperties?>? PresenceFactory { get; init; }
 
     /// <summary>
-    /// The number of shards to use. If <see langword="null"/>, the number of shards will be determined by Discord.
+    /// The maximum number of shards that can connect concurrently. If <see langword="null"/>, it will be determined by Discord.
     /// </summary>
-    public int? ShardCount { get; init; }
+    public int? MaxConcurrency { get; init; }
+
+    /// <summary>
+    /// The range of shards to use. Note that shard IDs are zero-based and the end value is exclusive. For example, to use shards 2, 3, and 4, set this to <c>2..5</c>. If <see langword="null"/>, all shards from 0 to <see cref="TotalShardCount"/> - 1 will be used.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="TotalShardCount"/> is required to be set when this property is set.
+    /// </remarks>
+    public Range? ShardRange { get; init; }
+
+    /// <summary>
+    /// The total number of shards. If <see langword="null"/>, the number of shards will be determined by Discord.
+    /// </summary>
+    public int? TotalShardCount { get; init; }
 
     /// <summary>
     /// The configuration for the <see cref="RestClient"/> at <see cref="ShardedGatewayClient.Rest"/>

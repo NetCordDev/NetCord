@@ -7,19 +7,31 @@ namespace NetCord.Services.ComponentInteractions;
 
 #pragma warning disable IDE0032 // Use auto property
 
+/// <summary>
+/// Provides functionality for handling component interactions.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked component interactions use.</typeparam>
+/// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
 public class ComponentInteractionService<TContext>(ComponentInteractionServiceConfiguration<TContext>? configuration = null) : IComponentInteractionService where TContext : IComponentInteractionContext
 {
     private readonly ComponentInteractionServiceConfiguration<TContext> _configuration = configuration ?? ComponentInteractionServiceConfiguration<TContext>.Default;
     private readonly Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> _componentInteractions = new(ReadOnlyMemoryCharComparer.InvariantCulture);
 
+    /// <summary>
+    /// The configuration for the component interaction service.
+    /// </summary>
     public ComponentInteractionServiceConfiguration<TContext> Configuration => _configuration;
 
+    /// <summary>
+    /// Gets the collection of component interactions registered in the service.
+    /// </summary>
+    /// <returns>The collection of component interactions registered in the service.</returns>
     public IReadOnlyDictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>> GetComponentInteractions() => new Dictionary<ReadOnlyMemory<char>, ComponentInteractionInfo<TContext>>(_componentInteractions);
 
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
-        foreach (var type in ServiceHelpers.GetModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
+        foreach (var type in ServiceHelpers.GetTopLevelModules(typeof(BaseComponentInteractionModule<TContext>), assembly))
             AddModuleCore(type);
     }
 
@@ -66,6 +78,12 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         _componentInteractions.Add(customIdMemory, info);
     }
 
+    /// <summary>
+    /// Executes a component interaction.
+    /// </summary>
+    /// <param name="context">The component interaction context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(TContext context, IServiceProvider? serviceProvider = null)
     {
         try
@@ -91,7 +109,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content;
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = default;
         }
@@ -100,7 +118,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
             var customId = content[..index];
 
             if (!TryGetInteractionInfo(customId, out interactionInfo))
-                return new NotFoundResult("Interaction not found.");
+                return NotFoundResult.ComponentInteraction;
 
             arguments = content[(index + 1)..];
         }
@@ -140,7 +158,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
                 {
                     var typeReaderResult = await parameter.ReadAsync(currentArg, context, configuration, serviceProvider).ConfigureAwait(false);
 
-                    if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+                    if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                         return typeReaderResult;
 
                     value = typeReaderSuccessResult.Value;
@@ -187,7 +205,7 @@ public class ComponentInteractionService<TContext>(ComponentInteractionServiceCo
         {
             var typeReaderResult = await parameter.ReadAsync(arguments[ranges[i]], context, configuration, serviceProvider).ConfigureAwait(false);
 
-            if (typeReaderResult is not TypeReaderSuccessResult typeReaderSuccessResult)
+            if (typeReaderResult is not ComponentInteractionTypeReaderSuccessResult typeReaderSuccessResult)
                 return typeReaderResult;
 
             var value = typeReaderSuccessResult.Value;

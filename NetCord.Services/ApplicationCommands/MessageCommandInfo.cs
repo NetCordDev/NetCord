@@ -11,18 +11,20 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
     internal MessageCommandInfo(MethodInfo method,
                                 [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                                 MessageCommandAttribute attribute,
-                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                                ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(RestMessage));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal MessageCommandInfo(MessageCommandBuilder builder,
                                 ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                       configuration)
+                                                                                                       configuration,
+                                                                                                       builder.Handler.Method,
+                                                                                                       out var methodAttributes)
     {
         var handler = builder.Handler;
 
@@ -32,18 +34,17 @@ public class MessageCommandInfo<TContext> : ApplicationCommandInfo<TContext> whe
 
         var messageParameter = _messageParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(RestMessage));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, messageParameter ? [typeof(RestMessage)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _messageParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.Message;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.Message;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

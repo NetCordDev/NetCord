@@ -5,6 +5,7 @@ using System.Reflection;
 
 using NetCord.Rest;
 using NetCord.Services.Helpers;
+using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
@@ -18,9 +19,13 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        var attributes = Attribute.GetCustomAttributes(type);
+
+        Attributes = attributes.ToRankedFrozenDictionary(a => a.GetType());
+
         Description = attribute.Description;
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(type, attributes);
 
         List<KeyValuePair<string, ISubSlashCommandInfo<TContext>>> subCommands = [];
 
@@ -44,6 +49,8 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         LocalizationsProvider = configuration.LocalizationsProvider;
 
+        Attributes = FrozenDictionary<Type, IReadOnlyList<Attribute>>.Empty;
+
         Description = builder.Description;
 
         Preconditions = [];
@@ -66,6 +73,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
     public string Name { get; }
     public ILocalizationsProvider? LocalizationsProvider { get; }
     public ImmutableList<LocalizationPathSegment> LocalizationPath { get; }
+    public IReadOnlyDictionary<Type, IReadOnlyList<Attribute>> Attributes { get; }
     public string Description { get; }
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
     public IReadOnlyDictionary<string, ISubSlashCommandInfo<TContext>> SubCommands { get; }
@@ -78,7 +86,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
 
         var option = options[0];
         if (!SubCommands.TryGetValue(option.Name, out var subCommand))
-            return new NotFoundResult("Command not found.");
+            return NotFoundResult.Command;
 
         return await subCommand.InvokeAsync(context, option.Options!, configuration, serviceProvider).ConfigureAwait(false);
     }
@@ -107,7 +115,7 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         if (SubCommands.TryGetValue(option.Name, out var subCommand))
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
-        return new(new NotFoundResult("Command not found."));
+        return new(NotFoundResult.Command);
     }
 
     void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)

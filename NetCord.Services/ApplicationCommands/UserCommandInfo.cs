@@ -11,18 +11,20 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
     internal UserCommandInfo(MethodInfo method,
                              [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                              UserCommandAttribute attribute,
-                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration)
+                             ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
     {
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(method, typeof(User));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(declaringType, method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes, declaringType);
 
         _invokeAsync = InvocationHelper.CreateModuleDelegate(method, declaringType, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     internal UserCommandInfo(UserCommandBuilder builder,
                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                    configuration)
+                                                                                                    configuration,
+                                                                                                    builder.Handler.Method,
+                                                                                                    out var methodAttributes)
     {
         var handler = builder.Handler;
 
@@ -32,18 +34,17 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
 
         var userParameter = _userParameter = MethodHelper.EnsureSingleParameterOfTypeOrNone(split.Parameters, method, typeof(User));
 
-        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method);
+        Preconditions = PreconditionsHelper.GetPreconditions<TContext>(method, methodAttributes);
 
         _invokeAsync = InvocationHelper.CreateHandlerDelegate(handler, split.Services, split.HasContext, userParameter ? [typeof(User)] : [], configuration.ResultResolverProvider, configuration.ServiceResolverProvider);
     }
 
     private readonly bool _userParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.User;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.User;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {

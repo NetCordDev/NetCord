@@ -11,19 +11,19 @@ public class EnumTypeReader<TContext> : SlashCommandTypeReader<TContext> where T
 
     public unsafe EnumTypeReader()
     {
-        _enumTypeReaderManager = new(&GetKey, (type, parameter, configuration) => new SlashCommandEnumTypeReader<TContext>(type));
+        _enumTypeReaderManager = new(&GetKey, static (type, parameter, configuration) => new SlashCommandEnumTypeReader<TContext>(type));
 
         static Type GetKey(SlashCommandParameter<TContext> parameter) => parameter.NonNullableType;
     }
 
     public override ApplicationCommandOptionType Type => ApplicationCommandOptionType.Integer;
 
-    public override ValueTask<TypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<SlashCommandTypeReaderResult> ReadAsync(string value, TContext context, SlashCommandParameter<TContext> parameter, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         if (_enumTypeReaderManager.GetTypeReader(parameter, null).TryRead(value.AsMemory(), out var result))
-            return new(TypeReaderResult.Success(result));
+            return new(SlashCommandTypeReaderResult.Success(result));
 
-        return new(TypeReaderResult.ParseFail(parameter.Name));
+        return new(SlashCommandTypeReaderResult.ParseFail(parameter.Name));
     }
 
     public override IChoicesProvider<TContext>? ChoicesProvider => new EnumChoicesProvider(_enumTypeReaderManager);

@@ -2,7 +2,7 @@
 
 public class INamedChannelTypeReader<TContext> : ChannelTypeReader<TContext> where TContext : ICommandContext
 {
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<CommandTypeParserResult> ParseAsync(ReadOnlyMemory<char> input, TContext context, CommandParameter<TContext> parameter, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Message.Guild;
         if (guild is null)
@@ -14,6 +14,6 @@ public class INamedChannelTypeReader<TContext> : ChannelTypeReader<TContext> whe
         else
             return new(GetGuildChannel<INamedChannel>(guild, input.Span));
 
-        return new(TypeReaderResult.Fail("The channel was not found."));
+        return new(CommandTypeParserResult.Fail("The channel was not found."));
     }
 }

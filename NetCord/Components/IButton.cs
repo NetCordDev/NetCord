@@ -4,7 +4,7 @@ public interface IButton : IActionRowComponent, IComponentSectionAccessoryCompon
 {
     public bool Disabled { get; }
 
-    public new static IButton CreateFromJson(JsonModels.JsonComponent jsonModel)
+    public static new IButton CreateFromJson(JsonModels.JsonComponent jsonModel)
     {
         return jsonModel.Style.GetValueOrDefault() switch
         {

@@ -5,5 +5,5 @@ namespace MyBot;
 public class RoleMenuModule : ComponentInteractionModule<RoleMenuInteractionContext>
 {
     [ComponentInteraction("menu")]
-    public string Menu() => $"You selected: {string.Join(", ", Context.SelectedRoles)}";
+    public string Menu() => $"You selected: {string.Join(", ", Context.SelectedValues)}";
 }

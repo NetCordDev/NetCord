@@ -12,3 +12,12 @@ public abstract class ComponentInteraction : Interaction
 
     public abstract override ComponentInteractionData Data { get; }
 }
+
+public class ComponentInteractionData : InteractionData
+{
+    private protected ComponentInteractionData(JsonInteractionData jsonModel) : base(jsonModel)
+    {
+    }
+
+    public string CustomId => _jsonModel.CustomId!;
+}

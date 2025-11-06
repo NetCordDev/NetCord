@@ -6,7 +6,7 @@ namespace NetCord.Services.ComponentInteractions.TypeReaders;
 
 public class GuildUserTypeReader<TContext> : ComponentInteractionTypeReader<TContext> where TContext : IComponentInteractionContext
 {
-    public override ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionParameter<TContext> parameter, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public override ValueTask<ComponentInteractionTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, ComponentInteractionParameter<TContext> parameter, ComponentInteractionServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         var guild = context.Interaction.Guild;
         if (guild is null)
@@ -19,7 +19,7 @@ public class GuildUserTypeReader<TContext> : ComponentInteractionTypeReader<TCon
         if (Snowflake.TryParse(s, out ulong id))
         {
             if (users.TryGetValue(id, out var user))
-                return new(TypeReaderResult.Success(user));
+                return new(ComponentInteractionTypeReaderResult.Success(user));
         }
         else
         {
@@ -27,7 +27,7 @@ public class GuildUserTypeReader<TContext> : ComponentInteractionTypeReader<TCon
             if (Mention.TryParseUser(span, out id))
             {
                 if (users.TryGetValue(id, out var user))
-                    return new(TypeReaderResult.Success(user));
+                    return new(ComponentInteractionTypeReaderResult.Success(user));
                 goto NotFound;
             }
 
@@ -39,7 +39,7 @@ public class GuildUserTypeReader<TContext> : ComponentInteractionTypeReader<TCon
                 {
                     var user = users.Values.FirstOrDefault(u => u.Username == username && u.Discriminator == discriminator);
                     if (user is not null)
-                        return new(TypeReaderResult.Success(user));
+                        return new(ComponentInteractionTypeReaderResult.Success(user));
                 }
                 goto NotFound;
             }
@@ -51,13 +51,13 @@ public class GuildUserTypeReader<TContext> : ComponentInteractionTypeReader<TCon
             if (len <= 32)
             {
                 if (users.Values.TryGetSingle(len >= 2 ? u => u.Username == s || u.Nickname == s : u => u.Nickname == s, out var user))
-                    return new(TypeReaderResult.Success(user));
+                    return new(ComponentInteractionTypeReaderResult.Success(user));
 
                 if (user is not null)
-                    return new(TypeReaderResult.Fail("Too many users found."));
+                    return new(ComponentInteractionTypeReaderResult.Fail("Too many users found."));
             }
         }
         NotFound:
-        return new(TypeReaderResult.Fail("The user was not found."));
+        return new(ComponentInteractionTypeReaderResult.Fail("The user was not found."));
     }
 }

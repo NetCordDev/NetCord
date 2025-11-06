@@ -23,8 +23,8 @@ public class CommandParameter<TContext> where TContext : ICommandContext
     {
         IsOptional = parameter.IsOptional;
 
-        var attributesIEnumerable = parameter.GetCustomAttributes();
-        var attributes = Attributes = attributesIEnumerable.ToRankedDictionary(a => a.GetType());
+        var parameterAttributes = Attribute.GetCustomAttributes(parameter);
+        var attributes = Attributes = parameterAttributes.ToRankedFrozenDictionary(a => a.GetType());
 
         Type? typeReaderType;
         if (attributes.TryGetValue(typeof(CommandParameterAttribute), out var commandParameterAttributes))
@@ -44,10 +44,10 @@ public class CommandParameter<TContext> where TContext : ICommandContext
 
         (TypeReader, NonNullableElementType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ICommandTypeReader, CommandTypeReader<TContext>>(elementType, parameter, typeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
 
-        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(attributesIEnumerable, method);
+        Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(parameterAttributes, method);
     }
 
-    public async ValueTask<TypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
+    public async ValueTask<CommandTypeReaderResult> ReadAsync(ReadOnlyMemory<char> input, TContext context, CommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
         try
         {
@@ -55,7 +55,7 @@ public class CommandParameter<TContext> where TContext : ICommandContext
         }
         catch (Exception ex)
         {
-            return new TypeReaderExceptionResult(ex);
+            return new CommandTypeReaderExceptionResult(ex);
         }
     }
 

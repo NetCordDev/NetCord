@@ -40,6 +40,7 @@ using NetCord.Test.Hosting;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services
+    .AddSingleton<HttpClient>()
     .AddGatewayHandler(GatewayEvent.InteractionCreate, (Interaction interaction) => Console.WriteLine(interaction))
     .ConfigureDiscordGateway(o => o.Presence = new(UserStatusType.DoNotDisturb))
     .ConfigureCommands<CommandContext>(o => o.Prefix = "!")
@@ -47,7 +48,11 @@ builder.Services
     .ConfigureApplicationCommands<ApplicationCommandInteraction, ApplicationCommandContext, AutocompleteInteractionContext>(o => o.DefaultParameterDescriptionFormat = "AA")
     .ConfigureApplicationCommands(o => o.DefaultParameterDescriptionFormat = "XD")
     .ConfigureApplicationCommands(o => o.AutoRegisterCommands = true)
-    .AddDiscordGateway(o => o.Intents = GatewayIntents.All)
+    .AddDiscordGateway(o =>
+    {
+        o.Intents = GatewayIntents.All;
+        o.AutoStartStop = true;
+    })
     .AddApplicationCommands(options =>
     {
         options.ResultHandler = new CustomApplicationCommandResultHandler();
@@ -91,20 +96,20 @@ host.AddApplicationCommandModule<ApplicationCommandModule>();
 host.AddApplicationCommandModule<DITestModule>();
 
 host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
- {
-     builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
-     (string wzium,
-                                               ApplicationCommandContext context,
-                                               [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
+{
+    builder.AddSubCommand("green", "Green!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                              ApplicationCommandContext context,
+                                              [SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string value) => $"green {value}, wzium: {wzium}");
 
-     builder.AddSubCommand("blue", "Blue!", () => "blue");
+    builder.AddSubCommand("blue", "Blue!", () => "blue");
 
-     builder.AddSubCommandGroup("red", "Red!", builder =>
-     {
-         builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
-         builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
-     });
- });
+    builder.AddSubCommandGroup("red", "Red!", builder =>
+    {
+        builder.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+    });
+});
 
 //var yellowGroup = host.AddSlashCommandGroup("yellow", "Yellow!");
 
@@ -120,6 +125,22 @@ host.AddSlashCommandGroup("yellow", "Yellow!", builder =>
 //redYellowGroup.AddSubCommand("orange", "Orange!", [RequireContext<ApplicationCommandContext>(RequiredContext.DM)] () => "orange");
 
 //redYellowGroup.AddSubCommand("purple", "Purple!", ([SlashCommandParameter(AutocompleteProviderType = typeof(StringAutocompleteProvider))] string s) => $"purple {s}");
+
+host.AddCommandGroup(["yellow"], builder =>
+{
+    builder.AddSubCommand(["green"], [RequireContext<CommandContext>(RequiredContext.DM)]
+    (string wzium,
+                                      CommandContext context,
+                                      string value) => $"green {value}, wzium: {wzium}");
+
+    builder.AddSubCommand(["blue"], () => "blue");
+
+    builder.AddSubCommandGroup(["red"], builder =>
+    {
+        builder.AddSubCommand(["orange"], [RequireContext<CommandContext>(RequiredContext.DM)] () => "orange");
+        builder.AddSubCommand(["purple"], (string s) => $"purple {s}");
+    });
+});
 
 host.AddSlashCommand("context-accessor", "Context Accessor Test!", (IContextAccessor<ApplicationCommandContext> contextAccessor, ApplicationCommandContext context, [SlashCommandParameter(AutocompleteProviderType = typeof(ContextAccessorAutocompleteProvider))] string s) =>
 {
@@ -165,18 +186,43 @@ host.AddCommand(["context-accessor"], (IContextAccessor<CommandContext> contextA
 
 host.AddSlashCommand("modal", "Modal", () =>
 {
-    return InteractionCallback.Modal(new ModalProperties("modal", "Modal")
-        {
-            new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
-            new TextDisplayProperties("""
-                ```cs
-                Console.WriteLine("Wzium");
-                ```
-                """),
-            new LabelProperties("User", new UserMenuProperties("user")),
-            new LabelProperties("Channel", new ChannelMenuProperties("channel")),
-            new LabelProperties("Role", new RoleMenuProperties("role")),
-        });
+    return new ModalProperties("modal", "Modal")
+    {
+        new LabelProperties("Mentionable", new MentionableMenuProperties("mentionable")),
+        new TextDisplayProperties("""
+            ```cs
+            Console.WriteLine("Wzium");
+            ```
+            """),
+        new LabelProperties("User", new UserMenuProperties("user")),
+        new LabelProperties("Channel", new ChannelMenuProperties("channel")),
+        new LabelProperties("Role", new RoleMenuProperties("role")),
+    };
+});
+
+host.AddSlashCommand("file-upload", "File Upload!", () =>
+{
+    return new ModalProperties("file upload", "File Upload")
+    {
+        new LabelProperties("Upload", new FileUploadProperties("xd").WithRequired(false).WithMinValues(2).WithMaxValues(3)),
+    };
+});
+
+host.AddComponentInteraction<ModalInteractionContext>("file upload", async (HttpClient client, ModalInteractionContext context) =>
+{
+    var attachments = context.Components.OfType<Label>()
+                                        .Select(l => l.Component)
+                                        .OfType<FileUpload>()
+                                        .SelectMany(u => u.Attachments)
+                                        .ToArray();
+
+    return new InteractionMessageProperties()
+    {
+        Flags = MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+        Attachments = await Task.WhenAll(attachments.Select(async a => new AttachmentProperties(a.FileName, await client.GetStreamAsync(a.Url)))),
+        Components = attachments.Select(a => (IMessageComponentProperties)new FileDisplayProperties(new($"attachment://{a.FileName}")))
+                                .Prepend(new TextDisplayProperties("Uploaded files:"))
+    };
 });
 
 host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => new InteractionMessageProperties().WithContent("a").WithFlags(MessageFlags.Ephemeral));

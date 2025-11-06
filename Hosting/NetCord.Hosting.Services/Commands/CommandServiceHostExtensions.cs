@@ -9,14 +9,14 @@ public static class CommandServiceHostExtensions
 {
     public static IHost AddCommandModule(
         this IHost host,
-        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] Type type)
+        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] Type type)
     {
         var service = ServiceProviderServiceHelper.GetSingle<ICommandService>(host.Services);
         service.AddModule(type);
         return host;
     }
 
-    public static IHost AddCommandModule<[DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] T>(
+    public static IHost AddCommandModule<[DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] T>(
         this IHost host)
     {
         var service = ServiceProviderServiceHelper.GetSingle<ICommandService>(host.Services);
@@ -26,7 +26,7 @@ public static class CommandServiceHostExtensions
 
     public static IHost AddCommandModule<TContext>(
         this IHost host,
-        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] Type type)
+        [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] Type type)
 
         where TContext : ICommandContext
     {
@@ -36,7 +36,7 @@ public static class CommandServiceHostExtensions
     }
 
     public static IHost AddCommandModule<TContext,
-                                         [DAM(DAMT.PublicConstructors | DAMT.PublicMethods)] T>(
+                                         [DAM(DAMT.PublicConstructors | DAMT.PublicMethods | DAMT.PublicNestedTypes)] T>(
         this IHost host)
 
         where TContext : ICommandContext
@@ -52,10 +52,36 @@ public static class CommandServiceHostExtensions
         return commandsBuilder.AddCommand(aliases, handler);
     }
 
+    public static CommandGroupBuilder AddCommandGroup(this IHost host, IEnumerable<string> aliases)
+    {
+        var commandsBuilder = ServiceProviderServiceHelper.GetSingle<ICommandsBuilder>(host.Services);
+        return commandsBuilder.AddCommandGroup(aliases);
+    }
+
+    public static CommandGroupBuilder AddCommandGroup(this IHost host, IEnumerable<string> aliases, Action<CommandGroupBuilder> builder)
+    {
+        var commandsBuilder = ServiceProviderServiceHelper.GetSingle<ICommandsBuilder>(host.Services);
+        return commandsBuilder.AddCommandGroup(aliases, builder);
+    }
+
     public static CommandBuilder AddCommand<TContext>(this IHost host, IEnumerable<string> aliases, Delegate handler)
         where TContext : ICommandContext
     {
         var builder = host.Services.GetRequiredService<ICommandsBuilder<TContext>>();
         return builder.AddCommand(aliases, handler);
+    }
+
+    public static CommandGroupBuilder AddCommandGroup<TContext>(this IHost host, IEnumerable<string> aliases)
+        where TContext : ICommandContext
+    {
+        var builder = host.Services.GetRequiredService<ICommandsBuilder<TContext>>();
+        return builder.AddCommandGroup(aliases);
+    }
+
+    public static CommandGroupBuilder AddCommandGroup<TContext>(this IHost host, IEnumerable<string> aliases, Action<CommandGroupBuilder> builder)
+        where TContext : ICommandContext
+    {
+        var commandsBuilder = host.Services.GetRequiredService<ICommandsBuilder<TContext>>();
+        return commandsBuilder.AddCommandGroup(aliases, builder);
     }
 }
