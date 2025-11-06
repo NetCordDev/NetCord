@@ -1,7 +1,7 @@
 ﻿namespace NetCord.Services.ComponentInteractions;
 
 /// <inheritdoc cref="ComponentInteractionAttribute" />
-/// <param name="customId"><inheritdoc cref="CustomId" path="/summary" /></param>
+/// <param name="customId" />
 /// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
 [GenerateMethodsForProperties]
 public partial class ComponentInteractionBuilder(string customId, Delegate handler)

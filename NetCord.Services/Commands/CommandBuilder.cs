@@ -12,7 +12,7 @@ public partial interface ICommandBuilder
 }
 
 /// <inheritdoc cref="CommandAttribute" />
-/// <param name="aliases"><inheritdoc cref="Aliases" path="/summary" /></param>
+/// <param name="aliases" />
 /// <param name="handler"><inheritdoc cref="Handler" path="/summary" /></param>
 [GenerateMethodsForProperties]
 public partial class CommandBuilder(IEnumerable<string> aliases, Delegate handler) : ICommandBuilder
@@ -30,7 +30,7 @@ public partial class CommandBuilder(IEnumerable<string> aliases, Delegate handle
 }
 
 /// <inheritdoc cref="CommandAttribute" />
-/// <param name="aliases"><inheritdoc cref="Aliases" path="/summary" /></param>
+/// <param name="aliases" />
 [GenerateMethodsForProperties]
 public partial class CommandGroupBuilder(IEnumerable<string> aliases) : ICommandBuilder
 {
@@ -59,7 +59,7 @@ public partial class CommandGroupBuilder(IEnumerable<string> aliases) : ICommand
     /// <summary>
     /// Adds a sub command group to a command group.
     /// </summary>
-    /// <param name="aliases"><inheritdoc cref="CommandGroupBuilder.Aliases" path="/summary" /></param>
+    /// <param name="aliases"><inheritdoc cref="CommandBuilder.Aliases" path="/summary" /></param>
     /// <returns>The created sub command group builder.</returns>
     public CommandGroupBuilder AddSubCommandGroup(IEnumerable<string> aliases)
     {
