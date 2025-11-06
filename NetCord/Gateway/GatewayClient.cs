@@ -1401,7 +1401,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "MESSAGE_REACTION_ADD":
                 {
-                    await InvokeEventAsync(_messageReactionAdd, (Data: data, RestClient: Rest), data => new(data.Data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), data.RestClient)).ConfigureAwait(false);
+                    await InvokeEventAsync(_messageReactionAdd, (Data: data, RestClient: Rest), static data => new(data.Data.ToObject(Serialization.Default.JsonMessageReactionAddEventArgs), data.RestClient)).ConfigureAwait(false);
                 }
                 break;
             case "MESSAGE_REACTION_REMOVE":
