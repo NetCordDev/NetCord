@@ -1,10 +1,8 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 using NetCord.Gateway.Compression;
 using NetCord.Gateway.JsonModels;
 using NetCord.Logging;
-using NetCord.Rest;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
