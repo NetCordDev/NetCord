@@ -54,13 +54,13 @@ internal class VoiceOutStream(VoiceClient client) : Stream
             return;
         }
 
-        var daveEncryptor = session.GetEncryptor();
-
         byte[]? daveArray = null;
         if (session.GetProtocolVersion() is not 0)
         {
+            var daveEncryptor = session.GetEncryptor();
             var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
             daveArray = ArrayPool<byte>.Shared.Rent(length);
+
             int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer, daveArray);
             buffer = daveArray.AsSpan(0, written);
         }
@@ -87,13 +87,13 @@ internal class VoiceOutStream(VoiceClient client) : Stream
             return;
         }
 
-        var daveEncryptor = session.GetEncryptor();
-
         byte[]? daveArray = null;
         if (session.GetProtocolVersion() is not 0)
         {
+            var daveEncryptor = session.GetEncryptor();
             var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
             daveArray = ArrayPool<byte>.Shared.Rent(length);
+
             int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer.Span, daveArray);
             buffer = daveArray.AsMemory(0, written);
         }
