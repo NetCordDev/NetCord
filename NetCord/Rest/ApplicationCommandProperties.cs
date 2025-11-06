@@ -5,6 +5,9 @@ using NetCord.JsonConverters;
 
 namespace NetCord.Rest;
 
+/// <summary>
+/// Application commands are native ways to interact with apps in the Discord client.
+/// </summary>
 [JsonConverter(typeof(JsonSerializableConverter<ApplicationCommandProperties>))]
 [GenerateMethodsForProperties]
 public abstract partial class ApplicationCommandProperties : IJsonSerializable<ApplicationCommandProperties>

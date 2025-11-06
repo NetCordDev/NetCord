@@ -9,13 +9,25 @@ namespace NetCord.Services.Commands;
 
 #pragma warning disable IDE0032 // Use auto property
 
+/// <summary>
+/// Provides functionality for handling text-based commands.
+/// </summary>
+/// <typeparam name="TContext">The context the invoked commands use.</typeparam>
+/// <param name="configuration"><inheritdoc cref="Configuration" path="/summary" /></param>
 public partial class CommandService<TContext>(CommandServiceConfiguration<TContext>? configuration = null) : ICommandService where TContext : ICommandContext
 {
     private readonly CommandServiceConfiguration<TContext> _configuration = configuration ??= CommandServiceConfiguration<TContext>.Default;
     private readonly Dictionary<ReadOnlyMemory<char>, SortedList<ICommandInfo<TContext>>> _commands = new(configuration.Comparer);
 
+    /// <summary>
+    /// The configuration for the command service.
+    /// </summary>
     public CommandServiceConfiguration<TContext> Configuration => _configuration;
 
+    /// <summary>
+    /// Gets the collection of commands registered in the service.
+    /// </summary>
+    /// <returns>The collection of commands registered in the service.</returns>
     public IReadOnlyDictionary<ReadOnlyMemory<char>, IReadOnlyList<ICommandInfo<TContext>>> GetCommands()
         => new Dictionary<ReadOnlyMemory<char>, IReadOnlyList<ICommandInfo<TContext>>>(_commands.Select(c => new KeyValuePair<ReadOnlyMemory<char>, IReadOnlyList<ICommandInfo<TContext>>>(c.Key, [.. c.Value])));
 
@@ -123,6 +135,13 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         return xIsCommand.CompareTo(yIsCommand);
     }
 
+    /// <summary>
+    /// Executes a command.
+    /// </summary>
+    /// <param name="prefixLength">The length of the prefix that was used to invoke the command.</param>
+    /// <param name="context">The command context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
     public async ValueTask<IExecutionResult> ExecuteAsync(int prefixLength, TContext context, IServiceProvider? serviceProvider = null)
     {
         try

@@ -41,11 +41,10 @@ public class UserCommandInfo<TContext> : ApplicationCommandInfo<TContext> where 
 
     private readonly bool _userParameter;
 
+    public override ApplicationCommandType Type => ApplicationCommandType.User;
     public IReadOnlyList<PreconditionAttribute<TContext>> Preconditions { get; }
 
     private readonly Func<object?[]?, TContext, IServiceProvider?, ValueTask> _invokeAsync;
-
-    public override ApplicationCommandType Type => ApplicationCommandType.User;
 
     public override async ValueTask<IExecutionResult> InvokeAsync(TContext context, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider)
     {
