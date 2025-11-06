@@ -3,7 +3,7 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace NetCord.Gateway.Voice;
 
-internal unsafe static partial class Libdavec
+internal static unsafe partial class Libdavec
 {
     private const string DllName = "libdavec";
 

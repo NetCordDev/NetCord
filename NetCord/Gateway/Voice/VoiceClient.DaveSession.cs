@@ -53,18 +53,18 @@ public partial class VoiceClient
 
         private readonly ConcurrentDictionary<uint, DecryptorHandle> _decryptors = [];
 
-        unsafe static DaveSession()
+        static unsafe DaveSession()
         {
             SetLogSink(&LogSink);
         }
 
-        private unsafe static void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
+        private static unsafe void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
         {
             LogSinkInternal(severity, file, line, message);
         }
 
         [Conditional("DEBUG")]
-        private unsafe static void LogSinkInternal(LoggingSeverity severity, byte* file, int line, byte* message)
+        private static unsafe void LogSinkInternal(LoggingSeverity severity, byte* file, int line, byte* message)
         {
             var fileString = Marshal.PtrToStringUTF8((nint)file);
             var messageString = Marshal.PtrToStringUTF8((nint)message);
@@ -272,7 +272,7 @@ public partial class VoiceClient
             }
         }
 
-        private unsafe static void FreeRecognizedUserIdsBuffer(nint[] recognizedUserIds)
+        private static unsafe void FreeRecognizedUserIdsBuffer(nint[] recognizedUserIds)
         {
             var buffer = (byte*)recognizedUserIds[0];
             NativeMemory.Free(buffer);
