@@ -464,10 +464,10 @@ public sealed partial class VoiceClient : WebSocketClient
 
             ValueTask InvokeEventForReceivedFrameAsync()
             {
-                return InvokeEventWithDisposalAsync(handlers, (Encryption: encryption, PacketStorage: packetStorage, Ssrc: ssrc), static rawData =>
+                return InvokeEventWithDisposalAsync(handlers, (Encryption: encryption, PacketStorage: packetStorage, Ssrc: ssrc), static data =>
                 {
-                    var packet = rawData.PacketStorage.Packet;
-                    var encryption = rawData.Encryption;
+                    var packet = data.PacketStorage.Packet;
+                    var encryption = data.Encryption;
 
                     var plaintextLength = packet.PayloadLength - encryption.Expansion;
                     var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
@@ -480,7 +480,7 @@ public sealed partial class VoiceClient : WebSocketClient
                             : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
                         : 0;
 
-                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, rawData.Ssrc);
+                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, data.Ssrc);
                 }, args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);

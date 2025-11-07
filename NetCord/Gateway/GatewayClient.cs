@@ -1151,8 +1151,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "CHANNEL_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var channel = IGuildChannel.CreateFromJson(json, json.GuildId.GetValueOrDefault(), Rest);
-                    await InvokeEventAsync(_guildChannelDelete, this, channel, static (client, channel) => client.Cache = client.Cache.RemoveGuildChannel(channel.GuildId, channel.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildChannelDelete, this, (Json: json, RestClient: Rest), static data => IGuildChannel.CreateFromJson(data.Json, data.Json.GuildId.GetValueOrDefault(), data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveGuildChannel(data.Json.GuildId.GetValueOrDefault(), data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "CHANNEL_PINS_UPDATE":
@@ -1177,8 +1176,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "THREAD_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonChannel);
-                    var guildId = json.GuildId.GetValueOrDefault();
-                    await InvokeEventAsync(_guildThreadDelete, this, (Json: json, GuildId: guildId), static data => new(data.Json.Id, data.GuildId, data.Json.ParentId.GetValueOrDefault(), data.Json.Type), static (client, data) => client.Cache = client.Cache.RemoveGuildThread(data.GuildId, data.Json.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildThreadDelete, this, json, static json => new(json.Id, json.GuildId.GetValueOrDefault(), json.ParentId.GetValueOrDefault(), json.Type), static (client, json) => client.Cache = client.Cache.RemoveGuildThread(json.GuildId.GetValueOrDefault(), json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "THREAD_LIST_SYNC":
@@ -1220,8 +1218,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "GUILD_DELETE":
                 {
-                    var jsonGuild = data.ToObject(Serialization.Default.JsonGuild);
-                    await InvokeEventAsync(_guildDelete, this, jsonGuild, static jsonGuild => new(jsonGuild), static (client, jsonGuild) => client.Cache = client.Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
+                    var json = data.ToObject(Serialization.Default.JsonGuild);
+                    await InvokeEventAsync(_guildDelete, this, json, static json => new(json), static (client, jsonGuild) => client.Cache = client.Cache.RemoveGuild(jsonGuild.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_AUDIT_LOG_ENTRY_CREATE":
@@ -1321,7 +1319,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "GUILD_SCHEDULED_EVENT_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonGuildScheduledEvent);
-                    await InvokeEventAsync(_guildScheduledEventDelete, this, (Json: json, RestClient: Rest), static rawData => new(rawData.Json, rawData.RestClient), static (client, rawData) => client.Cache = client.Cache.RemoveGuildScheduledEvent(rawData.Json.GuildId, rawData.Json.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_guildScheduledEventDelete, this, (Json: json, RestClient: Rest), static data => new(data.Json, data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveGuildScheduledEvent(data.Json.GuildId, data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "GUILD_SCHEDULED_EVENT_USER_ADD":
@@ -1440,7 +1438,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             case "STAGE_INSTANCE_DELETE":
                 {
                     var json = data.ToObject(Serialization.Default.JsonStageInstance);
-                    await InvokeEventAsync(_stageInstanceDelete, this, (Json: json, RestClient: Rest), static rawData => new(rawData.Json, rawData.RestClient), static (client, rawData) => client.Cache = client.Cache.RemoveStageInstance(rawData.Json.GuildId, rawData.Json.Id)).ConfigureAwait(false);
+                    await InvokeEventAsync(_stageInstanceDelete, this, (Json: json, RestClient: Rest), static data => new(data.Json, data.RestClient), static (client, data) => client.Cache = client.Cache.RemoveStageInstance(data.Json.GuildId, data.Json.Id)).ConfigureAwait(false);
                 }
                 break;
             case "TYPING_START":
