@@ -1074,7 +1074,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                     var updateLatencyTask = UpdateLatencyAsync(latency);
 
                     ReadyEventArgs args = new(data.ToObject(Serialization.Default.JsonReadyEventArgs), Rest);
-                    await InvokeEventAsync(_ready, this, (Args: args, State: state, ConnectionState: connectionState), data => data.Args, static (client, data) =>
+                    await InvokeEventAsync(_ready, this, (Args: args, State: state, ConnectionState: connectionState), static data => data.Args, static (client, data) =>
                     {
                         var args = data.Args;
 
