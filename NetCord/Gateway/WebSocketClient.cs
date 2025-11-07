@@ -979,7 +979,7 @@ public abstract partial class WebSocketClient : IDisposable
         return HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected static ValueTask InvokeEventAsync<TClient, T>(ImmutableList<Func<T, ValueTask>> handlers, TClient client, T data, Action<TClient, T> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct where TClient : WebSocketClient
+    private protected static ValueTask InvokeEventAsync<TClient, T>(ImmutableList<Func<T, ValueTask>> handlers, TClient client, T data, Action<TClient, T> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TClient : WebSocketClient where T : allows ref struct
     {
         int count = handlers.Count;
 
@@ -1012,7 +1012,7 @@ public abstract partial class WebSocketClient : IDisposable
         return client.HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected static ValueTask InvokeEventAsync<TClient, TRaw, T>(ImmutableList<Func<T, ValueTask>> handlers, TClient client, TRaw rawData, Func<TRaw, T> dataFunc, Action<TClient, TRaw> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TRaw : allows ref struct where T : allows ref struct where TClient : WebSocketClient
+    private protected static ValueTask InvokeEventAsync<TClient, TRaw, T>(ImmutableList<Func<T, ValueTask>> handlers, TClient client, TRaw rawData, Func<TRaw, T> dataFunc, Action<TClient, TRaw> updateCache, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TClient : WebSocketClient where TRaw : allows ref struct where T : allows ref struct
     {
         int count = handlers.Count;
 
