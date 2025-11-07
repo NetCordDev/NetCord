@@ -294,7 +294,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
 
-                    await InvokeEventAsync(_speaking, () => new SpeakingEventArgs(json), () => Cache = Cache.CacheUser(json.UserId, json.Ssrc)).ConfigureAwait(false);
+                    await InvokeEventAsync(_speaking, this, json, static json => new SpeakingEventArgs(json), static (client, json) => client.Cache = client.Cache.CacheUser(json.UserId, json.Ssrc)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.HeartbeatACK:
@@ -336,7 +336,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client connect received.");
 
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
-                    await InvokeEventAsync(_userConnect, () => new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
+                    await InvokeEventAsync(_userConnect, json, static json => new UserConnectEventArgs(json.UserIds)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.ClientDisconnect:
@@ -344,7 +344,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
 
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
-                    await InvokeEventAsync(_userDisconnect, () => new UserDisconnectEventArgs(json.UserId), () => Cache = Cache.RemoveUser(json.UserId)).ConfigureAwait(false);
+                    await InvokeEventAsync(_userDisconnect, this, json, static json => new UserDisconnectEventArgs(json.UserId), static (client, json) => client.Cache = client.Cache.RemoveUser(json.UserId)).ConfigureAwait(false);
                 }
                 break;
         }
@@ -451,7 +451,7 @@ public sealed partial class VoiceClient : WebSocketClient
 #pragma warning disable CA2012 // Use ValueTasks correctly
             for (ushort i = 0; i < framesMissed; i++)
             {
-                tasks[i] = InvokeEventAsync(handlers, () =>
+                tasks[i] = InvokeEventAsync(handlers, ssrc, static ssrc =>
                 {
                     return new VoiceReceiveEventArgs(null, 0, 0, ssrc);
                 }, nameof(_voiceReceive));
@@ -464,9 +464,11 @@ public sealed partial class VoiceClient : WebSocketClient
 
             ValueTask InvokeEventForReceivedFrameAsync()
             {
-                return InvokeEventWithDisposalAsync(handlers, () =>
+                return InvokeEventWithDisposalAsync(handlers, (Encryption: encryption, PacketStorage: packetStorage, Ssrc: ssrc), static data =>
                 {
-                    var packet = packetStorage.Packet;
+                    var packet = data.PacketStorage.Packet;
+                    var encryption = data.Encryption;
+
                     var plaintextLength = packet.PayloadLength - encryption.Expansion;
                     var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
                     var plaintext = array.AsSpan(0, plaintextLength);
@@ -478,7 +480,7 @@ public sealed partial class VoiceClient : WebSocketClient
                             : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
                         : 0;
 
-                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, ssrc);
+                    return new VoiceReceiveEventArgs(array, extensionLength, plaintextLength - extensionLength, data.Ssrc);
                 }, args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);
