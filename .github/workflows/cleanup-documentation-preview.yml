@@ -5,7 +5,7 @@ on:
     types: [closed]
 
 concurrency:
-  group: documentation-preview-${{ github.ref_name }}
+  group: documentation-preview-${{ github.event.pull_request.head.ref }}
   cancel-in-progress: true
 
 jobs:
