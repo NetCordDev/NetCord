@@ -20,4 +20,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
-          script: rm -rf ~/NetCord/preview/html/${{ github.event.pull_request.number }}
+          script: rm -rf ~/NetCord/preview/html/$PULL_REQUEST_NUMBER
+          envs: PULL_REQUEST_NUMBER
+        env:
+          PULL_REQUEST_NUMBER: "${{ github.event.pull_request.number }}"
