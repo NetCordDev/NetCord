@@ -608,29 +608,6 @@ public abstract partial class WebSocketClient : IDisposable
         return ResumeAsync(state);
     }
 
-    private protected ValueTask AbortAndRestartAsync(State state, ConnectionState connectionState)
-    {
-        if (!state.TryIndicateDisconnecting(connectionState))
-            return default;
-
-        try
-        {
-            connectionState.Connection.Abort();
-        }
-        catch (Exception ex)
-        {
-            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-            {
-                return $"An error occurred while aborting the connection.{Environment.NewLine}{e}";
-            });
-        }
-
-        connectionState.Dispose();
-        HandleClosed();
-
-        return RestartAsync(state);
-    }
-
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         var payloadProperties = _defaultPayloadProperties.Compose(properties);
@@ -817,52 +794,6 @@ public abstract partial class WebSocketClient : IDisposable
                 Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
                 {
                     return $"An error occurred while resuming the connection.{Environment.NewLine}{e}";
-                });
-            }
-
-            return;
-        }
-    }
-
-    private protected async ValueTask RestartAsync(State state)
-    {
-        var cancellationToken = state.ClosedTokenProvider.Token;
-
-        foreach (var delay in _reconnectStrategy.GetDelays())
-        {
-            try
-            {
-                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
-            }
-            catch
-            {
-                return;
-            }
-
-            ConnectionState connectionState;
-            try
-            {
-                connectionState = await ConnectAsync(state, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while reconnecting.{Environment.NewLine}{e}";
-                });
-
-                continue;
-            }
-
-            try
-            {
-                await SendIdentifyAsync(connectionState, cancellationToken).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-                {
-                    return $"An error occurred while restarting the connection.{Environment.NewLine}{e}";
                 });
             }
 
