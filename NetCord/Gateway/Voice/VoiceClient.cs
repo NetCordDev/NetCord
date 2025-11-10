@@ -111,7 +111,7 @@ public sealed partial class VoiceClient : WebSocketClient
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
         _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
-        _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout.GetValueOrDefault(new(500 * TimeSpan.TicksPerMillisecond));
+        _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout.GetValueOrDefault(new(5 * TimeSpan.TicksPerSecond));
     }
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
