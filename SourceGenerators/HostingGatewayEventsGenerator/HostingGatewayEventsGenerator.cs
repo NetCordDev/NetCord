@@ -117,11 +117,15 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine("{");
 
+            var eventType = (INamedTypeSymbol)eventSymbol.Type;
+            var hasArg = eventType.Arity is 2;
+
+            WriteHandleAsyncXmlDoc(stringWriter, false, hasArg);
+
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public global::System.Threading.Tasks.ValueTask HandleAsync(");
 
-            var eventType = (INamedTypeSymbol)eventSymbol.Type;
-            if (eventType.Arity is 2)
+            if (hasArg)
             {
                 stringWriter.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
                 stringWriter.Write(" arg");
@@ -141,10 +145,12 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
 
             stringWriter.WriteLine("{");
 
+            WriteHandleAsyncXmlDoc(stringWriter, true, hasArg);
+
             stringWriter.WriteIndentation(1);
             stringWriter.Write("public global::System.Threading.Tasks.ValueTask HandleAsync(global::NetCord.Gateway.GatewayClient client");
 
-            if (eventType.Arity is 2)
+            if (hasArg)
             {
                 stringWriter.Write(", ");
                 stringWriter.Write(eventType.TypeArguments[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
@@ -154,6 +160,30 @@ public class HostingGatewayEventsGenerator : IIncrementalGenerator
             stringWriter.WriteLine(");");
 
             stringWriter.WriteLine("}");
+        }
+    }
+
+    private void WriteHandleAsyncXmlDoc(StringWriter stringWriter, bool hasClient, bool hasArg)
+    {
+        stringWriter.WriteIndentation(1);
+        stringWriter.WriteLine("/// <summary>");
+
+        stringWriter.WriteIndentation(1);
+        stringWriter.WriteLine("/// Handles the gateway event.");
+
+        stringWriter.WriteIndentation(1);
+        stringWriter.WriteLine("/// </summary>");
+
+        if (hasClient)
+        {
+            stringWriter.WriteIndentation(1);
+            stringWriter.WriteLine("/// <param name=\"client\">The gateway client that represents the shard that received the event.</param>");
+        }
+
+        if (hasArg)
+        {
+            stringWriter.WriteIndentation(1);
+            stringWriter.WriteLine("/// <param name=\"arg\">The event argument.</param>");
         }
     }
 
