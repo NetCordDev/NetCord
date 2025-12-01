@@ -18,7 +18,7 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.10" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="MinVer" Version="6.0.0" />
     <PackageVersion Include="MSTest.TestAdapter" Version="4.0.1" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.0.1" />
