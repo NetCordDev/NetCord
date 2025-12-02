@@ -10,7 +10,7 @@
     <PackageVersion Include="libsodium" Version="1.0.20.1" />
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.10" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.10" />
