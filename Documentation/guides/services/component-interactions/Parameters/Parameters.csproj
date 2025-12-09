@@ -1,8 +1,0 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\NetCord.Services\NetCord.Services.csproj" />
-    <ProjectReference Include="..\..\..\..\..\NetCord\NetCord.csproj" />
-  </ItemGroup>
-
-</Project>
