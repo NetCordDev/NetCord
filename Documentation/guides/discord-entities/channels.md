@@ -1,6 +1,7 @@
 ---
-title: Working with Channels
-description: Channel types, hierarchy, and sending messages
+title: Working with Discord Channels, Threads, and Forums in NetCord
+description: Manage Discord channels in C#. Learn text channels, voice channels, threads, forums, and channel operations with NetCord.
+omitAppTitle: true
 ---
 
 # Working with Channels
@@ -22,5 +23,14 @@ Using channels to send messages.
 
 ---
 
-**Next Steps:**
-- Roles and permissions: @"discord-entities/roles-and-permissions"
+## Navigation
+
+← **Previous:** @"discord-entities/guilds?text=Guilds" | **Next:** @"discord-entities/users?text=Users" →
+
+## See Also
+
+- @"discord-entities/users?text=Users" - User mentions and avatars
+- @"discord-entities/roles-and-permissions?text=Roles and Permissions" - Channel permission overwrites
+- @"voice/overview?text=Voice" - Voice channel connections
+- @"components-v2/content-components?text=Content Components" - Message content builders
+- [Discord Docs: Channel Resource](https://discord.com/developers/docs/resources/channel)

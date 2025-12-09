@@ -1,6 +1,7 @@
 ---
-title: Services Framework Overview
-description: Understanding NetCord.Services architecture
+title: NetCord Services Framework - Command Handling and Middleware
+description: Build robust command systems with NetCord.Services. Learn command modules, execution pipeline, type readers, and preconditions.
+omitAppTitle: true
 ---
 
 # Services Framework Overview
@@ -22,6 +23,14 @@ Module base classes.
 
 ---
 
-**Next Steps:**
-- Dependency injection: @"services-framework/dependency-injection"
-- Type readers: @"services-framework/type-readers"
+## Navigation
+
+← **Previous:** @"webhooks/sending-messages?text=Sending Messages" | **Next:** @"services-framework/dependency-injection?text=Dependency Injection" →
+
+## See Also
+
+- @"services-framework/dependency-injection?text=Dependency Injection" - Inject services into modules
+- @"services-framework/type-readers?text=Type Readers" - Parse command parameters
+- @"services-framework/preconditions?text=Preconditions" - Command authorization
+- @"services-framework/custom-contexts?text=Custom Contexts" - Extend context objects
+- @"commands/overview?text=Commands Overview" - Application commands integration

@@ -1,6 +1,7 @@
 ---
-title: Quick Start - Build a Discord Bot in Minutes
-description: Get a NetCord bot running in under 5 minutes with this quick start guide
+title: Quick Start - Build a Discord Bot in 5 Minutes with NetCord
+description: Get a NetCord bot running in under 5 minutes. Fast-track guide with minimal setup for experienced developers.
+omitAppTitle: true
 ---
 
 # Quick Start
@@ -26,7 +27,14 @@ Links to deeper guides.
 
 ---
 
-**Next Steps:**
-- Learn more: @"getting-started"
-- Add commands: @"commands"
-- Handle events: @"events"
+## Navigation
+
+← **Previous:** @"introduction/index?text=Introduction" | **Next:** @"getting-started/installation?text=Installation" →
+
+## See Also
+
+- @"getting-started/installation?text=Installation" - Detailed setup process
+- @"commands/slash-commands?text=Slash Commands" - Add Discord commands
+- @"events/gateway-events?text=Gateway Events" - Handle Discord events
+- @"dotnet-integration/generic-host?text=Generic Host" - Production setup
+- @"troubleshooting/common-issues?text=Common Issues" - If you run into problems

@@ -1,6 +1,7 @@
 ---
-title: Gateway Intents
-description: Configuring gateway intents for your bot
+title: Configuring Discord Gateway Intents for Your Bot
+description: Configure gateway intents to control which Discord events your bot receives. Learn about privileged intents, intent combinations, and bot permissions.
+omitAppTitle: true
 ---
 
 # Gateway Intents
@@ -25,5 +26,12 @@ GatewayClientConfiguration setup.
 
 ---
 
-**Next Steps:**
-- Gateway events: @"events/gateway-events"
+## Navigation
+
+← **Previous:** @"events/gateway-events?text=Gateway Events" | **Next:** @"events/webhook-events?text=Webhook Events" →
+
+## See Also
+
+- @"getting-started/creating-your-bot?text=Creating Your Bot" - Enable privileged intents
+- @"advanced-topics/caching-strategies?text=Caching Strategies" - Intent-based caching
+- [Discord Docs: Gateway Intents](https://discord.com/developers/docs/topics/gateway#gateway-intents)

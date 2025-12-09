@@ -1,6 +1,7 @@
 ---
-title: Sharding
-description: Scaling your bot across multiple shards
+title: Scaling Discord Bots with Sharding in NetCord
+description: Scale large Discord bots across multiple shards. Learn shard management, data synchronization, and multi-shard architecture with NetCord.
+omitAppTitle: true
 ---
 
 # Sharding
@@ -26,5 +27,14 @@ UseShardedDiscordGateway.
 
 ---
 
-**Next Steps:**
-- Caching strategies: @"advanced-topics/caching-strategies"
+## Navigation
+
+← **Previous:** @"deployment/cloud-hosting?text=Cloud Hosting" | **Next:** @"advanced-topics/rate-limiting?text=Rate Limiting" →
+
+## See Also
+
+- @"advanced-topics/caching-strategies?text=Caching Strategies" - Cache across shards
+- @"advanced-topics/connection-resilience?text=Connection Resilience" - Shard reconnection
+- @"deployment/cloud-hosting?text=Cloud Hosting" - Deploy sharded bots
+- @"dotnet-integration/generic-host?text=Generic Host" - Configure sharding
+- [Discord Docs: Sharding](https://discord.com/developers/docs/topics/gateway#sharding)

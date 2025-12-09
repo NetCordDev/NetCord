@@ -1,6 +1,7 @@
 ---
-title: Gateway Events
-description: Available gateway events and how to handle them
+title: Handling Discord Gateway Events in Real-Time with NetCord
+description: Learn to handle Discord gateway events like message create, guild join, and voice state updates. Complete event handler reference for C# bots.
+omitAppTitle: true
 ---
 
 # Gateway Events
@@ -30,6 +31,13 @@ VoiceStateUpdate, VoiceServerUpdate.
 
 ---
 
-**Next Steps:**
-- Webhook events: @"events/webhook-events"
-- Commands: @"commands"
+## Navigation
+
+← **Previous:** @"events/overview?text=Events Overview" | **Next:** @"events/intents?text=Gateway Intents" →
+
+## See Also
+
+- @"events/webhook-events?text=Webhook Events" - Alternative event handling
+- @"commands/overview?text=Commands" - Handle command interactions
+- @"advanced-topics/connection-resilience?text=Connection Resilience" - Maintain gateway connection
+- [Discord Docs: Gateway Events Reference](https://discord.com/developers/docs/topics/gateway-events)

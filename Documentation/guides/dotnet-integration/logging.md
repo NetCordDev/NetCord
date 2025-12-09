@@ -1,6 +1,7 @@
 ---
-title: Logging
-description: Integrate Microsoft.Extensions.Logging with NetCord
+title: Discord Bot Logging with Microsoft.Extensions.Logging and NetCord
+description: Implement structured logging for Discord bots using Microsoft.Extensions.Logging. Learn log levels, scopes, and integration with logging providers.
+omitAppTitle: true
 ---
 
 # Logging
@@ -22,5 +23,14 @@ IRestLogger, IGatewayLogger.
 
 ---
 
-**Next Steps:**
-- Discord entities: @"discord-entities"
+## Navigation
+
+← **Previous:** @"dotnet-integration/configuration?text=Configuration" | **Next:** @"discord-entities/overview?text=Discord Entities" →
+
+## See Also
+
+- @"dotnet-integration/generic-host?text=Generic Host" - Configure logging providers
+- @"dotnet-integration/configuration?text=Configuration" - Logging configuration options
+- @"advanced-topics/connection-resilience?text=Connection Resilience" - Log connection events
+- @"troubleshooting/common-issues?text=Common Issues" - Debug with logs
+- [Microsoft Docs: Logging](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging)

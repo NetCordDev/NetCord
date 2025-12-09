@@ -1,6 +1,7 @@
 ---
-title: Creating Your Bot
-description: Set up your Discord bot application and get your bot token
+title: Creating Your Discord Bot Application and Getting Your Token
+description: Step-by-step guide to creating a Discord bot application in the Developer Portal, obtaining your bot token, and setting up OAuth2 permissions.
+omitAppTitle: true
 ---
 
 # Creating Your Bot
@@ -25,5 +26,11 @@ OAuth2 URL, scopes, and permissions.
 
 ---
 
-**Next Steps:**
-- Set up project: @"getting-started/project-setup"
+## Navigation
+
+← **Previous:** @"getting-started/installation?text=Installation" | **Next:** @"getting-started/project-setup?text=Project Setup" →
+
+## See Also
+
+- @"discord-entities/guilds?text=Working with Guilds" - Manage servers
+- @"events/intents?text=Gateway Intents" - Configure bot permissions

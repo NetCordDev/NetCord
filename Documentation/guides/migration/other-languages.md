@@ -1,6 +1,7 @@
 ---
-title: Migrating from Other Languages
-description: Concept mapping for developers coming from other programming languages
+title: Migrating from JavaScript, Python, and Other Languages to NetCord
+description: Transition to NetCord from discord.js, discord.py, and other language libraries. Learn C# equivalents and Discord API concepts.
+omitAppTitle: true
 ---
 
 # Migrating from Other Languages
@@ -97,7 +98,14 @@ Strongly typed vs dynamically typed approaches.
 
 ---
 
-**See Also:**
-- NetCord @"introduction"
-- @"getting-started"
-- @"dotnet-integration" - Understanding .NET patterns
+## Navigation
+
+← **Previous:** @"migration/other-csharp?text=Migrating from Other C# Libraries" | **Next:** @"troubleshooting/common-issues?text=Common Issues" →
+
+## See Also
+
+- @"migration/index?text=Migration Guide Overview" - Choose your migration path
+- @"introduction/index?text=Introduction" - NetCord concepts
+- @"getting-started/installation?text=Installation" - Install NetCord
+- @"dotnet-integration/generic-host?text=Generic Host" - .NET patterns
+- @"commands/overview?text=Commands Overview" - NetCord command system

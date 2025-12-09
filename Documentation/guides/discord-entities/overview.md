@@ -1,6 +1,7 @@
 ---
-title: Discord Entities Overview
-description: Understanding Discord's object model in NetCord
+title: Understanding Discord Data Structures and Entities in NetCord
+description: Complete guide to Discord entities in NetCord. Learn about guilds, channels, users, roles, messages, and how they map to C# types.
+omitAppTitle: true
 ---
 
 # Discord Entities Overview
@@ -22,7 +23,14 @@ How entities are cached.
 
 ---
 
-**Next Steps:**
-- Working with users: @"discord-entities/users"
-- Working with guilds: @"discord-entities/guilds"
-- Working with channels: @"discord-entities/channels"
+## Navigation
+
+← **Previous:** @"dotnet-integration/logging?text=Logging" | **Next:** @"discord-entities/guilds?text=Guilds" →
+
+## See Also
+
+- @"discord-entities/guilds?text=Guilds" - Guild properties and operations
+- @"discord-entities/channels?text=Channels" - Channel types and management
+- @"discord-entities/users?text=Users" - User and member objects
+- @"advanced-topics/caching-strategies?text=Caching Strategies" - Optimize entity caching
+- [Discord Docs: Resources](https://discord.com/developers/docs/resources/application)

@@ -1,6 +1,7 @@
 ---
-title: Docker Deployment
-description: Deploying your bot with Docker
+title: Deploying Discord Bots with Docker and NetCord
+description: Deploy NetCord bots using Docker containers. Learn Dockerfile creation, image optimization, and container orchestration for Discord bots.
+omitAppTitle: true
 ---
 
 # Docker Deployment
@@ -22,5 +23,14 @@ Managing tokens securely.
 
 ---
 
-**Next Steps:**
-- Cloud hosting: @"deployment/cloud-hosting"
+## Navigation
+
+← **Previous:** @"components-v2/migrating-from-embeds?text=Migrating from Embeds" | **Next:** @"deployment/cloud-hosting?text=Cloud Hosting" →
+
+## See Also
+
+- @"deployment/cloud-hosting?text=Cloud Hosting" - Cloud provider options
+- @"dotnet-integration/configuration?text=Configuration" - Environment variables
+- @"dotnet-integration/logging?text=Logging" - Container logs
+- @"advanced-topics/connection-resilience?text=Connection Resilience" - Restart policies
+- [Docker Docs: Best Practices](https://docs.docker.com/develop/dev-best-practices/)

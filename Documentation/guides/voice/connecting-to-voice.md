@@ -1,6 +1,7 @@
 ---
-title: Connecting to Voice
-description: Joining and leaving voice channels
+title: Connecting Your Discord Bot to Voice Channels with NetCord
+description: Join and manage Discord voice connections in C#. Learn voice state management, channel switching, and voice connection lifecycle.
+omitAppTitle: true
 ---
 
 # Connecting to Voice
@@ -22,5 +23,12 @@ LeaveVoiceChannelAsync.
 
 ---
 
-**Next Steps:**
-- Audio playback: @"voice/audio-playback"
+## Navigation
+
+← **Previous:** @"voice/overview?text=Voice Overview" | **Next:** @"voice/audio-playback?text=Audio Playback" →
+
+## See Also
+
+- @"discord-entities/channels?text=Working with Channels" - Voice channel operations
+- @"events/gateway-events?text=Gateway Events" - Voice state updates
+- [Discord Docs: Connecting to Voice](https://discord.com/developers/docs/topics/voice-connections#connecting-to-voice)

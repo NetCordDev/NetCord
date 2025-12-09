@@ -1,6 +1,7 @@
 ---
-title: Common Issues
-description: Solutions to frequently encountered problems
+title: Troubleshooting Common Discord Bot Issues in NetCord
+description: Solutions to frequently encountered problems with NetCord bots. Learn to fix connection issues, permission errors, and common mistakes.
+omitAppTitle: true
 ---
 
 # Common Issues
@@ -26,5 +27,14 @@ Missing intents.
 
 ---
 
-**Next Steps:**
-- FAQ: @"troubleshooting/faq"
+## Navigation
+
+← **Previous:** @"migration/other-languages?text=Migrating from Other Languages" | **Next:** @"troubleshooting/faq?text=FAQ" →
+
+## See Also
+
+- @"troubleshooting/faq?text=FAQ" - Frequently asked questions
+- @"events/intents?text=Intents" - Configure gateway intents
+- @"discord-entities/roles-and-permissions?text=Roles and Permissions" - Bot permissions
+- @"dotnet-integration/logging?text=Logging" - Debug with logs
+- @"advanced-topics/connection-resilience?text=Connection Resilience" - Connection issues

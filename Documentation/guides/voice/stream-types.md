@@ -1,6 +1,7 @@
 ---
-title: Stream Types
-description: Audio stream utilities and transformations
+title: Discord Voice Audio Stream Types and Formats in NetCord
+description: Understanding audio stream formats for Discord voice. Learn about PCM, Opus encoding, stream types, and audio configuration in NetCord.
+omitAppTitle: true
 ---
 
 # Stream Types
@@ -26,5 +27,12 @@ SpeedNormalizingStream.
 
 ---
 
-**Next Steps:**
-- Advanced topics: @"advanced-topics"
+## Navigation
+
+← **Previous:** @"voice/audio-recording?text=Audio Recording"
+
+## See Also
+
+- @"voice/audio-playback?text=Audio Playback" - Use stream types
+- @"voice/audio-recording?text=Audio Recording" - Record streams
+- [Discord Docs: Voice Encryption Modes](https://discord.com/developers/docs/topics/voice-connections#encryption-modes)

@@ -1,6 +1,7 @@
 ---
-title: Running Your Bot
-description: Start your bot and verify it connects to Discord
+title: Running and Testing Your Discord Bot Locally
+description: Start your NetCord bot, test interactions, and debug common startup issues. Learn how to keep your bot running and monitor its status.
+omitAppTitle: true
 ---
 
 # Running Your Bot
@@ -22,5 +23,14 @@ Console output and diagnostics.
 
 ---
 
-**Next Steps:**
-- First response: @"getting-started/your-first-response"
+## Navigation
+
+← **Previous:** @"getting-started/your-first-response?text=Your First Response"
+
+## Next Steps
+
+Now that your bot is running, explore these topics:
+
+- @"events/overview?text=Events Overview" - Handle Discord events
+- @"commands/overview?text=Commands Overview" - Build slash and text commands
+- @"troubleshooting/common-issues?text=Common Issues" - Debug problems

@@ -1,6 +1,7 @@
 ---
-title: Project Setup
-description: Set up your .NET project for NetCord development
+title: Setting Up Your .NET Project for NetCord Bot Development
+description: Configure your C# project for Discord bot development with NetCord using .NET Generic Host or bare-bones approach. Includes configuration setup.
+omitAppTitle: true
 ---
 
 # Project Setup
@@ -22,5 +23,12 @@ appsettings.json setup.
 
 ---
 
-**Next Steps:**
-- Run your bot: @"getting-started/running-your-bot"
+## Navigation
+
+← **Previous:** @"getting-started/creating-your-bot?text=Creating Your Bot" | **Next:** @"getting-started/your-first-response?text=Your First Response" →
+
+## See Also
+
+- @"dotnet-integration/generic-host?text=.NET Generic Host Integration" - Advanced setup
+- @"dotnet-integration/configuration?text=Configuration" - Managing settings
+- @"dotnet-integration/logging?text=Logging" - Structured logging

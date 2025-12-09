@@ -1,6 +1,7 @@
 ---
-title: Content Components
-description: Text display, media gallery, file display, and thumbnail components
+title: Building Content Components - Text, Media, Files, and Thumbnails
+description: Create content components in Discord Components v2. Learn text display, media galleries, file displays, and thumbnails with NetCord.
+omitAppTitle: true
 ---
 
 # Content Components
@@ -26,5 +27,14 @@ ComponentSectionThumbnailProperties.
 
 ---
 
-**Next Steps:**
-- Interactive components: @"components-v2/interactive-components"
+## Navigation
+
+← **Previous:** @"components-v2/overview?text=Components v2 Overview" | **Next:** @"components-v2/layout-components?text=Layout Components" →
+
+## See Also
+
+- @"components-v2/layout-components?text=Layout Components" - Organize content
+- @"components-v2/interactive-components?text=Interactive Components" - Add buttons and menus
+- @"discord-entities/channels?text=Channels" - Send component messages
+- @"discord-entities/emojis-and-stickers?text=Emojis and Stickers" - Use in content
+- @"webhooks/sending-messages?text=Sending Messages" - Components in webhooks

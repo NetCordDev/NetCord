@@ -1,6 +1,7 @@
 ---
-title: Components v2 Overview
-description: Introduction to Discord's new component system
+title: Discord Components v2 - Modern Message Layout System
+description: Complete guide to Discord's Components v2 system. Learn content, layout, and interactive components for rich message experiences in NetCord.
+omitAppTitle: true
 ---
 
 # Components v2 Overview
@@ -22,6 +23,14 @@ v2 vs legacy components.
 
 ---
 
-**Next Steps:**
-- Migrating from embeds: @"components-v2/migrating-from-embeds"
-- Layout components: @"components-v2/layout-components"
+## Navigation
+
+← **Previous:** @"services-framework/preconditions?text=Preconditions" | **Next:** @"components-v2/content-components?text=Content Components" →
+
+## See Also
+
+- @"components-v2/content-components?text=Content Components" - Text, media, files
+- @"components-v2/layout-components?text=Layout Components" - Containers, sections
+- @"components-v2/interactive-components?text=Interactive Components" - Buttons, menus
+- @"components-v2/migrating-from-embeds?text=Migrating from Embeds" - Convert embed layouts
+- [Discord Docs: Message Components](https://discord.com/developers/docs/interactions/message-components)

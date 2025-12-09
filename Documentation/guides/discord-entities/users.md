@@ -1,6 +1,7 @@
 ---
-title: Working with Users
-description: User entities, properties, and operations
+title: Working with Discord Users and Guild Members in NetCord
+description: Access and manage Discord user data in C#. Learn about users, members, avatars, presence, and user operations with NetCord.
+omitAppTitle: true
 ---
 
 # Working with Users
@@ -22,5 +23,14 @@ Username, avatar, and other properties.
 
 ---
 
-**Next Steps:**
-- Working with guilds: @"discord-entities/guilds"
+## Navigation
+
+← **Previous:** @"discord-entities/channels?text=Channels" | **Next:** @"discord-entities/roles-and-permissions?text=Roles and Permissions" →
+
+## See Also
+
+- @"discord-entities/guilds?text=Guilds" - Guild members vs users
+- @"discord-entities/roles-and-permissions?text=Roles and Permissions" - User permissions in guilds
+- @"commands/user-commands?text=User Commands" - Commands targeting users
+- @"getting-started/creating-your-bot?text=Creating Your Bot" - Bot user setup
+- [Discord Docs: User Resource](https://discord.com/developers/docs/resources/user)

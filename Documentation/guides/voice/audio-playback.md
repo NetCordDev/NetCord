@@ -1,6 +1,7 @@
 ---
-title: Audio Playback
-description: Playing audio in voice channels
+title: Playing Audio in Discord Voice Channels with NetCord
+description: Stream audio to Discord voice channels in C#. Learn audio encoding, streaming, format conversion, and music bot development with NetCord.
+omitAppTitle: true
 ---
 
 # Audio Playback
@@ -22,5 +23,12 @@ PcmFormat enum.
 
 ---
 
-**Next Steps:**
-- Audio recording: @"voice/audio-recording"
+## Navigation
+
+← **Previous:** @"voice/connecting-to-voice?text=Connecting to Voice" | **Next:** @"voice/audio-recording?text=Audio Recording" →
+
+## See Also
+
+- @"voice/stream-types?text=Stream Types" - Audio stream formats
+- @"advanced-topics/rate-limiting?text=Rate Limiting" - Audio streaming limits
+- [Discord Docs: Voice Data Interpolation](https://discord.com/developers/docs/topics/voice-connections#voice-data-interpolation)

@@ -1,6 +1,7 @@
 ---
-title: Webhooks Overview
-description: Using webhooks to send messages
+title: Discord Webhooks Guide - Sending Messages and Event Handling
+description: Complete guide to Discord webhooks in NetCord. Learn webhook creation, message sending, and stateless bot architecture.
+omitAppTitle: true
 ---
 
 # Webhooks Overview
@@ -18,6 +19,14 @@ Incoming, Application.
 
 ---
 
-**Next Steps:**
-- Managing webhooks: @"webhooks/managing-webhooks"
-- Sending messages: @"webhooks/sending-messages"
+## Navigation
+
+← **Previous:** @"discord-entities/emojis-and-stickers?text=Emojis and Stickers" | **Next:** @"webhooks/managing-webhooks?text=Managing Webhooks" →
+
+## See Also
+
+- @"webhooks/managing-webhooks?text=Managing Webhooks" - Create, update, delete webhooks
+- @"webhooks/sending-messages?text=Sending Messages" - Execute webhooks
+- @"events/webhook-events?text=Webhook Events" - Interaction webhooks
+- @"discord-entities/channels?text=Channels" - Channel webhooks
+- [Discord Docs: Webhook Resource](https://discord.com/developers/docs/resources/webhook)

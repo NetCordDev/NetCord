@@ -1,6 +1,7 @@
 ---
-title: Introduction to NetCord
-description: Learn about NetCord, a modern C# library for building Discord bots with .NET
+title: Introduction to NetCord - Modern C# Discord Bot Library for .NET
+description: Learn about NetCord, a modern, fully customizable C# library for building Discord bots with .NET. Discover features and architecture.
+omitAppTitle: true
 ---
 
 # Introduction to NetCord
@@ -26,7 +27,14 @@ Quick Start vs Getting Started - which is right for you.
 
 ---
 
-**Next Steps:**
-- New to NetCord? Start with @"quick-start"
-- Want detailed setup? See @"getting-started"
-- Explore all @"features"
+## Navigation
+
+← **Previous:** @"troubleshooting/faq?text=FAQ" | **Next:** @"quick-start/index?text=Quick Start" →
+
+## See Also
+
+- @"quick-start/index?text=Quick Start" - Get started in 5 minutes
+- @"getting-started/installation?text=Installation" - Detailed setup guide
+- @"migration/index?text=Migration Guide" - Coming from another library
+- [GitHub Repository](https://github.com/NetCord/NetCord) - Source code and examples
+- [Discord Server](https://discord.gg/netcord) - Community support

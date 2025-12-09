@@ -1,6 +1,7 @@
 ---
-title: Migration Guide Overview
-description: Migrating to NetCord from other Discord libraries
+title: Migrating to NetCord from Discord.Net, DSharpPlus, and Other Libraries
+description: Complete migration guide to NetCord. Learn API differences, code examples, and migration strategies from other Discord bot libraries.
+omitAppTitle: true
 ---
 
 # Migration Guide Overview
@@ -32,6 +33,14 @@ Select the library you're migrating from:
 
 ---
 
-**Get Started:**
-- Choose your migration path above
-- Review the @"introduction" if you're new to NetCord concepts
+## Navigation
+
+← **Previous:** @"advanced-topics/connection-resilience?text=Connection Resilience" | **Next:** @"migration/discord-net?text=Migrating from Discord.Net" →
+
+## See Also
+
+- @"introduction/index?text=Introduction" - Learn NetCord concepts
+- @"getting-started/installation?text=Installation" - Install NetCord packages
+- @"quick-start/index?text=Quick Start" - Get running quickly
+- @"migration/discord-net?text=Discord.Net Migration" - Popular C# library
+- @"migration/dsharpplus?text=DSharpPlus Migration" - Popular C# library
