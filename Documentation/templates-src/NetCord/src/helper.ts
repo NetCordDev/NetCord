@@ -59,7 +59,7 @@ export function breakWord(text?: string): string[] {
  * Add <wbr> into long word.
  */
 export function breakWordLit(text?: string): TemplateResult {
-  const result = []
+  const result: TemplateResult[] = []
   breakWord(text).forEach(word => {
     if (result.length > 0) {
       result.push(html`<wbr>`)

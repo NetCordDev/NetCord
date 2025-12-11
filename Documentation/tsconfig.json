@@ -1,7 +1,13 @@
 {
   "compilerOptions": {
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
+    "module": "ESNEXT",
+    "moduleResolution": "node",
     "removeComments": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true
   }
 }

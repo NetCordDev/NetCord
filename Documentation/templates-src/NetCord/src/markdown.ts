@@ -48,7 +48,7 @@ async function renderMermaid() {
   const { mermaid: mermaidOptions } = await options()
   mermaid.initialize(Object.assign({ startOnLoad: false, theme }, mermaidOptions))
 
-  const nodes = []
+  const nodes: HTMLElement[] = []
   diagrams.forEach(e => {
     // Rerender when elements becomes visible due to https://github.com/mermaid-js/mermaid/issues/1846
     if (e.offsetParent) {
@@ -356,7 +356,7 @@ function renderTabs() {
     }
   }
 
-  function selectTabs(tabIds) {
+  function selectTabs(tabIds: string[]): void {
     for (let _i = 0, tabIds1 = tabIds; _i < tabIds1.length; _i++) {
       const tabId = tabIds1[_i]
       const a = document.querySelector('.tabGroup > ul > li > a[data-tab="' + tabId + '"]:not([hidden])')
@@ -368,15 +368,27 @@ function renderTabs() {
   }
 
   function readTabsQueryStringParam() {
+    // First, try to get tabs from query string
     const qs = new URLSearchParams(window.location.search)
     const t = qs.get('tabs')
-    if (!t) {
-      return []
+    if (t) {
+      return t.split(',')
     }
-    return t.split(',')
+    
+    // Fall back to localStorage for tab preferences
+    try {
+      const stored = localStorage.getItem('documentation-selected-tabs')
+      if (stored) {
+        return stored.split(',')
+      }
+    } catch (e) {
+      // localStorage might be disabled or unavailable
+    }
+    
+    return []
   }
 
-  function updateTabsQueryStringParam(state) {
+  function updateTabsQueryStringParam(state: Record<string, string>): void {
     const qs = new URLSearchParams(window.location.search)
     qs.set('tabs', state.selectedTabs.join())
     const url = location.protocol + '//' + location.host + location.pathname + '?' + qs.toString() + location.hash
@@ -384,6 +396,13 @@ function renderTabs() {
       return
     }
     history.replaceState({}, document.title, url)
+    
+    // Also persist to localStorage for cross-page tab sync
+    try {
+      localStorage.setItem('documentation-selected-tabs', state.selectedTabs.join(','))
+    } catch (e) {
+      // localStorage might be disabled or unavailable
+    }
   }
 
   function arraysIntersect(a, b) {

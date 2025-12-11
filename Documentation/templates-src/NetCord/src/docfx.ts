@@ -9,9 +9,10 @@ import { enableSearch } from './search'
 import { renderToc } from './toc'
 import { initTheme } from './theme'
 import { renderBreadcrumb, renderInThisArticle, renderNavbar } from './nav'
+import { initializeJsonLinkData } from './json-link-data'
 
-import 'bootstrap-icons/font/bootstrap-icons.scss'
-import './docfx.scss'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+import './docfx.css'
 
 declare global {
   interface Window {
@@ -28,6 +29,9 @@ async function init() {
 
   const { start } = await options()
   start?.()
+
+  // Initialize JSON-LD (JSON for Linking Data) structured data for SEO
+  await initializeJsonLinkData()
 
   const pdfmode = navigator.userAgent.indexOf('docfx/pdf') >= 0
   if (pdfmode) {

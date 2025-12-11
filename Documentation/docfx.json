@@ -36,6 +36,9 @@
     "resource": [
       {
         "files": [ "images/**", "favicon.ico", "logo.svg", "robots.txt" ]
+      },
+      {
+        "files": [ "guides/**/BareBones/**", "guides/**/Barebones/**", "guides/**/GenericHosts/**" ]
       }
     ],
     "overwrite": [
@@ -43,6 +46,11 @@
         "files": [ "apidoc/**.md" ],
         "exclude": [ "obj/**", "_site/**" ]
       }
+    ],
+    "warningLevel": "warn",
+    "lruSize": 1000,
+    "xrefService": [
+      "https://xref.docs.microsoft.com/query?project=dotnet&uid={uid}"
     ],
     "dest": "_site",
     "template": [ "default", "templates/NetCord" ],
@@ -58,7 +66,9 @@
       "_enableSearch": true,
       "_disableFooter": true,
       "_noindex": true,
-      "_lang": "en"
+      "_lang": "en",
+      "_jsonLinkData": true,
+      "_canonicalUrlPattern": "https://netcord.dev/{path}"
     },
     "fileMetadata": {
       "_noindex": {
@@ -68,6 +78,8 @@
         "!docs/**": false
       }
     },
-    "xref": [ "https://learn.microsoft.com/en-us/dotnet/.xrefmap.json" ]
+    "xref": [
+      "https://learn.microsoft.com/en-us/dotnet/.xrefmap.json"
+    ]
   }
 }
