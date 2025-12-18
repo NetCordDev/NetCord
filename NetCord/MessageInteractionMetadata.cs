@@ -27,7 +27,7 @@ public class MessageInteractionMetadata : Entity, IJsonModel<JsonMessageInteract
     public InteractionType Type => _jsonModel.Type;
 
     /// <summary>
-    /// ID of the user who triggered the interaction
+    /// The user who triggered the interaction.
     /// </summary>
     public User User { get; }
 
