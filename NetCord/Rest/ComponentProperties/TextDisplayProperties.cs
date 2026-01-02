@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
-public partial class TextDisplayProperties(string content) : IMessageComponentProperties, IModalComponentProperties, IComponentContainerComponentProperties
+public partial class TextDisplayProperties(string content) : IMessageComponentProperties, IModalComponentProperties, IComponentContainerComponentProperties, IComponentSectionComponentProperties
 {
     /// <summary>
     /// Unique identifier for the component. Auto populated through increment if not provided.
@@ -35,6 +35,11 @@ public partial class TextDisplayProperties(string content) : IMessageComponentPr
     }
 
     void IJsonSerializable<IComponentContainerComponentProperties>.WriteTo(Utf8JsonWriter writer)
+    {
+        WriteTo(writer);
+    }
+
+    void IJsonSerializable<IComponentSectionComponentProperties>.WriteTo(Utf8JsonWriter writer)
     {
         WriteTo(writer);
     }
