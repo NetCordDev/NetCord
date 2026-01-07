@@ -2,6 +2,10 @@
 title: Creating Custom Command Contexts in NetCord.Services
 description: Extend context objects in NetCord.Services. Learn to create custom contexts with additional data and helper methods for your commands.
 omitAppTitle: true
+keywords: Discord, custom contexts, context objects, command contexts, NetCord.Services, C#, .NET
+section: Services Framework
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Custom Contexts
@@ -25,12 +29,13 @@ In module methods.
 
 ## Navigation
 
-← **Previous:** @"services-framework/dependency-injection?text=Dependency Injection" | **Next:** @"services-framework/type-readers?text=Type Readers" →
+← **Previous:** [Dependency Injection](dependency-injection.md) | **Next:** [Type Readers](type-readers.md) →
 
 ## See Also
 
-- @"services-framework/dependency-injection?text=Dependency Injection" - Inject data into contexts
-- @"services-framework/type-readers?text=Type Readers" - Access context in readers
-- @"services-framework/preconditions?text=Preconditions" - Access context in preconditions
-- @"commands/overview?text=Commands Overview" - Context types for commands
-- @"component-interactions/message-components?text=Message Components" - Component interaction contexts
+- [Dependency Injection](dependency-injection.md) - Inject data into contexts
+- [Type Readers](type-readers.md) - Access context in readers
+- [Preconditions](preconditions.md) - Access context in preconditions
+- [Commands Overview](../commands/index.md) - Context types for commands
+- [Message Components](../component-interactions/message-components.md) - Component interaction contexts
+

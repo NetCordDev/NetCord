@@ -2,6 +2,10 @@
 title: Working with Discord Custom Emojis and Stickers in NetCord
 description: Use custom emojis and stickers in your Discord bot. Learn emoji management, animated emojis, and sticker operations with NetCord.
 omitAppTitle: true
+keywords: Discord, emojis, stickers, custom emojis, animated emojis, emoji management, C#, .NET, emoji operations
+section: Discord Entities
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Emojis and Stickers
@@ -25,12 +29,13 @@ Sticker types and usage.
 
 ## Navigation
 
-← **Previous:** @"discord-entities/roles-and-permissions?text=Roles and Permissions" | **Next:** @"webhooks/overview?text=Webhooks" →
+← **Previous:** [Roles and Permissions](roles-and-permissions.md) | **Next:** [Webhooks](../webhooks/index.md) →
 
 ## See Also
 
-- @"discord-entities/guilds?text=Guilds" - Guild custom emojis
-- @"components-v2/content-components?text=Content Components" - Use emojis in messages
-- @"component-interactions/message-components?text=Message Components" - Emojis in buttons
+- [Guilds](guilds.md) - Guild custom emojis
+- [Content Components](../components-v2/content-components.md) - Use emojis in messages
+- [Message Components](../component-interactions/message-components.md) - Emojis in buttons
 - [Discord Docs: Emoji Resource](https://discord.com/developers/docs/resources/emoji)
 - [Discord Docs: Sticker Resource](https://discord.com/developers/docs/resources/sticker)
+

@@ -2,6 +2,10 @@
 title: Building Type Readers for Discord Command Parameters
 description: Create custom type readers in NetCord.Services. Learn parameter parsing, type conversion, and validation for command arguments.
 omitAppTitle: true
+keywords: Discord, type readers, parameter parsing, type conversion, command parameters, C#, .NET
+section: Services Framework
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Type Readers
@@ -25,12 +29,13 @@ Configuration.
 
 ## Navigation
 
-← **Previous:** @"services-framework/custom-contexts?text=Custom Contexts" | **Next:** @"services-framework/preconditions?text=Preconditions" →
+← **Previous:** [Custom Contexts](custom-contexts.md) | **Next:** [Preconditions](preconditions.md) →
 
 ## See Also
 
-- @"services-framework/preconditions?text=Preconditions" - Validate after parsing
-- @"services-framework/custom-contexts?text=Custom Contexts" - Access context in readers
-- @"commands/slash-commands?text=Slash Commands" - Command option types
-- @"discord-entities/overview?text=Discord Entities" - Parse entities
-- @"commands/text-commands?text=Text Commands" - Text command parsing
+- [Preconditions](preconditions.md) - Validate after parsing
+- [Custom Contexts](custom-contexts.md) - Access context in readers
+- [Slash Commands](../commands/slash-commands.md) - Command option types
+- [Discord Entities](../discord-entities/index.md) - Parse entities
+- [Text Commands](../commands/text-commands.md) - Text command parsing
+

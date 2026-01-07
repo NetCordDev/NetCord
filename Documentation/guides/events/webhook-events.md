@@ -2,6 +2,10 @@
 title: Handling Discord Events via Webhooks with ASP.NET Core
 description: Build Discord bots that handle interactions via HTTP webhooks in ASP.NET Core. Learn about webhook verification, endpoints, and stateless bots.
 omitAppTitle: true
+keywords: Discord, webhooks, webhook events, HTTP interactions, stateless bots, ASP.NET Core, C#, .NET, interactions
+section: Events
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Webhook Events
@@ -25,11 +29,12 @@ UseWebhookEvents().
 
 ## Navigation
 
-← **Previous:** @"events/intents?text=Gateway Intents"
+← **Previous:** [Gateway Intents](intents.md)
 
 ## See Also
 
-- @"webhooks/overview?text=Webhooks" - Webhook basics
-- @"deployment/cloud-hosting?text=Cloud Hosting" - Deploy webhook bots
-- @"commands/slash-commands?text=Slash Commands" - Handle slash command interactions
+- [Webhooks](../webhooks/index.md) - Webhook basics
+- [Cloud Hosting](../deployment/cloud-hosting.md) - Deploy webhook bots
+- [Slash Commands](../commands/slash-commands.md) - Handle slash command interactions
 - [Discord Docs: Interactions Webhook](https://discord.com/developers/docs/interactions/receiving-and-responding#receiving-an-interaction)
+

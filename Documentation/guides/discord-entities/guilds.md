@@ -2,6 +2,10 @@
 title: Working with Discord Guilds (Servers) in NetCord
 description: Manage Discord guilds in your bot. Learn guild operations, member management, server settings, and guild events with NetCord.
 omitAppTitle: true
+keywords: Discord, guilds, servers, guild management, members, server settings, C#, .NET, guild operations
+section: Discord Entities
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Working with Guilds
@@ -25,12 +29,13 @@ Modifying guild settings.
 
 ## Navigation
 
-← **Previous:** @"discord-entities/overview?text=Discord Entities Overview" | **Next:** @"discord-entities/channels?text=Channels" →
+← **Previous:** [Discord Entities Overview](index.md) | **Next:** [Channels](channels.md) →
 
 ## See Also
 
-- @"discord-entities/channels?text=Channels" - Guild channels and categories
-- @"discord-entities/roles-and-permissions?text=Roles and Permissions" - Manage guild roles
-- @"discord-entities/emojis-and-stickers?text=Emojis and Stickers" - Custom guild emojis
-- @"events/gateway-events?text=Gateway Events" - Guild event handling
+- [Channels](channels.md) - Guild channels and categories
+- [Roles and Permissions](roles-and-permissions.md) - Manage guild roles
+- [Emojis and Stickers](emojis-and-stickers.md) - Custom guild emojis
+- [Gateway Events](../events/gateway-events.md) - Guild event handling
 - [Discord Docs: Guild Resource](https://discord.com/developers/docs/resources/guild)
+

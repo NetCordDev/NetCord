@@ -2,6 +2,10 @@
 title: Migrating from Other C# Discord Libraries to NetCord
 description: Migrate from any C# Discord library to NetCord. Learn common patterns, API differences, and general migration strategies.
 omitAppTitle: true
+keywords: Discord, migration, C# libraries, NetCord, Remora.Discord, transition, .NET
+section: Migration
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Migrating from Other C# Libraries
@@ -27,12 +31,13 @@ General migration guidance.
 
 ## Navigation
 
-← **Previous:** @"migration/dsharpplus?text=Migrating from DSharpPlus" | **Next:** @"migration/other-languages?text=Migrating from Other Languages" →
+← **Previous:** [Migrating from DSharpPlus](dsharpplus.md) | **Next:** [Migrating from Other Languages](other-languages.md) →
 
 ## See Also
 
-- @"migration/index?text=Migration Guide Overview" - Choose your migration path
-- @"migration/discord-net?text=Discord.Net Migration" - Popular C# library patterns
-- @"getting-started/installation?text=Installation" - Install NetCord
-- @"introduction/index?text=Introduction" - NetCord concepts
-- @"commands/overview?text=Commands Overview" - NetCord command system
+- [Migration Guide Overview](index.md) - Choose your migration path
+- [Discord.Net Migration](discord-net.md) - Popular C# library patterns
+- [Installation](../getting-started/installation.md) - Install NetCord
+- [Introduction](../introduction/index.md) - NetCord concepts
+- [Commands Overview](../commands/index.md) - NetCord command system
+

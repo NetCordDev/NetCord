@@ -2,6 +2,10 @@
 title: Building Traditional Prefix-Based Text Commands for Discord Bots
 description: Create traditional prefix-based text commands in NetCord. Learn command parsing, argument handling, and responding to message-based commands.
 omitAppTitle: true
+keywords: Discord, text commands, prefix commands, C#, .NET, command parsing, message commands, arguments
+section: Commands
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Text Commands
@@ -29,10 +33,11 @@ CommandAttribute aliases.
 
 ## Navigation
 
-← **Previous:** @"commands/message-commands?text=Message Commands"
+← **Previous:** [Message Commands](message-commands.md)
 
 ## See Also
 
-- @"services-framework/overview?text=Services Framework" - Prefix command handling
-- @"services-framework/type-readers?text=Type Readers" - Argument parsing
-- @"events/gateway-events?text=Gateway Events" - Message events
+- [Services Framework](../services-framework/index.md) - Prefix command handling
+- [Type Readers](../services-framework/type-readers.md) - Argument parsing
+- [Gateway Events](../events/gateway-events.md) - Message events
+

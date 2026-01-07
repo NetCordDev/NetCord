@@ -2,6 +2,10 @@
 title: Writing Your First Discord Bot Response in C#
 description: Create your first interaction response handler in NetCord. Learn to respond to slash commands and handle user interactions with your bot.
 omitAppTitle: true
+keywords: Discord, first response, interaction response, slash commands, bot responses, C#, .NET, tutorial, getting started
+section: Getting Started
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Your First Response
@@ -25,10 +29,11 @@ Adding buttons to responses.
 
 ## Navigation
 
-← **Previous:** @"getting-started/project-setup?text=Project Setup" | **Next:** @"getting-started/running-your-bot?text=Running Your Bot" →
+← **Previous:** [Project Setup](project-setup.md) | **Next:** [Running Your Bot](running-your-bot.md) →
 
 ## See Also
 
-- @"commands/slash-commands?text=Slash Commands" - Build application commands
-- @"events/gateway-events?text=Gateway Events" - Handle Discord events
-- @"component-interactions/message-components?text=Message Components" - Interactive buttons
+- [Slash Commands](../commands/slash-commands.md) - Build application commands
+- [Gateway Events](../events/gateway-events.md) - Handle Discord events
+- [Message Components](../component-interactions/message-components.md) - Interactive buttons
+

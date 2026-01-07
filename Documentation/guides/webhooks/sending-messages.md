@@ -2,6 +2,10 @@
 title: Sending Discord Messages via Webhooks with NetCord
 description: Post messages to Discord channels using webhooks. Learn message formatting, embeds, files, and rate limiting with webhook messaging.
 omitAppTitle: true
+keywords: Discord, webhook messaging, message sending, embeds, attachments, rate limiting, webhook client, C#, .NET
+section: Webhooks
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Sending Messages via Webhooks
@@ -25,12 +29,13 @@ Username and avatar override.
 
 ## Navigation
 
-← **Previous:** @"webhooks/managing-webhooks?text=Managing Webhooks" | **Next:** @"services-framework/overview?text=Services Framework" →
+← **Previous:** [Managing Webhooks](managing-webhooks.md) | **Next:** [Services Framework](../services-framework/index.md) →
 
 ## See Also
 
-- @"webhooks/overview?text=Webhooks Overview" - Webhook types and concepts
-- @"webhooks/managing-webhooks?text=Managing Webhooks" - Create webhooks
-- @"components-v2/content-components?text=Content Components" - Format webhook messages
-- @"discord-entities/channels?text=Channels" - Send to channels
+- [Webhooks Overview](index.md) - Webhook types and concepts
+- [Managing Webhooks](managing-webhooks.md) - Create webhooks
+- [Content Components](../components-v2/content-components.md) - Format webhook messages
+- [Channels](../discord-entities/channels.md) - Send to channels
 - [Discord Docs: Execute Webhook](https://discord.com/developers/docs/resources/webhook#execute-webhook)
+

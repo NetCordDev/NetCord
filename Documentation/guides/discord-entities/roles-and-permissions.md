@@ -2,6 +2,10 @@
 title: Managing Discord Roles and Permissions in NetCord
 description: Work with Discord roles and permission systems in C#. Learn role management, permission checks, and hierarchies with NetCord.
 omitAppTitle: true
+keywords: Discord, roles, permissions, role management, access control, permission checks, hierarchies, C#, .NET
+section: Discord Entities
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Roles and Permissions
@@ -29,12 +33,13 @@ Channel-specific permissions.
 
 ## Navigation
 
-← **Previous:** @"discord-entities/users?text=Users" | **Next:** @"discord-entities/emojis-and-stickers?text=Emojis and Stickers" →
+← **Previous:** [Users](users.md) | **Next:** [Emojis and Stickers](emojis-and-stickers.md) →
 
 ## See Also
 
-- @"discord-entities/guilds?text=Guilds" - Manage guild roles
-- @"discord-entities/channels?text=Channels" - Channel permission overwrites
-- @"services-framework/preconditions?text=Preconditions" - Permission-based command guards
-- @"commands/overview?text=Commands Overview" - Command permissions
+- [Guilds](guilds.md) - Manage guild roles
+- [Channels](channels.md) - Channel permission overwrites
+- [Preconditions](../services-framework/preconditions.md) - Permission-based command guards
+- [Commands Overview](../commands/index.md) - Command permissions
 - [Discord Docs: Permissions](https://discord.com/developers/docs/topics/permissions)
+

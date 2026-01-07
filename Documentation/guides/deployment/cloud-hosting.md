@@ -2,6 +2,10 @@
 title: Hosting Discord Bots on Azure, AWS, and Cloud Platforms
 description: Deploy NetCord bots to cloud providers. Learn Azure, AWS, and cloud hosting options with deployment strategies and best practices.
 omitAppTitle: true
+keywords: Discord, cloud hosting, Azure, AWS, cloud deployment, bot hosting, cloud platforms, C#, .NET, DevOps
+section: Deployment
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Cloud Hosting
@@ -25,12 +29,13 @@ Generic VPS setup.
 
 ## Navigation
 
-← **Previous:** @"deployment/docker?text=Docker Deployment" | **Next:** @"advanced-topics/sharding?text=Sharding" →
+← **Previous:** [Docker Deployment](docker.md) | **Next:** [Sharding](../advanced-topics/sharding.md) →
 
 ## See Also
 
-- @"deployment/docker?text=Docker Deployment" - Containerize for cloud
-- @"dotnet-integration/configuration?text=Configuration" - Cloud configuration
-- @"dotnet-integration/logging?text=Logging" - Cloud logging
-- @"advanced-topics/sharding?text=Sharding" - Scale across instances
+- [Docker Deployment](docker.md) - Containerize for cloud
+- [Configuration](../dotnet-integration/configuration.md) - Cloud configuration
+- [Logging](../dotnet-integration/logging.md) - Cloud logging
+- [Sharding](../advanced-topics/sharding.md) - Scale across instances
 - [Azure Docs: App Service](https://learn.microsoft.com/en-us/azure/app-service/)
+

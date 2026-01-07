@@ -2,6 +2,10 @@
 title: Using Dependency Injection in NetCord Command Modules
 description: Implement dependency injection in NetCord.Services command modules. Learn constructor injection, service lifetimes, and DI best practices.
 omitAppTitle: true
+keywords: Discord, dependency injection, service lifetimes, constructor injection, DI, C#, .NET
+section: Services Framework
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Dependency Injection
@@ -25,12 +29,13 @@ IServiceProvider usage.
 
 ## Navigation
 
-← **Previous:** @"services-framework/overview?text=Services Framework Overview" | **Next:** @"services-framework/custom-contexts?text=Custom Contexts" →
+← **Previous:** [Services Framework Overview](index.md) | **Next:** [Custom Contexts](custom-contexts.md) →
 
 ## See Also
 
-- @"services-framework/custom-contexts?text=Custom Contexts" - Inject data into contexts
-- @"services-framework/type-readers?text=Type Readers" - DI in type readers
-- @"dotnet-integration/generic-host?text=Generic Host" - Configure DI container
-- @"commands/overview?text=Commands Overview" - DI in command handlers
+- [Custom Contexts](custom-contexts.md) - Inject data into contexts
+- [Type Readers](type-readers.md) - DI in type readers
+- [Generic Host](../dotnet-integration/generic-host.md) - Configure DI container
+- [Commands Overview](../commands/index.md) - DI in command handlers
 - [Microsoft Docs: Dependency Injection](https://learn.microsoft.com/en-us/dotnet/core/extensions/dependency-injection)
+

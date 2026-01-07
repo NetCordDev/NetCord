@@ -2,6 +2,10 @@
 title: Migrating from Discord Embeds to Components v2
 description: Convert embed-based message layouts to Components v2. Learn migration strategies and new component equivalents for NetCord bots.
 omitAppTitle: true
+keywords: Discord, components v2, embeds, migration, layouts, conversion, C#, .NET, upgrade
+section: Components v2
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Migrating from Embeds
@@ -21,11 +25,12 @@ Converting embed layouts to components.
 
 ## Navigation
 
-← **Previous:** @"components-v2/modal-components?text=Modal Components" | **Next:** @"deployment/docker?text=Docker Deployment" →
+← **Previous:** [Modal Components](modal-components.md) | **Next:** [Docker Deployment](../deployment/docker.md) →
 
 ## See Also
 
-- @"components-v2/content-components?text=Content Components" - Embed field equivalents
-- @"components-v2/layout-components?text=Layout Components" - Structure your content
-- @"components-v2/overview?text=Components v2 Overview" - When to use v2
-- @"discord-entities/channels?text=Channels" - Send components and embeds
+- [Content Components](content-components.md) - Embed field equivalents
+- [Layout Components](layout-components.md) - Structure your content
+- [Components v2 Overview](index.md) - When to use v2
+- [Channels](../discord-entities/channels.md) - Send components and embeds
+

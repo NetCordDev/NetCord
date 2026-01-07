@@ -2,6 +2,10 @@
 title: Handling Button and Select Menu Interactions in Discord Bots
 description: Build interactive Discord message components with NetCord. Learn to handle button clicks, select menus, and component interactions in C#.
 omitAppTitle: true
+keywords: Discord, buttons, select menus, message components, interactions, C#, .NET, custom IDs, component handling
+section: Component Interactions
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Message Component Interactions
@@ -29,11 +33,12 @@ ComponentInteractionParameter.
 
 ## Navigation
 
-**Next:** @"component-interactions/modals?text=Modal Interactions" →
+**Next:** [Modal Interactions](modals.md) →
 
 ## See Also
 
-- @"components-v2/interactive-components?text=Interactive Components" - Components v2 buttons and menus
-- @"commands/slash-commands?text=Slash Commands" - Commands with components
-- @"services-framework/overview?text=Services Framework" - Handle component interactions
+- [Interactive Components](../components-v2/interactive-components.md) - Components v2 buttons and menus
+- [Slash Commands](../commands/slash-commands.md) - Commands with components
+- [Services Framework](../services-framework/index.md) - Handle component interactions
 - [Discord Docs: Message Components](https://discord.com/developers/docs/interactions/message-components)
+

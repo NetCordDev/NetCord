@@ -2,6 +2,10 @@
 title: Creating User Context Menu Commands in Discord Bots
 description: Build user context menu commands that appear when right-clicking users in Discord. Learn to handle user interactions with NetCord.
 omitAppTitle: true
+keywords: Discord, user commands, context menus, right-click, C#, .NET, user interactions, application commands
+section: Commands
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # User Commands
@@ -25,10 +29,11 @@ How it appears in Discord.
 
 ## Navigation
 
-← **Previous:** @"commands/slash-commands?text=Slash Commands" | **Next:** @"commands/message-commands?text=Message Commands" →
+← **Previous:** [Slash Commands](slash-commands.md) | **Next:** [Message Commands](message-commands.md) →
 
 ## See Also
 
-- @"discord-entities/users?text=Working with Users" - User entity operations
-- @"services-framework/custom-contexts?text=Custom Contexts" - Context customization
+- [Working with Users](../discord-entities/users.md) - User entity operations
+- [Custom Contexts](../services-framework/custom-contexts.md) - Context customization
 - [Discord Docs: User Commands](https://discord.com/developers/docs/interactions/application-commands#user-commands)
+

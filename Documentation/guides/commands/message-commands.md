@@ -2,6 +2,10 @@
 title: Creating Message Context Menu Commands in Discord Bots
 description: Build message context menu commands that appear when right-clicking messages in Discord. Learn to process messages with NetCord.
 omitAppTitle: true
+keywords: Discord, message commands, context menus, message interactions, C#, .NET, application commands, right-click
+section: Commands
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Message Commands
@@ -25,10 +29,11 @@ How it appears in Discord.
 
 ## Navigation
 
-← **Previous:** @"commands/user-commands?text=User Commands" | **Next:** @"commands/text-commands?text=Text Commands" →
+← **Previous:** [User Commands](user-commands.md) | **Next:** [Text Commands](text-commands.md) →
 
 ## See Also
 
-- @"component-interactions/message-components?text=Message Components" - Interactive messages
-- @"services-framework/overview?text=Services Framework" - Command handling
+- [Message Components](../component-interactions/message-components.md) - Interactive messages
+- [Services Framework](../services-framework/index.md) - Command handling
 - [Discord Docs: Message Commands](https://discord.com/developers/docs/interactions/application-commands#message-commands)
+

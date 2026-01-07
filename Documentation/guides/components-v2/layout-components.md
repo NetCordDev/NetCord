@@ -2,6 +2,10 @@
 title: Organizing Messages with Layout Components - Containers and Sections
 description: Structure Discord messages with layout components. Learn containers, sections, separators, and action rows in Components v2.
 omitAppTitle: true
+keywords: Discord, components v2, layout, containers, sections, separators, action rows, message structure, C#, .NET
+section: Components v2
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Layout Components
@@ -29,11 +33,12 @@ ActionRowProperties (legacy bridge).
 
 ## Navigation
 
-← **Previous:** @"components-v2/content-components?text=Content Components" | **Next:** @"components-v2/interactive-components?text=Interactive Components" →
+← **Previous:** [Content Components](content-components.md) | **Next:** [Interactive Components](interactive-components.md) →
 
 ## See Also
 
-- @"components-v2/content-components?text=Content Components" - What goes in sections
-- @"components-v2/interactive-components?text=Interactive Components" - Add buttons to action rows
-- @"components-v2/overview?text=Components v2 Overview" - Component limits
-- @"components-v2/migrating-from-embeds?text=Migrating from Embeds" - Layout patterns
+- [Content Components](content-components.md) - What goes in sections
+- [Interactive Components](interactive-components.md) - Add buttons to action rows
+- [Components v2 Overview](index.md) - Component limits
+- [Migrating from Embeds](migrating-from-embeds.md) - Layout patterns
+

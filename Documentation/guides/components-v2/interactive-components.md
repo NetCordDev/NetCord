@@ -2,6 +2,10 @@
 title: Creating Interactive Buttons and Select Menus in Components v2
 description: Build interactive components in Discord Components v2. Learn buttons, select menus, and handling user interactions with NetCord.
 omitAppTitle: true
+keywords: Discord, components v2, buttons, select menus, interactive, interactions, C#, .NET, user input
+section: Components v2
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Interactive Components
@@ -29,12 +33,13 @@ MenuSelectOptionProperties.
 
 ## Navigation
 
-← **Previous:** @"components-v2/layout-components?text=Layout Components" | **Next:** @"components-v2/modal-components?text=Modal Components" →
+← **Previous:** [Layout Components](layout-components.md) | **Next:** [Modal Components](modal-components.md) →
 
 ## See Also
 
-- @"components-v2/modal-components?text=Modal Components" - Text input forms
-- @"component-interactions/message-components?text=Message Components" - Handle interactions
-- @"services-framework/overview?text=Services Framework" - Component command handling
-- @"discord-entities/emojis-and-stickers?text=Emojis and Stickers" - Button emojis
+- [Modal Components](modal-components.md) - Text input forms
+- [Message Components](../component-interactions/message-components.md) - Handle interactions
+- [Services Framework](../services-framework/index.md) - Component command handling
+- [Emojis and Stickers](../discord-entities/emojis-and-stickers.md) - Button emojis
 - [Discord Docs: Button Styles](https://discord.com/developers/docs/interactions/message-components#button-object-button-styles)
+

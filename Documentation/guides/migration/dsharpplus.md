@@ -2,6 +2,10 @@
 title: Migrating from DSharpPlus to NetCord - Complete Guide
 description: Migrate DSharpPlus bots to NetCord. Learn API equivalents, code patterns, and transition strategies for DSharpPlus developers.
 omitAppTitle: true
+keywords: Discord, DSharpPlus, migration, NetCord, API equivalents, transition, C#, .NET
+section: Migration
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2025-12-15T00:00:00Z'
 ---
 
 # Migrating from DSharpPlus
@@ -37,12 +41,13 @@ Side-by-side code examples.
 
 ## Navigation
 
-← **Previous:** @"migration/discord-net?text=Migrating from Discord.Net" | **Next:** @"migration/other-csharp?text=Migrating from Other C# Libraries" →
+← **Previous:** [Migrating from Discord.Net](discord-net.md) | **Next:** [Migrating from Other C# Libraries](other-csharp.md) →
 
 ## See Also
 
-- @"migration/index?text=Migration Guide Overview" - Choose your migration path
-- @"getting-started/installation?text=Installation" - Install NetCord
-- @"dotnet-integration/generic-host?text=Generic Host" - Host setup
-- @"commands/overview?text=Commands Overview" - NetCord command system
-- @"events/gateway-events?text=Gateway Events" - NetCord event handling
+- [Migration Guide Overview](index.md) - Choose your migration path
+- [Installation](../getting-started/installation.md) - Install NetCord
+- [Generic Host](../dotnet-integration/generic-host.md) - Host setup
+- [Commands Overview](../commands/index.md) - NetCord command system
+- [Gateway Events](../events/gateway-events.md) - NetCord event handling
+
