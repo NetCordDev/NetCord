@@ -5,7 +5,7 @@ on:
     types: [closed]
 
 concurrency:
-  group: documentation-preview-${{ github.ref_name }}
+  group: documentation-preview-${{ github.event.pull_request.head.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -14,10 +14,13 @@ jobs:
 
     steps:
       - name: Cleanup Documentation Preview
-        uses: appleboy/ssh-action@v1.2.2
+        uses: appleboy/ssh-action@v1.2.4
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
-          script: rm -rf ~/NetCord/preview/html/${{ github.event.pull_request.number }}
+          script: rm -rf ~/NetCord/preview/html/$PULL_REQUEST_NUMBER
+          envs: PULL_REQUEST_NUMBER
+        env:
+          PULL_REQUEST_NUMBER: "${{ github.event.pull_request.number }}"

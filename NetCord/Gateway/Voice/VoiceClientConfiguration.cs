@@ -19,6 +19,7 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
     public IVoiceReceiveHandler? ReceiveHandler { get; init; }
     public IVoiceLogger? Logger { get; init; }
+    public TimeSpan? ExternalSocketAddressDiscoveryTimeout { get; init; }
 
     IWebSocketLogger? IWebSocketClientConfiguration.Logger => Logger switch
     {

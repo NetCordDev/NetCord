@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v6.0.1
         with:
           fetch-depth: 0
           filter: tree:0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
+        uses: actions/setup-dotnet@v5.0.1
         with:
           global-json-file: global.json
 
@@ -39,7 +39,7 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup Node
-        uses: actions/setup-node@v6.0.0
+        uses: actions/setup-node@v6.1.0
 
       - name: Build Documentation
         working-directory: Documentation
