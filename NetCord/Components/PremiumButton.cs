@@ -1,6 +1,7 @@
 ﻿using NetCord.JsonModels;
 
 namespace NetCord;
+
 public class PremiumButton(JsonComponent jsonModel) : IButton, IJsonModel<JsonComponent>
 {
     JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
