@@ -15,6 +15,9 @@ export async function highlight() {
 
   document.querySelectorAll('pre code').forEach(block => {
     hljs.highlightElement(block as HTMLElement)
+    if (!block.classList.contains('hljs')) {
+      block.classList.add('hljs')
+    }
   })
 
   document.querySelectorAll('pre code[highlight-lines]').forEach(block => {
