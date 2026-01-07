@@ -1,11 +1,13 @@
 - name: Introduction
-  href: introduction/overview.md
+  href: introduction/index.md
 
 - name: Quick Start
-  href: quick-start/overview.md
+  href: quick-start/index.md
 
 - name: Getting Started
   items:
+    - name: Overview
+      href: getting-started/index.md
     - name: Installation
       href: getting-started/installation.md
     - name: Creating Your Bot
@@ -21,6 +23,8 @@
 
 - name: .NET Integration
   items:
+    - name: Overview
+      href: dotnet-integration/index.md
     - name: .NET Generic Host
       href: dotnet-integration/generic-host.md
     - name: Configuration
@@ -31,7 +35,7 @@
 - name: Discord Entities
   items:
     - name: Overview
-      href: discord-entities/overview.md
+      href: discord-entities/index.md
     - name: Working with Users
       href: discord-entities/users.md
     - name: Working with Guilds
@@ -46,7 +50,7 @@
 - name: Events
   items:
     - name: Overview
-      href: events/overview.md
+      href: events/index.md
     - name: Intents
       href: events/intents.md
     - name: Gateway Events
@@ -57,7 +61,7 @@
 - name: Components v2
   items:
     - name: Overview
-      href: components-v2/overview.md
+      href: components-v2/index.md
     - name: Migrating from Embeds
       href: components-v2/migrating-from-embeds.md
     - name: Layout Components
@@ -72,7 +76,7 @@
 - name: Commands
   items:
     - name: Overview
-      href: commands/overview.md
+      href: commands/index.md
     - name: Slash Commands
       href: commands/slash-commands.md
     - name: User Commands
@@ -84,6 +88,8 @@
 
 - name: Component Interactions
   items:
+    - name: Overview
+      href: component-interactions/index.md
     - name: Message Components
       href: component-interactions/message-components.md
     - name: Modals
@@ -92,7 +98,7 @@
 - name: Services Framework
   items:
     - name: Overview
-      href: services-framework/overview.md
+      href: services-framework/index.md
     - name: Dependency Injection
       href: services-framework/dependency-injection.md
     - name: Type Readers
@@ -105,7 +111,7 @@
 - name: Webhooks
   items:
     - name: Overview
-      href: webhooks/overview.md
+      href: webhooks/index.md
     - name: Managing Webhooks
       href: webhooks/managing-webhooks.md
     - name: Sending Messages
@@ -114,7 +120,7 @@
 - name: Voice
   items:
     - name: Overview
-      href: voice/overview.md
+      href: voice/index.md
     - name: Connecting to Voice
       href: voice/connecting-to-voice.md
     - name: Audio Playback
@@ -126,6 +132,8 @@
 
 - name: Advanced Topics
   items:
+    - name: Overview
+      href: advanced-topics/index.md
     - name: Sharding
       href: advanced-topics/sharding.md
     - name: Caching Strategies
@@ -137,6 +145,8 @@
 
 - name: Deployment
   items:
+    - name: Overview
+      href: deployment/index.md
     - name: Docker
       href: deployment/docker.md
     - name: Cloud Hosting
@@ -144,86 +154,8 @@
 
 - name: Troubleshooting
   items:
-    - name: Common Issues
-      href: troubleshooting/common-issues.md
-    - name: FAQ
-      href: troubleshooting/faq.md
-
-- name: Commands
-  items:
     - name: Overview
-      href: commands/overview.md
-    - name: Slash Commands
-      href: commands/slash-commands.md
-    - name: User Commands
-      href: commands/user-commands.md
-    - name: Message Commands
-      href: commands/message-commands.md
-    - name: Text Commands
-      href: commands/text-commands.md
-
-- name: Component Interactions
-  items:
-    - name: Message Components
-      href: component-interactions/message-components.md
-    - name: Modals
-      href: component-interactions/modals.md
-
-- name: Services Framework
-  items:
-    - name: Overview
-      href: services-framework/overview.md
-    - name: Dependency Injection
-      href: services-framework/dependency-injection.md
-    - name: Type Readers
-      href: services-framework/type-readers.md
-    - name: Preconditions
-      href: services-framework/preconditions.md
-    - name: Custom Contexts
-      href: services-framework/custom-contexts.md
-
-- name: Webhooks
-  items:
-    - name: Overview
-      href: webhooks/overview.md
-    - name: Managing Webhooks
-      href: webhooks/managing-webhooks.md
-    - name: Sending Messages
-      href: webhooks/sending-messages.md
-
-- name: Voice
-  items:
-    - name: Overview
-      href: voice/overview.md
-    - name: Connecting to Voice
-      href: voice/connecting-to-voice.md
-    - name: Audio Playback
-      href: voice/sending-voice.md
-    - name: Audio Recording
-      href: voice/receiving-voice.md
-    - name: Stream Types
-      href: voice/stream-types.md
-
-- name: Advanced Topics
-  items:
-    - name: Sharding
-      href: advanced-topics/sharding.md
-    - name: Caching Strategies
-      href: advanced-topics/caching-strategies.md
-    - name: Rate Limiting
-      href: advanced-topics/rate-limiting.md
-    - name: Connection Resilience
-      href: advanced-topics/connection-resilience.md
-
-- name: Deployment
-  items:
-    - name: Docker
-      href: deployment/docker.md
-    - name: Cloud Hosting
-      href: deployment/cloud-hosting.md
-
-- name: Troubleshooting
-  items:
+      href: troubleshooting/index.md
     - name: Common Issues
       href: troubleshooting/common-issues.md
     - name: FAQ
