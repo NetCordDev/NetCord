@@ -3,7 +3,7 @@
 
 import { options } from './helper'
 
-export async function highlight() {
+export async function highlight () {
   const codeBlocks = document.querySelectorAll('pre code')
   if (codeBlocks.length <= 0) {
     return

@@ -6,16 +6,16 @@
  * Automatically detects page type and injects appropriate schema.org markup.
  */
 
+interface Breadcrumb {
+  name: string
+  url: string
+}
+
 interface Metadata {
   title: string
   description: string
   url: string
   breadcrumbs: Breadcrumb[]
-}
-
-interface Breadcrumb {
-  name: string
-  url: string
 }
 
 interface JsonLinkDataSchema {
@@ -24,11 +24,11 @@ interface JsonLinkDataSchema {
   [key: string]: unknown
 }
 
-export async function initializeJsonLinkData() {
+export async function initializeJsonLinkData () {
   injectStructuredData()
 }
 
-function injectStructuredData(): void {
+function injectStructuredData (): void {
   const metadata = gatherMetadata()
 
   // Determine page type based on URL path
@@ -50,7 +50,7 @@ function injectStructuredData(): void {
   document.head.appendChild(script)
 }
 
-function gatherMetadata(): Metadata {
+function gatherMetadata (): Metadata {
   const title = document.title
   const descriptionElement = document.querySelector('meta[name="description"]')
   const description = descriptionElement?.getAttribute('content') || 'Modern and fully customizable C# Discord library'
@@ -60,7 +60,7 @@ function gatherMetadata(): Metadata {
   return { title, description, url, breadcrumbs }
 }
 
-function extractBreadcrumbs(): Breadcrumb[] {
+function extractBreadcrumbs (): Breadcrumb[] {
   const breadcrumbs: Breadcrumb[] = []
 
   // Try to extract from breadcrumb navigation if present
@@ -90,7 +90,7 @@ function extractBreadcrumbs(): Breadcrumb[] {
   return breadcrumbs
 }
 
-function createTechArticleSchema(metadata: Metadata): JsonLinkDataSchema {
+function createTechArticleSchema (metadata: Metadata): JsonLinkDataSchema {
   const publishDate = document.querySelector('meta[property="article:published_time"]')?.getAttribute('content') || new Date().toISOString()
   const modifiedDate = document.querySelector('meta[property="article:modified_time"]')?.getAttribute('content') || publishDate
   const image = document.querySelector('meta[property="og:image"]')?.getAttribute('content')
@@ -98,111 +98,111 @@ function createTechArticleSchema(metadata: Metadata): JsonLinkDataSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
-    'headline': metadata.title,
-    'description': metadata.description,
-    'url': metadata.url,
-    'datePublished': publishDate,
-    'dateModified': modifiedDate,
-    ...(image && { 'image': image }),
-    'keywords': extractKeywords(),
-    'author': {
+    headline: metadata.title,
+    description: metadata.description,
+    url: metadata.url,
+    datePublished: publishDate,
+    dateModified: modifiedDate,
+    ...(image && { image }),
+    keywords: extractKeywords(),
+    author: {
       '@type': 'Organization',
-      'name': 'NetCord',
-      'url': 'https://netcord.dev',
-      'logo': {
+      name: 'NetCord',
+      url: 'https://netcord.dev',
+      logo: {
         '@type': 'ImageObject',
-        'url': 'https://netcord.dev/logo.png',
-        'width': 250,
-        'height': 60
+        url: 'https://netcord.dev/logo.png',
+        width: 250,
+        height: 60
       }
     },
-    'publisher': {
+    publisher: {
       '@type': 'Organization',
-      'name': 'NetCord',
-      'url': 'https://netcord.dev',
-      'logo': {
+      name: 'NetCord',
+      url: 'https://netcord.dev',
+      logo: {
         '@type': 'ImageObject',
-        'url': 'https://netcord.dev/logo.png',
-        'width': 250,
-        'height': 60
+        url: 'https://netcord.dev/logo.png',
+        width: 250,
+        height: 60
       }
     },
-    'articleSection': 'Technology',
+    articleSection: 'Technology',
     ...(metadata.breadcrumbs.length > 0 && {
-      'breadcrumb': createBreadcrumbList(metadata.breadcrumbs)
+      breadcrumb: createBreadcrumbList(metadata.breadcrumbs)
     })
   }
 }
 
-function createSoftwareApplicationSchema(metadata: Metadata): JsonLinkDataSchema {
+function createSoftwareApplicationSchema (_metadata: Metadata): JsonLinkDataSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    'name': 'NetCord',
-    'description': 'Modern and fully customizable C# Discord library for building Discord bots with .NET',
-    'url': 'https://netcord.dev',
-    'applicationCategory': 'DeveloperApplication',
-    'softwareVersion': '0.1.0',
-    'releaseNotes': 'https://github.com/NetCordDev/NetCord/releases',
-    'downloadUrl': 'https://www.nuget.org/packages/NetCord',
-    'operatingSystem': 'Windows, macOS, Linux',
-    'programmingLanguage': 'C#',
-    'author': {
+    name: 'NetCord',
+    description: 'Modern and fully customizable C# Discord library for building Discord bots with .NET',
+    url: 'https://netcord.dev',
+    applicationCategory: 'DeveloperApplication',
+    softwareVersion: '0.1.0',
+    releaseNotes: 'https://github.com/NetCordDev/NetCord/releases',
+    downloadUrl: 'https://www.nuget.org/packages/NetCord',
+    operatingSystem: 'Windows, macOS, Linux',
+    programmingLanguage: 'C#',
+    author: {
       '@type': 'Organization',
-      'name': 'NetCord Community',
-      'url': 'https://github.com/NetCordDev/NetCord'
+      name: 'NetCord Community',
+      url: 'https://github.com/NetCordDev/NetCord'
     },
-    'publisher': {
+    publisher: {
       '@type': 'Organization',
-      'name': 'NetCord',
-      'url': 'https://netcord.dev'
+      name: 'NetCord',
+      url: 'https://netcord.dev'
     },
-    'screenshot': 'https://netcord.dev/screenshot.png'
+    screenshot: 'https://netcord.dev/screenshot.png'
   }
 }
 
-function createWebPageSchema(metadata: Metadata): JsonLinkDataSchema {
+function createWebPageSchema (metadata: Metadata): JsonLinkDataSchema {
   const image = document.querySelector('meta[property="og:image"]')?.getAttribute('content')
 
   return {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': metadata.title,
-    'description': metadata.description,
-    'url': metadata.url,
-    'keywords': extractKeywords(),
-    ...(image && { 'image': image }),
-    'publisher': {
+    name: metadata.title,
+    description: metadata.description,
+    url: metadata.url,
+    keywords: extractKeywords(),
+    ...(image && { image }),
+    publisher: {
       '@type': 'Organization',
-      'name': 'NetCord',
-      'url': 'https://netcord.dev',
-      'logo': {
+      name: 'NetCord',
+      url: 'https://netcord.dev',
+      logo: {
         '@type': 'ImageObject',
-        'url': 'https://netcord.dev/logo.png',
-        'width': 250,
-        'height': 60
+        url: 'https://netcord.dev/logo.png',
+        width: 250,
+        height: 60
       }
     },
     ...(metadata.breadcrumbs.length > 0 && {
-      'breadcrumb': createBreadcrumbList(metadata.breadcrumbs)
+      breadcrumb: createBreadcrumbList(metadata.breadcrumbs)
     })
   }
 }
 
-function createBreadcrumbList(breadcrumbs: Breadcrumb[]): JsonLinkDataSchema {
+function createBreadcrumbList (breadcrumbs: Breadcrumb[]): JsonLinkDataSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    'itemListElement': breadcrumbs.map((crumb, index) => ({
+    itemListElement: breadcrumbs.map((crumb, index) => ({
       '@type': 'ListItem',
-      'position': index + 1,
-      'name': crumb.name,
-      'item': crumb.url
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.url
     }))
   }
 }
 
-function extractKeywords(): string {
+function extractKeywords (): string {
   const keywordsMeta = document.querySelector('meta[name="keywords"]')?.getAttribute('content')
   if (keywordsMeta) return keywordsMeta
 

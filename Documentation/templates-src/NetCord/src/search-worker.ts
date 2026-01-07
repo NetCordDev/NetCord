@@ -16,12 +16,12 @@ type SearchHit = {
 
 let search: (q: string) => SearchHit[]
 
-async function loadIndex({ lunrLanguages }: { lunrLanguages?: string[] }) {
+async function loadIndex ({ lunrLanguages }: { lunrLanguages?: string[] }) {
   const { index, data } = await loadIndexCore()
   search = q => index.search(q).map(({ ref }) => data[ref])
   postMessage({ e: 'index-ready' })
 
-  async function loadIndexCore() {
+  async function loadIndexCore () {
     const res = await fetch('../index.json')
     const etag = res.headers.get('etag')
     const data = await res.json() as { [key: string]: SearchHit }
@@ -43,7 +43,7 @@ async function loadIndex({ lunrLanguages }: { lunrLanguages?: string[] }) {
       }
     }
 
-    const index = lunr(function() {
+    const index = lunr(function () {
       lunr.tokenizer.separator = /[\s\-.()]+/
 
       this.ref('href')
@@ -68,7 +68,7 @@ async function loadIndex({ lunrLanguages }: { lunrLanguages?: string[] }) {
   }
 }
 
-onmessage = function(e) {
+onmessage = function (e) {
   if (e.data.q && search) {
     postMessage({ e: 'query-ready', d: search(e.data.q) })
   } else if (e.data.init) {
@@ -111,7 +111,7 @@ const langMap = {
   // zh: () => import('lunr-languages/lunr.zh.js')
 }
 
-async function initLanguage(lang: string) {
+async function initLanguage (lang: string) {
   if (lang !== 'en') {
     const { default: init } = await langMap[lang]()
     init(lunr)

@@ -17,7 +17,7 @@ let query
 /**
  * Support full-text-search
  */
-export async function enableSearch() {
+export async function enableSearch () {
   const searchQuery = document.getElementById('search-query') as HTMLInputElement
   if (!searchQuery || !window.Worker) {
     return
@@ -30,12 +30,12 @@ export async function enableSearch() {
     console.error('Error occurred at search-worker. message: ' + event.message)
   }
 
-  worker.onmessage = function(oEvent) {
+  worker.onmessage = function (oEvent) {
     switch (oEvent.data.e) {
       case 'index-ready':
         searchQuery.disabled = false
         searchQuery.addEventListener('input', onSearchQueryInput)
-        searchQuery.addEventListener('keypress', function(e) {
+        searchQuery.addEventListener('keypress', function (e) {
           if (e.key === 'Enter') {
             event.preventDefault()
           }
@@ -56,7 +56,7 @@ export async function enableSearch() {
   const { lunrLanguages } = await options()
   worker.postMessage({ init: { lunrLanguages } })
 
-  function onSearchQueryInput() {
+  function onSearchQueryInput () {
     query = searchQuery.value
 
     if (query === '') {
@@ -67,7 +67,7 @@ export async function enableSearch() {
     }
   }
 
-  function relativeUrlToAbsoluteUrl(currentUrl, relativeUrl) {
+  function relativeUrlToAbsoluteUrl (currentUrl, relativeUrl) {
     const currentItems = currentUrl.split(/\/+/)
     const relativeItems = relativeUrl.split(/\/+/)
     let depth = currentItems.length - 1
@@ -82,7 +82,7 @@ export async function enableSearch() {
     return currentItems.slice(0, depth).concat(items).join('/')
   }
 
-  function extractContentBrief(content) {
+  function extractContentBrief (content) {
     const briefOffset = 512
     const words = query.split(/\s+/g)
     const queryIndex = content.indexOf(words[0])
@@ -93,7 +93,7 @@ export async function enableSearch() {
     }
   }
 
-  function renderSearchResults(hits: SearchHit[], page: number) {
+  function renderSearchResults (hits: SearchHit[], page: number) {
     const numPerPage = 10
     const totalPages = Math.ceil(hits.length / numPerPage)
 
@@ -101,7 +101,7 @@ export async function enableSearch() {
       renderPage(page),
       document.getElementById('search-results'))
 
-    function renderPage(page: number): TemplateResult {
+    function renderPage (page: number): TemplateResult {
       if (hits.length === 0) {
         return html`<div class="search-list">${loc('searchNoResults', { query })}</div>`
       }
@@ -129,7 +129,7 @@ export async function enableSearch() {
       return html`${items} ${renderPagination()}`
     }
 
-    function renderPagination() {
+    function renderPagination () {
       const maxVisiblePages = 5
       const startPage = Math.max(0, Math.min(page - 2, totalPages - maxVisiblePages))
       const endPage = Math.min(totalPages, startPage + maxVisiblePages)
@@ -161,7 +161,7 @@ export async function enableSearch() {
           </ul>
         </nav>`
 
-      function gotoPage(page: number) {
+      function gotoPage (page: number) {
         if (page >= 0 && page < totalPages) {
           renderSearchResults(hits, page)
         }
@@ -170,7 +170,7 @@ export async function enableSearch() {
   }
 }
 
-function mark(text: string, query: string): TemplateResult {
+function mark (text: string, query: string): TemplateResult {
   const words = query.split(/\s+/g)
   const wordsLower = words.map(w => w.toLowerCase())
   const textLower = text.toLowerCase()

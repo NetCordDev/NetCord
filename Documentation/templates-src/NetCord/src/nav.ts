@@ -20,7 +20,7 @@ export type NavItemContainer = {
 /**
  * @returns active navbar items
  */
-export async function renderNavbar(): Promise<NavItem[]> {
+export async function renderNavbar (): Promise<NavItem[]> {
   const navbar = document.getElementById('navbar')
   if (!navbar) {
     return []
@@ -53,8 +53,8 @@ export async function renderNavbar(): Promise<NavItem[]> {
   })
     }</ul>`
 
-  async function renderCore() {
-    function handleActiveEvent(event: Event) {
+  async function renderCore () {
+    function handleActiveEvent (event: Event) {
       (event.target as Element).classList.add('icon-tooltip-active')
     }
 
@@ -98,7 +98,7 @@ export async function renderNavbar(): Promise<NavItem[]> {
 
   return activeItem ? [activeItem] : []
 
-  async function loadNavItems(): Promise<(NavItem | NavItemContainer)[]> {
+  async function loadNavItems (): Promise<(NavItem | NavItemContainer)[]> {
     const navrel = meta('docfx:navrel')
     if (!navrel) {
       return []
@@ -115,7 +115,7 @@ export async function renderNavbar(): Promise<NavItem[]> {
   }
 }
 
-export function renderBreadcrumb(breadcrumb: (NavItem | TocNode)[]) {
+export function renderBreadcrumb (breadcrumb: (NavItem | TocNode)[]) {
   const container = document.getElementById('breadcrumb')
   if (container) {
     render(
@@ -127,7 +127,7 @@ export function renderBreadcrumb(breadcrumb: (NavItem | TocNode)[]) {
   }
 }
 
-export async function renderInThisArticle() {
+export async function renderInThisArticle () {
   await renderAnchors()
   const affix = document.getElementById('affix')
   if (affix) {
@@ -135,7 +135,7 @@ export async function renderInThisArticle() {
   }
 }
 
-async function renderAnchors() {
+async function renderAnchors () {
   const anchors = new AnchorJs()
   const { anchors: anchorsOptions } = await options()
   anchors.options = Object.assign({
@@ -151,7 +151,7 @@ async function renderAnchors() {
   }
 }
 
-function inThisArticle(): TemplateResult {
+function inThisArticle (): TemplateResult {
   const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>('article h2, article h3'))
 
   if (headings.length > 0) {
@@ -164,7 +164,7 @@ function inThisArticle(): TemplateResult {
   }
 }
 
-function findActiveItem(items: (NavItem | NavItemContainer)[]): NavItem {
+function findActiveItem (items: (NavItem | NavItemContainer)[]): NavItem {
   const url = new URL(window.location.href)
   let activeItem: NavItem
   let maxPrefix = 0
@@ -183,7 +183,7 @@ function findActiveItem(items: (NavItem | NavItemContainer)[]): NavItem {
   return activeItem
 }
 
-function commonUrlPrefix(url: URL, base: URL): number {
+function commonUrlPrefix (url: URL, base: URL): number {
   const urlSegments = url.pathname.split('/')
   const baseSegments = base.pathname.split('/')
   let i = 0

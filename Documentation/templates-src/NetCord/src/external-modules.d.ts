@@ -57,6 +57,7 @@ declare module 'anchor-js' {
       icon?: string
       class?: string
     }
+
     add(selector?: string): void
     remove(selector?: string): void
   }
@@ -66,6 +67,11 @@ declare module 'lunr' {
   export interface Index {
     search(query: string): Array<{ ref: string; score: number }>
   }
+
+  export interface Pipeline {
+    add(...functions: unknown[]): void
+  }
+
   export interface Builder {
     pipeline: Pipeline
     searchPipeline: Pipeline
@@ -75,107 +81,104 @@ declare module 'lunr' {
     use(plugin: (this: Builder) => void): void
     build(): Index
   }
-  export interface Pipeline {
-    add(...functions: unknown[]): void
-  }
   export const Index: { load(serializedIndex: unknown): Index }
   export const Pipeline: unknown
   export const stemmer: unknown
   export const stopWordFilter: unknown
   export const tokenizer: { separator: RegExp }
   export function multiLanguage(...languages: string[]): (this: Builder) => void
-  export default function (callback: (this: Builder, builder: Builder) => void): Index
+  export default function(callback: (this: Builder, builder: Builder) => void): Index
 }
 
 declare module 'lunr-languages/lunr.stemmer.support' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 
 declare module 'lunr-languages/tinyseg' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 
 declare module 'lunr-languages/lunr.multi' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 
 declare module 'lunr-languages/lunr.ar.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.da.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.de.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.du.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.es.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.fi.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.fr.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.hi.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.hu.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.it.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.ja.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.jp.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.ko.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.nl.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.no.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.pt.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.ro.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.ru.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.sa.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.sv.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.ta.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.te.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.th.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.tr.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.vi.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 declare module 'lunr-languages/lunr.zh.js' {
-  export default function (lunr: typeof import('lunr')): void
+  export default function(lunr: typeof import('lunr')): void
 }
 
 declare module 'idb-keyval' {

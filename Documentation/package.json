@@ -8,7 +8,7 @@
     "build": "node build.js",
     "build-templates": "node build-templates.js",
     "serve": "docfx serve _site",
-    "lint": "eslint templates-src/NetCord/src && stylelint templates-src/NetCord/src",
+    "lint": "eslint templates-src/NetCord/src && stylelint \"templates-src/NetCord/src/**/*.css\"",
     "test": "globstar -- node --import tsx --test \"templates-src/NetCord/src/*.test.ts\""
   },
   "dependencies": {

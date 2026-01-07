@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-async function init() {
+async function init () {
   window.docfx = window.docfx || {}
 
   const { start } = await options()
@@ -52,7 +52,7 @@ async function init() {
 
   window.docfx.ready = true
 
-  async function renderNav() {
+  async function renderNav () {
     const [navbar, toc] = await Promise.all([renderNavbar(), renderToc()])
     renderBreadcrumb([...navbar, ...toc])
   }
