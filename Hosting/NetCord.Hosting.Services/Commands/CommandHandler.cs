@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Buffers;
+
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -8,7 +10,7 @@ using NetCord.Services.Commands;
 
 namespace NetCord.Hosting.Services.Commands;
 
-internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
+internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
     : IMessageCreateGatewayHandler,
       IMessageCreateShardedGatewayHandler
     where TContext : ICommandContext
@@ -18,8 +20,8 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
     private readonly ILogger _logger;
     private readonly CommandService<TContext> _commandService;
     private readonly IServiceScopeFactory? _scopeFactory;
-    private readonly delegate*<CommandHandler<TContext>, Message, GatewayClient, ValueTask> _handleAsync;
-    private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<int>> _getPrefixLengthAsync;
+    private readonly Func<CommandHandler<TContext>, Message, GatewayClient, ValueTask> _handleAsync;
+    private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> _getCommandTextAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, TContext> _createContext;
     private readonly ICommandResultHandler<TContext> _resultHandler;
     private readonly GatewayClient? _client;
@@ -41,75 +43,98 @@ internal unsafe partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TCon
         if (optionsValue.UseScopes.GetValueOrDefault(true))
         {
             _scopeFactory = services.GetService<IServiceScopeFactory>() ?? throw new InvalidOperationException($"'{nameof(IServiceScopeFactory)}' is not registered in the '{nameof(IServiceProvider)}', but it is required for using scopes.");
-            _handleAsync = &HandleMessageWithScopeAsync;
+            _handleAsync = HandleMessageWithScopeAsync;
         }
         else
-            _handleAsync = &HandleMessageAsync;
+            _handleAsync = HandleMessageAsync;
 
-        _getPrefixLengthAsync = GetGetPrefixLengthAsyncDelegate(optionsValue);
+        _getCommandTextAsync = GetGetCommandTextAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>(_commandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new CommandResultHandler<TContext>();
         _client = client;
     }
 
-    private static Func<Message, GatewayClient, IServiceProvider, ValueTask<int>> GetGetPrefixLengthAsyncDelegate(CommandServiceOptions<TContext> options)
+    private static Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> GetGetCommandTextAsyncDelegate(CommandServiceOptions<TContext> options)
     {
         var getPrefixLengthAsync = options.GetPrefixLengthAsync;
+        var getCommandTextAsync = options.GetCommandTextAsync;
+
         if (getPrefixLengthAsync is not null)
-            return getPrefixLengthAsync;
+        {
+            if (getCommandTextAsync is not null)
+                throw new InvalidOperationException($"Both '{nameof(options.GetPrefixLengthAsync)}' and '{nameof(options.GetCommandTextAsync)}' cannot be set at the same time.");
+
+            return async (message, client, services) =>
+            {
+                var prefixLength = await getPrefixLengthAsync(message, client, services).ConfigureAwait(false);
+                if (prefixLength < 0)
+                    return null;
+
+                return message.Content.AsMemory(prefixLength);
+            };
+        }
+
+        if (getCommandTextAsync is not null)
+            return getCommandTextAsync;
 
         var prefix = options.Prefix;
         var prefixes = options.Prefixes;
+
         if (prefix is not null)
         {
             if (prefixes is not null)
                 throw new InvalidOperationException($"Both '{nameof(options.Prefix)}' and '{nameof(options.Prefixes)}' cannot be set at the same time.");
 
-            return (message, _, _) => new(!message.Author.IsBot && message.Content.StartsWith(prefix) ? prefix.Length : -1);
+            return GetSimpleDelegate(prefix);
         }
 
         if (prefixes is not null)
         {
             var prefixesArray = prefixes.ToArray();
-            var count = prefixesArray.Length;
-            if (count == 1)
-            {
-                var firstPrefix = prefixesArray[0];
-                return (message, _, _) => new(!message.Author.IsBot && message.Content.StartsWith(firstPrefix) ? firstPrefix.Length : -1);
-            }
-            else
-                return (message, _, _) =>
-                {
-                    if (message.Author.IsBot)
-                        return new(-1);
 
+            if (prefixesArray.Length is 1)
+                return GetSimpleDelegate(prefixesArray[0]);
+
+            return (message, _, _) =>
+            {
+                if (!message.Author.IsBot)
+                {
                     var content = message.Content;
+                    var count = prefixesArray.Length;
+
                     for (var i = 0; i < count; i++)
                     {
                         var prefix = prefixesArray[i];
                         if (content.StartsWith(prefix))
-                            return new(prefix.Length);
+                            return new(content.AsMemory(prefix.Length));
                     }
+                }
 
-                    return new(-1);
-                };
+                return default;
+            };
         }
 
-        throw new InvalidOperationException($"Either '{nameof(options.Prefix)}', '{nameof(options.Prefixes)}' or '{nameof(options.GetPrefixLengthAsync)}' must be set.");
+        throw new InvalidOperationException($"Either '{nameof(options.Prefix)}', '{nameof(options.Prefixes)}', '{nameof(options.GetPrefixLengthAsync)}' or {nameof(options.GetCommandTextAsync)} must be set.");
+
+        static Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> GetSimpleDelegate(string prefix)
+        {
+            return (message, _, _) =>
+            {
+                if (!message.Author.IsBot && message.Content.StartsWith(prefix))
+                    return new(message.Content.AsMemory(prefix.Length));
+
+                return default;
+            };
+        }
     }
 
     public ValueTask HandleAsync(Message message) => _handleAsync(this, message, _client!);
 
     public ValueTask HandleAsync(GatewayClient client, Message message) => _handleAsync(this, message, client);
-}
 
-internal partial class CommandHandler<TContext>
-{
-    private AsyncServiceScope CreateAsyncScope() => _scopeFactory!.CreateAsyncScope();
-
-    private static async ValueTask HandleMessageWithScopeAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
+    private async ValueTask HandleMessageWithScopeAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
     {
-        var scope = handler.CreateAsyncScope();
+        var scope = _scopeFactory!.CreateAsyncScope();
 
         try
         {
@@ -121,22 +146,22 @@ internal partial class CommandHandler<TContext>
         }
     }
 
-    private static ValueTask HandleMessageAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
+    private ValueTask HandleMessageAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
     {
         return handler.HandleMessageAsyncCore(message, client, handler._services);
     }
 
     private async ValueTask HandleMessageAsyncCore(Message message, GatewayClient client, IServiceProvider services)
     {
-        var prefixLength = await _getPrefixLengthAsync(message, client, services).ConfigureAwait(false);
-        if (prefixLength < 0)
+        var command = await _getCommandTextAsync(message, client, services).ConfigureAwait(false);
+        if (!command.HasValue)
             return;
 
         var context = _createContext(message, client, services);
 
         _contextAccessor.SetContext(context);
 
-        var result = await _commandService.ExecuteAsync(prefixLength, context, services).ConfigureAwait(false);
+        var result = await _commandService.ExecuteAsync(command.GetValueOrDefault(), context, services).ConfigureAwait(false);
 
         try
         {
