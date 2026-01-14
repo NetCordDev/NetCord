@@ -62,6 +62,13 @@ internal class VoiceOutStream(VoiceClient client) : Stream
             daveArray = ArrayPool<byte>.Shared.Rent(length);
 
             int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer, daveArray);
+
+            if (written is -1)
+            {
+                ArrayPool<byte>.Shared.Return(daveArray);
+                return;
+            }
+
             buffer = daveArray.AsSpan(0, written);
         }
 
@@ -95,6 +102,13 @@ internal class VoiceOutStream(VoiceClient client) : Stream
             daveArray = ArrayPool<byte>.Shared.Rent(length);
 
             int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer.Span, daveArray);
+
+            if (written is -1)
+            {
+                ArrayPool<byte>.Shared.Return(daveArray);
+                return;
+            }
+
             buffer = daveArray.AsMemory(0, written);
         }
 
