@@ -65,6 +65,8 @@ public class CommandServiceOptions<TContext>
 
     public Func<Message, GatewayClient, IServiceProvider, ValueTask<int>>? GetPrefixLengthAsync { get; set; }
 
+    public Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>>? GetCommandTextAsync { get; set; }
+
     public Func<Message, GatewayClient, IServiceProvider, TContext>? CreateContext { get; set; }
 
     public ICommandResultHandler<TContext>? ResultHandler { get; set; }

@@ -138,6 +138,25 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
     /// <summary>
     /// Executes a command.
     /// </summary>
+    /// <param name="command">The command text to execute, including the command name and parameters, excluding any prefix or suffix.</param>
+    /// <param name="context">The command context.</param>
+    /// <param name="serviceProvider">The service provider for dependency injection.</param>
+    /// <returns>A task representing the execution result.</returns>
+    public async ValueTask<IExecutionResult> ExecuteAsync(ReadOnlyMemory<char> command, TContext context, IServiceProvider? serviceProvider = null)
+    {
+        try
+        {
+            return await ExecuteAsyncCore(command, context, serviceProvider).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            return new ExecutionExceptionResult(ex);
+        }
+    }
+
+    /// <summary>
+    /// Executes a command.
+    /// </summary>
     /// <param name="prefixLength">The length of the prefix that was used to invoke the command.</param>
     /// <param name="context">The command context.</param>
     /// <param name="serviceProvider">The service provider for dependency injection.</param>
@@ -146,7 +165,7 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
     {
         try
         {
-            return await ExecuteAsyncCore(prefixLength, context, serviceProvider).ConfigureAwait(false);
+            return await ExecuteAsyncCore(context.Message.Content.AsMemory(prefixLength), context, serviceProvider).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -154,10 +173,8 @@ public partial class CommandService<TContext>(CommandServiceConfiguration<TConte
         }
     }
 
-    private async ValueTask<IExecutionResult> ExecuteAsyncCore(int prefixLength, TContext context, IServiceProvider? serviceProvider)
+    private async ValueTask<IExecutionResult> ExecuteAsyncCore(ReadOnlyMemory<char> command, TContext context, IServiceProvider? serviceProvider)
     {
-        var command = context.Message.Content.AsMemory(prefixLength);
-
         var separators = _configuration.ParameterSeparatorsSearchValues;
 
         var index = command.Span.IndexOfAny(separators);
