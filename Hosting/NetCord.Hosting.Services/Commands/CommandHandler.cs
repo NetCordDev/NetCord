@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -114,7 +112,7 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
             };
         }
 
-        throw new InvalidOperationException($"Either '{nameof(options.Prefix)}', '{nameof(options.Prefixes)}', '{nameof(options.GetPrefixLengthAsync)}' or {nameof(options.GetCommandTextAsync)} must be set.");
+        throw new InvalidOperationException($"Either '{nameof(options.Prefix)}', '{nameof(options.Prefixes)}', '{nameof(options.GetPrefixLengthAsync)}' or '{nameof(options.GetCommandTextAsync)}' must be set.");
 
         static Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> GetSimpleDelegate(string prefix)
         {
