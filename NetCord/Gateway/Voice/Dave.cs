@@ -131,6 +131,7 @@ internal static unsafe partial class Dave
         None = 4,
     }
 
+#pragma warning disable CS0649
     public struct EncryptorStats
     {
         public ulong PassthroughCount;
@@ -152,6 +153,7 @@ internal static unsafe partial class Dave
         public ulong DecryptMissingKeyCount;
         public ulong DecryptInvalidNonceCount;
     }
+#pragma warning restore CS0649
 
     [LibraryImport(DllName, EntryPoint = "daveMaxSupportedProtocolVersion")]
     public static partial ushort MaxSupportedProtocolVersion();
