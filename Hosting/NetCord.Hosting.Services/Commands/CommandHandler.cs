@@ -18,7 +18,7 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
     private readonly ILogger _logger;
     private readonly CommandService<TContext> _commandService;
     private readonly IServiceScopeFactory? _scopeFactory;
-    private readonly Func<CommandHandler<TContext>, Message, GatewayClient, ValueTask> _handleAsync;
+    private readonly Func<Message, GatewayClient, ValueTask> _handleAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> _getCommandTextAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, TContext> _createContext;
     private readonly ICommandResultHandler<TContext> _resultHandler;
@@ -126,17 +126,17 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
         }
     }
 
-    public ValueTask HandleAsync(Message message) => _handleAsync(this, message, _client!);
+    public ValueTask HandleAsync(Message message) => _handleAsync(message, _client!);
 
-    public ValueTask HandleAsync(GatewayClient client, Message message) => _handleAsync(this, message, client);
+    public ValueTask HandleAsync(GatewayClient client, Message message) => _handleAsync(message, client);
 
-    private async ValueTask HandleMessageWithScopeAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
+    private async ValueTask HandleMessageWithScopeAsync(Message message, GatewayClient client)
     {
         var scope = _scopeFactory!.CreateAsyncScope();
 
         try
         {
-            await handler.HandleMessageAsyncCore(message, client, scope.ServiceProvider).ConfigureAwait(false);
+            await HandleMessageAsyncCore(message, client, scope.ServiceProvider).ConfigureAwait(false);
         }
         finally
         {
@@ -144,9 +144,9 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
         }
     }
 
-    private ValueTask HandleMessageAsync(CommandHandler<TContext> handler, Message message, GatewayClient client)
+    private ValueTask HandleMessageAsync(Message message, GatewayClient client)
     {
-        return handler.HandleMessageAsyncCore(message, client, handler._services);
+        return HandleMessageAsyncCore(message, client, _services);
     }
 
     private async ValueTask HandleMessageAsyncCore(Message message, GatewayClient client, IServiceProvider services)
