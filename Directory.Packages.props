@@ -1,8 +1,10 @@
 <Project>
+
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="libsodium" Version="1.0.21" />
@@ -23,4 +25,5 @@
     <PackageVersion Include="PolySharp" Version="1.15.0" />
     <PackageVersion Include="System.Linq.AsyncEnumerable" Version="10.0.0-rc.2.25502.107" />
   </ItemGroup>
+
 </Project>
