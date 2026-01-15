@@ -17,7 +17,7 @@ jobs:
           filter: tree:0
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.1
+        uses: actions/setup-dotnet@v5.1.0
         with:
           global-json-file: global.json
 
