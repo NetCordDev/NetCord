@@ -73,7 +73,7 @@ jobs:
           target: ~/NetCord/html
 
       - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: Build Artifacts
           path: |
@@ -84,7 +84,7 @@ jobs:
             Hosting/NetCord.Hosting.AspNetCore/bin/Release
 
       - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@v5.0.0
+        uses: actions/upload-artifact@v6.0.0
         with:
           name: Documentation Artifacts
           path: Documentation/_site
