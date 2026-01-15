@@ -1,0 +1,195 @@
+<Project>
+
+	<!-- Clean mlspp CMake build directory when MSBuild Clean is executed -->
+	<Target Name="CleanMlsppNative"
+			BeforeTargets="Clean"
+			Condition="'$(AlsoCleanMlspp)' == 'true' AND Exists('$(MlsppBuildDir)')">
+		
+		<Message Text="Cleaning mlspp CMake build directory: $(MlsppBuildDir)" Importance="high" />
+
+		<!-- Remove the entire build directory to clean CMake cache and build artifacts -->
+		<RemoveDir Directories="$(MlsppBuildDir)" />
+
+		<Message Text="mlspp CMake build directory cleaned successfully" Importance="high" />
+	</Target>
+
+	<PropertyGroup>
+		<_MlsppConfigureCMakeArgsFile>$(MlsppBuildDir)\\.cmake-args</_MlsppConfigureCMakeArgsFile>
+	</PropertyGroup>
+	<Target Name="CheckForReconfigureMlspp"
+			BeforeTargets="ConfigureMlspp">
+
+		<!-- Build CMake arguments for mlspp -->
+		<PropertyGroup>
+			<MlsppCMakeArgs>$(CMakeArgs) $(MlsppCMakeArgs)</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(MlsppGenerator)' != ''">-G "$(MlsppGenerator)" $(MlsppCMakeArgs)</MlsppCMakeArgs>
+			
+			<MlsppCMakeArgs>$(MlsppCMakeArgs) -DDISABLE_PQ=ON -DMLS_CXX_NAMESPACE="mlspp" -DDISABLE_GREASE=ON</MlsppCMakeArgs>
+
+			<MlsppCMakeArgs Condition="'$(MlsppTesting)' != ''">$(MlsppCMakeArgs) -DTESTING=$(MlsppTesting)</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeOpenSSLRoot)' != ''">$(MlsppCMakeArgs) -DOpenSSL_ROOT="$(CMakeOpenSSLRoot)"</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeOpenSSLDir)' != ''">$(MlsppCMakeArgs) -DOpenSSL_DIR="$(CMakeOpenSSLDir)"</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeBoringSSLRoot)' != ''">$(MlsppCMakeArgs) -DBoringSSL_ROOT="$(CMakeBoringSSLRoot)"</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeBoringSSLDir)' != ''">$(MlsppCMakeArgs) -DBoringSSL_DIR="$(CMakeBoringSSLDir)"</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonRoot)' != ''">$(MlsppCMakeArgs) -Dnlohmann_json_ROOT="$(CMakeNlohmannJsonRoot)"</MlsppCMakeArgs>
+			<MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonDir)' != ''">$(MlsppCMakeArgs) -Dnlohmann_json_DIR="$(CMakeNlohmannJsonDir)"</MlsppCMakeArgs>
+		</PropertyGroup>
+
+		<!-- Read previous value if file exists -->
+		<ReadLinesFromFile File="$(_MlsppConfigureCMakeArgsFile)" 
+					   Condition="Exists('$(_MlsppConfigureCMakeArgsFile)')">
+			<Output TaskParameter="Lines" ItemName="_PrevCMakeArgs" />
+		</ReadLinesFromFile>
+
+		<!-- Copy previous args -->
+		<PropertyGroup Condition="Exists('$(_MlsppConfigureCMakeArgsFile)')">
+			<_PrevCMakeArgsProperty>%(_PrevCMakeArgs.Identity)</_PrevCMakeArgsProperty>
+		</PropertyGroup>
+
+		<!-- Normalize / trim both sides, then compare ordinally -->
+		<PropertyGroup>
+			<_PrevCMakeArgsTrimmed>$(_PrevCMakeArgsProperty.Trim())</_PrevCMakeArgsTrimmed>
+			<_MlsppCMakeArgsTrimmed>$(MlsppCMakeArgs.Trim())</_MlsppCMakeArgsTrimmed>
+
+			<_IsCMakeArgsChanged_>
+				$([System.String]::Compare('$(_MlsppCMakeArgsTrimmed)', '$(_PrevCMakeArgsTrimmed)'))
+			</_IsCMakeArgsChanged_>
+		</PropertyGroup>
+		<PropertyGroup>
+			<_IsCMakeArgsChanged>$(_IsCMakeArgsChanged_.Trim())</_IsCMakeArgsChanged>
+		</PropertyGroup>
+
+		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="CMakeArgs used has Changed." Importance="high" />
+		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="Previous CMakeArgs: [$(_PrevCMakeArgsTrimmed)]." Importance="high" />
+
+		<!--Ensure build directory exists-->
+		<MakeDir Directories="$(MlsppBuildDir)" Condition="!Exists('$(MlsppBuildDir)')" />
+
+		<Touch AlwaysCreate="true" Condition="'$(_IsCMakeArgsChanged)' != '0' OR !Exists('$(MlsppBuildDir)\\.cmake-configure')"
+			   Files="$(MlsppBuildDir)\\.cmake-configure" />
+
+	</Target>
+
+	<!-- Up-to-date check input so MSBuild watches CMakeLists changes -->
+	<ItemGroup>
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\CMakeLists.txt" />
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.h"/>
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.c"/>
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.hpp"/>
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.cpp"/>
+	</ItemGroup>
+	<Target Name="ConfigureMlspp"
+			DependsOnTargets="$(ConfigureMlspp_DependsOn)"
+			Inputs="$(MlsppCppRoot)\\CMakeLists.txt;$(MlsppBuildDir)\\.cmake-configure"
+			Outputs="$(MlsppBuildDir)\\CMakeFiles\\generate.stamp"
+			Condition="Exists('$(MlsppCppRoot)\\CMakeLists.txt')">
+
+		<Message Text="Building mlspp native library from $(MlsppCppRoot)" Importance="high" />
+		<Message Text="Build directory: $(MlsppBuildDir)" Importance="high" />
+
+		<!-- Configure CMake (generate build files) for mlspp -->
+		<Message Text="Configuring mlspp CMake project..." Importance="high" />
+		<Message Text="CMake arguments: $(MlsppCMakeArgs)" Importance="high" />
+
+		<!-- Delete old error log if exists -->
+		<Delete Files="$(MlsppConfigureErrorLog)" Condition="Exists('$(MlsppConfigureErrorLog)')" />
+
+		<Exec Command="cmake -S &quot;$(MlsppCppRoot)&quot; -B &quot;$(MlsppBuildDir)&quot; $(MlsppCMakeArgs) 2&gt;&quot;$(MlsppConfigureErrorLog)&quot;"
+			  WorkingDirectory="$(MlsppBuildDir)"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeConfigureExitCode" />
+		</Exec>
+
+		<!--Check for configure errors-->
+		<ReadLinesFromFile File="$(MlsppConfigureErrorLog)" Condition="Exists('$(MlsppConfigureErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="MlsppCMakeConfigureErrors" />
+		</ReadLinesFromFile>
+
+		<Error Text="mlspp CMake configuration failed with exit code $(MlsppCMakeConfigureExitCode):%0D%0A@(MlsppCMakeConfigureErrors, '%0D%0A')"
+			   Condition="'$(MlsppCMakeConfigureExitCode)' != '0'" />
+
+		<!-- overwrite and update timestamp -->
+		<WriteLinesToFile
+			File="$(_MlsppConfigureCMakeArgsFile)"
+			Lines="$([MSBuild]::Escape('$(MlsppCMakeArgs)'))"
+			Overwrite="true" />
+		
+	</Target>
+	
+	<!-- Build mlspp native library -->
+	<Target Name="BuildMlsppNative"
+			DependsOnTargets="ConfigureMlspp"
+			Condition="'$(BuildMlspp)' == 'true' AND Exists('$(MlsppCppRoot)\CMakeLists.txt')">
+		
+		<!-- Delete old build error log if exists -->
+		<Delete Files="$(MlsppBuildErrorLog)" Condition="Exists('$(MlsppBuildErrorLog)')" />
+
+		<!-- Use cmake build for better cross-platform compatibility -->
+		<Exec Command="cmake --build &quot;$(MlsppBuildDir)&quot; --config $(Configuration) --parallel 2&gt;&quot;$(MlsppBuildErrorLog)&quot;"
+			  WorkingDirectory="$(MlsppBuildDir)"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeBuildExitCode" />
+		</Exec>
+
+		<!--Check for build errors-->
+		<ReadLinesFromFile File="$(MlsppBuildErrorLog)" Condition="Exists('$(MlsppBuildErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="MlsppCMakeBuildErrors" />
+		</ReadLinesFromFile>
+
+		 <!--Error with detailed message if build failed--> 
+		<Error Text="mlspp CMake build failed with exit code $(MlsppCMakeBuildExitCode):%0D%0A@(MlsppCMakeBuildErrors, '%0D%0A')"
+			   Condition="'$(MlsppCMakeBuildExitCode)' != '0'" />
+
+		<!-- Create stamp file to track build completion -->
+		<Touch Files="$(MlsppBuildStampFile)" AlwaysCreate="true" />
+
+		<Message Text="========================================" Importance="high" />
+		<Message Text="mlspp native library built successfully" Importance="high" />
+		<Message Text="========================================" Importance="high" />
+
+		<!-- Set mlspp location for use -->
+		<PropertyGroup>
+			<CMakeMlsppDir>$(MlsppBuildDir)</CMakeMlsppDir>
+		</PropertyGroup>
+	</Target>
+
+	<!-- Define all configurations to build when packing -->
+	<ItemGroup>
+		<_MlsppConfig Include="$(CMakeConfigs.Split(';'))" />
+		<_MlsppConfig Remove="$(Configuration)" />
+	</ItemGroup>
+
+	<Target Name="BuildMlsppForPackage"
+			Condition="'$(BuildMlspp)' == 'true' AND Exists('$(MlsppCppRoot)\CMakeLists.txt')"
+			Outputs="MlsppPackage_%(_MlsppConfig.Identity)">
+
+		<Message Text="Building mlspp configuration: %(_MlsppConfig.Identity)" Importance="high" />
+
+		<Delete Files="$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log" />
+
+		<Exec Command='cmake --build "$(MlsppBuildDir)" --config %(_MlsppConfig.Identity) --parallel 2> "$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log"'
+			  WorkingDirectory="$(MlsppBuildDir)"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeBuildExitCode_%(_MlsppConfig.Identity)" />
+		</Exec>
+
+		<ReadLinesFromFile
+		  File="$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log"
+		  Condition="Exists('$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log')">
+			<Output TaskParameter="Lines" ItemName="MlsppCMakeBuildErrors_%(_MlsppConfig.Identity)" />
+		</ReadLinesFromFile>
+
+		<Error
+		  Text="mlspp CMake build failed for configuration %(_MlsppConfig.Identity):&#x0D;&#x0A;@(MlsppCMakeBuildErrors_%(_MlsppConfig.Identity), '&#x0D;&#x0A;')"
+		  Condition="'$(MlsppCMakeBuildExitCode_%(_MlsppConfig.Identity))' != '0'" />
+
+		<Message Text="Mlspp configuration %(_MlsppConfig.Identity) built successfully." Importance="high" />
+
+	</Target>
+	
+</Project>

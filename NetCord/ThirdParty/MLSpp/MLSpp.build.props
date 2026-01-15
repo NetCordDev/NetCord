@@ -1,0 +1,15 @@
+<Project>
+
+	<!-- mlspp CMake Build Integration -->
+	<PropertyGroup>
+		<BuildMlspp Condition="'$(BuildMlspp)' == ''">true</BuildMlspp>
+		<AlsoCleanMlspp Condition="'$(AlsoCleanMlspp)' == ''">false</AlsoCleanMlspp>
+		<MlsppCppRoot>$(MSBuildThisFileDirectory)\mlspp</MlsppCppRoot>
+		<MlsppGenerator Condition="'$(LibdaveGenerator)' == ''"></MlsppGenerator>
+		<MlsppBuildDir Condition="'$(MlsppBuildDir)' == ''">$(MSBuildThisFileDirectory)\mlspp_build</MlsppBuildDir>
+		<MlsppBuildStampFile>$(MlsppBuildDir)\.build-stamp</MlsppBuildStampFile>
+		<MlsppConfigureErrorLog>$(MlsppBuildDir)\.cmake-configure-error.log</MlsppConfigureErrorLog>
+		<MlsppBuildErrorLog>$(MlsppBuildDir)\.cmake-build-error.log</MlsppBuildErrorLog>
+	</PropertyGroup>
+
+</Project>

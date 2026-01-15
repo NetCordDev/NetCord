@@ -25,6 +25,8 @@ You can install NetCord packages via NuGet package manager:
 | **[NetCord.Hosting](https://www.nuget.org/packages/NetCord.Hosting)**                       | Provides .NET Generic Host extensions for the NetCord package.          |
 | **[NetCord.Hosting.Services](https://www.nuget.org/packages/NetCord.Hosting.Services)**     | Provides .NET Generic Host extensions for the NetCord.Services package. |
 | **[NetCord.Hosting.AspNetCore](https://www.nuget.org/packages/NetCord.Hosting.AspNetCore)** | Provides ASP.NET Core extensions for seamless handling of HTTP events.  |
+|                                                                                             |                                                                         |
+| **[NetCord.ThirdParty.Libdave](https://www.nuget.org/packages/NetCord.ThirdParty.Libdave)** | Provides pre-built binaries for Libdave used by Voice feature           |
 
 ## 2. 🚀 Showcase
 

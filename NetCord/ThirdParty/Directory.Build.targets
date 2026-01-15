@@ -1,0 +1,46 @@
+<Project>
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+	
+	<!-- Check MSBuild and CMake version compatibility -->
+	<Target Name="CheckCMakeVersionCompatibility"
+			BeforeTargets="$(CheckCMakeVersionCompatibility_BeforeTargets)"
+			Condition="'$(MSBuildVersion)' != ''">
+		
+		<!-- Get MSBuild version -->
+		<PropertyGroup>
+			<MSBuildVersionMajor>$([System.Version]::Parse('$(MSBuildVersion)').Major)</MSBuildVersionMajor>
+		</PropertyGroup>
+
+		<!-- Get CMake version -->
+		<Exec Command="cmake --version"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="true"
+			  StandardOutputImportance="low">
+			<Output TaskParameter="ConsoleOutput" PropertyName="CMakeVersionOutput" />
+			<Output TaskParameter="ExitCode" PropertyName="CMakeExitCode" />
+		</Exec>
+
+		<!-- Parse CMake version (format: "cmake version X.Y.Z") -->
+		<PropertyGroup Condition="'$(CMakeExitCode)' == '0'">
+			<CMakeVersionString>$([System.Text.RegularExpressions.Regex]::Match($(CMakeVersionOutput), 'cmake version (\d+\.\d+\.\d+)').Groups[1].Value)</CMakeVersionString>
+			<CMakeVersionMajor Condition="'$(CMakeVersionString)' != ''">$([System.Version]::Parse('$(CMakeVersionString)').Major)</CMakeVersionMajor>
+			<CMakeVersionMinor Condition="'$(CMakeVersionString)' != ''">$([System.Version]::Parse('$(CMakeVersionString)').Minor)</CMakeVersionMinor>
+		</PropertyGroup>
+
+		<Message Text="MSBuild Version: $(MSBuildVersion) (Major: $(MSBuildVersionMajor))" Importance="high" />
+		<Message Text="CMake Version: $(CMakeVersionString)" Importance="high" Condition="'$(CMakeVersionString)' != ''" />
+
+		<!-- Warn if Visual Studio 2026+ (MSBuild 18+) with CMake < 4.2 -->
+		<Warning Text="CMake version $(CMakeVersionString) may not be compatible with Visual Studio 2026 (MSBuild $(MSBuildVersionMajor)). CMake 4.2 or later is recommended for Visual Studio 2026 and newer versions. Please upgrade CMake to version 4.2 or later."
+				 Condition="'$(MSBuildVersionMajor)' != '' AND '$(CMakeVersionMajor)' != '' AND 
+						   $([System.Convert]::ToInt32($(MSBuildVersionMajor))) >= 18 AND 
+						   ($([System.Convert]::ToInt32($(CMakeVersionMajor))) &lt; 4 OR 
+						    ($([System.Convert]::ToInt32($(CMakeVersionMajor))) == 4 AND $([System.Convert]::ToInt32($(CMakeVersionMinor))) &lt; 2))" />
+
+		<!-- Warn if CMake is not found -->
+		<Warning Text="CMake not found or failed to execute. Please ensure CMake is installed and available in PATH."
+				 Condition="'$(CMakeExitCode)' != '0'" />
+	</Target>
+
+</Project>

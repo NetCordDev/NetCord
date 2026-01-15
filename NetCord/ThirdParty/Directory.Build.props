@@ -1,0 +1,35 @@
+<Project>
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+	
+	<PropertyGroup>
+		<!-- Prebuilt library paths (customize these) -->
+		<!-- Use _ROOT to point to installation directory, or _DIR to point directly to CMake config directory -->
+		<CMakeOpenSSLRoot Condition="'$(CMakeOpenSSLRoot)' == ''"></CMakeOpenSSLRoot>
+		<CMakeOpenSSLDir Condition="'$(CMakeOpenSSLDir)' == ''"></CMakeOpenSSLDir>
+		<CMakeBoringSSLRoot Condition="'$(CMakeBoringSSLRoot)' == ''"></CMakeBoringSSLRoot>
+		<CMakeBoringSSLDir Condition="'$(CMakeBoringSSLDir)' == ''"></CMakeBoringSSLDir>
+		<CMakeNlohmannJsonRoot Condition="'$(CMakeNlohmannJsonRoot)' == ''"></CMakeNlohmannJsonRoot>
+		<CMakeNlohmannJsonDir Condition="'$(CMakeNlohmannJsonDir)' == ''"></CMakeNlohmannJsonDir>
+		<CMakeMlsppRoot Condition="'$(CMakeMlsppRoot)' == ''"></CMakeMlsppRoot>
+		<CMakeMlsppDir Condition="'$(CMakeMlsppDir)' == ''"></CMakeMlsppDir>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<CMakeConfigs Condition="'$(CMakeConfigs)' == ''">Debug;Release;RelWithDebInfo;MinSizeRel</CMakeConfigs>
+		<CMakeArgs>$(CMakeArgs) -DCMAKE_CONFIGURATION_TYPES="$(CMakeConfigs)"</CMakeArgs>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''">
+		<ConfigureLibdave_DependsOn>ConfigureMlspp</ConfigureLibdave_DependsOn>
+		<BuildLibdave_DependsOn>BuildMlsppNative</BuildLibdave_DependsOn>
+		<BuildLibdavePackage_DependsOn>BuildMlsppForPackage</BuildLibdavePackage_DependsOn>
+		<MlsppDir>$(MSBuildThisFileDirectory)\MLSpp\</MlsppDir>
+	</PropertyGroup>
+	<Import Project="$(MlsppDir)\MLSpp.build.props" Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
+	<Import Project="$(MlsppDir)\MLSpp.build.targets" Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
+
+	<PropertyGroup>
+		<CheckCMakeVersionCompatibility_BeforeTargets>$(BuildLibdave_DependsOn)</CheckCMakeVersionCompatibility_BeforeTargets>
+	</PropertyGroup>
+	
+</Project>

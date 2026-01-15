@@ -98,4 +98,5 @@
   </Folder>
   <Project Path="NetCord.Services/NetCord.Services.csproj" />
   <Project Path="NetCord/NetCord.csproj" />
+  <Project Path="NetCord/ThirdParty/Libdave/Libdave.csproj" />
 </Solution>

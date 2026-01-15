@@ -1,0 +1,11 @@
+<Project>
+
+	<ItemGroup>
+		<Content Include="$(MSBuildThisFileDirectory)\..\native\$(Configuration)\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			<Visible>false</Visible>
+		</Content>
+	</ItemGroup>
+
+</Project>

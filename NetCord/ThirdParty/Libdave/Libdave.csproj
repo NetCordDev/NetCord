@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<PackageId>NetCord.ThirdParty.Libdave.Win32</PackageId>
+		<Description>Pre-built libdave binaries for NetCord, $(Description)</Description>
+		<!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+		<NoWarn>NU5128</NoWarn>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<AlsoCleanLibdave>true</AlsoCleanLibdave>
+	</PropertyGroup>
+
+	<Import Project="Libdave.build.props" />
+	<Import Project="Libdave.build.targets" />
+
+	<ItemGroup>
+		<None Remove="libdave\**\*" />
+		<None Include="$(MlsppDir)\*" Condition="'$(MlsppDir)' != ''">
+			<Link>MLSpp\%(Filename)%(Extension)</Link>
+		</None>
+
+		<None Include="$(LibdaveCppRoot)\**\*">
+			<Link>native\source\libdave\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="$(MlsppCppRoot)\**\*" Condition="'$(MlsppCppRoot)' != ''">
+			<Link>native\source\mlspp\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+		<None Update="*.build.*">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(LibdaveBuildDir)\$(Configuration)\**\*">
+			<Link>native\build\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Update="Packaged\**\*.props;Packaged\**\*.targets">
+			<Pack>true</Pack>
+			<PackagePath>build\$(PackageId)%(Extension)</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

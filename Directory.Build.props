@@ -1,6 +1,8 @@
 ﻿<Project>
 
-  <PropertyGroup>
+	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+	<PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -16,6 +18,7 @@
     <PackageTags>bot;discord;discord-api</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>The modern and fully customizable C# Discord library.</Description>
+	<Authors>KubaZ2; NetCord Contributors</Authors>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>ICON.png</PackageIcon>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
