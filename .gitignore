@@ -366,4 +366,4 @@ FodyWeavers.xsd
 appsettings.json
 !Documentation/**/appsettings.json
 
-/NetCord/ThirdParty/**/*_build
+/NetCord/ThirdParty/**/*_build*

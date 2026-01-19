@@ -4,7 +4,7 @@
 	<!-- Check MSBuild and CMake version compatibility -->
 	<Target Name="CheckCMakeVersionCompatibility"
 			BeforeTargets="$(CheckCMakeVersionCompatibility_BeforeTargets)"
-			Condition="'$(MSBuildVersion)' != ''">
+			Condition="'$(CMakeGenerator)' == '' AND '$(OS)' == 'Windows_NT'">
 		
 		<!-- Get MSBuild version -->
 		<PropertyGroup>

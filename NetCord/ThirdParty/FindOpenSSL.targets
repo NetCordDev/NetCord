@@ -1,0 +1,238 @@
+<Project>
+
+  <!-- ============================================================ -->
+  <!-- Options -->
+  <!-- ============================================================ -->
+  <PropertyGroup>
+    <LinkOpenSSL Condition="'$(LinkOpenSSL)' == ''">false</LinkOpenSSL>
+    <CMakeStaticRT Condition="'$(CMakeStaticRT)' == ''">false</CMakeStaticRT>
+    <OpenSSLUseStaticLibs Condition="'$(OpenSSLUseStaticLibs)' == ''">true</OpenSSLUseStaticLibs>
+  </PropertyGroup>
+
+  <!-- ============================================================ -->
+  <!-- Platform Detection -->
+  <!-- ============================================================ -->
+  <PropertyGroup>
+    <_IsWindows Condition="'$(OS)' == 'Windows_NT'">true</_IsWindows>
+    <_IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</_IsLinux>
+    <_IsMacOS Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</_IsMacOS>
+    <_IsUnix Condition="'$(_IsLinux)' == 'true' OR '$(_IsMacOS)' == 'true'">true</_IsUnix>
+  </PropertyGroup>
+
+  <!-- ============================================================ -->
+  <!-- Find OpenSSL Root -->
+  <!-- ============================================================ -->
+  <Target Name="_FindOpenSSLRoot"
+          Condition="'$(OpenSSLRoot)' == ''">
+
+    <!-- 1. OPENSSL_ROOT_DIR env var (all platforms, same as CMake) -->
+    <PropertyGroup>
+      <OpenSSLRoot Condition="'$(OPENSSL_ROOT_DIR)' != ''">$(OPENSSL_ROOT_DIR)</OpenSSLRoot>
+    </PropertyGroup>
+
+    <!-- ==================== Windows ==================== -->
+    <!-- 2. Windows Registry (same as CMake MSVC block) -->
+    <PropertyGroup Condition="'$(_IsWindows)' == 'true' AND '$(OpenSSLRoot)' == ''">
+      <OpenSSLRoot Condition="Exists('$([MSBuild]::GetRegistryValueFromView(
+        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OpenSSL (64-bit)_is1`,
+        `Inno Setup: App Path`, null,
+        RegistryView.Registry64))')">$([MSBuild]::GetRegistryValueFromView(
+        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OpenSSL (64-bit)_is1`,
+        `Inno Setup: App Path`, null,
+        RegistryView.Registry64))</OpenSSLRoot>
+
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('$([MSBuild]::GetRegistryValueFromView(
+        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OpenSSL (32-bit)_is1`,
+        `Inno Setup: App Path`, null,
+        RegistryView.Registry32))')">$([MSBuild]::GetRegistryValueFromView(
+        `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OpenSSL (32-bit)_is1`,
+        `Inno Setup: App Path`, null,
+        RegistryView.Registry32))</OpenSSLRoot>
+    </PropertyGroup>
+
+    <!-- 3. Windows well-known paths (same as CMake _OPENSSL_ROOT_PATHS) -->
+    <PropertyGroup Condition="'$(_IsWindows)' == 'true' AND '$(OpenSSLRoot)' == ''">
+      <OpenSSLRoot Condition="Exists('$(ProgramFiles)\OpenSSL-Win64')">$(ProgramFiles)\OpenSSL-Win64</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('$(ProgramFiles)\OpenSSL')">$(ProgramFiles)\OpenSSL</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('C:\OpenSSL-Win64')">C:\OpenSSL-Win64</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('C:\OpenSSL')">C:\OpenSSL</OpenSSLRoot>
+    </PropertyGroup>
+
+    <!-- ==================== macOS ==================== -->
+    <PropertyGroup Condition="'$(_IsMacOS)' == 'true' AND '$(OpenSSLRoot)' == ''">
+      <OpenSSLRoot Condition="Exists('/opt/homebrew/opt/openssl@3')">/opt/homebrew/opt/openssl@3</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/opt/homebrew/opt/openssl@1.1')">/opt/homebrew/opt/openssl@1.1</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/opt/homebrew/opt/openssl')">/opt/homebrew/opt/openssl</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/usr/local/opt/openssl@3')">/usr/local/opt/openssl@3</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/usr/local/opt/openssl@1.1')">/usr/local/opt/openssl@1.1</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/usr/local/opt/openssl')">/usr/local/opt/openssl</OpenSSLRoot>
+    </PropertyGroup>
+
+    <!-- ==================== Linux ==================== -->
+    <PropertyGroup Condition="'$(_IsLinux)' == 'true' AND '$(OpenSSLRoot)' == ''">
+      <OpenSSLRoot Condition="Exists('/usr/include/openssl/ssl.h')">/usr</OpenSSLRoot>
+      <OpenSSLRoot Condition="'$(OpenSSLRoot)' == '' AND Exists('/usr/local/include/openssl/ssl.h')">/usr/local</OpenSSLRoot>
+    </PropertyGroup>
+
+    <Error Condition="'$(OpenSSLRoot)' == ''"
+           Text="[OpenSSL] Not found. Set OPENSSL_ROOT_DIR env var." />
+
+    <Message Text="[OpenSSL] Root: $(OpenSSLRoot)" Importance="high" />
+  </Target>
+
+  <!-- ============================================================ -->
+  <!-- Find OpenSSL Lib Path -->
+  <!-- ============================================================ -->
+  <Target Name="_FindOpenSSLLibPath"
+          DependsOnTargets="_FindOpenSSLRoot">
+
+    <PropertyGroup Condition="'$(_IsWindows)' == 'true'">
+      <_RTSuffix Condition="'$(CMakeStaticRT)' == 'true'">MT</_RTSuffix>
+      <_RTSuffix Condition="'$(CMakeStaticRT)' != 'true'">MD</_RTSuffix>
+    </PropertyGroup>
+
+    <!-- Windows -->
+    <PropertyGroup Condition="'$(_IsWindows)' == 'true' AND '$(OpenSSLLibPath)' == ''">
+      <OpenSSLLibPath Condition="Exists('$(OpenSSLRoot)\lib\VC\x64\$(_RTSuffix)')">$(OpenSSLRoot)\lib\VC\x64\$(_RTSuffix)</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == '' AND Exists('$(OpenSSLRoot)\lib\VC\static')">$(OpenSSLRoot)\lib\VC\static</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == '' AND Exists('$(OpenSSLRoot)\lib\VC')">$(OpenSSLRoot)\lib\VC</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == '' AND Exists('$(OpenSSLRoot)\lib64')">$(OpenSSLRoot)\lib64</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == ''">$(OpenSSLRoot)\lib</OpenSSLLibPath>
+    </PropertyGroup>
+
+    <!-- Linux -->
+    <PropertyGroup Condition="'$(_IsLinux)' == 'true' AND '$(OpenSSLLibPath)' == ''">
+      <OpenSSLLibPath Condition="Exists('$(OpenSSLRoot)/lib/x86_64-linux-gnu')">$(OpenSSLRoot)/lib/x86_64-linux-gnu</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == '' AND Exists('$(OpenSSLRoot)/lib64')">$(OpenSSLRoot)/lib64</OpenSSLLibPath>
+      <OpenSSLLibPath Condition="'$(OpenSSLLibPath)' == ''">$(OpenSSLRoot)/lib</OpenSSLLibPath>
+    </PropertyGroup>
+
+    <!-- macOS -->
+    <PropertyGroup Condition="'$(_IsMacOS)' == 'true' AND '$(OpenSSLLibPath)' == ''">
+      <OpenSSLLibPath>$(OpenSSLRoot)/lib</OpenSSLLibPath>
+    </PropertyGroup>
+
+    <Error Condition="!Exists('$(OpenSSLLibPath)')"
+           Text="[OpenSSL] Lib directory not found at $(OpenSSLLibPath)" />
+
+    <Message Text="[OpenSSL] Lib Path: $(OpenSSLLibPath)" Importance="high" />
+  </Target>
+
+  <!-- ============================================================ -->
+  <!-- Resolve OpenSSL Library Files -->
+  <!-- ============================================================ -->
+  <Target Name="_ResolveOpenSSLLibs"
+          DependsOnTargets="_FindOpenSSLLibPath">
+
+    <!-- ==================== Windows MSVC ==================== -->
+    <PropertyGroup Condition="'$(_IsWindows)' == 'true'">
+      <_RTSuffix Condition="'$(CMakeStaticRT)' == 'true'">MT</_RTSuffix>
+      <_RTSuffix Condition="'$(CMakeStaticRT)' != 'true'">MD</_RTSuffix>
+
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto_static64$(_RTSuffix).lib')">$(OpenSSLLibPath)\libcrypto_static64$(_RTSuffix).lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto_static$(_RTSuffix).lib')">$(OpenSSLLibPath)\libcrypto_static$(_RTSuffix).lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto_static.lib')">$(OpenSSLLibPath)\libcrypto_static.lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto64$(_RTSuffix).lib')">$(OpenSSLLibPath)\libcrypto64$(_RTSuffix).lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto$(_RTSuffix).lib')">$(OpenSSLLibPath)\libcrypto$(_RTSuffix).lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libcrypto.lib')">$(OpenSSLLibPath)\libcrypto.lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libeay32$(_RTSuffix).lib')">$(OpenSSLLibPath)\libeay32$(_RTSuffix).lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\libeay32.lib')">$(OpenSSLLibPath)\libeay32.lib</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)\crypto.lib')">$(OpenSSLLibPath)\crypto.lib</_CryptoLib>
+
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl_static64$(_RTSuffix).lib')">$(OpenSSLLibPath)\libssl_static64$(_RTSuffix).lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl_static$(_RTSuffix).lib')">$(OpenSSLLibPath)\libssl_static$(_RTSuffix).lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl_static.lib')">$(OpenSSLLibPath)\libssl_static.lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl64$(_RTSuffix).lib')">$(OpenSSLLibPath)\libssl64$(_RTSuffix).lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl$(_RTSuffix).lib')">$(OpenSSLLibPath)\libssl$(_RTSuffix).lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\libssl.lib')">$(OpenSSLLibPath)\libssl.lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\ssleay32$(_RTSuffix).lib')">$(OpenSSLLibPath)\ssleay32$(_RTSuffix).lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\ssleay32.lib')">$(OpenSSLLibPath)\ssleay32.lib</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)\ssl.lib')">$(OpenSSLLibPath)\ssl.lib</_SSLLib>
+    </PropertyGroup>
+
+    <!-- ==================== Linux ==================== -->
+    <PropertyGroup Condition="'$(_IsLinux)' == 'true'">
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND '$(OpenSSLUseStaticLibs)' == 'true' AND Exists('$(OpenSSLLibPath)/libcrypto.a')">$(OpenSSLLibPath)/libcrypto.a</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)/libcrypto.so')">$(OpenSSLLibPath)/libcrypto.so</_CryptoLib>
+
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND '$(OpenSSLUseStaticLibs)' == 'true' AND Exists('$(OpenSSLLibPath)/libssl.a')">$(OpenSSLLibPath)/libssl.a</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)/libssl.so')">$(OpenSSLLibPath)/libssl.so</_SSLLib>
+    </PropertyGroup>
+
+    <!-- ==================== macOS ==================== -->
+    <PropertyGroup Condition="'$(_IsMacOS)' == 'true'">
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND '$(OpenSSLUseStaticLibs)' == 'true' AND Exists('$(OpenSSLLibPath)/libcrypto.a')">$(OpenSSLLibPath)/libcrypto.a</_CryptoLib>
+      <_CryptoLib Condition="'$(_CryptoLib)' == '' AND Exists('$(OpenSSLLibPath)/libcrypto.dylib')">$(OpenSSLLibPath)/libcrypto.dylib</_CryptoLib>
+
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND '$(OpenSSLUseStaticLibs)' == 'true' AND Exists('$(OpenSSLLibPath)/libssl.a')">$(OpenSSLLibPath)/libssl.a</_SSLLib>
+      <_SSLLib Condition="'$(_SSLLib)' == '' AND Exists('$(OpenSSLLibPath)/libssl.dylib')">$(OpenSSLLibPath)/libssl.dylib</_SSLLib>
+    </PropertyGroup>
+
+    <Error Condition="'$(_CryptoLib)' == ''"
+           Text="[OpenSSL] libcrypto not found in $(OpenSSLLibPath)" />
+
+    <Message Text="[OpenSSL] Crypto: $(_CryptoLib)" Importance="high" />
+    <Message Text="[OpenSSL] SSL:    $(_SSLLib)" Importance="high" />
+  </Target>
+
+  <!-- ============================================================ -->
+  <!-- Populate OpenSSLLib ItemGroup (does NOT link) -->
+  <!-- ============================================================ -->
+  <Target Name="PopulateOpenSSLLibs"
+          DependsOnTargets="_ResolveOpenSSLLibs">
+
+    <ItemGroup>
+      <!-- OpenSSL libraries -->
+      <OpenSSLLib Include="$(_CryptoLib)" />
+      <OpenSSLLib Include="$(_SSLLib)" Condition="'$(_SSLLib)' != ''" />
+    </ItemGroup>
+
+    <Message Text="[OpenSSL] Populated: @(OpenSSLLib, ', ')" Importance="high" />
+  </Target>
+
+  <!-- ============================================================ -->
+  <!-- Link OpenSSLLib into NativeLibrary (separate step) -->
+  <!-- ============================================================ -->
+  <Target Name="LinkOpenSSLLibraries"
+          DependsOnTargets="PopulateOpenSSLLibs"
+		  BeforeTargets="SetupOSSpecificProps"
+          Condition="'$(LinkOpenSSL)' == 'true'">
+
+    <ItemGroup>
+      <!-- Windows system dependencies -->
+      <OpenSSLLib Condition="'$(_IsWindows)' == 'true'" Include="ws2_32.lib" />
+      <OpenSSLLib Condition="'$(_IsWindows)' == 'true'" Include="crypt32.lib" />
+
+      <!-- Linux system dependencies -->
+      <OpenSSLLib Condition="'$(_IsLinux)' == 'true'" Include="dl" />
+      <OpenSSLLib Condition="'$(_IsLinux)' == 'true'" Include="pthread" />
+	
+      <NativeLibrary Include="@(OpenSSLLib)" />
+    </ItemGroup>
+
+    <Message Text="[OpenSSL] Linked: @(NativeLibrary -> '%(Filename)%(Extension)', ', ')" Importance="high" />
+  </Target>
+
+  <!-- ========== PackageOpenSSL Static ========== -->
+  <Target Name="PackageOpenSSLLib" DependsOnTargets="PopulateOpenSSLLibs">
+
+    <ItemGroup>
+      <!-- Filter to only real files (skip system libs like ws2_32.lib, crypt32.lib, dl, pthread) -->
+		<_OpenSSLPackageFiles Include="@(OpenSSLLib)" Condition="Exists('%(Identity)')">
+            <Pack>true</Pack>
+            <PackagePath>lib\$(RuntimeIdentifier)\%(_OpenSSLPackageFiles.Filename)%(_OpenSSLPackageFiles.Extension)</PackagePath>
+		</_OpenSSLPackageFiles>
+		<_OpenSSLPackageFiles Include="$(OpenSSLRoot)\license.txt" Condition="Exists('$(OpenSSLRoot)\license.txt')">
+			<Pack>true</Pack>
+		    <PackagePath>lib\$(RuntimeIdentifier)\OPENSSL_LICENSE.txt</PackagePath>
+		</_OpenSSLPackageFiles>
+	
+        <None Include="@(_OpenSSLPackageFiles)" />
+    </ItemGroup>
+
+    <Message Text="$(MSBuildProjectName) OpenSSL packaged items:" Importance="high" />
+    <Message Text="  %(None.Identity) -> [pkg].\%(None.PackagePath)" Importance="high" Condition="'%(None.Pack)' == 'true'" />
+
+  </Target>
+
+</Project>

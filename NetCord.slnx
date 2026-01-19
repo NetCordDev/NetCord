@@ -60,6 +60,18 @@
     <Project Path="Hosting/NetCord.Hosting.Services/NetCord.Hosting.Services.csproj" />
     <Project Path="Hosting/NetCord.Hosting/NetCord.Hosting.csproj" />
   </Folder>
+  <Folder Name="/Native Libraries/">
+    <File Path="NetCord/ThirdParty/Directory.Build.props" />
+    <File Path="NetCord/ThirdParty/Directory.Build.targets" />
+    <Project Path="NetCord/ThirdParty/Libdave/Libdave.Manager/Libdave.Manager.csproj">
+      <BuildType Solution="Debug|*" Project="RelWithDebInfo" />
+      <BuildType Solution="Release|*" Project="MinSizeRel" />
+    </Project>
+    <Project Path="NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj">
+      <BuildType Solution="Debug|*" Project="RelWithDebInfo" />
+      <BuildType Solution="Release|*" Project="MinSizeRel" />
+    </Project>
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
@@ -98,5 +110,4 @@
   </Folder>
   <Project Path="NetCord.Services/NetCord.Services.csproj" />
   <Project Path="NetCord/NetCord.csproj" />
-  <Project Path="NetCord/ThirdParty/Libdave/Libdave.csproj" />
 </Solution>

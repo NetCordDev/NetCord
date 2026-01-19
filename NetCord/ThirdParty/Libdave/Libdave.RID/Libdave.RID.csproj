@@ -1,0 +1,67 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageId>NetCord.Natives.Libdave</PackageId>
+		<Description>Pre-built libdave binaries ($(RuntimeIdentifier), openssl ) for NetCord, $(Description)</Description>
+		<Authors>ha-ves; $(Authors)</Authors>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<NoWarn>NU5128</NoWarn>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>false</IncludeSymbols>
+		<AlsoCleanLibdave>true</AlsoCleanLibdave>
+
+		<CMakeInstallPrefix>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\</CMakeInstallPrefix>
+
+		<Configurations>MinSizeRel;RelWithDebInfo</Configurations>
+		<Configuration>MinSizeRel</Configuration>
+		<Configuration Condition="'$(Configuration)' == 'Debug' OR $(Configuration.StartsWith('RelWithDeb'))">RelWithDebInfo</Configuration>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MlsppDir)\*" Condition="'$(MlsppDir)' != ''">
+			<Link>MLSpp\%(Filename)%(Extension)</Link>
+		</None>
+
+		<None Include="..\..\Find*.props;..\..\Find*.targets">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+
+		<None Include="$(LibdaveCppRoot)\**\*">
+			<Link>source\libdave\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="$(MlsppCppRoot)\**\*" Condition="'$(MlsppCppRoot)' != ''">
+			<Link>source\mlspp\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+	
+	<ItemGroup Condition="'$(SolutionName)' != 'NetCord'">
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+	
+	<Import Project="Libdave.RID.build.props" />
+
+	<Target Name="Building" BeforeTargets="BeforeBuild" DependsOnTargets="$(Building_DependsOn);BuildLibdaveNative;LibdaveOutputs" />
+
+	<Target Name="Cleaning" BeforeTargets="AfterClean" AfterTargets="CoreClean" DependsOnTargets="$(Cleaning_DependsOn);CleanLibdaveNative" />
+
+	<Target Name="PrePacking" BeforeTargets="PrePackageLibdave;PackageLibdave;$(Packing_DependsOn)">
+		<PropertyGroup>
+			<CMakeStaticRT>true</CMakeStaticRT>
+		</PropertyGroup>
+	</Target>
+	<Target Name="Packing" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrePackageLibdave;PackageLibdave;$(Packing_DependsOn)" />
+
+	<!-- Install any deps -->
+	<!--<Target Name="Installing" AfterTargets="AfterBuild" DependsOnTargets="$(Installing_DependsOn)" />-->
+
+	<Import Project="Libdave.RID.build.targets" />
+
+</Project>

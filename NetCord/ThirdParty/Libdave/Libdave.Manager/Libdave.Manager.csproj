@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageId>NetCord.ThirdParty.Libdave</PackageId>
+		<Description>Pre-built libdave binaries Manager for NetCord, $(Description)</Description>
+		<Authors>ha-ves;$(Authors)</Authors>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<NoWarn>NU5128</NoWarn>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSymbols>false</IncludeSymbols>
+		
+		<Configurations>MinSizeRel;RelWithDebInfo</Configurations>
+		<Configuration>MinSizeRel</Configuration>
+		<Configuration Condition="'$(Configuration)' == 'Debug' OR '$(Configuration)' == 'RelWithDebInfo'">RelWithDebInfo</Configuration>
+	</PropertyGroup>
+
+	<Import Project="Libdave.Manager.build.props" />
+	<Import Project="Libdave.Manager.build.targets" />
+
+	<ItemGroup Condition="'$(SolutionName)' != 'NetCord'">
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+		<None Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))">
+			<Link>Build Files\%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+<Project>
+
+	<PropertyGroup>
+		<!-- Path to the native libdave files (will then not use the files from NuGet package) -->
+		<LibdaveNativeFilesPath Condition="'$(LibdaveNativeFilesPath)' == ''"></LibdaveNativeFilesPath>
+		<!-- To not copy native files from NuGet package -->
+		<LibdaveCopyNativeFiles Condition="'$(LibdaveCopyNativeFiles)' == ''">true</LibdaveCopyNativeFiles>
+		<!-- Set to 'native\' so that the outputs ends up in '$(OutputPath)\native\' -->
+		<LibdaveBaseOutputPath Condition="'$(LibdaveBaseOutputPath)' == ''"></LibdaveBaseOutputPath>
+		<!-- Add the runtime identifier to the base output path '$(LibdaveBaseOutputPath)\__Runtime_Id__\' -->
+		<AddRuntimeIdToBaseOutputPath Condition="'$(AddRuntimeIdToBaseOutputPath)' == ''">false</AddRuntimeIdToBaseOutputPath>
+		<LibdaveBaseOutputPath Condition="'$(AddRuntimeIdToBaseOutputPath)' == 'true'">$(LibdaveBaseOutputPath)\__Runtime_Id__</LibdaveBaseOutputPath>
+	</PropertyGroup>
+
+</Project>

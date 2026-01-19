@@ -1,0 +1,522 @@
+<Project>
+
+	<!-- Clean libdave CMake build directory when MSBuild Clean is executed -->
+	<Target Name="CleanLibdaveNative"
+			DependsOnTargets="PopulateLibdaveBaseProps"
+			Condition="'$(AlsoCleanLibdave)' == 'true'">
+		
+		<Message Text="Cleaning libdave CMake build directory: $(LibdaveBuildDir)" Importance="high" Condition="Exists('$(LibdaveBuildDir)')" />
+
+		<!-- Remove the entire build directory to clean CMake cache and build artifacts -->
+		<RemoveDir Directories="$(LibdaveBuildDir)" Condition="Exists('$(LibdaveBuildDir)')" />
+
+		<Message Text="libdave CMake build directory cleaned successfully" Importance="high" Condition="Exists('$(LibdaveBuildDir)')" />
+	</Target>
+
+	<Target Name="PopulateLibdaveBaseProps">
+
+		<!-- Build CMake arguments for prebuilt libraries -->
+		<PropertyGroup>
+			<LibdaveCMakeFlags>$(CMakeFlags) $(LibdaveCMakeFlags)</LibdaveCMakeFlags>
+
+			<_LibdaveCMakeArgs>$(CMakeArgs) $(_LibdaveCMakeArgs)</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(LibdaveGenerator)' != ''">-G "$(LibdaveGenerator)" $(_LibdaveCMakeArgs)</_LibdaveCMakeArgs>
+
+			<_LibdaveCMakeArgs Condition="'@(CMakeConfiguration)' != ''"
+							  >$(_LibdaveCMakeArgs) -DCMAKE_CONFIGURATION_TYPES="@(CMakeConfiguration)"</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'@(CMakeConfiguration)' == ''"
+							  >$(_LibdaveCMakeArgs) -DCMAKE_BUILD_TYPE="$(Configuration)"</_LibdaveCMakeArgs>
+
+			<_LibdaveCMakeArgs Condition="'$(LibdaveBuildShared)' == 'true'">$(_LibdaveCMakeArgs) -DBUILD_SHARED_LIBS=ON</_LibdaveCMakeArgs>
+
+			<_LibdaveCMakeArgs Condition="'$(LibdaveTesting)' != ''">$(_LibdaveCMakeArgs) -DTESTING=$(LibdaveTesting) -DTESTS=$(LibdaveTesting)</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeOpenSSLRoot)' != ''">$(_LibdaveCMakeArgs) -DOpenSSL_ROOT="$(CMakeOpenSSLRoot) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeOpenSSLDir)' != ''">$(_LibdaveCMakeArgs) -DOpenSSL_DIR="$(CMakeOpenSSLDir) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeBoringSSLRoot)' != ''">$(_LibdaveCMakeArgs) -DBoringSSL_ROOT="$(CMakeBoringSSLRoot) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeBoringSSLDir)' != ''">$(_LibdaveCMakeArgs) -DBoringSSL_DIR="$(CMakeBoringSSLDir) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeNlohmannJsonRoot)' != ''">$(_LibdaveCMakeArgs) -Dnlohmann_json_ROOT="$(CMakeNlohmannJsonRoot) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeNlohmannJsonDir)' != ''">$(_LibdaveCMakeArgs) -Dnlohmann_json_DIR="$(CMakeNlohmannJsonDir) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeMlsppRoot)' != ''">$(_LibdaveCMakeArgs) -DMLSPP_ROOT="$(CMakeMlsppRoot) "</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs Condition="'$(CMakeMlsppDir)' != ''">$(_LibdaveCMakeArgs) -DMLSPP_DIR="$(CMakeMlsppDir) "</_LibdaveCMakeArgs>
+
+			<_LibdaveInstallPath Condition="'$(LibdaveBaseInstallPath)' != ''">$(LibdaveBaseInstallPath)</_LibdaveInstallPath>
+			<_LibdaveInstallPath Condition="'$(CMakeInstallPrefix)' != ''">$(CMakeInstallPrefix)\$(_LibdaveInstallPath)</_LibdaveInstallPath>
+			<_LibdaveInstallPath Condition="'$(LibdaveInstallPath)' != ''">$(LibdaveInstallPath)</_LibdaveInstallPath>
+			<_LibdaveCMakeArgs Condition="'$(_LibdaveInstallPath)' != ''">$(_LibdaveCMakeArgs) -DCMAKE_INSTALL_PREFIX="$(_LibdaveInstallPath) "</_LibdaveCMakeArgs>
+
+			<LibdaveBuildDir Condition="'$(LibdaveBuildDir)' == ''">$(LibdaveBaseBuildDir)\$(RuntimeIdentifier)\</LibdaveBuildDir>
+
+			<LibdaveCMakeFlags Condition="'$(CMakeFlags)' != '' AND '$(LibdaveCMakeFlags)' == ''">$(CMakeFlags)</LibdaveCMakeFlags>
+
+			<LibdaveCMakeBuildArgs>$(CMakeBuildArgs) $(LibdaveCMakeBuildArgs)</LibdaveCMakeBuildArgs>
+			<LibdaveCMakeBuildArgs>--config $(Configuration) --parallel $(LibdaveCMakeBuildArgs)</LibdaveCMakeBuildArgs>
+
+			<_LibdaveBuildType>static</_LibdaveBuildType>
+			<_LibdaveBuildType Condition="'$(LibdaveBuildShared)' == 'true'">shared</_LibdaveBuildType>
+		</PropertyGroup>
+
+	</Target>
+	
+	<Target Name="LibdavePopulateProps"
+			DependsOnTargets="PopulateLibdaveBaseProps">
+
+		<Warning Condition="'$(libdaveInstallPath)' != '' AND '$(CMakeInstallPrefix)' != ''"
+				 Text="&lt;libdaveInstallPath&gt; and &lt;CMakeInstallPrefix&gt; are mutually exclusive. '$(CMakeInstallPrefix)' will be ignored in favor of '$(libdaveInstallPath)'." />
+
+		<ItemGroup>
+			<_LibdaveLibType Include="static;shared" />
+			<_LibdaveRunExt Include="dll;so" />
+			<_LibdaveLibExt Include="lib;a" />
+
+			<_LibdaveConfigType Include="@(CMakeConfiguration)">
+				<_BuildType>%(_LibdaveLibType.Identity)</_BuildType>
+			</_LibdaveConfigType>
+
+			<_LibdaveCMakeConfig Include="@(_LibdaveConfigType->'%(Identity)-%(_BuildType)')">
+				<_Config>%(Identity)</_Config>
+				<_OutputPath>$(LibdaveBuildDir)\%(_BuildType)\%(Identity)</_OutputPath>
+				<_OutputPath Condition="'$(CMakeStaticRT)' == 'true' AND '%(_BuildType)' == 'static'"
+							 >$(LibdaveBuildDir)\%(_BuildType)_rt\%(Identity)</_OutputPath>
+				<MSBuildProperties>%(MSBuildProperties);Configuration=%(Identity);CMakeStaticRT=$(CMakeStaticRT);LibdaveBuildShared=true</MSBuildProperties>
+				<MSBuildProperties Condition="'%(_BuildType)' == 'static'">%(MSBuildProperties);LibdaveBuildShared=false</MSBuildProperties>
+			</_LibdaveCMakeConfig>
+			
+			<_LibdaveCMakeConfig Update="%(Identity)" Condition="'$(LibdaveGenerator)' == '' AND '$(OS)' != 'Windows_NT'">
+				<_OutputPath Condition="">%(_OutputPath)\$(LibdaveBuildOutBaseDir)</_OutputPath>
+			</_LibdaveCMakeConfig>
+		</ItemGroup>
+
+		<PropertyGroup>
+			<LibdaveBuildDir>$(LibdaveBuildDir)\$(_LibdaveBuildType)</LibdaveBuildDir>
+			<_LibdaveBuildOutputPath>$(LibdaveBuildDir)\$(LibdaveBuildOutBaseDir)</_LibdaveBuildOutputPath>
+		</PropertyGroup>
+
+		<PropertyGroup Condition="'$(CMakeStaticRT)' == 'true'">
+			<LibdaveBuildDir>$(LibdaveBuildDir)_rt</LibdaveBuildDir>
+
+			<_LibdaveBuildMSVC>MultiThreaded</_LibdaveBuildMSVC>
+			<_LibdaveBuildMSVC Condition="'$(Configuration)' == 'RelWithDebInfo'">$(_LibdaveBuildMSVC)Debug</_LibdaveBuildMSVC>
+			<_LibdaveCMakeArgs Condition="'$(OS)' == 'Windows_NT'">$(_LibdaveCMakeArgs) -DOPENSSL_MSVC_STATIC_RT=ON  -DCMAKE_MSVC_RUNTIME_LIBRARY="$(_LibdaveBuildMSVC)"</_LibdaveCMakeArgs>
+
+			<!--<_LibdaveStaticFlags>-static -static-libstdc++ -static-libgcc</_LibdaveStaticFlags>-->
+			<!--<_LibdaveCMakeArgs>$(_LibdaveCMakeArgs) -DCMAKE_CXX_FLAGS="$(LibdaveCMakeFlags) $(_LibdaveStaticFlags)"</_LibdaveCMakeArgs>-->
+		</PropertyGroup>
+
+		<PropertyGroup Condition="'$(LibdaveGenerator)' == ''">
+			<LibdaveBuildDir Condition="'$(OS)' != 'Windows_NT'">$(LibdaveBuildDir)\$(Configuration)\</LibdaveBuildDir>
+
+			<_LibdaveCMakeOutDir>$(LibdaveBuildDir)</_LibdaveCMakeOutDir>
+			<_LibdaveCMakeOutDir Condition="'$(OS)' != 'Windows_NT'">$(_LibdaveCMakeOutDir)\$(LibdaveBuildOutBaseDir)</_LibdaveCMakeOutDir>
+
+			<_LibdaveCMakeArgs>$(_LibdaveCMakeArgs) -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(_LibdaveCMakeOutDir)</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs>$(_LibdaveCMakeArgs) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$(_LibdaveCMakeOutDir)</_LibdaveCMakeArgs>
+			<_LibdaveCMakeArgs>$(_LibdaveCMakeArgs) -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=$(_LibdaveCMakeOutDir)</_LibdaveCMakeArgs>
+
+			<_LibdaveBuildOutputPath>$(LibdaveBuildDir)\$(Configuration)</_LibdaveBuildOutputPath>
+			<LibdaveCMakeBuildArgs Condition="'$(OS)' == 'Windows_NT'"
+								 >$(LibdaveCMakeBuildArgs) -- /p:OutDir="$(_LibdaveBuildOutputPath)/"</LibdaveCMakeBuildArgs>
+
+			<_LibdaveBuildOutputPath Condition="'$(OS)' != 'Windows_NT'">$(LibdaveBuildDir)\$(LibdaveBuildOutBaseDir)</_LibdaveBuildOutputPath>
+		</PropertyGroup>
+
+		<PropertyGroup>
+			<LibdaveCMakeArgs>$(_LibdaveCMakeArgs) $(CMakeArgs) $(LibdaveCMakeArgs)</LibdaveCMakeArgs>
+
+			<_LibdaveConfigureCMakeArgsFile>$(LibdaveBuildDir)\.cmake-args</_LibdaveConfigureCMakeArgsFile>
+			<_LibdaveConfigureErrorLog>$(LibdaveBuildDir)\.cmake-configure-error.log</_LibdaveConfigureErrorLog>
+
+			<_LibdaveBuildErrorLog>$(LibdaveBuildDir)\.cmake-build-error_$(Configuration).log</_LibdaveBuildErrorLog>
+			<_LibdaveBuildErrorIdent>$(LibdaveBuildDir)\build_error_$(Configuration)</_LibdaveBuildErrorIdent>
+
+			<_LibdaveInstallErrorLog>$(LibdaveBuildDir)\.cmake-install-error_$(Configuration).log</_LibdaveInstallErrorLog>
+		</PropertyGroup>
+		
+	</Target>
+
+	<Target Name="CheckReconfigureLibdave"
+			DependsOnTargets="LibdavePopulateProps">
+
+			<!-- Read previous value if file exists -->
+		<ReadLinesFromFile File="$(_LibdaveConfigureCMakeArgsFile)" 
+						   Condition="Exists('$(_LibdaveConfigureCMakeArgsFile)')">
+			<Output TaskParameter="Lines" ItemName="_PrevCMakeArgs" />
+		</ReadLinesFromFile>
+
+		<!-- Copy previous args -->
+		<PropertyGroup Condition="Exists('$(_LibdaveConfigureCMakeArgsFile)')">
+			<_PrevCMakeArgsProperty>%(_PrevCMakeArgs.Identity)</_PrevCMakeArgsProperty>
+		</PropertyGroup>
+
+		<!-- Normalize / trim both sides, then compare ordinally -->
+		<PropertyGroup>
+			<_PrevCMakeArgsTrimmed>$(_PrevCMakeArgsProperty.Trim())</_PrevCMakeArgsTrimmed>
+			<_LibdaveCMakeArgsTrimmed>$(LibdaveCMakeArgs.Trim())</_LibdaveCMakeArgsTrimmed>
+
+			<_IsCMakeArgsChanged_>
+				$([System.String]::Compare('$(_LibdaveCMakeArgsTrimmed)', '$(_PrevCMakeArgsTrimmed)'))
+			</_IsCMakeArgsChanged_>
+			<_IsCMakeArgsChanged>$(_IsCMakeArgsChanged_.Trim())</_IsCMakeArgsChanged>
+		</PropertyGroup>
+
+		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="CMakeArgs used has Changed." Importance="high" />
+		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="Previous CMakeArgs: [$(_PrevCMakeArgsTrimmed)]." Importance="high" />
+
+		<PropertyGroup>
+			<_IsCMakeArgsChanged Condition="'$(CMakeClearCache)' == 'true' AND '$(_IsCMakeArgsChanged)' != '0'">-1</_IsCMakeArgsChanged>
+		</PropertyGroup>
+
+		<Delete Files="$(LibdaveBuildDir)\CMakeCache.txt" Condition="'$(CMakeClearCache)' == 'true' AND '$(_IsCMakeArgsChanged)' != '0'" />
+
+		<PropertyGroup>
+			<_IsCMakeArgsChanged Condition="!Exists('$(LibdaveBuildDir)\CMakeCache.txt')">-1</_IsCMakeArgsChanged>
+		</PropertyGroup>
+		
+		<!-- Ensure build directory exists-->
+		<MakeDir Directories="$(LibdaveBuildDir)" Condition="!Exists('$(LibdaveBuildDir)')" />
+
+		<Touch AlwaysCreate="true" Condition="'$(_IsCMakeArgsChanged)' != '0' OR !Exists('$(LibdaveBuildDir)\.cmake-configure')"
+			   Files="$(LibdaveBuildDir)\.cmake-configure" />
+
+	</Target>
+
+	
+	<Target Name="ConfigureLibdave"
+			DependsOnTargets="$(ConfigureLibdave_DependsOn);CheckReconfigureLibdave"
+			Inputs="$(LibdaveCppRoot)\CMakeLists.txt;$(LibdaveBuildDir)\.cmake-configure"
+			Outputs="$(_LibdaveConfigureCMakeArgsFile)"
+			Condition="Exists('$(LibdaveCppRoot)\CMakeLists.txt')">
+
+		<Message Text="Building libdave native library from $(LibdaveCppRoot)" Importance="high" />
+		<Message Text="Build directory: $(LibdaveBuildDir)" Importance="high" />
+
+		<!-- Configure CMake (generate build files) -->
+		<Message Text="Configuring CMake project..." Importance="high" />
+		<Message Text="CMake arguments: $(LibdaveCMakeArgs)" Importance="high" />
+
+		<!-- Delete old error log if exists -->
+		<Delete Files="$(_LibdaveConfigureErrorLog)" Condition="Exists('$(_LibdaveConfigureErrorLog)')" />
+
+		<Exec Command="cmake -S &quot;$(LibdaveCppRoot.TrimEnd('\'))&quot; -B &quot;$(LibdaveBuildDir.TrimEnd('\'))&quot; $(LibdaveCMakeArgs) 2&gt;&quot;$(_LibdaveConfigureErrorLog)&quot;"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="_LibdaveConfigureExitCode" />
+		</Exec>
+
+		<!-- Check for configure errors -->
+		<ReadLinesFromFile File="$(_LibdaveConfigureErrorLog)" Condition="Exists('$(_LibdaveConfigureErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="_LibdaveConfigureErrors" />
+		</ReadLinesFromFile>
+
+		<Error Text="libdave CMake configuration failed with exit code $(_LibdaveConfigureExitCode):%0D%0A@(_LibdaveConfigureErrors, '%0D%0A')"
+			   Condition="'$(_LibdaveConfigureExitCode)' != '0'" />
+
+		<!-- Create stamp file to track configure completion -->
+		<Touch Files="$(LibdaveBuildDir)\.config-stamp" AlwaysCreate="true" />
+
+		<!-- overwrite and update timestamp -->
+		<WriteLinesToFile
+			File="$(_LibdaveConfigureCMakeArgsFile)"
+		    Lines="$([MSBuild]::Escape('$(LibdaveCMakeArgs)'))"
+			Overwrite="true" />
+		
+	</Target>
+	<Target Name="CleanLibdaveOutputPath"
+			DependsOnTargets="LibdavePopulateProps"
+			Inputs="@(LibdaveSourceFile);$(_LibdaveConfigureCMakeArgsFile)"
+			Outputs="$(LibdaveBuildDir)\.build-stamp;$(_LibdaveBuildOutputPath)\**\*">
+		<RemoveDir Directories="$(_LibdaveBuildOutputPath)" Condition="Exists('$(_LibdaveBuildOutputPath)')" />
+		<MakeDir Directories="$(_LibdaveBuildOutputPath)" Condition="!Exists('$(_LibdaveBuildOutputPath)')" />
+	</Target>
+	
+	<Target Name="BuildLibdaveNative"
+			DependsOnTargets="$(BuildLibdaveNative_DependsOn);ConfigureLibdave;CleanLibdaveOutputPath"
+			Inputs="@(LibdaveSourceFile);$(_LibdaveConfigureCMakeArgsFile)"
+			Outputs="$(LibdaveBuildDir)\.build-stamp;$(_LibdaveBuildOutputPath)\**\*"
+			Condition="'$(BuildLibdave)' == 'true' AND Exists('$(LibdaveCppRoot)\CMakeLists.txt')">
+
+		<!-- Delete old error log if exists -->
+		<Delete Files="$(_LibdaveBuildErrorLog)" Condition="Exists('$(_LibdaveBuildErrorLog)')" />
+
+		<Message Text="Building libdave native library ($(_LibdaveBuildType))..." Importance="high" />
+		<Message Text="CMake build arguments: $(LibdaveCMakeBuildArgs)" Importance="high" />
+
+		<!-- Use cmake build for better cross-platform compatibility -->
+		<Exec Command="cmake --build &quot;$(LibdaveBuildDir.TrimEnd('\'))&quot; $(LibdaveCMakeBuildArgs) 2&gt;&quot;$(_LibdaveBuildErrorLog)&quot;"
+			  WorkingDirectory="$(LibdaveBuildDir)"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="_LibdaveBuildExitCode" />
+		</Exec>
+
+		<!--Check for build errors-->
+		<ReadLinesFromFile File="$(_LibdaveBuildErrorLog)" Condition="Exists('$(_LibdaveBuildErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="_LibdaveBuildErrors" />
+		</ReadLinesFromFile>
+
+		<!--Error with detailed message if build failed-->
+		<Error Text="libdave CMake build failed with exit code $(_LibdaveBuildExitCode):%0D%0A@(_LibdaveBuildErrors, '%0D%0A')"
+			   Condition="'$(_LibdaveBuildExitCode)' != '0'" />
+
+		<!-- Create stamp file to track build completion -->
+		<Touch Files="$(LibdaveBuildDir)\.build-stamp" AlwaysCreate="true" />
+
+		<Message Text="========================================" Importance="high" />
+		<Message Text="libdave native library ($(_LibdaveBuildType)) built successfully" Importance="high" />
+		<Message Text="========================================" Importance="high" />
+
+		<!-- Set libdave location for use -->
+		<PropertyGroup>
+			<CMakeLibdaveDir>$(LibdaveBuildDir)</CMakeLibdaveDir>
+		</PropertyGroup>
+	
+		<!-- Set remainding config to build -->
+		<ItemGroup Condition="'@(_LibdaveCMakeConfig)' != ''">
+			<_LibdaveCMakeConfigRemain Include="@(_LibdaveCMakeConfig)" />
+			<_LibdaveCMakeConfigRemain Remove="$(Configuration)-$(_LibdaveBuildType)" />
+		</ItemGroup>
+		
+		<ItemGroup>
+			<_LibdaveBuildOutput Include="$(_LibdaveBuildOutputPath)\**\*" />
+			<_LibdaveBuildOutput Update="%(Identity)" Condition="'$(LibdaveCopyBuildOutput)' == 'true'">
+				<_CopyPath>-> $(MSBuildProjectDirectory)\$(OutputPath)\$(LibdaveBaseOutputPath)\$([MSBuild]::MakeRelative('$(_LibdaveBuildOutputPath)', '%(FullPath)'))</_CopyPath>
+			</_LibdaveBuildOutput>
+		</ItemGroup>
+		
+	</Target>
+
+	<Target Name="LibdaveOutputs"
+			DependsOnTargets="BuildLibdaveNative"
+			Returns="@(_LibdaveBuildOutput)">
+		
+		<ItemGroup Condition="'$(LibdaveCopyBuildOutput)' == 'true'">
+			<None Include="@(_LibdaveBuildOutput)">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				<TargetPath>$(LibdaveBaseOutputPath)\$([MSBuild]::MakeRelative('$(_LibdaveBuildOutputPath)', '%(FullPath)'))</TargetPath>
+			</None>
+		</ItemGroup>
+
+		<Message Text="libdave outputs:" Importance="high"/>
+		<Message Text="  %(_LibdaveBuildOutput.Identity) %(_LibdaveBuildOutput._CopyPath)" Importance="high"/>
+	</Target>
+
+	<Target Name="BuildLibdaveMultiConfig"
+			DependsOnTargets="LibdavePopulateProps">
+
+		<ItemGroup Condition="'@(_LibdaveCMakeConfigRemain)' == ''">
+			<_LibdaveCMakeConfigRemain Include="@(_LibdaveCMakeConfig)" />
+		</ItemGroup>
+
+		<PropertyGroup>
+			<!-- Prepare args -->
+			<_Args>$(LibdaveCMakeBuildArgs.Replace('=', ' '))</_Args>
+			<_Pattern>(?:^|\s)(?:-j|--parallel)\s*(\d+)</_Pattern>
+
+			<!-- Check if pattern exists -->
+			<_HasParallel>$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Args)', '$(_Pattern)'))</_HasParallel>
+
+			<!-- Extract last occurrence if exists -->
+			<_TotalJobs Condition="'$(_HasParallel)' == 'True'">$([System.Text.RegularExpressions.Regex]::Match('$(_Args)', '.*(?:-j|--parallel)\s*(\d+)').Groups[1].Value)</_TotalJobs>
+			<_TotalJobs Condition="'$(_TotalJobs)' == ''">$([System.Environment]::ProcessorCount)</_TotalJobs>
+
+			<!-- Divide by config count -->
+			<_ConfigCount>@(_LibdaveCMakeConfigRemain->Count())</_ConfigCount>
+			<_ConfigCount Condition="'$(_ConfigCount)' == '0' AND '$(Configuration)' != ''">1</_ConfigCount>
+			<JobsPerConfig>$([MSBuild]::Divide($(_TotalJobs), $(_ConfigCount)))</JobsPerConfig>
+			<JobsPerConfig Condition="$(JobsPerConfig) &lt; 1">1</JobsPerConfig>
+
+			<_LibdaveIntCMakeBuildArgs Condition="'$(JobsPerConfig)' != '1'">LibdaveCMakeBuildArgs=-j$(JobsPerConfig)</_LibdaveIntCMakeBuildArgs>
+		</PropertyGroup>
+
+		<Message Text="Remaining Configurations CMake jobs config: $(JobsPerConfig) (Total: $(_TotalJobs), Configs: $(_ConfigCount) [@(_LibdaveCMakeConfigRemain)])" Importance="High" />
+
+		<!-- Create project items with metadata instead of batching -->
+		<ItemGroup>
+			<_LibdaveConfigToBuild Include="$(MSBuildProjectFile)">
+				<Properties>$(_LibdaveIntCMakeBuildArgs);%(_LibdaveCMakeConfigRemain.MSBuildProperties)</Properties>
+				<Targets>$(Building_DependsOn);BuildLibdaveNative;LibdaveOutputs</Targets>
+			</_LibdaveConfigToBuild>
+		</ItemGroup>
+
+		<MSBuild Projects="@(_LibdaveConfigToBuild)"
+				Targets="%(_LibdaveConfigToBuild.Targets)"
+				StopOnFirstFailure="true"
+				Condition="'@(_LibdaveCMakeConfigRemain)' != ''"/>
+
+		<Message Text="All libdave native library configurations built successfully." Importance="high" />
+	</Target>
+
+	<Target Name="PrePackageLibdave" BeforeTargets="BuildLibdaveMultiConfig">
+		
+		<ItemGroup>
+			<_LibdaveCMakeConfig Update="%(Identity)"
+								 Condition="'%(_BuildType)' == 'static'">
+				<_OutputPath>$(LibdaveBaseBuildDir)\$(RuntimeIdentifier)\%(_BuildType)_rt\%(_Config)</_OutputPath>
+			</_LibdaveCMakeConfig>
+			<_LibdaveCMakeConfigRemain Update="%(Identity)"
+									   Condition="'$(CMakeStaticRT)' == 'true' AND '%(_BuildType)' == 'static'">
+				<MSBuildProperties>%(MSBuildProperties);CMakeStaticRT=true</MSBuildProperties>
+			</_LibdaveCMakeConfigRemain>
+		</ItemGroup>
+
+	</Target>
+
+	<Target Name="PackageLibdave"
+			DependsOnTargets="BuildLibdaveMultiConfig;PackLibdaveBuildFile">
+		
+		<ItemGroup>
+			<_LibdaveOutstatic Include="@(_LibdaveCMakeConfig)" Condition="'%(_LibdaveCMakeConfig._BuildType)' == 'static'" />
+			<_LibdaveOutshared Include="@(_LibdaveCMakeConfig)" Condition="'%(_LibdaveCMakeConfig._BuildType)' == 'shared'" />
+
+			<_LibdaveOuts Include="@(_LibdaveOutstatic)">
+				<_Ext>%(_LibdaveLibExt.Identity)</_Ext>
+			</_LibdaveOuts>
+			<_LibdaveOuts Include="@(_LibdaveOutshared)">
+				<_Ext>%(_LibdaveRunExt.Identity)</_Ext>
+			</_LibdaveOuts>
+
+			<_LibdavePackageFiles Include="%(_LibdaveOuts._OutputPath)\**\*.%(_LibdaveOuts._Ext)" >
+				<_Config>%(_LibdaveOuts._Config)</_Config>
+				<_OutputPath>%(_LibdaveOuts._OutputPath)</_OutputPath>
+			</_LibdavePackageFiles>
+			<_LibdavePackageFiles Update="%(Identity)">
+				<Pack>true</Pack>
+				<PackagePath>lib\$(RuntimeIdentifier)\%(_Config)\$([MSBuild]::MakeRelative('%(_OutputPath)', '%(FullPath)'))</PackagePath>
+			</_LibdavePackageFiles>
+			<_LibdavePackageFiles Update="%(Identity)" Condition="'%(Filename)%(Extension)' == 'dave.dll'">
+				<PackagePath>$([System.IO.Path]::GetDirectoryName('%(PackagePath)'))\libdave%(Extension)</PackagePath>
+			</_LibdavePackageFiles>
+			
+			<_LibdavePackageFiles Include="$(MSBuildThisFileDirectory)\..\..\LICENSE.md">
+				<Pack>true</Pack>
+				<PackagePath></PackagePath>
+			</_LibdavePackageFiles>
+			
+			<None Remove="%(Identity)" Condition="'%(Filename)%(Extension)' == 'LICENSE.md'" />
+
+			<None Include="@(_LibdavePackageFiles)" />
+		</ItemGroup>
+
+		<Message Text="$(MSBuildProjectName) packaged items:" Importance="high" />
+		<Message Text="  %(None.Identity) -> [pkg].\%(None.PackagePath)" Importance="high" Condition="'%(None.Pack)' == 'true'" />
+
+	</Target>
+
+	<Target Name="BuildTemplatedBuildFiles"
+			Inputs="$(BuildTargetsTemplate);$(BuildPropsTemplate)"
+			Outputs="$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\build.*">
+
+		<PropertyGroup>
+			<RuntimeIdentifier>$(RuntimeIdentifier.ToLower())</RuntimeIdentifier>
+
+			<_OSLib Condition="$(RuntimeIdentifier.StartsWith('win'))">*.lib</_OSLib>
+			<_OSLib Condition="$(RuntimeIdentifier.StartsWith('linux')) OR $(RuntimeIdentifier.StartsWith('osx'))">*.a</_OSLib>
+			
+			<_OSRun Condition="$(RuntimeIdentifier.StartsWith('win'))">*.dll</_OSRun>
+			<_OSRun Condition="$(RuntimeIdentifier.StartsWith('linux')) OR $(RuntimeIdentifier.StartsWith('osx'))">*.so</_OSRun>
+			
+			<_DebugableProp Condition="'$(Configuration)' == 'RelWithDebInfo'">
+			&lt;_LibDaveConfig Condition=&quot;'%24(Configuration)' == 'Debug' OR %24(Configuration.StartsWith('RelWithDeb'))&quot;&gt;RelWithDebInfo&lt;/_LibDaveConfig&gt;</_DebugableProp>
+		</PropertyGroup>
+
+		<!-- Read template, replace tokens, write to intermediate -->
+		<PropertyGroup>
+			<_TemplateContent>$([System.IO.File]::ReadAllText('$(BuildPropsTemplate)'))</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_Lib__',
+				'$(_OSLib)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_Run__',
+				'$(_OSRun)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__DebugableProp__',
+				'$(_DebugableProp)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_ID__',
+				'$(RuntimeIdentifier)'))
+			</_TemplateContent>
+			<_OutBuildFile>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\build.props</_OutBuildFile>
+		</PropertyGroup>
+
+		<WriteLinesToFile
+			File="$(_OutBuildFile)"
+			Lines="$(_TemplateContent)"
+			Overwrite="true" />
+
+		<Message Text="$(BuildPropsTemplate) -> '$(_OutBuildFile)'" Importance="high" />
+
+		<!-- Read template, replace tokens, write to intermediate -->
+		<PropertyGroup>
+			<_TemplateContent>$([System.IO.File]::ReadAllText('$(BuildTargetsTemplate)'))</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_Lib__',
+				'$(_OSLib)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_Run__',
+				'$(_OSRun)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__DebugableProp__',
+				'$(_DebugableProp)'))
+			</_TemplateContent>
+			<_TemplateContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__Runtime_ID__',
+				'$(RuntimeIdentifier)'))
+			</_TemplateContent>
+			<_OutBuildFile>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\build.targets</_OutBuildFile>
+		</PropertyGroup>
+
+		<WriteLinesToFile
+			File="$(_OutBuildFile)"
+			Lines="$(_TemplateContent)"
+			Overwrite="true" />
+
+		<Message Text="$(BuildTargetsTemplate) -> '$(_OutBuildFile)'" Importance="high" />
+
+	</Target>
+
+	<Target Name="PackLibdaveBuildFile"
+			DependsOnTargets="BuildTemplatedBuildFiles">
+
+		<PropertyGroup>
+			<PackageId>$(PackageId).$(RuntimeIdentifier)</PackageId>
+			<NuspecOutputPath>$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\</NuspecOutputPath>
+		</PropertyGroup>
+
+		<ItemGroup>
+			<_PackBuildFilesDir Include="build;buildTransitive" />
+
+			<_PackBuildFiles Include="$(BaseIntermediateOutputPath)\$(RuntimeIdentifier)\build.*">
+				<_BaseDir>%(_PackBuildFilesDir.Identity)</_BaseDir>
+			</_PackBuildFiles>
+			
+			<None Include="@(_PackBuildFiles)">
+				<Pack>true</Pack>
+				<PackagePath>%(_PackBuildFiles._BaseDir)\$(PackageId)%(Extension)</PackagePath>
+			</None>
+		</ItemGroup>
+	
+	</Target>
+
+</Project>

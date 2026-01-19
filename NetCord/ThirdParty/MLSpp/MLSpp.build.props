@@ -1,15 +1,56 @@
 <Project>
 
+	<PropertyGroup>
+		<CMakeStaticRT Condition="'$(CMakeStaticRT)' == ''">false</CMakeStaticRT>
+		
+		<!-- Prebuilt library paths (customize these) -->
+		<!-- Use _ROOT to point to installation directory, or _DIR to point directly to CMake config directory -->
+		<CMakeOpenSSLRoot>$(OPENSSL_ROOT_DIR)</CMakeOpenSSLRoot>
+		<CMakeOpenSSLRoot Condition="'$(CMakeOpenSSLRoot)' == ''"></CMakeOpenSSLRoot>
+		<CMakeOpenSSLDir Condition="'$(CMakeOpenSSLDir)' == ''"></CMakeOpenSSLDir>
+		<CMakeBoringSSLRoot Condition="'$(CMakeBoringSSLRoot)' == ''"></CMakeBoringSSLRoot>
+		<CMakeBoringSSLRoot Condition="'$(CMakeBoringSSLRoot)' == ''"></CMakeBoringSSLRoot>
+		<CMakeBoringSSLDir Condition="'$(CMakeBoringSSLDir)' == ''"></CMakeBoringSSLDir>
+	</PropertyGroup>
+
 	<!-- mlspp CMake Build Integration -->
 	<PropertyGroup>
 		<BuildMlspp Condition="'$(BuildMlspp)' == ''">true</BuildMlspp>
+		<!--<InstallMlsppAfterBuild Condition="'$(InstallMlsppAfterBuild)' == ''">true</InstallMlsppAfterBuild>-->
 		<AlsoCleanMlspp Condition="'$(AlsoCleanMlspp)' == ''">false</AlsoCleanMlspp>
-		<MlsppCppRoot>$(MSBuildThisFileDirectory)\mlspp</MlsppCppRoot>
-		<MlsppGenerator Condition="'$(LibdaveGenerator)' == ''"></MlsppGenerator>
-		<MlsppBuildDir Condition="'$(MlsppBuildDir)' == ''">$(MSBuildThisFileDirectory)\mlspp_build</MlsppBuildDir>
-		<MlsppBuildStampFile>$(MlsppBuildDir)\.build-stamp</MlsppBuildStampFile>
-		<MlsppConfigureErrorLog>$(MlsppBuildDir)\.cmake-configure-error.log</MlsppConfigureErrorLog>
-		<MlsppBuildErrorLog>$(MlsppBuildDir)\.cmake-build-error.log</MlsppBuildErrorLog>
+		<MlsppCppRoot Condition="'$(MlsppCppRoot)' == ''">$(MSBuildThisFileDirectory)\mlspp</MlsppCppRoot>
+		<MlsppGenerator Condition="'$(MlsppGenerator)' == ''"></MlsppGenerator>
+		<MlsppBuildShared Condition="'$(MlsppBuildShared)' == ''">false</MlsppBuildShared>
+		<MlsppBaseBuildDir Condition="'$(MlsppBaseBuildDir)' == ''">$(MSBuildThisFileDirectory)\mlspp_build\</MlsppBaseBuildDir>
+		<!-- Set to 'out\' so that the outputs ends up in '$(MlsppBaseBuildDir)\out\', especially when using custom $(MlsppGenerator) -->
+		<MlsppBuildOutBaseDir Condition="'$(MlsppBuildOutBaseDir)' == ''">out\</MlsppBuildOutBaseDir>
+		<MlsppCopyBuildOutput Condition="'$(MlsppCopyBuildOutput)' == ''">false</MlsppCopyBuildOutput>
+		<!-- Set to 'mlspp_install\' so that the installed files 
+			ends up in $(CMakeInstallPrefix)\mlspp_install\ or $(MlsppBaseBuildDir)\mlspp_install\ -->
+		<MlsppBaseInstallPath Condition="'$(MlsppBaseInstallPath)' == ''">mlspp_install\</MlsppBaseInstallPath>
+		<!-- Set to 'native\' so that the outputs ends up in '$(OutputPath)\native\' -->
+		<MlsppBaseOutputPath Condition="'$(MlsppBaseOutputPath)' == ''"></MlsppBaseOutputPath>
 	</PropertyGroup>
 
+	<!-- Up-to-date check input so MSBuild watches indirect changes -->
+	<ItemGroup>
+		<MlsppSourceFile Include="$(MlsppCppRoot)\**\*.h"/>
+		<MlsppSourceFile Include="$(MlsppCppRoot)\**\*.c"/>
+		<MlsppSourceFile Include="$(MlsppCppRoot)\**\*.hpp"/>
+		<MlsppSourceFile Include="$(MlsppCppRoot)\**\*.cpp"/>
+
+		<UpToDateCheckInput Include="@(MlsppSourceFile)"/>
+		<UpToDateCheckInput Include="$(MlsppCppRoot)\CMakeLists.txt" />
+	</ItemGroup>
+
+	<!-- Populate CMake configurations and specific MSBuild properties -->
+	<ItemGroup Condition="'@(CMakeConfiguration)' == ''">
+		<CMakeConfiguration Include="RelWithDebInfo">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>
+		<CMakeConfiguration Include="MinSizeRel">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>
+	</ItemGroup>
+	
 </Project>

@@ -1,0 +1,127 @@
+<Project>
+
+	<Target Name="PreparePack"
+			DependsOnTargets="MinVer">
+		
+		<PropertyGroup>
+			<_PackVer>$(Version)</_PackVer>
+		</PropertyGroup>
+
+	</Target>
+
+	<Target Name="RuntimesReference"
+			BeforeTargets="CollectPackageReferences"
+			Condition="'$(PackagesBuilt)' == 'true'">
+
+		<ItemGroup>
+			<_Rid Include="$(RuntimeIdentifiers)" />
+			<PackageReference Include="NetCord.Natives.Libdave.%(_Rid.Identity)" PrivateAssets="none" />
+			<PackageVersion Include="NetCord.Natives.Libdave.%(_Rid.Identity)" Version="$(Version)" />
+		</ItemGroup>
+
+		<Message Text="Dependencies: NetCord.Natives.Libdave.%(_Rid.Identity) $(Version)" Importance="high" />
+
+	</Target>
+
+	<Target Name="BuildPackages"
+			DependsOnTargets="PreparePack"
+			Condition="'$(ContinuousIntegrationBuild)' != 'true'">
+
+		<MSBuild Projects="..\Libdave.RID\Libdave.RID.csproj"
+				 Targets="Restore;Pack"
+				 Properties="RestoreForce=true" />
+
+		<Exec Command="wsl bash -c 'export COLUMNS=999; ../build_unix.sh'"
+			  WorkingDirectory="..\Libdave.RID\"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="_LibdaveWSLBuildExitCode" />
+		</Exec>
+
+		<!--Error with detailed message if build failed-->
+		<Error Text="Libdave WSL CMake build failed with exit code $(_LibdaveWSLBuildExitCode)."
+			   Condition="'$(_LibdaveWSLBuildExitCode)' != '0'" />
+
+	</Target>
+
+	<Target Name="PackLibdaveManager"
+			DependsOnTargets="PreparePack;BuildPackages"
+			BeforeTargets="BeforeBuild">
+
+		<MSBuild Projects="$(MSBuildProjectFullPath)"
+				 Targets="Restore"
+				 Properties="PackagesBuilt=true;Version=$(Version)" />
+
+	</Target>
+
+	<Target Name="BuildTemplatedBuildFiles"
+			DependsOnTargets="PreparePack">
+		
+		<!-- Read template, replace tokens, write to intermediate -->
+		<PropertyGroup>
+			<_TemplateContent>$([System.IO.File]::ReadAllText('$(BuildPropsTemplate)'))</_TemplateContent>
+			<_TransformedContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__PACK_VER__',
+				'$(_PackVer)'))
+			</_TransformedContent>
+			<_OutBuildFile>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)\build.props</_OutBuildFile>
+		</PropertyGroup>
+
+		<WriteLinesToFile
+			File="$(_OutBuildFile)"
+			Lines="$(_TransformedContent)"
+			Overwrite="true" />
+
+		<Message Text="$(BuildPropsTemplate) -> '$(_OutBuildFile)'" Importance="high" />
+
+		<!-- Read template, replace tokens, write to intermediate -->
+		<PropertyGroup>
+			<_TemplateContent>$([System.IO.File]::ReadAllText('$(BuildTargetsTemplate)'))</_TemplateContent>
+			<_TransformedContent>
+				$([System.Text.RegularExpressions.Regex]::Replace(
+				$(_TemplateContent),
+				'__PACK_VER__',
+				'$(_PackVer)'))
+			</_TransformedContent>
+			<_OutBuildFile>$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)\build.targets</_OutBuildFile>
+		</PropertyGroup>
+
+		<WriteLinesToFile
+			File="$(_OutBuildFile)"
+			Lines="$(_TransformedContent)"
+			Overwrite="true" />
+
+		<Message Text="$(BuildTargetsTemplate) -> '$(_OutBuildFile)'" Importance="high" />
+
+	</Target>
+
+	<Target Name="PackageSetup"
+			DependsOnTargets="BuildTemplatedBuildFiles"
+			BeforeTargets="_GetPackageFiles">
+
+		<ItemGroup>
+			<_PackBuildFiles Include="$(BaseIntermediateOutputPath)\build.*" />
+			<None Include="@(_PackBuildFiles)">
+				<Pack>true</Pack>
+				<PackagePath>build\$(PackageId)%(Extension)</PackagePath>
+			</None>
+		</ItemGroup>
+
+		<Message Text="Packaged Libdave Manager build files with version $(_PackVer)." Importance="High" />
+		<Message Text="Files: %(None.Identity) -> [pkg].\%(None.PackagePath)" Importance="High" Condition="'%(None.Pack)' == 'true'" />
+	
+	</Target>
+
+	<Target Name="PostRemoveNatives"
+			AfterTargets="Pack;PostBuild">
+
+		<MSBuild Projects="$(MSBuildProjectFullPath)"
+				 Targets="Restore"
+				 Properties="RestoreForce=true;PackagesBuilt=false" />
+
+	</Target>
+
+</Project>

@@ -2,38 +2,118 @@
 
 	<!-- Clean mlspp CMake build directory when MSBuild Clean is executed -->
 	<Target Name="CleanMlsppNative"
-			BeforeTargets="Clean"
-			Condition="'$(AlsoCleanMlspp)' == 'true' AND Exists('$(MlsppBuildDir)')">
+			DependsOnTargets="PopulateMlsppBaseProps"
+			Condition="'$(AlsoCleanMlspp)' == 'true'">
 		
-		<Message Text="Cleaning mlspp CMake build directory: $(MlsppBuildDir)" Importance="high" />
+		<Message Text="Cleaning mlspp CMake build directory: $(MlsppBuildDir)" Importance="high" Condition="Exists('$(MlsppBuildDir)')" />
 
 		<!-- Remove the entire build directory to clean CMake cache and build artifacts -->
-		<RemoveDir Directories="$(MlsppBuildDir)" />
+		<RemoveDir Directories="$(MlsppBuildDir)" Condition="Exists('$(MlsppBuildDir)')" />
 
-		<Message Text="mlspp CMake build directory cleaned successfully" Importance="high" />
+		<Message Text="mlspp CMake build directory cleaned successfully" Importance="high" Condition="Exists('$(MlsppBuildDir)')" />
 	</Target>
 
-	<PropertyGroup>
-		<_MlsppConfigureCMakeArgsFile>$(MlsppBuildDir)\\.cmake-args</_MlsppConfigureCMakeArgsFile>
-	</PropertyGroup>
-	<Target Name="CheckForReconfigureMlspp"
-			BeforeTargets="ConfigureMlspp">
+	<Target Name="PopulateMlsppBaseProps">
 
 		<!-- Build CMake arguments for mlspp -->
 		<PropertyGroup>
-			<MlsppCMakeArgs>$(CMakeArgs) $(MlsppCMakeArgs)</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(MlsppGenerator)' != ''">-G "$(MlsppGenerator)" $(MlsppCMakeArgs)</MlsppCMakeArgs>
-			
-			<MlsppCMakeArgs>$(MlsppCMakeArgs) -DDISABLE_PQ=ON -DMLS_CXX_NAMESPACE="mlspp" -DDISABLE_GREASE=ON</MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(MlsppGenerator)' != ''">-G "$(MlsppGenerator)"</_MlsppCMakeArgs>
 
-			<MlsppCMakeArgs Condition="'$(MlsppTesting)' != ''">$(MlsppCMakeArgs) -DTESTING=$(MlsppTesting)</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeOpenSSLRoot)' != ''">$(MlsppCMakeArgs) -DOpenSSL_ROOT="$(CMakeOpenSSLRoot)"</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeOpenSSLDir)' != ''">$(MlsppCMakeArgs) -DOpenSSL_DIR="$(CMakeOpenSSLDir)"</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeBoringSSLRoot)' != ''">$(MlsppCMakeArgs) -DBoringSSL_ROOT="$(CMakeBoringSSLRoot)"</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeBoringSSLDir)' != ''">$(MlsppCMakeArgs) -DBoringSSL_DIR="$(CMakeBoringSSLDir)"</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonRoot)' != ''">$(MlsppCMakeArgs) -Dnlohmann_json_ROOT="$(CMakeNlohmannJsonRoot)"</MlsppCMakeArgs>
-			<MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonDir)' != ''">$(MlsppCMakeArgs) -Dnlohmann_json_DIR="$(CMakeNlohmannJsonDir)"</MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'@(CMakeConfiguration)' != ''"
+							>$(_MlsppCMakeArgs) -DCMAKE_CONFIGURATION_TYPES="@(CMakeConfiguration)"</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'@(CMakeConfiguration)' == ''"
+							  >$(_MlsppCMakeArgs) -DCMAKE_BUILD_TYPE="$(Configuration)"</_MlsppCMakeArgs>
+
+			<_MlsppCMakeArgs>$(_MlsppCMakeArgs) -DDISABLE_PQ=ON -DMLS_CXX_NAMESPACE="mlspp" -DDISABLE_GREASE=ON</_MlsppCMakeArgs>
+			
+			<_MlsppCMakeArgs Condition="'$(MlsppTesting)' != ''">$(_MlsppCMakeArgs) -DTESTING=$(MlsppTesting)</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeOpenSSLRoot)' != ''">$(_MlsppCMakeArgs) -DOpenSSL_ROOT="$(CMakeOpenSSLRoot) "</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeOpenSSLDir)' != ''">$(_MlsppCMakeArgs) -DOpenSSL_DIR="$(CMakeOpenSSLDir) "</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeBoringSSLRoot)' != ''">$(_MlsppCMakeArgs) -DBoringSSL_ROOT="$(CMakeBoringSSLRoot) "</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeBoringSSLDir)' != ''">$(_MlsppCMakeArgs) -DBoringSSL_DIR="$(CMakeBoringSSLDir) "</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonRoot)' != ''">$(_MlsppCMakeArgs) -Dnlohmann_json_ROOT="$(CMakeNlohmannJsonRoot) "</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs Condition="'$(CMakeNlohmannJsonDir)' != ''">$(_MlsppCMakeArgs) -Dnlohmann_json_DIR="$(CMakeNlohmannJsonDir) "</_MlsppCMakeArgs>
+
+			<_MlsppInstallPath Condition="'$(MlsppBaseInstallPath)' != ''">$(MlsppBaseInstallPath)</_MlsppInstallPath>
+			<_MlsppInstallPath Condition="'$(CMakeInstallPrefix)' != ''">$(CMakeInstallPrefix)\$(_MlsppInstallPath)</_MlsppInstallPath>
+			<_MlsppInstallPath Condition="'$(MlsppInstallPath)' != ''">$(MlsppInstallPath)</_MlsppInstallPath>
+			<_MlsppCMakeArgs Condition="'$(_MlsppInstallPath)' != ''">$(_MlsppCMakeArgs) -DCMAKE_INSTALL_PREFIX="$(_MlsppInstallPath) "</_MlsppCMakeArgs>
+
+			<MlsppBuildDir Condition="'$(MlsppBuildDir)' == ''">$(MlsppBaseBuildDir)\$(RuntimeIdentifier)\</MlsppBuildDir>
+			<_MlsppBuildDirPreType>$(MlsppBuildDir)</_MlsppBuildDirPreType>
+			
+			<MlsppCMakeBuildArgs>$(CMakeBuildArgs) $(MlsppCMakeBuildArgs)</MlsppCMakeBuildArgs>
+			<MlsppCMakeBuildArgs Condition="'$(OS)' == 'Windows_NT'">--config $(Configuration) $(MlsppCMakeBuildArgs)</MlsppCMakeBuildArgs>
+			<MlsppCMakeBuildArgs>--parallel $(MlsppCMakeBuildArgs)</MlsppCMakeBuildArgs>
 		</PropertyGroup>
+
+	</Target>
+	
+	<Target Name="MlsppPopulateProps"
+			DependsOnTargets="PopulateMlsppBaseProps">
+
+		<Warning Condition="'$(MlsppInstallPath)' != '' AND '$(CMakeInstallPrefix)' != ''"
+				 Text="&lt;MlsppInstallPath&gt; and &lt;CMakeInstallPrefix&gt; are mutually exclusive. '$(CMakeInstallPrefix)' will be ignored in favor of '$(MlsppInstallPath)'." />
+
+		<PropertyGroup>
+			<MlsppBuildDir>$(MlsppBuildDir)\static</MlsppBuildDir>
+		</PropertyGroup>
+
+		<PropertyGroup Condition="'$(CMakeStaticRT)' == 'true'">
+			<MlsppBuildDir>$(MlsppBuildDir)_rt</MlsppBuildDir>
+
+			<_MlsppCMakeArgs Condition="'$(OS)' == 'Windows_NT'">$(_MlsppCMakeArgs) -DOPENSSL_MSVC_STATIC_RT=ON -DCMAKE_PROJECT_mlspp_INCLUDE="$(MSBuildThisFileDirectory)\..\fix_msvc.cmake"</_MlsppCMakeArgs>
+		
+			<!--<_MlsppStaticFlags>-static -static-libstdc++ -static-libgcc</_MlsppStaticFlags>-->
+			<!--<_MlsppCMakeArgs>$(_MlsppCMakeArgs) -DCMAKE_CXX_FLAGS="$(CMakeFlags) $(MlsppCMakeFlags) $(_MlsppStaticFlags)"</_MlsppCMakeArgs>-->
+		</PropertyGroup>
+
+		<ItemGroup>
+			<_MlsppLibExt Include="lib;a" />
+			
+			<_MlsppCMakeConfig Include="@(CMakeConfiguration)">
+				<MSBuildProperties>%(MSBuildProperties);Configuration=%(Identity);CMakeStaticRT=$(CMakeStaticRT)</MSBuildProperties>
+				<_OutputPath>$(MlsppBuildDir)\%(Identity)</_OutputPath>
+			</_MlsppCMakeConfig>
+		
+			<_MlsppCMakeConfig Update="%(Identity)" Condition="'$(MlsppGenerator)' == '' AND '$(OS)' != 'Windows_NT'">
+				<_OutputPath>%(_OutputPath)\$(MlsppBuildOutBaseDir)</_OutputPath>
+			</_MlsppCMakeConfig>
+		</ItemGroup>
+
+		<PropertyGroup Condition="'$(MlsppGenerator)' == ''">
+			<MlsppBuildDir Condition="'$(OS)' != 'Windows_NT'">$(MlsppBuildDir)\$(Configuration)\</MlsppBuildDir>
+
+			<_MlsppCMakeOutDir>$(MlsppBuildDir)</_MlsppCMakeOutDir>
+			<_MlsppCMakeOutDir Condition="'$(OS)' != 'Windows_NT'">$(_MlsppCMakeOutDir)\$(MlsppBuildOutBaseDir)</_MlsppCMakeOutDir>
+			
+			<_MlsppCMakeArgs>$(_MlsppCMakeArgs) -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=$(_MlsppCMakeOutDir)</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs>$(_MlsppCMakeArgs) -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$(_MlsppCMakeOutDir)</_MlsppCMakeArgs>
+			<_MlsppCMakeArgs>$(_MlsppCMakeArgs) -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=$(_MlsppCMakeOutDir)</_MlsppCMakeArgs>
+		
+			<_MlsppBuildOutputPath>$(MlsppBuildDir)\$(Configuration)</_MlsppBuildOutputPath>
+			<MlsppCMakeBuildArgs Condition="'$(OS)' == 'Windows_NT'"
+								 >$(MlsppCMakeBuildArgs) -- /p:OutDir="$(_MlsppBuildOutputPath)/"</MlsppCMakeBuildArgs>
+			
+			<_MlsppBuildOutputPath Condition="'$(OS)' != 'Windows_NT'">$(MlsppBuildDir)\$(MlsppBuildOutBaseDir)</_MlsppBuildOutputPath>
+		</PropertyGroup>
+
+		<PropertyGroup>
+			<MlsppCMakeArgs>$(_MlsppCMakeArgs) $(CMakeArgs) $(MlsppCMakeArgs)</MlsppCMakeArgs>
+
+			<_MlsppConfigureCMakeArgsFile>$(MlsppBuildDir)\.cmake-args</_MlsppConfigureCMakeArgsFile>
+			<_MlsppConfigureErrorLog>$(MlsppBuildDir)\.cmake-configure-error.log</_MlsppConfigureErrorLog>
+			
+			<_MlsppBuildErrorLog>$(MlsppBuildDir)\.cmake-build-error_$(Configuration).log</_MlsppBuildErrorLog>
+			<_MlsppBuildErrorIdent>$(MlsppBuildDir)\build_error_$(Configuration)</_MlsppBuildErrorIdent>
+
+			<_MlsppInstallErrorLog>$(MlsppBuildDir)\.cmake-install-error_$(Configuration).log</_MlsppInstallErrorLog>
+		</PropertyGroup>
+		
+	</Target>
+
+	<Target Name="CheckReconfigureMlspp"
+			DependsOnTargets="MlsppPopulateProps">
 
 		<!-- Read previous value if file exists -->
 		<ReadLinesFromFile File="$(_MlsppConfigureCMakeArgsFile)" 
@@ -54,35 +134,35 @@
 			<_IsCMakeArgsChanged_>
 				$([System.String]::Compare('$(_MlsppCMakeArgsTrimmed)', '$(_PrevCMakeArgsTrimmed)'))
 			</_IsCMakeArgsChanged_>
-		</PropertyGroup>
-		<PropertyGroup>
 			<_IsCMakeArgsChanged>$(_IsCMakeArgsChanged_.Trim())</_IsCMakeArgsChanged>
 		</PropertyGroup>
 
 		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="CMakeArgs used has Changed." Importance="high" />
 		<Message Condition="'$(_IsCMakeArgsChanged)' != '0'" Text="Previous CMakeArgs: [$(_PrevCMakeArgsTrimmed)]." Importance="high" />
 
+		<PropertyGroup>
+			<_IsCMakeArgsChanged Condition="'$(CMakeClearCache)' == 'true' AND '$(_IsCMakeArgsChanged)' != '0'">-1</_IsCMakeArgsChanged>
+		</PropertyGroup>
+
+		<Delete Files="$(MlsppBuildDir)\CMakeCache.txt" Condition="'$(CMakeClearCache)' == 'true' AND '$(_IsCMakeArgsChanged)' != '0'" />
+
+		<PropertyGroup>
+			<_IsCMakeArgsChanged Condition="!Exists('$(MlsppBuildDir)\CMakeCache.txt')">-1</_IsCMakeArgsChanged>
+		</PropertyGroup>
+		
 		<!--Ensure build directory exists-->
 		<MakeDir Directories="$(MlsppBuildDir)" Condition="!Exists('$(MlsppBuildDir)')" />
-
-		<Touch AlwaysCreate="true" Condition="'$(_IsCMakeArgsChanged)' != '0' OR !Exists('$(MlsppBuildDir)\\.cmake-configure')"
-			   Files="$(MlsppBuildDir)\\.cmake-configure" />
+		
+		<Touch AlwaysCreate="true" Condition="'$(_IsCMakeArgsChanged)' != '0' OR !Exists('$(MlsppBuildDir)\.cmake-configure')"
+			   Files="$(MlsppBuildDir)\.cmake-configure" />
 
 	</Target>
 
-	<!-- Up-to-date check input so MSBuild watches CMakeLists changes -->
-	<ItemGroup>
-		<UpToDateCheckInput Include="$(MlsppCppRoot)\CMakeLists.txt" />
-		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.h"/>
-		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.c"/>
-		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.hpp"/>
-		<UpToDateCheckInput Include="$(MlsppCppRoot)\**\*.cpp"/>
-	</ItemGroup>
 	<Target Name="ConfigureMlspp"
-			DependsOnTargets="$(ConfigureMlspp_DependsOn)"
-			Inputs="$(MlsppCppRoot)\\CMakeLists.txt;$(MlsppBuildDir)\\.cmake-configure"
-			Outputs="$(MlsppBuildDir)\\CMakeFiles\\generate.stamp"
-			Condition="Exists('$(MlsppCppRoot)\\CMakeLists.txt')">
+			DependsOnTargets="CheckReconfigureMlspp"
+			Inputs="$(MlsppCppRoot)\CMakeLists.txt;$(MlsppBuildDir)\.cmake-configure"
+			Outputs="$(_MlsppConfigureCMakeArgsFile)"
+			Condition="Exists('$(MlsppCppRoot)\CMakeLists.txt')">
 
 		<Message Text="Building mlspp native library from $(MlsppCppRoot)" Importance="high" />
 		<Message Text="Build directory: $(MlsppBuildDir)" Importance="high" />
@@ -92,23 +172,23 @@
 		<Message Text="CMake arguments: $(MlsppCMakeArgs)" Importance="high" />
 
 		<!-- Delete old error log if exists -->
-		<Delete Files="$(MlsppConfigureErrorLog)" Condition="Exists('$(MlsppConfigureErrorLog)')" />
+		<Delete Files="$(_MlsppConfigureErrorLog)" Condition="Exists('$(_MlsppConfigureErrorLog)')" />
 
-		<Exec Command="cmake -S &quot;$(MlsppCppRoot)&quot; -B &quot;$(MlsppBuildDir)&quot; $(MlsppCMakeArgs) 2&gt;&quot;$(MlsppConfigureErrorLog)&quot;"
+		<Exec Command="cmake -S &quot;$(MlsppCppRoot.TrimEnd('\'))&quot; -B &quot;$(MlsppBuildDir.TrimEnd('\'))&quot; $(MlsppCMakeArgs) 2&gt;&quot;$(_MlsppConfigureErrorLog)&quot;"
 			  WorkingDirectory="$(MlsppBuildDir)"
 			  ConsoleToMSBuild="true"
 			  IgnoreExitCode="true"
 			  EchoOff="false">
-			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeConfigureExitCode" />
+			<Output TaskParameter="ExitCode" PropertyName="_MlsppConfigureExitCode" />
 		</Exec>
 
 		<!--Check for configure errors-->
-		<ReadLinesFromFile File="$(MlsppConfigureErrorLog)" Condition="Exists('$(MlsppConfigureErrorLog)')">
-			<Output TaskParameter="Lines" ItemName="MlsppCMakeConfigureErrors" />
+		<ReadLinesFromFile File="$(_MlsppConfigureErrorLog)" Condition="Exists('$(_MlsppConfigureErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="_MlsppConfigureErrors" />
 		</ReadLinesFromFile>
 
-		<Error Text="mlspp CMake configuration failed with exit code $(MlsppCMakeConfigureExitCode):%0D%0A@(MlsppCMakeConfigureErrors, '%0D%0A')"
-			   Condition="'$(MlsppCMakeConfigureExitCode)' != '0'" />
+		<Error Text="mlspp CMake configuration failed with exit code $(_MlsppConfigureExitCode):%0D%0A@(_MlsppConfigureErrors, '%0D%0A')"
+			   Condition="'$(_MlsppConfigureExitCode)' != '0'" />
 
 		<!-- overwrite and update timestamp -->
 		<WriteLinesToFile
@@ -117,35 +197,47 @@
 			Overwrite="true" />
 		
 	</Target>
-	
+	<Target Name="CleanMlsppOutputPath"
+			DependsOnTargets="MlsppPopulateProps"
+			Inputs="@(MlsppSourceFile);$(_MlsppConfigureCMakeArgsFile)"
+			Outputs="$(MlsppBuildDir)\.build-stamp;$(_MlsppBuildOutputPath)\**\*">
+		<RemoveDir Directories="$(_MlsppBuildOutputPath)" Condition="Exists('$(_MlsppBuildOutputPath)')" />
+		<MakeDir Directories="$(_MlsppBuildOutputPath)" Condition="!Exists('$(_MlsppBuildOutputPath)')" />
+	</Target>
+
 	<!-- Build mlspp native library -->
 	<Target Name="BuildMlsppNative"
-			DependsOnTargets="ConfigureMlspp"
+			DependsOnTargets="ConfigureMlspp;CleanMlsppOutputPath"
+			Inputs="@(MlsppSourceFile);$(_MlsppConfigureCMakeArgsFile)"
+			Outputs="$(MlsppBuildDir)\.build-stamp;$(_MlsppBuildOutputPath)\**\*"
 			Condition="'$(BuildMlspp)' == 'true' AND Exists('$(MlsppCppRoot)\CMakeLists.txt')">
 		
 		<!-- Delete old build error log if exists -->
-		<Delete Files="$(MlsppBuildErrorLog)" Condition="Exists('$(MlsppBuildErrorLog)')" />
+		<Delete Files="$(_MlsppBuildErrorLog)" Condition="Exists('$(_MlsppBuildErrorLog)')" />
+
+		<Message Text="Building mlspp native library..." Importance="high" />
+		<Message Text="CMake build arguments: $(MlsppCMakeBuildArgs)" Importance="high" />
 
 		<!-- Use cmake build for better cross-platform compatibility -->
-		<Exec Command="cmake --build &quot;$(MlsppBuildDir)&quot; --config $(Configuration) --parallel 2&gt;&quot;$(MlsppBuildErrorLog)&quot;"
+		<Exec Command="cmake --build &quot;$(MlsppBuildDir.TrimEnd('\'))&quot; $(MlsppCMakeBuildArgs) 2&gt;&quot;$(_MlsppBuildErrorLog)&quot;"
 			  WorkingDirectory="$(MlsppBuildDir)"
 			  ConsoleToMSBuild="true"
 			  IgnoreExitCode="true"
 			  EchoOff="false">
-			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeBuildExitCode" />
+			<Output TaskParameter="ExitCode" PropertyName="_MlsppBuildExitCode" />
 		</Exec>
 
 		<!--Check for build errors-->
-		<ReadLinesFromFile File="$(MlsppBuildErrorLog)" Condition="Exists('$(MlsppBuildErrorLog)')">
-			<Output TaskParameter="Lines" ItemName="MlsppCMakeBuildErrors" />
+		<ReadLinesFromFile File="$(_MlsppBuildErrorLog)" Condition="Exists('$(_MlsppBuildErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="_MlsppBuildErrors" />
 		</ReadLinesFromFile>
 
 		 <!--Error with detailed message if build failed--> 
-		<Error Text="mlspp CMake build failed with exit code $(MlsppCMakeBuildExitCode):%0D%0A@(MlsppCMakeBuildErrors, '%0D%0A')"
-			   Condition="'$(MlsppCMakeBuildExitCode)' != '0'" />
+		<Error Text="mlspp CMake build failed with exit code $(_MlsppBuildExitCode):%0D%0A@(_MlsppBuildErrors, '%0D%0A')"
+			   Condition="'$(_MlsppBuildExitCode)' != '0'" />
 
 		<!-- Create stamp file to track build completion -->
-		<Touch Files="$(MlsppBuildStampFile)" AlwaysCreate="true" />
+		<Touch Files="$(MlsppBuildDir)\.build-stamp" AlwaysCreate="true" />
 
 		<Message Text="========================================" Importance="high" />
 		<Message Text="mlspp native library built successfully" Importance="high" />
@@ -155,41 +247,152 @@
 		<PropertyGroup>
 			<CMakeMlsppDir>$(MlsppBuildDir)</CMakeMlsppDir>
 		</PropertyGroup>
-	</Target>
-
-	<!-- Define all configurations to build when packing -->
-	<ItemGroup>
-		<_MlsppConfig Include="$(CMakeConfigs.Split(';'))" />
-		<_MlsppConfig Remove="$(Configuration)" />
-	</ItemGroup>
-
-	<Target Name="BuildMlsppForPackage"
-			Condition="'$(BuildMlspp)' == 'true' AND Exists('$(MlsppCppRoot)\CMakeLists.txt')"
-			Outputs="MlsppPackage_%(_MlsppConfig.Identity)">
-
-		<Message Text="Building mlspp configuration: %(_MlsppConfig.Identity)" Importance="high" />
-
-		<Delete Files="$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log" />
-
-		<Exec Command='cmake --build "$(MlsppBuildDir)" --config %(_MlsppConfig.Identity) --parallel 2> "$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log"'
-			  WorkingDirectory="$(MlsppBuildDir)"
-			  IgnoreExitCode="true"
-			  EchoOff="false">
-			<Output TaskParameter="ExitCode" PropertyName="MlsppCMakeBuildExitCode_%(_MlsppConfig.Identity)" />
-		</Exec>
-
-		<ReadLinesFromFile
-		  File="$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log"
-		  Condition="Exists('$(MlsppBuildDir)\build_error_%(_MlsppConfig.Identity).log')">
-			<Output TaskParameter="Lines" ItemName="MlsppCMakeBuildErrors_%(_MlsppConfig.Identity)" />
-		</ReadLinesFromFile>
-
-		<Error
-		  Text="mlspp CMake build failed for configuration %(_MlsppConfig.Identity):&#x0D;&#x0A;@(MlsppCMakeBuildErrors_%(_MlsppConfig.Identity), '&#x0D;&#x0A;')"
-		  Condition="'$(MlsppCMakeBuildExitCode_%(_MlsppConfig.Identity))' != '0'" />
-
-		<Message Text="Mlspp configuration %(_MlsppConfig.Identity) built successfully." Importance="high" />
-
+	
+		<!-- Set remainding config to build -->
+		<ItemGroup Condition="'@(_MlsppCMakeConfig)' != ''">
+			<_MlsppCMakeConfigRemain Include="@(_MlsppCMakeConfig)" />
+			<_MlsppCMakeConfigRemain Remove="$(Configuration)" />
+		</ItemGroup>
+		
+		<ItemGroup>
+			<_MlsppBuildOutput Include="$(_MlsppBuildOutputPath)\**\*"/>
+			<_MlsppBuildOutput Update="%(Identity)" Condition="'$(MlsppCopyBuildOutput)' == 'true'">
+				<_CopyPath>-> $(MSBuildProjectDirectory)\$(OutputPath)\$(MlsppBaseOutputPath)\$([MSBuild]::MakeRelative('$(_MlsppBuildOutputPath)', '%(FullPath)'))</_CopyPath>
+			</_MlsppBuildOutput>
+		</ItemGroup>
 	</Target>
 	
+	<Target Name="MlsppOutputs"
+			DependsOnTargets="BuildMlsppNative">
+		
+		<ItemGroup Condition="'$(MlsppCopyBuildOutput)' == 'true'">
+			<None Include="@(_MlsppBuildOutputPath)">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				<TargetPath>$(MlsppBaseOutputPath)\$([MSBuild]::MakeRelative('$(_MlsppBuildOutputPath)', '%(FullPath)'))</TargetPath>
+			</None>
+		</ItemGroup>
+
+		<Message Text="mlspp outputs:" Importance="high"/>
+		<Message Text="  %(_MlsppBuildOutput.Identity) %(_MlsppBuildOutput._CopyPath)" Importance="high"/>
+	</Target>
+
+	<Target Name="InstallMlsppAfterBuild"
+			DependsOnTargets="MlsppInstall"
+			Condition="'$(InstallMlsppAfterBuild)' == 'true'" />
+	
+	<Target Name="MlsppInstall"
+			DependsOnTargets="BuildMlsppNative"
+			Inputs="$(MlsppBuildDir)\.build-stamp"
+			Outputs="$(_MlsppInstallPath)\**\*">
+		
+		<Error Text="Mlspp installation path is not specified. Set 'MlsppBaseInstallPath' or 'CMakeInstallPrefix' property to enable installation."
+			   Condition="'$(_MlsppInstallPath)' == ''" />
+
+		<Message Text="[Install] mlspp -> $(_MlsppInstallPath)" Importance="high" />
+
+		<Delete Files="$(_MlsppInstallErrorLog)" Condition="Exists('$(_MlsppInstallErrorLog)')" />
+
+		<MakeDir Directories="$(_MlsppInstallPath)" Condition="!Exists('$(_MlsppInstallPath)')" />
+		
+		<Exec Command="cmake --install &quot;$(MlsppBuildDir.TrimEnd('\'))&quot; 2&gt;&quot;$(_MlsppInstallErrorLog)&quot;"
+			  WorkingDirectory="$(MlsppBuildDir)"
+			  ConsoleToMSBuild="true"
+			  IgnoreExitCode="true"
+			  EchoOff="false">
+			<Output TaskParameter="ExitCode" PropertyName="_MlsppInstallExitCode" />
+		</Exec>
+
+		<ReadLinesFromFile File="$(_MlsppInstallErrorLog)" Condition="Exists('$(_MlsppInstallErrorLog)')">
+			<Output TaskParameter="Lines" ItemName="_MlsppInstallErrors" />
+		</ReadLinesFromFile>
+		
+		<Error Text="mlspp CMake install failed with exit code $(_MlsppInstallExitCode):%0D%0A@(_MlsppInstallErrors, '%0D%0A')"
+			   Condition="'$(_MlsppInstallExitCode)' != '0'" />
+
+		<ItemGroup>
+			<_MlsppInstalled Include="$(_MlsppInstallPath)\**\*"/>
+		</ItemGroup>
+
+		<Message Text="Mlspp installed: %(_MlsppInstalled.Identity)" Importance="high" />
+	
+		<!-- Set libdave location for use -->
+		<PropertyGroup>
+			<CMakeMlsppDir>$(_MlsppInstallPath)\share\MLSPP\</CMakeMlsppDir>
+		</PropertyGroup>
+
+	</Target>
+
+	<Target Name="BuildMlsppMultiConfig"
+			DependsOnTargets="MlsppPopulateProps">
+
+		<PropertyGroup>
+			<!-- Prepare args -->
+			<_Args>$(MlsppCMakeBuildArgs.Replace('=', ' '))</_Args>
+			<_Pattern>(?:^|\s)(?:-j|--parallel)\s*(\d+)</_Pattern>
+    
+			<!-- Check if pattern exists -->
+			<_HasParallel>$([System.Text.RegularExpressions.Regex]::IsMatch('$(_Args)', '$(_Pattern)'))</_HasParallel>
+    
+			<!-- Extract last occurrence if exists -->
+			<_TotalJobs Condition="'$(_HasParallel)' == 'True'">$([System.Text.RegularExpressions.Regex]::Match('$(_Args)', '.*(?:-j|--parallel)\s*(\d+)').Groups[1].Value)</_TotalJobs>
+			<_TotalJobs Condition="'$(_TotalJobs)' == ''">$([System.Environment]::ProcessorCount)</_TotalJobs>
+    
+			<!-- Divide by config count -->
+			<_ConfigCount>@(_MlsppCMakeConfigRemain->Count())</_ConfigCount>
+			<_ConfigCount Condition="'$(_ConfigCount)' == '0' AND '$(Configuration)' != ''">1</_ConfigCount>
+			<JobsPerConfig>$([MSBuild]::Divide($(_TotalJobs), $(_ConfigCount)))</JobsPerConfig>
+			<JobsPerConfig Condition="$(JobsPerConfig) &lt; 1">1</JobsPerConfig>
+		
+			<_MlsppIntCMakeBuildArgs Condition="'$(JobsPerConfig)' != '1'">MlsppCMakeBuildArgs=-j$(JobsPerConfig)</_MlsppIntCMakeBuildArgs>
+		</PropertyGroup>
+  
+		<Message Text="Jobs per config: $(JobsPerConfig) (Total: $(_TotalJobs), Configs: $(_ConfigCount))" Importance="High" />
+		
+		<!-- Create project items with metadata instead of batching -->
+		<ItemGroup>
+			<_MLsppConfigToBuild Include="$(MSBuildProjectFile)">
+				<Properties>$(_MlsppIntCMakeBuildArgs);%(_MlsppCMakeConfigRemain.MSBuildProperties)</Properties>
+				<Targets>BuildMlsppNative</Targets>
+			</_MLsppConfigToBuild>
+		</ItemGroup>
+  
+		<MSBuild Projects="@(_MLsppConfigToBuild)"
+				Targets="%(_MLsppConfigToBuild.Targets)"
+				StopOnFirstFailure="true"
+				Condition="'@(_MlsppCMakeConfigRemain)' != ''"/>
+
+		<Message Text="All mlspp native library configurations built successfully." Importance="high" />
+
+	</Target>
+
+	<Target Name="PackageMlsppLib" DependsOnTargets="BuildMlsppMultiConfig">
+		
+		<ItemGroup>
+			<_MlsppOuts Include="@(_MlsppCMakeConfig)">
+				<_Ext>%(_MlsppLibExt.Identity)</_Ext>
+			</_MlsppOuts>
+			<_MlsppOuts Update="%(Identity)" Condition="'$(CMakeStaticRT)' == 'true'">
+				<_OutputPath>$(_MlsppBuildDirPreType)\static_rt\$([MSBuild]::MakeRelative('$(_MlsppBuildDirPreType)\static', '%(_OutputPath)'))</_OutputPath>
+			</_MlsppOuts>
+
+			<_MlsppPackageFiles Include="%(_MlsppOuts._OutputPath)\**\*.%(_MlsppOuts._Ext)" >
+				<_Config>%(_MlsppOuts.Identity)</_Config>
+				<_OutputPath>%(_MlsppOuts._OutputPath)</_OutputPath>
+			</_MlsppPackageFiles>
+		</ItemGroup>
+
+		<ItemGroup>
+			<None Include="@(_MlsppPackageFiles)">
+				<Pack>true</Pack>
+				<PackagePath>lib\$(RuntimeIdentifier)\%(_MlsppPackageFiles._Config)\$([MSBuild]::MakeRelative('%(_MlsppPackageFiles._OutputPath)', '%(_MlsppPackageFiles.FullPath)'))</PackagePath>
+			</None>
+
+			<None Include="@(_MlsppPackageFiles)" />
+		</ItemGroup>
+
+		<Message Text="$(MSBuildProjectName) packaged items:" Importance="high" />
+		<Message Text="  %(None.Identity) -> [pkg].\%(None.PackagePath)" Importance="high" Condition="'%(None.Pack)' == 'true'" />
+
+	</Target>
+
 </Project>

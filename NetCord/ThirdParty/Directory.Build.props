@@ -2,6 +2,8 @@
 	<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" Condition="'' != $([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 	
 	<PropertyGroup>
+		<CMakeStaticRT Condition="'$(CMakeStaticRT)' == ''">false</CMakeStaticRT>
+
 		<!-- Prebuilt library paths (customize these) -->
 		<!-- Use _ROOT to point to installation directory, or _DIR to point directly to CMake config directory -->
 		<CMakeOpenSSLRoot Condition="'$(CMakeOpenSSLRoot)' == ''"></CMakeOpenSSLRoot>
@@ -13,23 +15,58 @@
 		<CMakeMlsppRoot Condition="'$(CMakeMlsppRoot)' == ''"></CMakeMlsppRoot>
 		<CMakeMlsppDir Condition="'$(CMakeMlsppDir)' == ''"></CMakeMlsppDir>
 	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)\LICENSE.md" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'@(CMakeConfiguration)' == ''">
+		<!--<CMakeConfiguration Include="RelWithDebInfo">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>-->
+		<CMakeConfiguration Include="MinSizeRel">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>
+	</ItemGroup>
 
 	<PropertyGroup>
-		<CMakeConfigs Condition="'$(CMakeConfigs)' == ''">Debug;Release;RelWithDebInfo;MinSizeRel</CMakeConfigs>
-		<CMakeArgs>$(CMakeArgs) -DCMAKE_CONFIGURATION_TYPES="$(CMakeConfigs)"</CMakeArgs>
+		<_BuildArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</_BuildArch>
+		<_BuildRuntime Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</_BuildRuntime>
+		<_BuildRuntime Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_BuildRuntime>
+		<_BuildRuntime Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_BuildRuntime>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">$(_BuildRuntime)-$(_BuildArch.ToLower())</RuntimeIdentifier>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<CMakeClearCache>true</CMakeClearCache>
+		<RestoreSources Condition="'$(PackageOutputPath)' != ''">$(PackageOutputPath);$(RestoreSources)</RestoreSources>
+		<RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x64;linux-x64</RuntimeIdentifiers>
+
+		<!-- Future plan complete platform support -->
+		<!--<RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x86;win-x64;linux-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>-->
+		
+		<!-- For UNIX PIC-compatible .a objects -->
+		<CMakeArgs Condition="'$(OS)' != 'Windows_NT'">$(CMakeArgs) -DCMAKE_POSITION_INDEPENDENT_CODE=ON</CMakeArgs>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''">
-		<ConfigureLibdave_DependsOn>ConfigureMlspp</ConfigureLibdave_DependsOn>
-		<BuildLibdave_DependsOn>BuildMlsppNative</BuildLibdave_DependsOn>
-		<BuildLibdavePackage_DependsOn>BuildMlsppForPackage</BuildLibdavePackage_DependsOn>
 		<MlsppDir>$(MSBuildThisFileDirectory)\MLSpp\</MlsppDir>
+		<Building_DependsOn>BuildMlsppNative;MlsppOutputs;$(Building_DependsOn)</Building_DependsOn>
+		<Installing_DependsOn>MlsppInstall;$(Installing_DependsOn)</Installing_DependsOn>
+		<Cleaning_DependsOn>CleanMlsppNative;$(Cleaning_DependsOn)</Cleaning_DependsOn>
+		<Packing_DependsOn>PackageMlsppLib;$(Packing_DependsOn)</Packing_DependsOn>
+		<AlsoCleanMlspp>true</AlsoCleanMlspp>
 	</PropertyGroup>
-	<Import Project="$(MlsppDir)\MLSpp.build.props" Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
-	<Import Project="$(MlsppDir)\MLSpp.build.targets" Condition="'$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
 
-	<PropertyGroup>
-		<CheckCMakeVersionCompatibility_BeforeTargets>$(BuildLibdave_DependsOn)</CheckCMakeVersionCompatibility_BeforeTargets>
+	<Import Project="$(MlsppDir)\MLSpp.build.props" Condition="'$(MSBuildProjectName)' != 'Libdave.Manager' AND '$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
+	<Import Project="$(MlsppDir)\MLSpp.build.targets" Condition="'$(MSBuildProjectName)' != 'Libdave.Manager' AND '$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
+
+	<PropertyGroup Condition="'$(CMakeOpenSSLRoot)' == '' AND '$(CMakeOpenSSLDir)' == ''">
+		<Packing_DependsOn>PackageOpenSSLLib;$(Packing_DependsOn)</Packing_DependsOn>
 	</PropertyGroup>
-	
+
+	<Import Project="$(MSBuildThisFileDirectory)\FindOpenSSL.targets"
+			Condition="'$(CMakeOpenSSLRoot)' == '' AND '$(CMakeOpenSSLDir)' == ''
+						AND '$(CMakeBoringSSLRoot)' == '' AND '$(CMakeBoringSSLDir)' == ''" />
+
 </Project>

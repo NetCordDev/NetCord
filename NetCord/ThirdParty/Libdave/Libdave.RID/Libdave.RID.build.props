@@ -1,0 +1,66 @@
+<Project>
+
+	<PropertyGroup>
+		<CMakeStaticRT Condition="'$(CMakeStaticRT)' == ''">false</CMakeStaticRT>
+		
+		<!-- Prebuilt library paths (customize these) -->
+		<!-- Use _ROOT to point to installation directory, or _DIR to point directly to CMake config directory -->
+		<CMakeOpenSSLRoot Condition="'$(CMakeOpenSSLRoot)' == ''"></CMakeOpenSSLRoot>
+		<CMakeOpenSSLDir Condition="'$(CMakeOpenSSLDir)' == ''"></CMakeOpenSSLDir>
+		<CMakeBoringSSLRoot Condition="'$(CMakeBoringSSLRoot)' == ''"></CMakeBoringSSLRoot>
+		<CMakeBoringSSLDir Condition="'$(CMakeBoringSSLDir)' == ''"></CMakeBoringSSLDir>
+		<CMakeNlohmannJsonRoot Condition="'$(CMakeNlohmannJsonRoot)' == ''"></CMakeNlohmannJsonRoot>
+		<CMakeNlohmannJsonDir Condition="'$(CMakeNlohmannJsonDir)' == ''"></CMakeNlohmannJsonDir>
+		<CMakeMlsppRoot Condition="'$(CMakeMlsppRoot)' == ''"></CMakeMlsppRoot>
+		<CMakeMlsppDir Condition="'$(CMakeMlsppDir)' == ''"></CMakeMlsppDir>
+	</PropertyGroup>
+
+	<!-- libdave CMake Build Integration -->
+	<PropertyGroup>
+		<BuildLibdave Condition="'$(BuildLibdave)' == ''">true</BuildLibdave>
+		<!--<InstallLibdaveAfterBuild Condition="'$(InstallLibdaveAfterBuild)' == ''">true</InstallLibdaveAfterBuild>-->
+		<AlsoCleanLibdave Condition="'$(AlsoCleanLibdave)' == ''">false</AlsoCleanLibdave>
+		<LibdaveCppRoot Condition="'$(LibdaveCppRoot)' == ''">$(MSBuildThisFileDirectory)\..\libdave\cpp</LibdaveCppRoot>
+		<LibdaveGenerator Condition="'$(LibdaveGenerator)' == ''"></LibdaveGenerator>
+		<LibdaveBuildShared Condition="'$(LibdaveBuildShared)' == ''">true</LibdaveBuildShared>
+		<LibdaveBaseBuildDir Condition="'$(LibdaveBaseBuildDir)' == ''">$(MSBuildThisFileDirectory)\..\libdave_build\</LibdaveBaseBuildDir>
+		<!-- Set to 'out\' so that the outputs ends up in '$(LibdaveBaseBuildDir)\out\', especially when using custom $(LibdaveGenerator) -->
+		<LibdaveBuildOutBaseDir Condition="'$(LibdaveBuildOutBaseDir)' == ''">out\</LibdaveBuildOutBaseDir>
+		<LibdaveCopyBuildOutput Condition="'$(LibdaveCopyBuildOutput)' == ''">true</LibdaveCopyBuildOutput>
+		<!-- Set to 'libdave_install\' so that the installed files 
+			ends up in $(CMakeInstallPrefix)\libdave_install\ or $(LibdaveBaseBuildDir)\libdave_install\ -->
+		<LibdaveBaseInstallPath Condition="'$(LibdaveBaseInstallPath)' == ''">libdave_install\</LibdaveBaseInstallPath>
+		<!-- Set to 'native\' so that the outputs ends up in '$(OutputPath)\native\' -->
+		<LibdaveBaseOutputPath Condition="'$(LibdaveBaseOutputPath)' == ''"></LibdaveBaseOutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<BuildPropsTemplate>build.props.in</BuildPropsTemplate>
+		<BuildTargetsTemplate>build.targets.in</BuildTargetsTemplate>
+	</PropertyGroup>
+
+	<!-- Populate CMake configurations and specific MSBuild properties -->
+	<ItemGroup Condition="'@(CMakeConfiguration)' == ''">
+		<CMakeConfiguration Include="RelWithDebInfo">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>
+		<CMakeConfiguration Include="MinSizeRel">
+			<MSBuildProperties></MSBuildProperties>
+		</CMakeConfiguration>
+	</ItemGroup>
+
+	<!-- Up-to-date check input so MSBuild watches indirect changes -->
+	<ItemGroup>
+		<LibdaveSourceFile Include="$(LibdaveCppRoot)\**\*.h"/>
+		<LibdaveSourceFile Include="$(LibdaveCppRoot)\**\*.c"/>
+		<LibdaveSourceFile Include="$(LibdaveCppRoot)\**\*.hpp"/>
+		<LibdaveSourceFile Include="$(LibdaveCppRoot)\**\*.cpp"/>
+
+		<UpToDateCheckInput Include="$(BuildPropsTemplate)"/>
+		<UpToDateCheckInput Include="$(BuildTargetsTemplate)"/>
+		
+		<UpToDateCheckInput Include="@(LibdaveSourceFile)"/>
+		<UpToDateCheckInput Include="$(LibdaveCppRoot)\CMakeLists.txt"/>
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+<Project>
+
+	<PropertyGroup>
+		<LibdaveVersion>__PACK_VER__</LibdaveVersion>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<_LibdaveRefArch>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</_LibdaveRefArch>
+		<_LibdaveRefArch>$(_LibdaveRefArch.ToLower())</_LibdaveRefArch>
+		<_LibdaveRuntime Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</_LibdaveRuntime>
+		<_LibdaveRuntime Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_LibdaveRuntime>
+		<_LibdaveRuntime Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_LibdaveRuntime>
+
+		<LibdaveRidToProvide Condition="'$(_LibdaveRuntime)' != ''">$(_LibdaveRuntime)-$(_LibdaveRefArch)</LibdaveRidToProvide>
+	</PropertyGroup>
+
+</Project>

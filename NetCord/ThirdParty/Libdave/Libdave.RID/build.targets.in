@@ -1,0 +1,62 @@
+<Project>
+
+	<Target Name="PrepareLibdaveNativeAot___Runtime_ID__">
+		<ItemGroup>
+			<_LibdaveLinked Include="%(DirectPInvoke.Identity)" Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="LinkLibdaveNativeAot___Runtime_ID__"
+			DependsOnTargets="PrepareLibdaveNativeAot___Runtime_ID__"
+			BeforeTargets="SetupOSSpecificProps"
+			Condition="'$(RuntimeIdentifier)' == '__Runtime_ID__'">
+
+		<PropertyGroup Condition="'@(_LibdaveLinked)' != ''">
+			<_LibDaveConfig>MinSizeRel</_LibDaveConfig>__DebugableProp__
+			<_LibdaveNativePath>$(MSBuildThisFileDirectory)\..\lib\__Runtime_ID__\</_LibdaveNativePath>
+		</PropertyGroup>
+
+		<ItemGroup Condition="'@(_LibdaveLinked)' != ''">
+			<_LibDaveLinkedLibs Include="$(_LibdaveNativePath)\__Runtime_Lib__" />
+			<_LibDaveLinkedLibs Include="$(_LibdaveNativePath)\$(_LibDaveConfig)\__Runtime_Lib__" />
+			<NativeLibrary Include="@(_LibDaveLinkedLibs)" />
+		</ItemGroup>
+
+		<Message Condition="'@(_LibdaveLinked)' != ''" Importance="high"
+				 Text="Linking: '%(_LibDaveLinkedLibs.Identity)'" />
+
+		<ItemGroup Condition="'@(_LibdaveLinked)' != ''" >
+			<_LibDaveLinkedLibs Remove="@(_LibDaveLinkedLibs)" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="LibdaveNativeFilesToCopy___Runtime_ID__"
+			DependsOnTargets="PrepareLibdaveNativeAot___Runtime_ID__"
+			BeforeTargets="BeforeBuild"
+			Condition="'$(LibdaveCopyNativeFiles)' == 'true'">
+
+		<PropertyGroup Condition="'@(_LibdaveLinked)' == ''">
+			<_LibDaveConfig>MinSizeRel</_LibDaveConfig>__DebugableProp__
+			<_LibdaveNativePath>$(MSBuildThisFileDirectory)\..\lib\__Runtime_ID__\$(_LibDaveConfig)</_LibdaveNativePath>
+		</PropertyGroup>
+
+		<ItemGroup Condition="'@(_LibdaveLinked)' == ''">
+			<_LibdaveNativeFile Include="$(_LibdaveNativePath)\__Runtime_Run__">
+				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+				<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+			</_LibdaveNativeFile>
+			<_LibdaveNativeFile Update="%(Identity)">
+				<_CopyPath>-> $(MSBuildProjectDirectory)\$(OutputPath)\$(LibdaveBaseOutputPath)\%(Filename)%(Extension)</_CopyPath>
+				<TargetPath>$(LibdaveBaseOutputPath)\%(Filename)%(Extension)</TargetPath>
+			</_LibdaveNativeFile>
+
+			<None Include="@(_LibdaveNativeFile)" />
+
+			<_LibdaveNativeFile Remove="@(_LibdaveNativeFile)" />
+		</ItemGroup>
+
+		<Message Condition="'@(_LibdaveLinked)' == ''" Importance="high"
+				 Text="%(_LibdaveNativeFile.Identity) %(_LibdaveNativeFile._CopyPath)" />
+	</Target>
+
+</Project>

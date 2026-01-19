@@ -1,0 +1,13 @@
+<Project>
+
+	<PropertyGroup>
+		<BuildPropsTemplate>manage.build.props.in</BuildPropsTemplate>
+		<BuildTargetsTemplate>manage.build.targets.in</BuildTargetsTemplate>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<UpToDateCheckInput Include="$(BuildPropsTemplate)" />
+		<UpToDateCheckInput Include="$(BuildTargetsTemplate)" />
+	</ItemGroup>
+
+</Project>

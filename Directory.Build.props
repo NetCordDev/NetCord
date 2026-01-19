@@ -40,6 +40,7 @@
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)\Resources\NuGet\README.md" Pack="true" PackagePath="" />
     <None Include="$(MSBuildThisFileDirectory)\Resources\NuGet\ICON.png" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)\LICENSE.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

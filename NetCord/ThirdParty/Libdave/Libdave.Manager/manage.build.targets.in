@@ -1,0 +1,9 @@
+<Project>
+
+	<Target Name="ProvideBinariesCheck" BeforeTargets="BeforeBuild">
+
+		<Warning Code="NC4001" Condition="'$(_LibdaveRuntime)' == ''" Text="Unsupported OS platform for Libdave prebuilt binaries. No binaries will be provided." />
+
+	</Target>
+
+</Project>
