@@ -21,10 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="dave.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="dave.pdb">
+    <None Update="libdave.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="libsodium.dll">

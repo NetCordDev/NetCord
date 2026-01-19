@@ -18,7 +18,7 @@ public class DaveDecryptorException(string? message) : Exception(message)
 
 internal static unsafe partial class Dave
 {
-    private const string DllName = "dave";
+    private const string DllName = "libdave";
 
     public const int InitTransitionId = 0;
 
@@ -111,6 +111,9 @@ internal static unsafe partial class Dave
     {
         Success = 0,
         EncryptionFailure = 1,
+        MissingKeyRatchet = 2,
+        MissingCryptor = 3,
+        TooManyAttempts = 4,
     }
 
     public enum DecryptorResultCode

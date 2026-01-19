@@ -15,36 +15,38 @@ public partial class VoiceClient
 {
     internal readonly ref struct DaveEncryptor(EncryptorHandle encryptor)
     {
-        public unsafe int Encrypt(uint ssrc, ReadOnlySpan<byte> frame, Span<byte> encryptedFrame)
+        public readonly unsafe EncryptorResultCode Encrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, Span<byte> encryptedFrame, out int bytesWritten)
         {
             EncryptorResultCode result;
-            nuint bytesWritten;
+            nuint rawBytesWritten;
 
             fixed (byte* frameP = frame, encryptedFrameP = encryptedFrame)
-                result = EncryptorEncrypt(encryptor, MediaType.Audio, ssrc, frameP, (uint)frame.Length, encryptedFrameP, (nuint)encryptedFrame.Length, out bytesWritten);
+                result = EncryptorEncrypt(encryptor, mediaType, ssrc, frameP, (uint)frame.Length, encryptedFrameP, (nuint)encryptedFrame.Length, out rawBytesWritten);
 
-            return result is EncryptorResultCode.Success ? (int)bytesWritten : -1;
+            bytesWritten = (int)rawBytesWritten;
+            return result;
         }
 
-        public readonly int GetMaxCiphertextByteSize(int plaintextByteSize)
-            => (int)EncryptorGetMaxCiphertextByteSize(encryptor, MediaType.Audio, (nuint)plaintextByteSize);
+        public readonly int GetMaxCiphertextByteSize(MediaType mediaType, int plaintextByteSize)
+            => (int)EncryptorGetMaxCiphertextByteSize(encryptor, mediaType, (nuint)plaintextByteSize);
     }
 
     internal struct DaveDecryptor(DecryptorHandle decryptor)
     {
-        public readonly unsafe int Decrypt(uint ssrc, ReadOnlySpan<byte> encryptedFrame, Span<byte> frame)
+        public readonly unsafe DecryptorResultCode Decrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> encryptedFrame, Span<byte> frame, out int bytesWritten)
         {
             DecryptorResultCode result;
-            nuint bytesWritten;
+            nuint rawBytesWritten;
 
             fixed (byte* encryptedFrameP = encryptedFrame, frameP = frame)
-                result = DecryptorDecrypt(decryptor, MediaType.Audio, encryptedFrameP, (nuint)encryptedFrame.Length, frameP, (nuint)frame.Length, out bytesWritten);
+                result = DecryptorDecrypt(decryptor, mediaType, encryptedFrameP, (nuint)encryptedFrame.Length, frameP, (nuint)frame.Length, out rawBytesWritten);
 
-            return result is DecryptorResultCode.Success ? (int)bytesWritten : -1;
+            bytesWritten = (int)rawBytesWritten;
+            return result;
         }
 
-        public readonly int GetMaxPlaintextByteSize(int ciphertextByteSize)
-            => (int)DecryptorGetMaxPlaintextByteSize(decryptor, MediaType.Audio, (nuint)ciphertextByteSize);
+        public readonly int GetMaxPlaintextByteSize(MediaType mediaType, int ciphertextByteSize)
+            => (int)DecryptorGetMaxPlaintextByteSize(decryptor, mediaType, (nuint)ciphertextByteSize);
     }
 
     internal class DaveSession : IDisposable

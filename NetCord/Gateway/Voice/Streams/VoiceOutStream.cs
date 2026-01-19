@@ -58,18 +58,32 @@ internal class VoiceOutStream(VoiceClient client) : Stream
         if (session.GetProtocolVersion() is not 0)
         {
             var daveEncryptor = session.GetEncryptor();
-            var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
+            var length = daveEncryptor.GetMaxCiphertextByteSize(Dave.MediaType.Audio, buffer.Length);
             daveArray = ArrayPool<byte>.Shared.Rent(length);
 
-            int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer, daveArray);
+            int bytesWritten;
 
-            if (written is -1)
+            while (true)
             {
+                var result = daveEncryptor.Encrypt(Dave.MediaType.Audio, client.Cache.Ssrc, buffer, daveArray, out bytesWritten);
+
+                if (result is Dave.EncryptorResultCode.Success)
+                    break;
+
+                if (result is Dave.EncryptorResultCode.MissingKeyRatchet)
+                {
+                    ArrayPool<byte>.Shared.Return(daveArray);
+                    return;
+                }
+
+                if (result is Dave.EncryptorResultCode.TooManyAttempts)
+                    continue;
+
                 ArrayPool<byte>.Shared.Return(daveArray);
-                return;
+                throw new DaveEncryptorException(result);
             }
 
-            buffer = daveArray.AsSpan(0, written);
+            buffer = daveArray.AsSpan(0, bytesWritten);
         }
 
         int datagramLength = buffer.Length + encryption.Expansion + 12;
@@ -98,18 +112,32 @@ internal class VoiceOutStream(VoiceClient client) : Stream
         if (session.GetProtocolVersion() is not 0)
         {
             var daveEncryptor = session.GetEncryptor();
-            var length = daveEncryptor.GetMaxCiphertextByteSize(buffer.Length);
+            var length = daveEncryptor.GetMaxCiphertextByteSize(Dave.MediaType.Audio, buffer.Length);
             daveArray = ArrayPool<byte>.Shared.Rent(length);
 
-            int written = daveEncryptor.Encrypt(client.Cache.Ssrc, buffer.Span, daveArray);
+            int bytesWritten;
 
-            if (written is -1)
+            while (true)
             {
+                var result = daveEncryptor.Encrypt(Dave.MediaType.Audio, client.Cache.Ssrc, buffer.Span, daveArray, out bytesWritten);
+
+                if (result is Dave.EncryptorResultCode.Success)
+                    break;
+
+                if (result is Dave.EncryptorResultCode.MissingKeyRatchet)
+                {
+                    ArrayPool<byte>.Shared.Return(daveArray);
+                    return;
+                }
+
+                if (result is Dave.EncryptorResultCode.TooManyAttempts)
+                    continue;
+
                 ArrayPool<byte>.Shared.Return(daveArray);
-                return;
+                throw new DaveEncryptorException(result);
             }
 
-            buffer = daveArray.AsMemory(0, written);
+            buffer = daveArray.AsMemory(0, bytesWritten);
         }
 
         int datagramLength = buffer.Length + encryption.Expansion + 12;

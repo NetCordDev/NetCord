@@ -627,11 +627,18 @@ public sealed partial class VoiceClient : WebSocketClient
                             : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
                         : 0;
 
-                    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(plaintextLength - extensionLength);
+                    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextLength - extensionLength);
                     var daveArray = ArrayPool<byte>.Shared.Rent(daveArrayLength);
-                    int written = decryptor.Decrypt(packet.Ssrc, plaintext[extensionLength..], daveArray);
+                    var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintext[extensionLength..], daveArray, out int bytesWritten);
 
-                    return new VoiceReceiveEventArgs(daveArray, 0, written, ssrc);
+                    ArrayPool<byte>.Shared.Return(array);
+
+                    if (result is Dave.DecryptorResultCode.Success)
+                        return new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc);
+
+                    ArrayPool<byte>.Shared.Return(daveArray);
+
+                    throw new DaveDecryptorException(result);
                 }, args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);
