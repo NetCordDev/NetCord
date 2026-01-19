@@ -62,7 +62,18 @@ public sealed class CommandServiceTesterSession
         }
         catch (Exception ex)
         {
-            Assert.Fail($"Assertion failed for command '{command}'.\n{ex.Message}");
+            Assert.Fail($"Assertion failed for command '{command}' when invoking it with the 'prefixLength' overload.\n{ex.Message}");
+        }
+
+        result = await _service.ExecuteAsync(message.Content.AsMemory(), context, services).ConfigureAwait(false);
+
+        try
+        {
+            resultHandler.Handle(result);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Assertion failed for command '{command}' when invoking it with the 'ReadOnlyMemory<char>' overload.\n{ex.Message}");
         }
     }
 }
