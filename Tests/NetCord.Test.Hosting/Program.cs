@@ -225,6 +225,18 @@ host.AddComponentInteraction<ModalInteractionContext>("file upload", async (Http
     };
 });
 
+host.AddSlashCommand("modal-test", "Radio Group!", () =>
+{
+    ModalProperties modal = new("modal", "Radio Group Test");
+    modal.AddComponents(new LabelProperties("Radio Group", new RadioGroupProperties("xdd", Enumerable.Range(0, 5).Select(i => new RadioGroupOptionProperties($"L{i}", $"V{i}")))
+    {
+        new RadioGroupOptionProperties("2", "2")
+    }.WithRequired(false)));
+    modal.AddComponents(new LabelProperties("Checkbox Group", new CheckboxGroupProperties("xddd", Enumerable.Range(0, 5).Select(i => new CheckboxGroupOptionProperties($"L{i}", $"V{i}")))));
+    modal.AddComponents(new LabelProperties("Checkbox", new CheckboxProperties("xdddd")));
+    return InteractionCallback.Modal(modal);
+});
+
 host.AddComponentInteraction<ModalInteractionContext>("modal", (ModalInteractionContext context) => new InteractionMessageProperties().WithContent("a").WithFlags(MessageFlags.Ephemeral));
 
 await host.RunAsync();

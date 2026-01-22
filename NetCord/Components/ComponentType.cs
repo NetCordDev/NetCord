@@ -20,4 +20,7 @@ public enum ComponentType
     Container = 17,
     Label = 18,
     FileUpload = 19,
+    RadioGroup = 21,
+    CheckboxGroup = 22,
+    Checkbox = 23,
 }

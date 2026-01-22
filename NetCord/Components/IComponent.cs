@@ -134,6 +134,9 @@ public interface ILabelComponent : IComponent
             ComponentType.MentionableMenu => new MentionableMenu(jsonModel, labelId, resolvedData),
             ComponentType.ChannelMenu => new ChannelMenu(jsonModel, labelId, resolvedData),
             ComponentType.FileUpload => new FileUpload(jsonModel, resolvedData),
+            //ComponentType.RadioGroup => new RadioGroup(jsonModel, labelId, resolvedData),
+            //ComponentType.CheckboxGroup => new CheckboxGroup(jsonModel, labelId, resolvedData),
+            //ComponentType.Checkbox => new Checkbox(jsonModel, labelId, resolvedData),
             _ => new UnknownLabelComponent(jsonModel),
         };
     }
