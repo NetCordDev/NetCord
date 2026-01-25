@@ -12,7 +12,6 @@ public class AnyValueToStringConverter : JsonConverter<string>
     {
         return reader.TokenType switch
         {
-            JsonTokenType.Null => null,
             JsonTokenType.String => reader.GetString(),
             _ => reader.HasValueSequence ? _encoding.GetString(reader.ValueSequence) : _encoding.GetString(reader.ValueSpan),
         };
