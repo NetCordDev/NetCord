@@ -10,7 +10,12 @@ public class AnyValueToStringConverter : JsonConverter<string>
 
     public override string? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        return reader.HasValueSequence ? _encoding.GetString(reader.ValueSequence) : _encoding.GetString(reader.ValueSpan);
+        return reader.TokenType switch
+        {
+            JsonTokenType.Null => null,
+            JsonTokenType.String => reader.GetString(),
+            _ => reader.HasValueSequence ? _encoding.GetString(reader.ValueSequence) : _encoding.GetString(reader.ValueSpan),
+        };
     }
 
     public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
