@@ -36,7 +36,7 @@ public partial class RestClient
             i =>
             {
                 var user = i.User;
-                return new(user.JoinedAt, user.Id);
+                return new(user.JoinedAt.GetValueOrDefault(), user.Id);
             },
             HttpMethod.Post,
             $"/guilds/{guildId}/members-search",

@@ -20,7 +20,7 @@ public class JsonGuildUser
     public ulong[] RoleIds { get; set; }
 
     [JsonPropertyName("joined_at")]
-    public DateTimeOffset JoinedAt { get; set; }
+    public DateTimeOffset? JoinedAt { get; set; }
 
     [JsonPropertyName("premium_since")]
     public DateTimeOffset? GuildBoostStart { get; set; }
