@@ -43,7 +43,7 @@ public class PartialGuildUser : User, IJsonModel<JsonGuildUser>
     /// <summary>
     /// When the user joined the guild.
     /// </summary>
-    public DateTimeOffset JoinedAt => _jsonModel.JoinedAt;
+    public DateTimeOffset? JoinedAt => _jsonModel.JoinedAt;
 
     /// <summary>
     /// When the user started boosting the guild. <see langword="null"/> if the user has never boosted.
