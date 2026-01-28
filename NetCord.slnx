@@ -89,7 +89,7 @@
     <Project Path="Tests/NetCord.Test.Sharded.Hosting/NetCord.Test.Sharded.Hosting.csproj" />
     <Project Path="Tests/NetCord.Test.Sharded/NetCord.Test.Sharded.csproj" />
     <Project Path="Tests/NetCord.Test/NetCord.Test.csproj" />
-    <Project Path="Tests/RoleTest/RoleTest.csproj" Id="bafbc2e4-0dd3-4fe6-8e26-8f1085f32eea" />
+    <Project Path="Tests/RoleTest/RoleTest.csproj" />
     <Project Path="Tests/ServicesTest/ServicesTest.csproj" />
     <Project Path="Tests/SnowflakeTest/SnowflakeTest.csproj" />
     <Project Path="Tests/TimestampTest/TimestampTest.csproj" />
