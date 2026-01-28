@@ -55,20 +55,24 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
         if (yId == ownerId)
             return -1;
 
-        return GetHighestRolePosition(x).CompareTo(GetHighestRolePosition(y));
+        if (x.RoleIds.Count is 0)
+            return -y.RoleIds.Count;
 
-        int GetHighestRolePosition(PartialGuildUser user)
+        var xHighestRole = x.GetRoles(this).Max()!;
+
+        int result = 1;
+
+        foreach (var role in y.GetRoles(this))
         {
-            int highestPosition = 0;
-            foreach (var role in user.GetRoles(this))
-            {
-                var position = role.Position;
-                if (position > highestPosition)
-                    highestPosition = position;
-            }
+            var comparisonResult = xHighestRole.CompareTo(role);
 
-            return highestPosition;
+            if (comparisonResult < 0)
+                return -1;
+
+            result = Math.Min(result, comparisonResult);
         }
+
+        return result;
     }
 
     /// <summary>

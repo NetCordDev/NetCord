@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -58,20 +56,37 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role
         if (other is null)
             return 1;
 
-        return Position.CompareTo(other.Position);
+        var positionCompare = Position.CompareTo(other.Position);
+        return positionCompare is 0 ? other.Id.CompareTo(Id) : positionCompare;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(Role left, Role right) => left.Position > right.Position;
+    public static bool operator >(Role left, Role right)
+    {
+        var leftPosition = left.Position;
+        var rightPosition = right.Position;
+        return leftPosition > rightPosition || (leftPosition == rightPosition && left.Id < right.Id);
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(Role left, Role right) => left.Position < right.Position;
+    public static bool operator <(Role left, Role right)
+    {
+        var leftPosition = left.Position;
+        var rightPosition = right.Position;
+        return leftPosition < rightPosition || (leftPosition == rightPosition && left.Id > right.Id);
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(Role left, Role right) => left.Position >= right.Position;
+    public static bool operator >=(Role left, Role right)
+    {
+        var leftPosition = left.Position;
+        var rightPosition = right.Position;
+        return leftPosition > rightPosition || (leftPosition == rightPosition && left.Id <= right.Id);
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(Role left, Role right) => left.Position <= right.Position;
+    public static bool operator <=(Role left, Role right)
+    {
+        var leftPosition = left.Position;
+        var rightPosition = right.Position;
+        return leftPosition < rightPosition || (leftPosition == rightPosition && left.Id >= right.Id);
+    }
 }
 
 public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
