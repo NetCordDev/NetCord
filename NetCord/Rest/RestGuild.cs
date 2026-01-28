@@ -55,11 +55,8 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
         if (yId == ownerId)
             return -1;
 
-        var xRoleIds = x.RoleIds;
-        var yRoleIds = y.RoleIds;
-
-        if (xRoleIds.Count is 0)
-            return -yRoleIds.Count;
+        if (x.RoleIds.Count is 0)
+            return -y.RoleIds.Count;
 
         var xHighestRole = x.GetRoles(this).Max()!;
 
