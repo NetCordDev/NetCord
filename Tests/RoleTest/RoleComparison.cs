@@ -16,8 +16,16 @@ public sealed class RoleComparison
 
     private static void Compare(Role role1, Role role2, bool role1Greater)
     {
-        Assert.AreEqual(role1Greater ? 1 : -1, role1.CompareTo(role2));
-        Assert.AreEqual(role1Greater ? -1 : 1, role2.CompareTo(role1));
+        if (role1Greater)
+        {
+            Assert.IsGreaterThan(0, role1.CompareTo(role2));
+            Assert.IsLessThan(0, role2.CompareTo(role1));
+        }
+        else
+        {
+            Assert.IsLessThan(0, role1.CompareTo(role2));
+            Assert.IsGreaterThan(0, role2.CompareTo(role1));
+        }
 
         Assert.AreEqual(role1Greater, role1 > role2);
         Assert.AreEqual(!role1Greater, role2 > role1);
