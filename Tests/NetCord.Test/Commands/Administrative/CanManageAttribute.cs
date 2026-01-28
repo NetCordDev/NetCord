@@ -10,7 +10,7 @@ internal class CanManageAttribute : ParameterPreconditionAttribute<CommandContex
         var user = (GuildUser)value!;
         var contextUser = (GuildUser)context.User;
         var guild = context.Guild!;
-        if (user.GetRoles(guild).Max(r => r.Position) >= contextUser.GetRoles(guild).Max(r => r.Position))
+        if (guild.Compare(user, contextUser) >= 0)
             return new(PreconditionResult.Fail("You can't manage this user!"));
 
         return new(PreconditionResult.Success);
