@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
