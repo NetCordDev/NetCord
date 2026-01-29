@@ -8,7 +8,7 @@ public abstract class CustomCommandModule : CommandModule<CommandContext>
     public Color GetUserColor(GuildUser user)
     {
         return (user.GetRoles(Context.Guild!)
-                    .OrderDescending()
+                    .OrderByDescending(r => r.Position)
                     .FirstOrDefault(r => r.Color != default)?.Color).GetValueOrDefault();
     }
 }
