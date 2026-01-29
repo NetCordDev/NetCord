@@ -18,44 +18,56 @@ public sealed class RoleComparison
     {
         if (role1Greater)
         {
-            Assert.IsGreaterThan(0, role1.CompareTo(role2));
-            Assert.IsLessThan(0, role2.CompareTo(role1));
+            Assert.IsGreaterThan(0, role1.Position.CompareTo(role2.Position));
+            Assert.IsLessThan(0, role2.Position.CompareTo(role1.Position));
         }
         else
         {
-            Assert.IsLessThan(0, role1.CompareTo(role2));
-            Assert.IsGreaterThan(0, role2.CompareTo(role1));
+            Assert.IsLessThan(0, role1.Position.CompareTo(role2.Position));
+            Assert.IsGreaterThan(0, role2.Position.CompareTo(role1.Position));
         }
 
-        Assert.AreEqual(role1Greater, role1 > role2);
-        Assert.AreEqual(!role1Greater, role2 > role1);
+        Assert.IsFalse(role1.Position == role2.Position);
+        Assert.IsFalse(role2.Position == role1.Position);
 
-        Assert.AreEqual(role1Greater, role1 >= role2);
-        Assert.AreEqual(!role1Greater, role2 >= role1);
+        Assert.IsTrue(role1.Position != role2.Position);
+        Assert.IsTrue(role2.Position != role1.Position);
 
-        Assert.AreEqual(!role1Greater, role1 < role2);
-        Assert.AreEqual(role1Greater, role2 < role1);
+        Assert.AreEqual(role1Greater, role1.Position > role2.Position);
+        Assert.AreEqual(!role1Greater, role2.Position > role1.Position);
 
-        Assert.AreEqual(!role1Greater, role1 <= role2);
-        Assert.AreEqual(role1Greater, role2 <= role1);
+        Assert.AreEqual(role1Greater, role1.Position >= role2.Position);
+        Assert.AreEqual(!role1Greater, role2.Position >= role1.Position);
+
+        Assert.AreEqual(!role1Greater, role1.Position < role2.Position);
+        Assert.AreEqual(role1Greater, role2.Position < role1.Position);
+
+        Assert.AreEqual(!role1Greater, role1.Position <= role2.Position);
+        Assert.AreEqual(role1Greater, role2.Position <= role1.Position);
     }
 
     private static void Equal(Role role1, Role role2)
     {
-        Assert.AreEqual(0, role1.CompareTo(role2));
-        Assert.AreEqual(0, role2.CompareTo(role1));
+        Assert.AreEqual(0, role1.Position.CompareTo(role2.Position));
+        Assert.AreEqual(0, role2.Position.CompareTo(role1.Position));
 
-        Assert.IsFalse(role1 > role2);
-        Assert.IsFalse(role2 > role1);
+        Assert.IsTrue(role1.Position == role2.Position);
+        Assert.IsTrue(role2.Position == role1.Position);
 
-        Assert.IsTrue(role1 >= role2);
-        Assert.IsTrue(role2 >= role1);
+        Assert.IsFalse(role1.Position != role2.Position);
+        Assert.IsFalse(role2.Position != role1.Position);
 
-        Assert.IsFalse(role1 < role2);
-        Assert.IsFalse(role2 < role1);
+        Assert.IsFalse(role1.Position > role2.Position);
+        Assert.IsFalse(role2.Position > role1.Position);
 
-        Assert.IsTrue(role1 <= role2);
-        Assert.IsTrue(role2 <= role1);
+        Assert.IsTrue(role1.Position >= role2.Position);
+        Assert.IsTrue(role2.Position >= role1.Position);
+
+        Assert.IsFalse(role1.Position < role2.Position);
+        Assert.IsFalse(role2.Position < role1.Position);
+
+        Assert.IsTrue(role1.Position <= role2.Position);
+        Assert.IsTrue(role2.Position <= role1.Position);
     }
 
     [TestMethod]

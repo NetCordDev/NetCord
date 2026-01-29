@@ -58,13 +58,13 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
         if (x.RoleIds.Count is 0)
             return -y.RoleIds.Count;
 
-        var xHighestRole = x.GetRoles(this).Max()!;
+        var xHighestPosition = x.GetRoles(this).Max(r => r.Position);
 
         int result = 1;
 
         foreach (var role in y.GetRoles(this))
         {
-            var comparisonResult = xHighestRole.CompareTo(role);
+            var comparisonResult = xHighestPosition.CompareTo(role.Position);
 
             if (comparisonResult < 0)
                 return -1;
