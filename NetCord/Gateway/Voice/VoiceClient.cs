@@ -281,7 +281,7 @@ public sealed partial class VoiceClient : WebSocketClient
         }
     }
 
-    private unsafe static void LogMlsFailure(byte* source, byte* reason, void* userData)
+    private static unsafe void LogMlsFailure(byte* source, byte* reason, void* userData)
     {
         var logger = (IWebSocketLogger)GCHandle.FromIntPtr((nint)userData).Target!;
 
