@@ -56,10 +56,16 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
 }
 
-public readonly struct RolePosition(int position, ulong roleId) : IComparable<RolePosition>, IEquatable<RolePosition>
+public readonly struct RolePosition : IComparable<RolePosition>, IEquatable<RolePosition>
 {
-    private readonly int _position = position;
-    private readonly ulong _roleId = roleId;
+    private readonly int _position;
+    private readonly ulong _roleId;
+
+    internal RolePosition(int position, ulong roleId)
+    {
+        _position = position;
+        _roleId = roleId;
+    }
 
     public override int GetHashCode()
     {
