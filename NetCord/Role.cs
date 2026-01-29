@@ -1,11 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
 
 using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
 
-public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role>
+public partial class Role : ClientEntity, IJsonModel<JsonRole>
 {
     JsonRole IJsonModel<JsonRole>.JsonModel => _jsonModel;
     private readonly JsonRole _jsonModel;
@@ -22,7 +22,9 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role
 
     public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
 
-    public int Position => _jsonModel.Position;
+    public int RawPosition => _jsonModel.Position;
+
+    public RolePosition Position => new(RawPosition, Id);
 
     public Permissions Permissions => _jsonModel.Permissions;
 
@@ -52,26 +54,69 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>, IComparable<Role
     public override string ToString() => $"<@&{Id}>";
 
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
+}
 
-    public int CompareTo(Role? other)
+public readonly struct RolePosition : IComparable<RolePosition>, IEquatable<RolePosition>
+{
+    private readonly int _position;
+    private readonly ulong _roleId;
+
+    internal RolePosition(int position, ulong roleId)
     {
-        if (other is null)
-            return 1;
-
-        return Position.CompareTo(other.Position);
+        _position = position;
+        _roleId = roleId;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(Role left, Role right) => left.Position > right.Position;
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(_position, _roleId);
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(Role left, Role right) => left.Position < right.Position;
+    public override bool Equals([NotNullWhen(true)] object? obj)
+    {
+        return obj is RolePosition other && Equals(other);
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(Role left, Role right) => left.Position >= right.Position;
+    public bool Equals(RolePosition other)
+    {
+        return _position == other._position && _roleId == other._roleId;
+    }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(Role left, Role right) => left.Position <= right.Position;
+    public int CompareTo(RolePosition other)
+    {
+        var positionCompare = _position.CompareTo(other._position);
+        return positionCompare is 0 ? other._roleId.CompareTo(_roleId) : positionCompare;
+    }
+
+    public static bool operator ==(RolePosition left, RolePosition right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(RolePosition left, RolePosition right)
+    {
+        return !left.Equals(right);
+    }
+
+    public static bool operator >(RolePosition left, RolePosition right)
+    {
+        return left._position > right._position || (left._position == right._position && left._roleId < right._roleId);
+    }
+
+    public static bool operator <(RolePosition left, RolePosition right)
+    {
+        return left._position < right._position || (left._position == right._position && left._roleId > right._roleId);
+    }
+
+    public static bool operator >=(RolePosition left, RolePosition right)
+    {
+        return left._position > right._position || (left._position == right._position && left._roleId <= right._roleId);
+    }
+
+    public static bool operator <=(RolePosition left, RolePosition right)
+    {
+        return left._position < right._position || (left._position == right._position && left._roleId >= right._roleId);
+    }
 }
 
 public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
