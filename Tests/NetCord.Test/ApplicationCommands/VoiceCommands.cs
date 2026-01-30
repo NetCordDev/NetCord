@@ -170,17 +170,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         voiceClient.VoiceReceive += args =>
         {
-            if (args.Frame[0] is not 252)
-                return default;
-            try
-            {
-                opusDecodeStream.Write(args.Frame);
-                Console.WriteLine($"Ok frame: {string.Join(", ", args.Frame[..10].ToArray())}");
-            }
-            catch (OpusException e)
-            {
-                Console.WriteLine($"Error frame ({e.OpusError}): {string.Join(", ", args.Frame[..10].ToArray())}");
-            }
+            opusDecodeStream.Write(args.Frame);
             return default;
         };
 
