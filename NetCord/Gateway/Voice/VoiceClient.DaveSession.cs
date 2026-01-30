@@ -17,11 +17,7 @@ public partial class VoiceClient
     {
         public readonly unsafe EncryptorResultCode Encrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, Span<byte> encryptedFrame, out int bytesWritten)
         {
-            EncryptorResultCode result;
-            nuint rawBytesWritten;
-
-            fixed (byte* frameP = frame, encryptedFrameP = encryptedFrame)
-                result = EncryptorEncrypt(encryptor, mediaType, ssrc, frameP, (uint)frame.Length, encryptedFrameP, (nuint)encryptedFrame.Length, out rawBytesWritten);
+            var result = EncryptorEncrypt(encryptor, mediaType, ssrc, frame, (uint)frame.Length, encryptedFrame, (nuint)encryptedFrame.Length, out var rawBytesWritten);
 
             bytesWritten = (int)rawBytesWritten;
             return result;
@@ -35,11 +31,7 @@ public partial class VoiceClient
     {
         public readonly unsafe DecryptorResultCode Decrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> encryptedFrame, Span<byte> frame, out int bytesWritten)
         {
-            DecryptorResultCode result;
-            nuint rawBytesWritten;
-
-            fixed (byte* encryptedFrameP = encryptedFrame, frameP = frame)
-                result = DecryptorDecrypt(decryptor, mediaType, encryptedFrameP, (nuint)encryptedFrame.Length, frameP, (nuint)frame.Length, out rawBytesWritten);
+            var result = DecryptorDecrypt(decryptor, mediaType, encryptedFrame, (nuint)encryptedFrame.Length, frame, (nuint)frame.Length, out var rawBytesWritten);
 
             bytesWritten = (int)rawBytesWritten;
             return result;
@@ -161,26 +153,23 @@ public partial class VoiceClient
 
         public unsafe void OnMlsExternalSender(ReadOnlySpan<byte> externalSender)
         {
-            fixed (byte* p = externalSender)
-                SessionSetExternalSender(_session, p, (nuint)externalSender.Length);
+            SessionSetExternalSender(_session, externalSender, (nuint)externalSender.Length);
         }
 
         public unsafe ValueTask OnMlsProposalsAsync(ConnectionState connectionState, ReadOnlySpan<byte> proposals)
         {
             var recognizedUserIds = GetRecognizedUserIds(out var buffer);
 
-            byte* commitWelcome;
-            nuint commitWelcomeLength;
+            SessionProcessProposals(_session, proposals, (nuint)proposals.Length, recognizedUserIds, (nuint)recognizedUserIds.Length, out var commitWelcome, out var commitWelcomeLength);
+            using (commitWelcome)
+            {
+                FreeRecognizedUserIdsBuffer(buffer);
 
-            fixed (byte* proposalsP = proposals)
-                SessionProcessProposals(_session, proposalsP, (nuint)proposals.Length, recognizedUserIds, (nuint)recognizedUserIds.Length, out commitWelcome, out commitWelcomeLength);
+                if (!commitWelcome.IsInvalid)
+                    return SendMlsCommitWelcomeAsync(connectionState, commitWelcome.AsSpan((int)commitWelcomeLength));
 
-            FreeRecognizedUserIdsBuffer(buffer);
-
-            if (commitWelcome is not null)
-                return SendMlsCommitWelcomeAsync(connectionState, new(commitWelcome, (int)commitWelcomeLength));
-
-            return default;
+                return default;
+            }
         }
 
         public ValueTask OnMlsPrepareCommitTransitionAsync(ConnectionState connectionState, ushort transitionId, ReadOnlySpan<byte> commit)
@@ -342,12 +331,14 @@ public partial class VoiceClient
             unsafe
             {
                 SessionGetMarshalledKeyPackage(_session, out var keyPackage, out var length);
+                using (keyPackage)
+                {
+                    payloadLength = (int)length + 1;
 
-                payloadLength = (int)length + 1;
+                    payload = ArrayPool<byte>.Shared.Rent(payloadLength);
 
-                payload = ArrayPool<byte>.Shared.Rent(payloadLength);
-
-                new ReadOnlySpan<byte>(keyPackage, (int)length).CopyTo(payload.AsSpan(1));
+                    keyPackage.AsSpan((int)length).CopyTo(payload.AsSpan(1));
+                }
             }
 
             payload[0] = (byte)VoiceOpcode.DaveMlsKeyPackage;

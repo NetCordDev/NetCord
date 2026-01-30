@@ -153,7 +153,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         using var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
-            Arguments = $"-f s16le -ar 48000 -ac 2 -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
+            Arguments = $"-f f32le -ar 48000 -ac 2 -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
             RedirectStandardInput = true,
         })!;
 
@@ -166,11 +166,21 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Short, VoiceChannels.Stereo);
+        OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Float, VoiceChannels.Stereo);
 
         voiceClient.VoiceReceive += args =>
         {
-            opusDecodeStream.Write(args.Frame);
+            if (args.Frame[0] is not 252)
+                return default;
+            try
+            {
+                opusDecodeStream.Write(args.Frame);
+                Console.WriteLine($"Ok frame: {string.Join(", ", args.Frame[..10].ToArray())}");
+            }
+            catch (OpusException e)
+            {
+                Console.WriteLine($"Error frame ({e.OpusError}): {string.Join(", ", args.Frame[..10].ToArray())}");
+            }
             return default;
         };
 
