@@ -576,9 +576,13 @@ public sealed partial class VoiceClient : WebSocketClient
 
         try
         {
-            RtpPacketStorage packetStorage = new(datagram, encryption.ExtensionEncryption);
+            RtpPacketStorage packetStorage = new(datagram);
 
-            var result = _receiveHandler.HandlePacket(this, GetPacketAndSsrc(packetStorage, out var ssrc));
+            var packet = packetStorage.Packet;
+
+            var ssrc = packet.Ssrc;
+
+            var result = _receiveHandler.HandlePacket(this, packet);
             if (!result.Handle)
                 return;
 
@@ -622,15 +626,19 @@ public sealed partial class VoiceClient : WebSocketClient
                     var plaintext = array.AsSpan(0, plaintextLength);
                     encryption.Decrypt(packet, plaintext);
 
-                    var extensionLength = packet.Extension
-                        ? 4 * (encryption.ExtensionEncryption
-                            ? BinaryPrimitives.ReadUInt16BigEndian(plaintext[2..]) + 1
-                            : BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..]))
+                    int extensionLength = packet.Extension
+                        ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
                         : 0;
 
-                    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextLength - extensionLength);
+                    int paddingLength = packet.Padding
+                        ? plaintext[^1]
+                        : 0;
+
+                    var plaintextData = plaintext[extensionLength..^paddingLength];
+
+                    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
                     var daveArray = ArrayPool<byte>.Shared.Rent(daveArrayLength);
-                    var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintext[extensionLength..], daveArray, out int bytesWritten);
+                    var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintextData, daveArray, out int bytesWritten);
 
                     ArrayPool<byte>.Shared.Return(array);
 
@@ -652,13 +660,6 @@ public sealed partial class VoiceClient : WebSocketClient
             {
                 return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
             });
-        }
-
-        static RtpPacket GetPacketAndSsrc(RtpPacketStorage packetStorage, out uint ssrc)
-        {
-            var packet = packetStorage.Packet;
-            ssrc = packet.Ssrc;
-            return packet;
         }
     }
 

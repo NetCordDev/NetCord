@@ -12,8 +12,6 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
 
     public int Expansion => XChaCha20Poly1305.ABytes + sizeof(int);
 
-    public bool ExtensionEncryption => false;
-
     public void Decrypt(RtpPacket packet, Span<byte> plaintext)
     {
         var payload = packet.Payload;

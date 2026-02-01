@@ -157,7 +157,7 @@ internal class VoiceOutStream(VoiceClient client) : Stream
     private void WriteDatagram(ReadOnlySpan<byte> buffer, Span<byte> datagram, IVoiceEncryption encryption)
     {
         WriteRtpHeader(datagram);
-        encryption.Encrypt(buffer, new(datagram, encryption.ExtensionEncryption));
+        encryption.Encrypt(buffer, new(datagram));
     }
 
     private void WriteRtpHeader(Span<byte> datagram)

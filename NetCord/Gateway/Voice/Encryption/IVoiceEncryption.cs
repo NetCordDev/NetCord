@@ -16,11 +16,6 @@ public interface IVoiceEncryption : IDisposable
     public int Expansion { get; }
 
     /// <summary>
-    /// Whether the encryption algorithm encrypts the extension.
-    /// </summary>
-    public bool ExtensionEncryption { get; }
-
-    /// <summary>
     /// Decrypts a datagram using the encryption algorithm.
     /// </summary>
     /// <param name="packet">The packet to decrypt.</param>

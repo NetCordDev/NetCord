@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-public readonly ref struct RtpPacket(ReadOnlySpan<byte> datagram, bool encryptedExtension)
+public readonly ref struct RtpPacket(ReadOnlySpan<byte> datagram)
 {
     public readonly ReadOnlySpan<byte> Datagram { get; } = datagram;
 
@@ -32,7 +32,7 @@ public readonly ref struct RtpPacket(ReadOnlySpan<byte> datagram, bool encrypted
 
     public readonly int HeaderLength => 12 + (sizeof(int) * CsrcCount);
 
-    public readonly int ExtendedHeaderLength => (encryptedExtension || !Extension ? 12 : 16) + (sizeof(int) * CsrcCount);
+    public readonly int ExtendedHeaderLength => (Extension ? 16 : 12) + (sizeof(int) * CsrcCount);
 
     public readonly ReadOnlySpan<byte> Payload => Datagram[ExtendedHeaderLength..];
 

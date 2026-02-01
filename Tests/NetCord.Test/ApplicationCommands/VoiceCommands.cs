@@ -38,11 +38,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         {
             var encryptionProvider = encryption.HasValue ? new StaticVoiceEncryptionProvider(encryption.GetValueOrDefault() switch
             {
-                VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
-                VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
-                VoiceEncryption.XSalsa20Poly1305LiteRtpSize => new XSalsa20Poly1305LiteRtpSizeEncryption(),
-                VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
-                VoiceEncryption.Aes256Gcm => new Aes256GcmEncryption(),
                 VoiceEncryption.Aes256GcmRtpSize => new Aes256GcmRtpSizeEncryption(),
                 VoiceEncryption.XChaCha20Poly1305RtpSize => new XChaCha20Poly1305RtpSizeEncryption(),
                 _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
@@ -180,11 +175,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
     public enum VoiceEncryption : byte
     {
-        XSalsa20Poly1305,
-        XSalsa20Poly1305Lite,
-        XSalsa20Poly1305LiteRtpSize,
-        XSalsa20Poly1305Suffix,
-        Aes256Gcm,
         Aes256GcmRtpSize,
         XChaCha20Poly1305RtpSize,
     }
