@@ -1,8 +1,5 @@
 ﻿namespace NetCord.Gateway.Voice.Encryption;
 
-public class LibsodiumException : Exception
+public class LibsodiumException() : Exception("Libsodium returned an error.")
 {
-    public LibsodiumException() : base("Libsodium returned an error.")
-    {
-    }
 }

@@ -37,6 +37,12 @@ public class Test
         var key = Enumerable.Range(0, 32).Select(i => (byte)i).ToArray();
         encryption.SetKey(key);
 
+        TestEncryptionRegularMethods(encryption, headerExtension);
+        TestEncryptionTryMethods(encryption, headerExtension);
+    }
+
+    private static void TestEncryptionRegularMethods(IVoiceEncryption encryption, HeaderExtensionInfo headerExtension)
+    {
         int dataLength = 324;
 
         var plaintext = GetData(dataLength, headerExtension);
@@ -48,6 +54,23 @@ public class Test
         var plaintext2 = new byte[plaintext.Length];
 
         encryption.Decrypt(new(datagram), plaintext2);
+
+        CollectionAssert.AreEqual(plaintext, plaintext2);
+    }
+
+    private static void TestEncryptionTryMethods(IVoiceEncryption encryption, HeaderExtensionInfo headerExtension)
+    {
+        int dataLength = 324;
+
+        var plaintext = GetData(dataLength, headerExtension);
+
+        var datagram = CreateDatagram(dataLength, encryption.Expansion, headerExtension);
+
+        Assert.IsTrue(encryption.TryEncrypt(plaintext, new(datagram)));
+
+        var plaintext2 = new byte[plaintext.Length];
+
+        Assert.IsTrue(encryption.TryDecrypt(new(datagram), plaintext2));
 
         CollectionAssert.AreEqual(plaintext, plaintext2);
     }

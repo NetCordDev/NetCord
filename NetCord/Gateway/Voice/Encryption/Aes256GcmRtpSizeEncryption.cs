@@ -15,6 +15,34 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 
     public int Expansion => TagSize + sizeof(int);
 
+    public bool TryDecrypt(RtpPacket packet, Span<byte> plaintext)
+    {
+        try
+        {
+            Decrypt(packet, plaintext);
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public bool TryEncrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
+    {
+        try
+        {
+            Encrypt(plaintext, packet);
+        }
+        catch
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void Decrypt(RtpPacket packet, Span<byte> plaintext)
     {
         var payload = packet.Payload;

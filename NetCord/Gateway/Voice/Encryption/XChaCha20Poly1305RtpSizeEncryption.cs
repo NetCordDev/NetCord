@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace NetCord.Gateway.Voice.Encryption;
@@ -12,7 +13,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
 
     public int Expansion => XChaCha20Poly1305.ABytes + sizeof(int);
 
-    public void Decrypt(RtpPacket packet, Span<byte> plaintext)
+    public bool TryDecrypt(RtpPacket packet, Span<byte> plaintext)
     {
         var payload = packet.Payload;
 
@@ -36,11 +37,10 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
                                                                               ref nonceRef,
                                                                               ref MemoryMarshal.GetArrayDataReference(_key!));
 
-        if (result != 0)
-            throw new LibsodiumException();
+        return result is 0;
     }
 
-    public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
+    public bool TryEncrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
     {
         var payload = packet.Payload;
 
@@ -68,8 +68,25 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
                                                                               ref nonceRef,
                                                                               ref MemoryMarshal.GetArrayDataReference(_key!));
 
-        if (result != 0)
-            throw new LibsodiumException();
+        return result is 0;
+    }
+
+    public void Decrypt(RtpPacket packet, Span<byte> plaintext)
+    {
+        if (!TryDecrypt(packet, plaintext))
+            ThrowLibsodiumException();
+    }
+
+    public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
+    {
+        if (!TryEncrypt(plaintext, packet))
+            ThrowLibsodiumException();
+    }
+
+    [DoesNotReturn]
+    private static void ThrowLibsodiumException()
+    {
+        throw new LibsodiumException();
     }
 
     public void SetKey(byte[] key)

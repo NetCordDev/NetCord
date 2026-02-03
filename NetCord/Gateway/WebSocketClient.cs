@@ -979,14 +979,12 @@ public abstract partial class WebSocketClient : IDisposable
         return client.HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventWithDisposalAsync<TRaw, T>(ImmutableList<Func<T, ValueTask>> handlers, TRaw rawData, Func<TRaw, T> dataFunc, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TRaw : allows ref struct where T : allows ref struct
+    private protected ValueTask InvokeEventWithDisposalAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
         if (count is 0)
             return default;
-
-        var data = dataFunc(rawData);
 
         var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
 

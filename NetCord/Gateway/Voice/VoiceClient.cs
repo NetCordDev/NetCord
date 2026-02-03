@@ -615,40 +615,59 @@ public sealed partial class VoiceClient : WebSocketClient
 
             ValueTask InvokeEventForReceivedFrameAsync()
             {
-                return InvokeEventWithDisposalAsync(handlers, (Encryption: encryption, Decryptor: decryptor, PacketStorage: packetStorage, Ssrc: ssrc), static data =>
+                var packet = packetStorage.Packet;
+
+                var plaintextLength = packet.PayloadLength - encryption.Expansion;
+                var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+                var plaintext = array.AsSpan(0, plaintextLength);
+
+                if (!encryption.TryDecrypt(packet, plaintext))
                 {
-                    var (encryption, decryptor, packetStorage, ssrc) = data;
-
-                    var packet = packetStorage.Packet;
-
-                    var plaintextLength = packet.PayloadLength - encryption.Expansion;
-                    var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
-                    var plaintext = array.AsSpan(0, plaintextLength);
-                    encryption.Decrypt(packet, plaintext);
-
-                    int extensionLength = packet.Extension
-                        ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
-                        : 0;
-
-                    int paddingLength = packet.Padding
-                        ? plaintext[^1]
-                        : 0;
-
-                    var plaintextData = plaintext[extensionLength..^paddingLength];
-
-                    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
-                    var daveArray = ArrayPool<byte>.Shared.Rent(daveArrayLength);
-                    var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintextData, daveArray, out int bytesWritten);
+                    Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
 
                     ArrayPool<byte>.Shared.Return(array);
 
-                    if (result is Dave.DecryptorResultCode.Success)
-                        return new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc);
+                    return default;
+                }
 
-                    ArrayPool<byte>.Shared.Return(daveArray);
+                int extensionLength = packet.Extension
+                    ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+                    : 0;
 
-                    throw new DaveDecryptorException(result);
-                }, args =>
+                int paddingLength = packet.Padding
+                    ? plaintext[^1]
+                    : 0;
+
+                var plaintextData = plaintext[extensionLength..^paddingLength];
+
+                if (plaintextData.IsEmpty)
+                {
+                    ArrayPool<byte>.Shared.Return(array);
+
+                    return default;
+                }
+
+                int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
+                byte[]? toReturn = null;
+                var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
+                var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintextData, daveArray, out int bytesWritten);
+
+                if (result is not Dave.DecryptorResultCode.Success)
+                {
+                    ArrayPool<byte>.Shared.Return(array);
+
+                    if (toReturn is not null)
+                        ArrayPool<byte>.Shared.Return(toReturn);
+
+                    Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+
+                    return default;
+                }
+
+                if (toReturn is not null)
+                    ArrayPool<byte>.Shared.Return(array);
+
+                return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc), args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);
                 }, nameof(_voiceReceive));
