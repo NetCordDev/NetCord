@@ -164,7 +164,7 @@ internal static unsafe partial class Dave
     public static partial void Free(nint ptr);
 
     [LibraryImport(DllName, EntryPoint = "daveSessionCreate")]
-    public static partial SessionHandle SessionCreate(void* context, ReadOnlySpan<byte> authSessionId, delegate*<byte*, byte*, void*, void> mlsFailureCallback, void* userData);
+    public static partial SessionHandle SessionCreate(void* context, ReadOnlySpan<byte> authSessionId, delegate* unmanaged<byte*, byte*, void*, void> mlsFailureCallback, void* userData);
 
     [LibraryImport(DllName, EntryPoint = "daveSessionDestroy")]
     public static partial void SessionDestroy(nint session);
@@ -203,7 +203,7 @@ internal static unsafe partial class Dave
     public static partial KeyRatchetHandle SessionGetKeyRatchet(SessionHandle session, ReadOnlySpan<byte> userId);
 
     [LibraryImport(DllName, EntryPoint = "daveSessionGetPairwiseFingerprint", StringMarshalling = StringMarshalling.Utf8)]
-    public static partial void SessionGetPairwiseFingerprint(SessionHandle session, ushort version, ReadOnlySpan<byte> userId, delegate*<byte*, nuint, void*, void> pairwiseFingerprintCallback, void* userData);
+    public static partial void SessionGetPairwiseFingerprint(SessionHandle session, ushort version, ReadOnlySpan<byte> userId, delegate* unmanaged<byte*, nuint, void*, void> pairwiseFingerprintCallback, void* userData);
 
     [LibraryImport(DllName, EntryPoint = "daveKeyRatchetDestroy")]
     public static partial void KeyRatchetDestroy(nint keyRatchet);
@@ -267,7 +267,7 @@ internal static unsafe partial class Dave
     public static partial EncryptorResultCode EncryptorEncrypt(EncryptorHandle encryptor, MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, nuint frameLength, Span<byte> encryptedFrame, nuint encryptedFrameCapacity, out nuint bytesWritten);
 
     [LibraryImport(DllName, EntryPoint = "daveEncryptorSetProtocolVersionChangedCallback")]
-    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, delegate*<void*, void> encryptorProtocolVersionChangedCallback, void* userData);
+    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, delegate* unmanaged<void*, void> encryptorProtocolVersionChangedCallback, void* userData);
 
     [LibraryImport(DllName, EntryPoint = "daveEncryptorGetStats")]
     public static partial void EncryptorGetStats(EncryptorHandle encryptor, MediaType mediaType, out EncryptorStats stats);
@@ -294,5 +294,5 @@ internal static unsafe partial class Dave
     public static partial void DecryptorGetStats(DecryptorHandle decryptor, MediaType mediaType, out DecryptorStats stats);
 
     [LibraryImport(DllName, EntryPoint = "daveSetLogSinkCallback")]
-    public static partial void SetLogSinkCallback(delegate*<LoggingSeverity, byte*, int, byte*, void> callback);
+    public static partial void SetLogSinkCallback(delegate* unmanaged<LoggingSeverity, byte*, int, byte*, void> callback);
 }

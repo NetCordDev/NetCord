@@ -57,7 +57,7 @@ public partial class VoiceClient
         private readonly VoiceClient _client;
         private readonly SessionHandle _session;
 
-        public unsafe DaveSession(VoiceClient client, delegate*<byte*, byte*, void*, void> mlsFailureCallback, void* userData)
+        public unsafe DaveSession(VoiceClient client, delegate* unmanaged<byte*, byte*, void*, void> mlsFailureCallback, void* userData)
         {
             _transitions = [];
 
@@ -73,17 +73,14 @@ public partial class VoiceClient
             SetLogSinkCallback(&LogSink);
         }
 
+        [UnmanagedCallersOnly]
         private static unsafe void LogSink(LoggingSeverity severity, byte* file, int line, byte* message)
         {
-            LogSinkInternal(severity, file, line, message);
-        }
-
-        [Conditional("DEBUG")]
-        private static unsafe void LogSinkInternal(LoggingSeverity severity, byte* file, int line, byte* message)
-        {
+#if DEBUG
             var fileString = Marshal.PtrToStringUTF8((nint)file);
             var messageString = Marshal.PtrToStringUTF8((nint)message);
             Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
+#endif
         }
 
         public bool IsEnabled => GetProtocolVersion() is not DisabledVersion;
