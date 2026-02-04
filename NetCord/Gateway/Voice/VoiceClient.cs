@@ -601,14 +601,11 @@ public sealed partial class VoiceClient : WebSocketClient
 
             var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
 
+            VoiceReceiveEventArgs emptyArgs = new(null, 0, 0, ssrc);
+
 #pragma warning disable CA2012 // Use ValueTasks correctly
             for (ushort i = 0; i < framesMissed; i++)
-            {
-                tasks[i] = InvokeEventAsync(handlers, ssrc, static ssrc =>
-                {
-                    return new VoiceReceiveEventArgs(null, 0, 0, ssrc);
-                }, nameof(_voiceReceive));
-            }
+                tasks[i] = InvokeEventAsync(handlers, emptyArgs, nameof(_voiceReceive));
 
             tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
 #pragma warning restore CA2012 // Use ValueTasks correctly

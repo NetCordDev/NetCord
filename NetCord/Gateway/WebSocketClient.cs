@@ -881,6 +881,34 @@ public abstract partial class WebSocketClient : IDisposable
         return HandleTasksAsync(tasks, handlersName, count);
     }
 
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : struct, allows ref struct
+    {
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            try
+            {
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch (Exception ex)
+            {
+                LogEventHandlerException(handlersName, ex);
+
+                tasks[i] = default;
+            }
+        }
+
+        return HandleTasksAsync(tasks, handlersName, count);
+    }
+
     private protected ValueTask InvokeEventAsync<TRaw, T>(ImmutableList<Func<T, ValueTask>> handlers, TRaw rawData, Func<TRaw, T> dataFunc, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TRaw : allows ref struct where T : allows ref struct
     {
         int count = handlers.Count;
