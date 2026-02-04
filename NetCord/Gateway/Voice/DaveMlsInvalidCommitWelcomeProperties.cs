@@ -2,8 +2,8 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class DaveMlsInvalidCommitWelcomeProperties(int transitionId)
+internal class DaveMlsInvalidCommitWelcomeProperties(ushort transitionId)
 {
     [JsonPropertyName("transition_id")]
-    public int TransitionId { get; set; } = transitionId;
+    public ushort TransitionId { get; set; } = transitionId;
 }
