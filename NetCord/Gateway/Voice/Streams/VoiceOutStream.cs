@@ -132,7 +132,13 @@ internal class VoiceOutStream(VoiceClient client) : Stream
 
             ArrayPool<byte>.Shared.Return(array);
 
-            throw new DaveEncryptorException(result);
+            ThrowDaveEncryptorException(result);
+
+            [DoesNotReturn]
+            static void ThrowDaveEncryptorException(Dave.EncryptorResultCode result)
+            {
+                throw new DaveEncryptorException(result);
+            }
         }
 
         return new(array, bytesWritten, default);

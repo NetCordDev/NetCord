@@ -2,20 +2,6 @@
 
 namespace NetCord.Gateway.Voice;
 
-public class DaveEncryptorException(string? message) : Exception(message)
-{
-    internal DaveEncryptorException(Dave.EncryptorResultCode result) : this($"Dave encryptor error: {result}")
-    {
-    }
-}
-
-public class DaveDecryptorException(string? message) : Exception(message)
-{
-    internal DaveDecryptorException(Dave.DecryptorResultCode result) : this($"Dave decryptor error: {result}")
-    {
-    }
-}
-
 internal static unsafe partial class Dave
 {
     private const string DllName = "libdave";
