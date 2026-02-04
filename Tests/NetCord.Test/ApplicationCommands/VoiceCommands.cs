@@ -77,8 +77,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        var outputStream = voiceClient.CreateOutputStream();
-        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        using var outputStream = voiceClient.CreateOutputStream();
+        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
@@ -161,7 +161,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Float, VoiceChannels.Stereo);
+        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Float, VoiceChannels.Stereo);
 
         voiceClient.VoiceReceive += args =>
         {
