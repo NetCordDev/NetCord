@@ -103,7 +103,7 @@ public sealed partial class VoiceClient : WebSocketClient
     private readonly IVoiceEncryptionProvider _encryptionProvider;
     private readonly IVoiceReceiveHandler _receiveHandler;
     private readonly TimeSpan _externalSocketAddressDiscoveryTimeout;
-    private readonly GCHandle _loggerHandle;
+    private readonly GCHandle<IWebSocketLogger> _loggerHandle;
 
     internal UdpState? _udpState;
 
@@ -122,7 +122,7 @@ public sealed partial class VoiceClient : WebSocketClient
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
         _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
         _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout.GetValueOrDefault(new(5 * TimeSpan.TicksPerSecond));
-        _loggerHandle = GCHandle.Alloc(_logger);
+        _loggerHandle = new(_logger);
     }
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
@@ -283,13 +283,13 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private static unsafe void LogMlsFailure(byte* source, byte* reason, void* userData)
     {
-        var logger = (IWebSocketLogger)GCHandle.FromIntPtr((nint)userData).Target!;
+        var logger = GCHandle<IWebSocketLogger>.FromIntPtr((nint)userData).Target;
 
         if (logger.IsEnabled(LogLevel.Error))
         {
             var sourceStr = Marshal.PtrToStringUTF8((nint)source);
             var reasonStr = Marshal.PtrToStringUTF8((nint)reason);
-            logger.Log(LogLevel.Error, (Source: sourceStr, Reason: reasonStr), null, static (s, e) => $"An MLS error occured: {s.Source} {s.Reason}");
+            logger.Log(LogLevel.Error, (Source: sourceStr, Reason: reasonStr), null, static (s, e) => $"An MLS error occurred: {s.Source} {s.Reason}");
         }
     }
 
@@ -313,7 +313,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     UdpState newUdpState;
                     unsafe
                     {
-                        newUdpState = new(udpConnection, encryption, new(this, &LogMlsFailure, (void*)GCHandle.ToIntPtr(_loggerHandle)));
+                        newUdpState = new(udpConnection, encryption, new(this, &LogMlsFailure, (void*)GCHandle<IWebSocketLogger>.ToIntPtr(_loggerHandle)));
                     }
 
                     if (Interlocked.CompareExchange(ref _udpState, newUdpState, null) is not null)
@@ -718,7 +718,7 @@ public sealed partial class VoiceClient : WebSocketClient
             _udpState?.Dispose();
         }
 
-        _loggerHandle.Free();
+        _loggerHandle.Dispose();
         base.Dispose(disposing);
     }
 }
