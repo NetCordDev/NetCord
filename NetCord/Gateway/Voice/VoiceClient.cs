@@ -284,13 +284,19 @@ public sealed partial class VoiceClient : WebSocketClient
     [UnmanagedCallersOnly]
     private static unsafe void LogMlsFailure(byte* source, byte* reason, void* userData)
     {
-        var logger = GCHandle<IWebSocketLogger>.FromIntPtr((nint)userData).Target;
-
-        if (logger.IsEnabled(LogLevel.Error))
+        try
         {
-            var sourceStr = Marshal.PtrToStringUTF8((nint)source);
-            var reasonStr = Marshal.PtrToStringUTF8((nint)reason);
-            logger.Log(LogLevel.Error, (Source: sourceStr, Reason: reasonStr), null, static (s, e) => $"An MLS error occurred: {s.Source} {s.Reason}");
+            var logger = GCHandle<IWebSocketLogger>.FromIntPtr((nint)userData).Target;
+
+            if (logger.IsEnabled(LogLevel.Error))
+            {
+                var sourceStr = Marshal.PtrToStringUTF8((nint)source);
+                var reasonStr = Marshal.PtrToStringUTF8((nint)reason);
+                logger.Log(LogLevel.Error, (Source: sourceStr, Reason: reasonStr), null, static (s, e) => $"An MLS error occurred: {s.Source} {s.Reason}");
+            }
+        }
+        catch
+        {
         }
     }
 
