@@ -177,24 +177,12 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            foreach (var item in other)
-            {
-                if (!Contains(item))
-                    return false;
-            }
-
-            return true;
+            return other.All(Contains);
         }
 
         public bool Overlaps(IEnumerable<T> other)
         {
-            foreach (var item in other)
-            {
-                if (Contains(item))
-                    return true;
-            }
-
-            return false;
+            return other.Any(Contains);
         }
 
         public bool SetEquals(IEnumerable<T> other)
