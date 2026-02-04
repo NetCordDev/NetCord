@@ -83,11 +83,11 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
         return this;
     }
 
-    public IVoiceClientCache CacheUsers(IReadOnlyList<ulong> userId)
+    public IVoiceClientCache CacheUsers(IReadOnlyList<ulong> userIds)
     {
-        int count = userId.Count;
+        int count = userIds.Count;
         for (int i = 0; i < count; i++)
-            _users.Add(userId[i]);
+            _users.Add(userIds[i]);
 
         return this;
     }

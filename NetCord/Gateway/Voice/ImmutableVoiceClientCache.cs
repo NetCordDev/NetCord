@@ -103,10 +103,10 @@ public sealed class ImmutableVoiceClientCache : IVoiceClientCache
                       _ssrcUsers);
     }
 
-    public IVoiceClientCache CacheUsers(IReadOnlyList<ulong> userId)
+    public IVoiceClientCache CacheUsers(IReadOnlyList<ulong> userIds)
     {
         return Create(_ssrc,
-                      _users.Union(userId),
+                      _users.Union(userIds),
                       _userSsrcs,
                       _ssrcUsers);
     }
