@@ -6,7 +6,7 @@ internal readonly ref struct BinaryVoicePayload(ReadOnlySpan<byte> payload)
 {
     private readonly ReadOnlySpan<byte> _payload = payload;
 
-    public ushort SequencyNumber => BinaryPrimitives.ReadUInt16BigEndian(_payload);
+    public ushort SequenceNumber => BinaryPrimitives.ReadUInt16BigEndian(_payload);
 
     public VoiceOpcode Opcode => (VoiceOpcode)_payload[2];
 

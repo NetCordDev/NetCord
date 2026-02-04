@@ -227,7 +227,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private ValueTask HandleBinaryPayloadAsync(ConnectionState connectionState, BinaryVoicePayload payload)
     {
-        SequenceNumber = payload.SequencyNumber;
+        SequenceNumber = payload.SequenceNumber;
 
         switch (payload.Opcode)
         {
