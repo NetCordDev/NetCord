@@ -23,7 +23,7 @@ public partial class VoiceClient
             return result;
         }
 
-        public readonly int GetMaxCiphertextByteSize(MediaType mediaType, int plaintextByteSize)
+        public readonly int GetMaxCiphertextSize(MediaType mediaType, int plaintextByteSize)
             => (int)EncryptorGetMaxCiphertextByteSize(encryptor, mediaType, (nuint)plaintextByteSize);
     }
 
@@ -86,6 +86,10 @@ public partial class VoiceClient
             Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
         }
 
+        public bool IsEnabled => GetProtocolVersion() is not DisabledVersion;
+
+        public DaveEncryptor Encryptor => new(_encryptor);
+
         public static ushort GetMaxSupportedProtocolVersion()
         {
             return MaxSupportedProtocolVersion();
@@ -94,11 +98,6 @@ public partial class VoiceClient
         public ushort GetProtocolVersion()
         {
             return SessionGetProtocolVersion(_session);
-        }
-
-        public DaveEncryptor GetEncryptor()
-        {
-            return new(_encryptor);
         }
 
         public DaveDecryptor? GetDecryptor(uint ssrc)
