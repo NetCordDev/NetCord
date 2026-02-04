@@ -136,7 +136,7 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 
         public T[] ToArray() => [.. _storage.Keys];
 
-        private HashSet<T> HashSet => [.. _storage.Keys];
+        private static IReadOnlySet<T> GetSet(IEnumerable<T> collection) => collection as IReadOnlySet<T> ?? new HashSet<T>(collection);
 
         public int Count => _storage.Count;
 
@@ -162,32 +162,44 @@ public sealed class ConcurrentVoiceClientCache : IVoiceClientCache
 
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
-            return HashSet.IsProperSubsetOf(other);
+            return GetSet(other).IsProperSupersetOf(_storage.Keys);
         }
 
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            return HashSet.IsProperSupersetOf(other);
+            return GetSet(other).IsProperSubsetOf(_storage.Keys);
         }
 
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            return HashSet.IsSubsetOf(other);
+            return GetSet(other).IsSupersetOf(_storage.Keys);
         }
 
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            return HashSet.IsSupersetOf(other);
+            foreach (var item in other)
+            {
+                if (!Contains(item))
+                    return false;
+            }
+
+            return true;
         }
 
         public bool Overlaps(IEnumerable<T> other)
         {
-            return HashSet.Overlaps(other);
+            foreach (var item in other)
+            {
+                if (Contains(item))
+                    return true;
+            }
+
+            return false;
         }
 
         public bool SetEquals(IEnumerable<T> other)
         {
-            return HashSet.SetEquals(other);
+            return GetSet(other).SetEquals(_storage.Keys);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
