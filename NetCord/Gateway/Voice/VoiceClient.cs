@@ -288,12 +288,7 @@ public sealed partial class VoiceClient : WebSocketClient
         {
             var logger = GCHandle<IWebSocketLogger>.FromIntPtr((nint)userData).Target;
 
-            if (logger.IsEnabled(LogLevel.Error))
-            {
-                var sourceStr = Marshal.PtrToStringUTF8((nint)source);
-                var reasonStr = Marshal.PtrToStringUTF8((nint)reason);
-                logger.Log(LogLevel.Error, (Source: sourceStr, Reason: reasonStr), null, static (s, e) => $"An MLS error occurred: {s.Source} {s.Reason}");
-            }
+            logger.Log(LogLevel.Error, (Source: (nint)source, Reason: (nint)reason), null, static (s, e) => $"An MLS error occurred: {Marshal.PtrToStringUTF8(s.Source)} {Marshal.PtrToStringUTF8(s.Reason)}");
         }
         catch
         {
