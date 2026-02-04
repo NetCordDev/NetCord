@@ -392,10 +392,10 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
 
-                    await InvokeEventAsync(_speaking, this, json, static json => new SpeakingEventArgs(json), static (client, json) => client.Cache = client.Cache.CacheUserSsrc(json.UserId, json.Ssrc)).ConfigureAwait(false);
-
                     if (_udpState is { DaveSession: var session })
                         session.OnSpeaking(json.UserId, json.Ssrc);
+
+                    await InvokeEventAsync(_speaking, this, json, static json => new SpeakingEventArgs(json), static (client, json) => client.Cache = client.Cache.CacheUserSsrc(json.UserId, json.Ssrc)).ConfigureAwait(false);
                 }
                 break;
             case VoiceOpcode.HeartbeatACK:
