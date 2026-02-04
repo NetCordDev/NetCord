@@ -78,7 +78,7 @@ public partial class VoiceClient
 #if DEBUG
             var fileString = Marshal.PtrToStringUTF8((nint)file);
             var messageString = Marshal.PtrToStringUTF8((nint)message);
-            Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
+            System.Diagnostics.Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
 #endif
         }
 
