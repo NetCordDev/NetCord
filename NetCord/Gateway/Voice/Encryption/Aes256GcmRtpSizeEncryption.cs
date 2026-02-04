@@ -21,7 +21,7 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
         {
             Decrypt(packet, plaintext);
         }
-        catch
+        catch (CryptographicException)
         {
             return false;
         }
@@ -35,7 +35,7 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
         {
             Encrypt(plaintext, packet);
         }
-        catch
+        catch (CryptographicException)
         {
             return false;
         }
