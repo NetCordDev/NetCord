@@ -44,16 +44,15 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            if (_offset == 0)
+            if (_offset is 0)
                 await WriteAsyncInternal().ConfigureAwait(false);
             else
             {
                 var end = _bufferSize - _offset;
-                if (buffer.Length > end)
+                if (buffer.Length >= end)
                 {
                     buffer[..end].CopyTo(_buffer[_offset..]);
                     await _next.WriteAsync(_buffer, cancellationToken).ConfigureAwait(false);
-                    _offset = 0;
                     buffer = buffer[end..];
                     await WriteAsyncInternal().ConfigureAwait(false);
                 }
@@ -79,16 +78,15 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         public override void Write(ReadOnlySpan<byte> buffer)
         {
             var buf = _buffer.Span;
-            if (_offset == 0)
+            if (_offset is 0)
                 WriteInternal(buffer, buf);
             else
             {
                 var end = _bufferSize - _offset;
-                if (buffer.Length > end)
+                if (buffer.Length >= end)
                 {
                     buffer[..end].CopyTo(buf[_offset..]);
                     _next.Write(buf);
-                    _offset = 0;
                     buffer = buffer[end..];
                     WriteInternal(buffer, buf);
                 }
