@@ -597,7 +597,7 @@ public sealed partial class VoiceClient : WebSocketClient
             var framesMissed = result.FramesMissed;
 
             var sequenceNumber = packet.SequenceNumber;
-            
+
             if (framesMissed is 0)
             {
                 await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);

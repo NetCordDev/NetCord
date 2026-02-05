@@ -1,9 +1,4 @@
-﻿using System.Buffers;
-using System.Buffers.Binary;
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
-
-using NetCord.Gateway.Voice.Encryption;
+﻿using System.Security.Cryptography;
 
 namespace NetCord.Gateway.Voice;
 
