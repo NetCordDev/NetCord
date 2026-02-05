@@ -699,6 +699,14 @@ public sealed partial class VoiceClient : WebSocketClient
         return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
     }
 
+    /// <summary>
+    /// Sends a voice frame.
+    /// </summary>
+    /// <param name="sequenceNumber">The sequence number of the voice frame.</param>
+    /// <param name="timestamp">The timestamp of the voice frame.</param>
+    /// <param name="frame">The Opus voice frame to send.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
+    /// <returns></returns>
     public async ValueTask SendVoiceAsync(ushort sequenceNumber, uint timestamp, ReadOnlyMemory<byte> frame, CancellationToken cancellationToken = default)
     {
         if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
@@ -728,6 +736,12 @@ public sealed partial class VoiceClient : WebSocketClient
         ArrayPool<byte>.Shared.Return(datagramArray);
     }
 
+    /// <summary>
+    /// Sends a voice frame.
+    /// </summary>
+    /// <param name="sequenceNumber">The sequence number of the voice frame.</param>
+    /// <param name="timestamp">The timestamp of the voice frame.</param>
+    /// <param name="frame">The Opus voice frame to send.</param>
     public void SendVoice(ushort sequenceNumber, uint timestamp, ReadOnlySpan<byte> frame)
     {
         if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
