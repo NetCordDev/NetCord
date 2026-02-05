@@ -5,7 +5,10 @@ namespace NetCord.Gateway.Voice;
 public static partial class Opus
 {
     public const int SamplingRate = 48_000;
+
     public const int MaxBitrate = 510_000;
+
+    public const float DefaultFrameDuration = 20;
     public const float MaxFrameDuration = 120;
 
     /// <summary>
@@ -25,7 +28,7 @@ public static partial class Opus
     public static int GetFrameBufferSize(int samplesPerChannel, PcmFormat format, VoiceChannels channels) => samplesPerChannel * (byte)format * (byte)channels;
 
     /// <summary>
-    /// Calculates the maximum possible size, in bytes, of an Opus audio frame for a given frame duration.
+    /// Calculates the maximum possible size, in bytes, of an Opus audio frame.
     /// </summary>
     /// <param name="frameDuration">The duration of the Opus frame, in milliseconds.</param>
     /// <returns>The maximum number of bytes that an Opus frame of the specified duration can occupy.</returns>

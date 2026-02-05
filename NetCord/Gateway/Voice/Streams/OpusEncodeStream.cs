@@ -7,15 +7,17 @@ namespace NetCord.Gateway.Voice;
 /// 
 /// </summary>
 /// <param name="next">The stream that this stream is writing to.</param>
-/// <param name="frameDuration">The duration of each Opus frame, in milliseconds.</param>
 /// <param name="format">The PCM format to encode from.</param>
 /// <param name="channels">Number of channels in input signal.</param>
 /// <param name="application">Opus coding mode.</param>
-/// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
-public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, float frameDuration = 20, bool segment = true) : RewritingStream(CreateNextStream(next, frameDuration, format, channels, application, segment))
+/// <param name="configuration">The configuration of the stream.</param>
+public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
 {
-    private static Stream CreateNextStream(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment)
+    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration)
     {
+        var frameDuration = configuration?.FrameDuration ?? Opus.DefaultFrameDuration;
+        var segment = configuration?.Segment ?? true;
+
         OpusEncodeStreamInternal encodeStream = new(next, frameDuration, format, channels, application);
         return segment ? new SegmentingStream(encodeStream, frameDuration, format, channels)
                        : encodeStream;

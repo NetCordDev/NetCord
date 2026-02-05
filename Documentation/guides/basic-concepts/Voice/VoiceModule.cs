@@ -140,7 +140,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateVoiceStream(normalizeSpeed: false);
+        var outStream = voiceClient.CreateVoiceStream(new() { NormalizeSpeed = false });
 
         voiceClient.VoiceReceive += args =>
         {
