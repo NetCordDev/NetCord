@@ -139,14 +139,17 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // Enter speaking state, to be able to send voice
         await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
-        // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateVoiceStream(new() { NormalizeSpeed = false });
-
         voiceClient.VoiceReceive += args =>
         {
-            // Pass current user voice directly to the output to create echo
+            // If the timestamp is null, the packet was lost.
+            // We skip it, which mirrors the packet loss to the echo recipients.
+            if (args.Timestamp is not { } timestamp)
+                return default;
+
+            // Pass current user voice directly to SendAsync to create echo
             if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
-                outStream.Write(args.Frame);
+                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+
             return default;
         };
 
