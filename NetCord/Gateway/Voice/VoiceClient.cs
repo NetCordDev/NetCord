@@ -699,13 +699,14 @@ public sealed partial class VoiceClient : WebSocketClient
     /// <summary>
     /// Creates a stream that you can write to to send voice. Each write must be exactly one Opus frame.
     /// </summary>
+    /// <param name="frameDuration">The duration of the Opus frames that will be written to the stream, in milliseconds.</param>
     /// <param name="normalizeSpeed">Whether to normalize the voice sending speed.</param>
     /// <returns></returns>
-    public Stream CreateOutputStream(bool normalizeSpeed = true)
+    public Stream CreateOutputStream(float frameDuration = 20, bool normalizeSpeed = true)
     {
-        Stream stream = new VoiceOutStream(this);
+        Stream stream = new VoiceOutStream(this, frameDuration);
         if (normalizeSpeed)
-            stream = new SpeedNormalizingStream(stream);
+            stream = new SpeedNormalizingStream(stream, frameDuration);
         return stream;
     }
 

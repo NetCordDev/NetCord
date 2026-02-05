@@ -3,11 +3,14 @@ using System.ComponentModel;
 
 namespace NetCord.Gateway.Voice;
 
-public unsafe partial class OpusDecodeStream : RewritingStream
+public class OpusDecodeStream : RewritingStream
 {
     private readonly OpusDecoder _decoder;
-    private readonly delegate*<OpusDecoder, ReadOnlySpan<byte>, Span<byte>, void> _decode;
+    private readonly Func<ReadOnlySpan<byte>, Span<byte>, int> _decode;
+    private readonly PcmFormat _format;
+    private readonly VoiceChannels _channels;
     private readonly int _frameSize;
+    private readonly int _bufferSize;
 
     /// <summary>
     /// 
@@ -20,48 +23,44 @@ public unsafe partial class OpusDecodeStream : RewritingStream
         _decoder = new(channels);
         _decode = format switch
         {
-            PcmFormat.Short => &Decode,
-            PcmFormat.Float => &DecodeFloat,
+            PcmFormat.Short => Decode,
+            PcmFormat.Float => DecodeFloat,
             _ => throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(PcmFormat))
         };
-        _frameSize = Opus.GetFrameSize(format, channels);
-
-        static void Decode(OpusDecoder decoder, ReadOnlySpan<byte> pcm, Span<byte> data)
-        {
-            decoder.Decode(pcm, data);
-        }
-
-        static void DecodeFloat(OpusDecoder decoder, ReadOnlySpan<byte> pcm, Span<byte> data)
-        {
-            decoder.DecodeFloat(pcm, data);
-        }
+        _format = format;
+        _channels = channels;
+        int samplesPerChannel = _frameSize = Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+        _bufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
     }
 
-    private void Decode(ReadOnlySpan<byte> pcm, Span<byte> data)
+    private int Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
     {
-        _decode(_decoder, pcm, data);
+        return _decoder.Decode(data, pcm, _frameSize);
     }
-}
 
-public partial class OpusDecodeStream
-{
+    private int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm)
+    {
+        return _decoder.DecodeFloat(data, pcm, _frameSize);
+    }
+
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        var array = ArrayPool<byte>.Shared.Rent(_frameSize);
+        var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
 
-        Decode(buffer.Span, array.AsSpan(0, _frameSize));
-        await _next.WriteAsync(array.AsMemory(0, _frameSize), cancellationToken).ConfigureAwait(false);
+        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, _bufferSize));
+        int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
+        await _next.WriteAsync(array.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
 
         ArrayPool<byte>.Shared.Return(array);
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        var array = ArrayPool<byte>.Shared.Rent(_frameSize);
+        var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
 
-        var pcm = array.AsSpan(0, _frameSize);
-        Decode(buffer, pcm);
-        _next.Write(pcm);
+        int samplesPerChannel = _decode(buffer, array.AsSpan(0, _bufferSize));
+        int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
+        _next.Write(array.AsSpan(0, written));
 
         ArrayPool<byte>.Shared.Return(array);
     }

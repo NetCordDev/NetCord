@@ -77,8 +77,12 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        using var outputStream = voiceClient.CreateOutputStream();
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        var frameDuration = 2.5f;
+
+        using var outputStream = voiceClient.CreateOutputStream(frameDuration);
+        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Short, VoiceChannels.Stereo);
+        //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
@@ -93,8 +97,10 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
                 RedirectStandardOutput = true,
             })!;
+
             try
             {
+                //ffmpeg.StandardOutput.BaseStream.CopyTo(opusEncodeStream);
                 await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
                 await opusEncodeStream.FlushAsync(token);
             }
@@ -122,7 +128,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        using var outputStream = voiceClient.CreateOutputStream(false);
+        using var outputStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>

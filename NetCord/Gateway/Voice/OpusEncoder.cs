@@ -1,8 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿namespace NetCord.Gateway.Voice;
 
-namespace NetCord.Gateway.Voice;
-
-public sealed class OpusEncoder : IDisposable
+public readonly struct OpusEncoder : IDisposable
 {
     private readonly OpusEncoderHandle _encoder;
 
@@ -15,7 +13,7 @@ public sealed class OpusEncoder : IDisposable
     public OpusEncoder(VoiceChannels channels, OpusApplication application)
     {
         var encoder = Opus.OpusEncoderCreate(Opus.SamplingRate, channels, application, out var error);
-        if (error != 0)
+        if (error is not 0)
             throw new OpusException(error);
 
         _encoder = encoder;
@@ -25,12 +23,13 @@ public sealed class OpusEncoder : IDisposable
     /// Encodes an Opus frame.
     /// </summary>
     /// <param name="pcm">Input signal.</param>
+    /// <param name="frameSize">Number of samples per channel in the input signal.</param>
     /// <param name="data">Output payload.</param>
     /// <returns>The length of the encoded packet.</returns>
     /// <exception cref="OpusException"></exception>
-    public int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
+    public int Encode(ReadOnlySpan<byte> pcm, int frameSize, Span<byte> data)
     {
-        int result = Opus.OpusEncode(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
+        int result = Opus.OpusEncode(_encoder, pcm, frameSize, data, data.Length);
 
         if (result < 0)
             throw new OpusException((OpusError)result);
@@ -42,12 +41,13 @@ public sealed class OpusEncoder : IDisposable
     /// Encodes an Opus frame.
     /// </summary>
     /// <param name="pcm">Input signal.</param>
+    /// <param name="frameSize">Number of samples per channel in the input signal.</param>
     /// <param name="data">Output payload.</param>
     /// <returns>The length of the encoded packet.</returns>
     /// <exception cref="OpusException"></exception>
-    public int EncodeFloat(ReadOnlySpan<byte> pcm, Span<byte> data)
+    public int EncodeFloat(ReadOnlySpan<byte> pcm, int frameSize, Span<byte> data)
     {
-        int result = Opus.OpusEncodeFloat(_encoder, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, ref MemoryMarshal.GetReference(data), data.Length);
+        int result = Opus.OpusEncodeFloat(_encoder, pcm, frameSize, data, data.Length);
 
         if (result < 0)
             throw new OpusException((OpusError)result);

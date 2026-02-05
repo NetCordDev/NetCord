@@ -7,8 +7,10 @@ using NetCord.Gateway.Voice.Encryption;
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoiceOutStream(VoiceClient client) : Stream
+internal class VoiceOutStream(VoiceClient client, float frameDuration) : Stream
 {
+    private readonly uint _samplesPerChannel = (uint)Opus.GetSamplesPerChannel(frameDuration);
+
     private ushort _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
     private uint _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
 
@@ -179,7 +181,7 @@ internal class VoiceOutStream(VoiceClient client) : Stream
         datagram[0] = 0b10000000;
         datagram[1] = 0b01111000;
         BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], ++_sequenceNumber);
-        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += Opus.SamplesPerChannel);
+        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], _timestamp += _samplesPerChannel);
         BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], client.Cache.Ssrc);
     }
 
