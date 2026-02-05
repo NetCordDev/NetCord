@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 using NetCord.Rest;
 
-using static NetCord.Gateway.GatewayClientThrowHelper;
+using static NetCord.Gateway.WebSocketClientThrowHelper;
 
 namespace NetCord.Gateway;
 

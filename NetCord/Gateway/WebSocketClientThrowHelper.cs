@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway;
 
-internal static class GatewayClientThrowHelper
+internal static class WebSocketClientThrowHelper
 {
     [DoesNotReturn]
     public static void ThrowConnectionAlreadyStarted()

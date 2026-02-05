@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -11,6 +12,8 @@ using NetCord.Gateway.Voice.JsonModels;
 using NetCord.Gateway.Voice.UdpSockets;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
+
+using static NetCord.Gateway.WebSocketClientThrowHelper;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -593,6 +596,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
             var framesMissed = result.FramesMissed;
 
+            var sequenceNumber = packet.SequenceNumber;
+            
             if (framesMissed is 0)
             {
                 await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
@@ -601,11 +606,9 @@ public sealed partial class VoiceClient : WebSocketClient
 
             var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
 
-            VoiceReceiveEventArgs emptyArgs = new(null, 0, 0, ssrc);
-
 #pragma warning disable CA2012 // Use ValueTasks correctly
             for (ushort i = 0; i < framesMissed; i++)
-                tasks[i] = InvokeEventAsync(handlers, emptyArgs, nameof(_voiceReceive));
+                tasks[i] = InvokeEventAsync(handlers, new(null, 0, 0, ssrc, null, (ushort)(sequenceNumber - framesMissed + i)), nameof(_voiceReceive));
 
             tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
 #pragma warning restore CA2012 // Use ValueTasks correctly
@@ -649,7 +652,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
                 byte[]? toReturn = null;
                 var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
-                var result = decryptor.Decrypt(Dave.MediaType.Audio, packet.Ssrc, plaintextData, daveArray, out int bytesWritten);
+                var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out int bytesWritten);
 
                 if (result is not Dave.DecryptorResultCode.Success)
                 {
@@ -666,7 +669,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 if (toReturn is not null)
                     ArrayPool<byte>.Shared.Return(array);
 
-                return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc), args =>
+                return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc, packet.Timestamp, sequenceNumber), args =>
                 {
                     ArrayPool<byte>.Shared.Return(args._buffer!);
                 }, nameof(_voiceReceive));
@@ -696,13 +699,154 @@ public sealed partial class VoiceClient : WebSocketClient
         return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
     }
 
+    public async ValueTask SendVoiceAsync(ushort sequenceNumber, uint timestamp, ReadOnlyMemory<byte> frame, CancellationToken cancellationToken = default)
+    {
+        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
+        {
+            ThrowConnectionNotStarted();
+            return;
+        }
+
+        var ssrc = Cache.Ssrc;
+
+        using var result = EncryptDave(session, frame.Span, ssrc);
+
+        if (result.MissingKeyRatchet)
+            return;
+
+        if (!result.IsDisabled)
+            frame = result.Memory;
+
+        int datagramLength = frame.Length + encryption.Expansion + 12;
+
+        var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
+
+        WriteDatagram(frame.Span, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
+
+        await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
+
+        ArrayPool<byte>.Shared.Return(datagramArray);
+    }
+
+    public void SendVoice(ushort sequenceNumber, uint timestamp, ReadOnlySpan<byte> frame)
+    {
+        if (_udpState is not { Connection: var connection, Encryption: var encryption, DaveSession: var session })
+        {
+            ThrowConnectionNotStarted();
+            return;
+        }
+
+        var ssrc = Cache.Ssrc;
+
+        using var result = EncryptDave(session, frame, ssrc);
+
+        if (result.MissingKeyRatchet)
+            return;
+
+        if (!result.IsDisabled)
+            frame = result.Span;
+
+        int datagramLength = frame.Length + encryption.Expansion + 12;
+
+        var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
+
+        WriteDatagram(frame, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
+
+        connection.Send(new(datagramArray, 0, datagramLength));
+
+        ArrayPool<byte>.Shared.Return(datagramArray);
+    }
+
+    private static DaveEncryptionResult EncryptDave(DaveSession session, ReadOnlySpan<byte> buffer, uint ssrc)
+    {
+        if (!session.IsEnabled)
+            return new(default, 0, DaveEncryptionResult.Flags.Disabled);
+
+        var encryptor = session.Encryptor;
+
+        int length = encryptor.GetMaxCiphertextSize(Dave.MediaType.Audio, buffer.Length);
+
+        var array = ArrayPool<byte>.Shared.Rent(length);
+
+        int bytesWritten;
+
+        while (true)
+        {
+            var result = encryptor.Encrypt(Dave.MediaType.Audio, ssrc, buffer, array, out bytesWritten);
+
+            if (result is Dave.EncryptorResultCode.Success)
+                break;
+
+            if (result is Dave.EncryptorResultCode.MissingKeyRatchet)
+            {
+                ArrayPool<byte>.Shared.Return(array);
+
+                return new(null, 0, DaveEncryptionResult.Flags.MissingKeyRatchet);
+            }
+
+            if (result is Dave.EncryptorResultCode.TooManyAttempts)
+                continue;
+
+            ArrayPool<byte>.Shared.Return(array);
+
+            ThrowDaveEncryptorException(result);
+
+            [DoesNotReturn]
+            static void ThrowDaveEncryptorException(Dave.EncryptorResultCode result)
+            {
+                throw new DaveEncryptorException(result);
+            }
+        }
+
+        return new(array, bytesWritten, default);
+    }
+
+    private readonly struct DaveEncryptionResult(byte[]? buffer, int length, DaveEncryptionResult.Flags flags) : IDisposable
+    {
+        public ReadOnlyMemory<byte> Memory => buffer.AsMemory(0, length);
+
+        public ReadOnlySpan<byte> Span => buffer.AsSpan(0, length);
+
+        public bool IsDisabled => flags.HasFlag(Flags.Disabled);
+
+        public bool MissingKeyRatchet => flags.HasFlag(Flags.MissingKeyRatchet);
+
+        public void Dispose()
+        {
+            if (buffer is not null)
+                ArrayPool<byte>.Shared.Return(buffer);
+        }
+
+        [Flags]
+        public enum Flags : byte
+        {
+            Disabled = 1 << 0,
+            MissingKeyRatchet = 1 << 1,
+        }
+    };
+
+    private static void WriteDatagram(ReadOnlySpan<byte> buffer, Span<byte> datagram, IVoiceEncryption encryption, ushort sequenceNumber, uint timestamp, uint ssrc)
+    {
+        WriteRtpHeader(datagram, sequenceNumber, timestamp, ssrc);
+        encryption.Encrypt(buffer, new(datagram));
+    }
+
+    private static void WriteRtpHeader(Span<byte> datagram, ushort sequenceNumber, uint timestamp, uint ssrc)
+    {
+        datagram[0] = 0b10000000;
+        datagram[1] = 0b01111000;
+        BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], sequenceNumber);
+        BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], timestamp);
+        BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], ssrc);
+    }
+
     /// <summary>
     /// Creates a stream that you can write to to send voice. Each write must be exactly one Opus frame.
     /// </summary>
     /// <param name="frameDuration">The duration of the Opus frames that will be written to the stream, in milliseconds.</param>
     /// <param name="normalizeSpeed">Whether to normalize the voice sending speed.</param>
     /// <returns></returns>
-    public Stream CreateOutputStream(float frameDuration = 20, bool normalizeSpeed = true)
+    public Stream CreateVoiceStream(float frameDuration = 20, bool normalizeSpeed = true)
     {
         Stream stream = new VoiceOutStream(this, frameDuration);
         if (normalizeSpeed)

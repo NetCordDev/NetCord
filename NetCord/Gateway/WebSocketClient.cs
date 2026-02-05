@@ -8,7 +8,7 @@ using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
 
-using static NetCord.Gateway.GatewayClientThrowHelper;
+using static NetCord.Gateway.WebSocketClientThrowHelper;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 

@@ -79,7 +79,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         var frameDuration = 2.5f;
 
-        using var outputStream = voiceClient.CreateOutputStream(frameDuration);
+        using var outputStream = voiceClient.CreateVoiceStream(frameDuration);
         using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
         //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Short, VoiceChannels.Stereo);
         //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
@@ -128,16 +128,20 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        var frameDuration = 2.5f;
+        //var frameDuration = 2.5f;
 
-        using var outputStream = voiceClient.CreateOutputStream(frameDuration, normalizeSpeed: false);
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
-        using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
+        //using var outputStream = voiceClient.CreateVoiceStream(frameDuration, normalizeSpeed: false);
+        //using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>
         {
-            opusDecodeStream.Write(args.Frame);
+            if (args.Timestamp is { } timestamp)
+                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+            else
+                Console.WriteLine($"Frame {args.SequenceNumber} got lost");
+
             return default;
 
             //var frame = args.Frame;

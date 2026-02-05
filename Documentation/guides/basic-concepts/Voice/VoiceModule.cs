@@ -52,7 +52,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await RespondAsync(InteractionCallback.Message($"Playing {Path.GetFileName(track)}!"));
 
         // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateOutputStream();
+        var outStream = voiceClient.CreateVoiceStream();
 
         // We create this stream to automatically convert the PCM data returned by FFmpeg to Opus data.
         // The Opus data is then written to 'outStream' that sends the data to Discord
@@ -140,7 +140,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         await voiceClient.EnterSpeakingStateAsync(new SpeakingProperties(SpeakingFlags.Microphone));
 
         // Create a stream that sends voice to Discord
-        var outStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
+        var outStream = voiceClient.CreateVoiceStream(normalizeSpeed: false);
 
         voiceClient.VoiceReceive += args =>
         {
