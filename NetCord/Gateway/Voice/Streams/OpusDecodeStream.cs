@@ -45,9 +45,11 @@ public class OpusDecodeStream : RewritingStream
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
+        int bufferSize = _bufferSize;
 
-        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, _bufferSize));
+        var array = ArrayPool<byte>.Shared.Rent(bufferSize);
+
+        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, bufferSize));
         int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
         await _next.WriteAsync(array.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
 
@@ -56,9 +58,11 @@ public class OpusDecodeStream : RewritingStream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
+        int bufferSize = _bufferSize;
 
-        int samplesPerChannel = _decode(buffer, array.AsSpan(0, _bufferSize));
+        var array = ArrayPool<byte>.Shared.Rent(bufferSize);
+
+        int samplesPerChannel = _decode(buffer, array.AsSpan(0, bufferSize));
         int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
         _next.Write(array.AsSpan(0, written));
 

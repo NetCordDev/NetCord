@@ -128,12 +128,16 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        using var outputStream = voiceClient.CreateOutputStream(normalizeSpeed: false);
+        var frameDuration = 2.5f;
+
+        using var outputStream = voiceClient.CreateOutputStream(frameDuration, normalizeSpeed: false);
+        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
+        using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>
         {
-            outputStream.Write(args.Frame);
+            opusDecodeStream.Write(args.Frame);
             return default;
 
             //var frame = args.Frame;
