@@ -80,8 +80,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         var frameDuration = 2.5f;
 
         using var outputStream = voiceClient.CreateVoiceStream(new() { FrameDuration = frameDuration });
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, new() { FrameDuration = frameDuration });
-        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Short, VoiceChannels.Stereo);
+        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
         //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
