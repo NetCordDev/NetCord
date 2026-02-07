@@ -162,14 +162,17 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("record", "Record!")]
-    public async Task RecordAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
+    public async Task RecordAsync(IVoiceGuildChannel? channel = null,
+                                  VoiceEncryption? encryption = null,
+                                  PcmFormat pcmFormat = PcmFormat.Float,
+                                  VoiceChannels voiceChannels = VoiceChannels.Stereo)
     {
         TaskCompletionSource taskCompletionSource = new();
 
         using var ffmpeg = Process.Start(new ProcessStartInfo
         {
             FileName = "ffmpeg",
-            Arguments = $"-f f32le -ar 48000 -ac 2 -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
+            Arguments = $"-f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 -ac {(byte)voiceChannels} -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
             RedirectStandardInput = true,
         })!;
 
@@ -182,7 +185,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, PcmFormat.Float, VoiceChannels.Stereo);
+        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
 
         voiceClient.VoiceReceive += args =>
         {
