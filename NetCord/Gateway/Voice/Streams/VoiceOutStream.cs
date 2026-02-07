@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoiceOutStream(VoiceClient client, float frameDuration) : Stream
+internal sealed class VoiceOutStream(VoiceClient client, float frameDuration) : Stream
 {
     private readonly uint _samplesPerChannel = (uint)Opus.GetSamplesPerChannel(frameDuration);
 

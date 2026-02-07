@@ -2,7 +2,7 @@
 
 namespace NetCord.Gateway.Voice;
 
-internal class SpeedNormalizingStream(Stream next, float frameDuration) : RewritingStream(next)
+internal sealed class SpeedNormalizingStream(Stream next, float frameDuration) : RewritingStream(next)
 {
     private readonly long _frameDurationTicks = (int)(frameDuration * 2) * Stopwatch.Frequency / TimeSpan.MillisecondsPerSecond / 2;
 

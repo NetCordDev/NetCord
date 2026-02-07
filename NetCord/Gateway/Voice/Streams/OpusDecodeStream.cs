@@ -3,14 +3,14 @@ using System.ComponentModel;
 
 namespace NetCord.Gateway.Voice;
 
-public class OpusDecodeStream : RewritingStream
+public sealed class OpusDecodeStream : RewritingStream
 {
     private readonly OpusDecoder _decoder;
     private readonly Func<ReadOnlySpan<byte>, Span<byte>, int> _decode;
     private readonly PcmFormat _format;
     private readonly VoiceChannels _channels;
     private readonly int _frameSize;
-    private readonly int _bufferSize;
+    private readonly int _pcmBufferSize;
 
     /// <summary>
     /// 
@@ -30,7 +30,7 @@ public class OpusDecodeStream : RewritingStream
         _format = format;
         _channels = channels;
         int samplesPerChannel = _frameSize = Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
-        _bufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
+        _pcmBufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
     }
 
     private int Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
@@ -45,11 +45,11 @@ public class OpusDecodeStream : RewritingStream
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        int bufferSize = _bufferSize;
+        int size = _pcmBufferSize;
 
-        var array = ArrayPool<byte>.Shared.Rent(bufferSize);
+        var array = ArrayPool<byte>.Shared.Rent(size);
 
-        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, bufferSize));
+        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, size));
         int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
         await _next.WriteAsync(array.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
 
@@ -58,11 +58,11 @@ public class OpusDecodeStream : RewritingStream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        int bufferSize = _bufferSize;
+        int size = _pcmBufferSize;
 
-        var array = ArrayPool<byte>.Shared.Rent(bufferSize);
+        var array = ArrayPool<byte>.Shared.Rent(size);
 
-        int samplesPerChannel = _decode(buffer, array.AsSpan(0, bufferSize));
+        int samplesPerChannel = _decode(buffer, array.AsSpan(0, size));
         int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
         _next.Write(array.AsSpan(0, written));
 
