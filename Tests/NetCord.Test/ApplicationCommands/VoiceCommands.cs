@@ -85,6 +85,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
+        //var url = @"C:\Users\Kuba\Downloads\jackhammer.wav";
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         await RespondAsync(InteractionCallback.Message($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
 
@@ -109,6 +110,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 ffmpeg.Kill();
                 return;
             }
+
+            await Task.Delay(2000);
         }
         while (loop);
 

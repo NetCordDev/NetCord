@@ -11,7 +11,7 @@ namespace NetCord.Gateway.Voice;
 /// <param name="channels">Number of channels in input signal.</param>
 /// <param name="application">Opus coding mode.</param>
 /// <param name="configuration">The configuration of the stream.</param>
-public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
+public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
 {
     private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration)
     {
@@ -31,7 +31,7 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         _next.Write(buffer);
     }
 
-    private class SegmentingStream : RewritingStream
+    private sealed class SegmentingStream : RewritingStream
     {
         private int _offset;
         private readonly int _bufferSize;
@@ -132,12 +132,13 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         }
     }
 
-    private partial class OpusEncodeStreamInternal : RewritingStream
+    private sealed partial class OpusEncodeStreamInternal : RewritingStream
     {
         private readonly OpusEncoder _encoder;
         private readonly Func<ReadOnlySpan<byte>, Span<byte>, int> _encode;
         private readonly int _frameSize;
-        private readonly int _bufferSize;
+        private readonly int _opusBufferSize;
+        private readonly int _pcmBufferSize;
 
         public OpusEncodeStreamInternal(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels, OpusApplication application) : base(next)
         {
@@ -148,8 +149,9 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
                 PcmFormat.Float => EncodeFloat,
                 _ => throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(PcmFormat)),
             };
-            _frameSize = Opus.GetSamplesPerChannel(frameDuration);
-            _bufferSize = Opus.GetMaxOpusFrameSize(frameDuration);
+            int samplesPerChannel = _frameSize = Opus.GetSamplesPerChannel(frameDuration);
+            _opusBufferSize = Opus.GetMaxOpusFrameSize(frameDuration);
+            _pcmBufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
         }
 
         private int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
@@ -164,9 +166,11 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
+            int size = _opusBufferSize;
 
-            int count = _encode(buffer.Span, array.AsSpan());
+            var array = ArrayPool<byte>.Shared.Rent(size);
+
+            int count = _encode(buffer.Span, array.AsSpan(0, size));
             await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
 
             ArrayPool<byte>.Shared.Return(array);
@@ -174,13 +178,51 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            var array = ArrayPool<byte>.Shared.Rent(_bufferSize);
+            int size = _opusBufferSize;
 
-            var data = array.AsSpan();
+            var array = ArrayPool<byte>.Shared.Rent(size);
+
+            var data = array.AsSpan(0, size);
             int count = _encode(buffer, data);
             _next.Write(data[..count]);
 
             ArrayPool<byte>.Shared.Return(array);
+        }
+
+        public override async Task FlushAsync(CancellationToken cancellationToken)
+        {
+            int size = _pcmBufferSize;
+
+            var silenceArray = ArrayPool<byte>.Shared.Rent(size);
+
+            silenceArray.AsSpan(0, size).Clear();
+
+            var silenceBuffer = silenceArray.AsMemory(0, size);
+
+            for (int i = 0; i < 5; i++)
+                await WriteAsync(silenceBuffer, cancellationToken).ConfigureAwait(false);
+
+            ArrayPool<byte>.Shared.Return(silenceArray);
+
+            await base.FlushAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public override void Flush()
+        {
+            int size = _pcmBufferSize;
+
+            var silenceArray = ArrayPool<byte>.Shared.Rent(size);
+
+            var silenceBuffer = silenceArray.AsSpan(0, size);
+
+            silenceBuffer.Clear();
+
+            for (int i = 0; i < 5; i++)
+                Write(silenceBuffer);
+
+            ArrayPool<byte>.Shared.Return(silenceArray);
+
+            base.Flush();
         }
 
         protected override void Dispose(bool disposing)

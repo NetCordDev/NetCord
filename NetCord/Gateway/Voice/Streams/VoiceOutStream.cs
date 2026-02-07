@@ -17,18 +17,11 @@ internal class VoiceOutStream(VoiceClient client, float frameDuration) : Stream
 
     public override void Flush()
     {
-        ReadOnlySpan<byte> bytes = [0xF8, 0xFF, 0xFE];
-
-        for (int i = 0; i < 5; i++)
-            Write(bytes);
     }
 
-    public override async Task FlushAsync(CancellationToken cancellationToken)
+    public override Task FlushAsync(CancellationToken cancellationToken)
     {
-        ReadOnlyMemory<byte> bytes = new([0xF8, 0xFF, 0xFE]);
-
-        for (int i = 0; i < 5; i++)
-            await WriteAsync(bytes, cancellationToken).ConfigureAwait(false);
+        return Task.CompletedTask;
     }
 
     public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
