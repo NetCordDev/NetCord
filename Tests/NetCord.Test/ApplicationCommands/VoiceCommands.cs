@@ -135,8 +135,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        //var frameDuration = 2.5f;
-
         //using var outputStream = voiceClient.CreateVoiceStream(frameDuration, normalizeSpeed: false);
         //using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
         //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
