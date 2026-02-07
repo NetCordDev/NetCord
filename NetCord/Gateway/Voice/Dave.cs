@@ -176,15 +176,15 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveSessionReset")]
     public static partial void SessionReset(SessionHandle session);
 
-    [LibraryImport(DllName, EntryPoint = "daveSessionSetProtocolVersion")]
-    public static partial void SessionSetProtocolVersion(SessionHandle session, ushort version);
+    //[LibraryImport(DllName, EntryPoint = "daveSessionSetProtocolVersion")]
+    //public static partial void SessionSetProtocolVersion(SessionHandle session, ushort version);
 
     [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveSessionGetProtocolVersion")]
     public static partial ushort SessionGetProtocolVersion(SessionHandle session);
 
-    [LibraryImport(DllName, EntryPoint = "daveSessionGetLastEpochAuthenticator")]
-    public static partial void SessionGetLastEpochAuthenticator(SessionHandle session, out BufferHandle<byte> authenticator, out nuint length);
+    //[LibraryImport(DllName, EntryPoint = "daveSessionGetLastEpochAuthenticator")]
+    //public static partial void SessionGetLastEpochAuthenticator(SessionHandle session, out BufferHandle<byte> authenticator, out nuint length);
 
     [LibraryImport(DllName, EntryPoint = "daveSessionSetExternalSender")]
     public static partial void SessionSetExternalSender(SessionHandle session, ReadOnlySpan<byte> externalSender, nuint length);
@@ -204,8 +204,8 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveSessionGetKeyRatchet", StringMarshalling = StringMarshalling.Utf8)]
     public static partial KeyRatchetHandle SessionGetKeyRatchet(SessionHandle session, ReadOnlySpan<byte> userId);
 
-    [LibraryImport(DllName, EntryPoint = "daveSessionGetPairwiseFingerprint", StringMarshalling = StringMarshalling.Utf8)]
-    public static partial void SessionGetPairwiseFingerprint(SessionHandle session, ushort version, ReadOnlySpan<byte> userId, delegate* unmanaged<byte*, nuint, void*, void> pairwiseFingerprintCallback, void* userData);
+    //[LibraryImport(DllName, EntryPoint = "daveSessionGetPairwiseFingerprint", StringMarshalling = StringMarshalling.Utf8)]
+    //public static partial void SessionGetPairwiseFingerprint(SessionHandle session, ushort version, ReadOnlySpan<byte> userId, delegate* unmanaged<byte*, nuint, void*, void> pairwiseFingerprintCallback, void* userData);
 
     [LibraryImport(DllName, EntryPoint = "daveKeyRatchetDestroy")]
     public static partial void KeyRatchetDestroy(nint keyRatchet);
@@ -220,20 +220,20 @@ internal static unsafe partial class Dave
     [return: MarshalAs(UnmanagedType.U1)]
     public static partial bool CommitResultIsIgnored(CommitResultHandle commitResultHandle);
 
-    [LibraryImport(DllName, EntryPoint = "daveCommitResultGetRosterMemberIds")]
-    public static partial void CommitResultGetRosterMemberIds(CommitResultHandle commitResultHandle, out BufferHandle<ulong> rosterIds, out nuint rosterIdsLength);
+    //[LibraryImport(DllName, EntryPoint = "daveCommitResultGetRosterMemberIds")]
+    //public static partial void CommitResultGetRosterMemberIds(CommitResultHandle commitResultHandle, out BufferHandle<ulong> rosterIds, out nuint rosterIdsLength);
 
-    [LibraryImport(DllName, EntryPoint = "daveCommitResultGetRosterMemberSignature")]
-    public static partial void CommitResultGetRosterMemberSignature(CommitResultHandle commitResultHandle, ulong rosterId, out BufferHandle<byte> signature, out nuint signatureLength);
+    //[LibraryImport(DllName, EntryPoint = "daveCommitResultGetRosterMemberSignature")]
+    //public static partial void CommitResultGetRosterMemberSignature(CommitResultHandle commitResultHandle, ulong rosterId, out BufferHandle<byte> signature, out nuint signatureLength);
 
     [LibraryImport(DllName, EntryPoint = "daveCommitResultDestroy")]
     public static partial void CommitResultDestroy(nint commitResultHandle);
 
-    [LibraryImport(DllName, EntryPoint = "daveWelcomeResultGetRosterMemberIds")]
-    public static partial void WelcomeResultGetRosterMemberIds(WelcomeResultHandle welcomeResultHandle, out BufferHandle<ulong> rosterIds, out nuint rosterIdsLength);
+    //[LibraryImport(DllName, EntryPoint = "daveWelcomeResultGetRosterMemberIds")]
+    //public static partial void WelcomeResultGetRosterMemberIds(WelcomeResultHandle welcomeResultHandle, out BufferHandle<ulong> rosterIds, out nuint rosterIdsLength);
 
-    [LibraryImport(DllName, EntryPoint = "daveWelcomeResultGetRosterMemberSignature")]
-    public static partial void WelcomeResultGetRosterMemberSignature(WelcomeResultHandle welcomeResultHandle, ulong rosterId, out BufferHandle<byte> signature, out nuint signatureLength);
+    //[LibraryImport(DllName, EntryPoint = "daveWelcomeResultGetRosterMemberSignature")]
+    //public static partial void WelcomeResultGetRosterMemberSignature(WelcomeResultHandle welcomeResultHandle, ulong rosterId, out BufferHandle<byte> signature, out nuint signatureLength);
 
     [LibraryImport(DllName, EntryPoint = "daveWelcomeResultDestroy")]
     public static partial void WelcomeResultDestroy(nint welcomeResultHandle);
@@ -247,35 +247,35 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveEncryptorSetKeyRatchet")]
     public static partial void EncryptorSetKeyRatchet(EncryptorHandle encryptor, KeyRatchetHandle keyRatchet);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorSetPassthroughMode")]
-    public static partial void EncryptorSetPassthroughMode(EncryptorHandle encryptor, [MarshalAs(UnmanagedType.U1)] bool passthroughMode);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorSetPassthroughMode")]
+    //public static partial void EncryptorSetPassthroughMode(EncryptorHandle encryptor, [MarshalAs(UnmanagedType.U1)] bool passthroughMode);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorAssignSsrcToCodec")]
-    public static partial void EncryptorAssignSsrcToCodec(EncryptorHandle encryptor, uint ssrc, CodecType codecType);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorAssignSsrcToCodec")]
+    //public static partial void EncryptorAssignSsrcToCodec(EncryptorHandle encryptor, uint ssrc, CodecType codecType);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorGetProtocolVersion")]
-    public static partial ushort EncryptorGetProtocolVersion(EncryptorHandle encryptor);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorGetProtocolVersion")]
+    //public static partial ushort EncryptorGetProtocolVersion(EncryptorHandle encryptor);
 
     [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveEncryptorGetMaxCiphertextByteSize")]
     public static partial nuint EncryptorGetMaxCiphertextByteSize(EncryptorHandle encryptor, MediaType mediaType, nuint frameSize);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorHasKeyRatchet")]
-    [return: MarshalAs(UnmanagedType.U1)]
-    public static partial bool EncryptorHasKeyRatchet(EncryptorHandle encryptor);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorHasKeyRatchet")]
+    //[return: MarshalAs(UnmanagedType.U1)]
+    //public static partial bool EncryptorHasKeyRatchet(EncryptorHandle encryptor);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorIsPassthroughMode")]
-    [return: MarshalAs(UnmanagedType.U1)]
-    public static partial bool EncryptorIsPassthroughMode(EncryptorHandle encryptor);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorIsPassthroughMode")]
+    //[return: MarshalAs(UnmanagedType.U1)]
+    //public static partial bool EncryptorIsPassthroughMode(EncryptorHandle encryptor);
 
     [LibraryImport(DllName, EntryPoint = "daveEncryptorEncrypt")]
     public static partial EncryptorResultCode EncryptorEncrypt(EncryptorHandle encryptor, MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, nuint frameLength, Span<byte> encryptedFrame, nuint encryptedFrameCapacity, out nuint bytesWritten);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorSetProtocolVersionChangedCallback")]
-    public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, delegate* unmanaged<void*, void> encryptorProtocolVersionChangedCallback, void* userData);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorSetProtocolVersionChangedCallback")]
+    //public static partial void EncryptorSetProtocolVersionChangedCallback(EncryptorHandle encryptor, delegate* unmanaged<void*, void> encryptorProtocolVersionChangedCallback, void* userData);
 
-    [LibraryImport(DllName, EntryPoint = "daveEncryptorGetStats")]
-    public static partial void EncryptorGetStats(EncryptorHandle encryptor, MediaType mediaType, out EncryptorStats stats);
+    //[LibraryImport(DllName, EntryPoint = "daveEncryptorGetStats")]
+    //public static partial void EncryptorGetStats(EncryptorHandle encryptor, MediaType mediaType, out EncryptorStats stats);
 
     [LibraryImport(DllName, EntryPoint = "daveDecryptorCreate")]
     public static partial DecryptorHandle DecryptorCreate();
@@ -296,8 +296,8 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveDecryptorGetMaxPlaintextByteSize")]
     public static partial nuint DecryptorGetMaxPlaintextByteSize(DecryptorHandle decryptor, MediaType mediaType, nuint encryptedFrameSize);
 
-    [LibraryImport(DllName, EntryPoint = "daveDecryptorGetStats")]
-    public static partial void DecryptorGetStats(DecryptorHandle decryptor, MediaType mediaType, out DecryptorStats stats);
+    //[LibraryImport(DllName, EntryPoint = "daveDecryptorGetStats")]
+    //public static partial void DecryptorGetStats(DecryptorHandle decryptor, MediaType mediaType, out DecryptorStats stats);
 
     [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveSetLogSinkCallback")]
