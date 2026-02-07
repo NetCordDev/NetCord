@@ -13,9 +13,10 @@ internal class SpeedNormalizingStream(Stream next, float frameDuration) : Rewrit
     {
         if (_used)
         {
-            var delay = _nextTick - Stopwatch.GetTimestamp();
+            var delayTicks = _nextTick - Stopwatch.GetTimestamp();
+            var delay = (int)(delayTicks * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency);
             if (delay > 0)
-                await Task.Delay((int)(delay * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency), cancellationToken).ConfigureAwait(false);
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
         }
         else
         {
@@ -31,9 +32,10 @@ internal class SpeedNormalizingStream(Stream next, float frameDuration) : Rewrit
     {
         if (_used)
         {
-            var delay = _nextTick - Stopwatch.GetTimestamp();
+            var delayTicks = _nextTick - Stopwatch.GetTimestamp();
+            var delay = (int)(delayTicks * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency);
             if (delay > 0)
-                Thread.Sleep((int)(delay * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency));
+                Thread.Sleep(delay);
         }
         else
         {
