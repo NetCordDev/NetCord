@@ -65,7 +65,13 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(IVoiceGuildChannel? channel = null, bool loop = true, VoiceEncryption? encryption = null)
+    public async Task PlayAsync(IVoiceGuildChannel? channel = null,
+                                bool loop = true,
+                                VoiceEncryption? encryption = null,
+                                PcmFormat pcmFormat = PcmFormat.Float,
+                                VoiceChannels voiceChannels = VoiceChannels.Stereo,
+                                OpusApplication opusApplication = OpusApplication.Audio,
+                                float frameDuration = 2.5f)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
@@ -77,12 +83,10 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        var frameDuration = 2.5f;
-
         using var outputStream = voiceClient.CreateVoiceStream(new() { FrameDuration = frameDuration });
-        using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, new() { FrameDuration = frameDuration });
-        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
-        //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        using OpusEncodeStream opusEncodeStream = new(outputStream, pcmFormat, voiceChannels, opusApplication, new() { FrameDuration = frameDuration });
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, pcmFormat, voiceChannels);
+        //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, pcmFormat, voiceChannels, opusApplication);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
         //var url = @"C:\Users\Kuba\Downloads\jackhammer.wav";
@@ -95,7 +99,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             using var ffmpeg = Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
+                Arguments = $"-i \"{url}\" -ac {(byte)voiceChannels} -f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 pipe:1",
                 RedirectStandardOutput = true,
             })!;
 
