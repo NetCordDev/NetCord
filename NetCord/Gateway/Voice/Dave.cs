@@ -133,7 +133,7 @@ internal static unsafe partial class Dave
         None = 4,
     }
 
-#pragma warning disable CS0649
+    [StructLayout(LayoutKind.Sequential)]
     public struct EncryptorStats
     {
         public ulong PassthroughCount;
@@ -145,6 +145,7 @@ internal static unsafe partial class Dave
         public ulong EncryptMissingKeyCount;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
     public struct DecryptorStats
     {
         public ulong PassthroughCount;
@@ -155,7 +156,6 @@ internal static unsafe partial class Dave
         public ulong DecryptMissingKeyCount;
         public ulong DecryptInvalidNonceCount;
     }
-#pragma warning restore CS0649
 
     [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveMaxSupportedProtocolVersion")]
