@@ -124,7 +124,7 @@ public sealed partial class VoiceClient : WebSocketClient
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
         _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
-        _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout.GetValueOrDefault(new(5 * TimeSpan.TicksPerSecond));
+        _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout ?? new(5 * TimeSpan.TicksPerSecond);
         _loggerHandle = new(_logger);
     }
 
