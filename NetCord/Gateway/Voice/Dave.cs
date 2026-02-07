@@ -157,6 +157,7 @@ internal static unsafe partial class Dave
     }
 #pragma warning restore CS0649
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveMaxSupportedProtocolVersion")]
     public static partial ushort MaxSupportedProtocolVersion();
 
@@ -178,6 +179,7 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveSessionSetProtocolVersion")]
     public static partial void SessionSetProtocolVersion(SessionHandle session, ushort version);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveSessionGetProtocolVersion")]
     public static partial ushort SessionGetProtocolVersion(SessionHandle session);
 
@@ -208,10 +210,12 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveKeyRatchetDestroy")]
     public static partial void KeyRatchetDestroy(nint keyRatchet);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveCommitResultIsFailed")]
     [return: MarshalAs(UnmanagedType.U1)]
     public static partial bool CommitResultIsFailed(CommitResultHandle commitResultHandle);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveCommitResultIsIgnored")]
     [return: MarshalAs(UnmanagedType.U1)]
     public static partial bool CommitResultIsIgnored(CommitResultHandle commitResultHandle);
@@ -252,6 +256,7 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveEncryptorGetProtocolVersion")]
     public static partial ushort EncryptorGetProtocolVersion(EncryptorHandle encryptor);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveEncryptorGetMaxCiphertextByteSize")]
     public static partial nuint EncryptorGetMaxCiphertextByteSize(EncryptorHandle encryptor, MediaType mediaType, nuint frameSize);
 
@@ -287,12 +292,14 @@ internal static unsafe partial class Dave
     [LibraryImport(DllName, EntryPoint = "daveDecryptorDecrypt")]
     public static partial DecryptorResultCode DecryptorDecrypt(DecryptorHandle decryptor, MediaType mediaType, ReadOnlySpan<byte> encryptedFrame, nuint encryptedFrameLength, Span<byte> frame, nuint frameCapacity, out nuint bytesWritten);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveDecryptorGetMaxPlaintextByteSize")]
     public static partial nuint DecryptorGetMaxPlaintextByteSize(DecryptorHandle decryptor, MediaType mediaType, nuint encryptedFrameSize);
 
     [LibraryImport(DllName, EntryPoint = "daveDecryptorGetStats")]
     public static partial void DecryptorGetStats(DecryptorHandle decryptor, MediaType mediaType, out DecryptorStats stats);
 
+    [SuppressGCTransition]
     [LibraryImport(DllName, EntryPoint = "daveSetLogSinkCallback")]
     public static partial void SetLogSinkCallback(delegate* unmanaged<LoggingSeverity, byte*, int, byte*, void> callback);
 }
