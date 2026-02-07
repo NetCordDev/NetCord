@@ -143,6 +143,5 @@ public partial class HttpEventValidator
     }
 
     [LibraryImport("libsodium", EntryPoint = "crypto_sign_ed25519_verify_detached")]
-    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     private static partial int CryptoSignEd25519VerifyDetached(ref byte sig, ref byte m, ulong mlen, ref byte pk);
 }
