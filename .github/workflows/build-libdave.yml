@@ -26,34 +26,27 @@ jobs:
       matrix:
         include:
           # Windows builds
-          - os: windows-latest
+          - os: windows-2025-vs2026
             rid: win-x86
-            cmake-arch: Win32
-            # configs: RelWithDebInfo,MinSizeRel
-          - os: windows-latest
+            arch: Win32
+          - os: windows-2025-vs2026
             rid: win-x64
-            cmake-arch: x64
-            # configs: RelWithDebInfo,MinSizeRel
-          # - os: windows-latest
-          #   rid: win-arm64
-          #   cmake-arch: ARM64
-            # configs: RelWithDebInfo,MinSizeRel
+            arch: x64
+          - os: windows-2025-vs2026
+            rid: win-arm64
+            arch: ARM64
           
           # Linux builds
           - os: ubuntu-latest
             rid: linux-x64
-            # configs: RelWithDebInfo,MinSizeRel
-          # - os: ubuntu-latest
-          #   rid: linux-arm64
-            # configs: RelWithDebInfo,MinSizeRel
+          - os: ubuntu-latest
+            rid: linux-arm64
           
           # macOS builds
           - os: macos-latest
+            rid: osx-arm64
+          - os: macos-latest-large
             rid: osx-x64
-            # configs: RelWithDebInfo,MinSizeRel
-          # - os: macos-latest
-          #   rid: osx-arm64
-            # configs: RelWithDebInfo,MinSizeRel
 
     runs-on: ${{ matrix.os }}
     
@@ -76,39 +69,37 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-
-      - name: Setup CMake
-        uses: lukka/get-cmake@latest
-
+          
       - name: Restore dependencies
-        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
+        run: |
+          if ("${{ matrix.arch }}" -ne "") {
+            dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -a ${{ matrix.arch }} -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
+          }
+          else {
+            dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
+          }
 
-        # /p:Configurations="${{ matrix.configs }}"
-      - name: Build & Pack Libdave.RID
+        # /p:Configurations="RelWithDebInfo,MinSizeRel"
+      - name: Build & Pack Libdave.RID (via <GeneratePackageOnBuild>)
         shell: pwsh
         run: |
-          $env:CMAKE_GENERATOR = if ("${{ matrix.os }}" -eq "windows-latest") { "Visual Studio 18 2026" } else { "Unix Makefiles" }
+          if ("${{ matrix.arch }}" -ne "") { $env:CMAKE_GENERATOR_PLATFORM = "${{ matrix.arch }}" }
+          if ("${{ matrix.os }}" -eq "ubuntu-latest" -and "${{ matrix.arch }}" -eq "arm64") {
+            $env:CMAKE_CXX_COMPILER = "aarch64-linux-gnu-g++"
+            $env:CMAKE_C_COMPILER = "aarch64-linux-gnu-gcc"
+          }
           dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj  -v diag --no-restore -c MinSizeRel -r ${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
-
-      # - name: Pack Libdave.RID
-      #   run: dotnet pack NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} --no-build
-
+          
       - name: Upload Binary Log on Failure
         if: failure()
         uses: actions/upload-artifact@v6.0.0
         with:
           name: BinLog-${{ matrix.rid }}
-          path: build-${{ matrix.rid }}.binlog
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@v6.0.0
-        with:
-          name: Libdave-${{ matrix.rid }}
           path: |
-            NetCord/ThirdParty/Libdave/Libdave.RID/bin/MinSizeRel/*.nupkg
-            NetCord/ThirdParty/Libdave/Libdave.RID/bin/MinSizeRel/net*/${{ matrix.rid }}/
-
-      - name: Upload NuGet Package
+            restore-${{ matrix.rid }}.binlog
+            build-${{ matrix.rid }}.binlog
+            
+      - name: Upload NuGet Packages
         uses: actions/upload-artifact@v6.0.0
         with:
           name: NuGet-Libdave-${{ matrix.rid }}

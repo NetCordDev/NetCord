@@ -40,10 +40,8 @@
 	<PropertyGroup>
 		<CMakeClearCache>true</CMakeClearCache>
 		<RestoreSources Condition="'$(PackageOutputPath)' != ''">$(PackageOutputPath);$(RestoreSources)</RestoreSources>
-		<RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x64;linux-x64</RuntimeIdentifiers>
 
-		<!-- Future plan complete platform support -->
-		<!--<RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x86;win-x64;linux-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>-->
+		<RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x86;win-x64;win-arm64;linux-x64;linux-arm64;osx-arm64;osx-x64</RuntimeIdentifiers>
 		
 		<!-- For UNIX PIC-compatible .a objects -->
 		<CMakeArgs Condition="'$(OS)' != 'Windows_NT'">$(CMakeArgs) -DCMAKE_POSITION_INDEPENDENT_CODE=ON</CMakeArgs>
