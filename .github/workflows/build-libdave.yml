@@ -96,9 +96,9 @@ jobs:
         run: |
           $env:CMAKE_GENERATOR = if ("${{ matrix.os }}" -eq "windows-latest") { "Visual Studio 18 2026" } else { "Unix Makefiles" }
           if ("${{ matrix.cmake-arch }}" -ne "") {
-            dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /p:Platform="${{ matrix.cmake-arch }}" --no-restore -bl:build-${{ matrix.rid }}.binlog
+            dotnet msbuild NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj /t:Build /v:diag /nologo /clp:NoSummary`;Verbosity=minimal /p:Configuration=MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /p:Platform="${{ matrix.cmake-arch }}" /bl:build-${{ matrix.rid }}.binlog
           } else {
-            dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} --no-restore -bl:build-${{ matrix.rid }}.binlog
+            dotnet msbuild NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj /t:Build /v:diag /nologo /clp:NoSummary`;Verbosity=minimal /p:Configuration=MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
           }
 
       # - name: Pack Libdave.RID
