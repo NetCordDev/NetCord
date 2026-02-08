@@ -1,0 +1,111 @@
+name: Build Libdave.RID
+
+on:
+  pull_request:
+    branches:
+      - stable
+      - alpha
+      - feature/e2ee-libdave
+    paths:
+      - 'NetCord/ThirdParty/Libdave/**'
+      - '.github/workflows/build-libdave.yml'
+  push:
+    branches:
+      - stable
+      - alpha
+      - feature/e2ee-libdave
+    paths:
+      - 'NetCord/ThirdParty/Libdave/**'
+      - '.github/workflows/build-libdave.yml'
+  workflow_dispatch:
+
+jobs:
+  build-libdave:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows builds
+          - os: windows-latest
+            rid: win-x86
+            arch: x86
+            cmake-arch: Win32
+          - os: windows-latest
+            rid: win-x64
+            arch: x64
+            cmake-arch: x64
+          - os: windows-latest
+            rid: win-arm64
+            arch: arm64
+            cmake-arch: ARM64
+          
+          # Linux builds
+          - os: ubuntu-latest
+            rid: linux-x64
+            arch: x64
+          - os: ubuntu-latest
+            rid: linux-arm64
+            arch: arm64
+          
+          # macOS builds
+          - os: macos-latest
+            rid: osx-x64
+            arch: x64
+          - os: macos-latest
+            rid: osx-arm64
+            arch: arm64
+
+    runs-on: ${{ matrix.os }}
+    
+    name: Build ${{ matrix.rid }}
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+          filter: tree:0
+          submodules: recursive
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.1.0
+        with:
+          global-json-file: global.json
+
+      - name: Install Linux cross-compilation tools (ARM64)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Restore dependencies
+        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj /p:RuntimeIdentifier=${{ matrix.rid }}
+
+      - name: Build Libdave.RID
+        shell: pwsh
+        run: |
+          $env:CMAKE_GENERATOR = if ("${{ matrix.os }}" -eq "windows-latest") { "Visual Studio 18 2026" } else { "Unix Makefiles" }
+          if ("${{ matrix.cmake-arch }}" -ne "") {
+            dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /p:Platform="${{ matrix.cmake-arch }}" --no-restore
+          } else {
+            dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} --no-restore
+          }
+
+      - name: Pack Libdave.RID
+        run: dotnet pack NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} --no-build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: Libdave-${{ matrix.rid }}
+          path: |
+            NetCord/ThirdParty/Libdave/Libdave.RID/bin/MinSizeRel/*.nupkg
+            NetCord/ThirdParty/Libdave/Libdave.RID/bin/MinSizeRel/*/net*/${{ matrix.rid }}/
+
+      - name: Upload NuGet Package
+        uses: actions/upload-artifact@v6.0.0
+        with:
+          name: NuGet-Libdave-${{ matrix.rid }}
+          path: NetCord/ThirdParty/Libdave/Libdave.RID/bin/MinSizeRel/*.nupkg
