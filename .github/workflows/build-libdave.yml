@@ -71,13 +71,7 @@ jobs:
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           
       - name: Restore dependencies
-        run: |
-          if ("${{ matrix.arch }}" -ne "") {
-            dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -a ${{ matrix.arch }} -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
-          }
-          else {
-            dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
-          }
+        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
 
         # /p:Configurations="RelWithDebInfo,MinSizeRel"
       - name: Build & Pack Libdave.RID (via <GeneratePackageOnBuild>)
