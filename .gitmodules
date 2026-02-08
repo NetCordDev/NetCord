@@ -1,7 +1,7 @@
-[submodule "NetCord/ThirdParty/libdave"]
-	path = NetCord/ThirdParty/libdave
+[submodule "NetCord/ThirdParty/Libdave/libdave"]
+	path = NetCord/ThirdParty/Libdave/libdave
 	url = https://github.com/discord/libdave/
 
-[submodule "NetCord/ThirdParty/mlspp"]
-	path = NetCord/ThirdParty/mlspp
+[submodule "NetCord/ThirdParty/MLSpp/mlspp"]
+	path = NetCord/ThirdParty/MLSpp/mlspp
 	url = https://github.com/cisco/mlspp/
