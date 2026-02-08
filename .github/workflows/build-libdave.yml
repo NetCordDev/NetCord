@@ -28,38 +28,31 @@ jobs:
           # Windows builds
           - os: windows-latest
             rid: win-x86
-            arch: x86
             cmake-arch: Win32
             # configs: RelWithDebInfo,MinSizeRel
           - os: windows-latest
             rid: win-x64
-            arch: x64
             cmake-arch: x64
             # configs: RelWithDebInfo,MinSizeRel
-          - os: windows-latest
-            rid: win-arm64
-            arch: arm64
-            cmake-arch: ARM64
+          # - os: windows-latest
+          #   rid: win-arm64
+          #   cmake-arch: ARM64
             # configs: RelWithDebInfo,MinSizeRel
           
           # Linux builds
           - os: ubuntu-latest
             rid: linux-x64
-            arch: x64
             # configs: RelWithDebInfo,MinSizeRel
-          - os: ubuntu-latest
-            rid: linux-arm64
-            arch: arm64
+          # - os: ubuntu-latest
+          #   rid: linux-arm64
             # configs: RelWithDebInfo,MinSizeRel
           
           # macOS builds
           - os: macos-latest
             rid: osx-x64
-            arch: x64
             # configs: RelWithDebInfo,MinSizeRel
-          - os: macos-latest
-            rid: osx-arm64
-            arch: arm64
+          # - os: macos-latest
+          #   rid: osx-arm64
             # configs: RelWithDebInfo,MinSizeRel
 
     runs-on: ${{ matrix.os }}
@@ -88,18 +81,14 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Restore dependencies
-        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag /p:RuntimeIdentifier=${{ matrix.rid }}
+        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
 
         # /p:Configurations="${{ matrix.configs }}"
       - name: Build & Pack Libdave.RID
         shell: pwsh
         run: |
           $env:CMAKE_GENERATOR = if ("${{ matrix.os }}" -eq "windows-latest") { "Visual Studio 18 2026" } else { "Unix Makefiles" }
-          if ("${{ matrix.cmake-arch }}" -ne "") {
-            dotnet msbuild NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj /t:Build /v:diag /nologo /clp:NoSummary`;Verbosity=minimal /p:Configuration=MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /p:Platform="${{ matrix.cmake-arch }}" /bl:build-${{ matrix.rid }}.binlog
-          } else {
-            dotnet msbuild NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj /t:Build /v:diag /nologo /clp:NoSummary`;Verbosity=minimal /p:Configuration=MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
-          }
+          dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj  -v diag --no-restore -c MinSizeRel -r ${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
 
       # - name: Pack Libdave.RID
       #   run: dotnet pack NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -c MinSizeRel /p:RuntimeIdentifier=${{ matrix.rid }} --no-build
