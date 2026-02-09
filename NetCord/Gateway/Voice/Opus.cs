@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace NetCord.Gateway.Voice;
 
@@ -35,6 +37,38 @@ public static partial class Opus
     /// <param name="frameDuration">The duration of the Opus frame, in milliseconds.</param>
     /// <returns>The maximum number of bytes that an Opus frame of the specified duration can occupy.</returns>
     public static int GetMaxOpusFrameSize(float frameDuration) => (int)(frameDuration * 2) * (MaxBitrate / 8 / 1000) / 2;
+
+    internal static bool IsError(int result) => result < 0;
+
+    internal static bool IsError(OpusError error) => error < 0;
+
+    [StackTraceHidden]
+    internal static void ValidateResult(int result)
+    {
+        if (IsError(result))
+            ThrowOpusException((OpusError)result);
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    internal static void ThrowOpusException(OpusError error)
+    {
+        throw new OpusException(error);
+    }
+
+    [StackTraceHidden]
+    internal static void ValidatePcm(int length, int frameSize, PcmFormat format, VoiceChannels channels, string paramName)
+    {
+        if (length != GetFrameBufferSize(frameSize, format, channels))
+            ThrowInvalidPcmLengthException(paramName);
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowInvalidPcmLengthException(string paramName)
+    {
+        throw new ArgumentException("The PCM buffer length does not match the expected size.", paramName);
+    }
 
     [LibraryImport(DllName, EntryPoint = "opus_encoder_create")]
     internal static partial OpusEncoderHandle OpusEncoderCreate(int Fs, VoiceChannels channels, OpusApplication application, out OpusError error);
