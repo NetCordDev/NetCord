@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using NetCord.Gateway.JsonModels;
@@ -451,6 +452,7 @@ public sealed class ImmutableGatewayClientCache : IGatewayClientCache
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowInvalidDictionary()
     {
         throw new InvalidOperationException("The dictionary must be a 'System.Collections.Immutable.ImmutableDictionary<TKey, TValue>'. It should be created using a 'CreateDictionary<TSource, TKey, TValue>' method.");

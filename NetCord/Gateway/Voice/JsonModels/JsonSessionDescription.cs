@@ -9,6 +9,9 @@ internal class JsonSessionDescription
     [JsonPropertyName("secret_key")]
     public byte[] SecretKey { get; set; }
 
+    [JsonPropertyName("dave_protocol_version")]
+    public ushort DaveProtocolVersion { get; set; }
+
     public class ByteArrayOfLength32Converter : JsonConverter<byte[]>
     {
         public override byte[]? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

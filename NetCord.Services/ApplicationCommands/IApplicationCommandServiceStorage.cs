@@ -1,4 +1,5 @@
 ﻿using System.Collections.Frozen;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord.Services.ApplicationCommands;
@@ -32,6 +33,7 @@ public class IdApplicationCommandServiceStorage<TContext> : IApplicationCommandS
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowCommandsAlreadyRegistered()
     {
         throw new InvalidOperationException($"'{nameof(IdApplicationCommandServiceStorage<>)}' does not support registering application commands more than once. Consider using other storage options like '{nameof(NameAndTypeApplicationCommandServiceStorage<>)}'.");

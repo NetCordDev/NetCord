@@ -269,8 +269,8 @@ public partial class RestClient
                 handler.AppendLiteral("&");
             }
 
-            [StackTraceHidden]
             [DoesNotReturn]
+            [StackTraceHidden]
             static string InvalidEnum(string propertyName)
             {
                 throw new InvalidOperationException($"Invalid '{propertyName}' value provided.");

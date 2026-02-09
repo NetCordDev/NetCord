@@ -251,5 +251,10 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonWebhookEventArgs))]
 [JsonSerializable(typeof(JsonRateLimitedEventArgs))]
 [JsonSerializable(typeof(JsonRequestGuildUsersRateLimitMetadata))]
+[JsonSerializable(typeof(JsonDaveExecuteTransition))]
+[JsonSerializable(typeof(JsonDavePrepareEpoch))]
+[JsonSerializable(typeof(JsonDavePrepareTransition))]
+[JsonSerializable(typeof(VoicePayloadProperties<DaveMlsInvalidCommitWelcomeProperties>))]
+[JsonSerializable(typeof(VoicePayloadProperties<DaveTransitionReadyProperties>))]
 [JsonSerializable(typeof(JsonGuildMessagesSearchResult))]
 internal partial class Serialization : JsonSerializerContext;

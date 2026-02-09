@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -8,7 +9,7 @@ using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
 
-using static NetCord.Gateway.GatewayClientThrowHelper;
+using static NetCord.Gateway.WebSocketClientThrowHelper;
 
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
@@ -30,7 +31,7 @@ public abstract partial class WebSocketClient : IDisposable
         }
     }
 
-    private protected sealed class ConnectionState(IWebSocketConnection connection, IRateLimiter rateLimiter) : IDisposable
+    internal sealed class ConnectionState(IWebSocketConnection connection, IRateLimiter rateLimiter) : IDisposable
     {
         public IWebSocketConnection Connection => connection;
 
@@ -189,7 +190,7 @@ public abstract partial class WebSocketClient : IDisposable
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
-        _defaultPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
+        _defaultTextPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
         _logger = configuration.Logger ?? NullLogger.Instance;
     }
 
@@ -221,8 +222,9 @@ public abstract partial class WebSocketClient : IDisposable
     private readonly IWebSocketConnectionProvider _connectionProvider;
     private readonly IReconnectStrategy _reconnectStrategy;
     private readonly IRateLimiterProvider _rateLimiterProvider;
-    private readonly InternalWebSocketPayloadProperties _defaultPayloadProperties;
-    private protected readonly InternalWebSocketPayloadProperties _internalPayloadProperties = new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
+    private readonly InternalWebSocketPayloadProperties _defaultTextPayloadProperties;
+    private protected readonly InternalWebSocketPayloadProperties _internalTextPayloadProperties = new(WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
+    private protected readonly InternalWebSocketPayloadProperties _internalBinaryPayloadProperties = new(WebSocketMessageType.Binary, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly IWebSocketLogger _logger;
@@ -378,11 +380,11 @@ public abstract partial class WebSocketClient : IDisposable
         await InvokeEventAsync(_close).ConfigureAwait(false);
     }
 
-    private async void HandleMessageReceived(State state, ConnectionState connectionState, ReadOnlyMemory<byte> data)
+    private async void HandleMessageReceived(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlyMemory<byte> data)
     {
         try
         {
-            await ProcessPayloadAsync(state, connectionState, data.Span).ConfigureAwait(false);
+            await ProcessPayloadAsync(state, connectionState, messageType, data.Span).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -538,7 +540,7 @@ public abstract partial class WebSocketClient : IDisposable
                         break;
 
                     writer.Advance(result.Count);
-                    HandleMessageReceived(state, connectionState, writer.WrittenMemory);
+                    HandleMessageReceived(state, connectionState, result.MessageType, writer.WrittenMemory);
                     writer.Clear();
                 }
                 else
@@ -610,7 +612,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        var payloadProperties = _defaultPayloadProperties.Compose(properties);
+        var payloadProperties = _defaultTextPayloadProperties.Compose(properties);
 
         while (true)
         {
@@ -844,7 +846,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected abstract ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload);
+    private protected abstract ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> payload);
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(_latencyUpdate, this, latency, static (client, latency) => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref client._latency), Unsafe.As<TimeSpan, long>(ref latency)));
@@ -867,6 +869,34 @@ public abstract partial class WebSocketClient : IDisposable
             {
 #pragma warning disable CA2012 // Use ValueTasks correctly
                 tasks[i] = handlers[i]();
+#pragma warning restore CA2012 // Use ValueTasks correctly
+            }
+            catch (Exception ex)
+            {
+                LogEventHandlerException(handlersName, ex);
+
+                tasks[i] = default;
+            }
+        }
+
+        return HandleTasksAsync(tasks, handlersName, count);
+    }
+
+    private protected ValueTask InvokeEventAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : struct, allows ref struct
+    {
+        int count = handlers.Count;
+
+        if (count is 0)
+            return default;
+
+        var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
+
+        for (int i = 0; i < count; i++)
+        {
+            try
+            {
+#pragma warning disable CA2012 // Use ValueTasks correctly
+                tasks[i] = handlers[i](data);
 #pragma warning restore CA2012 // Use ValueTasks correctly
             }
             catch (Exception ex)
@@ -978,14 +1008,12 @@ public abstract partial class WebSocketClient : IDisposable
         return client.HandleTasksAsync(tasks, handlersName, count);
     }
 
-    private protected ValueTask InvokeEventWithDisposalAsync<TRaw, T>(ImmutableList<Func<T, ValueTask>> handlers, TRaw rawData, Func<TRaw, T> dataFunc, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where TRaw : allows ref struct where T : allows ref struct
+    private protected ValueTask InvokeEventWithDisposalAsync<T>(ImmutableList<Func<T, ValueTask>> handlers, T data, Action<T> disposeData, [CallerArgumentExpression(nameof(handlers))] string handlersName = "") where T : allows ref struct
     {
         int count = handlers.Count;
 
         if (count is 0)
             return default;
-
-        var data = dataFunc(rawData);
 
         var tasks = ArrayPool<ValueTask>.Shared.Rent(count);
 
@@ -1069,6 +1097,7 @@ public abstract partial class WebSocketClient : IDisposable
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowRateLimitTriggered(int resetAfter)
     {
         throw new WebSocketRateLimitedException(resetAfter);

@@ -1,42 +1,50 @@
-﻿namespace NetCord.Gateway.Voice;
+﻿using System.Diagnostics;
 
-internal class SpeedNormalizingStream(Stream next) : RewritingStream(next)
+namespace NetCord.Gateway.Voice;
+
+internal sealed class SpeedNormalizingStream(Stream next, float frameDuration) : RewritingStream(next)
 {
+    private readonly long _frameDurationTicks = (int)(frameDuration * 2) * Stopwatch.Frequency / TimeSpan.MillisecondsPerSecond / 2;
+
     private bool _used;
-    private int _startTick;
+    private long _nextTick;
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         if (_used)
         {
-            var delay = _startTick - Environment.TickCount;
+            var delayTicks = _nextTick - Stopwatch.GetTimestamp();
+            var delay = (int)(delayTicks * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency);
             if (delay > 0)
                 await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
         }
         else
         {
             _used = true;
-            _startTick = Environment.TickCount;
+            _nextTick = Stopwatch.GetTimestamp();
         }
+
         await _next.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-        _startTick += Opus.FrameDuration;
+        _nextTick += _frameDurationTicks;
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
         if (_used)
         {
-            var delay = _startTick - Environment.TickCount;
+            var delayTicks = _nextTick - Stopwatch.GetTimestamp();
+            var delay = (int)(delayTicks * TimeSpan.MillisecondsPerSecond / Stopwatch.Frequency);
             if (delay > 0)
                 Thread.Sleep(delay);
         }
         else
         {
             _used = true;
-            _startTick = Environment.TickCount;
+            _nextTick = Stopwatch.GetTimestamp();
         }
+
         _next.Write(buffer);
-        _startTick += Opus.FrameDuration;
+        _nextTick += _frameDurationTicks;
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken)

@@ -12,10 +12,15 @@ namespace NetCord.Test.ApplicationCommands;
 
 public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : ApplicationCommandModule<SlashCommandContext>
 {
-    private async Task<VoiceClient> JoinAsync(VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
+    private async Task<VoiceClient> JoinAsync(IVoiceGuildChannel? channel, VoiceEncryption? encryption, Func<DisconnectEventArgs, ValueTask>? disconnectHandler = null)
     {
         var guild = Context.Guild!;
-        if (!guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
+        ulong channelId;
+        if (channel is not null)
+            channelId = channel.Id;
+        else if (guild.VoiceStates.TryGetValue(Context.User.Id, out var state))
+            channelId = state.ChannelId.GetValueOrDefault();
+        else
             throw new("You are not in a voice channel!");
 
         var client = Context.Client;
@@ -33,17 +38,12 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         {
             var encryptionProvider = encryption.HasValue ? new StaticVoiceEncryptionProvider(encryption.GetValueOrDefault() switch
             {
-                VoiceEncryption.XSalsa20Poly1305 => new XSalsa20Poly1305Encryption(),
-                VoiceEncryption.XSalsa20Poly1305Lite => new XSalsa20Poly1305LiteEncryption(),
-                VoiceEncryption.XSalsa20Poly1305LiteRtpSize => new XSalsa20Poly1305LiteRtpSizeEncryption(),
-                VoiceEncryption.XSalsa20Poly1305Suffix => new XSalsa20Poly1305SuffixEncryption(),
-                VoiceEncryption.Aes256Gcm => new Aes256GcmEncryption(),
                 VoiceEncryption.Aes256GcmRtpSize => new Aes256GcmRtpSizeEncryption(),
                 VoiceEncryption.XChaCha20Poly1305RtpSize => new XChaCha20Poly1305RtpSizeEncryption(),
                 _ => throw new InvalidEnumArgumentException(nameof(encryption), (int)encryption, typeof(VoiceEncryption)),
             }) : null;
 
-            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, state.ChannelId.GetValueOrDefault(), new()
+            voiceClient = await client.JoinVoiceChannelAsync(guild.Id, channelId, new()
             {
                 EncryptionProvider = encryptionProvider,
                 ReceiveHandler = new VoiceReceiveHandler(),
@@ -65,11 +65,17 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
     }
 
     [SlashCommand("play", "Plays music")]
-    public async Task PlayAsync(VoiceEncryption? encryption = null)
+    public async Task PlayAsync(IVoiceGuildChannel? channel = null,
+                                bool loop = true,
+                                VoiceEncryption? encryption = null,
+                                PcmFormat pcmFormat = PcmFormat.Float,
+                                VoiceChannels voiceChannels = VoiceChannels.Stereo,
+                                OpusApplication opusApplication = OpusApplication.Audio,
+                                float frameDuration = 2.5f)
     {
         using CancellationTokenSource cancellationTokenSource = new();
 
-        var voiceClient = await JoinAsync(encryption, args =>
+        var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
                 cancellationTokenSource.Cancel();
@@ -77,38 +83,51 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        var outputStream = voiceClient.CreateOutputStream();
-        OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio);
+        using var outputStream = voiceClient.CreateVoiceStream(new() { FrameDuration = frameDuration });
+        using OpusEncodeStream opusEncodeStream = new(outputStream, pcmFormat, voiceChannels, opusApplication, new() { FrameDuration = frameDuration });
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, pcmFormat, voiceChannels);
+        //using OpusEncodeStream opusEncodeStream2 = new(opusDecodeStream, pcmFormat, voiceChannels, opusApplication);
 
         var url = "https://www.mfiles.co.uk/mp3-downloads/beethoven-symphony6-1.mp3"; // 00:12:08
+        //var url = @"C:\Users\Kuba\Downloads\jackhammer.wav";
         //var url = "https://file-examples.com/storage/feee5c69f0643c59da6bf13/2017/11/file_example_MP3_700KB.mp3"; // 00:00:27
         await RespondAsync(InteractionCallback.Message($"Playing: {Path.GetFileNameWithoutExtension(url)}"));
-        using var ffmpeg = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ffmpeg",
-            Arguments = $"-i \"{url}\" -ac 2 -f f32le -ar 48000 pipe:1",
-            RedirectStandardOutput = true,
-        })!;
 
         var token = cancellationTokenSource.Token;
-        try
+        do
         {
-            await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
-            await opusEncodeStream.FlushAsync(token);
-            await Task.Delay(-1, token);
+            using var ffmpeg = Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = $"-i \"{url}\" -ac {(byte)voiceChannels} -f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 pipe:1",
+                RedirectStandardOutput = true,
+            })!;
+
+            try
+            {
+                //ffmpeg.StandardOutput.BaseStream.CopyTo(opusEncodeStream);
+                await ffmpeg.StandardOutput.BaseStream.CopyToAsync(opusEncodeStream, token);
+                await opusEncodeStream.FlushAsync(token);
+            }
+            catch (OperationCanceledException)
+            {
+                ffmpeg.Kill();
+                return;
+            }
+
+            await Task.Delay(2000);
         }
-        catch (OperationCanceledException)
-        {
-            ffmpeg.Kill();
-        }
+        while (loop);
+
+        await Task.Delay(-1, token);
     }
 
     [SlashCommand("echo", "Echo!")]
-    public async Task EchoAsync(VoiceEncryption? encryption = null)
+    public async Task EchoAsync(IVoiceGuildChannel? channel = null, VoiceEncryption? encryption = null)
     {
         TaskCompletionSource taskCompletionSource = new();
 
-        var voiceClient = await JoinAsync(encryption, args =>
+        var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
                 taskCompletionSource.TrySetResult();
@@ -116,12 +135,18 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             return default;
         });
 
-        using var outputStream = voiceClient.CreateOutputStream(false);
+        //using var outputStream = voiceClient.CreateVoiceStream(frameDuration, normalizeSpeed: false);
+        //using OpusEncodeStream opusEncodeStream = new(outputStream, PcmFormat.Float, VoiceChannels.Stereo, OpusApplication.Audio, frameDuration);
+        //using OpusDecodeStream opusDecodeStream = new(opusEncodeStream, PcmFormat.Float, VoiceChannels.Stereo);
         await RespondAsync(InteractionCallback.Message("Echo!"));
 
         voiceClient.VoiceReceive += args =>
         {
-            outputStream.Write(args.Frame);
+            if (args.Timestamp is { } timestamp)
+                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+            else
+                Console.WriteLine($"Frame {args.SequenceNumber} got lost");
+
             return default;
 
             //var frame = args.Frame;
@@ -134,13 +159,44 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         await taskCompletionSource.Task;
     }
 
+    [SlashCommand("record", "Record!")]
+    public async Task RecordAsync(IVoiceGuildChannel? channel = null,
+                                  VoiceEncryption? encryption = null,
+                                  PcmFormat pcmFormat = PcmFormat.Float,
+                                  VoiceChannels voiceChannels = VoiceChannels.Stereo)
+    {
+        TaskCompletionSource taskCompletionSource = new();
+
+        using var ffmpeg = Process.Start(new ProcessStartInfo
+        {
+            FileName = "ffmpeg",
+            Arguments = $"-f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 -ac {(byte)voiceChannels} -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.wav",
+            RedirectStandardInput = true,
+        })!;
+
+        var voiceClient = await JoinAsync(channel, encryption, args =>
+        {
+            if (!args.Reconnect)
+                taskCompletionSource.TrySetResult();
+
+            return default;
+        });
+        await RespondAsync(InteractionCallback.Message("Recording!"));
+
+        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
+
+        voiceClient.VoiceReceive += args =>
+        {
+            opusDecodeStream.Write(args.Frame);
+            return default;
+        };
+
+        await taskCompletionSource.Task;
+        ffmpeg.Kill();
+    }
+
     public enum VoiceEncryption : byte
     {
-        XSalsa20Poly1305,
-        XSalsa20Poly1305Lite,
-        XSalsa20Poly1305LiteRtpSize,
-        XSalsa20Poly1305Suffix,
-        Aes256Gcm,
         Aes256GcmRtpSize,
         XChaCha20Poly1305RtpSize,
     }

@@ -15,7 +15,7 @@ public enum OpusError
     /// <summary>
     /// Not enough bytes allocated in the buffer.
     /// </summary>
-    BufferToSmall = -2,
+    BufferTooSmall = -2,
 
     /// <summary>
     /// An internal error was detected.
