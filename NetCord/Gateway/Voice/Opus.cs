@@ -18,7 +18,7 @@ public static partial class Opus
     /// <summary>
     /// Calculates the number of samples per channel in an Opus audio frame.
     /// </summary>
-    /// <param name="frameDuration">Frame duration in milliseconds.</param>
+    /// <param name="frameDuration">Frame duration in milliseconds. Allowed values are 2.5, 5, 10, 20, 40, 60 and 120 (the last one is only allowed for <see cref="VoiceChannels.Mono"/>).</param>
     /// <returns></returns>
     public static int GetSamplesPerChannel(float frameDuration) => (int)(frameDuration * 2) * SamplingRate / 1000 / 2;
 
@@ -34,7 +34,7 @@ public static partial class Opus
     /// <summary>
     /// Calculates the maximum possible size, in bytes, of an Opus audio frame.
     /// </summary>
-    /// <param name="frameDuration">The duration of the Opus frame, in milliseconds.</param>
+    /// <param name="frameDuration">The duration of the Opus frame, in milliseconds. Allowed values are 2.5, 5, 10, 20, 40, 60 and 120 (the last one is only allowed for <see cref="VoiceChannels.Mono"/>).</param>
     /// <returns>The maximum number of bytes that an Opus frame of the specified duration can occupy.</returns>
     public static int GetMaxOpusFrameSize(float frameDuration) => (int)(frameDuration * 2) * (MaxBitrate / 8 / 1000) / 2;
 
