@@ -344,20 +344,28 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     var buffer = ArrayPool<byte>.Shared.Rent(ushort.MaxValue);
 
-                    if (_receiveHandler.RequiresExternalSocketAddress)
+                    try
                     {
-                        Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
-
-                        (ip, port) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
-                        if (ip is null)
+                        if (_receiveHandler.RequiresExternalSocketAddress)
                         {
-                            Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
+                            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
 
-                            Abort();
-                            return;
+                            (ip, port) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
+                            if (ip is null)
+                            {
+                                Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
+
+                                Abort();
+                                return;
+                            }
+
+                            Log(LogLevel.Debug, (Ip: ip, Port: port), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
                         }
-
-                        Log(LogLevel.Debug, (Ip: ip, Port: port), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
+                    }
+                    catch
+                    {
+                        ArrayPool<byte>.Shared.Return(buffer);
+                        throw;
                     }
 
                     _ = ReadAsync(udpConnection, buffer, closedCancellationToken);
@@ -730,11 +738,16 @@ public sealed partial class VoiceClient : WebSocketClient
 
         var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
 
-        WriteDatagram(frame.Span, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
+        try
+        {
+            WriteDatagram(frame.Span, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
 
-        await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
-
-        ArrayPool<byte>.Shared.Return(datagramArray);
+            await connection.SendAsync(new(datagramArray, 0, datagramLength), cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(datagramArray);
+        }
     }
 
     /// <summary>
@@ -765,11 +778,16 @@ public sealed partial class VoiceClient : WebSocketClient
 
         var datagramArray = ArrayPool<byte>.Shared.Rent(datagramLength);
 
-        WriteDatagram(frame, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
+        try
+        {
+            WriteDatagram(frame, new(datagramArray, 0, datagramLength), encryption, sequenceNumber, timestamp, ssrc);
 
-        connection.Send(new(datagramArray, 0, datagramLength));
-
-        ArrayPool<byte>.Shared.Return(datagramArray);
+            connection.Send(new(datagramArray, 0, datagramLength));
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(datagramArray);
+        }
     }
 
     private static DaveEncryptionResult EncryptDave(DaveSession session, ReadOnlySpan<byte> buffer, uint ssrc)

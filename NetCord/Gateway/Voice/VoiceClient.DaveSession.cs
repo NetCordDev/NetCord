@@ -339,9 +339,14 @@ public partial class VoiceClient
 
             payload[0] = (byte)VoiceOpcode.DaveMlsKeyPackage;
 
-            await _client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), _client._internalBinaryPayloadProperties).ConfigureAwait(false);
-
-            ArrayPool<byte>.Shared.Return(payload);
+            try
+            {
+                await _client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), _client._internalBinaryPayloadProperties).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(payload);
+            }
         }
 
         private ValueTask SendTransitionReadyAsync(ConnectionState connectionState, ushort transitionId)
@@ -363,9 +368,14 @@ public partial class VoiceClient
 
             static async ValueTask ContinueAsync(VoiceClient client, ConnectionState connectionState, byte[] payload, int payloadLength)
             {
-                await client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), client._internalBinaryPayloadProperties).ConfigureAwait(false);
-
-                ArrayPool<byte>.Shared.Return(payload);
+                try
+                {
+                    await client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), client._internalBinaryPayloadProperties).ConfigureAwait(false);
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(payload);
+                }
             }
         }
 

@@ -49,11 +49,16 @@ public sealed class OpusDecodeStream : RewritingStream
 
         var array = ArrayPool<byte>.Shared.Rent(size);
 
-        int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, size));
-        int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
-        await _next.WriteAsync(array.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
-
-        ArrayPool<byte>.Shared.Return(array);
+        try
+        {
+            int samplesPerChannel = _decode(buffer.Span, array.AsSpan(0, size));
+            int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
+            await _next.WriteAsync(array.AsMemory(0, written), cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(array);
+        }
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
@@ -62,11 +67,16 @@ public sealed class OpusDecodeStream : RewritingStream
 
         var array = ArrayPool<byte>.Shared.Rent(size);
 
-        int samplesPerChannel = _decode(buffer, array.AsSpan(0, size));
-        int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
-        _next.Write(array.AsSpan(0, written));
-
-        ArrayPool<byte>.Shared.Return(array);
+        try
+        {
+            int samplesPerChannel = _decode(buffer, array.AsSpan(0, size));
+            int written = Opus.GetFrameBufferSize(samplesPerChannel, _format, _channels);
+            _next.Write(array.AsSpan(0, written));
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(array);
+        }
     }
 
     protected override void Dispose(bool disposing)

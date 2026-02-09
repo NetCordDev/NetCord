@@ -170,10 +170,15 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
             var array = ArrayPool<byte>.Shared.Rent(size);
 
-            int count = _encode(buffer.Span, array.AsSpan(0, size));
-            await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
-
-            ArrayPool<byte>.Shared.Return(array);
+            try
+            {
+                int count = _encode(buffer.Span, array.AsSpan(0, size));
+                await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(array);
+            }
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
@@ -182,11 +187,16 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
             var array = ArrayPool<byte>.Shared.Rent(size);
 
-            var data = array.AsSpan(0, size);
-            int count = _encode(buffer, data);
-            _next.Write(data[..count]);
-
-            ArrayPool<byte>.Shared.Return(array);
+            try
+            {
+                var data = array.AsSpan(0, size);
+                int count = _encode(buffer, data);
+                _next.Write(data[..count]);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(array);
+            }
         }
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
@@ -195,14 +205,19 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
             var silenceArray = ArrayPool<byte>.Shared.Rent(size);
 
-            silenceArray.AsSpan(0, size).Clear();
+            try
+            {
+                silenceArray.AsSpan(0, size).Clear();
 
-            var silenceBuffer = silenceArray.AsMemory(0, size);
+                var silenceBuffer = silenceArray.AsMemory(0, size);
 
-            for (int i = 0; i < 5; i++)
-                await WriteAsync(silenceBuffer, cancellationToken).ConfigureAwait(false);
-
-            ArrayPool<byte>.Shared.Return(silenceArray);
+                for (int i = 0; i < 5; i++)
+                    await WriteAsync(silenceBuffer, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(silenceArray);
+            }
 
             await base.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -213,14 +228,19 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
             var silenceArray = ArrayPool<byte>.Shared.Rent(size);
 
-            var silenceBuffer = silenceArray.AsSpan(0, size);
+            try
+            {
+                var silenceBuffer = silenceArray.AsSpan(0, size);
 
-            silenceBuffer.Clear();
+                silenceBuffer.Clear();
 
-            for (int i = 0; i < 5; i++)
-                Write(silenceBuffer);
-
-            ArrayPool<byte>.Shared.Return(silenceArray);
+                for (int i = 0; i < 5; i++)
+                    Write(silenceBuffer);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(silenceArray);
+            }
 
             base.Flush();
         }
