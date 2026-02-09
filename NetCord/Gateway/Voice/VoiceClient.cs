@@ -793,7 +793,7 @@ public sealed partial class VoiceClient : WebSocketClient
     private static DaveEncryptionResult EncryptDave(DaveSession session, ReadOnlySpan<byte> buffer, uint ssrc)
     {
         if (!session.IsEnabled)
-            return new(default, 0, DaveEncryptionResult.Flags.Disabled);
+            return new(null, 0, DaveEncryptionResult.Flags.Disabled);
 
         var encryptor = session.Encryptor;
 
