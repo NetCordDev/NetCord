@@ -80,6 +80,31 @@
     <Message Text="[OpenSSL] Root: $(OpenSSLRoot)" Importance="high" />
   </Target>
 
+  <!-- Detect openssl executable and version -->
+  <Target Name="_DetectOpenSSLVersion"
+          DependsOnTargets="_FindOpenSSLRoot">
+
+    <!-- Prefer OpenSSLRoot bin if present (do NOT fallback to PATH) -->
+    <PropertyGroup Condition="'$(OpenSSLExe)' == '' and '$(OpenSSLRoot)' != '' and Exists('$(OpenSSLRoot)\bin\openssl.exe')">
+      <OpenSSLExe>$(OpenSSLRoot)\bin\openssl.exe</OpenSSLExe>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(OpenSSLExe)' == '' and '$(OpenSSLRoot)' != '' and Exists('$(OpenSSLRoot)\bin\openssl')">
+      <OpenSSLExe>$(OpenSSLRoot)\bin\openssl</OpenSSLExe>
+    </PropertyGroup>
+
+    <!-- Only run the command if the executable was found under OpenSSLRoot -->
+    <Exec Command="&quot;$(OpenSSLExe)&quot; version" IgnoreExitCode="true" Condition="'$(OpenSSLExe)' != '' and Exists('$(OpenSSLExe)')">
+      <Output TaskParameter="ConsoleOutput" ItemName="OpenSSLVersionLines" />
+    </Exec>
+
+    <!-- Extract version using regex from the output like: OpenSSL 1.1.1k  25 Mar 2021 -->
+    <PropertyGroup>
+      <OpenSSLVersion Condition=" '@(OpenSSLVersionLines)' != '' ">$([System.Text.RegularExpressions.Regex]::Match('@(OpenSSLVersionLines->"%(Identity)")','OpenSSL\s+([^\s]+)').Groups[1].Value)</OpenSSLVersion>
+    </PropertyGroup>
+
+    <Message Text="[OpenSSL] Version: $(OpenSSLVersion)" Importance="high" Condition="'$(OpenSSLVersion)' != ''" />
+  </Target>
+
   <!-- ============================================================ -->
   <!-- Find OpenSSL Lib Path -->
   <!-- ============================================================ -->
@@ -214,19 +239,22 @@
   </Target>
 
   <!-- ========== PackageOpenSSL Static ========== -->
-  <Target Name="PackageOpenSSLLib" DependsOnTargets="PopulateOpenSSLLibs">
+  <Target Name="PackageOpenSSLLib" DependsOnTargets="_DetectOpenSSLVersion;PopulateOpenSSLLibs">
 
     <ItemGroup>
       <!-- Filter to only real files (skip system libs like ws2_32.lib, crypt32.lib, dl, pthread) -->
-		<_OpenSSLPackageFiles Include="@(OpenSSLLib)" Condition="Exists('%(Identity)')">
+    	<_OpenSSLPackageFiles Include="@(OpenSSLLib)" Condition="Exists('%(Identity)')">
             <Pack>true</Pack>
             <PackagePath>lib\$(RuntimeIdentifier)\%(_OpenSSLPackageFiles.Filename)%(_OpenSSLPackageFiles.Extension)</PackagePath>
-		</_OpenSSLPackageFiles>
-		<_OpenSSLPackageFiles Include="$(OpenSSLRoot)\license.txt" Condition="Exists('$(OpenSSLRoot)\license.txt')">
-			<Pack>true</Pack>
-		    <PackagePath>lib\$(RuntimeIdentifier)\OPENSSL_LICENSE.txt</PackagePath>
-		</_OpenSSLPackageFiles>
-	
+    	</_OpenSSLPackageFiles>
+
+    	<!-- Package the OpenSSL license; if we detected a version, include it in the filename -->
+    	<_OpenSSLPackageFiles Include="$(OpenSSLRoot)\license.txt" Condition="Exists('$(OpenSSLRoot)\license.txt')">
+    		<Pack>true</Pack>
+			<PackagePath>lib\$(RuntimeIdentifier)\OPENSSL_LICENSE_$(OpenSSLVersion).txt</PackagePath>
+			<PackagePath Condition="'$(OpenSSLVersion)' == ''">lib\$(RuntimeIdentifier)\OPENSSL_LICENSE.txt</PackagePath>
+    	</_OpenSSLPackageFiles>
+
         <None Include="@(_OpenSSLPackageFiles)" />
     </ItemGroup>
 

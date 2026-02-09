@@ -59,7 +59,8 @@
 	<Import Project="$(MlsppDir)\MLSpp.build.props" Condition="'$(MSBuildProjectName)' != 'Libdave.Manager' AND '$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
 	<Import Project="$(MlsppDir)\MLSpp.build.targets" Condition="'$(MSBuildProjectName)' != 'Libdave.Manager' AND '$(CMakeMlsppRoot)' == '' AND '$(CMakeMlsppDir)' == ''"/>
 
-	<PropertyGroup Condition="'$(CMakeOpenSSLRoot)' == '' AND '$(CMakeOpenSSLDir)' == ''">
+	<PropertyGroup Condition="'$(CMakeOpenSSLRoot)' == '' AND '$(CMakeOpenSSLDir)' == ''
+								AND '$(CMakeBoringSSLRoot)' == '' AND '$(CMakeBoringSSLDir)' == ''">
 		<Packing_DependsOn>PackageOpenSSLLib;$(Packing_DependsOn)</Packing_DependsOn>
 	</PropertyGroup>
 

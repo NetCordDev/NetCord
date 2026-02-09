@@ -65,68 +65,65 @@ jobs:
           global-json-file: global.json
 
       - name: Install Linux cross-compilation tools (ARM64)
-        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
+        if: matrix.os == 'ubuntu-latest' && matrix.rid == 'linux-arm64'
         run: |
           sudo apt-get update
           sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           
       - name: Restore dependencies
-        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v diag -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
+        run: dotnet restore NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj -v normal -r ${{ matrix.rid }} /bl:restore-${{ matrix.rid }}.binlog
 
         # /p:Configurations="RelWithDebInfo,MinSizeRel"
       - id: install-nlohmann
         name: Install nlohmann-json (vcpkg)
         shell: pwsh
         run: |
-          # Use vcpkg installed on the runner if available
-          if ($env:VCPKG_INSTALLATION_ROOT) {
-            $vcpkgPath = Join-Path $env:VCPKG_INSTALLATION_ROOT 'vcpkg'
-            if (Test-Path "$vcpkgPath.exe") { $vcpkgPath = "$vcpkgPath.exe" }
-            elseif (-not (Test-Path $vcpkgPath)) { Write-Error "vcpkg executable not found under $env:VCPKG_INSTALLATION_ROOT"; exit 1 }
+          # Use vcpkg installed on the runner
+          $vcpkgPath = Join-Path $env:VCPKG_INSTALLATION_ROOT 'vcpkg'
+          if (Test-Path "$vcpkgPath.exe") { $vcpkgPath = "$vcpkgPath.exe" }
+          elseif (-not (Test-Path $vcpkgPath)) { Write-Error "vcpkg executable not found under $env:VCPKG_INSTALLATION_ROOT"; exit 1 }
 
-            switch ("${{ matrix.rid }}") {
-              'win-x86'    { $triplet = 'x86-windows' }
-              'win-x64'    { $triplet = 'x64-windows' }
-              'win-arm64'  { $triplet = 'arm64-windows' }
-              'linux-x64'  { $triplet = 'x64-linux' }
-              'linux-arm64'{ $triplet = 'arm64-linux' }
-              'osx-x64'    { $triplet = 'x64-osx' }
-              'osx-arm64'  { $triplet = 'arm64-osx' }
-              default      { Write-Host "Unknown RID '${{ matrix.rid }}' for vcpkg triplet mapping; skipping vcpkg install"; exit 0 }
-            }
-
-            Write-Host "Installing nlohmann-json for triplet: $triplet"
-            # Export vcpkg settings as step outputs (do NOT persist to job env)
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "VCPKG_TARGET_TRIPLET=$triplet"
-
-            & $vcpkgPath install "nlohmann-json:$triplet"
+          switch ("${{ matrix.rid }}") {
+            'win-x86'    { $triplet = 'x86-windows' }
+            'win-x64'    { $triplet = 'x64-windows' }
+            'win-arm64'  { $triplet = 'arm64-windows' }
+            'linux-x64'  { $triplet = 'x64-linux' }
+            'linux-arm64'{ $triplet = 'arm64-linux' }
+            'osx-x64'    { $triplet = 'x64-osx' }
+            'osx-arm64'  { $triplet = 'arm64-osx' }
+            default      { Write-Host "Unknown RID '${{ matrix.rid }}' for vcpkg triplet mapping; skipping vcpkg install"; exit 0 }
           }
-          else {
-            Write-Host "VCPKG_INSTALLATION_ROOT not set on runner, skipping vcpkg install of nlohmann-json"
-          }
+
+          Write-Host "Installing nlohmann-json for triplet: $triplet"
+          # Export vcpkg settings as step outputs (do NOT persist to job env)
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "VCPKG_ROOT=$env:VCPKG_INSTALLATION_ROOT"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "VCPKG_TARGET_TRIPLET=$triplet"
+
+          & $vcpkgPath install "nlohmann-json:$triplet"
+
       - name: Build & Pack Libdave.RID (via <GeneratePackageOnBuild>)
         shell: pwsh
         run: |
-          # Use vcpkg settings exported by the install step (only for this step, not persisted)
-          if ('${{ steps.install-nlohmann.outputs.CMAKE_TOOLCHAIN_FILE }}' -ne '') {
-            $env:CMAKE_TOOLCHAIN_FILE = '${{ steps.install-nlohmann.outputs.CMAKE_TOOLCHAIN_FILE }}'
-            $env:VCPKG_TARGET_TRIPLET = '${{ steps.install-nlohmann.outputs.VCPKG_TARGET_TRIPLET }}'
-            Write-Host "Using vcpkg toolchain: $env:CMAKE_TOOLCHAIN_FILE"
-            Write-Host "Using vcpkg triplet: $env:VCPKG_TARGET_TRIPLET"
-          }
+          # Use vcpkg settings exported by the install step
+          $env:CMAKE_TOOLCHAIN_FILE = '${{ steps.install-nlohmann.outputs.CMAKE_TOOLCHAIN_FILE }}'
+          $env:VCPKG_TARGET_TRIPLET = '${{ steps.install-nlohmann.outputs.VCPKG_TARGET_TRIPLET }}'
+          Write-Host "Using vcpkg toolchain: $env:CMAKE_TOOLCHAIN_FILE"
+          Write-Host "Using vcpkg triplet: $env:VCPKG_TARGET_TRIPLET"
 
           if ("${{ matrix.arch }}" -ne "") { $env:CMAKE_GENERATOR_PLATFORM = "${{ matrix.arch }}" }
-          if ("${{ matrix.os }}" -eq "ubuntu-latest" -and "${{ matrix.arch }}" -eq "arm64") {
+
+          if ("${{ matrix.rid }}" -eq "linux-arm64") {
             $env:CMAKE_CXX_COMPILER = "aarch64-linux-gnu-g++"
             $env:CMAKE_C_COMPILER = "aarch64-linux-gnu-gcc"
           }
 
-          dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj  -v diag --no-restore -c MinSizeRel -r ${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
+          $env:CMakeArgs = "-DCMAKE_TOOLCHAIN_FILE=$env:CMAKE_TOOLCHAIN_FILE -DVCPKG_TARGET_TRIPLET=$env:VCPKG_TARGET_TRIPLET"
+
+          dotnet build NetCord/ThirdParty/Libdave/Libdave.RID/Libdave.RID.csproj --no-restore -v normal -c MinSizeRel -r ${{ matrix.rid }} /bl:build-${{ matrix.rid }}.binlog
           
-      - name: Upload Binary Log on Failure
-        if: failure()
+      - name: Upload Binary Log
+        if: always() && (hashFiles('restore-${{ matrix.rid }}.binlog','build-${{ matrix.rid }}.binlog') != '')
         uses: actions/upload-artifact@v6.0.0
         with:
           name: BinLog-${{ matrix.rid }}
