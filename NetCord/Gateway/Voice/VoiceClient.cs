@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -806,6 +807,7 @@ public sealed partial class VoiceClient : WebSocketClient
             ThrowDaveEncryptorException(result);
 
             [DoesNotReturn]
+            [StackTraceHidden]
             static void ThrowDaveEncryptorException(Dave.EncryptorResultCode result)
             {
                 throw new DaveEncryptorException(result);

@@ -119,12 +119,14 @@ public sealed partial class ShardedGatewayClient : IReadOnlyList<GatewayClient>,
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowInvalidShardRange()
     {
         throw new InvalidOperationException($"'{nameof(ShardedGatewayClientConfiguration.ShardRange)}' specified in the configuration is invalid for '{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}'.");
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowInvalidTotalShardCount()
     {
         throw new InvalidOperationException($"'{nameof(ShardedGatewayClientConfiguration.TotalShardCount)}' specified in the configuration cannot be lower than or equal to 0.");

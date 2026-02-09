@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -1096,6 +1097,7 @@ public abstract partial class WebSocketClient : IDisposable
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowRateLimitTriggered(int resetAfter)
     {
         throw new WebSocketRateLimitedException(resetAfter);

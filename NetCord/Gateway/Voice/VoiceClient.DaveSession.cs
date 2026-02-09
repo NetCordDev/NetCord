@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -394,6 +395,7 @@ public partial class VoiceClient
         }
 
         [DoesNotReturn]
+        [StackTraceHidden]
         private static void ThrowFailedToFormatSnowflake()
         {
             throw new InvalidOperationException("Failed to format snowflake.");

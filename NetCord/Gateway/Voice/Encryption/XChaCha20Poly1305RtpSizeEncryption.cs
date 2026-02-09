@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -84,6 +85,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowLibsodiumException()
     {
         throw new LibsodiumException();
