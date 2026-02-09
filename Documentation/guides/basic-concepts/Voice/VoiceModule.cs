@@ -102,7 +102,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         // Start the FFmpeg process
         var ffmpeg = Process.Start(startInfo)!;
 
-        // Copy the FFmpeg stdout to 'stream', which encodes the voice using Opus and passes it to 'outStream'
+        // Copy the FFmpeg stdout to 'stream', which encodes the voice using Opus and passes it to 'voiceStream'
         await ffmpeg.StandardOutput.BaseStream.CopyToAsync(stream);
 
         // Flush 'stream' to make sure all the data has been sent and to indicate to Discord that we have finished sending
