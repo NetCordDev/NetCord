@@ -14,6 +14,15 @@ public class JsonComponent
 
     public class JsonComponentConverter : JsonConverter<JsonComponent>
     {
+        internal struct JsonComponentInternal
+        {
+            [JsonPropertyName("type")]
+            public ComponentType Type { get; set; }
+
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
+        }
+
         public override JsonComponent? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var readerCopy = reader;
@@ -65,8 +74,18 @@ public class JsonComponent
                 ComponentType.RadioGroup => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonRadioGroupComponent),
                 ComponentType.CheckboxGroup => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonCheckboxGroupComponent),
                 ComponentType.Checkbox => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonCheckboxComponent),
-                _ => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponent),
+                _ => DeserializeUnknown(ref reader),
             };
+
+            static JsonComponent DeserializeUnknown(ref Utf8JsonReader reader)
+            {
+                var component = JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentInternal);
+                return new()
+                {
+                    Type = component.Type,
+                    Id = component.Id,
+                };
+            }
         }
 
         public override void Write(Utf8JsonWriter writer, JsonComponent value, JsonSerializerOptions options)

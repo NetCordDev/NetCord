@@ -261,6 +261,7 @@ namespace NetCord;
 [JsonSerializable(typeof(VoicePayloadProperties<DaveTransitionReadyProperties>))]
 [JsonSerializable(typeof(JsonGuildMessagesSearchResult))]
 [JsonSerializable(typeof(JsonComponent))]
+[JsonSerializable(typeof(JsonComponent.JsonComponentConverter.JsonComponentInternal))]
 [JsonSerializable(typeof(JsonActionRowComponent))]
 [JsonSerializable(typeof(JsonButtonComponent))]
 [JsonSerializable(typeof(JsonStringMenuComponent))]
