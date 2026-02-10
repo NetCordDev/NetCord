@@ -94,7 +94,7 @@ public class JsonButtonComponent : JsonComponent
     public JsonEmoji? Emoji { get; set; }
 
     [JsonPropertyName("custom_id")]
-    public string CustomId { get; set; }
+    public string? CustomId { get; set; }
 
     [JsonPropertyName("sku_id")]
     public ulong? SkuId { get; set; }

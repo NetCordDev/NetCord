@@ -8,7 +8,7 @@ public class Button : IInteractiveComponent, ICustomizableButton, IJsonModel<Jso
     private readonly JsonButtonComponent _jsonModel;
 
     public int Id => _jsonModel.Id;
-    public string CustomId => _jsonModel.CustomId;
+    public string CustomId => _jsonModel.CustomId!;
     public ButtonStyle Style => _jsonModel.Style;
     public string? Label => _jsonModel.Label;
     public EmojiReference? Emoji { get; }
