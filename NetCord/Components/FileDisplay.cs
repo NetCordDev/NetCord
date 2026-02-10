@@ -8,5 +8,7 @@ public class FileDisplay(JsonFileDisplayComponent jsonModel) : IMessageComponent
 
     public int Id => jsonModel.Id;
     public ComponentMedia File { get; } = new(jsonModel.File);
-    public bool Spoiler => jsonModel.Spoiler.GetValueOrDefault();
+    public bool Spoiler => jsonModel.Spoiler;
+    public string Name => jsonModel.Name;
+    public int Size => jsonModel.Size;
 }

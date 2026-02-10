@@ -7,6 +7,6 @@ public class ComponentSeparator(JsonComponentSeparatorComponent jsonModel) : IMe
     JsonComponentSeparatorComponent IJsonModel<JsonComponentSeparatorComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public bool Divider => jsonModel.Divider.GetValueOrDefault();
-    public ComponentSeparatorSpacingSize Spacing => jsonModel.Spacing.GetValueOrDefault();
+    public bool Divider => jsonModel.Divider;
+    public ComponentSeparatorSpacingSize Spacing => jsonModel.Spacing;
 }

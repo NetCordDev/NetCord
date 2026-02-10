@@ -242,16 +242,22 @@ public class JsonFileDisplayComponent : JsonComponent
     public JsonComponentMedia File { get; set; }
 
     [JsonPropertyName("spoiler")]
-    public bool? Spoiler { get; set; }
+    public bool Spoiler { get; set; }
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; }
+
+    [JsonPropertyName("size")]
+    public int Size { get; set; }
 }
 
 public class JsonComponentSeparatorComponent : JsonComponent
 {
     [JsonPropertyName("divider")]
-    public bool? Divider { get; set; }
+    public bool Divider { get; set; }
 
     [JsonPropertyName("spacing")]
-    public ComponentSeparatorSpacingSize? Spacing { get; set; }
+    public ComponentSeparatorSpacingSize Spacing { get; set; }
 }
 
 public class JsonComponentContainerComponent : JsonComponent
