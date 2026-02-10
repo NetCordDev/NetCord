@@ -2,12 +2,12 @@
 
 namespace NetCord;
 
-public class ComponentSectionThumbnail(JsonComponent jsonModel) : IComponentSectionAccessoryComponent, IJsonModel<JsonComponent>
+public class ComponentSectionThumbnail(JsonComponentSectionThumbnailComponent jsonModel) : IComponentSectionAccessoryComponent, IJsonModel<JsonComponentSectionThumbnailComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonComponentSectionThumbnailComponent IJsonModel<JsonComponentSectionThumbnailComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public ComponentMedia Media { get; } = new(jsonModel.Media!);
+    public ComponentMedia Media { get; } = new(jsonModel.Media);
     public string? Description => jsonModel.Description;
     public bool Spoiler => jsonModel.Spoiler.GetValueOrDefault();
 }

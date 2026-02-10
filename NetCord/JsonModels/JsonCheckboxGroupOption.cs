@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public class JsonMenuSelectOption
+public class JsonCheckboxGroupOption
 {
     [JsonPropertyName("label")]
     public string Label { get; set; }
@@ -12,9 +12,6 @@ public class JsonMenuSelectOption
 
     [JsonPropertyName("description")]
     public string? Description { get; set; }
-
-    [JsonPropertyName("emoji")]
-    public JsonEmoji? Emoji { get; set; }
 
     [JsonPropertyName("default")]
     public bool Default { get; set; }

@@ -1,4 +1,4 @@
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 
 namespace NetCord;
 
@@ -8,7 +8,7 @@ public interface IActionRowComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.Button => IButton.CreateFromJson(jsonModel),
+            ComponentType.Button => IButton.CreateFromJson((JsonButtonComponent)jsonModel),
             _ => new UnknownActionRowComponent(jsonModel),
         };
     }
@@ -20,8 +20,8 @@ public interface IComponentSectionAccessoryComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.Button => IButton.CreateFromJson(jsonModel),
-            ComponentType.Thumbnail => new ComponentSectionThumbnail(jsonModel),
+            ComponentType.Button => IButton.CreateFromJson((JsonButtonComponent)jsonModel),
+            ComponentType.Thumbnail => new ComponentSectionThumbnail((JsonComponentSectionThumbnailComponent)jsonModel),
             _ => new UnknownComponentSectionAccessoryComponent(jsonModel),
         };
     }
@@ -33,7 +33,7 @@ public interface IComponentSectionComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.TextDisplay => new TextDisplay(jsonModel),
+            ComponentType.TextDisplay => new TextDisplay((JsonTextDisplayComponent)jsonModel),
             _ => new UnknownComponentSectionComponent(jsonModel),
         };
     }
@@ -45,17 +45,17 @@ public interface IComponentContainerComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.ActionRow => HandleActionRow(jsonModel),
-            ComponentType.TextDisplay => new TextDisplay(jsonModel),
-            ComponentType.Section => new ComponentSection(jsonModel),
-            ComponentType.MediaGallery => new MediaGallery(jsonModel),
-            ComponentType.Separator => new ComponentSeparator(jsonModel),
-            ComponentType.File => new FileDisplay(jsonModel),
+            ComponentType.ActionRow => HandleActionRow((JsonActionRowComponent)jsonModel),
+            ComponentType.TextDisplay => new TextDisplay((JsonTextDisplayComponent)jsonModel),
+            ComponentType.Section => new ComponentSection((JsonComponentSectionComponent)jsonModel),
+            ComponentType.MediaGallery => new MediaGallery((JsonMediaGalleryComponent)jsonModel),
+            ComponentType.Separator => new ComponentSeparator((JsonComponentSeparatorComponent)jsonModel),
+            ComponentType.File => new FileDisplay((JsonFileDisplayComponent)jsonModel),
             _ => new UnknownComponentContainerComponent(jsonModel),
         };
     }
 
-    private static IComponentContainerComponent HandleActionRow(JsonComponent jsonModel)
+    private static IComponentContainerComponent HandleActionRow(JsonActionRowComponent jsonModel)
     {
         if (jsonModel.Components is not [var firstComponent, ..])
             return new UnknownComponentContainerComponent(jsonModel);
@@ -63,11 +63,11 @@ public interface IComponentContainerComponent : IComponent
         return firstComponent.Type switch
         {
             ComponentType.Button => new ActionRow(jsonModel),
-            ComponentType.StringMenu => new StringMenu(firstComponent, jsonModel.Id),
-            ComponentType.UserMenu => new UserMenu(firstComponent, jsonModel.Id),
-            ComponentType.RoleMenu => new RoleMenu(firstComponent, jsonModel.Id),
-            ComponentType.MentionableMenu => new MentionableMenu(firstComponent, jsonModel.Id),
-            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
+            ComponentType.StringMenu => new StringMenu((JsonStringMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.UserMenu => new UserMenu((JsonUserMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.RoleMenu => new RoleMenu((JsonRoleMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.MentionableMenu => new MentionableMenu((JsonMentionableMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.ChannelMenu => new ChannelMenu((JsonChannelMenuComponent)firstComponent, jsonModel.Id),
             _ => new UnknownComponentContainerComponent(jsonModel),
         };
     }
@@ -79,18 +79,18 @@ public interface IMessageComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.ActionRow => HandleActionRow(jsonModel),
-            ComponentType.Section => new ComponentSection(jsonModel),
-            ComponentType.TextDisplay => new TextDisplay(jsonModel),
-            ComponentType.MediaGallery => new MediaGallery(jsonModel),
-            ComponentType.File => new FileDisplay(jsonModel),
-            ComponentType.Separator => new ComponentSeparator(jsonModel),
-            ComponentType.Container => new ComponentContainer(jsonModel),
+            ComponentType.ActionRow => HandleActionRow((JsonActionRowComponent)jsonModel),
+            ComponentType.Section => new ComponentSection((JsonComponentSectionComponent)jsonModel),
+            ComponentType.TextDisplay => new TextDisplay((JsonTextDisplayComponent)jsonModel),
+            ComponentType.MediaGallery => new MediaGallery((JsonMediaGalleryComponent)jsonModel),
+            ComponentType.File => new FileDisplay((JsonFileDisplayComponent)jsonModel),
+            ComponentType.Separator => new ComponentSeparator((JsonComponentSeparatorComponent)jsonModel),
+            ComponentType.Container => new ComponentContainer((JsonComponentContainerComponent)jsonModel),
             _ => new UnknownMessageComponent(jsonModel),
         };
     }
 
-    private static IMessageComponent HandleActionRow(JsonComponent jsonModel)
+    private static IMessageComponent HandleActionRow(JsonActionRowComponent jsonModel)
     {
         if (jsonModel.Components is not [var firstComponent, ..])
             return new UnknownMessageComponent(jsonModel);
@@ -98,11 +98,11 @@ public interface IMessageComponent : IComponent
         return firstComponent.Type switch
         {
             ComponentType.Button => new ActionRow(jsonModel),
-            ComponentType.StringMenu => new StringMenu(firstComponent, jsonModel.Id),
-            ComponentType.UserMenu => new UserMenu(firstComponent, jsonModel.Id),
-            ComponentType.RoleMenu => new RoleMenu(firstComponent, jsonModel.Id),
-            ComponentType.MentionableMenu => new MentionableMenu(firstComponent, jsonModel.Id),
-            ComponentType.ChannelMenu => new ChannelMenu(firstComponent, jsonModel.Id),
+            ComponentType.StringMenu => new StringMenu((JsonStringMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.UserMenu => new UserMenu((JsonUserMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.RoleMenu => new RoleMenu((JsonRoleMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.MentionableMenu => new MentionableMenu((JsonMentionableMenuComponent)firstComponent, jsonModel.Id),
+            ComponentType.ChannelMenu => new ChannelMenu((JsonChannelMenuComponent)firstComponent, jsonModel.Id),
             _ => new UnknownMessageComponent(jsonModel),
         };
     }
@@ -114,8 +114,8 @@ public interface IModalComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.TextDisplay => new TextDisplay(jsonModel),
-            ComponentType.Label => new Label(jsonModel, resolvedData),
+            ComponentType.TextDisplay => new TextDisplay((JsonTextDisplayComponent)jsonModel),
+            ComponentType.Label => new Label((JsonLabelComponent)jsonModel, resolvedData),
             _ => new UnknownModalComponent(jsonModel),
         };
     }
@@ -127,16 +127,16 @@ public interface ILabelComponent : IComponent
     {
         return jsonModel.Type switch
         {
-            ComponentType.TextInput => new TextInput(jsonModel),
-            ComponentType.StringMenu => new StringMenu(jsonModel, labelId),
-            ComponentType.UserMenu => new UserMenu(jsonModel, labelId, resolvedData),
-            ComponentType.RoleMenu => new RoleMenu(jsonModel, labelId, resolvedData),
-            ComponentType.MentionableMenu => new MentionableMenu(jsonModel, labelId, resolvedData),
-            ComponentType.ChannelMenu => new ChannelMenu(jsonModel, labelId, resolvedData),
-            ComponentType.FileUpload => new FileUpload(jsonModel, resolvedData),
-            //ComponentType.RadioGroup => new RadioGroup(jsonModel, labelId, resolvedData),
-            //ComponentType.CheckboxGroup => new CheckboxGroup(jsonModel, labelId, resolvedData),
-            //ComponentType.Checkbox => new Checkbox(jsonModel, labelId, resolvedData),
+            ComponentType.TextInput => new TextInput((JsonTextInputComponent)jsonModel),
+            ComponentType.StringMenu => new StringMenu((JsonStringMenuComponent)jsonModel, labelId),
+            ComponentType.UserMenu => new UserMenu((JsonUserMenuComponent)jsonModel, labelId, resolvedData),
+            ComponentType.RoleMenu => new RoleMenu((JsonRoleMenuComponent)jsonModel, labelId, resolvedData),
+            ComponentType.MentionableMenu => new MentionableMenu((JsonMentionableMenuComponent)jsonModel, labelId, resolvedData),
+            ComponentType.ChannelMenu => new ChannelMenu((JsonChannelMenuComponent)jsonModel, labelId, resolvedData),
+            ComponentType.FileUpload => new FileUpload((JsonFileUploadComponent)jsonModel, resolvedData),
+            ComponentType.RadioGroup => new RadioGroup((JsonRadioGroupComponent)jsonModel),
+            ComponentType.CheckboxGroup => new CheckboxGroup((JsonCheckboxGroupComponent)jsonModel),
+            ComponentType.Checkbox => new Checkbox((JsonCheckboxComponent)jsonModel),
             _ => new UnknownLabelComponent(jsonModel),
         };
     }

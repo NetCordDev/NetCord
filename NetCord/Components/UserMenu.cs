@@ -2,13 +2,15 @@
 
 namespace NetCord;
 
-public class UserMenu : EntityMenu
+public class UserMenu : EntityMenu, IJsonModel<JsonUserMenuComponent>
 {
-    public UserMenu(JsonComponent jsonModel, int parentId) : base(jsonModel, parentId)
+    JsonUserMenuComponent IJsonModel<JsonUserMenuComponent>.JsonModel => GetJsonModel<JsonUserMenuComponent>();
+
+    public UserMenu(JsonUserMenuComponent jsonModel, int parentId) : base(jsonModel, parentId)
     {
     }
 
-    public unsafe UserMenu(JsonComponent jsonModel,
+    public unsafe UserMenu(JsonUserMenuComponent jsonModel,
                            int parentId,
                            InteractionResolvedData? resolvedData) : base(jsonModel,
                                                                          parentId,

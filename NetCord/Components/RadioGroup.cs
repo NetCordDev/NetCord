@@ -2,11 +2,13 @@
 
 namespace NetCord;
 
-internal class RadioGroup(JsonComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonComponent>
+internal class RadioGroup(JsonRadioGroupComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonRadioGroupComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonRadioGroupComponent IJsonModel<JsonRadioGroupComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
-    public string CustomId => jsonModel.CustomId!;
-    //public IReadOnlyList<RadioGroupOption> Options { get; }
+
+    public string CustomId => jsonModel.CustomId;
+
+    public string? SelectedValue => jsonModel.SelectedValue;
 }

@@ -146,6 +146,8 @@ internal static class Program
 
         _entryPointCommandService.AddEntryPointCommand(new EntryPointCommandBuilder("launch-xd", "LOL").WithHandler((EntryPointCommandContext context) => InteractionCallback.LaunchActivity));
 
+        _slashCommandService.AddSlashCommand(new("copy", "Copy!", (string s) => s));
+
         await _client.StartAsync();
 
         await RegisterCommandsAsync(true);

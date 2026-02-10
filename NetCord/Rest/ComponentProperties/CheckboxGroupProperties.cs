@@ -14,7 +14,7 @@ public partial class CheckboxGroupProperties(string customId, IEnumerable<Checkb
 
     public int? Id { get; set; }
 
-    public ComponentType ComponentType => ComponentType.RadioGroup;
+    public ComponentType ComponentType => ComponentType.CheckboxGroup;
 
     public string CustomId { get; set; } = customId;
 
@@ -59,5 +59,5 @@ public partial class CheckboxGroupOptionProperties(string label, string value)
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("default")]
-    public bool IsDefault { get; set; }
+    public bool Default { get; set; }
 }

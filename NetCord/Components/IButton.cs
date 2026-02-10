@@ -4,9 +4,9 @@ public interface IButton : IActionRowComponent, IComponentSectionAccessoryCompon
 {
     public bool Disabled { get; }
 
-    public static new IButton CreateFromJson(JsonModels.JsonComponent jsonModel)
+    public static IButton CreateFromJson(JsonModels.JsonButtonComponent jsonModel)
     {
-        return jsonModel.Style.GetValueOrDefault() switch
+        return jsonModel.Style switch
         {
             (ButtonStyle)5 => new LinkButton(jsonModel),
             (ButtonStyle)6 => new PremiumButton(jsonModel),

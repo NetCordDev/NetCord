@@ -961,7 +961,8 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
 
     private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, ReadOnlySpan<byte> payload)
     {
-        var jsonPayload = JsonSerializer.Deserialize(_compression.Decompress(payload), Serialization.Default.JsonGatewayPayload)!;
+        var rawPayload = _compression.Decompress(payload);
+        var jsonPayload = JsonSerializer.Deserialize(rawPayload, Serialization.Default.JsonGatewayPayload)!;
         return HandlePayloadAsync(state, connectionState, jsonPayload);
     }
 

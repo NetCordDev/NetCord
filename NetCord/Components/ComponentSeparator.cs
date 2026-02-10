@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public class ComponentSeparator(JsonComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
+public class ComponentSeparator(JsonComponentSeparatorComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponentSeparatorComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonComponentSeparatorComponent IJsonModel<JsonComponentSeparatorComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public bool Divider => jsonModel.Divider.GetValueOrDefault();

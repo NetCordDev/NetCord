@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public class ComponentContainer(JsonComponent jsonModel) : IMessageComponent, IJsonModel<JsonComponent>
+public class ComponentContainer(JsonComponentContainerComponent jsonModel) : IMessageComponent, IJsonModel<JsonComponentContainerComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonComponentContainerComponent IJsonModel<JsonComponentContainerComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public Color? AccentColor => jsonModel.AccentColor;

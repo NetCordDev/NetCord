@@ -2,14 +2,16 @@
 
 namespace NetCord;
 
-public class ChannelMenu : EntityMenu
+public class ChannelMenu : EntityMenu, IJsonModel<JsonChannelMenuComponent>
 {
-    public ChannelMenu(JsonComponent jsonModel, int parentId) : base(jsonModel, parentId)
+    JsonChannelMenuComponent IJsonModel<JsonChannelMenuComponent>.JsonModel => GetJsonModel<JsonChannelMenuComponent>();
+
+    public ChannelMenu(JsonChannelMenuComponent jsonModel, int parentId) : base(jsonModel, parentId)
     {
         ChannelTypes = jsonModel.ChannelTypes ?? [];
     }
 
-    public unsafe ChannelMenu(JsonComponent jsonModel,
+    public unsafe ChannelMenu(JsonChannelMenuComponent jsonModel,
                               int parentId,
                               InteractionResolvedData? resolvedData) : base(jsonModel,
                                                                             parentId,

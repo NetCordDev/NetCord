@@ -59,5 +59,5 @@ public partial class RadioGroupOptionProperties(string label, string value)
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("default")]
-    public bool IsDefault { get; set; }
+    public bool Default { get; set; }
 }
