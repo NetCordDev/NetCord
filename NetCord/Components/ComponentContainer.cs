@@ -9,5 +9,5 @@ public class ComponentContainer(JsonComponentContainerComponent jsonModel) : IMe
     public int Id => jsonModel.Id;
     public Color? AccentColor => jsonModel.AccentColor;
     public bool Spoiler => jsonModel.Spoiler.GetValueOrDefault();
-    public IReadOnlyList<IComponentContainerComponent> Components { get; } = jsonModel.Components!.Select(IComponentContainerComponent.CreateFromJson).ToArray();
+    public IReadOnlyList<IComponentContainerComponent> Components { get; } = jsonModel.Components.Select(IComponentContainerComponent.CreateFromJson).ToArray();
 }

@@ -8,5 +8,5 @@ public class ActionRow(JsonActionRowComponent jsonModel) : IMessageComponent, IC
 
     public int Id => jsonModel.Id;
 
-    public IReadOnlyList<IActionRowComponent> Components { get; } = jsonModel.Components!.Select(IActionRowComponent.CreateFromJson).ToArray();
+    public IReadOnlyList<IActionRowComponent> Components { get; } = jsonModel.Components.Select(IActionRowComponent.CreateFromJson).ToArray();
 }

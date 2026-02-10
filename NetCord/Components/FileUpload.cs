@@ -17,6 +17,6 @@ public class FileUpload : IInteractiveComponent, ILabelComponent, IJsonModel<Jso
     }
 
     public int Id => _jsonModel.Id;
-    public string CustomId => _jsonModel.CustomId!;
+    public string CustomId => _jsonModel.CustomId;
     public IReadOnlyList<Attachment> Attachments { get; }
 }
