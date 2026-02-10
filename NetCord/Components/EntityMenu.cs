@@ -30,7 +30,7 @@ public abstract class EntityMenu : Menu, IJsonModel<JsonEntityMenuComponent>
         SelectedValues = selectedValues;
     }
 
-    private protected static unsafe IReadOnlyList<ulong> GetSelectedValues<T>(JsonEntityMenuComponent jsonModel, delegate*<ulong[], InteractionResolvedData, T[]> getValues, out T[] values, InteractionResolvedData? resolvedData) where T : Entity
+    private protected static unsafe IReadOnlyList<ulong> GetSelectedValues<T>(JsonEntityMenuComponent jsonModel, delegate*<IEnumerable<ulong>, InteractionResolvedData, T[]> getValues, out T[] values, InteractionResolvedData? resolvedData) where T : Entity
     {
         if (resolvedData is not null)
             return new EntityArrayWrapper<T>(values = getValues(jsonModel.SelectedValues!, resolvedData));
