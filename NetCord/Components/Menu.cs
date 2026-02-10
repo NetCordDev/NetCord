@@ -15,7 +15,7 @@ public abstract class Menu(JsonMenuComponent jsonModel, int parentId) : IInterac
     public string? Placeholder => jsonModel.Placeholder;
     public int? MinValues => jsonModel.MinValues;
     public int? MaxValues => jsonModel.MaxValues;
-    public bool Disabled => jsonModel.Disabled.GetValueOrDefault();
     public bool? Required => jsonModel.Required;
+    public bool? Disabled => jsonModel.Disabled;
     public int ParentId => parentId;
 }

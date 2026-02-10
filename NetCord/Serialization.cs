@@ -272,7 +272,7 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonChannelMenuComponent))]
 [JsonSerializable(typeof(JsonComponentSectionComponent))]
 [JsonSerializable(typeof(JsonTextDisplayComponent))]
-[JsonSerializable(typeof(JsonComponentSectionThumbnailComponent))]
+[JsonSerializable(typeof(JsonThumbnailComponent))]
 [JsonSerializable(typeof(JsonMediaGalleryComponent))]
 [JsonSerializable(typeof(JsonMediaGalleryItem))]
 [JsonSerializable(typeof(JsonFileDisplayComponent))]

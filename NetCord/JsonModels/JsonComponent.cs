@@ -64,7 +64,7 @@ public class JsonComponent
                 ComponentType.ChannelMenu => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonChannelMenuComponent),
                 ComponentType.Section => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentSectionComponent),
                 ComponentType.TextDisplay => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonTextDisplayComponent),
-                ComponentType.Thumbnail => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentSectionThumbnailComponent),
+                ComponentType.Thumbnail => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonThumbnailComponent),
                 ComponentType.MediaGallery => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonMediaGalleryComponent),
                 ComponentType.File => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonFileDisplayComponent),
                 ComponentType.Separator => JsonSerializer.Deserialize(ref reader, Serialization.Default.JsonComponentSeparatorComponent),
@@ -139,11 +139,11 @@ public class JsonMenuComponent : JsonComponent
     [JsonPropertyName("max_values")]
     public int? MaxValues { get; set; }
 
-    [JsonPropertyName("disabled")]
-    public bool? Disabled { get; set; }
-
     [JsonPropertyName("required")]
     public bool? Required { get; set; }
+
+    [JsonPropertyName("disabled")]
+    public bool? Disabled { get; set; }
 }
 
 public class JsonStringMenuComponent : JsonMenuComponent
@@ -200,13 +200,7 @@ public class JsonComponentSectionComponent : JsonComponent
     public JsonComponent Accessory { get; set; }
 }
 
-public class JsonTextDisplayComponent : JsonComponent
-{
-    [JsonPropertyName("content")]
-    public string? Content { get; set; }
-}
-
-public class JsonComponentSectionThumbnailComponent : JsonComponent
+public class JsonThumbnailComponent : JsonComponent
 {
     [JsonPropertyName("media")]
     public JsonComponentMedia Media { get; set; }
@@ -216,6 +210,12 @@ public class JsonComponentSectionThumbnailComponent : JsonComponent
 
     [JsonPropertyName("spoiler")]
     public bool? Spoiler { get; set; }
+}
+
+public class JsonTextDisplayComponent : JsonComponent
+{
+    [JsonPropertyName("content")]
+    public string? Content { get; set; }
 }
 
 public class JsonMediaGalleryComponent : JsonComponent
@@ -242,22 +242,22 @@ public class JsonFileDisplayComponent : JsonComponent
     public JsonComponentMedia File { get; set; }
 
     [JsonPropertyName("spoiler")]
-    public bool Spoiler { get; set; }
+    public bool? Spoiler { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [JsonPropertyName("size")]
-    public int Size { get; set; }
+    public int? Size { get; set; }
 }
 
 public class JsonComponentSeparatorComponent : JsonComponent
 {
     [JsonPropertyName("divider")]
-    public bool Divider { get; set; }
+    public bool? Divider { get; set; }
 
     [JsonPropertyName("spacing")]
-    public ComponentSeparatorSpacingSize Spacing { get; set; }
+    public ComponentSeparatorSpacingSize? Spacing { get; set; }
 }
 
 public class JsonComponentContainerComponent : JsonComponent

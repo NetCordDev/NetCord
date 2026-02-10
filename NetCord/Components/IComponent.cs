@@ -21,7 +21,7 @@ public interface IComponentSectionAccessoryComponent : IComponent
         return jsonModel.Type switch
         {
             ComponentType.Button => IButton.CreateFromJson((JsonButtonComponent)jsonModel),
-            ComponentType.Thumbnail => new ComponentSectionThumbnail((JsonComponentSectionThumbnailComponent)jsonModel),
+            ComponentType.Thumbnail => new Thumbnail((JsonThumbnailComponent)jsonModel),
             _ => new UnknownComponentSectionAccessoryComponent(jsonModel),
         };
     }
