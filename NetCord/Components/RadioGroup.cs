@@ -2,7 +2,7 @@
 
 namespace NetCord;
 
-internal class RadioGroup(JsonRadioGroupComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonRadioGroupComponent>
+public class RadioGroup(JsonRadioGroupComponent jsonModel) : IInteractiveComponent, ILabelComponent, IJsonModel<JsonRadioGroupComponent>
 {
     JsonRadioGroupComponent IJsonModel<JsonRadioGroupComponent>.JsonModel => jsonModel;
 

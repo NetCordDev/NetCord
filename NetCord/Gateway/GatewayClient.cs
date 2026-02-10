@@ -1351,7 +1351,6 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
                 break;
             case "INTERACTION_CREATE":
                 {
-                    Console.WriteLine(data.ToString());
                     await InvokeEventAsync(_interactionCreate, (Data: data, Client: this), static data => Interaction.CreateFromJson(data.Data.ToObject(Serialization.Default.JsonInteraction), data.Client.Cache, data.Client.Rest)).ConfigureAwait(false);
                 }
                 break;

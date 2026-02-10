@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public class FileDisplay(JsonFileDisplayComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
+public class FileDisplay(JsonFileDisplayComponent jsonModel) : IMessageComponent, IComponentContainerComponent, IJsonModel<JsonFileDisplayComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonFileDisplayComponent IJsonModel<JsonFileDisplayComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public ComponentMedia File { get; } = new(jsonModel.File);
