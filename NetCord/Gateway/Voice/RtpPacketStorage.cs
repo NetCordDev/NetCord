@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-internal readonly struct RtpPacketStorage(ReadOnlyMemory<byte> datagram, bool encryptedExtension)
+internal readonly struct RtpPacketStorage(ReadOnlyMemory<byte> datagram)
 {
-    public readonly RtpPacket Packet => new(datagram.Span, encryptedExtension);
+    public readonly RtpPacket Packet => new(datagram.Span);
 }

@@ -10,13 +10,16 @@ namespace NetCord.Gateway.Voice;
 /// <param name="format">The PCM format to encode from.</param>
 /// <param name="channels">Number of channels in input signal.</param>
 /// <param name="application">Opus coding mode.</param>
-/// <param name="segment">Whether to segment the written data into Opus frames. You can set this to <see langword="false"/> if you are sure to write exactly one Opus frame at a time.</param>
-public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment = true) : RewritingStream(CreateNextStream(next, format, channels, application, segment))
+/// <param name="configuration">The configuration of the stream.</param>
+public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
 {
-    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, bool segment)
+    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration)
     {
-        OpusEncodeStreamInternal encodeStream = new(next, format, channels, application);
-        return segment ? new SegmentingStream(encodeStream, format, channels)
+        var frameDuration = configuration?.FrameDuration ?? Opus.DefaultFrameDuration;
+        var segment = configuration?.Segment ?? true;
+
+        OpusEncodeStreamInternal encodeStream = new(next, frameDuration, format, channels, application);
+        return segment ? new SegmentingStream(encodeStream, frameDuration, format, channels)
                        : encodeStream;
     }
 
@@ -28,29 +31,30 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         _next.Write(buffer);
     }
 
-    private class SegmentingStream : RewritingStream
+    private sealed class SegmentingStream : RewritingStream
     {
         private int _offset;
-        private readonly int _frameSize;
+        private readonly int _bufferSize;
         private readonly Memory<byte> _buffer;
 
-        public SegmentingStream(Stream next, PcmFormat format, VoiceChannels channels) : base(next)
+        public SegmentingStream(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels) : base(next)
         {
-            _buffer = GC.AllocateUninitializedArray<byte>(_frameSize = Opus.GetFrameSize(format, channels));
+            int samplesPerChannel = Opus.GetSamplesPerChannel(frameDuration);
+            int bufferSize = _bufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
+            _buffer = GC.AllocateUninitializedArray<byte>(bufferSize);
         }
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            if (_offset == 0)
+            if (_offset is 0)
                 await WriteAsyncInternal().ConfigureAwait(false);
             else
             {
-                var end = _frameSize - _offset;
-                if (buffer.Length > end)
+                var end = _bufferSize - _offset;
+                if (buffer.Length >= end)
                 {
                     buffer[..end].CopyTo(_buffer[_offset..]);
                     await _next.WriteAsync(_buffer, cancellationToken).ConfigureAwait(false);
-                    _offset = 0;
                     buffer = buffer[end..];
                     await WriteAsyncInternal().ConfigureAwait(false);
                 }
@@ -63,10 +67,10 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
             async ValueTask WriteAsyncInternal()
             {
-                while (buffer.Length >= _frameSize)
+                while (buffer.Length >= _bufferSize)
                 {
-                    await _next.WriteAsync(buffer[.._frameSize], cancellationToken).ConfigureAwait(false);
-                    buffer = buffer[_frameSize..];
+                    await _next.WriteAsync(buffer[.._bufferSize], cancellationToken).ConfigureAwait(false);
+                    buffer = buffer[_bufferSize..];
                 }
                 buffer.CopyTo(_buffer);
                 _offset = buffer.Length;
@@ -76,16 +80,15 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         public override void Write(ReadOnlySpan<byte> buffer)
         {
             var buf = _buffer.Span;
-            if (_offset == 0)
+            if (_offset is 0)
                 WriteInternal(buffer, buf);
             else
             {
-                var end = _frameSize - _offset;
-                if (buffer.Length > end)
+                var end = _bufferSize - _offset;
+                if (buffer.Length >= end)
                 {
                     buffer[..end].CopyTo(buf[_offset..]);
                     _next.Write(buf);
-                    _offset = 0;
                     buffer = buffer[end..];
                     WriteInternal(buffer, buf);
                 }
@@ -98,10 +101,10 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
 
             void WriteInternal(ReadOnlySpan<byte> buffer, Span<byte> buf)
             {
-                while (buffer.Length >= _frameSize)
+                while (buffer.Length >= _bufferSize)
                 {
-                    _next.Write(buffer[.._frameSize]);
-                    buffer = buffer[_frameSize..];
+                    _next.Write(buffer[.._bufferSize]);
+                    buffer = buffer[_bufferSize..];
                 }
                 buffer.CopyTo(buf);
                 _offset = buffer.Length;
@@ -129,50 +132,117 @@ public class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels chann
         }
     }
 
-    private unsafe partial class OpusEncodeStreamInternal : RewritingStream
+    private sealed partial class OpusEncodeStreamInternal : RewritingStream
     {
         private readonly OpusEncoder _encoder;
-        private readonly delegate*<OpusEncoder, ReadOnlySpan<byte>, Span<byte>, int> _encode;
+        private readonly Func<ReadOnlySpan<byte>, Span<byte>, int> _encode;
+        private readonly int _frameSize;
+        private readonly int _opusBufferSize;
+        private readonly int _pcmBufferSize;
 
-        public OpusEncodeStreamInternal(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application) : base(next)
+        public OpusEncodeStreamInternal(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels, OpusApplication application) : base(next)
         {
             _encoder = new(channels, application);
             _encode = format switch
             {
-                PcmFormat.Short => &Encode,
-                PcmFormat.Float => &EncodeFloat,
+                PcmFormat.Short => Encode,
+                PcmFormat.Float => EncodeFloat,
                 _ => throw new InvalidEnumArgumentException(nameof(format), (int)format, typeof(PcmFormat)),
             };
-
-            static int Encode(OpusEncoder encoder, ReadOnlySpan<byte> pcm, Span<byte> data) => encoder.Encode(pcm, data);
-
-            static int EncodeFloat(OpusEncoder encoder, ReadOnlySpan<byte> pcm, Span<byte> data) => encoder.EncodeFloat(pcm, data);
+            int samplesPerChannel = _frameSize = Opus.GetSamplesPerChannel(frameDuration);
+            _opusBufferSize = Opus.GetMaxOpusFrameSize(frameDuration);
+            _pcmBufferSize = Opus.GetFrameBufferSize(samplesPerChannel, format, channels);
         }
 
-        private int Encode(ReadOnlySpan<byte> pcm, Span<byte> data) => _encode(_encoder, pcm, data);
-    }
+        private int Encode(ReadOnlySpan<byte> pcm, Span<byte> data)
+        {
+            return _encoder.Encode(pcm, _frameSize, data);
+        }
 
-    private partial class OpusEncodeStreamInternal : RewritingStream
-    {
+        private int EncodeFloat(ReadOnlySpan<byte> pcm, Span<byte> data)
+        {
+            return _encoder.EncodeFloat(pcm, _frameSize, data);
+        }
+
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
-            var array = ArrayPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
+            int size = _opusBufferSize;
 
-            int count = Encode(buffer.Span, array.AsSpan());
-            await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
+            var array = ArrayPool<byte>.Shared.Rent(size);
 
-            ArrayPool<byte>.Shared.Return(array);
+            try
+            {
+                int count = _encode(buffer.Span, array.AsSpan(0, size));
+                await _next.WriteAsync(array.AsMemory(0, count), cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(array);
+            }
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            var array = ArrayPool<byte>.Shared.Rent(Opus.MaxOpusFrameLength);
+            int size = _opusBufferSize;
 
-            var data = array.AsSpan();
-            int count = Encode(buffer, data);
-            _next.Write(data[..count]);
+            var array = ArrayPool<byte>.Shared.Rent(size);
 
-            ArrayPool<byte>.Shared.Return(array);
+            try
+            {
+                var data = array.AsSpan(0, size);
+                int count = _encode(buffer, data);
+                _next.Write(data[..count]);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(array);
+            }
+        }
+
+        public override async Task FlushAsync(CancellationToken cancellationToken)
+        {
+            int size = _pcmBufferSize;
+
+            var silenceArray = ArrayPool<byte>.Shared.Rent(size);
+
+            try
+            {
+                silenceArray.AsSpan(0, size).Clear();
+
+                var silenceBuffer = silenceArray.AsMemory(0, size);
+
+                for (int i = 0; i < 5; i++)
+                    await WriteAsync(silenceBuffer, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(silenceArray);
+            }
+
+            await base.FlushAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public override void Flush()
+        {
+            int size = _pcmBufferSize;
+
+            var silenceArray = ArrayPool<byte>.Shared.Rent(size);
+
+            try
+            {
+                var silenceBuffer = silenceArray.AsSpan(0, size);
+
+                silenceBuffer.Clear();
+
+                for (int i = 0; i < 5; i++)
+                    Write(silenceBuffer);
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(silenceArray);
+            }
+
+            base.Flush();
         }
 
         protected override void Dispose(bool disposing)

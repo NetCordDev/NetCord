@@ -1,4 +1,5 @@
 ﻿using System.Buffers.Text;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -70,6 +71,7 @@ public static class Snowflake
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowArgumentOutOfRange(string parameterName)
     {
         throw new ArgumentOutOfRangeException(parameterName);
@@ -241,6 +243,7 @@ public static class Snowflake
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowFormatException()
     {
         throw new FormatException("The input is not in a correct format.");

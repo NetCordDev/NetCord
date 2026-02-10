@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace NetCord.Rest;
@@ -54,6 +55,7 @@ public partial class AttachmentProperties : IHttpSerializable, IJsonSerializable
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowAttachmentAlreadySent()
     {
         throw new InvalidOperationException("The attachment has already been sent.");

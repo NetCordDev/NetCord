@@ -19,9 +19,14 @@ public class WebSocketClientEventsGenerator : IIncrementalGenerator
     {
         var typeSymbols = context.SyntaxProvider
             .CreateSyntaxProvider((node, cancellationToken) => node is ClassDeclarationSyntax { Identifier.Text: WebSocketClientName or GatewayClientName or VoiceClientName },
-                                  (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!);
+                                  (context, cancellationToken) => (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.Node)!)
+            .Collect();
 
-        context.RegisterSourceOutput(typeSymbols, (context, source) => context.AddSource($"{source.Name}.g.cs", SourceText.From(GenerateEvents(source), Encoding.UTF8)));
+        context.RegisterSourceOutput(typeSymbols, (context, source) =>
+        {
+            foreach (var typeSymbol in source.Distinct(SymbolEqualityComparer.Default).Cast<INamedTypeSymbol>())
+                context.AddSource($"{typeSymbol.Name}.g.cs", SourceText.From(GenerateEvents(typeSymbol), Encoding.UTF8));
+        });
     }
 
     private string GenerateEvents(INamedTypeSymbol typeSymbol)

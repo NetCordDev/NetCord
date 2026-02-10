@@ -36,7 +36,7 @@ public partial class RestClient
             i =>
             {
                 var user = i.User;
-                return new(user.JoinedAt, user.Id);
+                return new(user.JoinedAt.GetValueOrDefault(), user.Id);
             },
             HttpMethod.Post,
             $"/guilds/{guildId}/members-search",
@@ -269,8 +269,8 @@ public partial class RestClient
                 handler.AppendLiteral("&");
             }
 
-            [StackTraceHidden]
             [DoesNotReturn]
+            [StackTraceHidden]
             static string InvalidEnum(string propertyName)
             {
                 throw new InvalidOperationException($"Invalid '{propertyName}' value provided.");

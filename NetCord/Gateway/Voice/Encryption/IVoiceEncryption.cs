@@ -15,10 +15,13 @@ public interface IVoiceEncryption : IDisposable
     /// </summary>
     public int Expansion { get; }
 
-    /// <summary>
-    /// Whether the encryption algorithm encrypts the extension.
-    /// </summary>
-    public bool ExtensionEncryption { get; }
+    /// <inheritdoc cref="Decrypt"/>
+    /// <returns><see langword="true"/> if decryption was successful; otherwise, <see langword="false"/>.</returns>
+    public bool TryDecrypt(RtpPacket packet, Span<byte> plaintext);
+
+    /// <inheritdoc cref="Encrypt"/>
+    /// <returns><see langword="true"/> if encryption was successful; otherwise, <see langword="false"/>.</returns>
+    public bool TryEncrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet);
 
     /// <summary>
     /// Decrypts a datagram using the encryption algorithm.

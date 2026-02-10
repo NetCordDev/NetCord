@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using NetCord.Gateway.JsonModels;
@@ -350,6 +351,7 @@ public sealed class ConcurrentGatewayClientCache : IGatewayClientCache
     }
 
     [DoesNotReturn]
+    [StackTraceHidden]
     private static void ThrowInvalidDictionary()
     {
         throw new InvalidOperationException("The dictionary must be a 'System.Collections.Concurrent.ConcurrentDictionary<TKey, TValue>'. It should be created using a 'CreateDictionary<TSource, TKey, TValue>' method.");

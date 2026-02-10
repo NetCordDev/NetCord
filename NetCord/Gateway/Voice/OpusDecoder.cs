@@ -1,23 +1,30 @@
 ﻿using System.Runtime.InteropServices;
 
+using static NetCord.Gateway.Voice.Opus;
+
 namespace NetCord.Gateway.Voice;
 
-public sealed class OpusDecoder : IDisposable
+public readonly struct OpusDecoder : IDisposable
 {
     private readonly OpusDecoderHandle _decoder;
+    private readonly VoiceChannels _channels;
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="channels">Number of channels to decode.</param>
-    /// <exception cref="OpusException"></exception>
     public OpusDecoder(VoiceChannels channels)
     {
-        var decoder = Opus.OpusDecoderCreate(Opus.SamplingRate, channels, out var error);
-        if (error != 0)
-            throw new OpusException(error);
+        var decoder = OpusDecoderCreate(SamplingRate, channels, out var error);
+
+        if (IsError(error))
+        {
+            decoder.Dispose();
+            ThrowOpusException(error);
+        }
 
         _decoder = decoder;
+        _channels = channels;
     }
 
     /// <summary>
@@ -25,13 +32,17 @@ public sealed class OpusDecoder : IDisposable
     /// </summary>
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
-    /// <exception cref="OpusException"></exception>
-    public void Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
+    /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <returns>The number of decoded samples per channel.</returns>
+    public int Decode(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize)
     {
-        int result = Opus.OpusDecode(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, 0);
+        ValidatePcm(pcm.Length, frameSize, PcmFormat.Short, _channels, nameof(pcm));
 
-        if (result < 0)
-            throw new OpusException((OpusError)result);
+        int result = OpusDecode(_decoder, data, data.Length, pcm, frameSize, 0);
+
+        ValidateResult(result);
+
+        return result;
     }
 
     /// <summary>
@@ -39,13 +50,41 @@ public sealed class OpusDecoder : IDisposable
     /// </summary>
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
-    /// <exception cref="OpusException"></exception>
-    public void DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm)
+    /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <returns>The number of decoded samples per channel.</returns>
+    public int Decode(ReadOnlySpan<byte> data, Span<short> pcm, int frameSize)
     {
-        int result = Opus.OpusDecodeFloat(_decoder, ref MemoryMarshal.GetReference(data), data.Length, ref MemoryMarshal.GetReference(pcm), Opus.SamplesPerChannel, 0);
+        return Decode(data, MemoryMarshal.AsBytes(pcm), frameSize);
+    }
 
-        if (result < 0)
-            throw new OpusException((OpusError)result);
+    /// <summary>
+    /// Decodes an Opus frame.
+    /// </summary>
+    /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
+    /// <param name="pcm">Output signal.</param>
+    /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <returns>The number of decoded samples per channel.</returns>
+    public int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize)
+    {
+        ValidatePcm(pcm.Length, frameSize, PcmFormat.Float, _channels, nameof(pcm));
+
+        int result = OpusDecodeFloat(_decoder, data, data.Length, pcm, frameSize, 0);
+
+        ValidateResult(result);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Decodes an Opus frame.
+    /// </summary>
+    /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
+    /// <param name="pcm">Output signal.</param>
+    /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <returns>The number of decoded samples per channel.</returns>
+    public int DecodeFloat(ReadOnlySpan<byte> data, Span<float> pcm, int frameSize)
+    {
+        return DecodeFloat(data, MemoryMarshal.AsBytes(pcm), frameSize);
     }
 
     public void Dispose()
