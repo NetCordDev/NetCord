@@ -1,6 +1,26 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:base"
+  ],
+  "dependencyDashboard": true,
+  "rebaseWhen": "conflicted",
+  "packageRules": [
+    {
+      "description": "Group all non-major NuGet updates into one PR",
+      "matchDatasources": [ "nuget" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "NuGet non-major updates"
+    },
+    {
+      "description": "Schedule dotnet-sdk updates weekly on Wednesday",
+      "matchPackageNames": [ "dotnet-sdk" ],
+      "schedule": [ "every wednesday" ]
+    },
+    {
+      "description": "Schedule github-actions and nuget daily",
+      "matchManagers": [ "github-actions", "nuget" ],
+      "schedule": [ "every day" ]
+    }
   ]
 }
