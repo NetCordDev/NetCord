@@ -27,7 +27,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     public RoleColors Colors { get; }
 
     /// <summary>
-    /// Whether this <see cref="Role"/> causes members with it to be displayed in a separate section in the guild member list.
+    /// Whether this <see cref="Role"/> causes users with it to be displayed in a separate section in the guild users list.
     /// </summary>
     public bool Hoist => _jsonModel.Hoist;
 
