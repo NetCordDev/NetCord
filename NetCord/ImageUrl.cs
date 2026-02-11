@@ -388,7 +388,7 @@ public class ImageUrl : ISpanFormattable
     /// Gets the <see cref="ImageUrl"/> of a sticker.
     /// </summary>
     /// <param name="stickerId">The ID of the sticker.</param>
-    /// <param name="stickerFormat">The format type of the sticker.</param>
+    /// <param name="stickerFormat">The format of the sticker.</param>
     /// <param name="format">The format of the returned <see cref="ImageUrl"/>.</param>
     /// <returns>An <see cref="ImageUrl"/> pointing to the sticker.</returns>
     /// <remarks>
