@@ -8,7 +8,7 @@
   "packageRules": [
     {
       "description": "Group all non-major NuGet updates into one PR",
-      "matchDatasources": [ "nuget" ],
+      "matchManagers": [ "nuget" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
       "groupName": "NuGet non-major"
     },
@@ -19,7 +19,7 @@
     },
     {
       "description": "Group all non-major npm updates into one PR",
-      "matchDatasources": [ "npm" ],
+      "matchManagers": [ "npm" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
       "groupName": "npm non-major"
     },
