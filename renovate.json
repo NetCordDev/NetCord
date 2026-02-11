@@ -16,6 +16,18 @@
       "description": "Schedule dotnet-sdk updates weekly on Wednesday",
       "matchPackageNames": [ "dotnet-sdk" ],
       "schedule": [ "on wednesday" ]
+    },
+    {
+      "description": "Group all non-major npm updates into one PR",
+      "matchDatasources": [ "npm" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "npm non-major updates"
+    },
+    {
+      "description": "Group non-major GitHub Actions updates",
+      "matchManagers": [ "github-actions" ],
+      "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "groupName": "GitHub Actions non-major updates"
     }
   ]
 }
