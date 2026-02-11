@@ -37,7 +37,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     public string? IconHash => _jsonModel.IconHash;
 
     /// <summary>
-    /// The <see cref="Role"/>'s unicode emoji.
+    /// The <see cref="Role"/>'s Unicode emoji.
     /// </summary>
     public string? UnicodeEmoji => _jsonModel.UnicodeEmoji;
 
@@ -109,7 +109,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
 }
 
 /// <summary>
-/// Represents the colors of a <see cref="Role"/>. This object will always be filled with <see cref="PrimaryColor"/> being the role's color. Other fields can only be set to a non-null value if the guild has the <c>ENHANCED_ROLE_COLORS</c> guild feature.
+/// Represents the colors of a <see cref="Role"/>.
 /// </summary>
 public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
 {
@@ -123,11 +123,17 @@ public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
     /// <summary>
     /// The secondary color for the <see cref="Role"/>. This will make the role a gradient between the other provided colors.
     /// </summary>
+    /// <remarks>
+    /// Requires the guild to have the <c>ENHANCED_ROLE_COLORS</c> guild feature.
+    /// </remarks>
     public Color? SecondaryColor => jsonModel.SecondaryColor;
 
     /// <summary>
     /// The tertiary color for the <see cref="Role"/>. This will turn the gradient into a holographic style.
     /// </summary>
+    /// <remarks>
+    /// Requires the guild to have the <c>ENHANCED_ROLE_COLORS</c> guild feature.
+    /// </remarks>
     public Color? TertiaryColor => jsonModel.TertiaryColor;
 }
 
