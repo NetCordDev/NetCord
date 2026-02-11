@@ -1,10 +1,17 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "config:recommended",
+    ":gitSignOff",
+    ":disableRateLimiting",
+    "helpers:pinGitHubActionDigests",
+    "abandonments:recommended"
   ],
   "dependencyDashboard": true,
   "rebaseWhen": "conflicted",
+  "major": {
+    "dependencyDashboardApproval": true
+  },
   "packageRules": [
     {
       "description": "Group all non-major NuGet updates into one PR",
