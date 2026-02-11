@@ -10,7 +10,7 @@
       "description": "Group all non-major NuGet updates into one PR",
       "matchDatasources": [ "nuget" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
-      "groupName": "NuGet non-major updates"
+      "groupName": "NuGet non-major"
     },
     {
       "description": "Schedule dotnet-sdk updates weekly on Wednesday",
@@ -21,13 +21,13 @@
       "description": "Group all non-major npm updates into one PR",
       "matchDatasources": [ "npm" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
-      "groupName": "npm non-major updates"
+      "groupName": "npm non-major"
     },
     {
       "description": "Group non-major GitHub Actions updates",
       "matchManagers": [ "github-actions" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
-      "groupName": "GitHub Actions non-major updates"
+      "groupName": "GitHub Actions non-major"
     }
   ]
 }
