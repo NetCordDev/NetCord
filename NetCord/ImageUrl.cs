@@ -6,7 +6,7 @@ namespace NetCord;
 #pragma warning disable IDE0032 // Use auto property
 
 /// <summary>
-/// Represents a URL to an image hosted on Discord's CDN.
+/// Represents a URL to an image hosted by Discord.
 /// </summary>
 public class ImageUrl : ISpanFormattable
 {
