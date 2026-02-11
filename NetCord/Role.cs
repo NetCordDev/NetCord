@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-using NetCord.JsonModels;
+﻿using NetCord.JsonModels;
 using NetCord.Rest;
 
 namespace NetCord;
@@ -14,7 +12,7 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
 
     public string Name => _jsonModel.Name;
 
-    public Color Color => _jsonModel.Color;
+    public RoleColors Colors { get; }
 
     public bool Hoist => _jsonModel.Hoist;
 
@@ -42,8 +40,9 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     {
         _jsonModel = jsonModel;
 
-        var tags = jsonModel.Tags;
-        if (tags is not null)
+        Colors = new(jsonModel.Colors);
+
+        if (jsonModel.Tags is { } tags)
             Tags = new(tags);
 
         GuildId = guildId;
@@ -56,67 +55,13 @@ public partial class Role : ClientEntity, IJsonModel<JsonRole>
     public override bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null) => Mention.TryFormatRole(destination, out charsWritten, Id);
 }
 
-public readonly struct RolePosition : IComparable<RolePosition>, IEquatable<RolePosition>
+public class RoleColors(JsonRoleColors jsonModel) : IJsonModel<JsonRoleColors>
 {
-    private readonly int _position;
-    private readonly ulong _roleId;
+    JsonRoleColors IJsonModel<JsonRoleColors>.JsonModel => jsonModel;
 
-    internal RolePosition(int position, ulong roleId)
-    {
-        _position = position;
-        _roleId = roleId;
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(_position, _roleId);
-    }
-
-    public override bool Equals([NotNullWhen(true)] object? obj)
-    {
-        return obj is RolePosition other && Equals(other);
-    }
-
-    public bool Equals(RolePosition other)
-    {
-        return _position == other._position && _roleId == other._roleId;
-    }
-
-    public int CompareTo(RolePosition other)
-    {
-        var positionCompare = _position.CompareTo(other._position);
-        return positionCompare is 0 ? other._roleId.CompareTo(_roleId) : positionCompare;
-    }
-
-    public static bool operator ==(RolePosition left, RolePosition right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(RolePosition left, RolePosition right)
-    {
-        return !left.Equals(right);
-    }
-
-    public static bool operator >(RolePosition left, RolePosition right)
-    {
-        return left._position > right._position || (left._position == right._position && left._roleId < right._roleId);
-    }
-
-    public static bool operator <(RolePosition left, RolePosition right)
-    {
-        return left._position < right._position || (left._position == right._position && left._roleId > right._roleId);
-    }
-
-    public static bool operator >=(RolePosition left, RolePosition right)
-    {
-        return left._position > right._position || (left._position == right._position && left._roleId <= right._roleId);
-    }
-
-    public static bool operator <=(RolePosition left, RolePosition right)
-    {
-        return left._position < right._position || (left._position == right._position && left._roleId >= right._roleId);
-    }
+    public Color PrimaryColor => jsonModel.PrimaryColor;
+    public Color? SecondaryColor => jsonModel.SecondaryColor;
+    public Color? TertiaryColor => jsonModel.TertiaryColor;
 }
 
 public class RoleTags(JsonRoleTags jsonModel) : IJsonModel<JsonRoleTags>
