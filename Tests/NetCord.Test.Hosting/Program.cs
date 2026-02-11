@@ -232,8 +232,8 @@ host.AddSlashCommand("modal-test", "Radio Group!", () =>
     {
         new RadioGroupOptionProperties("2", "2")
     }.WithRequired(false)));
-    modal.AddComponents(new LabelProperties("Checkbox Group", new CheckboxGroupProperties("xddd", Enumerable.Range(0, 5).Select(i => new CheckboxGroupOptionProperties($"L{i}", $"V{i}")))));
-    modal.AddComponents(new LabelProperties("Checkbox", new CheckboxProperties("xdddd")));
+    modal.AddComponents(new LabelProperties("Checkbox Group", new CheckboxGroupProperties("xddd", Enumerable.Range(0, 5).Select(i => new CheckboxGroupOptionProperties($"L{i}", $"V{i}").WithDefault(i % 2 == 0))).WithMinValues(2)));
+    modal.AddComponents(new LabelProperties("Checkbox", new CheckboxProperties("xdddd").WithDefault()));
     return InteractionCallback.Modal(modal);
 });
 

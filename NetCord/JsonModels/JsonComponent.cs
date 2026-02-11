@@ -302,7 +302,7 @@ public class JsonCheckboxGroupComponent : JsonComponent
     public string CustomId { get; set; }
 
     [JsonPropertyName("values")]
-    public string[] SelectedValues { get; set; }
+    public string[] CheckedValues { get; set; }
 }
 
 public class JsonCheckboxComponent : JsonComponent
@@ -311,5 +311,5 @@ public class JsonCheckboxComponent : JsonComponent
     public string CustomId { get; set; }
 
     [JsonPropertyName("value")]
-    public bool Selected { get; set; }
+    public bool Checked { get; set; }
 }

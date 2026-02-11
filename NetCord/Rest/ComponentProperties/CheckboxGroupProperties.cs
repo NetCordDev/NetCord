@@ -20,6 +20,10 @@ public partial class CheckboxGroupProperties(string customId, IEnumerable<Checkb
 
     public IEnumerable<CheckboxGroupOptionProperties> Options { get; set; } = options;
 
+    public int? MinValues { get; set; }
+
+    public int? MaxValues { get; set; }
+
     public bool? Required { get; set; }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -38,6 +42,14 @@ internal interface ICheckboxGroupProperties : IInteractiveComponentProperties
 {
     [JsonPropertyName("options")]
     public IEnumerable<CheckboxGroupOptionProperties> Options { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("min_values")]
+    public int? MinValues { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    [JsonPropertyName("max_values")]
+    public int? MaxValues { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     [JsonPropertyName("required")]

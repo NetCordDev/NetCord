@@ -10,5 +10,5 @@ public class Checkbox(JsonCheckboxComponent jsonModel) : IInteractiveComponent, 
 
     public string CustomId => jsonModel.CustomId;
 
-    public bool Selected => jsonModel.Selected;
+    public bool Checked => jsonModel.Checked;
 }

@@ -10,5 +10,5 @@ public class CheckboxGroup(JsonCheckboxGroupComponent jsonModel) : IInteractiveC
 
     public string CustomId => jsonModel.CustomId;
 
-    public IReadOnlyList<string> SelectedValues => jsonModel.SelectedValues;
+    public IReadOnlyList<string> CheckedValues => jsonModel.CheckedValues;
 }
