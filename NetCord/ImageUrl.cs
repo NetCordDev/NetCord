@@ -120,12 +120,12 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl GuildSplash(ulong guildId, string splashHash, ImageFormat format)
     {
-        return new($"/splashes/{guildId}/{splashHash}/guild_splash", GetFormat(format));
+        return new($"/splashes/{guildId}/{splashHash}", GetFormat(format));
     }
 
     public static ImageUrl GuildDiscoverySplash(ulong guildId, string discoverySplashHash, ImageFormat format)
     {
-        return new($"/discovery-splashes/{guildId}/{discoverySplashHash}/guild_splash", GetFormat(format));
+        return new($"/discovery-splashes/{guildId}/{discoverySplashHash}", GetFormat(format));
     }
 
     public static ImageUrl GuildBanner(ulong guildId, string bannerHash, ImageFormat? format)
@@ -175,7 +175,7 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl ApplicationAsset(ulong applicationId, ulong assetId, ImageFormat format)
     {
-        return new($"/app-icons/{applicationId}/{assetId}", GetFormat(format));
+        return new($"/app-assets/{applicationId}/{assetId}", GetFormat(format));
     }
 
     public static ImageUrl AchievementIcon(ulong applicationId, ulong achievementId, string iconHash, ImageFormat format)
@@ -198,9 +198,9 @@ public class ImageUrl : ISpanFormattable
         return new($"/team-icons/{teamId}/{iconHash}", GetFormat(format));
     }
 
-    public static ImageUrl Sticker(ulong stickerId, ImageFormat format)
+    public static ImageUrl Sticker(ulong stickerId, StickerFormat stickerFormat, ImageFormat format)
     {
-        return new($"/stickers/{stickerId}", GetFormat(format), Discord.MediaUrl);
+        return new($"/stickers/{stickerId}", GetFormat(format), stickerFormat is StickerFormat.Gif ? Discord.MediaUrl : Discord.CDNUrl);
     }
 
     public static ImageUrl RoleIcon(ulong roleId, string iconHash, ImageFormat format)
