@@ -14,8 +14,8 @@ public partial class RoleProperties
     public Permissions? Permissions { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    [JsonPropertyName("color")]
-    public Color? Color { get; set; }
+    [JsonPropertyName("colors")]
+    public RoleColorsProperties? Colors { get; set; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     [JsonPropertyName("hoist")]

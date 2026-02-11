@@ -9,6 +9,6 @@ public abstract class CustomCommandModule : CommandModule<CommandContext>
     {
         return (user.GetRoles(Context.Guild!)
                     .OrderByDescending(r => r.Position)
-                    .FirstOrDefault(r => r.Color != default)?.Color).GetValueOrDefault();
+                    .FirstOrDefault(r => r.Colors.PrimaryColor != default)?.Colors.PrimaryColor).GetValueOrDefault();
     }
 }
