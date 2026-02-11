@@ -39,14 +39,14 @@ jobs:
              >> "${GITHUB_OUTPUT}"
 
       - name: Download Documentation
-        uses: actions/download-artifact@v7.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: Documentation Artifacts
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Deploy Documentation Preview
-        uses: appleboy/scp-action@v1.0.0
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
@@ -57,7 +57,7 @@ jobs:
           target: ~/NetCord/preview/html/${{ steps.pr-context.outputs.number }}
 
       - name: Notify Documentation Preview
-        uses: actions/github-script@v8.0.0
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         env:
           PR_NUMBER: ${{ steps.pr-context.outputs.number }}
         with:
