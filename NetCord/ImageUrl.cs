@@ -1,31 +1,49 @@
-﻿namespace NetCord;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+
+namespace NetCord;
+
+#pragma warning disable IDE0032 // Use auto property
 
 public class ImageUrl : ISpanFormattable
 {
     private readonly string _url;
+    private readonly bool _supportsSize;
 
-    private ImageUrl(string partialUrl, string extension, string baseUrl = Discord.CDNUrl) : this($"{baseUrl}{partialUrl}.{extension}")
+    private ImageUrl(string partialUrl, string extension, string baseUrl = Discord.CDNUrl, bool supportsSize = true) : this($"{baseUrl}{partialUrl}.{extension}", supportsSize)
     {
     }
 
-    private ImageUrl(string url)
+    private ImageUrl(string url, bool supportsSize = true)
     {
         _url = url;
+        _supportsSize = supportsSize;
     }
+
+    public bool SupportsSize => _supportsSize;
 
     public override string ToString() => _url;
 
-    public virtual string ToString(int size) => $"{_url}?size={size}";
+    public virtual string ToString(int size)
+    {
+        if (!_supportsSize)
+            ThrowSizeNotSupported();
+
+        return $"{_url}?size={size}";
+    }
 
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (string.IsNullOrEmpty(format))
             return _url;
 
-        if (IsSizeValid(format))
-            return $"{_url}?size={format}";
+        if (!_supportsSize)
+            ThrowSizeNotSupported();
 
-        throw new FormatException("Format specifier was invalid.");
+        if (!IsSizeValid(format))
+            ThrowInvalidFormat();
+
+        return $"{_url}?size={format}";
     }
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format = default, IFormatProvider? provider = null)
@@ -43,7 +61,12 @@ public class ImageUrl : ISpanFormattable
             return true;
         }
 
-        if (IsSizeValid(format))
+        if (!_supportsSize)
+            ThrowSizeNotSupported();
+
+        if (!IsSizeValid(format))
+            ThrowInvalidFormat();
+
         {
             var url = _url;
             var requiredLength = url.Length + format.Length + 6;
@@ -60,8 +83,6 @@ public class ImageUrl : ISpanFormattable
             charsWritten = requiredLength;
             return true;
         }
-
-        throw new FormatException("Format specifier was invalid.");
     }
 
     private protected virtual bool IsSizeValid(ReadOnlySpan<char> format)
@@ -73,6 +94,20 @@ public class ImageUrl : ISpanFormattable
                 return false;
         }
         return true;
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowSizeNotSupported()
+    {
+        throw new NotSupportedException("This image URL does not support setting size.");
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowInvalidFormat()
+    {
+        throw new FormatException("Format specifier was invalid.");
     }
 
     private static string GetExtension(string hash, ImageFormat? format)
@@ -140,12 +175,12 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl DefaultUserAvatar(ushort discriminator)
     {
-        return new($"/embed/avatars/{discriminator % 5}", "png");
+        return new($"/embed/avatars/{discriminator % 5}", "png", supportsSize: false);
     }
 
     public static ImageUrl DefaultUserAvatar(ulong id)
     {
-        return new($"/embed/avatars/{(id >> 22) % 6}", "png");
+        return new($"/embed/avatars/{(id >> 22) % 6}", "png", supportsSize: false);
     }
 
     public static ImageUrl UserAvatar(ulong userId, string avatarHash, ImageFormat? format)
@@ -200,7 +235,7 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl Sticker(ulong stickerId, StickerFormat stickerFormat, ImageFormat format)
     {
-        return new($"/stickers/{stickerId}", GetFormat(format), stickerFormat is StickerFormat.Gif ? Discord.MediaUrl : Discord.CDNUrl);
+        return new($"/stickers/{stickerId}", GetFormat(format), stickerFormat is StickerFormat.Gif ? Discord.MediaUrl : Discord.CDNUrl, false);
     }
 
     public static ImageUrl RoleIcon(ulong roleId, string iconHash, ImageFormat format)
@@ -225,12 +260,9 @@ public class ImageUrl : ISpanFormattable
 
     public static ImageUrl GuildWidget(ulong guildId, GuildWidgetStyle? style = null, string? hostname = null, ApiVersion? version = null)
     {
-        return new GuildWidgetUrl(guildId, style, hostname, version);
-    }
+        return new(GetUrl(guildId, style, hostname, version), false);
 
-    private class GuildWidgetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version) : ImageUrl(GetUrl(guildId, style, hostname, version))
-    {
-        private static string GetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version)
+        static string GetUrl(ulong guildId, GuildWidgetStyle? style, string? hostname, ApiVersion? version)
         {
             return version.HasValue
                 ? style.HasValue
@@ -241,7 +273,7 @@ public class ImageUrl : ISpanFormattable
                     : $"https://{hostname ?? Discord.RestHostname}/api/guilds/{guildId}/widget.png";
         }
 
-        private static string GetGuildWidgetStyle(GuildWidgetStyle style)
+        static string GetGuildWidgetStyle(GuildWidgetStyle style)
         {
             return style switch
             {
@@ -253,12 +285,5 @@ public class ImageUrl : ISpanFormattable
                 _ => throw new System.ComponentModel.InvalidEnumArgumentException(nameof(style), (int)style, typeof(GuildWidgetStyle)),
             };
         }
-
-        public override string ToString(int size)
-        {
-            throw new NotSupportedException("Guild widgets do not support setting size.");
-        }
-
-        private protected override bool IsSizeValid(ReadOnlySpan<char> format) => false;
     }
 }
