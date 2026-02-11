@@ -1,18 +1,21 @@
-﻿using NetCord.JsonModels;
+﻿using System.Runtime.CompilerServices;
+
+using NetCord.JsonModels;
 
 namespace NetCord;
 
-public abstract class Menu(JsonComponent jsonModel, int parentId) : IInteractiveComponent, IMessageComponent, ILabelComponent, IComponentContainerComponent, IJsonModel<JsonComponent>
+public abstract class Menu(JsonMenuComponent jsonModel, int parentId) : IInteractiveComponent, IMessageComponent, ILabelComponent, IComponentContainerComponent, IJsonModel<JsonMenuComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
-    private protected readonly JsonComponent _jsonModel = jsonModel;
+    JsonMenuComponent IJsonModel<JsonMenuComponent>.JsonModel => jsonModel;
 
-    public int Id => _jsonModel.Id;
-    public string CustomId => _jsonModel.CustomId!;
-    public string? Placeholder => _jsonModel.Placeholder;
-    public int? MinValues => _jsonModel.MinValues;
-    public int? MaxValues => _jsonModel.MaxValues;
-    public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
-    public bool? Required => _jsonModel.Required;
+    private protected T GetJsonModel<T>() where T : JsonMenuComponent => Unsafe.As<T>(jsonModel);
+
+    public int Id => jsonModel.Id;
+    public string CustomId => jsonModel.CustomId;
+    public string? Placeholder => jsonModel.Placeholder;
+    public int? MinValues => jsonModel.MinValues;
+    public int? MaxValues => jsonModel.MaxValues;
+    public bool? Required => jsonModel.Required;
+    public bool? Disabled => jsonModel.Disabled;
     public int ParentId => parentId;
 }

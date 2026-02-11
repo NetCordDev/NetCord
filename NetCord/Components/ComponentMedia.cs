@@ -35,4 +35,9 @@ public class ComponentMedia(JsonComponentMedia jsonModel) : IJsonModel<JsonCompo
     /// Loading state of the media item.
     /// </summary>
     public ComponentMediaLoadingState? LoadingState => jsonModel.LoadingState;
+
+    /// <summary>
+    /// The ID of the uploaded attachment. Only present if the media item was uploaded as an attachment.
+    /// </summary>
+    public ulong? AttachmentId => jsonModel.AttachmentId;
 }

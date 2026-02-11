@@ -2,11 +2,11 @@ using NetCord.JsonModels;
 
 namespace NetCord;
 
-public class Label(JsonComponent jsonModel, InteractionResolvedData? resolvedData) : IModalComponent, IJsonModel<JsonComponent>
+public class Label(JsonLabelComponent jsonModel, InteractionResolvedData? resolvedData) : IModalComponent, IJsonModel<JsonLabelComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonLabelComponent IJsonModel<JsonLabelComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
 
-    public ILabelComponent Component { get; } = ILabelComponent.CreateFromJson(jsonModel.Component!, jsonModel.Id, resolvedData);
+    public ILabelComponent Component { get; } = ILabelComponent.CreateFromJson(jsonModel.Component, jsonModel.Id, resolvedData);
 }

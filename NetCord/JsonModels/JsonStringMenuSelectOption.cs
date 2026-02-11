@@ -2,7 +2,7 @@
 
 namespace NetCord.JsonModels;
 
-public class JsonMenuSelectOption
+public class JsonStringMenuSelectOption
 {
     [JsonPropertyName("label")]
     public string Label { get; set; }

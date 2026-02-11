@@ -2,10 +2,10 @@
 
 namespace NetCord;
 
-public class LinkButton : ICustomizableButton, IJsonModel<JsonComponent>
+public class LinkButton : ICustomizableButton, IJsonModel<JsonButtonComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => _jsonModel;
-    private readonly JsonComponent _jsonModel;
+    JsonButtonComponent IJsonModel<JsonButtonComponent>.JsonModel => _jsonModel;
+    private readonly JsonButtonComponent _jsonModel;
 
     public int Id => _jsonModel.Id;
     public string Url => _jsonModel.Url!;
@@ -13,7 +13,7 @@ public class LinkButton : ICustomizableButton, IJsonModel<JsonComponent>
     public EmojiReference? Emoji { get; }
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
 
-    public LinkButton(JsonComponent jsonModel)
+    public LinkButton(JsonButtonComponent jsonModel)
     {
         _jsonModel = jsonModel;
 

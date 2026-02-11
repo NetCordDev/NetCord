@@ -1,18 +1,20 @@
-﻿namespace NetCord;
+﻿using NetCord.JsonModels;
 
-public class Button : IInteractiveComponent, ICustomizableButton, IJsonModel<JsonModels.JsonComponent>
+namespace NetCord;
+
+public class Button : IInteractiveComponent, ICustomizableButton, IJsonModel<JsonButtonComponent>
 {
-    JsonModels.JsonComponent IJsonModel<JsonModels.JsonComponent>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonComponent _jsonModel;
+    JsonButtonComponent IJsonModel<JsonButtonComponent>.JsonModel => _jsonModel;
+    private readonly JsonButtonComponent _jsonModel;
 
     public int Id => _jsonModel.Id;
     public string CustomId => _jsonModel.CustomId!;
-    public ButtonStyle Style => _jsonModel.Style.GetValueOrDefault();
+    public ButtonStyle Style => _jsonModel.Style;
     public string? Label => _jsonModel.Label;
     public EmojiReference? Emoji { get; }
     public bool Disabled => _jsonModel.Disabled.GetValueOrDefault();
 
-    public Button(JsonModels.JsonComponent jsonModel)
+    public Button(JsonButtonComponent jsonModel)
     {
         _jsonModel = jsonModel;
 

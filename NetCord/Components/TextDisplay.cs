@@ -2,9 +2,9 @@
 
 namespace NetCord;
 
-public class TextDisplay(JsonComponent jsonModel) : IMessageComponent, IModalComponent, IComponentContainerComponent, IComponentSectionComponent, IJsonModel<JsonComponent>
+public class TextDisplay(JsonTextDisplayComponent jsonModel) : IMessageComponent, IModalComponent, IComponentContainerComponent, IComponentSectionComponent, IJsonModel<JsonTextDisplayComponent>
 {
-    JsonComponent IJsonModel<JsonComponent>.JsonModel => jsonModel;
+    JsonTextDisplayComponent IJsonModel<JsonTextDisplayComponent>.JsonModel => jsonModel;
 
     public int Id => jsonModel.Id;
     public string Content { get; } = jsonModel.Content ?? string.Empty;

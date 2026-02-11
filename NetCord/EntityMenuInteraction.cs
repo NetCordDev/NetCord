@@ -26,12 +26,12 @@ public abstract class EntityMenuInteractionData : MessageComponentInteractionDat
     private protected static unsafe IReadOnlyList<ulong> GetSelectedValues<T>(JsonModels.JsonInteractionData jsonModel,
                                                                               ulong? guildId,
                                                                               RestClient client,
-                                                                              delegate*<string[], InteractionResolvedData, T[]> getSelectedValues,
+                                                                              delegate*<IEnumerable<ulong>, InteractionResolvedData, T[]> getSelectedValues,
                                                                               out T[] selectedValues,
                                                                               out InteractionResolvedData? resolvedData) where T : Entity
     {
         if (jsonModel.ResolvedData is { } jsonResolvedData)
-            return new EntityArrayWrapper<T>(selectedValues = getSelectedValues(jsonModel.SelectedValues!, resolvedData = new(jsonResolvedData, guildId, client)));
+            return new EntityArrayWrapper<T>(selectedValues = getSelectedValues(jsonModel.SelectedValues!.Select(v => Snowflake.Parse(v)), resolvedData = new(jsonResolvedData, guildId, client)));
 
         resolvedData = null;
         selectedValues = [];

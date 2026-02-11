@@ -1,9 +1,9 @@
 ﻿namespace NetCord;
 
-public class StringMenuSelectOption : IJsonModel<JsonModels.JsonMenuSelectOption>
+public class StringMenuSelectOption : IJsonModel<JsonModels.JsonStringMenuSelectOption>
 {
-    JsonModels.JsonMenuSelectOption IJsonModel<JsonModels.JsonMenuSelectOption>.JsonModel => _jsonModel;
-    private readonly JsonModels.JsonMenuSelectOption _jsonModel;
+    JsonModels.JsonStringMenuSelectOption IJsonModel<JsonModels.JsonStringMenuSelectOption>.JsonModel => _jsonModel;
+    private readonly JsonModels.JsonStringMenuSelectOption _jsonModel;
 
     public string Label => _jsonModel.Label;
     public string Value => _jsonModel.Value;
@@ -11,7 +11,7 @@ public class StringMenuSelectOption : IJsonModel<JsonModels.JsonMenuSelectOption
     public EmojiReference? Emoji { get; }
     public bool Default => _jsonModel.Default;
 
-    public StringMenuSelectOption(JsonModels.JsonMenuSelectOption jsonModel)
+    public StringMenuSelectOption(JsonModels.JsonStringMenuSelectOption jsonModel)
     {
         _jsonModel = jsonModel;
 
