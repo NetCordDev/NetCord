@@ -1,0 +1,65 @@
+---
+title: Connecting Your Discord Bot to Voice Channels with NetCord
+description: Join and manage Discord voice connections in C#. Learn voice state management, channel switching, and voice connection lifecycle.
+omitAppTitle: true
+keywords: Discord, voice channels, voice connections, VoiceClient, voice state, connection management, C#, .NET
+section: Voice
+published_time: '2025-12-15T00:00:00Z'
+modified_time: '2026-02-12T00:00:00Z'
+---
+
+> [!NOTE]
+> Content for this section is under development.
+
+# Voice Connection Overview
+
+In this section, you'll learn how to connect your Discord bot to voice channels using NetCord. We'll cover the basics of voice connections, managing voice state, and best practices for maintaining stable connections.
+
+## Connecting to a Voice Channel {#voice-connection}
+
+NetCord provides a high-level and a low-level API for connecting to voice channels. The high-level API is simpler to use and is suitable for most use cases, while the low-level API gives you more control over the connection process.
+
+You should use the high-level API unless you have specific needs that require the low-level API.
+
+### High-Level API
+
+To connect to a voice channel using the high-level API, you can simply use the @NetCord.Gateway.Voice.GatewayClientExtensions.JoinVoiceChannelAsync* method. This method requires the guild ID and channel ID to be specified and updates the bot's voice state to join the channel. It returns a @NetCord.Gateway.Voice.VoiceClient instance, you can then call @NetCord.Gateway.Voice.VoiceClient.StartAsync* on it to establish the connection.
+
+[!code-cs[Voice Connection High Level](VoiceConnection/Examples.cs#L11-L16)]
+
+### Low-Level API
+
+The low-level API requires you to write the connection logic yourself, instead of relying on @NetCord.Gateway.Voice.GatewayClientExtensions.JoinVoiceChannelAsync* which does it for you. You need to:
+- Update the bot's voice state to join the channel using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync*.
+- Listen for the @NetCord.Gateway.GatewayClient.VoiceStateUpdate event to get the voice state of the bot, which contains the session ID and the endpoint.
+- Listen for the @NetCord.Gateway.GatewayClient.VoiceServerUpdate event to get the token needed to connect to the voice server.
+- Create a @NetCord.Gateway.Voice.VoiceClient instance with that data.
+- Call @NetCord.Gateway.Voice.VoiceClient.StartAsync* to establish the connection.
+
+<details>
+
+<summary>Here you can see how NetCord handles that in high-level API</summary>
+
+[!code-cs[Voice Connection Low Level](../../../NetCord/Gateway/Voice/GatewayClientExtensions.cs)]
+
+</details>
+
+<br />
+
+## Voice Connection vs Voice State
+
+It is important to understand the difference between a voice connection and a voice state. A voice connection represents an active connection to a voice channel, allowing you to send and receive audio. A voice state, on the other hand, represents the current state of a user in relation to voice channels. Interestingly enough, a bot can have a voice state in a channel without having an active voice connection.
+
+You can update the bot's voice state using @NetCord.Gateway.GatewayClient.UpdateVoiceStateAsync*, you can specify the channel ID to join a channel, or set it to null to leave. The last one is useful for leaving a channel, since the @NetCord.Gateway.Voice.VoiceClient manages the voice connection, not the voice state. If you call @NetCord.Gateway.WebSocketClient.CloseAsync*, the voice connection will be closed, but the bot will still have a voice state in the channel for some time, unless you explicitly update the voice state to leave.
+
+Below you can see an example of how to leave a voice channel with updating the voice state so that the bot doesn't appear as still being in the channel.
+
+[!code-cs[Leaving Voice Channel](VoiceConnection/Examples.cs#L21-L24)]
+
+---
+
+## See Also
+
+- [Sending Voice](sending-voice.md) - Stream audio to voice channels
+- [Receiving Voice](receiving-voice.md) - Receive and record voice channel audio
+- [Stream Types](stream-types.md) - Working with PCM and Opus formats
