@@ -343,5 +343,6 @@ public partial class RestGuild : ClientEntity, IJsonModel<JsonGuild>, IComparer<
     /// <returns>The guild's base role, applied to all users or <see langword="null"/> if the guild is partial.</returns>
     public Role? EveryoneRole => Roles.GetValueOrDefault(Id);
 
-    public ImageUrl GetWidgetUrl(GuildWidgetStyle? style = null, string? hostname = null, ApiVersion? version = null) => ImageUrl.GuildWidget(Id, style, hostname, version);
+    /// <inheritdoc cref="ImageUrl.GuildWidget" />
+    public ImageUrl GetWidgetUrl(GuildWidgetStyle? style = null, string hostname = Discord.RestHostname, ApiVersion? version = null) => ImageUrl.GuildWidget(Id, style, hostname, version);
 }
