@@ -113,9 +113,10 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            if (_offset != 0)
+            if (_offset is not 0)
             {
-                await _next.WriteAsync(_buffer[.._offset], cancellationToken).ConfigureAwait(false);
+                _buffer[_offset..].Span.Clear();
+                await _next.WriteAsync(_buffer, cancellationToken).ConfigureAwait(false);
                 _offset = 0;
             }
             await base.FlushAsync(cancellationToken).ConfigureAwait(false);
@@ -123,9 +124,10 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
 
         public override void Flush()
         {
-            if (_offset != 0)
+            if (_offset is not 0)
             {
-                _next.Write(_buffer[.._offset].Span);
+                _buffer[_offset..].Span.Clear();
+                _next.Write(_buffer.Span);
                 _offset = 0;
             }
             base.Flush();
