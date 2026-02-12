@@ -26,7 +26,7 @@
     "esbuild-plugin-copy": "^2.1.1",
     "highlight.js": "^11.10.0",
     "idb-keyval": "^6.2.2",
-    "jquery": "3.7.0",
+    "jquery": "4.0.0",
     "lit-html": "^3.3.0",
     "lunr": "2.3.9",
     "lunr-languages": "^1.14.0",
