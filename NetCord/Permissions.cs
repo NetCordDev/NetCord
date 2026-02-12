@@ -34,7 +34,7 @@ public enum Permissions : ulong
     ManageGuild = 1uL << 5,
 
     /// <summary>
-    /// Allows for the addition of reactions to messages.
+    /// Allows for adding new reactions to messages. This permission does not apply to reacting with an existing reaction on a message.
     /// </summary>
     AddReactions = 1uL << 6,
 
@@ -169,7 +169,7 @@ public enum Permissions : ulong
     RequestToSpeak = 1uL << 32,
 
     /// <summary>
-    /// Allows for creating, editing and deleting scheduled events created by all users.
+    /// Allows for editing and deleting scheduled events created by all users.
     /// </summary>
     ManageEvents = 1uL << 33,
 
@@ -199,9 +199,9 @@ public enum Permissions : ulong
     SendMessagesInThreads = 1uL << 38,
 
     /// <summary>
-    /// Allows for using Activities (applications with the <see cref="ApplicationFlags.Embedded"/> flag) in a voice channel.
+    /// Allows for using Activities (applications with the <see cref="ApplicationFlags.Embedded"/> flag).
     /// </summary>
-    StartEmbeddedActivities = 1uL << 39,
+    UseEmbeddedActivities = 1uL << 39,
 
     /// <summary>
     /// Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels.
@@ -247,4 +247,14 @@ public enum Permissions : ulong
     /// Allows user-installed apps to send public responses. When disabled, users will still be allowed to use their apps but the responses will be ephemeral. This only applies to apps not also installed to the server.
     /// </summary>
     UseExternalApplications = 1uL << 50,
+
+    /// <summary>
+    /// Allows pinning and unpinning messages.
+    /// </summary>
+    PinMessages = 1uL << 51,
+
+    /// <summary>
+    /// Allows bypassing slowmode restrictions.
+    /// </summary>
+    BypassSlowmode = 1uL << 52,
 }
