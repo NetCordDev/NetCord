@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@default/anchor-js": "npm:anchor-js@5.0.0",
-    "@default/bootstrap": "npm:bootstrap@3.4.1",
+    "@default/bootstrap": "npm:bootstrap@5.3.8",
     "@default/highlight.js": "npm:highlight.js@11.8.0",
     "@default/lunr": "npm:lunr@2.3.9",
     "@default/mark.js": "npm:mark.js@8.11.1",
