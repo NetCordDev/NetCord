@@ -7,6 +7,9 @@
   <Folder Name="/Documentation/guides/">
     
   </Folder>
+  <Folder Name="/Documentation/guides/voice/">
+    <Project Path="Documentation/guides/voice/VoiceConnection/VoiceConnection.csproj" />
+  </Folder>
   <Folder Name="/Hosting/">
     <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
     <Project Path="Hosting/NetCord.Hosting.Services/NetCord.Hosting.Services.csproj" />

@@ -121,8 +121,8 @@
   items:
     - name: Overview
       href: voice/index.md
-    - name: Connecting to Voice
-      href: voice/connecting-to-voice.md
+    - name: Voice Connection
+      href: voice/voice-connection.md
     - name: Audio Playback
       href: voice/sending-voice.md
     - name: Audio Recording

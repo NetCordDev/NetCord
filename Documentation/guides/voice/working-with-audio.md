@@ -18,5 +18,4 @@ modified_time: '2025-12-15T00:00:00Z'
 - [Sending Voice Audio](sending-voice.md) - Stream audio to voice channels
 - [Receiving Voice Audio](receiving-voice.md) - Receive and analyze voice
 - [Stream Types](stream-types.md) - Audio format specifications
-- [Connecting to Voice](connecting-to-voice.md) - Voice connection setup
-
+- [Voice Connection](voice-connection.md) - Voice connection setup

@@ -23,10 +23,6 @@ PcmFormat enum.
 
 ---
 
-## Navigation
-
-← **Previous:** @"voice/connecting-to-voice?text=Connecting to Voice" | **Next:** @"voice/audio-recording?text=Audio Recording" →
-
 ## See Also
 
 - @"voice/stream-types?text=Stream Types" - Audio stream formats

@@ -16,7 +16,6 @@ modified_time: '2025-12-15T00:00:00Z'
 
 ## See Also
 
-- [Connecting to Voice](connecting-to-voice.md) - Join and manage voice channels
+- [Voice Connection](voice-connection.md) - Join and manage voice channels
 - [Sending Voice Audio](sending-voice.md) - Send audio to voice channels
 - [Stream Types](stream-types.md) - Deep dive into PCM and Opus formats
-
