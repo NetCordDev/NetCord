@@ -15,6 +15,12 @@ modified_time: '2026-02-12T00:00:00Z'
 
 Discord allows you to connect to voice channels and stream audio in real-time. With NetCord, you can create powerful voice bots that can play music, record conversations, and process voice data. This guide covers the essentials of working with Discord voice channels, including connecting, streaming audio and recording.
 
+## Glossary
+
+- **PCM**: Pulse-code modulation, a raw audio format.
+- **Opus**: An audio codec used by Discord for voice communication. It provides high-quality audio at low bitrates allowing for efficient streaming.
+- **Bitrate**: The amount of data transmitted per second in an audio stream. Note that bitrate is not the same as audio quality, as it also depends on the codec and other factors. For example, lossless codecs preserve the original audio at a bitrate that is lower than the bitrate of PCM.
+
 ## Terms of Service Compliance
 
 When working with Discord voice, ensure your bot complies with [Discord's Terms of Service](https://discord.com/terms). It is quite easy to violate the terms when working with voice, so be sure to review the guidelines and best practices for voice bots.
