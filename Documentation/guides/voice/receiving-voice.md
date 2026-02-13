@@ -12,6 +12,20 @@ modified_time: '2025-12-15T00:00:00Z'
 > [!NOTE]
 > Content for this section is under development.
 
+# Receiving Voice
+
+## Receiving Audio {#receiving-audio}
+
+IVoiceReceiveHandler.
+
+## Opus Decoding {#opus-decoding}
+
+OpusDecodeStream.
+
+## Speaker Detection {#speaker-detection}
+
+Speaking event.
+
 ---
 
 ## See Also
