@@ -15,6 +15,20 @@ modified_time: '2026-02-12T00:00:00Z'
 
 Discord allows you to connect to voice channels and stream audio in real-time. With NetCord, you can create powerful voice bots that can play music, record conversations, and process voice data. This guide covers the essentials of working with Discord voice channels, including connecting, streaming audio and recording.
 
+## Resulting Project
+
+By the end of this guide (the whole voice section), you will have a fully functional music bot that can join voice channels, play audio, and record voice conversations.
+
+The project will use functions demonstrated in:
+- placeholder,
+- placeholder2,
+
+so make sure to check them out before starting this guide, unless you want to implement the voice yourself without building the envisioned bot.
+
+Here you can see the setup of the project. It will be needed later.
+
+[!code-cs[Project Setup](Voice/Program.cs)]
+
 ## Glossary
 
 - **PCM**: Pulse-code modulation, a raw audio format.
