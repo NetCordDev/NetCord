@@ -11,7 +11,8 @@ namespace NetCord.Gateway.Voice;
 /// <param name="channels">Number of channels in input signal.</param>
 /// <param name="application">Opus coding mode.</param>
 /// <param name="configuration">The configuration of the stream.</param>
-public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
+/// <param name="leaveOpen">Whether to leave the next stream open when this stream is disposed.</param>
+public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null, bool leaveOpen = false) : RewritingStream(CreateNextStream(next, format, channels, application, configuration), leaveOpen)
 {
     private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration)
     {
