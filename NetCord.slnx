@@ -8,6 +8,7 @@
     
   </Folder>
   <Folder Name="/Documentation/guides/voice/">
+    <Project Path="Documentation/guides/voice/ReceivingVoice/ReceivingVoice.csproj" />
     <Project Path="Documentation/guides/voice/SendingVoice/SendingVoice.csproj" />
     <Project Path="Documentation/guides/voice/Voice/Voice.csproj" />
     <Project Path="Documentation/guides/voice/VoiceConnection/VoiceConnection.csproj" />
