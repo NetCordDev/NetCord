@@ -26,6 +26,10 @@ OpusDecodeStream.
 
 Speaking event.
 
+## Updating Our Bot
+
+[!code-cs[Speaker Detection](Voice/Program.cs#L225-L356)]
+
 ---
 
 ## See Also

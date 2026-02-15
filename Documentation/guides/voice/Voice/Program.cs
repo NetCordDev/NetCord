@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Buffers;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using Microsoft.Extensions.Hosting;
@@ -22,7 +23,7 @@ builder.Services
 
 var host = builder.Build();
 
-ConcurrentDictionary<ulong, VoiceClient?> voiceInstances = [];
+ConcurrentDictionary<ulong, VoiceInstance?> voiceInstances = [];
 
 host.AddSlashCommand("join", "Joins a channel", async (ApplicationCommandContext context, IVoiceGuildChannel? channel = null) =>
 {
@@ -70,13 +71,15 @@ host.AddSlashCommand("join", "Joins a channel", async (ApplicationCommandContext
         throw;
     }
 
-    if (!voiceInstances.TryUpdate(guildId, voiceClient, null))
+    VoiceInstance voiceInstance = new(voiceClient);
+
+    if (!voiceInstances.TryUpdate(guildId, voiceInstance, null))
     {
         // This should never happen with the example code,
         // but we'll handle it just in case someone modifies
         // it in a way that could cause it to happen
 
-        voiceClient.Dispose();
+        voiceInstance.Dispose();
 
         await context.Client.UpdateVoiceStateAsync(new(guildId, null));
 
@@ -90,8 +93,8 @@ host.AddSlashCommand("join", "Joins a channel", async (ApplicationCommandContext
         if (args.Reconnect)
             return default;
 
-        if (voiceInstances.TryRemove(item: new(guildId, voiceClient)))
-            voiceClient.Dispose();
+        if (voiceInstances.TryRemove(item: new(guildId, voiceInstance)))
+            voiceInstance.Dispose();
 
         return default;
     };
@@ -102,9 +105,9 @@ host.AddSlashCommand("join", "Joins a channel", async (ApplicationCommandContext
     }
     catch
     {
-        if (voiceInstances.TryRemove(item: new(guildId, voiceClient)))
+        if (voiceInstances.TryRemove(item: new(guildId, voiceInstance)))
         {
-            voiceClient.Dispose();
+            voiceInstance.Dispose();
 
             await context.Client.UpdateVoiceStateAsync(new(guildId, null));
         }
@@ -124,20 +127,20 @@ host.AddSlashCommand("leave", "Leaves the voice channel", async (ApplicationComm
 
     var guildId = guild.Id;
 
-    if (!voiceInstances.TryGetValue(guildId, out var voiceClient) || voiceClient is null)
+    if (!voiceInstances.TryGetValue(guildId, out var voiceInstance) || voiceInstance is null)
         return new InteractionMessageProperties()
             .WithContent("Not connected to a voice channel in this guild.")
             .WithFlags(MessageFlags.Ephemeral);
 
-    if (voiceInstances.TryRemove(item: new(guildId, voiceClient)))
+    if (voiceInstances.TryRemove(item: new(guildId, voiceInstance)))
     {
         try
         {
-            await voiceClient.CloseAsync();
+            await voiceInstance.Client.CloseAsync();
         }
         finally
         {
-            voiceClient.Dispose();
+            voiceInstance.Dispose();
 
             await context.Client.UpdateVoiceStateAsync(new(guildId, null));
         }
@@ -158,7 +161,7 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
 
     var guildId = guild.Id;
 
-    if (!voiceInstances.TryGetValue(guildId, out var voiceClient) || voiceClient is null)
+    if (!voiceInstances.TryGetValue(guildId, out var voiceInstance) || voiceInstance is null)
     {
         await context.Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties()
             .WithContent("Not connected to a voice channel in this guild.")
@@ -166,7 +169,18 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
         return;
     }
 
+    using var job = voiceInstance.TryEnterJob(VoiceJobType.Playing);
+    if (job is not { CancellationToken: var cancellationToken })
+    {
+        await context.Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties()
+            .WithContent("Already playing audio in this guild.")
+            .WithFlags(MessageFlags.Ephemeral)));
+        return;
+    }
+
     await context.Interaction.SendResponseAsync(InteractionCallback.Message($"Playing..."));
+
+    var voiceClient = voiceInstance.Client;
 
     await voiceClient.EnterSpeakingStateAsync(new(SpeakingFlags.Microphone));
 
@@ -178,7 +192,7 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
 
     const string Input = "..."; // TODO: Replace with a link to an actual audio file
 
-    using var process = Process.Start(new ProcessStartInfo
+    using var ffmpeg = Process.Start(new ProcessStartInfo
     {
         FileName = "ffmpeg",
         ArgumentList =
@@ -194,15 +208,191 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
 
     try
     {
-        var ffmpegOutput = process.StandardOutput.BaseStream;
+        var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
 
-        await ffmpegOutput.CopyToAsync(opusEncodeStream);
-        await opusEncodeStream.FlushAsync();
+        await ffmpegOutput.CopyToAsync(opusEncodeStream, cancellationToken);
+        await opusEncodeStream.FlushAsync(cancellationToken);
     }
-    catch
+    catch (Exception ex)
     {
-        process.Kill();
+        ffmpeg.Kill();
+
+        if (ex is not OperationCanceledException and not AggregateException { InnerException: OperationCanceledException })
+            throw;
     }
 }).AddContexts(InteractionContextType.Guild);
 
+host.AddSlashCommand("record", "Records audio", async (ApplicationCommandContext context, User? user = null) =>
+{
+    if (context.Guild is not { } guild)
+    {
+        await context.Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties()
+            .WithContent("The guild is not available. Try again later.")
+            .WithFlags(MessageFlags.Ephemeral)));
+        return;
+    }
+
+    var guildId = guild.Id;
+
+    if (!voiceInstances.TryGetValue(guildId, out var voiceInstance) || voiceInstance is null)
+    {
+        await context.Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties()
+            .WithContent("Not connected to a voice channel in this guild.")
+            .WithFlags(MessageFlags.Ephemeral)));
+        return;
+    }
+
+    using var job = voiceInstance.TryEnterJob(VoiceJobType.Recording);
+    if (job is not { CancellationToken: var cancellationToken })
+    {
+        await context.Interaction.SendResponseAsync(InteractionCallback.Message(new InteractionMessageProperties()
+            .WithContent("Already recording audio in this guild.")
+            .WithFlags(MessageFlags.Ephemeral)));
+        return;
+    }
+
+    await context.Interaction.SendResponseAsync(InteractionCallback.Message($"Recording..."));
+
+    var voiceClient = voiceInstance.Client;
+
+    user ??= context.User;
+
+    using var ffmpeg = Process.Start(new ProcessStartInfo
+    {
+        FileName = "ffmpeg",
+        ArgumentList =
+        {
+            "-f", BitConverter.IsLittleEndian ? "f32le" : "f32be",
+            "-ar", "48000",
+            "-ac", "1",
+            "-i", "pipe:0",
+            "-f", "ogg",
+            "-c:a", "libopus",
+            "pipe:1",
+        },
+        RedirectStandardInput = true,
+        RedirectStandardOutput = true,
+    })!;
+
+    using var ffmpegInput = ffmpeg.StandardInput.BaseStream;
+    using OpusDecodeStream opusDecodeStream = new(ffmpegInput, PcmFormat.Float, VoiceChannels.Mono);
+
+    Func<VoiceReceiveEventArgs, ValueTask> voiceReceive = args =>
+    {
+        if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var userId) && userId == user.Id)
+            opusDecodeStream.Write(args.Frame);
+
+        return default;
+    };
+
+    voiceClient.VoiceReceive += voiceReceive;
+
+    using var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+
+    using MemoryStream memoryStream = new();
+
+    string? recordingStopReason;
+
+    var copyBuffer = ArrayPool<byte>.Shared.Rent(4096);
+    var totalBytes = 0;
+
+    var killFFmpeg = true;
+
+    try
+    {
+        int count;
+        while (true)
+        {
+            if ((count = await ffmpegOutput.ReadAsync(copyBuffer, cancellationToken)) is 0)
+            {
+                // Should never happen since 'ffmpeg' should keep the process
+                // alive until we kill it, but we'll handle it just in case
+
+                killFFmpeg = false;
+                recordingStopReason = "End of stream";
+                break;
+            }
+
+            var remainingBytes = (10 * 1024 * 1024) - totalBytes;
+            await memoryStream.WriteAsync(copyBuffer.AsMemory(0, Math.Min(count, remainingBytes)), cancellationToken);
+
+            if (remainingBytes <= count)
+            {
+                recordingStopReason = "Maximum file size exceeded";
+                break;
+            }
+
+            totalBytes += count;
+        }
+    }
+    catch (Exception ex)
+    {
+        if (ex is not OperationCanceledException and not AggregateException { InnerException: OperationCanceledException })
+            throw;
+
+        recordingStopReason = "Disconnected";
+    }
+    finally
+    {
+        voiceClient.VoiceReceive -= voiceReceive;
+
+        if (killFFmpeg)
+        {
+            // We need to flush the input stream since 'Dispose' (called by 'using') tries to write
+            // the buffered data, which throws an exception since the process has already exited
+            await ffmpegInput.FlushAsync();
+
+            ffmpeg.Kill();
+        }
+    }
+
+    await memoryStream.FlushAsync();
+
+    memoryStream.Position = 0;
+
+    await context.Channel.SendMessageAsync(new MessageProperties()
+        .WithContent($"Finished recording. Stop reason: {recordingStopReason}")
+        .AddAttachments(new AttachmentProperties("recording.ogg", memoryStream)));
+}).AddContexts(InteractionContextType.Guild);
+
 await host.RunAsync();
+
+internal sealed class VoiceInstance(VoiceClient client) : IDisposable
+{
+    private static readonly int JobTypeCount = Enum.GetValues<VoiceJobType>().Length;
+
+    public VoiceClient Client => client;
+
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
+
+    private readonly byte[] _jobStatuses = new byte[JobTypeCount];
+
+    public Job? TryEnterJob(VoiceJobType type)
+    {
+        return Interlocked.CompareExchange(ref _jobStatuses[(int)type], 1, 0) is 0
+            ? new(this, type, _cancellationTokenSource.Token)
+            : null;
+    }
+
+    public void Dispose()
+    {
+        var tokenSource = _cancellationTokenSource;
+        tokenSource.Cancel();
+        tokenSource.Dispose();
+        client.Dispose();
+    }
+
+    public readonly record struct Job(VoiceInstance Instance, VoiceJobType JobType, CancellationToken CancellationToken) : IDisposable
+    {
+        public void Dispose()
+        {
+            Interlocked.Exchange(ref Instance._jobStatuses[(int)JobType], 0);
+        }
+    }
+}
+
+internal enum VoiceJobType
+{
+    Playing = 0,
+    Recording = 1,
+}

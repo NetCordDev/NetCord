@@ -62,11 +62,11 @@ Let's use our knowledge of voice connections to update our bot so that it can jo
 
 Below you can see the implementation of the `/join` command, which uses the high-level API to join a voice channel. It accepts an optional channel parameter - if provided, the bot joins that specific channel; otherwise, it joins the voice channel that the user is currently in. It also registers a disconnect handler to clean up resources when the connection is closed.
 
-[!code-cs[Joining Command](Voice/Program.cs#L27-L116)]
+[!code-cs[Joining Command](Voice/Program.cs#L28-L119)]
 
 The `/leave` command checks if the bot is currently connected to a voice channel in the guild. If connected, it removes the voice client from tracking, closes the connection using @NetCord.Gateway.WebSocketClient.CloseAsync*, disposes the @NetCord.Gateway.Voice.VoiceClient instance, and updates the voice state.
 
-[!code-cs[Leaving Command](Voice/Program.cs#L118-L147)]
+[!code-cs[Leaving Command](Voice/Program.cs#L121-L150)]
 
 That's it! Now your bot can join and leave voice channels. You can test the commands in your Discord server to see them in action. For now, the bot doesn't do anything once it's connected, refer to [Sending Voice](sending-voice.md) and [Receiving Voice](receiving-voice.md) sections to learn how to send and receive audio in voice channels.
 
