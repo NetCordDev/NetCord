@@ -11,14 +11,15 @@ namespace NetCord.Gateway.Voice;
 /// <param name="channels">Number of channels in input signal.</param>
 /// <param name="application">Opus coding mode.</param>
 /// <param name="configuration">The configuration of the stream.</param>
-public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null) : RewritingStream(CreateNextStream(next, format, channels, application, configuration))
+/// <param name="leaveOpen">Whether to leave the next stream open when this stream is disposed.</param>
+public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration = null, bool leaveOpen = false) : RewritingStream(CreateNextStream(next, format, channels, application, configuration, leaveOpen))
 {
-    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration)
+    private static Stream CreateNextStream(Stream next, PcmFormat format, VoiceChannels channels, OpusApplication application, OpusEncodeStreamConfiguration? configuration, bool leaveOpen)
     {
         var frameDuration = configuration?.FrameDuration ?? Opus.DefaultFrameDuration;
         var segment = configuration?.Segment ?? true;
 
-        OpusEncodeStreamInternal encodeStream = new(next, frameDuration, format, channels, application);
+        OpusEncodeStreamInternal encodeStream = new(next, frameDuration, format, channels, application, leaveOpen);
         return segment ? new SegmentingStream(encodeStream, frameDuration, format, channels)
                        : encodeStream;
     }
@@ -142,7 +143,7 @@ public sealed class OpusEncodeStream(Stream next, PcmFormat format, VoiceChannel
         private readonly int _opusBufferSize;
         private readonly int _pcmBufferSize;
 
-        public OpusEncodeStreamInternal(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels, OpusApplication application) : base(next)
+        public OpusEncodeStreamInternal(Stream next, float frameDuration, PcmFormat format, VoiceChannels channels, OpusApplication application, bool leaveOpen) : base(next, leaveOpen)
         {
             _encoder = new(channels, application);
             _encode = format switch
