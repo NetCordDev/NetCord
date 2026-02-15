@@ -18,7 +18,8 @@ public sealed class OpusDecodeStream : RewritingStream
     /// <param name="next">The stream that this stream is writing to.</param>
     /// <param name="format">The PCM format to decode to.</param>
     /// <param name="channels">Number of channels to decode.</param>
-    public OpusDecodeStream(Stream next, PcmFormat format, VoiceChannels channels) : base(next)
+    /// <param name="leaveOpen">Whether to leave the next stream open when this stream is disposed.</param>
+    public OpusDecodeStream(Stream next, PcmFormat format, VoiceChannels channels, bool leaveOpen = false) : base(next, leaveOpen)
     {
         _decoder = new(channels);
         _decode = format switch
