@@ -17,7 +17,7 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
     public VoiceApiVersion? Version { get; init; }
     public IVoiceClientCacheProvider? CacheProvider { get; init; }
     public IVoiceEncryptionProvider? EncryptionProvider { get; init; }
-    public IVoiceReceiveHandler? ReceiveHandler { get; init; }
+    public VoiceReceiveHandler? ReceiveHandler { get; init; }
     public IVoiceLogger? Logger { get; init; }
     public TimeSpan? ExternalSocketAddressDiscoveryTimeout { get; init; }
 

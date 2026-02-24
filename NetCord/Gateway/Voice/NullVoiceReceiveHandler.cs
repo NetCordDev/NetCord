@@ -1,17 +1,10 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public class NullVoiceReceiveHandler : IVoiceReceiveHandler
+public class NullVoiceReceiveHandler : VoiceReceiveHandler
 {
-    public static NullVoiceReceiveHandler Instance { get; } = new();
+    public override bool RequiresExternalSocketAddress => false;
 
-    private NullVoiceReceiveHandler()
+    public override void HandlePacket(RtpPacket packet)
     {
-    }
-
-    public bool RequiresExternalSocketAddress => false;
-
-    public VoicePacketHandlingResult HandlePacket(VoiceClient client, RtpPacket packet)
-    {
-        return default;
     }
 }

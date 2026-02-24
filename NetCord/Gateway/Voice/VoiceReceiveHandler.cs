@@ -1,42 +1,30 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public class VoiceReceiveHandler : IVoiceReceiveHandler
+public abstract class VoiceReceiveHandler
 {
-    private readonly Dictionary<uint, ushort> _lastSequenceNumbers = [];
+#if !BUFFERED_HANDLER_TEST
+    private VoiceClient? _client;
 
-    public bool RequiresExternalSocketAddress => true;
-
-    public VoicePacketHandlingResult HandlePacket(VoiceClient client, RtpPacket packet)
+    internal void Start(VoiceClient client)
     {
-        ushort framesMissed;
-        bool handle;
+        if (Interlocked.CompareExchange(ref _client, client, null) is not null)
+            throw new InvalidOperationException("This handler is already registered to a voice client.");
+    }
+#else
+    public delegate void VoiceReceiveDelegate(VoiceReceiveData data);
+    public event VoiceReceiveDelegate? VoiceReceive;
+#endif
 
-        if (packet.PayloadType is not 0x78)
-            goto Fail;
+    public abstract bool RequiresExternalSocketAddress { get; }
 
-        var lastSequenceNumbers = _lastSequenceNumbers;
-        var sequenceNumber = packet.SequenceNumber;
+    public abstract void HandlePacket(RtpPacket packet);
 
-        if (lastSequenceNumbers.TryGetValue(packet.Ssrc, out var lastSequenceNumber))
-        {
-            var sequenceNumberDiff = (short)(sequenceNumber - lastSequenceNumber);
-            if (sequenceNumberDiff <= 0)
-                goto Fail;
-
-            framesMissed = (ushort)(sequenceNumberDiff - 1);
-        }
-        else
-            framesMissed = 0;
-
-        handle = true;
-        lastSequenceNumbers[packet.Ssrc] = sequenceNumber;
-
-        Ret:
-        return new(framesMissed, handle);
-
-        Fail:
-        framesMissed = 0;
-        handle = false;
-        goto Ret;
+    protected void InvokeVoiceReceive(VoiceReceiveData data)
+    {
+#if !BUFFERED_HANDLER_TEST
+        _client!.InvokeVoiceReceive(data);
+#else
+        VoiceReceive?.Invoke(data);
+#endif
     }
 }

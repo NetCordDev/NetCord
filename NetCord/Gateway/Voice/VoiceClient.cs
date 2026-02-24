@@ -105,7 +105,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private readonly IUdpConnectionProvider _udpConnectionProvider;
     private readonly IVoiceEncryptionProvider _encryptionProvider;
-    private readonly IVoiceReceiveHandler _receiveHandler;
+    private readonly VoiceReceiveHandler _receiveHandler;
     private readonly TimeSpan _externalSocketAddressDiscoveryTimeout;
     private readonly GCHandle<IWebSocketLogger> _loggerHandle;
 
@@ -124,7 +124,8 @@ public sealed partial class VoiceClient : WebSocketClient
         Cache = cacheProvider.Create();
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
-        _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
+        var receiveHandler = _receiveHandler = configuration.ReceiveHandler ?? new NullVoiceReceiveHandler();
+        receiveHandler.Start(this);
         _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout ?? new(5 * TimeSpan.TicksPerSecond);
         _loggerHandle = new(_logger);
     }
@@ -579,7 +580,18 @@ public sealed partial class VoiceClient : WebSocketClient
         return (ip, port);
     }
 
-    private async void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    private void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    {
+        if (Random.Shared.Next(0, 10) == 0)
+            return;
+
+        RtpPacket packet = new(datagram.Span);
+        Console.WriteLine($"Handling seq: {packet.SequenceNumber}");
+        //Console.WriteLine($"Handling {packet.SequenceNumber} {packet.Timestamp} {packet.Datagram.Length} {packet.CsrcCount}");
+        _receiveHandler.HandlePacket(new(datagram.Span));
+    }
+
+    internal void InvokeVoiceReceive(VoiceReceiveData data)
     {
         if (_udpState is not { Encryption: var encryption, DaveSession: var session })
             return;
@@ -590,99 +602,128 @@ public sealed partial class VoiceClient : WebSocketClient
 
         try
         {
-            RtpPacketStorage packetStorage = new(datagram);
+            var ssrc = data.Ssrc;
 
-            var packet = packetStorage.Packet;
+            uint? timestamp;
 
-            var ssrc = packet.Ssrc;
+            int bytesWritten;
 
-            var result = _receiveHandler.HandlePacket(this, packet);
-            if (!result.Handle)
-                return;
+            byte[]? buffer;
 
-            if (session.GetDecryptor(ssrc) is not { } decryptor)
-                return;
-
-            var framesMissed = result.FramesMissed;
-
-            var sequenceNumber = packet.SequenceNumber;
-
-            if (framesMissed is 0)
+            if (data.HasPacket)
             {
-                await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
-                return;
+                var packet = data.Packet;
+
+                //Console.WriteLine($"Received {packet.SequenceNumber} {packet.Timestamp} {packet.Datagram.Length} {packet.CsrcCount}");
+
+                if (!TryGetVoiceData(data, encryption, session, ssrc, packet, out buffer, out bytesWritten))
+                    return;
+
+                timestamp = packet.Timestamp;
+            }
+            else
+            {
+                timestamp = null;
+                buffer = null;
+                bytesWritten = 0;
             }
 
-            var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
+            VoiceReceiveEventArgs args = new(buffer, 0, bytesWritten, ssrc, timestamp, data.SequenceNumber);
 
-#pragma warning disable CA2012 // Use ValueTasks correctly
-            for (ushort i = 0; i < framesMissed; i++)
-                tasks[i] = InvokeEventAsync(handlers, new(null, 0, 0, ssrc, null, (ushort)(sequenceNumber - framesMissed + i)), nameof(_voiceReceive));
+            _ = InvokeEventAsync(handlers, args, nameof(_voiceReceive)).AsTask();
 
-            tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
-#pragma warning restore CA2012 // Use ValueTasks correctly
+            //RtpPacketStorage packetStorage = new(datagram);
 
-            await HandleTasksThatDoNotThrowAsync(tasks, framesMissed).ConfigureAwait(false);
+            //var packet = packetStorage.Packet;
 
-            ValueTask InvokeEventForReceivedFrameAsync()
-            {
-                var packet = packetStorage.Packet;
+            //var ssrc = packet.Ssrc;
 
-                var plaintextLength = packet.PayloadLength - encryption.Expansion;
-                var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
-                var plaintext = array.AsSpan(0, plaintextLength);
+            //var result = _receiveHandler.HandlePacket(this, packet);
+            //if (!result.Handle)
+            //    return;
 
-                if (!encryption.TryDecrypt(packet, plaintext))
-                {
-                    Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
+            //if (session.GetDecryptor(ssrc) is not { } decryptor)
+            //    return;
 
-                    ArrayPool<byte>.Shared.Return(array);
+            //var framesMissed = result.FramesMissed;
 
-                    return default;
-                }
+            //var sequenceNumber = packet.SequenceNumber;
 
-                int extensionLength = packet.Extension
-                    ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
-                    : 0;
+            //_ = InvokeEventForReceivedFrameAsync(packet).AsTask();
 
-                int paddingLength = packet.Padding
-                    ? plaintext[^1]
-                    : 0;
+            //            if (framesMissed is 0)
+            //            {
+            //                await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
+            //                return;
+            //            }
 
-                var plaintextData = plaintext[extensionLength..^paddingLength];
+            //            var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
 
-                if (plaintextData.IsEmpty)
-                {
-                    ArrayPool<byte>.Shared.Return(array);
+            //#pragma warning disable CA2012 // Use ValueTasks correctly
+            //            for (ushort i = 0; i < framesMissed; i++)
+            //                tasks[i] = InvokeEventAsync(handlers, new(null, 0, 0, ssrc, null, (ushort)(sequenceNumber - framesMissed + i)), nameof(_voiceReceive));
 
-                    return default;
-                }
+            //            tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
+            //#pragma warning restore CA2012 // Use ValueTasks correctly
 
-                int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
-                byte[]? toReturn = null;
-                var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
-                var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out int bytesWritten);
+            //            await HandleTasksThatDoNotThrowAsync(tasks, framesMissed).ConfigureAwait(false);
 
-                if (result is not Dave.DecryptorResultCode.Success)
-                {
-                    ArrayPool<byte>.Shared.Return(array);
+            //ValueTask InvokeEventForReceivedFrameAsync(RtpPacket packet)
+            //{
+            //    var plaintextLength = packet.PayloadLength - encryption.Expansion;
+            //    var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+            //    var plaintext = array.AsSpan(0, plaintextLength);
 
-                    if (toReturn is not null)
-                        ArrayPool<byte>.Shared.Return(toReturn);
+            //    if (!encryption.TryDecrypt(packet, plaintext))
+            //    {
+            //        Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
 
-                    Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+            //        ArrayPool<byte>.Shared.Return(array);
 
-                    return default;
-                }
+            //        return default;
+            //    }
 
-                if (toReturn is not null)
-                    ArrayPool<byte>.Shared.Return(array);
+            //    int extensionLength = packet.Extension
+            //        ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+            //        : 0;
 
-                return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc, packet.Timestamp, sequenceNumber), args =>
-                {
-                    ArrayPool<byte>.Shared.Return(args._buffer!);
-                }, nameof(_voiceReceive));
-            }
+            //    int paddingLength = packet.Padding
+            //        ? plaintext[^1]
+            //        : 0;
+
+            //    var plaintextData = plaintext[extensionLength..^paddingLength];
+
+            //    if (plaintextData.IsEmpty)
+            //    {
+            //        ArrayPool<byte>.Shared.Return(array);
+
+            //        return default;
+            //    }
+
+            //    int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
+            //    byte[]? toReturn = null;
+            //    var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
+            //    var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out int bytesWritten);
+
+            //    if (result is not Dave.DecryptorResultCode.Success)
+            //    {
+            //        ArrayPool<byte>.Shared.Return(array);
+
+            //        if (toReturn is not null)
+            //            ArrayPool<byte>.Shared.Return(toReturn);
+
+            //        Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+
+            //        return default;
+            //    }
+
+            //    if (toReturn is not null)
+            //        ArrayPool<byte>.Shared.Return(array);
+
+            //    return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc, packet.Timestamp, sequenceNumber), args =>
+            //    {
+            //        ArrayPool<byte>.Shared.Return(args._buffer!);
+            //    }, nameof(_voiceReceive));
         }
         catch (Exception ex)
         {
@@ -692,6 +733,188 @@ public sealed partial class VoiceClient : WebSocketClient
             });
         }
     }
+
+    private bool TryGetVoiceData(VoiceReceiveData data, IVoiceEncryption encryption, DaveSession session, uint ssrc, RtpPacket packet, [MaybeNullWhen(false)] out byte[] frame, out int frameLength)
+    {
+        ssrc = data.Ssrc;
+        if (session.GetDecryptor(ssrc) is not { } decryptor)
+            goto Fail;
+
+        packet = data.Packet;
+        var plaintextLength = packet.PayloadLength - encryption.Expansion;
+        var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+        var plaintext = array.AsSpan(0, plaintextLength);
+
+        if (!encryption.TryDecrypt(packet, plaintext))
+        {
+            Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
+
+            ArrayPool<byte>.Shared.Return(array);
+
+            goto Fail;
+        }
+
+        int extensionLength = packet.Extension
+            ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+            : 0;
+
+        int paddingLength = packet.Padding
+            ? plaintext[^1]
+            : 0;
+
+        var plaintextData = plaintext[extensionLength..^paddingLength];
+
+        if (plaintextData.IsEmpty)
+        {
+            ArrayPool<byte>.Shared.Return(array);
+
+            goto Fail;
+        }
+
+        int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
+        byte[]? toReturn = null;
+        var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
+        var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out frameLength);
+        if (result is not Dave.DecryptorResultCode.Success)
+        {
+            ArrayPool<byte>.Shared.Return(array);
+
+            if (toReturn is not null)
+                ArrayPool<byte>.Shared.Return(toReturn);
+
+            Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+
+            goto Fail;
+        }
+
+        if (toReturn is not null)
+            ArrayPool<byte>.Shared.Return(array);
+
+        frame = daveArray;
+
+        return true;
+
+        Fail:
+        frame = null;
+        frameLength = 0;
+        return false;
+    }
+
+    //private async void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    //{
+    //    if (_udpState is not { Encryption: var encryption, DaveSession: var session })
+    //        return;
+
+    //    var handlers = _voiceReceive;
+    //    if (handlers.IsEmpty)
+    //        return;
+
+    //    try
+    //    {
+    //        RtpPacketStorage packetStorage = new(datagram);
+
+    //        var packet = packetStorage.Packet;
+
+    //        var ssrc = packet.Ssrc;
+
+    //        var result = _receiveHandler.HandlePacket(this, packet);
+    //        if (!result.Handle)
+    //            return;
+
+    //        if (session.GetDecryptor(ssrc) is not { } decryptor)
+    //            return;
+
+    //        var framesMissed = result.FramesMissed;
+
+    //        var sequenceNumber = packet.SequenceNumber;
+
+    //        await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
+
+    //        //            if (framesMissed is 0)
+    //        //            {
+    //        //                await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
+    //        //                return;
+    //        //            }
+
+    //        //            var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
+
+    //        //#pragma warning disable CA2012 // Use ValueTasks correctly
+    //        //            for (ushort i = 0; i < framesMissed; i++)
+    //        //                tasks[i] = InvokeEventAsync(handlers, new(null, 0, 0, ssrc, null, (ushort)(sequenceNumber - framesMissed + i)), nameof(_voiceReceive));
+
+    //        //            tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
+    //        //#pragma warning restore CA2012 // Use ValueTasks correctly
+
+    //        //            await HandleTasksThatDoNotThrowAsync(tasks, framesMissed).ConfigureAwait(false);
+
+    //        ValueTask InvokeEventForReceivedFrameAsync()
+    //        {
+    //            var packet = packetStorage.Packet;
+
+    //            var plaintextLength = packet.PayloadLength - encryption.Expansion;
+    //            var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+    //            var plaintext = array.AsSpan(0, plaintextLength);
+
+    //            if (!encryption.TryDecrypt(packet, plaintext))
+    //            {
+    //                Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
+
+    //                ArrayPool<byte>.Shared.Return(array);
+
+    //                return default;
+    //            }
+
+    //            int extensionLength = packet.Extension
+    //                ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+    //                : 0;
+
+    //            int paddingLength = packet.Padding
+    //                ? plaintext[^1]
+    //                : 0;
+
+    //            var plaintextData = plaintext[extensionLength..^paddingLength];
+
+    //            if (plaintextData.IsEmpty)
+    //            {
+    //                ArrayPool<byte>.Shared.Return(array);
+
+    //                return default;
+    //            }
+
+    //            int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
+    //            byte[]? toReturn = null;
+    //            var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
+    //            var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out int bytesWritten);
+
+    //            if (result is not Dave.DecryptorResultCode.Success)
+    //            {
+    //                ArrayPool<byte>.Shared.Return(array);
+
+    //                if (toReturn is not null)
+    //                    ArrayPool<byte>.Shared.Return(toReturn);
+
+    //                Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+
+    //                return default;
+    //            }
+
+    //            if (toReturn is not null)
+    //                ArrayPool<byte>.Shared.Return(array);
+
+    //            return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc, packet.Timestamp, sequenceNumber), args =>
+    //            {
+    //                ArrayPool<byte>.Shared.Return(args._buffer!);
+    //            }, nameof(_voiceReceive));
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+    //        {
+    //            return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
+    //        });
+    //    }
+    //}
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     private static async ValueTask HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)
