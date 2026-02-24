@@ -1,6 +1,6 @@
 ﻿namespace NetCord.Gateway.Voice;
 
-public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex, int frameLength, uint ssrc, uint? timestamp, ushort sequenceNumber)
+public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex, int frameLength, uint ssrc, uint? timestamp, ushort sequenceNumber, bool canCorrectLoss)
 {
     internal readonly byte[]? _buffer = buffer;
 
@@ -23,4 +23,6 @@ public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex,
     /// The sequence number of the voice frame.
     /// </summary>
     public ushort SequenceNumber => sequenceNumber;
+
+    public bool CanCorrectLoss => canCorrectLoss;
 }

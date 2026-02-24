@@ -9,7 +9,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     private const uint SamplesPerPacket = 960;
     private const int DefaultPayloadType = 0x78;
 
-    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, bool Missed, int Tag);
+    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, bool Missed, bool CanCorrectLoss, int Tag);
 
     private static (BufferedVoiceReceiveHandler Handler, List<ReceivedPacket> ReceivedPackets) InitializeHandler(BufferedVoiceReceiveHandlerConfiguration? configuration = null)
     {
@@ -21,6 +21,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             data.Ssrc,
             data.SequenceNumber,
             !data.HasPacket,
+            data.CanCorrectLoss,
             data.HasPacket ? data.Packet.Tag : 0));
 
         return (handler, receivedPackets);
@@ -130,18 +131,24 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        // Should deliver all 30 slots: 29 actual + 1 missed
-        Assert.HasCount(30, receivedPackets, "Should deliver exactly 30 entries (29 packets + 1 missed).");
+        // With CanCorrectLoss, the last missing packet in a gap is not reported as a Lost event;
+        // instead the next valid packet (seq 4) has CanCorrectLoss = true.
+        // So we get 29 entries: 1, 2, 4(CanCorrectLoss), 5, ..., 30
+        Assert.HasCount(29, receivedPackets, "Should deliver exactly 29 entries (29 packets, seq 3 absorbed into CanCorrectLoss on seq 4).");
 
-        // Verify exact sequence: 1, 2, Missed(3), 4, ..., 30
         ushort expectedSeq = 1;
         foreach (var p in receivedPackets)
         {
+            if (expectedSeq == 3) expectedSeq = 4; // seq 3 is not a separate event
+
             Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq}.");
-            if (expectedSeq == 3)
-                Assert.IsTrue(p.Missed, "Packet 3 should be marked as missed.");
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+
+            if (expectedSeq == 4)
+                Assert.IsTrue(p.CanCorrectLoss, "Packet 4 should have CanCorrectLoss=true since seq 3 was lost.");
             else
-                Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+                Assert.IsFalse(p.CanCorrectLoss, $"Packet {expectedSeq} should not have CanCorrectLoss.");
+
             expectedSeq++;
         }
     }
@@ -175,8 +182,14 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             handler.HandlePacket(CreatePacket(i, t));
         }
 
-        var seq3 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 3);
-        Assert.IsTrue(seq3.Missed, "Sequence 3 should be marked missed. Buffer fell for an aliased packet.");
+        // Seq 3 was never sent. With ring buffer aliasing and the small buffer,
+        // it should not appear as a separate Lost event.
+        var seq3Lost = receivedPackets.FirstOrDefault(p => p.Missed && p.SequenceNumber == 3);
+        Assert.AreEqual(default, seq3Lost, "Sequence 3 should not appear as a separate missed event.");
+
+        // Verify that some packet after the gap has CanCorrectLoss=true indicating the loss was recognized
+        var packetsWithCorrectLoss = receivedPackets.Where(p => p.CanCorrectLoss && !p.Missed).ToList();
+        Assert.IsNotEmpty(packetsWithCorrectLoss, "At least one packet should have CanCorrectLoss=true to account for the missing seq 3.");
 
         var seq23 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 23);
         Assert.IsFalse(seq23.Missed, "Sequence 23 should have been recovered successfully.");
@@ -288,12 +301,14 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        Assert.Contains(p => p.Missed && p.SequenceNumber == 65535, receivedPackets,
-            "Missing packet at seq 65535 (wraparound boundary) should be reported.");
+        // Single missing packet (65535) is absorbed into CanCorrectLoss on seq 0
+        var seqAfterGap = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 0);
+        Assert.IsTrue(seqAfterGap.CanCorrectLoss,
+            "Packet at seq 0 should have CanCorrectLoss=true because seq 65535 was lost.");
 
-        // Verify total count: 31 delivered + 1 missed = 32
-        Assert.HasCount(32, receivedPackets,
-            "Should have exactly 32 entries (31 packets + 1 missed).");
+        // Verify total count: 31 delivered (no separate missed event)
+        Assert.HasCount(31, receivedPackets,
+            "Should have exactly 31 entries (31 packets, missing seq 65535 absorbed into CanCorrectLoss).");
     }
 
     [TestMethod]
@@ -316,11 +331,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        Assert.Contains(p => p.Missed && p.SequenceNumber == 0, receivedPackets,
-            "Missing packet at seq 0 (immediately after wraparound) should be reported.");
+        // Single missing packet (seq 0) is absorbed into CanCorrectLoss on seq 1
+        var seqAfterGap = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 1);
+        Assert.IsTrue(seqAfterGap.CanCorrectLoss,
+            "Packet at seq 1 should have CanCorrectLoss=true because seq 0 was lost.");
 
-        Assert.HasCount(32, receivedPackets,
-            "Should have exactly 32 entries (31 packets + 1 missed).");
+        Assert.HasCount(31, receivedPackets,
+            "Should have exactly 31 entries (31 packets, missing seq 0 absorbed into CanCorrectLoss).");
     }
 
     // ================================================================
@@ -795,11 +812,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         var ssrc1 = receivedPackets.Where(p => p.Ssrc == 100 && !p.Missed).ToList();
         var ssrc2 = receivedPackets.Where(p => p.Ssrc == 200 && !p.Missed).ToList();
-        var ssrc3Missing = receivedPackets.Where(p => p.Ssrc == 300 && p.Missed).ToList();
 
         Assert.IsNotEmpty(ssrc1, "SSRC 100 should deliver packets.");
         Assert.IsNotEmpty(ssrc2, "SSRC 200 should deliver packets.");
-        Assert.Contains(p => p.SequenceNumber == 5, ssrc3Missing, "SSRC 300 should report seq 5 as missed.");
+
+        // SSRC 300: single missing packet (seq 5) is absorbed into CanCorrectLoss on seq 6
+        var ssrc3Seq6 = receivedPackets.FirstOrDefault(p => p.Ssrc == 300 && p.SequenceNumber == 6);
+        Assert.IsTrue(ssrc3Seq6.CanCorrectLoss, "SSRC 300: seq 6 should have CanCorrectLoss=true because seq 5 was lost.");
     }
 
     [TestMethod]
@@ -856,21 +875,28 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        // Verify all 30 entries are present: 27 packets + 3 missed
-        Assert.HasCount(30, receivedPackets, "Should have exactly 30 entries.");
+        // With 3 consecutive missing packets (5, 6, 7):
+        // - Packets 5 and 6 are reported as Lost events
+        // - Packet 7 (the last lost in the run) is absorbed into CanCorrectLoss on packet 8
+        // Total: 27 packets + 2 missed = 29 entries
+        Assert.HasCount(29, receivedPackets, "Should have exactly 29 entries (27 packets + 2 missed, last lost absorbed into CanCorrectLoss).");
 
-        for (ushort missing = 5; missing <= 7; missing++)
+        for (ushort missing = 5; missing <= 6; missing++)
         {
             Assert.Contains(p => p.Missed && p.SequenceNumber == missing, receivedPackets,
                 $"Packet {missing} should be reported as missed.");
         }
 
-        // Verify overall order
-        ushort expectedSeq = 1;
-        foreach (var p in receivedPackets)
+        // Seq 7 is NOT reported as missed; instead seq 8 has CanCorrectLoss
+        var seq8 = receivedPackets.First(p => p.SequenceNumber == 8);
+        Assert.IsTrue(seq8.CanCorrectLoss, "Packet 8 should have CanCorrectLoss=true since seq 7 was the last lost in the gap.");
+
+        // Verify overall order (seq 7 is absent — absorbed into CanCorrectLoss on seq 8)
+        ushort[] expectedOrder = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+        Assert.HasCount(expectedOrder.Length, receivedPackets);
+        for (int i = 0; i < expectedOrder.Length; i++)
         {
-            Assert.AreEqual(expectedSeq, p.SequenceNumber);
-            expectedSeq++;
+            Assert.AreEqual(expectedOrder[i], receivedPackets[i].SequenceNumber);
         }
     }
 
@@ -898,15 +924,20 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        // All 40 entries should be present: 30 actual + 10 missed
-        Assert.HasCount(40, receivedPackets, "Should have 40 entries (30 packets + 10 missed).");
+        // Burst of 10 missing (11-20): 9 Lost events (11-19) + seq 21 gets CanCorrectLoss
+        // Total: 30 actual + 9 missed = 39 entries
+        Assert.HasCount(39, receivedPackets, "Should have 39 entries (30 packets + 9 missed, last lost absorbed into CanCorrectLoss).");
 
-        // Verify missed packets 11-20
-        for (ushort missing = 11; missing <= 20; missing++)
+        // Verify missed packets 11-19 (not 20 — it's absorbed into CanCorrectLoss on seq 21)
+        for (ushort missing = 11; missing <= 19; missing++)
         {
             Assert.Contains(p => p.Missed && p.SequenceNumber == missing, receivedPackets,
                 $"Packet {missing} should be reported as missed.");
         }
+
+        // Seq 20 is not reported as missed; seq 21 has CanCorrectLoss
+        var seq21 = receivedPackets.First(p => p.SequenceNumber == 21);
+        Assert.IsTrue(seq21.CanCorrectLoss, "Packet 21 should have CanCorrectLoss=true since seq 20 was the last lost in the burst.");
 
         AssertMonotonicDelivery(receivedPackets);
     }
@@ -933,11 +964,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             timestamp += SamplesPerPacket;
         }
 
-        Assert.Contains(p => p.Missed && p.SequenceNumber == 30, receivedPackets,
-            "Packet 30 should be reported as missed.");
+        // Seq 30 is a single missing packet; absorbed into CanCorrectLoss on seq 31
+        var seq31 = receivedPackets.First(p => p.SequenceNumber == 31);
+        Assert.IsTrue(seq31.CanCorrectLoss,
+            "Packet 31 should have CanCorrectLoss=true since seq 30 was lost.");
 
-        // Verify total: 49 delivered + 1 missed = 50
-        Assert.HasCount(50, receivedPackets, "Should have exactly 50 entries.");
+        // Verify total: 49 delivered (no separate missed event for single gap)
+        Assert.HasCount(49, receivedPackets, "Should have exactly 49 entries (49 packets, missing seq 30 absorbed into CanCorrectLoss).");
     }
 
     // ================================================================
@@ -1478,20 +1511,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Wait for the buffer timer to fire
         await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        // Timer should have force-evicted all: 1, Missed(2), 3, 4
-        Assert.HasCount(4, receivedPackets, "Timer should emit exactly 4 entries.");
+        // Timer should have force-evicted all: 1, 3(CanCorrectLoss), 4
+        // Single missing packet (seq 2) is absorbed into CanCorrectLoss on seq 3.
+        Assert.HasCount(3, receivedPackets, "Timer should emit exactly 3 entries (seq 2 absorbed into CanCorrectLoss on seq 3).");
 
         Assert.AreEqual(1, receivedPackets[0].SequenceNumber);
         Assert.IsFalse(receivedPackets[0].Missed);
+        Assert.IsFalse(receivedPackets[0].CanCorrectLoss);
 
-        Assert.AreEqual(2, receivedPackets[1].SequenceNumber);
-        Assert.IsTrue(receivedPackets[1].Missed, "Seq 2 should be reported as missed.");
+        Assert.AreEqual(3, receivedPackets[1].SequenceNumber);
+        Assert.IsFalse(receivedPackets[1].Missed);
+        Assert.IsTrue(receivedPackets[1].CanCorrectLoss, "Seq 3 should have CanCorrectLoss=true because seq 2 was lost.");
 
-        Assert.AreEqual(3, receivedPackets[2].SequenceNumber);
+        Assert.AreEqual(4, receivedPackets[2].SequenceNumber);
         Assert.IsFalse(receivedPackets[2].Missed);
-
-        Assert.AreEqual(4, receivedPackets[3].SequenceNumber);
-        Assert.IsFalse(receivedPackets[3].Missed);
+        Assert.IsFalse(receivedPackets[2].CanCorrectLoss);
     }
 
     [DoNotParallelize]
@@ -1684,11 +1718,15 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             handler.HandlePacket(CreatePacket(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
         }
 
-        Assert.Contains(p => p.Missed && p.SequenceNumber == 4, receivedPackets, "Packet 4 should be reported missed.");
-        Assert.Contains(p => p.Missed && p.SequenceNumber == 9, receivedPackets, "Packet 9 should be reported missed.");
+        // Single missing packets (4, 9) are each absorbed into CanCorrectLoss on the next valid packet
+        var seq5 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 5);
+        Assert.IsTrue(seq5.CanCorrectLoss, "Packet 5 should have CanCorrectLoss=true because seq 4 was lost.");
 
-        // All 30 entries should be present (28 delivered + 2 missed)
-        Assert.HasCount(30, receivedPackets, "Should have exactly 30 entries.");
+        var seq10 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 10);
+        Assert.IsTrue(seq10.CanCorrectLoss, "Packet 10 should have CanCorrectLoss=true because seq 9 was lost.");
+
+        // 28 entries: 28 delivered packets (no separate missed events for single gaps)
+        Assert.HasCount(28, receivedPackets, "Should have exactly 28 entries (28 packets, 2 single gaps absorbed into CanCorrectLoss).");
         AssertMonotonicDelivery(receivedPackets);
     }
 
@@ -2035,6 +2073,184 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         }
 
         // No crash = pass
+    }
+
+    // ================================================================
+    // CanCorrectLoss Behavior
+    // ================================================================
+
+    [TestMethod]
+    public void TestCanCorrectLossAfterSingleMissingPacket()
+    {
+        // When a single packet is lost, the next valid packet should have CanCorrectLoss=true.
+        // No separate Lost event is emitted for the missing packet.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (i == 10)
+            {
+                timestamp += SamplesPerPacket;
+                continue; // Skip seq 10
+            }
+            handler.HandlePacket(CreatePacket(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        // Seq 10 should NOT appear as a separate missed event
+        Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == 10),
+            "Seq 10 should not appear as a separate Lost event.");
+
+        // Seq 11 should have CanCorrectLoss=true
+        var seq11 = receivedPackets.First(p => p.SequenceNumber == 11);
+        Assert.IsTrue(seq11.CanCorrectLoss,
+            "Packet 11 should have CanCorrectLoss=true because seq 10 was the last (only) lost packet.");
+
+        // All other delivered packets should NOT have CanCorrectLoss
+        foreach (var p in receivedPackets.Where(p => !p.Missed && p.SequenceNumber != 11))
+        {
+            Assert.IsFalse(p.CanCorrectLoss,
+                $"Packet {p.SequenceNumber} should not have CanCorrectLoss since there's no preceding loss.");
+        }
+    }
+
+    [TestMethod]
+    public void TestCanCorrectLossAfterMultipleConsecutiveMissing()
+    {
+        // When multiple consecutive packets are lost, all but the last get Lost events.
+        // The last lost packet is absorbed into CanCorrectLoss on the next valid packet.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (i is >= 10 and <= 13)
+            {
+                timestamp += SamplesPerPacket;
+                continue; // Skip seq 10-13 (4 consecutive missing)
+            }
+            handler.HandlePacket(CreatePacket(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        // First 3 of the 4 missing packets should appear as Lost events
+        for (ushort seq = 10; seq <= 12; seq++)
+        {
+            Assert.Contains(p => p.Missed && p.SequenceNumber == seq, receivedPackets,
+                $"Seq {seq} should appear as a Lost event.");
+        }
+
+        // Seq 13 (last lost in consecutive run) should NOT appear as separate Lost event
+        Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == 13),
+            "Seq 13 should not appear as a separate Lost event (absorbed into CanCorrectLoss).");
+
+        // Seq 14 should have CanCorrectLoss=true
+        var seq14 = receivedPackets.First(p => p.SequenceNumber == 14);
+        Assert.IsTrue(seq14.CanCorrectLoss,
+            "Packet 14 should have CanCorrectLoss=true for the last lost packet (seq 13).");
+    }
+
+    [TestMethod]
+    public void TestCanCorrectLossNotSetForOrderedStream()
+    {
+        // In a perfectly ordered stream with no loss, no packet should have CanCorrectLoss=true.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            handler.HandlePacket(CreatePacket(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        foreach (var p in receivedPackets)
+        {
+            Assert.IsFalse(p.CanCorrectLoss,
+                $"Packet {p.SequenceNumber} should not have CanCorrectLoss in a loss-free stream.");
+        }
+    }
+
+    [TestMethod]
+    public void TestCanCorrectLossWithMultipleGaps()
+    {
+        // Multiple separate gaps should each produce CanCorrectLoss on the packet after each gap.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        HashSet<ushort> skipped = [5, 15, 25];
+
+        for (ushort i = 1; i <= 40; i++)
+        {
+            if (skipped.Contains(i))
+            {
+                timestamp += SamplesPerPacket;
+                continue;
+            }
+            handler.HandlePacket(CreatePacket(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        // Each gap of 1 should result in CanCorrectLoss on the next packet
+        foreach (ushort missed in skipped)
+        {
+            var nextSeq = (ushort)(missed + 1);
+            var nextPacket = receivedPackets.FirstOrDefault(p => p.SequenceNumber == nextSeq && !p.Missed);
+            Assert.IsTrue(nextPacket.CanCorrectLoss,
+                $"Packet {nextSeq} should have CanCorrectLoss=true because seq {missed} was lost.");
+        }
+
+        // No skipped seq should appear as a Lost event
+        foreach (ushort missed in skipped)
+        {
+            Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == missed),
+                $"Seq {missed} should not appear as a separate Lost event.");
+        }
+    }
+
+    [DoNotParallelize]
+    [TestMethod]
+    public async Task TestCanCorrectLossOnForceEvictAll()
+    {
+        // When the timer fires and ForceEvictAll runs, the EvictSequenceNumber path
+        // sets _isLastLost for missing packets, so the next found packet gets
+        // CanCorrectLoss=true — same behavior as normal eviction.
+        var (handler, receivedPackets) = InitializeHandler(new()
+        {
+            BufferDuration = 200,
+            StartupDuration = 200,
+            ResynchronizationDuration = 400,
+            IdleTimeout = 5000,
+        });
+
+        uint timestamp = 10000;
+
+        // Send 3 packets with a gap (missing seq 2)
+        handler.HandlePacket(CreatePacket(1, timestamp));
+        handler.HandlePacket(CreatePacket(3, timestamp + (2 * SamplesPerPacket)));
+        handler.HandlePacket(CreatePacket(4, timestamp + (3 * SamplesPerPacket)));
+
+        Assert.IsEmpty(receivedPackets, "No packets should be emitted before timer fires.");
+
+        // Wait for the buffer timer to fire (ForceEvictAll)
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        // Timer should emit: 1, 3(CanCorrectLoss), 4
+        // Single missing packet (seq 2) is absorbed into CanCorrectLoss on seq 3.
+        Assert.HasCount(3, receivedPackets, "Timer should emit exactly 3 entries (seq 2 absorbed into CanCorrectLoss on seq 3).");
+
+        Assert.AreEqual(1, receivedPackets[0].SequenceNumber);
+        Assert.IsFalse(receivedPackets[0].Missed);
+        Assert.IsFalse(receivedPackets[0].CanCorrectLoss);
+
+        Assert.AreEqual(3, receivedPackets[1].SequenceNumber);
+        Assert.IsFalse(receivedPackets[1].Missed);
+        Assert.IsTrue(receivedPackets[1].CanCorrectLoss,
+            "Seq 3 should have CanCorrectLoss=true because seq 2 was lost.");
+
+        Assert.AreEqual(4, receivedPackets[2].SequenceNumber);
+        Assert.IsFalse(receivedPackets[2].Missed);
+        Assert.IsFalse(receivedPackets[2].CanCorrectLoss);
     }
 
     // ================================================================

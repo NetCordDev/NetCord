@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 
 namespace NetCord.Gateway.Voice;
 
@@ -217,6 +218,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         private ushort _lastEvictedSequenceNumber;
         private uint _lastEvictedPacketTimestamp;
         private bool _anyEvicted;
+        private bool _isLastLost;
 
         private ushort _lastOutlierSequenceNumber;
         private uint _lastOutlierTimestamp;
@@ -323,6 +325,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             _latestPacketIndex = 0;
 
             _anyEvicted = false;
+            _isLastLost = false;
             _lastEvictedSequenceNumber = (ushort)(sequenceNumber - (uint)owner._bufferSize + (uint)owner._startupSize - 1);
             _lastEvictedPacketTimestamp = timestamp - (uint)owner._bufferSamples + (uint)owner._startupSamples - MinSamplesPerPacket;
 
@@ -335,15 +338,50 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
         private void ForceEvict(BufferedVoiceReceiveHandler owner, uint ssrc, uint timestamp, ushort sequenceNumber)
         {
-            while (GetMaxStoredPacketCount(sequenceNumber) > owner._bufferSize)
-            {
-                var expectedSeq = (ushort)(_lastEvictedSequenceNumber + 1);
-                EvictSequenceNumber(owner, ssrc, expectedSeq);
-            }
-
-            var count = GetMaxStoredPacketCount(sequenceNumber);
+            var count = GetMaxStoredPacketCount(sequenceNumber) - owner._bufferSize;
 
             var baseSequenceNumber = _lastEvictedSequenceNumber;
+
+            for (int i = 1; i <= count; i++)
+            {
+                var expectedSeq = (ushort)(baseSequenceNumber + i);
+                EvictSequenceNumber(owner, ssrc, expectedSeq);
+                // var index = GetPacketIndex(owner, expectedSeq);
+                // var storedPacket = _packets[index];
+
+                // if (storedPacket.TryGetPacket(out var packet) && packet.SequenceNumber == expectedSeq)
+                // {
+                //     EvictStoredPacket(owner, index, storedPacket, packet);
+                //     _isLastLost = false;
+                // }
+                // else
+                // {
+                //     if (_anyEvicted)
+                //     {
+                //         if (_isLastLost)
+                //             owner.InvokeVoiceReceive(VoiceReceiveData.Lost(ssrc, (ushort)(expectedSeq - 1)));
+                //         else
+                //             _isLastLost = true;
+                //     }
+
+                //     if (_isLastLost)
+                //         _lastEvictedSequenceNumber = (ushort)(expectedSeq - 1);
+                // }
+            }
+
+            // while (GetMaxStoredPacketCount(sequenceNumber) > owner._bufferSize)
+            // {
+            //     var expectedSeq = (ushort)(_lastEvictedSequenceNumber + 1);
+            //     EvictSequenceNumber(owner, ssrc, expectedSeq);
+            // }
+
+            count = GetMaxStoredPacketCount(sequenceNumber);
+
+            baseSequenceNumber = _lastEvictedSequenceNumber;
+
+            // var count = GetMaxStoredPacketCount(sequenceNumber);
+
+            // var baseSequenceNumber = _lastEvictedSequenceNumber;
 
             for (int i = 1; i < count; i++)
             {
@@ -356,12 +394,24 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                     if ((int)(timestamp - _lastEvictedPacketTimestamp) <= owner._bufferSamples)
                         break;
 
+                    // bool canCorrectLoss;
+
                     if (_anyEvicted)
                     {
                         var sequenceNumberDiff = (int)(short)(expectedSeq - _lastEvictedSequenceNumber);
-                        for (int k = 1; k < sequenceNumberDiff; k++)
-                            owner.InvokeVoiceReceive(VoiceReceiveData.Missed(ssrc, (ushort)(_lastEvictedSequenceNumber + k)));
+                        for (int k = 1; k < sequenceNumberDiff - 1; k++)
+                            owner.InvokeVoiceReceive(VoiceReceiveData.Lost(ssrc, (ushort)(_lastEvictedSequenceNumber + k)));
+
+                        if (sequenceNumberDiff > 1)
+                            _isLastLost = true;
+                        // _isLastLost = sequenceNumberDiff > 1 ? 
+
+                        // canCorrectLoss = sequenceNumberDiff > 1;
+
+                        // owner.InvokeVoiceReceive(VoiceReceiveData.FromNextPacket(packet));
                     }
+                    // else
+                    //     canCorrectLoss = false;
 
                     EvictStoredPacket(owner, index, storedPacket, packet);
                 }
@@ -370,11 +420,21 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
         private void ForceEvictAll(BufferedVoiceReceiveHandler owner, uint ssrc)
         {
-            while (GetMaxStoredPacketCount(_latestPacketSequenceNumber) > 0)
+            var count = GetMaxStoredPacketCount(_latestPacketSequenceNumber);
+
+            var baseSequenceNumber = _lastEvictedSequenceNumber;
+
+            for (int i = 1; i <= count; i++)
             {
-                var expectedSeq = (ushort)(_lastEvictedSequenceNumber + 1);
+                var expectedSeq = (ushort)(baseSequenceNumber + i);
                 EvictSequenceNumber(owner, ssrc, expectedSeq);
             }
+
+            // while (GetMaxStoredPacketCount(_latestPacketSequenceNumber) > 0)
+            // {
+            //     var expectedSeq = (ushort)(_lastEvictedSequenceNumber + 1);
+            //     EvictSequenceNumber(owner, ssrc, expectedSeq);
+            // }
         }
 
         private void EvictSequenceNumber(BufferedVoiceReceiveHandler owner, uint ssrc, ushort expectedSeq)
@@ -383,19 +443,43 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             var storedPacket = _packets[index];
 
             if (storedPacket.TryGetPacket(out var packet) && packet.SequenceNumber == expectedSeq)
+            {
                 EvictStoredPacket(owner, index, storedPacket, packet);
+                _isLastLost = false;
+            }
             else
             {
                 if (_anyEvicted)
-                    owner.InvokeVoiceReceive(VoiceReceiveData.Missed(ssrc, expectedSeq));
+                {
+                    if (_isLastLost)
+                        owner.InvokeVoiceReceive(VoiceReceiveData.Lost(ssrc, (ushort)(expectedSeq - 1)));
+                    else
+                        _isLastLost = true;
+                }
 
-                _lastEvictedSequenceNumber = expectedSeq;
+                if (_isLastLost)
+                    _lastEvictedSequenceNumber = (ushort)(expectedSeq - 1);
             }
+
+            // var index = GetPacketIndex(owner, expectedSeq);
+            // var storedPacket = _packets[index];
+
+            // if (storedPacket.TryGetPacket(out var packet) && packet.SequenceNumber == expectedSeq)
+            //     EvictStoredPacket(owner, index, storedPacket, packet);
+            // else
+            // {
+            //     if (_anyEvicted)
+            //         owner.InvokeVoiceReceive(VoiceReceiveData.Lost(ssrc, expectedSeq));
+
+            //     _lastEvictedSequenceNumber = expectedSeq;
+            // }
         }
 
         private void EvictStoredPacket(BufferedVoiceReceiveHandler owner, int index, StoredPacket storedPacket, RtpPacket packet)
         {
-            owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(packet));
+            owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(packet, _isLastLost));
+
+            _isLastLost = false;
 
             _lastEvictedSequenceNumber = packet.SequenceNumber;
             _lastEvictedPacketTimestamp = packet.Timestamp;
@@ -435,7 +519,9 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                         break;
                 }
 
-                owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(evictedPacket));
+                owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(evictedPacket, _isLastLost));
+
+                _isLastLost = false;
 
                 _lastEvictedSequenceNumber = evictedPacket.SequenceNumber;
                 _lastEvictedPacketTimestamp = evictedPacket.Timestamp;

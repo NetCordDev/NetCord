@@ -34,11 +34,11 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
     /// <returns>The number of decoded samples per channel.</returns>
-    public int Decode(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize)
+    public int Decode(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize, bool decodeFec)
     {
         ValidatePcm(pcm.Length, frameSize, PcmFormat.Short, _channels, nameof(pcm));
 
-        int result = OpusDecode(_decoder, data, data.Length, pcm, frameSize, 0);
+        int result = OpusDecode(_decoder, data, data.Length, pcm, frameSize, decodeFec ? 1 : 0);
 
         ValidateResult(result);
 
@@ -52,9 +52,9 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
     /// <returns>The number of decoded samples per channel.</returns>
-    public int Decode(ReadOnlySpan<byte> data, Span<short> pcm, int frameSize)
+    public int Decode(ReadOnlySpan<byte> data, Span<short> pcm, int frameSize, bool decodeFec)
     {
-        return Decode(data, MemoryMarshal.AsBytes(pcm), frameSize);
+        return Decode(data, MemoryMarshal.AsBytes(pcm), frameSize, decodeFec);
     }
 
     /// <summary>
@@ -64,11 +64,11 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
     /// <returns>The number of decoded samples per channel.</returns>
-    public int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize)
+    public int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize, bool decodeFec)
     {
         ValidatePcm(pcm.Length, frameSize, PcmFormat.Float, _channels, nameof(pcm));
 
-        int result = OpusDecodeFloat(_decoder, data, data.Length, pcm, frameSize, 0);
+        int result = OpusDecodeFloat(_decoder, data, data.Length, pcm, frameSize, decodeFec ? 1 : 0);
 
         ValidateResult(result);
 
@@ -82,9 +82,9 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
     /// <returns>The number of decoded samples per channel.</returns>
-    public int DecodeFloat(ReadOnlySpan<byte> data, Span<float> pcm, int frameSize)
+    public int DecodeFloat(ReadOnlySpan<byte> data, Span<float> pcm, int frameSize, bool decodeFec)
     {
-        return DecodeFloat(data, MemoryMarshal.AsBytes(pcm), frameSize);
+        return DecodeFloat(data, MemoryMarshal.AsBytes(pcm), frameSize, decodeFec);
     }
 
     public void Dispose()

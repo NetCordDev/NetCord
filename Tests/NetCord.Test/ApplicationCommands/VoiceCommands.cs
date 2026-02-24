@@ -49,7 +49,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 //ReceiveHandler = new RawVoiceReceiveHandler(),
                 ReceiveHandler = new BufferedVoiceReceiveHandler(new()
                 {
-                    BufferDuration = 600,
+                    BufferDuration = 40,
+                    StartupDuration = 20,
                 }),
                 Logger = new ConsoleLogger(LogLevel.Debug),
                 //CacheProvider = ConcurrentVoiceClientCacheProvider.Empty,
@@ -178,6 +179,13 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             RedirectStandardInput = true,
         })!;
 
+        using var ffmpeg2 = Process.Start(new ProcessStartInfo
+        {
+            FileName = "ffmpeg",
+            Arguments = $"-f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 -ac {(byte)voiceChannels} -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-2.wav",
+            RedirectStandardInput = true,
+        })!;
+
         var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
@@ -187,12 +195,52 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
+        // using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
+
+        using OpusDecoder decoder = new(voiceChannels);
+        using OpusDecoder decoder2 = new(voiceChannels);
+        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), pcmFormat, voiceChannels);
+        var buffer = new byte[bufferSize];
 
         voiceClient.VoiceReceive += args =>
         {
-            opusDecodeStream.Write(args.Frame);
+            if (args.Timestamp.HasValue)
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp.GetValueOrDefault(), args.Frame);
+
+            {
+                var samples = decoder.DecodeFloat(args.CanCorrectLoss ? null : args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), false);
+                ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            }
+
+            {
+                var samples = decoder2.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), args.CanCorrectLoss);
+                ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            }
+
+            // if (args.CanCorrectLoss)
+            // {
+            //     var samples = decoder.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), true);
+            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            // }
+            // else
+            // {
+            //     var samples = decoder.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), false);
+            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            // }
+
             return default;
+
+            // if (!args.Timestamp.HasValue)
+            // {
+            //     unsafe
+            //     {
+            //         fixed (byte* frame = args.Frame)
+            //             Console.WriteLine($"Frame {args.SequenceNumber} got lost {(nint)frame}");
+            //     }
+            // }
+
+            // opusDecodeStream.Write(args.Frame);
+            // return default;
         };
 
         await taskCompletionSource.Task;
