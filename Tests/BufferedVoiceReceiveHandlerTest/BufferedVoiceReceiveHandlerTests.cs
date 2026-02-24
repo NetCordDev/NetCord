@@ -5,7 +5,7 @@ namespace BufferedVoiceReceiveHandlerTest;
 #pragma warning disable IDE0042 // Deconstruct variable declaration
 
 [TestClass]
-public sealed class BufferedVoiceReceiveHandlerTests
+public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 {
     private const uint DefaultSsrc = 1234;
     private const uint SamplesPerPacket = 960;
@@ -1187,7 +1187,7 @@ public sealed class BufferedVoiceReceiveHandlerTests
     // ================================================================
 
     [TestMethod]
-    public void TestSinglePacket()
+    public async Task TestSinglePacket()
     {
         var (handler, receivedPackets) = InitializeHandler(new()
         {
@@ -1197,8 +1197,7 @@ public sealed class BufferedVoiceReceiveHandlerTests
 
         handler.HandlePacket(CreatePacket(1, 10000));
 
-        Thread.Sleep(200);
-        Thread.MemoryBarrier();
+        await Task.Delay(200, context.CancellationToken).ConfigureAwait(false);
 
         Assert.IsTrue(receivedPackets.Count > 0, "Single packet should be eventually emitted.");
         Assert.AreEqual(1, receivedPackets.First(p => !p.Missed).SequenceNumber);
