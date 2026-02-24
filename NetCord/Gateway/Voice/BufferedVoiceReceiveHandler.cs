@@ -361,7 +361,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                         var sequenceNumberDiff = (int)(short)(expectedSeq - _lastEvictedSequenceNumber);
                         for (int k = 1; k < sequenceNumberDiff; k++)
                             owner.InvokeVoiceReceive(VoiceReceiveData.Missed(ssrc, (ushort)(_lastEvictedSequenceNumber + k)));
-                            //owner.InvokeVoiceReceive((ushort)(_lastEvictedSequenceNumber + (ushort)k), true, "Buffer overflow filling");
                     }
 
                     EvictStoredPacket(owner, index, storedPacket, packet);
@@ -389,7 +388,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             {
                 if (_anyEvicted)
                     owner.InvokeVoiceReceive(VoiceReceiveData.Missed(ssrc, expectedSeq));
-                    //owner.InvokeVoiceReceive(expectedSeq, true, "Buffer capacity or time overflow");
 
                 _lastEvictedSequenceNumber = expectedSeq;
             }
@@ -397,7 +395,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
         private void EvictStoredPacket(BufferedVoiceReceiveHandler owner, int index, StoredPacket storedPacket, RtpPacket packet)
         {
-            //owner.InvokeVoiceReceive(packet.SequenceNumber, false, "Buffer overflow");
             owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(packet));
 
             _lastEvictedSequenceNumber = packet.SequenceNumber;
@@ -438,7 +435,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                         break;
                 }
 
-                //owner.InvokeVoiceReceive(evictedPacket.SequenceNumber, false, "Evicting ready");
                 owner.InvokeVoiceReceive(VoiceReceiveData.FromPacket(evictedPacket));
 
                 _lastEvictedSequenceNumber = evictedPacket.SequenceNumber;
@@ -464,10 +460,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             var packetSequenceNumber = packet.SequenceNumber;
 
             var sequenceNumberDiff = (short)(packetSequenceNumber - _latestPacketSequenceNumber);
-
-            // Seems to be a duplicate packet, ignore it
-            if (sequenceNumberDiff is 0)
-                goto Ret;
 
             var packetTimestamp = packet.Timestamp;
 
@@ -496,13 +488,17 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 goto Ret;
             }
 
+            var packetIndex = GetPacketIndex(owner, packetSequenceNumber);
+
+            // Seems to be a duplicate packet, ignore it
+            if (_packets[packetIndex].TryGetPacket(out var existingPacket) && existingPacket.SequenceNumber == packetSequenceNumber)
+                goto Ret;
+
             _outlierCount = 0;
 
             ForceEvict(owner, ssrc, packetTimestamp, packetSequenceNumber);
 
             bool evictedCurrentPacket;
-
-            var packetIndex = GetPacketIndex(owner, packetSequenceNumber);
 
             var isForward = sequenceNumberDiff > 0;
 
@@ -523,7 +519,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 _latestPacketIndex = packetIndex;
             }
 
-        Ret:
+            Ret:
             _state = ActiveState.Active;
 
             _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);

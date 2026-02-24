@@ -5,12 +5,13 @@ namespace BufferedVoiceReceiveHandlerTest;
 
 public readonly ref struct RtpPacket
 {
-    public RtpPacket(uint ssrc, uint timestamp, int payloadType, ushort sequenceNumber)
+    public RtpPacket(uint ssrc, uint timestamp, int payloadType, ushort sequenceNumber, int tag = 0)
     {
         Ssrc = ssrc;
         Timestamp = timestamp;
         PayloadType = payloadType;
         SequenceNumber = sequenceNumber;
+        Tag = tag;
     }
 
     public unsafe RtpPacket(ReadOnlySpan<byte> datagram)
@@ -36,4 +37,6 @@ public readonly ref struct RtpPacket
     public int PayloadType { get; }
 
     public ushort SequenceNumber { get; }
+
+    public int Tag { get; }
 }
