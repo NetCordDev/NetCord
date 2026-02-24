@@ -1121,6 +1121,7 @@ public sealed class BufferedVoiceReceiveHandlerTests
     // Idle Timeout / Timer Behavior
     // ================================================================
 
+    [DoNotParallelize]
     [TestMethod]
     public void TestIdleTimeoutForceEvictsBuffered()
     {
@@ -1144,6 +1145,7 @@ public sealed class BufferedVoiceReceiveHandlerTests
         Assert.IsTrue(receivedPackets.Count > 0, "Packets should be force-evicted after idle timeout.");
     }
 
+    [DoNotParallelize]
     [TestMethod]
     public void TestIdleTimeoutThenNewStream()
     {
