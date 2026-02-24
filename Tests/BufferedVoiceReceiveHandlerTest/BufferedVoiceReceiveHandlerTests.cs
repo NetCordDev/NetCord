@@ -1198,6 +1198,7 @@ public sealed class BufferedVoiceReceiveHandlerTests
         handler.HandlePacket(CreatePacket(1, 10000));
 
         Thread.Sleep(200);
+        Thread.MemoryBarrier();
 
         Assert.IsTrue(receivedPackets.Count > 0, "Single packet should be eventually emitted.");
         Assert.AreEqual(1, receivedPackets.First(p => !p.Missed).SequenceNumber);

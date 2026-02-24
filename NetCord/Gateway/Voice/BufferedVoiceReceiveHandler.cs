@@ -328,9 +328,9 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
             _outlierCount = 0;
 
-            _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);
-
             _packets[0] = new(packet);
+
+            _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);
         }
 
         private void ForceEvict(BufferedVoiceReceiveHandler owner, uint ssrc, uint timestamp, ushort sequenceNumber)
