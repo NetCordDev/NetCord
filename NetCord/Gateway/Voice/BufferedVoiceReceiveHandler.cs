@@ -443,21 +443,20 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             var storedPacket = _packets[index];
 
             if (storedPacket.TryGetPacket(out var packet) && packet.SequenceNumber == expectedSeq)
-            {
                 EvictStoredPacket(owner, index, storedPacket, packet);
-                _isLastLost = false;
-            }
             else
             {
                 if (_anyEvicted)
                 {
                     if (_isLastLost)
+                    {
                         owner.InvokeVoiceReceive(VoiceReceiveData.Lost(ssrc, (ushort)(expectedSeq - 1)));
+                        _lastEvictedSequenceNumber = (ushort)(expectedSeq - 1);
+                    }
                     else
                         _isLastLost = true;
                 }
-
-                if (_isLastLost)
+                else
                     _lastEvictedSequenceNumber = (ushort)(expectedSeq - 1);
             }
 
