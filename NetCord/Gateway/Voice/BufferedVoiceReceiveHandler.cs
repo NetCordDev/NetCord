@@ -117,11 +117,9 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
     public override bool RequiresExternalSocketAddress => true;
 
-    public override void HandlePacket(RtpPacket packet)
+    public override void Handle(VoiceReceiveContext context)
     {
-        if (packet.PayloadType is not 0x78)
-            return;
-
+        var packet = context.Packet;
         var ssrc = packet.Ssrc;
 
         bool found;

@@ -199,23 +199,35 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         using OpusDecoder decoder = new(voiceChannels);
         using OpusDecoder decoder2 = new(voiceChannels);
-        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), pcmFormat, voiceChannels);
+        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(20), pcmFormat, voiceChannels);
         var buffer = new byte[bufferSize];
 
         voiceClient.VoiceReceive += args =>
         {
-            if (args.Timestamp.HasValue)
-                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp.GetValueOrDefault(), args.Frame);
-
+            if (args.IsLost)
             {
-                var samples = decoder.DecodeFloat(args.CanCorrectLoss ? null : args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), false);
-                ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+                var lostArgs = args.AsLost();
             }
 
-            {
-                var samples = decoder2.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), args.CanCorrectLoss);
-                ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            }
+            // if (args.Timestamp.HasValue)
+            //     voiceClient.SendVoice(args.SequenceNumber, args.Timestamp.GetValueOrDefault(), args.Frame);
+
+            // // if (args.CanCorrectLoss)
+            // //     Console.WriteLine($"Frame {args.SequenceNumber} got lost but can be corrected");
+            // // else if (!args.Timestamp.HasValue)
+            // //     Console.WriteLine($"Frame {args.SequenceNumber} got lost and cannot be corrected");
+
+            // Console.WriteLine($"Received frame {args.SequenceNumber} (canCorrectLoss: {args.CanCorrectLoss}, timestamp: {(args.Timestamp.HasValue ? args.Timestamp.GetValueOrDefault().ToString() : "null")}): {string.Join(' ', args.Frame.ToArray().Take(10))}...");
+
+            // {
+            //     var samples = decoder.DecodeFloat(args.Timestamp.HasValue ? args.Frame : null, buffer, Opus.GetSamplesPerChannel(20), false);
+            //     ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            // }
+
+            // {
+            //     var samples = decoder2.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(20), args.CanCorrectLoss);
+            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            // }
 
             // if (args.CanCorrectLoss)
             // {

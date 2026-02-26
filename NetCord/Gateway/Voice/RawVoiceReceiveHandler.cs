@@ -4,11 +4,9 @@ public sealed class RawVoiceReceiveHandler : VoiceReceiveHandler
 {
     public override bool RequiresExternalSocketAddress => true;
 
-    public override void HandlePacket(RtpPacket packet)
+    public override void Handle(VoiceReceiveContext context)
     {
-        if (packet.PayloadType is not 0x78)
-            return;
-
-        InvokeVoiceReceive(VoiceReceiveData.FromPacket(packet));
+        var packet = context.Packet;
+        InvokeVoiceReceive(VoiceReceiveEventArgs.Delievered(context.Frame, packet.Ssrc, packet.Timestamp, packet.SequenceNumber));
     }
 }

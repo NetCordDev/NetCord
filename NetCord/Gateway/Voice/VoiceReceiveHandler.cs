@@ -11,20 +11,27 @@ public abstract class VoiceReceiveHandler
             throw new InvalidOperationException("This handler is already registered to a voice client.");
     }
 #else
-    public delegate void VoiceReceiveDelegate(VoiceReceiveData data);
+    public delegate void VoiceReceiveDelegate(VoiceReceiveEventArgs eventArgs);
     public event VoiceReceiveDelegate? VoiceReceive;
 #endif
 
     public abstract bool RequiresExternalSocketAddress { get; }
 
-    public abstract void HandlePacket(RtpPacket packet);
+    public abstract void Handle(VoiceReceiveContext context);
 
-    protected void InvokeVoiceReceive(VoiceReceiveData data)
+    protected void InvokeVoiceReceive(VoiceReceiveEventArgs eventArgs)
     {
 #if !BUFFERED_HANDLER_TEST
-        _client!.InvokeVoiceReceive(data);
+        _client!.InvokeVoiceReceive(eventArgs);
 #else
-        VoiceReceive?.Invoke(data);
+        VoiceReceive?.Invoke(eventArgs);
 #endif
     }
+}
+
+public readonly ref struct VoiceReceiveContext(RtpPacket packet, ReadOnlySpan<byte> frame)
+{
+    public readonly RtpPacket Packet { get; } = packet;
+
+    public readonly ReadOnlySpan<byte> Frame { get; } = frame;
 }
