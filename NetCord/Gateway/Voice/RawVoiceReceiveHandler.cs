@@ -7,6 +7,6 @@ public sealed class RawVoiceReceiveHandler : VoiceReceiveHandler
     public override void Handle(VoiceReceiveContext context)
     {
         var packet = context.Packet;
-        InvokeVoiceReceive(VoiceReceiveEventArgs.Delievered(context.Frame, packet.Ssrc, packet.Timestamp, packet.SequenceNumber));
+        InvokeVoiceReceive(VoiceReceiveEventArgs.Delivered(context.Frame, packet.Ssrc, packet.Timestamp, packet.SequenceNumber));
     }
 }

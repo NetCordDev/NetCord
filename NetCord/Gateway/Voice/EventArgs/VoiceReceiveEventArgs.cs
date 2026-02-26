@@ -16,7 +16,7 @@ public readonly ref struct VoiceReceiveEventArgs
         SequenceNumber = sequenceNumber;
     }
 
-    public static VoiceReceiveEventArgs Delievered(ReadOnlySpan<byte> frame, uint ssrc, uint timestamp, ushort sequenceNumber)
+    public static VoiceReceiveEventArgs Delivered(ReadOnlySpan<byte> frame, uint ssrc, uint timestamp, ushort sequenceNumber)
     {
         return new(frame, ssrc, timestamp, -1, sequenceNumber);
     }
