@@ -12,7 +12,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     private const uint SamplesPerPacket = 960;
     private const int DefaultPayloadType = 0x78;
 
-    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, uint Timestamp, bool Missed, int Tag, int SamplesPerChannel);
+    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, uint Timestamp, bool Missed, int Tag, int SamplesPerChannel, bool DecodeFec, int FecTag);
 
     private static (BufferedVoiceReceiveHandler Handler, List<ReceivedPacket> ReceivedPackets) InitializeHandler(BufferedVoiceReceiveHandlerConfiguration? configuration = null)
     {
@@ -23,13 +23,26 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         handler.VoiceReceive += data =>
         {
             bool isLost = data.IsLost;
+            bool decodeFec = false;
+            int fecTag = 0;
+            int samplesPerChannel = 0;
+            if (isLost)
+            {
+                var lost = data.AsLost();
+                samplesPerChannel = lost.SamplesPerChannel;
+                decodeFec = lost.DecodeFec;
+                if (decodeFec)
+                    fecTag = BinaryPrimitives.ReadInt32LittleEndian(lost.FecData[2..]);
+            }
             receivedPackets.Add(new ReceivedPacket(
                 data.Ssrc,
                 data.SequenceNumber,
                 data.Timestamp,
                 isLost,
                 isLost ? 0 : BinaryPrimitives.ReadInt32LittleEndian(data.Frame[2..]),
-                isLost ? data.AsLost().SamplesPerChannel : 0));
+                samplesPerChannel,
+                decodeFec,
+                fecTag));
         };
 
         return (handler, receivedPackets);
@@ -125,6 +138,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             var expectedTimestamp = startTimestamp + ((uint)i * samplesPerPacket);
             var p = receivedPackets[i];
             Assert.IsFalse(p.Missed, $"Packet {expected} was marked as missed.");
+            Assert.IsFalse(p.DecodeFec, $"Delivered packet {expected} should not have DecodeFec set.");
             Assert.AreEqual(expected, p.SequenceNumber, $"Expected seq {expected} at position {i}, got {p.SequenceNumber}.");
             Assert.AreEqual(expectedTimestamp, p.Timestamp, $"Expected timestamp {expectedTimestamp} at position {i}, got {p.Timestamp}.");
         }
@@ -175,6 +189,8 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                     $"Expected timestamp {expectedTimestamp} at index {receivedIdx - 1}, got {p.Timestamp}.");
                 Assert.IsFalse(p.Missed,
                     $"Packet {expectedSeq} was marked as missed but should be delivered.");
+                Assert.IsFalse(p.DecodeFec,
+                    $"Delivered packet {expectedSeq} should not have DecodeFec set.");
                 i++;
             }
             else
@@ -217,6 +233,10 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
                     Assert.AreEqual((int)expectedSamples, p.SamplesPerChannel,
                         $"Lost event SamplesPerChannel mismatch at index {receivedIdx - 1}. Expected {expectedSamples}, got {p.SamplesPerChannel}.");
+
+                    bool isLastMergedEvent = (e == expectedMergedEvents - 1);
+                    Assert.AreEqual(isLastMergedEvent, p.DecodeFec,
+                        $"Lost event at index {receivedIdx - 1}: DecodeFec should be {isLastMergedEvent}.");
 
                     currentTs += expectedSamples;
                 }
@@ -2241,6 +2261,168 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     }
 
     // ================================================================
+    // FEC (Forward Error Correction) Data Tests
+    // ================================================================
+
+    [TestMethod]
+    public void TestFecDataOnSingleMissingPacket()
+    {
+        // When a single packet is lost, the lost event should have DecodeFec = true
+        // with FEC data from the next delivered packet's frame.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (i == 5)
+            {
+                timestamp += SamplesPerPacket;
+                continue;
+            }
+            handler.Handle(CreateContext(i, timestamp, tag: i));
+            timestamp += SamplesPerPacket;
+        }
+
+        var lost5 = receivedPackets.First(p => p.Missed);
+        Assert.IsTrue(lost5.DecodeFec, "Single lost packet should have DecodeFec set.");
+        Assert.AreEqual(6, lost5.FecTag, "FEC data should contain the frame of the next delivered packet (seq 6).");
+    }
+
+    [TestMethod]
+    public void TestFecDataOnConsecutiveMissingPackets()
+    {
+        // When multiple consecutive packets are lost and merged into a single event,
+        // the merged event should have DecodeFec = true with FEC data from the next packet.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (i is >= 5 and <= 7)
+            {
+                timestamp += SamplesPerPacket;
+                continue;
+            }
+            handler.Handle(CreateContext(i, timestamp, tag: i));
+            timestamp += SamplesPerPacket;
+        }
+
+        var lostEvents = receivedPackets.Where(p => p.Missed).ToList();
+        Assert.HasCount(1, lostEvents, "3 consecutive missing packets should merge into 1 lost event.");
+        Assert.IsTrue(lostEvents[0].DecodeFec, "Merged lost event should have DecodeFec set.");
+        Assert.AreEqual(8, lostEvents[0].FecTag, "FEC data should contain the frame of seq 8.");
+    }
+
+    [TestMethod]
+    public void TestFecDataOnMultipleGaps()
+    {
+        // Two separate gaps should each produce a lost event with DecodeFec = true,
+        // each containing FEC data from their respective next delivered packet.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        HashSet<ushort> skipped = [5, 15];
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (skipped.Contains(i))
+            {
+                timestamp += SamplesPerPacket;
+                continue;
+            }
+            handler.Handle(CreateContext(i, timestamp, tag: i));
+            timestamp += SamplesPerPacket;
+        }
+
+        var lostEvents = receivedPackets.Where(p => p.Missed).ToList();
+        Assert.HasCount(2, lostEvents, "Two separate single-packet gaps should produce 2 lost events.");
+
+        Assert.IsTrue(lostEvents[0].DecodeFec, "First lost event should have DecodeFec.");
+        Assert.AreEqual(6, lostEvents[0].FecTag, "First gap FEC should come from seq 6.");
+
+        Assert.IsTrue(lostEvents[1].DecodeFec, "Second lost event should have DecodeFec.");
+        Assert.AreEqual(16, lostEvents[1].FecTag, "Second gap FEC should come from seq 16.");
+    }
+
+    [TestMethod]
+    public void TestFecDataOnLargeBurstLoss()
+    {
+        // 10 consecutive missing packets produce multiple merged lost events.
+        // Only the last merged event should have DecodeFec = true.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 40; i++)
+        {
+            if (i is >= 11 and <= 20)
+            {
+                timestamp += SamplesPerPacket;
+                continue;
+            }
+            handler.Handle(CreateContext(i, timestamp, tag: i));
+            timestamp += SamplesPerPacket;
+        }
+
+        var lostEvents = receivedPackets.Where(p => p.Missed).ToList();
+        Assert.IsGreaterThan(1, lostEvents.Count, "Large burst loss should produce multiple merged events.");
+
+        for (int i = 0; i < lostEvents.Count - 1; i++)
+            Assert.IsFalse(lostEvents[i].DecodeFec, $"Non-last merged lost event {i} should not have DecodeFec.");
+
+        Assert.IsTrue(lostEvents[^1].DecodeFec, "Last merged lost event should have DecodeFec.");
+        Assert.AreEqual(21, lostEvents[^1].FecTag, "FEC data should come from seq 21 (next delivered packet).");
+    }
+
+    [DoNotParallelize]
+    [TestMethod]
+    public async Task TestFecDataOnForceEvict()
+    {
+        // When the timer fires and force-evicts packets with a gap,
+        // the lost event should have FEC data from the next stored packet.
+        var (handler, receivedPackets) = InitializeHandler(new()
+        {
+            BufferDuration = 200,
+            StartupDuration = 200,
+            ResynchronizationDuration = 400,
+            IdleTimeout = 5000,
+        });
+
+        uint timestamp = 10000;
+
+        handler.Handle(CreateContext(1, timestamp, tag: 1));
+        handler.Handle(CreateContext(3, timestamp + (2 * SamplesPerPacket), tag: 3));
+        handler.Handle(CreateContext(4, timestamp + (3 * SamplesPerPacket), tag: 4));
+
+        Assert.IsEmpty(receivedPackets);
+
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        // Force-evicted: 1, 2(Lost with FEC from seq 3), 3, 4
+        var lost2 = receivedPackets.First(p => p.Missed);
+        Assert.IsTrue(lost2.DecodeFec, "Force-evicted lost packet should have DecodeFec.");
+        Assert.AreEqual(3, lost2.FecTag, "FEC data should contain the frame of seq 3.");
+    }
+
+    [TestMethod]
+    public void TestFecDataNotPresentOnDeliveredPackets()
+    {
+        // In a stream with no loss, all delivered packets should have DecodeFec = false.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        foreach (var p in receivedPackets)
+        {
+            Assert.IsFalse(p.Missed, $"Packet {p.SequenceNumber} should not be missed.");
+            Assert.IsFalse(p.DecodeFec, $"Delivered packet {p.SequenceNumber} should not have DecodeFec set.");
+        }
+    }
+
+    // ================================================================
     // Edge: Scattered outliers that don't form a stream
     // ================================================================
 
@@ -2736,9 +2918,15 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             Assert.AreEqual(timestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
 
             if (expectedSeq is 5 or 15)
+            {
                 Assert.IsTrue(p.Missed, $"Packet {expectedSeq} should be marked as missed.");
+                Assert.IsTrue(p.DecodeFec, $"Lost packet {expectedSeq} should have DecodeFec set.");
+            }
             else
+            {
                 Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+                Assert.IsFalse(p.DecodeFec, $"Delivered packet {expectedSeq} should not have DecodeFec set.");
+            }
         }
     }
 
@@ -2795,6 +2983,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             Assert.IsTrue(p.Missed, "Packets 11-15 should appear as a merged lost event.");
             Assert.AreEqual(timestamps[10], p.Timestamp, "Lost event should start at timestamp of first missing packet.");
             Assert.AreEqual(2400, p.SamplesPerChannel, "Merged lost event should cover 2400 samples.");
+            Assert.IsTrue(p.DecodeFec, "Merged lost event should have DecodeFec set (FEC from next delivered packet).");
         }
 
         // Verify remaining delivered packets 16-30
@@ -2946,6 +3135,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             Assert.IsTrue(p.Missed, "Packets 11-15 should appear as a merged lost event.");
             Assert.AreEqual(timestamps[10], p.Timestamp, "Lost event should start at timestamp of first missing packet.");
             Assert.AreEqual(600, p.SamplesPerChannel, "Merged lost event should cover 600 samples.");
+            Assert.IsTrue(p.DecodeFec, "Merged lost event should have DecodeFec set (FEC from next delivered packet).");
         }
 
         // Verify remaining delivered packets 16-40
