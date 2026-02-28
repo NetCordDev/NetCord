@@ -1,4 +1,7 @@
-﻿using NetCord.Gateway.Voice;
+﻿using System.Buffers.Binary;
+using System.Diagnostics;
+
+using NetCord.Gateway.Voice;
 
 namespace BufferedVoiceReceiveHandlerTest;
 
@@ -9,7 +12,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     private const uint SamplesPerPacket = 960;
     private const int DefaultPayloadType = 0x78;
 
-    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, bool Missed, bool CanCorrectLoss, int Tag);
+    private record struct ReceivedPacket(uint Ssrc, ushort SequenceNumber, uint Timestamp, bool Missed, int Tag, int SamplesPerChannel);
 
     private static (BufferedVoiceReceiveHandler Handler, List<ReceivedPacket> ReceivedPackets) InitializeHandler(BufferedVoiceReceiveHandlerConfiguration? configuration = null)
     {
@@ -17,19 +20,74 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         List<ReceivedPacket> receivedPackets = [];
 
-        handler.VoiceReceive += data => receivedPackets.Add(new ReceivedPacket(
-            data.Ssrc,
-            data.SequenceNumber,
-            !data.HasPacket,
-            data.CanCorrectLoss,
-            data.HasPacket ? data.Packet.Tag : 0));
+        handler.VoiceReceive += data =>
+        {
+            bool isLost = data.IsLost;
+            receivedPackets.Add(new ReceivedPacket(
+                data.Ssrc,
+                data.SequenceNumber,
+                data.Timestamp,
+                isLost,
+                isLost ? 0 : BinaryPrimitives.ReadInt32LittleEndian(data.Frame[2..]),
+                isLost ? data.AsLost().SamplesPerChannel : 0));
+        };
 
         return (handler, receivedPackets);
     }
 
-    private static RtpPacket CreatePacket(ushort seq, uint timestamp, uint ssrc = DefaultSsrc, int payloadType = DefaultPayloadType, int tag = 0)
+    private static VoiceReceiveContext CreateContext(ushort seq, uint timestamp, uint ssrc = DefaultSsrc, int payloadType = DefaultPayloadType, int tag = 0, int frameSamples = (int)SamplesPerPacket)
     {
-        return new RtpPacket(ssrc, timestamp, payloadType, seq, tag);
+        var toc = GenerateOpusToc(frameSamples);
+        if (toc.Length is 1)
+            toc = [toc[0], 0];
+
+        var tagBytes = (stackalloc byte[4]);
+        BinaryPrimitives.WriteInt32LittleEndian(tagBytes, tag);
+
+        byte[] frame = [.. toc, .. tagBytes];
+        return new(new(ssrc, timestamp, payloadType, seq, tag), frame);
+    }
+
+    public static byte[] GenerateOpusToc(int targetSamplesPerChannel, int Fs = 48000)
+    {
+        // Define frame sizes and their corresponding base TOC bytes that map to your code's branches.
+        // Format: (SamplesPerFrame, BaseTocByte)
+        var validConfigurations = new (int Samples, byte BaseToc)[]
+        {
+            (Fs * 60 / 1000, 0x18),  // 2880 samples (SILK) -> hits `audiosize == 3`
+            ((Fs << 2) / 100, 0x10), // 1920 samples (SILK) -> hits `else audiosize`
+            ((Fs << 1) / 100, 0x08), // 960  samples (SILK) -> hits `else audiosize`
+            ((Fs << 0) / 100, 0x00), // 480  samples (SILK) -> hits `else audiosize`
+            ((Fs << 1) / 400, 0x88), // 240  samples (CELT) -> hits `(data[0] & 0x80) is not 0`
+            ((Fs << 0) / 400, 0x80)  // 120  samples (CELT) -> hits `(data[0] & 0x80) is not 0`
+        };
+
+        foreach (var config in validConfigurations)
+        {
+            // Find a frame size that perfectly divides the requested total samples
+            if (targetSamplesPerChannel % config.Samples == 0)
+            {
+                int numberOfFrames = targetSamplesPerChannel / config.Samples;
+
+                if (numberOfFrames > 63)
+                    continue;
+
+                if (numberOfFrames == 1)
+                {
+                    return [(byte)(config.BaseToc | 0x00)];
+                }
+                if (numberOfFrames == 2)
+                {
+                    return [(byte)(config.BaseToc | 0x01)];
+                }
+                if (numberOfFrames >= 3)
+                {
+                    return [(byte)(config.BaseToc | 0x03), (byte)numberOfFrames];
+                }
+            }
+        }
+
+        throw new ArgumentException($"Cannot generate a valid Opus TOC for {targetSamplesPerChannel} samples at Fs={Fs}. The value must be divisible by standard frame sizes and require <= 63 frames.");
     }
 
     /// <summary>
@@ -55,18 +113,118 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     }
 
     /// <summary>
-    /// Asserts that the received packets exactly match a contiguous sequence with no misses.
+    /// Asserts that the received packets exactly match a contiguous sequence with no misses,
+    /// including correct timestamps.
     /// </summary>
-    private static void AssertExactOrderedDelivery(List<ReceivedPacket> receivedPackets, ushort startSeq, int count)
+    private static void AssertExactOrderedDelivery(List<ReceivedPacket> receivedPackets, ushort startSeq, uint startTimestamp, uint samplesPerPacket, int count)
     {
         Assert.HasCount(count, receivedPackets, $"Expected {count} packets but got {receivedPackets.Count}.");
         for (int i = 0; i < count; i++)
         {
             var expected = (ushort)(startSeq + i);
+            var expectedTimestamp = startTimestamp + ((uint)i * samplesPerPacket);
             var p = receivedPackets[i];
             Assert.IsFalse(p.Missed, $"Packet {expected} was marked as missed.");
             Assert.AreEqual(expected, p.SequenceNumber, $"Expected seq {expected} at position {i}, got {p.SequenceNumber}.");
+            Assert.AreEqual(expectedTimestamp, p.Timestamp, $"Expected timestamp {expectedTimestamp} at position {i}, got {p.Timestamp}.");
         }
+    }
+
+    /// <summary>
+    /// Asserts that the received packets exactly match a contiguous sequence, with specified sequences
+    /// marked as missed (lost). Consecutive lost packets are merged into larger lost events (up to
+    /// MaxSamplesPerPacket = 5760 samples each). Verifies timestamps and SamplesPerChannel for merged
+    /// lost events. Losses at the very start or end of the range are not expected to appear as lost
+    /// events, because the handler has no context to know they were missed.
+    /// </summary>
+    private static void AssertExactSequenceWithLoss(List<ReceivedPacket> receivedPackets, ushort startSeq, uint startTimestamp, uint samplesPerPacket, int totalCount, HashSet<ushort> missedSequences)
+    {
+        const int MaxSamplesPerLostPacket = 120 * (48_000 / 1000); // 5760
+
+        // Boundary losses (at the start or end of the sequence range) are not emitted as lost
+        // events because the handler has no prior/subsequent context to detect them.
+
+        // Skip leading missed sequences.
+        int leadingSkip = 0;
+        while (leadingSkip < totalCount && missedSequences.Contains((ushort)(startSeq + leadingSkip)))
+            leadingSkip++;
+
+        // Skip trailing missed sequences.
+        int trailingSkip = 0;
+        while (trailingSkip < totalCount - leadingSkip && missedSequences.Contains((ushort)(startSeq + totalCount - 1 - trailingSkip)))
+            trailingSkip++;
+
+        int adjustedEnd = totalCount - trailingSkip;
+
+        int receivedIdx = 0;
+        int i = leadingSkip;
+        while (i < adjustedEnd)
+        {
+            var expectedSeq = (ushort)(startSeq + i);
+            var expectedTimestamp = startTimestamp + ((uint)i * samplesPerPacket);
+
+            if (!missedSequences.Contains(expectedSeq))
+            {
+                // Delivered packet
+                Assert.IsTrue(receivedIdx < receivedPackets.Count,
+                    $"Ran out of received packets at index {receivedIdx}; expected delivered seq {expectedSeq}.");
+                var p = receivedPackets[receivedIdx++];
+                Assert.AreEqual(expectedSeq, p.SequenceNumber,
+                    $"Expected seq {expectedSeq} at index {receivedIdx - 1}, got {p.SequenceNumber}.");
+                Assert.AreEqual(expectedTimestamp, p.Timestamp,
+                    $"Expected timestamp {expectedTimestamp} at index {receivedIdx - 1}, got {p.Timestamp}.");
+                Assert.IsFalse(p.Missed,
+                    $"Packet {expectedSeq} was marked as missed but should be delivered.");
+                i++;
+            }
+            else
+            {
+                // Find end of consecutive loss range
+                int lossStart = i;
+                while (i < adjustedEnd && missedSequences.Contains((ushort)(startSeq + i)))
+                    i++;
+
+                int lossCount = i - lossStart;
+                uint totalLostSamples = (uint)lossCount * samplesPerPacket;
+                uint lossTimestampStart = startTimestamp + ((uint)lossStart * samplesPerPacket);
+
+                // The handler merges consecutive lost packets into events of up to MaxSamplesPerLostPacket.
+                // First event: remainder (totalLostSamples % MaxSamplesPerLostPacket), if non-zero.
+                // Subsequent events: full MaxSamplesPerLostPacket each.
+                uint firstEventSamples = totalLostSamples % (uint)MaxSamplesPerLostPacket;
+                int expectedMergedEvents;
+                if (firstEventSamples == 0)
+                    expectedMergedEvents = (int)(totalLostSamples / (uint)MaxSamplesPerLostPacket);
+                else
+                    expectedMergedEvents = 1 + (int)((totalLostSamples - firstEventSamples) / (uint)MaxSamplesPerLostPacket);
+
+                uint currentTs = lossTimestampStart;
+                for (int e = 0; e < expectedMergedEvents; e++)
+                {
+                    Assert.IsTrue(receivedIdx < receivedPackets.Count,
+                        $"Ran out of received packets at index {receivedIdx}; expected merged lost event for gap at seq {(ushort)(startSeq + lossStart)}.");
+                    var p = receivedPackets[receivedIdx++];
+                    Assert.IsTrue(p.Missed,
+                        $"Expected a lost event at index {receivedIdx - 1}, got delivered packet seq {p.SequenceNumber}.");
+                    Assert.AreEqual(currentTs, p.Timestamp,
+                        $"Lost event timestamp mismatch at index {receivedIdx - 1}. Expected {currentTs}, got {p.Timestamp}.");
+
+                    uint expectedSamples;
+                    if (e == 0 && firstEventSamples != 0)
+                        expectedSamples = firstEventSamples;
+                    else
+                        expectedSamples = (uint)MaxSamplesPerLostPacket;
+
+                    Assert.AreEqual((int)expectedSamples, p.SamplesPerChannel,
+                        $"Lost event SamplesPerChannel mismatch at index {receivedIdx - 1}. Expected {expectedSamples}, got {p.SamplesPerChannel}.");
+
+                    currentTs += expectedSamples;
+                }
+            }
+        }
+
+        Assert.AreEqual(receivedPackets.Count, receivedIdx,
+            $"Expected {receivedIdx} total entries but got {receivedPackets.Count}.");
     }
 
     // ================================================================
@@ -81,11 +239,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -106,11 +264,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         {
             var seq = sendOrder[i];
             var timestamp = timestampBase + ((uint)(seq - 1) * SamplesPerPacket);
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
         }
 
         // All packets should be reordered and delivered exactly in order
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -127,30 +285,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 continue;
             }
 
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // With CanCorrectLoss, the last missing packet in a gap is not reported as a Lost event;
-        // instead the next valid packet (seq 4) has CanCorrectLoss = true.
-        // So we get 29 entries: 1, 2, 4(CanCorrectLoss), 5, ..., 30
-        Assert.HasCount(29, receivedPackets, "Should deliver exactly 29 entries (29 packets, seq 3 absorbed into CanCorrectLoss on seq 4).");
-
-        ushort expectedSeq = 1;
-        foreach (var p in receivedPackets)
-        {
-            if (expectedSeq == 3) expectedSeq = 4; // seq 3 is not a separate event
-
-            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq}.");
-            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
-
-            if (expectedSeq == 4)
-                Assert.IsTrue(p.CanCorrectLoss, "Packet 4 should have CanCorrectLoss=true since seq 3 was lost.");
-            else
-                Assert.IsFalse(p.CanCorrectLoss, $"Packet {expectedSeq} should not have CanCorrectLoss.");
-
-            expectedSeq++;
-        }
+        // Single lost packet appears as a Lost event with SamplesPerChannel = 960
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 30, new HashSet<ushort> { 3 });
     }
 
     [TestMethod]
@@ -167,29 +307,24 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(2, timestamp + SamplesPerPacket));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(2, timestamp + SamplesPerPacket));
 
         ushort aliasedSeq = 23;
         var aliasedTimestamp = timestamp + ((uint)(aliasedSeq - 1) * SamplesPerPacket);
-        handler.HandlePacket(CreatePacket(aliasedSeq, aliasedTimestamp));
+        handler.Handle(CreateContext(aliasedSeq, aliasedTimestamp));
 
         for (ushort i = 4; i <= 45; i++)
         {
             if (i == aliasedSeq) continue;
 
             var t = timestamp + ((uint)(i - 1) * SamplesPerPacket);
-            handler.HandlePacket(CreatePacket(i, t));
+            handler.Handle(CreateContext(i, t));
         }
 
-        // Seq 3 was never sent. With ring buffer aliasing and the small buffer,
-        // it should not appear as a separate Lost event.
+        // Seq 3 was never sent. It should appear as a Lost event.
         var seq3Lost = receivedPackets.FirstOrDefault(p => p.Missed && p.SequenceNumber == 3);
-        Assert.AreEqual(default, seq3Lost, "Sequence 3 should not appear as a separate missed event.");
-
-        // Verify that some packet after the gap has CanCorrectLoss=true indicating the loss was recognized
-        var packetsWithCorrectLoss = receivedPackets.Where(p => p.CanCorrectLoss && !p.Missed).ToList();
-        Assert.IsNotEmpty(packetsWithCorrectLoss, "At least one packet should have CanCorrectLoss=true to account for the missing seq 3.");
+        Assert.IsTrue(seq3Lost.Missed, "Sequence 3 should appear as a missed event.");
 
         var seq23 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 23);
         Assert.IsFalse(seq23.Missed, "Sequence 23 should have been recovered successfully.");
@@ -205,21 +340,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(2, timestamp + SamplesPerPacket));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(2, timestamp + SamplesPerPacket));
 
         ushort jumpBase = 502;
 
         uint jumpTimestamp = timestamp + ((uint)(jumpBase - 1) * SamplesPerPacket);
 
-        handler.HandlePacket(CreatePacket(jumpBase, jumpTimestamp));
-        handler.HandlePacket(CreatePacket((ushort)(jumpBase + 1), jumpTimestamp + SamplesPerPacket));
-        handler.HandlePacket(CreatePacket((ushort)(jumpBase + 2), jumpTimestamp + (2 * SamplesPerPacket)));
+        handler.Handle(CreateContext(jumpBase, jumpTimestamp));
+        handler.Handle(CreateContext((ushort)(jumpBase + 1), jumpTimestamp + SamplesPerPacket));
+        handler.Handle(CreateContext((ushort)(jumpBase + 2), jumpTimestamp + (2 * SamplesPerPacket)));
 
         for (ushort i = 3; i <= 25; i++)
         {
             uint t = jumpTimestamp + (i * SamplesPerPacket);
-            handler.HandlePacket(CreatePacket((ushort)(jumpBase + i), t));
+            handler.Handle(CreateContext((ushort)(jumpBase + i), t));
         }
 
         // Sequences 1 and 2 should have been force-evicted during resync reset
@@ -252,12 +387,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         for (int i = 0; i < 32; i++)
         {
             ushort seq = (ushort)(startSeq + i);
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Exact delivery: 32 packets from 65530 through wraparound
-        AssertExactOrderedDelivery(receivedPackets, startSeq, 32);
+        AssertExactOrderedDelivery(receivedPackets, startSeq, 10000, SamplesPerPacket, 32);
     }
 
     [TestMethod]
@@ -274,11 +409,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         {
             var seqOffset = (ushort)(seq - 65534);
             var timestamp = timestampBase + (seqOffset * SamplesPerPacket);
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
         }
 
         // Should deliver all 28 packets in order: 65534, 65535, 0, 1, ..., 25
-        AssertExactOrderedDelivery(receivedPackets, 65534, 28);
+        AssertExactOrderedDelivery(receivedPackets, 65534, 10000, SamplesPerPacket, 28);
     }
 
     [TestMethod]
@@ -297,18 +432,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Single missing packet (65535) is absorbed into CanCorrectLoss on seq 0
-        var seqAfterGap = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 0);
-        Assert.IsTrue(seqAfterGap.CanCorrectLoss,
-            "Packet at seq 0 should have CanCorrectLoss=true because seq 65535 was lost.");
-
-        // Verify total count: 31 delivered (no separate missed event)
-        Assert.HasCount(31, receivedPackets,
-            "Should have exactly 31 entries (31 packets, missing seq 65535 absorbed into CanCorrectLoss).");
+        // Single missing packet (65535) appears as a Lost event
+        AssertExactSequenceWithLoss(receivedPackets, startSeq, 10000, SamplesPerPacket, 32, new HashSet<ushort> { 65535 });
     }
 
     [TestMethod]
@@ -327,17 +456,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Single missing packet (seq 0) is absorbed into CanCorrectLoss on seq 1
-        var seqAfterGap = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 1);
-        Assert.IsTrue(seqAfterGap.CanCorrectLoss,
-            "Packet at seq 1 should have CanCorrectLoss=true because seq 0 was lost.");
-
-        Assert.HasCount(31, receivedPackets,
-            "Should have exactly 31 entries (31 packets, missing seq 0 absorbed into CanCorrectLoss).");
+        // Single missing packet (seq 0) appears as a Lost event
+        AssertExactSequenceWithLoss(receivedPackets, startSeq, 10000, SamplesPerPacket, 32, new HashSet<ushort> { 0 });
     }
 
     // ================================================================
@@ -353,11 +477,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, uint.MaxValue - (10 * SamplesPerPacket), SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -368,11 +492,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 0;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 0, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -385,11 +509,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 20; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 20);
+        AssertExactOrderedDelivery(receivedPackets, 1, uint.MaxValue - (5 * SamplesPerPacket), SamplesPerPacket, 20);
     }
 
     [TestMethod]
@@ -403,11 +527,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         for (int i = 0; i < 30; i++)
         {
             ushort seq = (ushort)(startSeq + i);
-            handler.HandlePacket(CreatePacket(seq, timestamp));
+            handler.Handle(CreateContext(seq, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        AssertExactOrderedDelivery(receivedPackets, startSeq, 30);
+        AssertExactOrderedDelivery(receivedPackets, startSeq, uint.MaxValue - (5 * SamplesPerPacket), SamplesPerPacket, 30);
     }
 
     // ================================================================
@@ -422,16 +546,16 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
 
             if (i % 5 == 0)
-                handler.HandlePacket(CreatePacket(i, timestamp));
+                handler.Handle(CreateContext(i, timestamp));
 
             timestamp += SamplesPerPacket;
         }
 
         // All 30 packets should be delivered exactly once, in order
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -442,14 +566,14 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
-            handler.HandlePacket(CreatePacket(i, timestamp));
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // All 30 packets should be delivered exactly once, in order
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -459,18 +583,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(1, timestamp)); // Exact duplicate of "latest"
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(1, timestamp)); // Exact duplicate of "latest"
 
         timestamp += SamplesPerPacket;
         for (ushort i = 2; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // All 30 should be delivered exactly once
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -493,12 +617,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             for (ushort j = 0; j < 5; j++)
             {
                 ushort seq = (ushort)(batchStart + j);
-                handler.HandlePacket(CreatePacket(seq, timestamp, tag: seq));
+                handler.Handle(CreateContext(seq, timestamp, tag: seq));
                 timestamp += SamplesPerPacket;
             }
 
             // Duplicate of batchStart arrives after 4 intervening packets
-            handler.HandlePacket(CreatePacket(batchStart, timestamp - (5 * SamplesPerPacket), tag: batchStart + 10000));
+            handler.Handle(CreateContext(batchStart, timestamp - (5 * SamplesPerPacket), tag: batchStart + 10000));
         }
 
         // Verify that delivered packets have the ORIGINAL tag, not the duplicate's
@@ -524,19 +648,19 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Send packets 1-10 (by seq 7, packet 1 is evicted)
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, tag: i));
+            handler.Handle(CreateContext(i, timestamp, tag: i));
             timestamp += SamplesPerPacket;
         }
 
         // Delayed duplicates of early packets with different tags
-        handler.HandlePacket(CreatePacket(1, 10000, tag: 9001));
-        handler.HandlePacket(CreatePacket(2, 10000 + SamplesPerPacket, tag: 9002));
-        handler.HandlePacket(CreatePacket(3, 10000 + (2 * SamplesPerPacket), tag: 9003));
+        handler.Handle(CreateContext(1, 10000, tag: 9001));
+        handler.Handle(CreateContext(2, 10000 + SamplesPerPacket, tag: 9002));
+        handler.Handle(CreateContext(3, 10000 + (2 * SamplesPerPacket), tag: 9003));
 
         // Continue normally
         for (ushort i = 11; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, tag: i));
+            handler.Handle(CreateContext(i, timestamp, tag: i));
             timestamp += SamplesPerPacket;
         }
 
@@ -548,7 +672,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 $"Packet {seq} should retain the original tag ({seq}), not the delayed duplicate's ({9000 + seq}).");
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -569,25 +693,25 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
 
         // p1 → p2 → p3 → p4 → dup(p1)
-        handler.HandlePacket(CreatePacket(1, timestamp, tag: 1));
+        handler.Handle(CreateContext(1, timestamp, tag: 1));
         timestamp += SamplesPerPacket;
 
-        handler.HandlePacket(CreatePacket(2, timestamp, tag: 2));
+        handler.Handle(CreateContext(2, timestamp, tag: 2));
         timestamp += SamplesPerPacket;
 
-        handler.HandlePacket(CreatePacket(3, timestamp, tag: 3));
+        handler.Handle(CreateContext(3, timestamp, tag: 3));
         timestamp += SamplesPerPacket;
 
-        handler.HandlePacket(CreatePacket(4, timestamp, tag: 4));
+        handler.Handle(CreateContext(4, timestamp, tag: 4));
         timestamp += SamplesPerPacket;
 
         // By now, packet 1 should be evicted (bufferSize=4, eviction starts immediately)
-        handler.HandlePacket(CreatePacket(1, 10000, tag: 999));
+        handler.Handle(CreateContext(1, 10000, tag: 999));
 
         // Continue normally
         for (ushort i = 5; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, tag: i));
+            handler.Handle(CreateContext(i, timestamp, tag: i));
             timestamp += SamplesPerPacket;
         }
 
@@ -595,7 +719,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         Assert.AreEqual(1, seq1.Tag,
             "Packet 1 should retain original tag (1), not delayed duplicate's (999).");
 
-        AssertMonotonicDelivery(receivedPackets);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -605,13 +729,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
-        handler.HandlePacket(CreatePacket(1, timestamp, tag: 42));
-        handler.HandlePacket(CreatePacket(1, timestamp, tag: 99)); // Duplicate with different tag
+        handler.Handle(CreateContext(1, timestamp, tag: 42));
+        handler.Handle(CreateContext(1, timestamp, tag: 99)); // Duplicate with different tag
 
         timestamp += SamplesPerPacket;
         for (ushort i = 2; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -631,23 +755,23 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
 
         // Original packet 1
-        handler.HandlePacket(CreatePacket(1, timestamp, tag: 42));
+        handler.Handle(CreateContext(1, timestamp, tag: 42));
         timestamp += SamplesPerPacket;
 
         // Send enough intervening packets so packet 1 is evicted
         for (ushort i = 2; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, tag: i));
+            handler.Handle(CreateContext(i, timestamp, tag: i));
             timestamp += SamplesPerPacket;
         }
 
         // Delayed duplicate of packet 1 with different tag (original already evicted)
-        handler.HandlePacket(CreatePacket(1, 10000, tag: 999));
+        handler.Handle(CreateContext(1, 10000, tag: 999));
 
         // Continue the stream 11-30
         for (ushort i = 11; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, tag: i));
+            handler.Handle(CreateContext(i, timestamp, tag: i));
             timestamp += SamplesPerPacket;
         }
 
@@ -663,85 +787,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 $"Packet {i} should retain its original tag.");
         }
 
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
-    }
-
-    // ================================================================
-    // PayloadType Filtering
-    // ================================================================
-
-    [TestMethod]
-    public void TestNonVoicePayloadTypeIgnored()
-    {
-        var (handler, receivedPackets) = InitializeHandler();
-
-        uint timestamp = 10000;
-        for (ushort i = 1; i <= 30; i++)
-        {
-            handler.HandlePacket(CreatePacket(i, timestamp, payloadType: 0x60));
-            timestamp += SamplesPerPacket;
-        }
-
-        Assert.IsEmpty(receivedPackets, "Non-voice payload type packets should be completely ignored.");
-    }
-
-    [TestMethod]
-    public void TestMixedPayloadTypes()
-    {
-        var (handler, receivedPackets) = InitializeHandler();
-
-        uint timestamp = 10000;
-        ushort voiceSeq = 1;
-
-        for (int i = 0; i < 60; i++)
-        {
-            if (i % 2 == 0)
-            {
-                handler.HandlePacket(CreatePacket(voiceSeq, timestamp));
-                voiceSeq++;
-            }
-            else
-            {
-                handler.HandlePacket(CreatePacket((ushort)(voiceSeq + 1000), timestamp, payloadType: 0x50));
-            }
-            timestamp += SamplesPerPacket;
-        }
-
-        var nonMissed = receivedPackets.Where(p => !p.Missed).ToList();
-        foreach (var p in nonMissed)
-        {
-            Assert.IsLessThan(voiceSeq, p.SequenceNumber, $"Only voice sequence numbers should appear, got {p.SequenceNumber}.");
-        }
-    }
-
-    [TestMethod]
-    public void TestPayloadTypeZero()
-    {
-        var (handler, receivedPackets) = InitializeHandler();
-
-        uint timestamp = 10000;
-        for (ushort i = 1; i <= 10; i++)
-        {
-            handler.HandlePacket(CreatePacket(i, timestamp, payloadType: 0));
-            timestamp += SamplesPerPacket;
-        }
-
-        Assert.IsEmpty(receivedPackets, "Payload type 0 is not 0x78 and should be ignored.");
-    }
-
-    [TestMethod]
-    public void TestPayloadType127()
-    {
-        var (handler, receivedPackets) = InitializeHandler();
-
-        uint timestamp = 10000;
-        for (ushort i = 1; i <= 10; i++)
-        {
-            handler.HandlePacket(CreatePacket(i, timestamp, payloadType: 127));
-            timestamp += SamplesPerPacket;
-        }
-
-        Assert.IsEmpty(receivedPackets, "Payload type 127 is not 0x78 and should be ignored.");
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     // ================================================================
@@ -758,8 +804,8 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp1, ssrc: 1000));
-            handler.HandlePacket(CreatePacket(i, timestamp2, ssrc: 2000));
+            handler.Handle(CreateContext(i, timestamp1, ssrc: 1000));
+            handler.Handle(CreateContext(i, timestamp2, ssrc: 2000));
             timestamp1 += SamplesPerPacket;
             timestamp2 += SamplesPerPacket;
         }
@@ -789,7 +835,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         ts = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, ts, ssrc: 100));
+            handler.Handle(CreateContext(i, ts, ssrc: 100));
             ts += SamplesPerPacket;
         }
 
@@ -798,7 +844,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         for (ushort i = 11; i <= 30; i++) reordered.Add(i);
         foreach (var seq in reordered)
         {
-            handler.HandlePacket(CreatePacket(seq, 10000 + ((uint)(seq - 1) * SamplesPerPacket), ssrc: 200));
+            handler.Handle(CreateContext(seq, 10000 + ((uint)(seq - 1) * SamplesPerPacket), ssrc: 200));
         }
 
         // SSRC 300: missing seq 5
@@ -806,7 +852,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         for (ushort i = 1; i <= 30; i++)
         {
             if (i == 5) { ts += SamplesPerPacket; continue; }
-            handler.HandlePacket(CreatePacket(i, ts, ssrc: 300));
+            handler.Handle(CreateContext(i, ts, ssrc: 300));
             ts += SamplesPerPacket;
         }
 
@@ -816,9 +862,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         Assert.IsNotEmpty(ssrc1, "SSRC 100 should deliver packets.");
         Assert.IsNotEmpty(ssrc2, "SSRC 200 should deliver packets.");
 
-        // SSRC 300: single missing packet (seq 5) is absorbed into CanCorrectLoss on seq 6
-        var ssrc3Seq6 = receivedPackets.FirstOrDefault(p => p.Ssrc == 300 && p.SequenceNumber == 6);
-        Assert.IsTrue(ssrc3Seq6.CanCorrectLoss, "SSRC 300: seq 6 should have CanCorrectLoss=true because seq 5 was lost.");
+        // SSRC 300: single missing packet (seq 5) appears as a Lost event
+        var ssrc3Seq5 = receivedPackets.FirstOrDefault(p => p.Ssrc == 300 && p.SequenceNumber == 5);
+        Assert.IsTrue(ssrc3Seq5.Missed, "SSRC 300: seq 5 should be reported as a Lost event.");
     }
 
     [TestMethod]
@@ -829,7 +875,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, ssrc: 0));
+            handler.Handle(CreateContext(i, timestamp, ssrc: 0));
             timestamp += SamplesPerPacket;
         }
 
@@ -845,7 +891,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp, ssrc: uint.MaxValue));
+            handler.Handle(CreateContext(i, timestamp, ssrc: uint.MaxValue));
             timestamp += SamplesPerPacket;
         }
 
@@ -871,33 +917,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // With 3 consecutive missing packets (5, 6, 7):
-        // - Packets 5 and 6 are reported as Lost events
-        // - Packet 7 (the last lost in the run) is absorbed into CanCorrectLoss on packet 8
-        // Total: 27 packets + 2 missed = 29 entries
-        Assert.HasCount(29, receivedPackets, "Should have exactly 29 entries (27 packets + 2 missed, last lost absorbed into CanCorrectLoss).");
-
-        for (ushort missing = 5; missing <= 6; missing++)
-        {
-            Assert.Contains(p => p.Missed && p.SequenceNumber == missing, receivedPackets,
-                $"Packet {missing} should be reported as missed.");
-        }
-
-        // Seq 7 is NOT reported as missed; instead seq 8 has CanCorrectLoss
-        var seq8 = receivedPackets.First(p => p.SequenceNumber == 8);
-        Assert.IsTrue(seq8.CanCorrectLoss, "Packet 8 should have CanCorrectLoss=true since seq 7 was the last lost in the gap.");
-
-        // Verify overall order (seq 7 is absent — absorbed into CanCorrectLoss on seq 8)
-        ushort[] expectedOrder = [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
-        Assert.HasCount(expectedOrder.Length, receivedPackets);
-        for (int i = 0; i < expectedOrder.Length; i++)
-        {
-            Assert.AreEqual(expectedOrder[i], receivedPackets[i].SequenceNumber);
-        }
+        // They are merged into a single Lost event of 2880 samples (3 × 960)
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 30, new HashSet<ushort> { 5, 6, 7 });
     }
 
     [TestMethod]
@@ -910,7 +936,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Normal flow: 1-10
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -920,26 +946,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Recovery: 21-40
         for (ushort i = 21; i <= 40; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Burst of 10 missing (11-20): 9 Lost events (11-19) + seq 21 gets CanCorrectLoss
-        // Total: 30 actual + 9 missed = 39 entries
-        Assert.HasCount(39, receivedPackets, "Should have 39 entries (30 packets + 9 missed, last lost absorbed into CanCorrectLoss).");
-
-        // Verify missed packets 11-19 (not 20 — it's absorbed into CanCorrectLoss on seq 21)
-        for (ushort missing = 11; missing <= 19; missing++)
-        {
-            Assert.Contains(p => p.Missed && p.SequenceNumber == missing, receivedPackets,
-                $"Packet {missing} should be reported as missed.");
-        }
-
-        // Seq 20 is not reported as missed; seq 21 has CanCorrectLoss
-        var seq21 = receivedPackets.First(p => p.SequenceNumber == 21);
-        Assert.IsTrue(seq21.CanCorrectLoss, "Packet 21 should have CanCorrectLoss=true since seq 20 was the last lost in the burst.");
-
-        AssertMonotonicDelivery(receivedPackets);
+        // Burst of 10 missing (11-20): merged into 2 Lost events (3840 + 5760 samples)
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 40, new HashSet<ushort> { 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 });
     }
 
     [TestMethod]
@@ -952,7 +964,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Send 1-29, skip 30
         for (ushort i = 1; i <= 29; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
         timestamp += SamplesPerPacket; // Skip 30
@@ -960,17 +972,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Continue from 31
         for (ushort i = 31; i <= 50; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Seq 30 is a single missing packet; absorbed into CanCorrectLoss on seq 31
-        var seq31 = receivedPackets.First(p => p.SequenceNumber == 31);
-        Assert.IsTrue(seq31.CanCorrectLoss,
-            "Packet 31 should have CanCorrectLoss=true since seq 30 was lost.");
-
-        // Verify total: 49 delivered (no separate missed event for single gap)
-        Assert.HasCount(49, receivedPackets, "Should have exactly 49 entries (49 packets, missing seq 30 absorbed into CanCorrectLoss).");
+        // Seq 30 is a single missing packet; appears as a Lost event
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 50, new HashSet<ushort> { 30 });
     }
 
     // ================================================================
@@ -986,12 +993,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 100; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Send packet 2 very late
-        handler.HandlePacket(CreatePacket(2, 10000 + SamplesPerPacket));
+        handler.Handle(CreateContext(2, 10000 + SamplesPerPacket));
 
         var seq2Count = receivedPackets.Count(p => !p.Missed && p.SequenceNumber == 2);
         Assert.AreEqual(1, seq2Count, "Late packet should not cause duplicate delivery of seq 2.");
@@ -1006,16 +1013,16 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestampBase = 10000;
 
         // Send 1, 2, 4, 5 (skip 3), then send 3 late
-        handler.HandlePacket(CreatePacket(1, timestampBase));
-        handler.HandlePacket(CreatePacket(2, timestampBase + SamplesPerPacket));
-        handler.HandlePacket(CreatePacket(4, timestampBase + (3 * SamplesPerPacket)));
-        handler.HandlePacket(CreatePacket(5, timestampBase + (4 * SamplesPerPacket)));
-        handler.HandlePacket(CreatePacket(3, timestampBase + (2 * SamplesPerPacket))); // Late arrival
+        handler.Handle(CreateContext(1, timestampBase));
+        handler.Handle(CreateContext(2, timestampBase + SamplesPerPacket));
+        handler.Handle(CreateContext(4, timestampBase + (3 * SamplesPerPacket)));
+        handler.Handle(CreateContext(5, timestampBase + (4 * SamplesPerPacket)));
+        handler.Handle(CreateContext(3, timestampBase + (2 * SamplesPerPacket))); // Late arrival
 
         // Continue to flush
         for (ushort i = 6; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
         }
 
         // Seq 3 should ideally be delivered, not missed
@@ -1023,7 +1030,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         Assert.IsFalse(seq3.Missed, "Packet 3 arrived late but within buffer window; should not be missed.");
 
         // All 30 should be delivered in order
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     // ================================================================
@@ -1271,7 +1278,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -1280,21 +1287,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint outlierTs = 5000000;
         for (int i = 0; i < 4; i++)
         {
-            handler.HandlePacket(CreatePacket((ushort)(outlierBase + i), outlierTs + (uint)(i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(outlierBase + i), outlierTs + (uint)(i * SamplesPerPacket)));
         }
 
         // Continue normal flow from 11
         for (ushort i = 11; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        var normalPackets = receivedPackets.Where(p => !p.Missed && p.SequenceNumber >= 1 && p.SequenceNumber <= 30).ToList();
-        Assert.IsNotEmpty(normalPackets, "Normal packets should still be delivered without resync.");
-
-        // Verify monotonic delivery across the normal range
-        AssertMonotonicDelivery(receivedPackets);
+        // All 30 normal packets should be delivered in order (outliers are ignored)
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -1309,24 +1313,24 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Two outliers from one range
-        handler.HandlePacket(CreatePacket(30000, 5000000));
-        handler.HandlePacket(CreatePacket(30001, 5000000 + SamplesPerPacket));
+        handler.Handle(CreateContext(30000, 5000000));
+        handler.Handle(CreateContext(30001, 5000000 + SamplesPerPacket));
 
         // One outlier from a VERY different range (non-contiguous → should reset counter)
-        handler.HandlePacket(CreatePacket(50000, 9000000));
+        handler.Handle(CreateContext(50000, 9000000));
 
         // One more contiguous with the new range
-        handler.HandlePacket(CreatePacket(50001, 9000000 + SamplesPerPacket));
+        handler.Handle(CreateContext(50001, 9000000 + SamplesPerPacket));
 
         // Normal flow continues — should not have resynced
         for (ushort i = 11; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -1344,20 +1348,20 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(2, timestamp + SamplesPerPacket));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(2, timestamp + SamplesPerPacket));
 
         // Exactly 3 contiguous outliers → should trigger resync
         ushort jumpBase = 5000;
         uint jumpTs = 10000000;
-        handler.HandlePacket(CreatePacket(jumpBase, jumpTs));
-        handler.HandlePacket(CreatePacket((ushort)(jumpBase + 1), jumpTs + SamplesPerPacket));
-        handler.HandlePacket(CreatePacket((ushort)(jumpBase + 2), jumpTs + (2 * SamplesPerPacket)));
+        handler.Handle(CreateContext(jumpBase, jumpTs));
+        handler.Handle(CreateContext((ushort)(jumpBase + 1), jumpTs + SamplesPerPacket));
+        handler.Handle(CreateContext((ushort)(jumpBase + 2), jumpTs + (2 * SamplesPerPacket)));
 
         // Continue from new range
         for (ushort i = 3; i <= 25; i++)
         {
-            handler.HandlePacket(CreatePacket((ushort)(jumpBase + i), jumpTs + (i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(jumpBase + i), jumpTs + (i * SamplesPerPacket)));
         }
 
         // Old packets should have been force-evicted
@@ -1384,21 +1388,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 5; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // 3 contiguous outliers (threshold is 4 → should NOT trigger resync)
         ushort outlierBase = 30000;
         uint outlierTs = 5000000;
-        handler.HandlePacket(CreatePacket(outlierBase, outlierTs));
-        handler.HandlePacket(CreatePacket((ushort)(outlierBase + 1), outlierTs + SamplesPerPacket));
-        handler.HandlePacket(CreatePacket((ushort)(outlierBase + 2), outlierTs + (2 * SamplesPerPacket)));
+        handler.Handle(CreateContext(outlierBase, outlierTs));
+        handler.Handle(CreateContext((ushort)(outlierBase + 1), outlierTs + SamplesPerPacket));
+        handler.Handle(CreateContext((ushort)(outlierBase + 2), outlierTs + (2 * SamplesPerPacket)));
 
         // Resume normal
         for (ushort i = 6; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -1425,25 +1429,15 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 5; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Wait for the buffer timer to fire and force-evict
         await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        Assert.IsNotEmpty(receivedPackets, "Packets should be force-evicted after idle timeout.");
-
-        // All 5 packets should be force-evicted
-        var nonMissed = receivedPackets.Where(p => !p.Missed).ToList();
-        Assert.HasCount(5, nonMissed, "All 5 packets should be force-evicted by the timer.");
-
-        ushort expectedSeq = 1;
-        foreach (var p in nonMissed)
-        {
-            Assert.AreEqual(expectedSeq, p.SequenceNumber);
-            expectedSeq++;
-        }
+        // All 5 packets should be force-evicted by the timer
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 5);
     }
 
     [DoNotParallelize]
@@ -1462,7 +1456,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -1475,7 +1469,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // New stream — handler should reinitialize state
         for (ushort i = 100; i <= 120; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -1501,9 +1495,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
 
         // Send 3 packets with a gap (missing seq 2)
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(3, timestamp + (2 * SamplesPerPacket)));
-        handler.HandlePacket(CreatePacket(4, timestamp + (3 * SamplesPerPacket)));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(3, timestamp + (2 * SamplesPerPacket)));
+        handler.Handle(CreateContext(4, timestamp + (3 * SamplesPerPacket)));
 
         // No eviction should have happened yet (startup == buffer)
         Assert.IsEmpty(receivedPackets, "No packets should be emitted before timer fires.");
@@ -1511,21 +1505,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Wait for the buffer timer to fire
         await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        // Timer should have force-evicted all: 1, 3(CanCorrectLoss), 4
-        // Single missing packet (seq 2) is absorbed into CanCorrectLoss on seq 3.
-        Assert.HasCount(3, receivedPackets, "Timer should emit exactly 3 entries (seq 2 absorbed into CanCorrectLoss on seq 3).");
-
-        Assert.AreEqual(1, receivedPackets[0].SequenceNumber);
-        Assert.IsFalse(receivedPackets[0].Missed);
-        Assert.IsFalse(receivedPackets[0].CanCorrectLoss);
-
-        Assert.AreEqual(3, receivedPackets[1].SequenceNumber);
-        Assert.IsFalse(receivedPackets[1].Missed);
-        Assert.IsTrue(receivedPackets[1].CanCorrectLoss, "Seq 3 should have CanCorrectLoss=true because seq 2 was lost.");
-
-        Assert.AreEqual(4, receivedPackets[2].SequenceNumber);
-        Assert.IsFalse(receivedPackets[2].Missed);
-        Assert.IsFalse(receivedPackets[2].CanCorrectLoss);
+        // Timer should have force-evicted all: 1, 2(Lost), 3, 4
+        // Missing packet (seq 2) appears as a Lost event.
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 4, new HashSet<ushort> { 2 });
     }
 
     [DoNotParallelize]
@@ -1545,8 +1527,8 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(2, timestamp + SamplesPerPacket));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(2, timestamp + SamplesPerPacket));
 
         // Wait for buffer timer (100ms) + idle timer (200ms) + safety margin
         await Task.Delay(600, context.CancellationToken).ConfigureAwait(false);
@@ -1554,8 +1536,8 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         int countAfterRemoval = receivedPackets.Count;
 
         // State should be removed. Sending new packets should create fresh state.
-        handler.HandlePacket(CreatePacket(500, 5000000));
-        handler.HandlePacket(CreatePacket(501, 5000000 + SamplesPerPacket));
+        handler.Handle(CreateContext(500, 5000000));
+        handler.Handle(CreateContext(501, 5000000 + SamplesPerPacket));
 
         await Task.Delay(400, context.CancellationToken).ConfigureAwait(false);
 
@@ -1581,14 +1563,14 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
+        handler.Handle(CreateContext(1, timestamp));
 
         // Send packets at regular intervals, each resetting the timer before the 200ms fires
         for (ushort i = 2; i <= 5; i++)
         {
             await Task.Delay(50, context.CancellationToken).ConfigureAwait(false);
             timestamp += SamplesPerPacket;
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
         }
 
         // The timer should not have fired yet (last reset was ~50ms ago, timer is 200ms)
@@ -1615,7 +1597,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             StartupDuration = 0,
         });
 
-        handler.HandlePacket(CreatePacket(1, 10000));
+        handler.Handle(CreateContext(1, 10000));
 
         await Task.Delay(200, context.CancellationToken).ConfigureAwait(false);
 
@@ -1645,11 +1627,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         foreach (var seq in sendOrder)
         {
-            handler.HandlePacket(CreatePacket(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
         }
 
         // Buffer should reorder all pair swaps to produce exact 1-30 delivery
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
@@ -1663,7 +1645,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 30; i >= 1; i--)
         {
-            handler.HandlePacket(CreatePacket(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
         }
 
         Assert.IsNotEmpty(receivedPackets);
@@ -1674,8 +1656,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         Assert.IsNotEmpty(nonMissed, "At least some packets should be delivered.");
     }
 
+    [DoNotParallelize]
     [TestMethod]
-    public void TestRandomReorderingWithJitter()
+    public async Task TestRandomReorderingWithJitter()
     {
         var (handler, receivedPackets) = InitializeHandler();
 
@@ -1689,17 +1672,19 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Shuffle with limited displacement (simulate realistic network jitter)
         for (int i = 0; i < seqs.Count; i++)
         {
-            int swapTarget = Math.Clamp(i + rng.Next(-3, 4), 0, seqs.Count - 1);
+            int swapTarget = Math.Clamp(i + rng.Next(-2, 3), 0, seqs.Count - 1);
             (seqs[i], seqs[swapTarget]) = (seqs[swapTarget], seqs[i]);
         }
 
         foreach (var seq in seqs)
         {
-            handler.HandlePacket(CreatePacket(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
         }
 
-        Assert.IsNotEmpty(receivedPackets);
-        AssertMonotonicDelivery(receivedPackets);
+        // Wait for remaining buffered packets to be force-evicted
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 200);
     }
 
     [TestMethod]
@@ -1715,19 +1700,11 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         foreach (var seq in sendOrder)
         {
-            handler.HandlePacket(CreatePacket(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
         }
 
-        // Single missing packets (4, 9) are each absorbed into CanCorrectLoss on the next valid packet
-        var seq5 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 5);
-        Assert.IsTrue(seq5.CanCorrectLoss, "Packet 5 should have CanCorrectLoss=true because seq 4 was lost.");
-
-        var seq10 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 10);
-        Assert.IsTrue(seq10.CanCorrectLoss, "Packet 10 should have CanCorrectLoss=true because seq 9 was lost.");
-
-        // 28 entries: 28 delivered packets (no separate missed events for single gaps)
-        Assert.HasCount(28, receivedPackets, "Should have exactly 28 entries (28 packets, 2 single gaps absorbed into CanCorrectLoss).");
-        AssertMonotonicDelivery(receivedPackets);
+        // 30 entries: 28 delivered + 2 lost (missing packets 4 and 9)
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 30, new HashSet<ushort> { 4, 9 });
     }
 
     // ================================================================
@@ -1747,27 +1724,27 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // First normal flow
         for (ushort i = 1; i <= 5; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // First jump
         ushort jump1 = 10000;
         uint jump1Ts = 20000000;
-        handler.HandlePacket(CreatePacket(jump1, jump1Ts));
-        handler.HandlePacket(CreatePacket((ushort)(jump1 + 1), jump1Ts + SamplesPerPacket));
+        handler.Handle(CreateContext(jump1, jump1Ts));
+        handler.Handle(CreateContext((ushort)(jump1 + 1), jump1Ts + SamplesPerPacket));
 
         for (ushort i = 2; i <= 5; i++)
-            handler.HandlePacket(CreatePacket((ushort)(jump1 + i), jump1Ts + (i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(jump1 + i), jump1Ts + (i * SamplesPerPacket)));
 
         // Second jump
         ushort jump2 = 50000;
         uint jump2Ts = 80000000;
-        handler.HandlePacket(CreatePacket(jump2, jump2Ts));
-        handler.HandlePacket(CreatePacket((ushort)(jump2 + 1), jump2Ts + SamplesPerPacket));
+        handler.Handle(CreateContext(jump2, jump2Ts));
+        handler.Handle(CreateContext((ushort)(jump2 + 1), jump2Ts + SamplesPerPacket));
 
         for (ushort i = 2; i <= 25; i++)
-            handler.HandlePacket(CreatePacket((ushort)(jump2 + i), jump2Ts + (i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(jump2 + i), jump2Ts + (i * SamplesPerPacket)));
 
         var range1 = receivedPackets.Where(p => !p.Missed && p.SequenceNumber >= 1 && p.SequenceNumber <= 5).ToList();
         var range2 = receivedPackets.Where(p => !p.Missed && p.SequenceNumber >= jump1 && p.SequenceNumber <= jump1 + 5).ToList();
@@ -1796,18 +1773,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         ushort startSeq = 65530;
         for (int i = 0; i < 5; i++)
         {
-            handler.HandlePacket(CreatePacket((ushort)(startSeq + i), timestamp));
+            handler.Handle(CreateContext((ushort)(startSeq + i), timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Jump across the wraparound boundary to trigger resync
         ushort jumpSeq = 100;
         uint jumpTs = 50000000;
-        handler.HandlePacket(CreatePacket(jumpSeq, jumpTs));
-        handler.HandlePacket(CreatePacket((ushort)(jumpSeq + 1), jumpTs + SamplesPerPacket));
+        handler.Handle(CreateContext(jumpSeq, jumpTs));
+        handler.Handle(CreateContext((ushort)(jumpSeq + 1), jumpTs + SamplesPerPacket));
 
         for (ushort i = 2; i <= 25; i++)
-            handler.HandlePacket(CreatePacket((ushort)(jumpSeq + i), jumpTs + (i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(jumpSeq + i), jumpTs + (i * SamplesPerPacket)));
 
         // Old range should have been force-evicted
         var preJump = receivedPackets.Where(p => !p.Missed && p.SequenceNumber >= startSeq).ToList();
@@ -1821,8 +1798,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     // Buffer Size Boundary
     // ================================================================
 
+    [DoNotParallelize]
     [TestMethod]
-    public void TestExactBufferSizeBoundary()
+    public async Task TestExactBufferSizeBoundary()
     {
         // Default buffer size = 240*2/5 = 96
         var (handler, receivedPackets) = InitializeHandler();
@@ -1831,22 +1809,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 96; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
-
         // One more to trigger overflow
-        handler.HandlePacket(CreatePacket(97, timestamp));
+        handler.Handle(CreateContext(97, timestamp));
 
-        var nonMissed = receivedPackets.Where(p => !p.Missed).ToList();
-        Assert.IsNotEmpty(nonMissed);
-        AssertMonotonicDelivery(receivedPackets);
+        // Wait for remaining buffered packets to be force-evicted
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 97);
     }
 
     [TestMethod]
-    public void TestMinimumBufferSize()
+    public async Task TestMinimumBufferSize()
     {
         // BufferDuration=3 → bufferSize=1
         var (handler, receivedPackets) = InitializeHandler(new()
@@ -1861,12 +1838,13 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
-        AssertMonotonicDelivery(receivedPackets);
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     // ================================================================
@@ -1885,20 +1863,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // With startup=0, eviction starts from the very first packet
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     // ================================================================
     // Random Packet Loss
     // ================================================================
 
+    [DoNotParallelize]
     [TestMethod]
-    public void TestRandomPacketLoss10Percent()
+    public async Task TestRandomPacketLoss10Percent()
     {
         var (handler, receivedPackets) = InitializeHandler();
 
@@ -1914,31 +1893,19 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
+        // Wait for remaining buffered packets to be force-evicted
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        // Verify no delivered packet was actually dropped
-        var deliveredSeqs = receivedPackets.Where(p => !p.Missed).Select(p => p.SequenceNumber).ToHashSet();
-        foreach (var seq in deliveredSeqs)
-        {
-            Assert.IsFalse(dropped.Contains(seq), $"Delivered packet {seq} was supposed to be dropped — data corruption.");
-        }
-
-        // Verify dropped packets that were delivered as missed are correctly identified
-        var missedSeqs = receivedPackets.Where(p => p.Missed).Select(p => p.SequenceNumber).ToHashSet();
-        foreach (var seq in missedSeqs)
-        {
-            Assert.IsTrue(dropped.Contains(seq), $"Packet {seq} was reported as missed but was never dropped.");
-        }
-
-        AssertMonotonicDelivery(receivedPackets);
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 200, dropped);
     }
 
+    [DoNotParallelize]
     [TestMethod]
-    public void TestRandomPacketLoss50Percent()
+    public async Task TestRandomPacketLoss50Percent()
     {
         // Extreme loss to stress the handler
         var (handler, receivedPackets) = InitializeHandler();
@@ -1955,19 +1922,14 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
+        // Wait for remaining buffered packets to be force-evicted
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        var deliveredSeqs = receivedPackets.Where(p => !p.Missed).Select(p => p.SequenceNumber).ToHashSet();
-        foreach (var seq in deliveredSeqs)
-        {
-            Assert.IsFalse(dropped.Contains(seq), $"Delivered packet {seq} was supposed to be dropped.");
-        }
-
-        AssertMonotonicDelivery(receivedPackets);
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 200, dropped);
     }
 
     // ================================================================
@@ -1975,21 +1937,21 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     // ================================================================
 
     [TestMethod]
-    public void TestInconsistentTimestampGaps()
+    public async Task TestInconsistentTimestampGaps()
     {
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
 
-        for (ushort i = 1; i <= 30; i++)
+        for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
-            // Vary the timestamp increment slightly (simulating variable frame sizes)
-            timestamp += SamplesPerPacket + (uint)(i % 3 == 0 ? 10 : 0);
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += SamplesPerPacket + i;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
-        AssertMonotonicDelivery(receivedPackets);
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        Assert.HasCount(1, receivedPackets, "With inconsistent timestamps, packets should be treated as outliers, so only the first packet is accepted and the rest are ignored.");
     }
 
     [TestMethod]
@@ -2001,20 +1963,20 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 5; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Multiple packets sharing the same timestamp (unusual but shouldn't crash)
         for (ushort i = 6; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
         }
 
         for (ushort i = 11; i <= 30; i++)
         {
             timestamp += SamplesPerPacket;
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
         }
 
         // No crash = success; behaviour under malformed timestamp is implementation-defined
@@ -2031,22 +1993,105 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 5; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Seq 6 with a timestamp lower than expected (backward)
-        handler.HandlePacket(CreatePacket(6, 10000));
+        handler.Handle(CreateContext(6, 10000));
 
         // Continue normally
         for (ushort i = 7; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Should not crash
         Assert.IsNotEmpty(receivedPackets);
+    }
+
+    [TestMethod]
+    public void TestInconsistentTimestampPacketIsIgnored()
+    {
+        // The handler checks timestampDiff % 120 (MinSamplesPerPacket).
+        // Packets with timestamps that aren't aligned to this boundary are treated as outliers.
+        var (handler, receivedPackets) = InitializeHandler(new()
+        {
+            ResynchronizationThreshold = 100, // High threshold to prevent resync
+        });
+
+        uint timestamp = 10000;
+
+        // Normal stream: 1-10
+        for (ushort i = 1; i <= 10; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+        // timestamp = 19600, latestTs = 18640
+
+        // Packets with inconsistent timestamps (not multiples of 120 from latest)
+        // 961 % 120 = 1 ≠ 0 → outlier
+        handler.Handle(CreateContext(11, 18640 + 961));
+        handler.Handle(CreateContext(12, 18640 + 961 + SamplesPerPacket));
+        handler.Handle(CreateContext(13, 18640 + 961 + (2 * SamplesPerPacket)));
+
+        // Continue normal stream from 11 with correct timestamps
+        for (ushort i = 11; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+
+        // All 30 packets should be delivered in order.
+        // The inconsistent-timestamp packets were treated as outliers (ignored),
+        // so the correctly-timestamped seq 11-30 are accepted instead.
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
+    }
+
+    [TestMethod]
+    public void TestInconsistentTimestampTriggersResyncAtThreshold()
+    {
+        // When enough consecutive packets with inconsistent timestamps arrive (and they're
+        // consistent with each other), they trigger resynchronization.
+        var (handler, receivedPackets) = InitializeHandler(new()
+        {
+            ResynchronizationThreshold = 3,
+        });
+
+        uint timestamp = 10000;
+
+        // Normal stream: 1-5
+        for (ushort i = 1; i <= 5; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += SamplesPerPacket;
+        }
+        // timestamp = 14800, latestTs = 14800 - 960 = 13840
+
+        // 3 outliers that are consistent with each other but not with the main stream
+        // offset of 1 from 120 boundary → outlier relative to main stream
+        // but diff between them is 960 (multiple of 120) → they form a contiguous chain
+        uint outlierBase = 5000000;
+        handler.Handle(CreateContext(500, outlierBase));
+        handler.Handle(CreateContext(501, outlierBase + SamplesPerPacket));
+        handler.Handle(CreateContext(502, outlierBase + (2 * SamplesPerPacket)));
+
+        // Resync should have triggered — old packets force-evicted.
+        // Continue from new range.
+        for (ushort i = 3; i <= 25; i++)
+        {
+            handler.Handle(CreateContext((ushort)(500 + i), outlierBase + (i * SamplesPerPacket)));
+        }
+
+        // Old packets 1-5 should have been force-evicted
+        var seq1 = receivedPackets.FirstOrDefault(p => p.SequenceNumber == 1);
+        Assert.IsFalse(seq1.Missed, "Sequence 1 should have been force-evicted during resync.");
+
+        // New range should be delivered
+        var newRange = receivedPackets.Where(p => !p.Missed && p.SequenceNumber >= 500).ToList();
+        Assert.IsNotEmpty(newRange, "New range packets should be delivered after resync.");
     }
 
     // ================================================================
@@ -2068,7 +2113,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -2080,10 +2125,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     // ================================================================
 
     [TestMethod]
-    public void TestCanCorrectLossAfterSingleMissingPacket()
+    public void TestLostEventAfterSingleMissingPacket()
     {
-        // When a single packet is lost, the next valid packet should have CanCorrectLoss=true.
-        // No separate Lost event is emitted for the missing packet.
+        // When a single packet is lost, it should appear as a Lost event.
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
@@ -2094,32 +2138,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue; // Skip seq 10
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Seq 10 should NOT appear as a separate missed event
-        Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == 10),
-            "Seq 10 should not appear as a separate Lost event.");
-
-        // Seq 11 should have CanCorrectLoss=true
-        var seq11 = receivedPackets.First(p => p.SequenceNumber == 11);
-        Assert.IsTrue(seq11.CanCorrectLoss,
-            "Packet 11 should have CanCorrectLoss=true because seq 10 was the last (only) lost packet.");
-
-        // All other delivered packets should NOT have CanCorrectLoss
-        foreach (var p in receivedPackets.Where(p => !p.Missed && p.SequenceNumber != 11))
-        {
-            Assert.IsFalse(p.CanCorrectLoss,
-                $"Packet {p.SequenceNumber} should not have CanCorrectLoss since there's no preceding loss.");
-        }
+        // Seq 10 should appear as a Lost event
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 30, new HashSet<ushort> { 10 });
     }
 
     [TestMethod]
-    public void TestCanCorrectLossAfterMultipleConsecutiveMissing()
+    public void TestLostEventsAfterMultipleConsecutiveMissing()
     {
-        // When multiple consecutive packets are lost, all but the last get Lost events.
-        // The last lost packet is absorbed into CanCorrectLoss on the next valid packet.
+        // When multiple consecutive packets are lost, they are merged into a single Lost event.
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
@@ -2130,51 +2160,36 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue; // Skip seq 10-13 (4 consecutive missing)
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // First 3 of the 4 missing packets should appear as Lost events
-        for (ushort seq = 10; seq <= 12; seq++)
-        {
-            Assert.Contains(p => p.Missed && p.SequenceNumber == seq, receivedPackets,
-                $"Seq {seq} should appear as a Lost event.");
-        }
-
-        // Seq 13 (last lost in consecutive run) should NOT appear as separate Lost event
-        Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == 13),
-            "Seq 13 should not appear as a separate Lost event (absorbed into CanCorrectLoss).");
-
-        // Seq 14 should have CanCorrectLoss=true
-        var seq14 = receivedPackets.First(p => p.SequenceNumber == 14);
-        Assert.IsTrue(seq14.CanCorrectLoss,
-            "Packet 14 should have CanCorrectLoss=true for the last lost packet (seq 13).");
+        // 4 consecutive missing packets are merged into a single Lost event of 3840 samples (4 × 960)
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 30, new HashSet<ushort> { 10, 11, 12, 13 });
     }
 
     [TestMethod]
-    public void TestCanCorrectLossNotSetForOrderedStream()
+    public void TestNoLostEventsForOrderedStream()
     {
-        // In a perfectly ordered stream with no loss, no packet should have CanCorrectLoss=true.
+        // In a perfectly ordered stream with no loss, no packet should be reported as missed.
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
         for (ushort i = 1; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        foreach (var p in receivedPackets)
-        {
-            Assert.IsFalse(p.CanCorrectLoss,
-                $"Packet {p.SequenceNumber} should not have CanCorrectLoss in a loss-free stream.");
-        }
+        // In a perfectly ordered stream with no loss, no packet should be reported as missed.
+        // Also verifies exact timestamps.
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     [TestMethod]
-    public void TestCanCorrectLossWithMultipleGaps()
+    public void TestLostEventsWithMultipleGaps()
     {
-        // Multiple separate gaps should each produce CanCorrectLoss on the packet after each gap.
+        // Multiple separate gaps should each produce Lost event(s).
         var (handler, receivedPackets) = InitializeHandler();
 
         uint timestamp = 10000;
@@ -2187,34 +2202,20 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
                 timestamp += SamplesPerPacket;
                 continue;
             }
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
-        // Each gap of 1 should result in CanCorrectLoss on the next packet
-        foreach (ushort missed in skipped)
-        {
-            var nextSeq = (ushort)(missed + 1);
-            var nextPacket = receivedPackets.FirstOrDefault(p => p.SequenceNumber == nextSeq && !p.Missed);
-            Assert.IsTrue(nextPacket.CanCorrectLoss,
-                $"Packet {nextSeq} should have CanCorrectLoss=true because seq {missed} was lost.");
-        }
-
-        // No skipped seq should appear as a Lost event
-        foreach (ushort missed in skipped)
-        {
-            Assert.IsFalse(receivedPackets.Any(p => p.Missed && p.SequenceNumber == missed),
-                $"Seq {missed} should not appear as a separate Lost event.");
-        }
+        // Each separate gap should produce a Lost event
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 40, skipped);
     }
 
     [DoNotParallelize]
     [TestMethod]
-    public async Task TestCanCorrectLossOnForceEvictAll()
+    public async Task TestLostEventOnForceEvictAll()
     {
-        // When the timer fires and ForceEvictAll runs, the EvictSequenceNumber path
-        // sets _isLastLost for missing packets, so the next found packet gets
-        // CanCorrectLoss=true — same behavior as normal eviction.
+        // When the timer fires and ForceEvictAll runs, missing packets
+        // should be emitted as Lost events (merged if consecutive).
         var (handler, receivedPackets) = InitializeHandler(new()
         {
             BufferDuration = 200,
@@ -2226,31 +2227,17 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
 
         // Send 3 packets with a gap (missing seq 2)
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(3, timestamp + (2 * SamplesPerPacket)));
-        handler.HandlePacket(CreatePacket(4, timestamp + (3 * SamplesPerPacket)));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(3, timestamp + (2 * SamplesPerPacket)));
+        handler.Handle(CreateContext(4, timestamp + (3 * SamplesPerPacket)));
 
         Assert.IsEmpty(receivedPackets, "No packets should be emitted before timer fires.");
 
         // Wait for the buffer timer to fire (ForceEvictAll)
         await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
 
-        // Timer should emit: 1, 3(CanCorrectLoss), 4
-        // Single missing packet (seq 2) is absorbed into CanCorrectLoss on seq 3.
-        Assert.HasCount(3, receivedPackets, "Timer should emit exactly 3 entries (seq 2 absorbed into CanCorrectLoss on seq 3).");
-
-        Assert.AreEqual(1, receivedPackets[0].SequenceNumber);
-        Assert.IsFalse(receivedPackets[0].Missed);
-        Assert.IsFalse(receivedPackets[0].CanCorrectLoss);
-
-        Assert.AreEqual(3, receivedPackets[1].SequenceNumber);
-        Assert.IsFalse(receivedPackets[1].Missed);
-        Assert.IsTrue(receivedPackets[1].CanCorrectLoss,
-            "Seq 3 should have CanCorrectLoss=true because seq 2 was lost.");
-
-        Assert.AreEqual(4, receivedPackets[2].SequenceNumber);
-        Assert.IsFalse(receivedPackets[2].Missed);
-        Assert.IsFalse(receivedPackets[2].CanCorrectLoss);
+        // Timer should emit: 1, 2(Lost), 3, 4
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, SamplesPerPacket, 4, new HashSet<ushort> { 2 });
     }
 
     // ================================================================
@@ -2268,18 +2255,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         uint timestamp = 10000;
 
         // First packet initializes state
-        handler.HandlePacket(CreatePacket(1, timestamp));
+        handler.Handle(CreateContext(1, timestamp));
 
         // Send widely separated outliers that never form a contiguous stream
-        handler.HandlePacket(CreatePacket(20000, 50000000));
-        handler.HandlePacket(CreatePacket(40000, 90000000));
-        handler.HandlePacket(CreatePacket(60000, 130000000));
+        handler.Handle(CreateContext(20000, 50000000));
+        handler.Handle(CreateContext(40000, 90000000));
+        handler.Handle(CreateContext(60000, 130000000));
 
         // Resume normal flow
         for (ushort i = 2; i <= 30; i++)
         {
             timestamp += SamplesPerPacket;
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
         }
 
         Assert.IsNotEmpty(receivedPackets);
@@ -2293,8 +2280,9 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
     // Edge: Large volume
     // ================================================================
 
+    [DoNotParallelize]
     [TestMethod]
-    public void TestLargePacketVolume()
+    public async Task TestLargePacketVolume()
     {
         var (handler, receivedPackets) = InitializeHandler();
 
@@ -2302,15 +2290,16 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (ushort i = 1; i <= 10000; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
 
             if (i == 10000) break;
         }
 
-        Assert.IsNotEmpty(receivedPackets);
-        Assert.IsGreaterThan(100, receivedPackets.Count, "Large volume should produce many output packets.");
-        AssertMonotonicDelivery(receivedPackets);
+        // Wait for remaining buffered packets to be force-evicted
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 10000);
     }
 
     [TestMethod]
@@ -2322,7 +2311,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         for (int i = 0; i < 65536; i++)
         {
-            handler.HandlePacket(CreatePacket((ushort)i, timestamp));
+            handler.Handle(CreateContext((ushort)i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -2366,18 +2355,18 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         uint timestamp = 10000;
 
-        handler.HandlePacket(CreatePacket(1, timestamp));
-        handler.HandlePacket(CreatePacket(2, timestamp + SamplesPerPacket));
+        handler.Handle(CreateContext(1, timestamp));
+        handler.Handle(CreateContext(2, timestamp + SamplesPerPacket));
 
         // Single outlier → should trigger resync
         ushort jumpSeq = 500;
         uint jumpTs = 5000000;
-        handler.HandlePacket(CreatePacket(jumpSeq, jumpTs));
+        handler.Handle(CreateContext(jumpSeq, jumpTs));
 
         // Continue from new range
         for (ushort i = 1; i <= 25; i++)
         {
-            handler.HandlePacket(CreatePacket((ushort)(jumpSeq + i), jumpTs + (i * SamplesPerPacket)));
+            handler.Handle(CreateContext((ushort)(jumpSeq + i), jumpTs + (i * SamplesPerPacket)));
         }
 
         // Old packets 1 and 2 should be force-evicted
@@ -2405,17 +2394,17 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Send a normal stream
         for (ushort i = 1; i <= 10; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
         // Re-send seq 5 with a different timestamp (replay attack or corruption)
-        handler.HandlePacket(CreatePacket(5, timestamp + 50000));
+        handler.Handle(CreateContext(5, timestamp + 50000));
 
         // Continue normally
         for (ushort i = 11; i <= 30; i++)
         {
-            handler.HandlePacket(CreatePacket(i, timestamp));
+            handler.Handle(CreateContext(i, timestamp));
             timestamp += SamplesPerPacket;
         }
 
@@ -2442,12 +2431,12 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             for (int j = 0; j < 5; j++)
             {
                 ushort seq = (ushort)(startIdx + j + 1);
-                handler.HandlePacket(CreatePacket(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
+                handler.Handle(CreateContext(seq, timestampBase + ((uint)(seq - 1) * SamplesPerPacket)));
             }
         }
 
         // All 30 packets should be delivered in exact order
-        AssertExactOrderedDelivery(receivedPackets, 1, 30);
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, SamplesPerPacket, 30);
     }
 
     // ================================================================
@@ -2464,7 +2453,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
         // Only send every 5th packet: 1, 6, 11, 16, 21, 26
         for (ushort i = 1; i <= 30; i += 5)
         {
-            handler.HandlePacket(CreatePacket(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
+            handler.Handle(CreateContext(i, timestampBase + ((uint)(i - 1) * SamplesPerPacket)));
         }
 
         // The handler should still function; gaps between packets are large but within buffer range
@@ -2478,5 +2467,531 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
             Assert.IsTrue(sent.Contains(p.SequenceNumber),
                 $"Received packet {p.SequenceNumber} that was never sent.");
         }
+    }
+
+    // ================================================================
+    // Variable Frame Sizes (2.5 ms to 120 ms)
+    // ================================================================
+
+    // Valid Opus frame sizes and their sample counts at 48kHz:
+    //   2.5 ms →  120 samples
+    //   5   ms →  240 samples
+    //  10   ms →  480 samples
+    //  20   ms →  960 samples (default)
+    //  40   ms → 1920 samples
+    //  60   ms → 2880 samples
+    // 120   ms → 5760 samples
+
+    [TestMethod]
+    public void TestFrameSize2_5ms()
+    {
+        const uint samplesPerFrame = 120; // 2.5 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 50; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 50);
+    }
+
+    [TestMethod]
+    public void TestFrameSize5ms()
+    {
+        const uint samplesPerFrame = 240; // 5 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 50; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 50);
+    }
+
+    [TestMethod]
+    public void TestFrameSize10ms()
+    {
+        const uint samplesPerFrame = 480; // 10 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 50; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 50);
+    }
+
+    [TestMethod]
+    public void TestFrameSize40ms()
+    {
+        const uint samplesPerFrame = 1920; // 40 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 30);
+    }
+
+    [TestMethod]
+    public void TestFrameSize60ms()
+    {
+        const uint samplesPerFrame = 2880; // 60 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 30);
+    }
+
+    [TestMethod]
+    public void TestFrameSize120ms()
+    {
+        const uint samplesPerFrame = 5760; // 120 ms at 48kHz
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += samplesPerFrame;
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 30);
+    }
+
+    [TestMethod]
+    public void TestFrameSizeChangeImmediately()
+    {
+        // Stream changes frame size mid-stream:
+        // First 10 packets at 20ms (960 samples), then 10 at 10ms (480), then 10 at 40ms (1920).
+        // The handler should accept all since each diff is a multiple of 120.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+
+        for (ushort i = 1; i <= 10; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += 960; // 20 ms
+        }
+
+        for (ushort i = 11; i <= 20; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += 480; // 10 ms
+        }
+
+        for (ushort i = 21; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += 1920; // 40 ms
+        }
+
+        // All 30 packets delivered. Check timestamps individually.
+        Assert.HasCount(30, receivedPackets, "All 30 packets should be delivered.");
+        uint expectedTs = 10000;
+        for (int i = 0; i < 30; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} was marked as missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {i}.");
+            Assert.AreEqual(expectedTs, p.Timestamp, $"Expected timestamp {expectedTs} at position {i}, got {p.Timestamp}.");
+
+            if (i < 10)
+                expectedTs += 960;
+            else if (i < 20)
+                expectedTs += 480;
+            else
+                expectedTs += 1920;
+        }
+    }
+
+    [TestMethod]
+    public void TestFrameSizeChangeEveryPacket()
+    {
+        // Alternating frame sizes every packet: 2.5ms (120), 5ms (240), 10ms (480), 20ms (960), repeat
+        // All are multiples of 120, so should be accepted.
+        uint[] frameSizes = [120, 240, 480, 960];
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] expectedTimestamps = new uint[30];
+
+        for (ushort i = 1; i <= 30; i++)
+        {
+            expectedTimestamps[i - 1] = timestamp;
+            handler.Handle(CreateContext(i, timestamp));
+            timestamp += frameSizes[(i - 1) % frameSizes.Length];
+        }
+
+        Assert.HasCount(30, receivedPackets, "All 30 packets should be delivered.");
+        for (int i = 0; i < 30; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} was marked as missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber);
+            Assert.AreEqual(expectedTimestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+    }
+
+    [TestMethod]
+    public void TestFrameSizeChangeWithReordering()
+    {
+        // Reordered packets with varying frame sizes.
+        // Send order: 1, 3, 2, 4, 5, 6-30 in order.
+        // All use different frame sizes but all multiples of 120.
+        uint[] frameSizes = [960, 480, 240, 120, 1920, 2880]; // cycling
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] timestamps = new uint[30];
+        for (int i = 0; i < 30; i++)
+        {
+            timestamps[i] = timestamp;
+            timestamp += frameSizes[i % frameSizes.Length];
+        }
+
+        // Send out of order: 1, 3, 2, then 4-30
+        handler.Handle(CreateContext(1, timestamps[0]));
+        handler.Handle(CreateContext(3, timestamps[2]));
+        handler.Handle(CreateContext(2, timestamps[1]));
+
+        for (ushort i = 4; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamps[i - 1]));
+        }
+
+        Assert.HasCount(30, receivedPackets, "All 30 packets should be delivered.");
+        for (int i = 0; i < 30; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} was marked as missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber);
+            Assert.AreEqual(timestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+    }
+
+    [TestMethod]
+    public async Task TestFrameSizeChangeWithMissingPackets()
+    {
+        // Variable frame sizes with packet loss. Verifies lost event timestamps are correct.
+        // Frame sizes: 20ms (960) for first 10, then 10ms (480) for next 20.
+        // Missing: packets 5 (during 20ms phase) and 15 (during 10ms phase).
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] timestamps = new uint[30];
+        for (int i = 0; i < 30; i++)
+        {
+            timestamps[i] = timestamp;
+            timestamp += (uint)(i < 10 ? 960 : 480);
+        }
+
+        for (ushort i = 1; i <= 30; i++)
+        {
+            if (i is 5 or 15)
+                continue; // Skip these
+            handler.Handle(CreateContext(i, timestamps[i - 1], frameSamples: i <= 10 ? 960 : 480));
+        }
+
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        // Verify all 30 entries including lost events with correct timestamps
+        Assert.HasCount(30, receivedPackets, "Should have 30 entries (28 delivered + 2 lost).");
+        for (int i = 0; i < 30; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {i}.");
+            Assert.AreEqual(timestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+
+            if (expectedSeq is 5 or 15)
+                Assert.IsTrue(p.Missed, $"Packet {expectedSeq} should be marked as missed.");
+            else
+                Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+        }
+    }
+
+    [TestMethod]
+    public async Task TestFrameSizeChangeDuringBurstLoss()
+    {
+        // Burst loss happens exactly at the frame size transition boundary.
+        // Packets 1-10: 20ms (960 samples)
+        // Packets 11-15: LOST (burst loss spanning the transition)
+        // Packets 16-30: 10ms (480 samples)
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] timestamps = new uint[30];
+        for (int i = 0; i < 30; i++)
+        {
+            timestamps[i] = timestamp;
+            timestamp += (uint)(i < 10 ? 960 : 480);
+        }
+
+        // Send packets 1-10 at 20ms
+        for (ushort i = 1; i <= 10; i++)
+        {
+            handler.Handle(CreateContext(i, timestamps[i - 1], frameSamples: 960));
+        }
+
+        // Skip 11-15 (burst loss at transition boundary)
+
+        // Send packets 16-30 at 10ms
+        for (ushort i = 16; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestamps[i - 1], frameSamples: 480));
+        }
+
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        // The 5 lost packets (11-15) are merged into a single lost event.
+        // Total lost samples: timestamps[15] - (timestamps[9] + 960) = 22000 - 19600 = 2400
+        Assert.HasCount(26, receivedPackets, "Should have 26 entries (25 delivered + 1 merged lost).");
+
+        // Verify first 10 delivered packets
+        for (int i = 0; i < 10; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {i}.");
+            Assert.AreEqual(timestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+
+        // Verify merged lost event for packets 11-15
+        {
+            var p = receivedPackets[10];
+            Assert.IsTrue(p.Missed, "Packets 11-15 should appear as a merged lost event.");
+            Assert.AreEqual(timestamps[10], p.Timestamp, "Lost event should start at timestamp of first missing packet.");
+            Assert.AreEqual(2400, p.SamplesPerChannel, "Merged lost event should cover 2400 samples.");
+        }
+
+        // Verify remaining delivered packets 16-30
+        for (int i = 0; i < 15; i++)
+        {
+            var p = receivedPackets[11 + i];
+            var expectedSeq = (ushort)(16 + i);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {11 + i}.");
+            Assert.AreEqual(timestamps[15 + i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+    }
+
+    [TestMethod]
+    public async Task TestFrameSize2_5msWithMissing()
+    {
+        // Smallest valid frame size (2.5 ms = 120 samples) with packet loss.
+        const uint samplesPerFrame = 120;
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        for (ushort i = 1; i <= 50; i++)
+        {
+            if (i is 10 or 25 or 40)
+            {
+                timestamp += samplesPerFrame;
+                continue;
+            }
+            handler.Handle(CreateContext(i, timestamp, frameSamples: (int)samplesPerFrame));
+            timestamp += samplesPerFrame;
+        }
+
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        AssertExactSequenceWithLoss(receivedPackets, 1, 10000, samplesPerFrame, 50, new HashSet<ushort> { 10, 25, 40 });
+    }
+
+    [TestMethod]
+    public void TestFrameSize120msWithReordering()
+    {
+        // Largest valid Opus frame size (120 ms = 5760 samples) with reordering.
+        const uint samplesPerFrame = 5760;
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestampBase = 10000;
+
+        // Reordered: 1, 3, 2, 4-30
+        handler.Handle(CreateContext(1, timestampBase));
+        handler.Handle(CreateContext(3, timestampBase + (2 * samplesPerFrame)));
+        handler.Handle(CreateContext(2, timestampBase + samplesPerFrame));
+
+        for (ushort i = 4; i <= 30; i++)
+        {
+            handler.Handle(CreateContext(i, timestampBase + ((uint)(i - 1) * samplesPerFrame)));
+        }
+
+        AssertExactOrderedDelivery(receivedPackets, 1, 10000, samplesPerFrame, 30);
+    }
+
+    [TestMethod]
+    public void TestAllValidFrameSizesSequential()
+    {
+        // Send groups of packets at each valid Opus frame size one after another.
+        // 5 packets per frame size, changing immediately between sizes.
+        uint[] frameSizes = [120, 240, 480, 960, 1920, 2880, 5760];
+        int packetsPerSize = 5;
+        int totalPackets = frameSizes.Length * packetsPerSize; // 35
+
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] expectedTimestamps = new uint[totalPackets];
+        int packetIndex = 0;
+
+        for (int sizeIdx = 0; sizeIdx < frameSizes.Length; sizeIdx++)
+        {
+            var frameSize = frameSizes[sizeIdx];
+            for (int j = 0; j < packetsPerSize; j++)
+            {
+                expectedTimestamps[packetIndex] = timestamp;
+                ushort seq = (ushort)(packetIndex + 1);
+                handler.Handle(CreateContext(seq, timestamp));
+                timestamp += frameSize;
+                packetIndex++;
+            }
+        }
+
+        Assert.HasCount(totalPackets, receivedPackets, $"All {totalPackets} packets should be delivered.");
+        for (int i = 0; i < totalPackets; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} was marked as missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber);
+            Assert.AreEqual(expectedTimestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+    }
+
+    [TestMethod]
+    public async Task TestFrameSizeChangeFromLargeToSmallWithBurstLoss()
+    {
+        // Large frames (60ms = 2880 samples) transition to small frames (2.5ms = 120 samples)
+        // with a burst loss spanning the transition.
+        var (handler, receivedPackets) = InitializeHandler();
+
+        uint timestamp = 10000;
+        uint[] timestamps = new uint[40];
+        for (int i = 0; i < 40; i++)
+        {
+            timestamps[i] = timestamp;
+            timestamp += (uint)(i < 10 ? 2880 : 120);
+        }
+
+        // Send 1-10 at 60ms
+        for (ushort i = 1; i <= 10; i++)
+        {
+            handler.Handle(CreateContext(i, timestamps[i - 1], frameSamples: 2880));
+        }
+
+        // Skip 11-15 (burst loss at transition)
+
+        // Send 16-40 at 2.5ms
+        for (ushort i = 16; i <= 40; i++)
+        {
+            handler.Handle(CreateContext(i, timestamps[i - 1], frameSamples: 120));
+        }
+
+        await Task.Delay(500, context.CancellationToken).ConfigureAwait(false);
+
+        // The 5 lost packets (11-15) are merged into a single lost event.
+        // Total lost samples: timestamps[15] - (timestamps[9] + 2880) = 39400 - 38800 = 600
+        Assert.HasCount(36, receivedPackets, "Should have 36 entries (35 delivered + 1 merged lost).");
+
+        // Verify first 10 delivered packets
+        for (int i = 0; i < 10; i++)
+        {
+            var p = receivedPackets[i];
+            var expectedSeq = (ushort)(i + 1);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {i}.");
+            Assert.AreEqual(timestamps[i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+
+        // Verify merged lost event for packets 11-15
+        {
+            var p = receivedPackets[10];
+            Assert.IsTrue(p.Missed, "Packets 11-15 should appear as a merged lost event.");
+            Assert.AreEqual(timestamps[10], p.Timestamp, "Lost event should start at timestamp of first missing packet.");
+            Assert.AreEqual(600, p.SamplesPerChannel, "Merged lost event should cover 600 samples.");
+        }
+
+        // Verify remaining delivered packets 16-40
+        for (int i = 0; i < 25; i++)
+        {
+            var p = receivedPackets[11 + i];
+            var expectedSeq = (ushort)(16 + i);
+            Assert.IsFalse(p.Missed, $"Packet {expectedSeq} should not be missed.");
+            Assert.AreEqual(expectedSeq, p.SequenceNumber, $"Expected seq {expectedSeq} at position {11 + i}.");
+            Assert.AreEqual(timestamps[15 + i], p.Timestamp, $"Timestamp mismatch at seq {expectedSeq}.");
+        }
+    }
+
+    [TestMethod]
+    public async Task Test()
+    {
+        var (handler, receivedPackets) = InitializeHandler(new()
+        {
+            BufferDuration = 100,
+            StartupDuration = 100,
+            ResynchronizationDuration = 1000,
+        });
+
+        handler.VoiceReceive += args =>
+        {
+            Debug.WriteLine($"Received packet: Seq={args.SequenceNumber}, TS={args.Timestamp}, Lost={args.IsLost}, Samples={(args.IsLost ? args.AsLost().SamplesPerChannel : -1)}");
+        };
+
+        handler.Handle(CreateContext(unchecked((ushort)(1-10)), 10000 - (10 * SamplesPerPacket)));
+        uint timestamp = 10000;
+        ushort seq = 1;
+
+        for (int i = 1; i <= 100; i++)
+        {
+            timestamp += SamplesPerPacket;
+
+            if (i % 2 > 0)
+                continue;
+
+            handler.Handle(CreateContext((ushort)(seq + i), timestamp));
+
+            //handler.Handle(CreatePacket((ushort)(seq + i - 1), timestamp - SamplesPerPacket));
+        }
+
+        Debug.WriteLine("End");
+
+        await Task.Delay(2000, context.CancellationToken).ConfigureAwait(false);
     }
 }

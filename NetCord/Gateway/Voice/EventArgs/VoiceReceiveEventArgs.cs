@@ -50,7 +50,7 @@ public readonly ref struct VoiceReceiveEventArgs
     /// </summary>
     public readonly ushort SequenceNumber { get; }
 
-    public readonly bool IsLost => _samplesPerChannel < 0;
+    public readonly bool IsLost => _samplesPerChannel >= 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LostVoiceReceiveEventArgs AsLost()

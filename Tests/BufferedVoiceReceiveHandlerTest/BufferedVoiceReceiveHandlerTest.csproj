@@ -27,6 +27,7 @@
     <Compile Include="..\..\NetCord\Gateway\Voice\BufferedVoiceReceiveHandler.cs" />
     <Compile Include="..\..\NetCord\Gateway\Voice\VoiceReceiveHandler.cs" />
     <Compile Include="..\..\NetCord\Gateway\Voice\VoiceReceiveData.cs" />
+    <Compile Include="..\..\NetCord\Gateway\Voice\EventArgs\VoiceReceiveEventArgs.cs" />
   </ItemGroup>
 
   <ItemGroup>
