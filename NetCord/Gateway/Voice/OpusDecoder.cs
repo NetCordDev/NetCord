@@ -33,6 +33,7 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <param name="decodeFec">Whether to decode using forward error correction data, if available.</param>
     /// <returns>The number of decoded samples per channel.</returns>
     public int Decode(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize, bool decodeFec)
     {
@@ -51,6 +52,7 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <param name="decodeFec">Whether to decode using forward error correction data, if available.</param>
     /// <returns>The number of decoded samples per channel.</returns>
     public int Decode(ReadOnlySpan<byte> data, Span<short> pcm, int frameSize, bool decodeFec)
     {
@@ -63,6 +65,7 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <param name="decodeFec">Whether to decode using forward error correction data, if available.</param>
     /// <returns>The number of decoded samples per channel.</returns>
     public int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm, int frameSize, bool decodeFec)
     {
@@ -81,6 +84,7 @@ public readonly struct OpusDecoder : IDisposable
     /// <param name="data">Input payload. Use <see langword="null"/> to indicate packet loss.</param>
     /// <param name="pcm">Output signal.</param>
     /// <param name="frameSize">Number of samples per channel in the output signal.</param>
+    /// <param name="decodeFec">Whether to decode using forward error correction data, if available.</param>
     /// <returns>The number of decoded samples per channel.</returns>
     public int DecodeFloat(ReadOnlySpan<byte> data, Span<float> pcm, int frameSize, bool decodeFec)
     {

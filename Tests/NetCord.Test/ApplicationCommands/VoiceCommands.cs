@@ -51,6 +51,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
                 {
                     BufferDuration = 40,
                     StartupDuration = 20,
+                    ResynchronizationDuration = 1000,
                 }),
                 Logger = new ConsoleLogger(LogLevel.Debug),
                 //CacheProvider = ConcurrentVoiceClientCacheProvider.Empty,
@@ -199,15 +200,36 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         using OpusDecoder decoder = new(voiceChannels);
         using OpusDecoder decoder2 = new(voiceChannels);
-        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(20), pcmFormat, voiceChannels);
+        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), pcmFormat, voiceChannels);
         var buffer = new byte[bufferSize];
 
         voiceClient.VoiceReceive += args =>
         {
+            // Console.WriteLine(args.IsLost);
             if (args.IsLost)
+                Console.WriteLine($"Lost frame {args.SequenceNumber} with {args.AsLost().SamplesPerChannel} samples");
+
+            if (!args.IsLost)
             {
-                var lostArgs = args.AsLost();
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
             }
+
+            {
+                var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+                var samples = decoder.DecodeFloat(args.Frame, buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, PcmFormat.Float, VoiceChannels.Stereo)), frameSize, false);
+                ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            }
+
+            {
+                var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+                var samples = decoder2.DecodeFloat(args.IsLost ? args.AsLost().FecData : args.Frame, buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, PcmFormat.Float, VoiceChannels.Stereo)), frameSize, args.IsLost && args.AsLost().DecodeFec);
+                ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
+            }
+
+            // if (args.IsLost)
+            // {
+            //     var lostArgs = args.AsLost();
+            // }
 
             // if (args.Timestamp.HasValue)
             //     voiceClient.SendVoice(args.SequenceNumber, args.Timestamp.GetValueOrDefault(), args.Frame);

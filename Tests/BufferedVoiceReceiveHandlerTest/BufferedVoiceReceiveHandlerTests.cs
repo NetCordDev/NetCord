@@ -2971,7 +2971,7 @@ public sealed class BufferedVoiceReceiveHandlerTests(TestContext context)
 
         handler.VoiceReceive += args =>
         {
-            Debug.WriteLine($"Received packet: Seq={args.SequenceNumber}, TS={args.Timestamp}, Lost={args.IsLost}, Samples={(args.IsLost ? args.AsLost().SamplesPerChannel : -1)}");
+            Debug.WriteLine($"Received packet: Seq={args.SequenceNumber}, TS={args.Timestamp}, Lost={args.IsLost}, Samples={(args.IsLost ? args.AsLost().SamplesPerChannel : -1)}, FEC={args.IsLost && args.AsLost().DecodeFec}");
         };
 
         handler.Handle(CreateContext(unchecked((ushort)(1-10)), 10000 - (10 * SamplesPerPacket)));

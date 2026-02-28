@@ -5,33 +5,40 @@ using System.Runtime.InteropServices;
 
 namespace NetCord.Gateway.Voice;
 
+[StructLayout(LayoutKind.Auto)]
 public readonly ref struct VoiceReceiveEventArgs
 {
-    private VoiceReceiveEventArgs(ReadOnlySpan<byte> frame, uint ssrc, uint timestamp, int samplesPerChannel, ushort sequenceNumber)
+    private VoiceReceiveEventArgs(ReadOnlySpan<byte> frame, uint fecAndSamples, uint ssrc, uint timestamp, ushort sequenceNumber)
     {
-        Frame = frame;
+        _frame = frame;
+        _fecAndSamples = fecAndSamples;
         Ssrc = ssrc;
         Timestamp = timestamp;
-        _samplesPerChannel = samplesPerChannel;
         SequenceNumber = sequenceNumber;
     }
 
     public static VoiceReceiveEventArgs Delivered(ReadOnlySpan<byte> frame, uint ssrc, uint timestamp, ushort sequenceNumber)
     {
-        return new(frame, ssrc, timestamp, -1, sequenceNumber);
+        return new(frame, 0, ssrc, timestamp, sequenceNumber);
     }
 
-    public static VoiceReceiveEventArgs Lost(uint ssrc, uint timestamp, ushort sequenceNumber, int samplesPerChannel)
+    public static VoiceReceiveEventArgs Lost(uint ssrc, uint timestamp, ushort sequenceNumber, int samplesPerChannel, ReadOnlySpan<byte> fecData = default)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(samplesPerChannel);
 
-        return new(null, ssrc, timestamp, samplesPerChannel, sequenceNumber);
+        var fecAndSamples = (uint)samplesPerChannel | (fecData.IsEmpty ? 0 : ((uint)1 << 31));
+
+        return new(fecData, fecAndSamples, ssrc, timestamp, sequenceNumber);
     }
+
+    private readonly ReadOnlySpan<byte> _frame;
+
+    private readonly uint _fecAndSamples;
 
     /// <summary>
     /// The voice frame data.
     /// </summary>
-    public readonly ReadOnlySpan<byte> Frame { get; }
+    public readonly ReadOnlySpan<byte> Frame => IsLost ? null : _frame;
 
     /// <summary>
     /// The synchronization source (SSRC) of the sender of the voice frame.
@@ -43,14 +50,12 @@ public readonly ref struct VoiceReceiveEventArgs
     /// </summary>
     public readonly uint Timestamp { get; }
 
-    private readonly int _samplesPerChannel;
-
     /// <summary>
     /// The sequence number of the voice frame.
     /// </summary>
     public readonly ushort SequenceNumber { get; }
 
-    public readonly bool IsLost => _samplesPerChannel >= 0;
+    public readonly bool IsLost => _fecAndSamples is not 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LostVoiceReceiveEventArgs AsLost()
@@ -58,7 +63,7 @@ public readonly ref struct VoiceReceiveEventArgs
         if (!IsLost)
             ThrowNotLost();
 
-        return new(Ssrc, Timestamp, SequenceNumber, _samplesPerChannel);
+        return new(Ssrc, Timestamp, SequenceNumber, _frame, _fecAndSamples);
     }
 
     [DoesNotReturn]
@@ -71,13 +76,16 @@ public readonly ref struct VoiceReceiveEventArgs
 
 public readonly ref struct LostVoiceReceiveEventArgs
 {
-    internal LostVoiceReceiveEventArgs(uint ssrc, uint timestamp, ushort sequenceNumber, int samplesPerChannel)
+    internal LostVoiceReceiveEventArgs(uint ssrc, uint timestamp, ushort sequenceNumber, ReadOnlySpan<byte> fecData, uint fecAndSamples)
     {
+        FecData = fecData;
         Ssrc = ssrc;
         Timestamp = timestamp;
         SequenceNumber = sequenceNumber;
-        SamplesPerChannel = samplesPerChannel;
+        _fecAndSamples = fecAndSamples;
     }
+
+    public readonly ReadOnlySpan<byte> FecData { get; }
 
     /// <summary>
     /// The synchronization source (SSRC) of the sender of the voice frame.
@@ -97,5 +105,12 @@ public readonly ref struct LostVoiceReceiveEventArgs
     /// <summary>
     /// The number of samples per channel in the lost voice frame.
     /// </summary>
-    public readonly int SamplesPerChannel { get; }
+    public readonly int SamplesPerChannel => (int)(_fecAndSamples & ~(1u << 31));
+
+    /// <summary>
+    /// Whether the frame should be decoded using FEC.
+    /// </summary>
+    public readonly bool DecodeFec => (_fecAndSamples & (1u << 31)) is not 0;
+
+    private readonly uint _fecAndSamples;
 }

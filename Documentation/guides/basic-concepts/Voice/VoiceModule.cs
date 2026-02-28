@@ -143,12 +143,12 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
         {
             // If the timestamp is null, the packet was lost.
             // We skip it, which mirrors the packet loss to the echo recipients.
-            if (args.Timestamp is not { } timestamp)
+            if (args.IsLost)
                 return default;
 
             // Pass current user voice directly to SendAsync to create echo
             if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
-                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
             return default;
         };
