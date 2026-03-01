@@ -33,36 +33,13 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         var resynchronizationThreshold = configuration?.ResynchronizationThreshold ?? 4;
         var idleTimeout = configuration?.IdleTimeout ?? 60_000;
 
-        var bufferSize = (int)((long)bufferDuration * 2 / 5);
-
-        if (bufferSize <= 0)
+        if (bufferDuration <= 2)
             ThrowInvalidBufferDuration();
 
-        var bufferSamples = bufferSize * MinSamplesPerPacket;
-
-        if (bufferSamples <= 0)
-            ThrowInvalidBufferDuration();
-
-        var startupSize = startupDuration * 2 / 5;
-
-        if (startupSize > bufferSize)
+        if (startupDuration < 0 || startupDuration > bufferDuration)
             ThrowInvalidStartupDuration();
 
-        var startupSamples = startupSize * MinSamplesPerPacket;
-
-        if (startupSamples > bufferSamples)
-            ThrowInvalidStartupDuration();
-
-        var minResynchronizationPacketsInt = (int)((long)resynchronizationDuration * 2 / 5);
-
-        if ((uint)minResynchronizationPacketsInt > short.MaxValue)
-            ThrowInvalidResynchronizationDuration();
-
-        var minResynchronizationPackets = (short)minResynchronizationPacketsInt;
-
-        var resynchronizationSamples = minResynchronizationPackets * MinSamplesPerPacket;
-
-        if (resynchronizationSamples < bufferSamples)
+        if (resynchronizationDuration <= 2 || resynchronizationDuration < bufferDuration)
             ThrowInvalidResynchronizationDuration();
 
         if (resynchronizationThreshold <= 0)
@@ -71,13 +48,26 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         if (idleTimeout <= 0)
             ThrowInvalidIdleTimeout();
 
+        var bufferSizeLong = (long)bufferDuration * 2 / 5;
+        var bufferSamplesLong = bufferSizeLong * MinSamplesPerPacket;
+
+        if (bufferSamplesLong > int.MaxValue)
+            ThrowInvalidBufferDuration();
+
+        var resyncPacketsLong = (long)resynchronizationDuration * 2 / 5;
+        
+        if (resyncPacketsLong > short.MaxValue)
+            ThrowInvalidResynchronizationDuration();
+
         _bufferDuration = bufferDuration;
-        _bufferSize = bufferSize;
-        _bufferSamples = bufferSamples;
-        _startupSize = startupSize;
-        _startupSamples = startupSamples;
-        _resynchronizationSamples = resynchronizationSamples;
-        _minResynchronizationPackets = minResynchronizationPackets;
+        _bufferSize = (int)bufferSizeLong;
+        _bufferSamples = (int)bufferSamplesLong;
+
+        _startupSize = (int)((long)startupDuration * 2 / 5);
+        _startupSamples = _startupSize * MinSamplesPerPacket;
+
+        _minResynchronizationPackets = (short)resyncPacketsLong;
+        _resynchronizationSamples = _minResynchronizationPackets * MinSamplesPerPacket;
         _resynchronizationThreshold = resynchronizationThreshold;
         _idleTimeout = idleTimeout;
     }
@@ -86,21 +76,21 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
     [StackTraceHidden]
     private static void ThrowInvalidBufferDuration()
     {
-        throw new ArgumentOutOfRangeException("configuration", $"'{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}' cannot be lower than or equal to 0 and cannot be greater than 44739244.");
+        throw new ArgumentOutOfRangeException("configuration", $"'{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}' cannot be lower than or equal to 2 and cannot be greater than 44739244.");
     }
 
     [DoesNotReturn]
     [StackTraceHidden]
     private static void ThrowInvalidStartupDuration()
     {
-        throw new ArgumentOutOfRangeException("configuration", $"{nameof(BufferedVoiceReceiveHandlerConfiguration.StartupDuration)}' cannot be lower than or equal to 0 and must be less than or equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}'. By default '{nameof(BufferedVoiceReceiveHandlerConfiguration.StartupDuration)}' is equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)} / 2'.");
+        throw new ArgumentOutOfRangeException("configuration", $"'{nameof(BufferedVoiceReceiveHandlerConfiguration.StartupDuration)}' cannot be lower than 0 and must be less than or equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}'. By default '{nameof(BufferedVoiceReceiveHandlerConfiguration.StartupDuration)}' is equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)} / 2'.");
     }
 
     [DoesNotReturn]
     [StackTraceHidden]
     private static void ThrowInvalidResynchronizationDuration()
     {
-        throw new ArgumentOutOfRangeException("configuration", $"'{nameof(BufferedVoiceReceiveHandlerConfiguration.ResynchronizationDuration)}' cannot be lower than or equal to 0 and must be greater than or equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}' as well as cannot be greater than 44739244. By default '{nameof(BufferedVoiceReceiveHandlerConfiguration.ResynchronizationDuration)}' is equal to '2 * {nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}'.");
+        throw new ArgumentOutOfRangeException("configuration", $"'{nameof(BufferedVoiceReceiveHandlerConfiguration.ResynchronizationDuration)}' cannot be lower than or equal to 2 and must be greater than or equal to '{nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}' and cannot be greater than 81919. By default '{nameof(BufferedVoiceReceiveHandlerConfiguration.ResynchronizationDuration)}' is equal to '2 * {nameof(BufferedVoiceReceiveHandlerConfiguration.BufferDuration)}'.");
     }
 
     [DoesNotReturn]
@@ -344,7 +334,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             _anyEvicted = false;
             _lastEvictedSequenceNumber = (ushort)(sequenceNumber - (uint)owner._bufferSize + (uint)owner._startupSize - 1);
             _lastEvictedPacketTimestamp = timestamp - (uint)owner._bufferSamples + (uint)owner._startupSamples - MinSamplesPerPacket;
-            _lastEvictedPacketSamples = GetSamplesPerChannel(context.Frame);
 
             _outlierCount = 0;
 
@@ -421,7 +410,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 if (storedPacket.TryGetData(out var packet, out var frame) && packet.SequenceNumber == expectedSeq)
                 {
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, expectedSeq, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
 
                     EvictStoredPacket(owner, index, storedPacket, packet, frame);
                 }
@@ -443,7 +432,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                     isReady = true;
 
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, expectedSeq, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
 
                     EvictStoredPacket(owner, index, storedPacket, packet, frame);
                 }
@@ -487,7 +476,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                         break;
                 }
 
-                EvictLostFrames(owner, ssrc, expectedSeq, evictedPacket.Timestamp, evictedFrame);
+                EvictLostFrames(owner, ssrc, evictedPacket.Timestamp, evictedFrame);
 
                 owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Delivered(evictedFrame,
                                                                          evictedPacket.Ssrc,
@@ -526,39 +515,38 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 if (storedPacket.TryGetData(out var packet, out var frame) && packet.SequenceNumber == expectedSeq)
                 {
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, expectedSeq, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
 
                     EvictStoredPacket(owner, index, storedPacket, packet, frame);
                 }
             }
         }
 
-        private void EvictLostFrames(BufferedVoiceReceiveHandler owner, uint ssrc, ushort seq, uint timestamp, ReadOnlySpan<byte> fecData)
+        private void EvictLostFrames(BufferedVoiceReceiveHandler owner, uint ssrc, uint timestamp, ReadOnlySpan<byte> fecData)
         {
-            var sequenceNumberDiff = (int)(short)(seq - _lastEvictedSequenceNumber - 1);
+            // Does not depend on sequence numbers, only on timestamps
 
-            if (sequenceNumberDiff < 1)
+            // Packets are evicted in the way the first one is
+            // the remainder and the following packets are of max size
+            // (120 ms), this allows for FEC decoding to never fail
+            // due to the buffer being too small
+
+            var startTimestamp = _lastEvictedPacketTimestamp + (uint)_lastEvictedPacketSamples;
+            var timestampDiff = (int)(timestamp - startTimestamp);
+
+            if (timestampDiff <= 0)
                 return;
 
-            var lostTimestamp = _lastEvictedPacketTimestamp + (uint)_lastEvictedPacketSamples;
-            var timestampDiff = (int)(timestamp - lostTimestamp);
-            // var samplesPerPacket = timestampDiff / sequenceNumberDiff;
             var firstPacketSamples = timestampDiff % MaxSamplesPerPacket;
-
-            // var firstTimestamp = timestamp;
-
-            // while (currentTimestamp -= MaxSamplesPerPacket > _lastEvictedPacketTimestamp)
-            // {
-            // }
 
             int i = 1;
 
             if (firstPacketSamples is not 0)
             {
-                var currentTimestamp = lostTimestamp;
-                lostTimestamp += (uint)firstPacketSamples;
+                var currentTimestamp = startTimestamp;
+                startTimestamp += (uint)firstPacketSamples;
 
-                var isLast = lostTimestamp >= timestamp;
+                var isLast = startTimestamp >= timestamp;
 
                 var currentFecData = isLast ? fecData : default;
 
@@ -572,28 +560,21 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                     return;
 
                 i++;
-
-                // lostTimestamp += (uint)firstPacketSamples;
-
-                // if (lostTimestamp >= timestamp)
-                //     return;
             }
-
-            var samplesPerPacket = MaxSamplesPerPacket;
 
             while (true)
             {
-                var currentTimestamp = lostTimestamp;
-                lostTimestamp += (uint)samplesPerPacket;
+                var currentTimestamp = startTimestamp;
+                startTimestamp += MaxSamplesPerPacket;
                 
-                var isLast = lostTimestamp >= timestamp;
+                var isLast = startTimestamp >= timestamp;
 
                 var currentFecData = isLast ? fecData : default;
 
                 owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Lost(ssrc,
                                                                     currentTimestamp,
                                                                     (ushort)(_lastEvictedSequenceNumber + i),
-                                                                    samplesPerPacket,
+                                                                    MaxSamplesPerPacket,
                                                                     currentFecData));
 
                 if (isLast)
@@ -601,11 +582,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
                 i++;
             }
-            // for (int k = 2; k < sequenceNumberDiff; k++)
-            //     owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Lost(ssrc,
-            //                                                         currentTimestamp += (uint)samplesPerPacket,
-            //                                                         (ushort)(_lastEvictedSequenceNumber + k),
-            //                                                         samplesPerPacket));
         }
 
         private void EvictStoredPacket(BufferedVoiceReceiveHandler owner, int index, StoredContext storedPacket, RtpPacket packet, ReadOnlySpan<byte> frame)
