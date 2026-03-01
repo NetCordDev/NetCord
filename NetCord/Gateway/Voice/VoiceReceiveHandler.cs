@@ -11,8 +11,7 @@ public abstract class VoiceReceiveHandler
             throw new InvalidOperationException("This handler is already registered to a voice client.");
     }
 #else
-    public delegate void VoiceReceiveDelegate(VoiceReceiveEventArgs eventArgs);
-    public event VoiceReceiveDelegate? VoiceReceive;
+    public event Action<VoiceReceiveEventArgs>? VoiceReceive;
 #endif
 
     public abstract bool RequiresExternalSocketAddress { get; }
