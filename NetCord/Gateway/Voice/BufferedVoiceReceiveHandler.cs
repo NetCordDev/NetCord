@@ -271,8 +271,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                             jitterState._state = ActiveState.Disposed;
 
                             jitterState.Dispose();
-
-                            Console.WriteLine("Removed");
                             break;
                     }
                 }

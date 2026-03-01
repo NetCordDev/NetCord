@@ -592,18 +592,6 @@ public sealed partial class VoiceClient : WebSocketClient
                     break;
                 }
         }
-
-        // if (Random.Shared.Next(0, 10) == 0)
-        //     return;
-
-        // RtpPacket packet = new(datagram.Span);
-
-        // if (packet.SequenceNumber % 10 == 0)
-        //     return;
-
-        // Console.WriteLine($"Handling seq: {packet.SequenceNumber}");
-        //Console.WriteLine($"Handling {packet.SequenceNumber} {packet.Timestamp} {packet.Datagram.Length} {packet.CsrcCount}");
-        // _receiveHandler.HandlePacket(new(datagram.Span));
     }
 
     private void HandleVoicePacket(RtpPacket packet)
@@ -627,64 +615,6 @@ public sealed partial class VoiceClient : WebSocketClient
     internal void InvokeVoiceReceive(VoiceReceiveEventArgs eventArgs)
     {
         _ = InvokeEventAsync(_voiceReceive, eventArgs).AsTask();
-
-        // if (_udpState is not { Encryption: var encryption, DaveSession: var session })
-        //     return;
-
-        // var handlers = _voiceReceive;
-        // if (handlers.IsEmpty)
-        //     return;
-
-        // try
-        // {
-        //     var ssrc = data.Ssrc;
-
-        //     uint? timestamp;
-
-        //     int bytesWritten;
-
-        //     byte[]? buffer;
-
-        //     if (data.HasPacket)
-        //     {
-        //         var packet = data.Packet;
-
-        //         //Console.WriteLine($"Received {packet.SequenceNumber} {packet.Timestamp} {packet.Datagram.Length} {packet.CsrcCount}");
-
-        //         if (!TryGetVoiceData(data, encryption, session, ssrc, packet, out buffer, out bytesWritten))
-        //             return;
-
-        //         timestamp = packet.Timestamp;
-        //     }
-        //     else
-        //     {
-        //         timestamp = null;
-        //         buffer = null;
-        //         bytesWritten = 0;
-        //     }
-
-        //     if (data.CanCorrectLoss)
-        //     {
-        //         VoiceReceiveEventArgs lostArgs = new(buffer, 0, bytesWritten, ssrc, null, (ushort)(data.SequenceNumber - 1), true);
-
-        //         _ = InvokeEventAsync(handlers, lostArgs, nameof(_voiceReceive)).AsTask();
-        //     }
-
-        //     VoiceReceiveEventArgs args = new(buffer, 0, bytesWritten, ssrc, timestamp, data.SequenceNumber, false);
-
-        //     _ = InvokeEventAsync(handlers, args, nameof(_voiceReceive)).AsTask();
-
-        //     // VoiceReceiveEventArgs args = new(buffer, 0, bytesWritten, ssrc, timestamp, data.SequenceNumber, data.IsLost);
-
-        //     // _ = InvokeEventAsync(handlers, args, nameof(_voiceReceive)).AsTask();
-        // }
-        // catch (Exception ex)
-        // {
-        //     Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-        //     {
-        //         return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
-        //     });
-        // }
     }
 
     private bool TryGetVoiceData(RtpPacket packet, IVoiceEncryption encryption, DaveSession session, [MaybeNullWhen(false)] out byte[] frame, out int frameLength)
