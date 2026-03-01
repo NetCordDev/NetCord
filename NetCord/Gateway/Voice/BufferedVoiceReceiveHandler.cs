@@ -306,25 +306,25 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             return (short)(sequenceNumber - _lastEvictedSequenceNumber);
         }
 
-        private bool IsNotInWindowRange(BufferedVoiceReceiveHandler owner, short sequenceNumberDiff, int timestampDiff)
+        private bool IsInWindowRange(BufferedVoiceReceiveHandler owner, short sequenceNumberDiff, int timestampDiff)
         {
-            return sequenceNumberDiff <= (short)(_lastEvictedSequenceNumber - _latestPacketSequenceNumber)
-                || sequenceNumberDiff > owner._minResynchronizationPackets
-                || timestampDiff <= (int)(_lastEvictedPacketTimestamp - _latestPacketTimestamp)
-                || timestampDiff > owner._resynchronizationSamples;
+            return sequenceNumberDiff > (short)(_lastEvictedSequenceNumber - _latestPacketSequenceNumber)
+                && sequenceNumberDiff <= owner._minResynchronizationPackets
+                && timestampDiff > (int)(_lastEvictedPacketTimestamp - _latestPacketTimestamp)
+                && timestampDiff <= owner._resynchronizationSamples;
         }
 
-        private static bool IsNotInBufferRange(BufferedVoiceReceiveHandler owner, short sequenceNumberDiff, int timestampDiff)
+        private static bool IsInBufferRange(BufferedVoiceReceiveHandler owner, short sequenceNumberDiff, int timestampDiff)
         {
-            return sequenceNumberDiff <= -owner._bufferSize
-                || sequenceNumberDiff > owner._minResynchronizationPackets
-                || timestampDiff <= -owner._bufferSamples
-                || timestampDiff > owner._resynchronizationSamples;
+            return sequenceNumberDiff > -owner._bufferSize
+                && sequenceNumberDiff <= owner._minResynchronizationPackets
+                && timestampDiff > -owner._bufferSamples
+                && timestampDiff <= owner._resynchronizationSamples;
         }
 
-        private static bool IsNotInSync(int timestampDiff)
+        private static bool IsInSync(int timestampDiff)
         {
-            return timestampDiff % MinSamplesPerPacket is not 0;
+            return timestampDiff % MinSamplesPerPacket is 0;
         }
 
         public void Initialize(BufferedVoiceReceiveHandler owner, VoiceReceiveContext context)
@@ -609,6 +609,33 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             storedPacket.Dispose();
         }
 
+        private void HandleOutlier(BufferedVoiceReceiveHandler owner, VoiceReceiveContext context)
+        {
+            var packet = context.Packet;
+            var packetSequenceNumber = packet.SequenceNumber;
+            var packetTimestamp = packet.Timestamp;
+
+            if (_outlierCount is 0
+                || !IsInBufferRange(owner,
+                                    (short)(packetSequenceNumber - _lastOutlierSequenceNumber),
+                                    (int)(packetTimestamp - _lastOutlierTimestamp))
+                || !IsInSync((int)(packetTimestamp - _lastOutlierTimestamp)))
+                _outlierCount = 1;
+            else
+                _outlierCount++;
+
+            _lastOutlierSequenceNumber = packetSequenceNumber;
+            _lastOutlierTimestamp = packetTimestamp;
+
+            if (_outlierCount >= owner._resynchronizationThreshold)
+            {
+                ForceEvictAll(owner, packet.Ssrc);
+
+                // Reinitialize
+                Initialize(owner, context);
+            }
+        }
+
         public bool Update(BufferedVoiceReceiveHandler owner, VoiceReceiveContext context)
         {
             using var lockScope = _lock.EnterScope();
@@ -625,7 +652,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
             var timestampDiff = (int)(packetTimestamp - _latestPacketTimestamp);
 
-            if (IsNotInWindowRange(owner, sequenceNumberDiff, timestampDiff) || IsNotInSync(timestampDiff))
+            if (!IsInWindowRange(owner, sequenceNumberDiff, timestampDiff) || !IsInSync(timestampDiff))
             {
                 HandleOutlier(owner, context);
 
@@ -657,33 +684,6 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);
 
             return true;
-        }
-
-        private void HandleOutlier(BufferedVoiceReceiveHandler owner, VoiceReceiveContext context)
-        {
-            var packet = context.Packet;
-            var packetSequenceNumber = packet.SequenceNumber;
-            var packetTimestamp = packet.Timestamp;
-
-            if (_outlierCount is 0
-                || IsNotInBufferRange(owner,
-                                      (short)(packetSequenceNumber - _lastOutlierSequenceNumber),
-                                      (int)(packetTimestamp - _lastOutlierTimestamp))
-                || IsNotInSync((int)(packetTimestamp - _lastOutlierTimestamp)))
-                _outlierCount = 1;
-            else
-                _outlierCount++;
-
-            _lastOutlierSequenceNumber = packetSequenceNumber;
-            _lastOutlierTimestamp = packetTimestamp;
-
-            if (_outlierCount >= owner._resynchronizationThreshold)
-            {
-                ForceEvictAll(owner, packet.Ssrc);
-
-                // Reinitialize
-                Initialize(owner, context);
-            }
         }
     }
 }
