@@ -148,8 +148,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         voiceClient.VoiceReceive += args =>
         {
-            if (args.Timestamp is { } timestamp)
-                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+            if (!args.IsLost)
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
             else
                 Console.WriteLine($"Frame {args.SequenceNumber} got lost");
 
@@ -196,86 +196,48 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        // using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
-
         using OpusDecoder decoder = new(voiceChannels);
         using OpusDecoder decoder2 = new(voiceChannels);
         var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), pcmFormat, voiceChannels);
         var buffer = new byte[bufferSize];
 
+        Func<ReadOnlySpan<byte>, Span<byte>, int, bool, int> decode = pcmFormat is PcmFormat.Short ? decoder.Decode : decoder.DecodeFloat;
+
+        Func<ReadOnlySpan<byte>, Span<byte>, int, bool, int> decode2 = pcmFormat is PcmFormat.Short ? decoder2.Decode : decoder2.DecodeFloat;
+
         voiceClient.VoiceReceive += args =>
         {
-            // Console.WriteLine(args.IsLost);
             if (args.IsLost)
                 Console.WriteLine($"Lost frame {args.SequenceNumber} with {args.AsLost().SamplesPerChannel} samples");
             else
                 voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
+            var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+
+            // No FEC
             {
-                var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
-                var samples = decoder.DecodeFloat(args.Frame, buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, PcmFormat.Float, VoiceChannels.Stereo)), frameSize, false);
+                var samples = decode(args.Frame,
+                                     buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels)),
+                                     frameSize,
+                                     false);
                 ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
             }
 
+            // With FEC if available
             {
-                var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
-                var samples = decoder2.DecodeFloat(args.IsLost ? args.AsLost().FecData : args.Frame, buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, PcmFormat.Float, VoiceChannels.Stereo)), frameSize, args.IsLost && args.AsLost().DecodeFec);
+                var samples = decode2(args.IsLost ? args.AsLost().FecData : args.Frame,
+                                     buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels)),
+                                     frameSize,
+                                     args.IsLost && args.AsLost().DecodeFec);
                 ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
             }
 
-            // if (args.IsLost)
-            // {
-            //     var lostArgs = args.AsLost();
-            // }
-
-            // if (args.Timestamp.HasValue)
-            //     voiceClient.SendVoice(args.SequenceNumber, args.Timestamp.GetValueOrDefault(), args.Frame);
-
-            // // if (args.CanCorrectLoss)
-            // //     Console.WriteLine($"Frame {args.SequenceNumber} got lost but can be corrected");
-            // // else if (!args.Timestamp.HasValue)
-            // //     Console.WriteLine($"Frame {args.SequenceNumber} got lost and cannot be corrected");
-
-            // Console.WriteLine($"Received frame {args.SequenceNumber} (canCorrectLoss: {args.CanCorrectLoss}, timestamp: {(args.Timestamp.HasValue ? args.Timestamp.GetValueOrDefault().ToString() : "null")}): {string.Join(' ', args.Frame.ToArray().Take(10))}...");
-
-            // {
-            //     var samples = decoder.DecodeFloat(args.Timestamp.HasValue ? args.Frame : null, buffer, Opus.GetSamplesPerChannel(20), false);
-            //     ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            // }
-
-            // {
-            //     var samples = decoder2.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(20), args.CanCorrectLoss);
-            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            // }
-
-            // if (args.CanCorrectLoss)
-            // {
-            //     var samples = decoder.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), true);
-            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            // }
-            // else
-            // {
-            //     var samples = decoder.DecodeFloat(args.Frame, buffer, Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), false);
-            //     ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            // }
-
             return default;
-
-            // if (!args.Timestamp.HasValue)
-            // {
-            //     unsafe
-            //     {
-            //         fixed (byte* frame = args.Frame)
-            //             Console.WriteLine($"Frame {args.SequenceNumber} got lost {(nint)frame}");
-            //     }
-            // }
-
-            // opusDecodeStream.Write(args.Frame);
-            // return default;
         };
 
         await taskCompletionSource.Task;
         ffmpeg.Kill();
+        ffmpeg2.Kill();
     }
 
     public enum VoiceEncryption : byte
