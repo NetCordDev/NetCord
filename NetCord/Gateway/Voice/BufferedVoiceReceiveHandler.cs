@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace NetCord.Gateway.Voice;
 
@@ -21,7 +22,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
     private readonly int _resynchronizationThreshold;
     private readonly int _idleTimeout;
 
-    private readonly Dictionary<uint, JitterState> _state = [];
+    private readonly Dictionary<uint, State> _state = [];
     private readonly ReaderWriterLockSlim _stateLock = new();
 
     public BufferedVoiceReceiveHandler(BufferedVoiceReceiveHandlerConfiguration? configuration = null)
@@ -114,7 +115,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         var ssrc = packet.Ssrc;
 
         bool found;
-        JitterState? state;
+        State? state;
 
         _stateLock.EnterReadLock();
         try
@@ -157,52 +158,62 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         }
     }
 
-    private sealed class JitterState
+    private sealed class State
     {
+        [StructLayout(LayoutKind.Auto)]
         [DebuggerDisplay("{Buffer,nq}")]
         private readonly struct StoredContext : IDisposable
         {
             public StoredContext(VoiceReceiveContext context)
             {
-                var packet = context.Packet;
-                var datagram = packet.Datagram;
-
                 var frame = context.Frame;
+                var frameLength = frame.Length;
 
-                var buffer = ArrayPool<byte>.Shared.Rent(datagram.Length + frame.Length);
-                datagram.CopyTo(buffer);
-                frame.CopyTo(buffer.AsSpan(datagram.Length));
+                var frameCopy = ArrayPool<byte>.Shared.Rent(frameLength);
+                frame.CopyTo(frameCopy);
+                
+                _frame = frameCopy;
+                _frameLength = frameLength;
 
-                Buffer = buffer;
-                PacketLength = datagram.Length;
-                FrameLength = frame.Length;
+                var packet = context.Packet;
+                _timestamp = packet.Timestamp;
+                _sequenceNumber = packet.SequenceNumber;
             }
 
-            public byte[]? Buffer { get; }
+            private readonly byte[]? _frame;
 
-            public int PacketLength { get; }
+            private readonly int _frameLength;
 
-            public int FrameLength { get; }
+            private readonly uint _timestamp;
 
-            public bool TryGetData(out RtpPacket packet, out ReadOnlySpan<byte> frame)
+            private readonly ushort _sequenceNumber;
+
+            public bool TryGetData(out ContextData data)
             {
-                if (Buffer is not { } buffer)
+                if (_frame is not { } frame)
                 {
-                    packet = default;
-                    frame = default;
+                    data = default;
                     return false;
                 }
 
-                packet = new(buffer.AsSpan(0, PacketLength));
-                frame = buffer.AsSpan(PacketLength, FrameLength);
+                data = new(_sequenceNumber, _timestamp, frame.AsSpan(0, _frameLength));
                 return true;
             }
 
             public void Dispose()
             {
-                if (Buffer is not null)
-                    ArrayPool<byte>.Shared.Return(Buffer);
+                if (_frame is { } frame)
+                    ArrayPool<byte>.Shared.Return(frame);
             }
+        }
+
+        private readonly ref struct ContextData(ushort sequenceNumber, uint timestamp, ReadOnlySpan<byte> frame)
+        {
+            public ushort SequenceNumber => sequenceNumber;
+
+            public uint Timestamp => timestamp;
+
+            public ReadOnlySpan<byte> Frame { get; } = frame;
         }
 
         private readonly StoredContext[] _contexts;
@@ -231,7 +242,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             Disposed,
         }
 
-        public JitterState(BufferedVoiceReceiveHandler owner, uint ssrc, int bufferSize)
+        public State(BufferedVoiceReceiveHandler owner, uint ssrc, int bufferSize)
         {
             _contexts = ArrayPool<StoredContext>.Shared.Rent(bufferSize);
             _stopTimer = new(OnStop, Tuple.Create(owner, this, ssrc), Timeout.Infinite, Timeout.Infinite);
@@ -246,9 +257,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
         private static void OnStop(object? state)
         {
-            // return;
-
-            var (owner, jitterState, ssrc) = Unsafe.As<Tuple<BufferedVoiceReceiveHandler, JitterState, uint>>(state!);
+            var (owner, jitterState, ssrc) = Unsafe.As<Tuple<BufferedVoiceReceiveHandler, State, uint>>(state!);
 
             // If we can't acquire the lock, it means the state is currently being updated, so we can skip eviction
             if (jitterState._lock.TryEnter())
@@ -404,12 +413,12 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 var index = GetPacketIndex(owner, expectedSeq);
                 var storedPacket = _contexts[index];
 
-                if (storedPacket.TryGetData(out var packet, out var frame) && packet.SequenceNumber == expectedSeq)
+                if (storedPacket.TryGetData(out var data) && data.SequenceNumber == expectedSeq)
                 {
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, data.Timestamp, data.Frame);
 
-                    EvictStoredPacket(owner, index, storedPacket, packet, frame);
+                    EvictStoredPacket(owner, ssrc, index, storedPacket, data);
                 }
             }
 
@@ -421,7 +430,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 var index = GetPacketIndex(owner, expectedSeq);
                 var storedPacket = _contexts[index];
 
-                if (storedPacket.TryGetData(out var packet, out var frame) && packet.SequenceNumber == expectedSeq)
+                if (storedPacket.TryGetData(out var data) && data.SequenceNumber == expectedSeq)
                 {
                     if ((int)(timestamp - _lastEvictedPacketTimestamp) <= owner._bufferSamples)
                         break;
@@ -429,9 +438,9 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                     isReady = true;
 
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, data.Timestamp, data.Frame);
 
-                    EvictStoredPacket(owner, index, storedPacket, packet, frame);
+                    EvictStoredPacket(owner, ssrc, index, storedPacket, data);
                 }
                 else
                     isReady = false;
@@ -455,13 +464,15 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
                 var isCurrentIndex = evictedIndex == currentIndex;
 
-                RtpPacket evictedPacket;
+                uint evictedTimestamp;
+                ushort evictedSequenceNumber;
                 ReadOnlySpan<byte> evictedFrame;
                 StoredContext evictedStoredPacket;
 
                 if (isCurrentIndex)
                 {
-                    evictedPacket = context.Packet;
+                    evictedTimestamp = context.Packet.Timestamp;
+                    evictedSequenceNumber = context.Packet.SequenceNumber;
                     evictedFrame = context.Frame;
                     Unsafe.SkipInit(out evictedStoredPacket);
                 }
@@ -469,19 +480,23 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 {
                     evictedStoredPacket = _contexts[evictedIndex];
 
-                    if (!evictedStoredPacket.TryGetData(out evictedPacket, out evictedFrame))
+                    if (!evictedStoredPacket.TryGetData(out var data))
                         break;
+
+                    evictedTimestamp = data.Timestamp;
+                    evictedSequenceNumber = data.SequenceNumber;
+                    evictedFrame = data.Frame;
                 }
 
-                EvictLostFrames(owner, ssrc, evictedPacket.Timestamp, evictedFrame);
+                EvictLostFrames(owner, ssrc, evictedTimestamp, evictedFrame);
 
                 owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Delivered(evictedFrame,
-                                                                         evictedPacket.Ssrc,
-                                                                         evictedPacket.Timestamp,
-                                                                         evictedPacket.SequenceNumber));
+                                                                         ssrc,
+                                                                         evictedTimestamp,
+                                                                         evictedSequenceNumber));
 
-                _lastEvictedSequenceNumber = evictedPacket.SequenceNumber;
-                _lastEvictedPacketTimestamp = evictedPacket.Timestamp;
+                _lastEvictedSequenceNumber = evictedSequenceNumber;
+                _lastEvictedPacketTimestamp = evictedTimestamp;
                 _lastEvictedPacketSamples = GetSamplesPerChannel(evictedFrame);
 
                 if (isCurrentIndex)
@@ -509,12 +524,12 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 var index = GetPacketIndex(owner, expectedSeq);
                 var storedPacket = _contexts[index];
 
-                if (storedPacket.TryGetData(out var packet, out var frame) && packet.SequenceNumber == expectedSeq)
+                if (storedPacket.TryGetData(out var data) && data.SequenceNumber == expectedSeq)
                 {
                     if (_anyEvicted)
-                        EvictLostFrames(owner, ssrc, packet.Timestamp, frame);
+                        EvictLostFrames(owner, ssrc, data.Timestamp, data.Frame);
 
-                    EvictStoredPacket(owner, index, storedPacket, packet, frame);
+                    EvictStoredPacket(owner, ssrc, index, storedPacket, data);
                 }
             }
         }
@@ -581,13 +596,13 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             }
         }
 
-        private void EvictStoredPacket(BufferedVoiceReceiveHandler owner, int index, StoredContext storedPacket, RtpPacket packet, ReadOnlySpan<byte> frame)
+        private void EvictStoredPacket(BufferedVoiceReceiveHandler owner, uint ssrc, int index, StoredContext storedPacket, ContextData data)
         {
-            owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Delivered(frame, packet.Ssrc, packet.Timestamp, packet.SequenceNumber));
+            owner.InvokeVoiceReceive(VoiceReceiveEventArgs.Delivered(data.Frame, ssrc, data.Timestamp, data.SequenceNumber));
 
-            _lastEvictedSequenceNumber = packet.SequenceNumber;
-            _lastEvictedPacketTimestamp = packet.Timestamp;
-            _lastEvictedPacketSamples = GetSamplesPerChannel(frame);
+            _lastEvictedSequenceNumber = data.SequenceNumber;
+            _lastEvictedPacketTimestamp = data.Timestamp;
+            _lastEvictedPacketSamples = GetSamplesPerChannel(data.Frame);
             _anyEvicted = true;
 
             _contexts[index] = default;
@@ -620,7 +635,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             var packetIndex = GetPacketIndex(owner, packetSequenceNumber);
 
             // Seems to be a duplicate packet, ignore it
-            if (_contexts[packetIndex].TryGetData(out var existingPacket, out var existingFrame) && existingPacket.SequenceNumber == packetSequenceNumber)
+            if (_contexts[packetIndex].TryGetData(out var data) && data.SequenceNumber == packetSequenceNumber)
                 goto Ret;
 
             _outlierCount = 0;
