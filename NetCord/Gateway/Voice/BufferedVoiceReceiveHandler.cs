@@ -217,7 +217,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         }
 
         private readonly StoredContext[] _contexts;
-        private readonly Timer _stopTimer;
+        private readonly Timer _timeoutTimer;
         private readonly Lock _lock = new();
 
         private ushort _latestPacketSequenceNumber;
@@ -245,47 +245,38 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
         public State(BufferedVoiceReceiveHandler owner, uint ssrc, int bufferSize)
         {
             _contexts = ArrayPool<StoredContext>.Shared.Rent(bufferSize);
-            _stopTimer = new(OnStop, Tuple.Create(owner, this, ssrc), Timeout.Infinite, Timeout.Infinite);
+            _timeoutTimer = new(OnTimeout, Tuple.Create(owner, this, ssrc), Timeout.Infinite, Timeout.Infinite);
         }
 
         private void Dispose()
         {
             ArrayPool<StoredContext>.Shared.Return(_contexts);
 
-            _stopTimer.Dispose();
+            _timeoutTimer.Dispose();
         }
 
-        private static void OnStop(object? state)
+        private static void OnTimeout(object? o)
         {
-            var (owner, jitterState, ssrc) = Unsafe.As<Tuple<BufferedVoiceReceiveHandler, State, uint>>(state!);
+            var (owner, state, ssrc) = Unsafe.As<Tuple<BufferedVoiceReceiveHandler, State, uint>>(o!);
 
-            // If we can't acquire the lock, it means the state is currently being updated, so we can skip eviction
-            if (jitterState._lock.TryEnter())
+            using var lockScope = state._lock.EnterScope();
+
+            switch (state._state)
             {
-                try
-                {
-                    switch (jitterState._state)
-                    {
-                        case ActiveState.Active:
-                            jitterState.ForceEvictAll(owner, ssrc);
+                case ActiveState.Active:
+                    state.ForceEvictAll(owner, ssrc);
 
-                            jitterState._state = ActiveState.Idle;
+                    state._state = ActiveState.Idle;
 
-                            jitterState._stopTimer.Change(owner._idleTimeout, Timeout.Infinite);
-                            break;
-                        case ActiveState.Idle:
-                            owner.RemoveState(ssrc);
+                    state._timeoutTimer.Change(owner._idleTimeout, Timeout.Infinite);
+                    break;
+                case ActiveState.Idle:
+                    owner.RemoveState(ssrc);
 
-                            jitterState._state = ActiveState.Disposed;
+                    state._state = ActiveState.Disposed;
 
-                            jitterState.Dispose();
-                            break;
-                    }
-                }
-                finally
-                {
-                    jitterState._lock.Exit();
-                }
+                    state.Dispose();
+                    break;
             }
         }
 
@@ -345,7 +336,7 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
 
             _contexts[0] = new(context);
 
-            _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);
+            _timeoutTimer.Change(owner._bufferDuration, Timeout.Infinite);
         }
 
 #region Based on https://github.com/xiph/opus/blob/8161640db03727aa9a0d76377d16e5288b7b2342/src/opus.c
@@ -656,14 +647,14 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
             {
                 HandleOutlier(owner, context);
 
-                goto Ret;
+                return true;
             }
 
             var packetIndex = GetPacketIndex(owner, packetSequenceNumber);
 
             // Seems to be a duplicate packet, ignore it
             if (_contexts[packetIndex].TryGetData(out var data) && data.SequenceNumber == packetSequenceNumber)
-                goto Ret;
+                return true;
 
             _outlierCount = 0;
 
@@ -676,12 +667,11 @@ public sealed class BufferedVoiceReceiveHandler : VoiceReceiveHandler
                 _latestPacketSequenceNumber = packetSequenceNumber;
                 _latestPacketTimestamp = packetTimestamp;
                 _latestPacketIndex = packetIndex;
+
+                _state = ActiveState.Active;
+
+                _timeoutTimer.Change(owner._bufferDuration, Timeout.Infinite);
             }
-
-            Ret:
-            _state = ActiveState.Active;
-
-            _stopTimer.Change(owner._bufferDuration, Timeout.Infinite);
 
             return true;
         }

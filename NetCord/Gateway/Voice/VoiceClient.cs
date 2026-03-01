@@ -580,9 +580,23 @@ public sealed partial class VoiceClient : WebSocketClient
         return (ip, port);
     }
 
-    private void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    private void HandleDatagramReceive(ReadOnlySpan<byte> datagram)
     {
-        RtpPacket packet = new(datagram.Span);
+        var datagramLength = datagram.Length;
+
+        if (datagramLength < 12)
+        {
+            Log<object?>(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
+            return;
+        }
+
+        RtpPacket packet = new(datagram);
+
+        if (datagramLength < packet.ExtendedHeaderLength)
+        {
+            Log<object?>(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
+            return;
+        }
 
         switch (packet.PayloadType)
         {
@@ -614,7 +628,12 @@ public sealed partial class VoiceClient : WebSocketClient
 
     internal void InvokeVoiceReceive(VoiceReceiveEventArgs eventArgs)
     {
-        _ = InvokeEventAsync(_voiceReceive, eventArgs).AsTask();
+        HandleTask(InvokeEventAsync(_voiceReceive, eventArgs));
+
+        static async void HandleTask(ValueTask task)
+        {
+            await task.ConfigureAwait(false);
+        }
     }
 
     private bool TryGetVoiceData(RtpPacket packet, IVoiceEncryption encryption, DaveSession session, [MaybeNullWhen(false)] out byte[] frame, out int frameLength)
