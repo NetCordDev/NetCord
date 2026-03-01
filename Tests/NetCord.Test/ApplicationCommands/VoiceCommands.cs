@@ -208,11 +208,8 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             // Console.WriteLine(args.IsLost);
             if (args.IsLost)
                 Console.WriteLine($"Lost frame {args.SequenceNumber} with {args.AsLost().SamplesPerChannel} samples");
-
-            if (!args.IsLost)
-            {
+            else
                 voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
-            }
 
             {
                 var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
