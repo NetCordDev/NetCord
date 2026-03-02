@@ -24,6 +24,13 @@ public partial class RestClient
             return Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Patch, content, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
     }
 
+    [GenerateAlias([typeof(VoiceGuildChannel)], nameof(VoiceGuildChannel.Id))]
+    public async Task SetVoiceGuildChannelStatusAsync(ulong channelId, VoiceGuildChannelStatusProperties statusProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        using (HttpContent content = new JsonContent<VoiceGuildChannelStatusProperties>(statusProperties, Serialization.Default.VoiceGuildChannelStatusProperties))
+            await SendRequestAsync(HttpMethod.Put, content, $"/channels/{channelId}/voice-status", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+
     [GenerateAlias([typeof(Channel)], nameof(Channel.Id), Cast = true)]
     public async Task<Channel> DeleteChannelAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => Channel.CreateFromJson(await (await SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonChannel).ConfigureAwait(false), this);
@@ -206,12 +213,10 @@ public partial class RestClient
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
     public async Task<RestInvite> CreateGuildChannelInviteAsync(ulong channelId, InviteProperties? inviteProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-#pragma warning disable CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
     {
         using (HttpContent content = new JsonContent<InviteProperties?>(inviteProperties, Serialization.Default.InviteProperties))
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
     }
-#pragma warning restore CS8620 // Argument cannot be used for parameter due to differences in the nullability of reference types.
 
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
     public Task DeleteGuildChannelPermissionAsync(ulong channelId, ulong overwriteId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)

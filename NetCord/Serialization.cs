@@ -138,6 +138,7 @@ namespace NetCord;
 [JsonSerializable(typeof(AutoModerationRuleOptions))]
 [JsonSerializable(typeof(GroupDMChannelOptions))]
 [JsonSerializable(typeof(GuildChannelOptions))]
+[JsonSerializable(typeof(VoiceGuildChannelStatusProperties))]
 [JsonSerializable(typeof(JsonMessage[]))]
 [JsonSerializable(typeof(JsonUser[]))]
 [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
