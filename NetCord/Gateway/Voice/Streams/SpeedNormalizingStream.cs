@@ -94,7 +94,8 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public DelayTaskSource(TimeProvider timeProvider)
         {
-            _timer = timeProvider.CreateTimer(static s => Unsafe.As<DelayTaskSource>(s!).TryComplete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            using (ExecutionContext.SuppressFlow())
+                _timer = timeProvider.CreateTimer(static s => ((DelayTaskSource)s!).TryComplete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         public short Version => _core.Version;
@@ -103,7 +104,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             if (Interlocked.Exchange(ref _state, 1) is 0)
             {
-                _cancellationTokenRegistration.Dispose();                
+                _cancellationTokenRegistration.Dispose();
                 _core.SetResult(true);
             }
         }
@@ -112,7 +113,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             if (Interlocked.Exchange(ref _state, 1) is 0)
             {
-                _cancellationTokenRegistration.Dispose();                
+                _cancellationTokenRegistration.Dispose();
                 _core.SetException(exception);
             }
         }
@@ -126,7 +127,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             if (_state is not 0)
             {
                 _cancellationTokenRegistration.Dispose();
-                return;                
+                return;
             }
             
             if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
