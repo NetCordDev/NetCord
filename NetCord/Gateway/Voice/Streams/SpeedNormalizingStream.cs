@@ -32,8 +32,8 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             if (delay >= TimeSpan.TicksPerMillisecond)
             {
                 var delaySource = _delaySource;
-                delaySource.Reset(new(delay));
-                await new ValueTask<bool>(delaySource, delaySource.Version).ConfigureAwait(false);
+                delaySource.Reset(new(delay), cancellationToken);
+                await new ValueTask(delaySource, delaySource.Version).ConfigureAwait(false);
             }
         }
         else
@@ -85,26 +85,50 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         base.Dispose(disposing);
     }
 
-    private sealed class DelayTaskSource : IValueTaskSource<bool>, IDisposable
+    private sealed class DelayTaskSource : IValueTaskSource, IDisposable
     {
         private readonly ITimer _timer;
         private ManualResetValueTaskSourceCore<bool> _core;
+        private CancellationTokenRegistration _cancellationTokenRegistration;
+        private byte _state;
 
         public DelayTaskSource(TimeProvider timeProvider)
         {
-            _timer = timeProvider.CreateTimer(s => Unsafe.As<DelayTaskSource>(s!).Complete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            _timer = timeProvider.CreateTimer(static s => Unsafe.As<DelayTaskSource>(s!).TryComplete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         public short Version => _core.Version;
 
-        private void Complete()
+        private void TryComplete()
         {
-            _core.SetResult(true);
+            if (Interlocked.Exchange(ref _state, 1) is 0)
+            {
+                _cancellationTokenRegistration.Dispose();                
+                _core.SetResult(true);
+            }
         }
 
-        public void Reset(TimeSpan delay)
+        private void TrySetException(Exception exception)
+        {
+            if (Interlocked.Exchange(ref _state, 1) is 0)
+            {
+                _cancellationTokenRegistration.Dispose();                
+                _core.SetException(exception);
+            }
+        }
+
+        public void Reset(TimeSpan delay, CancellationToken cancellationToken)
         {
             _core.Reset();
+            _state = 0;
+            _cancellationTokenRegistration = cancellationToken.UnsafeRegister(static (s, t) => Unsafe.As<DelayTaskSource>(s!).TrySetException(new OperationCanceledException(t)), this);
+
+            if (_state is not 0)
+            {
+                _cancellationTokenRegistration.Dispose();
+                return;                
+            }
+            
             if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
                 ThrowTimerChangeFailed();
         }
@@ -116,7 +140,10 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             throw new InvalidOperationException("Failed to change timer.");
         }
 
-        public bool GetResult(short token) => _core.GetResult(token);
+        public void GetResult(short token)
+        {
+            _core.GetResult(token);
+        }
 
         public ValueTaskSourceStatus GetStatus(short token) => _core.GetStatus(token);
 
@@ -125,6 +152,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         public void Dispose()
         {
             _timer.Dispose();
+            _cancellationTokenRegistration.Dispose();
         }
     }
 }
