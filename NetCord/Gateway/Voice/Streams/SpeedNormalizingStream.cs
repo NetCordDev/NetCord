@@ -9,7 +9,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 {
     private readonly long _timestampFrequency;
     private readonly long _frameDurationTicks;
-    private readonly DelayTaskSource _delaySource;
+    private DelayTaskSource _delaySource;
     private readonly TimeProvider _timeProvider;
 
     private long _nextTick;
@@ -32,7 +32,17 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             if (delay >= TimeSpan.TicksPerMillisecond)
             {
                 var delaySource = _delaySource;
-                delaySource.Reset(new(delay), cancellationToken);
+
+                if (!delaySource.TryReset(new(delay), cancellationToken))
+                {
+                    delaySource.Dispose();
+
+                    delaySource = _delaySource = new(_timeProvider);
+
+                    // Will never return false
+                    delaySource.TryReset(new(delay), cancellationToken);
+                }
+
                 await new ValueTask(delaySource, delaySource.Version).ConfigureAwait(false);
             }
         }
@@ -102,36 +112,36 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         private void TryComplete()
         {
-            if (Interlocked.Exchange(ref _state, 1) is 0)
-            {
-                _cancellationTokenRegistration.Dispose();
+            if (Interlocked.CompareExchange(ref _state, 1, 0) is 0)
                 _core.SetResult(true);
-            }
         }
 
-        private void TrySetException(Exception exception)
+        private void TrySetCanceled(CancellationToken cancellationToken)
         {
-            if (Interlocked.Exchange(ref _state, 1) is 0)
+            if (Interlocked.CompareExchange(ref _state, 2, 0) is 0)
             {
-                _cancellationTokenRegistration.Dispose();
-                _core.SetException(exception);
+                _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
+                _core.SetException(new OperationCanceledException(cancellationToken));
             }
         }
 
-        public void Reset(TimeSpan delay, CancellationToken cancellationToken)
+        public bool TryReset(TimeSpan delay, CancellationToken cancellationToken)
         {
+            if (Interlocked.CompareExchange(ref _state, 0, 1) is 2)
+                return false;
+
             _core.Reset();
-            _state = 0;
-            _cancellationTokenRegistration = cancellationToken.UnsafeRegister(static (s, t) => Unsafe.As<DelayTaskSource>(s!).TrySetException(new OperationCanceledException(t)), this);
 
-            if (_state is not 0)
-            {
-                _cancellationTokenRegistration.Dispose();
-                return;
-            }
-            
             if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
                 ThrowTimerChangeFailed();
+
+            _cancellationTokenRegistration = cancellationToken.UnsafeRegister(static (s, t) => Unsafe.As<DelayTaskSource>(s!).TrySetCanceled(t), this);
+
+            if (Interlocked.CompareExchange(ref _state, 0, 0) is not 0)
+                _cancellationTokenRegistration.Dispose();
+
+            return true;
         }
 
         [DoesNotReturn]
@@ -143,6 +153,8 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public void GetResult(short token)
         {
+            _cancellationTokenRegistration.Dispose();
+
             _core.GetResult(token);
         }
 
