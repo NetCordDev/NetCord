@@ -9,8 +9,9 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 {
     private readonly long _timestampFrequency;
     private readonly long _frameDurationTicks;
-    private DelayTaskSource _delaySource;
     private readonly TimeProvider _timeProvider;
+    private readonly SyncTimerWaiter? _syncWaiter;
+    private DelayTaskSource _delaySource;
 
     private long _nextTick;
     private bool _used;
@@ -19,8 +20,12 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     {
         var timestampFrequency = _timestampFrequency = timeProvider.TimestampFrequency;
         _frameDurationTicks = (int)(frameDuration * 2) * timestampFrequency / TimeSpan.MillisecondsPerSecond / 2;
-        _delaySource = new(timeProvider);
         _timeProvider = timeProvider;
+
+        if (timeProvider != TimeProvider.System)
+            _syncWaiter = new(timeProvider);
+
+        _delaySource = new(timeProvider);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
@@ -61,9 +66,14 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         if (_used)
         {
             var delayTicks = _nextTick - _timeProvider.GetTimestamp();
-            var delay = (int)(delayTicks * TimeSpan.MillisecondsPerSecond / _timestampFrequency);
-            if (delay > 0)
-                Thread.Sleep(delay);
+            var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
+            if (delay >= TimeSpan.TicksPerMillisecond)
+            {
+                if (_syncWaiter is { } syncWaiter)
+                    syncWaiter.Wait(new(delay));
+                else
+                    Thread.Sleep(new TimeSpan(delay));
+            }
         }
         else
         {
@@ -90,9 +100,19 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     protected override void Dispose(bool disposing)
     {
         if (disposing)
+        {
+            _syncWaiter?.Dispose();
             _delaySource.Dispose();
+        }
 
         base.Dispose(disposing);
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowTimerChangeFailed()
+    {
+        throw new InvalidOperationException("Failed to change timer.");
     }
 
     private sealed class DelayTaskSource : IValueTaskSource, IDisposable
@@ -144,13 +164,6 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             return true;
         }
 
-        [DoesNotReturn]
-        [StackTraceHidden]
-        private static void ThrowTimerChangeFailed()
-        {
-            throw new InvalidOperationException("Failed to change timer.");
-        }
-
         public void GetResult(short token)
         {
             _cancellationTokenRegistration.Dispose();
@@ -166,6 +179,41 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             _timer.Dispose();
             _cancellationTokenRegistration.Dispose();
+        }
+    }
+
+    private sealed class SyncTimerWaiter : IDisposable
+    {
+        private readonly ITimer _timer;
+        private readonly ManualResetEventSlim _event;
+
+        public SyncTimerWaiter(TimeProvider timeProvider)
+        {
+            using (ExecutionContext.SuppressFlow())
+                _timer = timeProvider.CreateTimer(static s => ((SyncTimerWaiter)s!).Complete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
+            _event = new(false, 0);
+        }
+
+        private void Complete()
+        {
+            _event.Set();
+        }
+
+        public void Wait(TimeSpan delay)
+        {
+            _event.Reset();
+
+            if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
+                ThrowTimerChangeFailed();
+
+            _event.Wait();
+        }
+
+        public void Dispose()
+        {
+            _timer.Dispose();
+            _event.Dispose();
         }
     }
 }
