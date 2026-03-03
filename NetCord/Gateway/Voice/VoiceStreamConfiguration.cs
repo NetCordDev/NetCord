@@ -11,4 +11,9 @@ public class VoiceStreamConfiguration
     /// Whether to normalize the voice sending speed. Defaults to <see langword="true"/>.
     /// </summary>
     public bool? NormalizeSpeed { get; set; }
+
+    /// <summary>
+    /// The time provider used for normalizing the voice sending speed. Defaults to <see cref="TimeProvider.System"/>.
+    /// </summary>
+    public TimeProvider? TimeProvider { get; set; }
 }

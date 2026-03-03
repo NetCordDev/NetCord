@@ -886,7 +886,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
         Stream stream = new VoiceOutStream(this, frameDuration);
         if (normalizeSpeed)
-            stream = new SpeedNormalizingStream(stream, frameDuration);
+            stream = new SpeedNormalizingStream(stream, frameDuration, configuration?.TimeProvider ?? TimeProvider.System);
         return stream;
     }
 
