@@ -193,6 +193,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public SyncTimerWaiter(TimeProvider timeProvider)
         {
+            // 'timeProvider' is not 'TimeProvider.System', so a proper cast is needed
             using (ExecutionContext.SuppressFlow())
                 _timer = timeProvider.CreateTimer(static s => ((SyncTimerWaiter)s!).Complete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
