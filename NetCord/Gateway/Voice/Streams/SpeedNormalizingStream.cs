@@ -124,8 +124,12 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public DelayTaskSource(TimeProvider timeProvider)
         {
+            TimerCallback callback = timeProvider == TimeProvider.System
+                ? static s => Unsafe.As<DelayTaskSource>(s!).TryComplete()
+                : static s => ((DelayTaskSource)s!).TryComplete();
+
             using (ExecutionContext.SuppressFlow())
-                _timer = timeProvider.CreateTimer(static s => ((DelayTaskSource)s!).TryComplete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                _timer = timeProvider.CreateTimer(callback, this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
         }
 
         public short Version => _core.Version;
