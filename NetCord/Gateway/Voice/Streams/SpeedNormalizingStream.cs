@@ -178,8 +178,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             if (Interlocked.CompareExchange(ref _state, 2, 1) is 1)
             {
-                if (!_timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan))
-                    ThrowTimerChangeFailed();
+                _timer.Dispose();
 
                 _core.SetException(new OperationCanceledException(cancellationToken));
             }
