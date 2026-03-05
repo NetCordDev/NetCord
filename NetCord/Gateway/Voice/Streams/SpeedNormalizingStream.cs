@@ -34,7 +34,8 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
             if (delay > 0)
             {
-                var delaySource = Interlocked.CompareExchange(ref _delaySource, null, null);
+                // No Interlocked needed here
+                var delaySource = _delaySource;
 
                 if (delaySource is null)
                     ThrowObjectDisposed();
@@ -67,13 +68,13 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             if (actualDelaySource is null)
                 ThrowObjectDisposed();
             else
-                ThrowConcurrentWritesNotSupported();
+                ThrowWriteInProgress();
         }
 
         oldDelaySource.Dispose();
 
         if (!newDelaySource.TryReset(new(delay), cancellationToken))
-            ThrowConcurrentWritesNotSupported();
+            ThrowWriteInProgress();
 
         return newDelaySource;
     }
@@ -142,9 +143,9 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
     [DoesNotReturn]
     [StackTraceHidden]
-    private static void ThrowConcurrentWritesNotSupported()
+    private static void ThrowWriteInProgress()
     {
-        throw new InvalidOperationException("Concurrent writes are not supported.");
+        throw new InvalidOperationException("A write operation is already in progress.");
     }
 
     private sealed class DelayTaskSource : IValueTaskSource, IDisposable
@@ -198,7 +199,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
                     ThrowObjectDisposed();
                     break;
                 default:
-                    ThrowConcurrentWritesNotSupported();
+                    ThrowWriteInProgress();
                     break;
             }
 
@@ -273,7 +274,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
                     ThrowObjectDisposed();
                     break;
                 default:
-                    ThrowConcurrentWritesNotSupported();
+                    ThrowWriteInProgress();
                     break;
             }
 
