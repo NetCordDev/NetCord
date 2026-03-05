@@ -10,9 +10,9 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     private readonly long _timestampFrequency;
     private readonly long _frameDurationTicks;
     private readonly TimeProvider _timeProvider;
-    private readonly SyncTimerWaiter? _syncWaiter;
-    private DelayTaskSource _delaySource;
+    private readonly SyncTimerWaiter _syncWaiter;
 
+    private DelayTaskSource _delaySource;
     private long _nextTick;
     private bool _used;
 
@@ -21,9 +21,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         var timestampFrequency = _timestampFrequency = timeProvider.TimestampFrequency;
         _frameDurationTicks = (int)(frameDuration * 2) * timestampFrequency / TimeSpan.MillisecondsPerSecond / 2;
         _timeProvider = timeProvider;
-
-        if (timeProvider != TimeProvider.System)
-            _syncWaiter = new(timeProvider);
+        _syncWaiter = new(timeProvider);
 
         _delaySource = new(timeProvider);
     }
@@ -34,7 +32,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             var delayTicks = _nextTick - _timeProvider.GetTimestamp();
             var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
-            if (delay >= TimeSpan.TicksPerMillisecond)
+            if (delay > 0)
             {
                 var delaySource = _delaySource;
 
@@ -67,13 +65,8 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             var delayTicks = _nextTick - _timeProvider.GetTimestamp();
             var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
-            if (delay >= TimeSpan.TicksPerMillisecond)
-            {
-                if (_syncWaiter is { } syncWaiter)
-                    syncWaiter.Wait(new(delay));
-                else
-                    Thread.Sleep(new TimeSpan(delay));
-            }
+            if (delay > 0)
+                _syncWaiter.Wait(new(delay));
         }
         else
         {
@@ -101,7 +94,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     {
         if (disposing)
         {
-            _syncWaiter?.Dispose();
+            _syncWaiter.Dispose();
             _delaySource.Dispose();
         }
 
@@ -115,11 +108,33 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         throw new InvalidOperationException("Failed to change timer.");
     }
 
+    [StackTraceHidden]
+    private static ObjectDisposedException GetObjectDisposedException()
+    {
+        return new ObjectDisposedException(typeof(VoiceOutStream).FullName);
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowObjectDisposed()
+    {
+        throw GetObjectDisposedException();
+    }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowConcurrentWritesNotSupported()
+    {
+        throw new InvalidOperationException("Concurrent writes are not supported.");
+    }
+
     private sealed class DelayTaskSource : IValueTaskSource, IDisposable
     {
         private readonly ITimer _timer;
         private ManualResetValueTaskSourceCore<bool> _core;
         private CancellationTokenRegistration _cancellationTokenRegistration;
+
+        // 0 - completed, 1 - waiting, 2 - cancelled, 3 - disposed
         private byte _state;
 
         public DelayTaskSource(TimeProvider timeProvider)
@@ -136,15 +151,16 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         private void TryComplete()
         {
-            if (Interlocked.CompareExchange(ref _state, 1, 0) is 0)
+            if (Interlocked.CompareExchange(ref _state, 0, 1) is 1)
                 _core.SetResult(true);
         }
 
         private void TrySetCanceled(CancellationToken cancellationToken)
         {
-            if (Interlocked.CompareExchange(ref _state, 2, 0) is 0)
+            if (Interlocked.CompareExchange(ref _state, 2, 1) is 1)
             {
-                _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                if (!_timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan))
+                    ThrowTimerChangeFailed();
 
                 _core.SetException(new OperationCanceledException(cancellationToken));
             }
@@ -152,17 +168,28 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public bool TryReset(TimeSpan delay, CancellationToken cancellationToken)
         {
-            if (Interlocked.CompareExchange(ref _state, 0, 1) is 2)
-                return false;
-
             _core.Reset();
+
+            switch (Interlocked.CompareExchange(ref _state, 1, 0))
+            {
+                case 0:
+                    break;
+                case 2:
+                    return false;
+                case 3:
+                    ThrowObjectDisposed();
+                    break;
+                default:
+                    ThrowConcurrentWritesNotSupported();
+                    break;
+            }
 
             if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
                 ThrowTimerChangeFailed();
 
             _cancellationTokenRegistration = cancellationToken.UnsafeRegister(static (s, t) => Unsafe.As<DelayTaskSource>(s!).TrySetCanceled(t), this);
 
-            if (Interlocked.CompareExchange(ref _state, 0, 0) is not 0)
+            if (Interlocked.CompareExchange(ref _state, 0, 0) is not 1)
                 _cancellationTokenRegistration.Dispose();
 
             return true;
@@ -181,6 +208,9 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         public void Dispose()
         {
+            if (Interlocked.Exchange(ref _state, 3) is 1)
+                _core.SetException(GetObjectDisposedException());
+
             _timer.Dispose();
             _cancellationTokenRegistration.Dispose();
         }
@@ -191,17 +221,25 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         private readonly ITimer _timer;
         private readonly ManualResetEventSlim _event;
 
+        // 0 - completed, 1 - waiting, 2 - disposed
+        private byte _state;
+
         public SyncTimerWaiter(TimeProvider timeProvider)
         {
-            // 'timeProvider' is not 'TimeProvider.System', so a proper cast is needed
+            TimerCallback callback = timeProvider == TimeProvider.System
+                ? static s => Unsafe.As<SyncTimerWaiter>(s!).Complete()
+                : static s => ((SyncTimerWaiter)s!).Complete();
+
             using (ExecutionContext.SuppressFlow())
-                _timer = timeProvider.CreateTimer(static s => ((SyncTimerWaiter)s!).Complete(), this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                _timer = timeProvider.CreateTimer(callback, this, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
             _event = new(false, 0);
         }
 
         private void Complete()
         {
+            // Can be used after disposal, so no need to check the '_state',
+            // see https://github.com/dotnet/runtime/issues/89692
             _event.Set();
         }
 
@@ -209,14 +247,32 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         {
             _event.Reset();
 
+            switch (Interlocked.CompareExchange(ref _state, 1, 0))
+            {
+                case 0:
+                    break;
+                case 2:
+                    ThrowObjectDisposed();
+                    break;
+                default:
+                    ThrowConcurrentWritesNotSupported();
+                    break;
+            }
+
             if (!_timer.Change(delay, Timeout.InfiniteTimeSpan))
                 ThrowTimerChangeFailed();
 
             _event.Wait();
+
+            if (Interlocked.CompareExchange(ref _state, 0, 1) is 2)
+                ThrowObjectDisposed();
         }
 
         public void Dispose()
         {
+            if (Interlocked.Exchange(ref _state, 2) is 1)
+                _event.Set();
+
             _timer.Dispose();
             _event.Dispose();
         }
