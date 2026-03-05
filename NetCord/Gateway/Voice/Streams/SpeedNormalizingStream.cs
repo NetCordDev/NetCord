@@ -26,34 +26,16 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         _delaySource = new(timeProvider);
     }
 
-    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    private void Initialize()
     {
-        if (_used)
-        {
-            var delayTicks = _nextTick - _timeProvider.GetTimestamp();
-            var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
-            if (delay > 0)
-            {
-                // No Interlocked needed here
-                var delaySource = _delaySource;
+        _used = true;
+        _nextTick = _timeProvider.GetTimestamp();
+    }
 
-                if (delaySource is null)
-                    ThrowObjectDisposed();
-
-                if (!delaySource.TryReset(new(delay), cancellationToken))
-                    delaySource = RecreateDelaySource(delay, delaySource, cancellationToken);
-
-                await new ValueTask(delaySource, delaySource.Version).ConfigureAwait(false);
-            }
-        }
-        else
-        {
-            _used = true;
-            _nextTick = _timeProvider.GetTimestamp();
-        }
-
-        await _next.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
-        _nextTick += _frameDurationTicks;
+    private long GetDelayTicks()
+    {
+        var rawDelayTicks = _nextTick - _timeProvider.GetTimestamp();
+        return rawDelayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
     }
 
     private DelayTaskSource RecreateDelaySource(long delay, DelayTaskSource oldDelaySource, CancellationToken cancellationToken)
@@ -79,20 +61,42 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         return newDelaySource;
     }
 
+    public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        if (_used)
+        {
+            var delayTicks = GetDelayTicks();
+            if (delayTicks > 0)
+            {
+                // No Interlocked needed here
+                var delaySource = _delaySource;
+
+                if (delaySource is null)
+                    ThrowObjectDisposed();
+
+                if (!delaySource.TryReset(new(delayTicks), cancellationToken))
+                    delaySource = RecreateDelaySource(delayTicks, delaySource, cancellationToken);
+
+                await new ValueTask(delaySource, delaySource.Version).ConfigureAwait(false);
+            }
+        }
+        else
+            Initialize();
+
+        await _next.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
+        _nextTick += _frameDurationTicks;
+    }
+
     public override void Write(ReadOnlySpan<byte> buffer)
     {
         if (_used)
         {
-            var delayTicks = _nextTick - _timeProvider.GetTimestamp();
-            var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
-            if (delay > 0)
-                _syncWaiter.Wait(new(delay));
+            var delayTicks = GetDelayTicks();
+            if (delayTicks > 0)
+                _syncWaiter.Wait(new(delayTicks));
         }
         else
-        {
-            _used = true;
-            _nextTick = _timeProvider.GetTimestamp();
-        }
+            Initialize();
 
         _next.Write(buffer);
         _nextTick += _frameDurationTicks;
