@@ -42,18 +42,18 @@ internal sealed class SpeedNormalizingStream : RewritingStream
                 if (!delaySource.TryReset(new(delay), cancellationToken))
                 {
                     DelayTaskSource newDelaySource = new(_timeProvider);
-                    var originalDelaySource = Interlocked.CompareExchange(ref _delaySource, newDelaySource, delaySource);
+                    var actualDelaySource = Interlocked.CompareExchange(ref _delaySource, newDelaySource, delaySource);
 
-                    if (originalDelaySource == delaySource)
+                    if (actualDelaySource == delaySource)
                     {
-                        originalDelaySource.Dispose();
+                        actualDelaySource.Dispose();
                         delaySource = newDelaySource;
                     }
                     else
                     {
                         newDelaySource.Dispose();
 
-                        if (originalDelaySource is null)
+                        if (actualDelaySource is null)
                             ThrowObjectDisposed();
                         else
                             ThrowConcurrentWritesNotSupported();
