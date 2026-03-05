@@ -12,7 +12,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     private readonly TimeProvider _timeProvider;
     private readonly SyncTimerWaiter _syncWaiter;
 
-    private DelayTaskSource _delaySource;
+    private DelayTaskSource? _delaySource;
     private long _nextTick;
     private bool _used;
 
@@ -34,13 +34,30 @@ internal sealed class SpeedNormalizingStream : RewritingStream
             var delay = delayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
             if (delay > 0)
             {
-                var delaySource = _delaySource;
+                var delaySource = Interlocked.CompareExchange(ref _delaySource, null, null);
+
+                if (delaySource is null)
+                    ThrowObjectDisposed();
 
                 if (!delaySource.TryReset(new(delay), cancellationToken))
                 {
-                    delaySource.Dispose();
+                    DelayTaskSource newDelaySource = new(_timeProvider);
+                    var originalDelaySource = Interlocked.CompareExchange(ref _delaySource, newDelaySource, delaySource);
 
-                    delaySource = _delaySource = new(_timeProvider);
+                    if (originalDelaySource == delaySource)
+                    {
+                        originalDelaySource.Dispose();
+                        delaySource = newDelaySource;
+                    }
+                    else
+                    {
+                        newDelaySource.Dispose();
+
+                        if (originalDelaySource is null)
+                            ThrowObjectDisposed();
+                        else
+                            ThrowConcurrentWritesNotSupported();
+                    }
 
                     // Will never return false
                     delaySource.TryReset(new(delay), cancellationToken);
@@ -95,7 +112,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
         if (disposing)
         {
             _syncWaiter.Dispose();
-            _delaySource.Dispose();
+            Interlocked.Exchange(ref _delaySource, null)?.Dispose();
         }
 
         base.Dispose(disposing);
