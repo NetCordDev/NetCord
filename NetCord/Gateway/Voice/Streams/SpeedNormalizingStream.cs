@@ -130,7 +130,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
     [StackTraceHidden]
     private static ObjectDisposedException GetObjectDisposedException()
     {
-        return new ObjectDisposedException(typeof(VoiceOutStream).FullName);
+        return new ObjectDisposedException(typeof(SpeedNormalizingStream).FullName);
     }
 
     [DoesNotReturn]
