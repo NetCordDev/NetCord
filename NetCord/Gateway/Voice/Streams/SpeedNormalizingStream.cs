@@ -40,28 +40,7 @@ internal sealed class SpeedNormalizingStream : RewritingStream
                     ThrowObjectDisposed();
 
                 if (!delaySource.TryReset(new(delay), cancellationToken))
-                {
-                    DelayTaskSource newDelaySource = new(_timeProvider);
-                    var actualDelaySource = Interlocked.CompareExchange(ref _delaySource, newDelaySource, delaySource);
-
-                    if (actualDelaySource == delaySource)
-                    {
-                        actualDelaySource.Dispose();
-                        delaySource = newDelaySource;
-                    }
-                    else
-                    {
-                        newDelaySource.Dispose();
-
-                        if (actualDelaySource is null)
-                            ThrowObjectDisposed();
-                        else
-                            ThrowConcurrentWritesNotSupported();
-                    }
-
-                    // Will never return false
-                    delaySource.TryReset(new(delay), cancellationToken);
-                }
+                    delaySource = RecreateDelaySource(delay, delaySource, cancellationToken);
 
                 await new ValueTask(delaySource, delaySource.Version).ConfigureAwait(false);
             }
@@ -74,6 +53,29 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
         await _next.WriteAsync(buffer, cancellationToken).ConfigureAwait(false);
         _nextTick += _frameDurationTicks;
+    }
+
+    private DelayTaskSource RecreateDelaySource(long delay, DelayTaskSource oldDelaySource, CancellationToken cancellationToken)
+    {
+        DelayTaskSource newDelaySource = new(_timeProvider);
+        var actualDelaySource = Interlocked.CompareExchange(ref _delaySource, newDelaySource, oldDelaySource);
+
+        if (actualDelaySource != oldDelaySource)
+        {
+            newDelaySource.Dispose();
+
+            if (actualDelaySource is null)
+                ThrowObjectDisposed();
+            else
+                ThrowConcurrentWritesNotSupported();
+        }
+
+        oldDelaySource.Dispose();
+
+        if (!newDelaySource.TryReset(new(delay), cancellationToken))
+            ThrowConcurrentWritesNotSupported();
+
+        return newDelaySource;
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
