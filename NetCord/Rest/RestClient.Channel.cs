@@ -1,4 +1,6 @@
-﻿namespace NetCord.Rest;
+﻿using System.Buffers;
+
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -147,54 +149,37 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Delete, $"/channels/{channelId}/messages/{messageId}", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public Task DeleteMessagesAsync(ulong channelId, IEnumerable<ulong> messageIds, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task DeleteMessagesAsync(ulong channelId, IEnumerable<ulong> messageIds, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        var ids = new ulong[100];
-        int c = 0;
-        List<Task> tasks = [];
-        foreach (var id in messageIds)
+        var ids = ArrayPool<ulong>.Shared.Rent(100);
+        try
         {
-            ids[c] = id;
-            if (c == 99)
+            int index = 0;
+            foreach (var id in messageIds)
             {
-                tasks.Add(BulkDeleteMessagesAsync(channelId, ids, properties, cancellationToken));
-                c = 0;
+                ids[index] = id;
+
+                if (index is 99)
+                {
+                    await BulkDeleteMessagesAsync(channelId, new(ids, 0, 100), properties, cancellationToken).ConfigureAwait(false);
+                    index = 0;
+                }
+                else
+                    index++;
             }
-            else
-                c++;
+
+            if (index > 1)
+                await BulkDeleteMessagesAsync(channelId, new(ids, 0, index), properties, cancellationToken).ConfigureAwait(false);
+            else if (index is 1)
+                await DeleteMessageAsync(channelId, ids[0], properties, cancellationToken).ConfigureAwait(false);
         }
-        if (c > 1)
-            tasks.Add(BulkDeleteMessagesAsync(channelId, new(ids, 0, c), properties, cancellationToken));
-        else if (c == 1)
-            tasks.Add(DeleteMessageAsync(channelId, ids[0], properties, cancellationToken));
-        return Task.WhenAll(tasks);
+        finally
+        {
+            ArrayPool<ulong>.Shared.Return(ids);
+        }
     }
 
-    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task DeleteMessagesAsync(ulong channelId, IAsyncEnumerable<ulong> messageIds, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
-    {
-        var ids = new ulong[100];
-        int c = 0;
-        List<Task> tasks = [];
-        await foreach (var id in messageIds.ConfigureAwait(false))
-        {
-            ids[c] = id;
-            if (c == 99)
-            {
-                tasks.Add(BulkDeleteMessagesAsync(channelId, ids, properties, cancellationToken));
-                c = 0;
-            }
-            else
-                c++;
-        }
-        if (c > 1)
-            tasks.Add(BulkDeleteMessagesAsync(channelId, new(ids, 0, c), properties, cancellationToken));
-        else if (c == 1)
-            tasks.Add(DeleteMessageAsync(channelId, ids[0], properties, cancellationToken));
-        await Task.WhenAll(tasks).ConfigureAwait(false);
-    }
-
-    private async Task BulkDeleteMessagesAsync(ulong channelId, ArraySegment<ulong> messageIds, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    private async Task BulkDeleteMessagesAsync(ulong channelId, ReadOnlyMemory<ulong> messageIds, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<BulkDeleteMessagesProperties>(new(messageIds), Serialization.Default.BulkDeleteMessagesProperties))
             await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/messages/bulk-delete", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false);
