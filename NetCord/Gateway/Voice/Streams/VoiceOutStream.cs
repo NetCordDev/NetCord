@@ -89,7 +89,7 @@ internal sealed class VoiceOutStream : Stream
         var (seconds, ticks) = Math.DivRem(totalTicks, _timestampFrequency);
         var elapsedSamples = (seconds * Opus.SamplingRate) + (ticks * Opus.SamplingRate / _timestampFrequency);
 
-        return _timestamp += elapsedSamples <= _samplesPerChannel
+        return _timestamp += (elapsedSamples <= _samplesPerChannel)
             ? _samplesPerChannel
             : (uint)((elapsedSamples + _samplesPerChannel - 1) / _samplesPerChannel * _samplesPerChannel);
     }
