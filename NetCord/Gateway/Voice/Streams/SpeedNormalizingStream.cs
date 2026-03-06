@@ -34,8 +34,9 @@ internal sealed class SpeedNormalizingStream : RewritingStream
 
     private long GetDelayTicks()
     {
-        var rawDelayTicks = _nextTick - _timeProvider.GetTimestamp();
-        return rawDelayTicks * TimeSpan.TicksPerSecond / _timestampFrequency;
+        var totalTicks = _nextTick - _timeProvider.GetTimestamp();
+        var (seconds, ticks) = Math.DivRem(totalTicks, _timestampFrequency);
+        return (seconds * TimeSpan.TicksPerSecond) + (ticks * TimeSpan.TicksPerSecond / _timestampFrequency);
     }
 
     private DelayTaskSource RecreateDelaySource(long delay, DelayTaskSource oldDelaySource, CancellationToken cancellationToken)
