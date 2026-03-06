@@ -883,10 +883,11 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var frameDuration = configuration?.FrameDuration ?? Opus.DefaultFrameDuration;
         var normalizeSpeed = configuration?.NormalizeSpeed ?? true;
+        var timeProvider = configuration?.TimeProvider ?? TimeProvider.System;
 
-        Stream stream = new VoiceOutStream(this, frameDuration);
+        Stream stream = new VoiceOutStream(this, frameDuration, timeProvider);
         if (normalizeSpeed)
-            stream = new SpeedNormalizingStream(stream, frameDuration, configuration?.TimeProvider ?? TimeProvider.System);
+            stream = new SpeedNormalizingStream(stream, frameDuration, timeProvider);
         return stream;
     }
 

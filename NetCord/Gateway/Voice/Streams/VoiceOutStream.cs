@@ -1,13 +1,30 @@
-﻿using System.Security.Cryptography;
+﻿using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 namespace NetCord.Gateway.Voice;
 
-internal sealed class VoiceOutStream(VoiceClient client, float frameDuration) : Stream
+internal sealed class VoiceOutStream : Stream
 {
-    private readonly uint _samplesPerChannel = (uint)Opus.GetSamplesPerChannel(frameDuration);
+    private readonly VoiceClient _client;
+    private readonly TimeProvider _timeProvider;
+    private readonly uint _samplesPerChannel;
+    private readonly long _timestampFrequency;
 
-    private ushort _sequenceNumber = (ushort)RandomNumberGenerator.GetInt32(ushort.MaxValue);
-    private uint _timestamp = (uint)RandomNumberGenerator.GetInt32(int.MinValue, int.MaxValue);
+    private ushort _sequenceNumber;
+    private uint _timestamp;
+    private long _flushedTimestamp;
+    private bool _flushed;
+
+    public VoiceOutStream(VoiceClient client, float frameDuration, TimeProvider timeProvider)
+    {
+        _client = client;
+        _timeProvider = timeProvider;
+        _samplesPerChannel = (uint)Opus.GetSamplesPerChannel(frameDuration);
+        _timestampFrequency = timeProvider.TimestampFrequency;
+
+        RandomNumberGenerator.Fill(MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref _sequenceNumber, 1)));
+        RandomNumberGenerator.Fill(MemoryMarshal.AsBytes(MemoryMarshal.CreateSpan(ref _timestamp, 1)));
+    }
 
     public override bool CanRead => false;
     public override bool CanSeek => false;
@@ -15,12 +32,23 @@ internal sealed class VoiceOutStream(VoiceClient client, float frameDuration) : 
     public override long Length => throw new NotSupportedException();
     public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
+    private void FlushInternal()
+    {
+        if (_flushed)
+            return;
+
+        _flushedTimestamp = _timeProvider.GetTimestamp();
+        _flushed = true;
+    }
+
     public override void Flush()
     {
+        FlushInternal();
     }
 
     public override Task FlushAsync(CancellationToken cancellationToken)
     {
+        FlushInternal();
         return Task.CompletedTask;
     }
 
@@ -38,11 +66,31 @@ internal sealed class VoiceOutStream(VoiceClient client, float frameDuration) : 
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        client.SendVoice(++_sequenceNumber, _timestamp += _samplesPerChannel, buffer);
+        _client.SendVoice(++_sequenceNumber, UpdateTimestamp(), buffer);
     }
 
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        return client.SendVoiceAsync(++_sequenceNumber, _timestamp += _samplesPerChannel, buffer, cancellationToken);
+        return _client.SendVoiceAsync(++_sequenceNumber, UpdateTimestamp(), buffer, cancellationToken);
+    }
+
+    private uint UpdateTimestamp()
+    {
+        return _flushed
+            ? ResumeTimestamp()
+            : (_timestamp += _samplesPerChannel);
+    }
+
+    private uint ResumeTimestamp()
+    {
+        _flushed = false;
+
+        var totalTicks = _timeProvider.GetTimestamp() - _flushedTimestamp;
+        var (seconds, ticks) = Math.DivRem(totalTicks, _timestampFrequency);
+        var elapsedSamples = (seconds * Opus.SamplingRate) + (ticks * Opus.SamplingRate / _timestampFrequency);
+
+        return _timestamp += elapsedSamples is 0
+            ? _samplesPerChannel
+            : (uint)((elapsedSamples + _samplesPerChannel - 1) / _samplesPerChannel * _samplesPerChannel);
     }
 }
