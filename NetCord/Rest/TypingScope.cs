@@ -55,7 +55,9 @@ internal sealed class TypingScope : IDisposable
             : static s => TriggerTypingState((Tuple<TypingScope, RestClient, ulong, RestRequestProperties?, CancellationToken>)s!);
 
         var interval = scopeProperties?.Interval ?? new(DefaultInterval);
-        _timer = timeProvider.CreateTimer(callback, Tuple.Create(this, client, channelId, properties, _tokenSource.Token), interval, interval);
+
+        using (ExecutionContext.SuppressFlow())
+            _timer = timeProvider.CreateTimer(callback, Tuple.Create(this, client, channelId, properties, _tokenSource.Token), interval, interval);
     }
 
     public void Dispose()
