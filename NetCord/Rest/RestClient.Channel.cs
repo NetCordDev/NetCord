@@ -222,17 +222,23 @@ public partial class RestClient
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
     public async Task<IDisposable> EnterTypingScopeAsync(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        TypingScope scope = new();
+        AsyncTypingScope scope = new(this, channelId, scopeProperties, properties, cancellationToken);
+
         try
         {
-            await scope.StartAsync(this, channelId, scopeProperties, properties, cancellationToken).ConfigureAwait(false);
+            return await scope.Task.ConfigureAwait(false);
         }
         catch
         {
             scope.Dispose();
             throw;
         }
-        return scope;
+    }
+
+    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
+    public IDisposable EnterTypingScope(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null)
+    {
+        return new TypingScope(this, channelId, scopeProperties, properties);
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
