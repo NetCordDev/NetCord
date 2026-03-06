@@ -220,11 +220,19 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IDisposable> EnterTypingStateAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public async Task<IDisposable> EnterTypingScopeAsync(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        TypingReminder typingReminder = new(channelId, this, properties);
-        await typingReminder.StartAsync(cancellationToken).ConfigureAwait(false);
-        return typingReminder;
+        TypingScope scope = new();
+        try
+        {
+            await scope.StartAsync(this, channelId, scopeProperties, properties, cancellationToken).ConfigureAwait(false);
+        }
+        catch
+        {
+            scope.Dispose();
+            throw;
+        }
+        return scope;
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
