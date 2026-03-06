@@ -220,19 +220,11 @@ public partial class RestClient
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IDisposable> EnterTypingScopeAsync(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask<IDisposable> EnterTypingScopeAsync(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         AsyncTypingScope scope = new(this, channelId, scopeProperties, properties, cancellationToken);
 
-        try
-        {
-            return await scope.Task.ConfigureAwait(false);
-        }
-        catch
-        {
-            scope.Dispose();
-            throw;
-        }
+        return new ValueTask<IDisposable>(scope, scope.Version);
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]

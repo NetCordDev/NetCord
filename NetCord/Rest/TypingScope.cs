@@ -1,16 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks.Sources;
 
 using NetCord.Logging;
 
 namespace NetCord.Rest;
 
-internal class AsyncTypingScope : TypingScope
+internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
 {
-    private readonly TaskCompletionSource<IDisposable> _tcs;
     private readonly CancellationToken _callerCancellationToken;
-
-    internal Task<IDisposable> Task => _tcs.Task;
+    private ManualResetValueTaskSourceCore<IDisposable> _valueTaskSource;
 
     private static TimerCallback GetCallback(TimeProvider timeProvider)
     {
@@ -19,14 +18,16 @@ internal class AsyncTypingScope : TypingScope
                 : static s => TriggerTypingState((AsyncTypingScope)s!);
     }
 
+    public short Version => _valueTaskSource.Version;
+
     public AsyncTypingScope(RestClient client,
                             ulong channelId,
                             TypingScopeProperties? scopeProperties,
                             RestRequestProperties? properties,
-                            CancellationToken cancellationToken) : base()
+                            CancellationToken cancellationToken)
     {
-        _tcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
         _callerCancellationToken = cancellationToken;
+        _valueTaskSource.RunContinuationsAsynchronously = true;
 
         var timeProvider = scopeProperties?.TimeProvider ?? TimeProvider.System;
 
@@ -43,25 +44,40 @@ internal class AsyncTypingScope : TypingScope
         if (!CallbackTryEnter(scope))
             return;
 
-        var tcs = scope._tcs;
+        var isTaskPending = scope._valueTaskSource.GetStatus(scope._valueTaskSource.Version) is ValueTaskSourceStatus.Pending;
 
         try
         {
-            await TriggerTypingStateAsync(scope, tcs.Task.IsCompleted ? scope._tokenSource.Token : scope._callerCancellationToken).ConfigureAwait(false);
-            tcs.TrySetResult(scope);
+            await TriggerTypingStateAsync(scope, isTaskPending ? scope._callerCancellationToken : scope._tokenSource.Token).ConfigureAwait(false);
+
+            if (isTaskPending)
+                scope._valueTaskSource.SetResult(scope);
         }
         catch (OperationCanceledException ex)
         {
-            tcs.TrySetCanceled(ex.CancellationToken);
+            if (isTaskPending)
+            {
+                scope.Dispose();
+                scope._valueTaskSource.SetException(ex);
+            }
         }
         catch (Exception ex)
         {
-            if (!tcs.TrySetException(ex))
+            if (isTaskPending)
+            {
+                scope.Dispose();
+                scope._valueTaskSource.SetException(ex);
+            }
+            else
                 CallbackLogError(scope, ex);
         }
 
         CallbackExit(scope);
     }
+
+    public IDisposable GetResult(short token) => _valueTaskSource.GetResult(token);
+    public ValueTaskSourceStatus GetStatus(short token) => _valueTaskSource.GetStatus(token);
+    public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags) => _valueTaskSource.OnCompleted(continuation, state, token, flags);
 }
 
 internal class TypingScope : IDisposable
