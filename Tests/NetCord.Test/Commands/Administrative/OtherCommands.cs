@@ -19,7 +19,10 @@ public class OtherCommands : CommandModule<CommandContext>
             await ReplyAsync("To few messages!");
             return;
         }
-        await Context.Client.Rest.DeleteMessagesAsync(Context.Message.ChannelId, GetMessagesToRemove());
+
+        await foreach (var batch in GetMessagesToRemove().Chunk(100))
+            await Context.Client.Rest.DeleteMessagesAsync(Context.Message.ChannelId, batch);
+
         if (count == 1)
             await SendAsync("**Deleted 1 message!**");
         else
