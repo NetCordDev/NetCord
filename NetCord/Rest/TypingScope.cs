@@ -14,8 +14,8 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
     private static TimerCallback GetCallback(TimeProvider timeProvider)
     {
         return timeProvider == TimeProvider.System
-                ? static s => TriggerTypingState(Unsafe.As<AsyncTypingScope>(s!))
-                : static s => TriggerTypingState((AsyncTypingScope)s!);
+                ? static s => Callback(Unsafe.As<AsyncTypingScope>(s!))
+                : static s => Callback((AsyncTypingScope)s!);
     }
 
     public short Version => _valueTaskSource.Version;
@@ -39,7 +39,7 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
                    timeProvider);
     }
 
-    private static async void TriggerTypingState(AsyncTypingScope scope)
+    private static async void Callback(AsyncTypingScope scope)
     {
         if (!CallbackTryEnter(scope))
             return;
@@ -96,8 +96,8 @@ internal class TypingScope : IDisposable
     private static TimerCallback GetCallback(TimeProvider timeProvider)
     {
         return timeProvider == TimeProvider.System
-                ? static s => TriggerTypingState(Unsafe.As<TypingScope>(s!))
-                : static s => TriggerTypingState((TypingScope)s!);
+                ? static s => Callback(Unsafe.As<TypingScope>(s!))
+                : static s => Callback((TypingScope)s!);
     }
 
     public TypingScope(RestClient client,
@@ -149,7 +149,7 @@ internal class TypingScope : IDisposable
         }
     }
 
-    private static async void TriggerTypingState(TypingScope scope)
+    private static async void Callback(TypingScope scope)
     {
         if (!CallbackTryEnter(scope))
             return;
