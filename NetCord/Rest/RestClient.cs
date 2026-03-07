@@ -92,7 +92,7 @@ public sealed partial class RestClient : IDisposable
         return new(properties.RateLimitHandling.GetValueOrDefault(RestRateLimitHandling.Retry));
     }
 
-    private void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+    internal void Log<TState>(LogLevel logLevel, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         try
         {

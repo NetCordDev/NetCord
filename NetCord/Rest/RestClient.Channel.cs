@@ -216,15 +216,21 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public Task TriggerTypingStateAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public Task TriggerTypingAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public async Task<IDisposable> EnterTypingStateAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask<IDisposable> EnterTypingScopeAsync(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        TypingReminder typingReminder = new(channelId, this, properties);
-        await typingReminder.StartAsync(cancellationToken).ConfigureAwait(false);
-        return typingReminder;
+        AsyncTypingScope scope = new(this, channelId, scopeProperties, properties, cancellationToken);
+
+        return new ValueTask<IDisposable>(scope, scope.Version);
+    }
+
+    [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
+    public IDisposable EnterTypingScope(ulong channelId, TypingScopeProperties? scopeProperties = null, RestRequestProperties? properties = null)
+    {
+        return new TypingScope(this, channelId, scopeProperties, properties);
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
