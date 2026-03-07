@@ -48,7 +48,7 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
 
         try
         {
-            await TriggerTypingStateAsync(scope, isTaskPending ? scope._callerCancellationToken : scope._tokenSource.Token).ConfigureAwait(false);
+            await TriggerTypingAsync(scope, isTaskPending ? scope._callerCancellationToken : scope._tokenSource.Token).ConfigureAwait(false);
 
             if (isTaskPending)
                 scope._valueTaskSource.SetResult(scope);
@@ -148,7 +148,7 @@ internal class TypingScope : IDisposable
 
         try
         {
-            await TriggerTypingStateAsync(scope, scope._tokenSource.Token).ConfigureAwait(false);
+            await TriggerTypingAsync(scope, scope._tokenSource.Token).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -161,9 +161,9 @@ internal class TypingScope : IDisposable
         CallbackExit(scope);
     }
 
-    protected static Task TriggerTypingStateAsync(TypingScope scope, CancellationToken cancellationToken)
+    protected static Task TriggerTypingAsync(TypingScope scope, CancellationToken cancellationToken)
     {
-        return scope._client.TriggerTypingStateAsync(scope._channelId, scope._properties, cancellationToken);
+        return scope._client.TriggerTypingAsync(scope._channelId, scope._properties, cancellationToken);
     }
 
     protected static bool CallbackTryEnter(TypingScope scope)

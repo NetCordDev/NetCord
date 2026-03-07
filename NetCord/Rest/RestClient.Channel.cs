@@ -216,7 +216,7 @@ public partial class RestClient
     }
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
-    public Task TriggerTypingStateAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
+    public Task TriggerTypingAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/typing", null, new(channelId), properties, cancellationToken: cancellationToken);
 
     [GenerateAlias([typeof(TextChannel)], nameof(TextChannel.Id))]
