@@ -26,6 +26,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
     private readonly delegate*<AutocompleteInteractionHandler<TInteraction, TContext, TAutocompleteContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext> _createContext;
     private readonly IAutocompleteInteractionResultHandler<TAutocompleteContext> _resultHandler;
+    private readonly IAutocompleteInteractionPreExecutionHandler<TAutocompleteContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public AutocompleteInteractionHandler(IServiceProvider services,
@@ -52,6 +53,7 @@ internal unsafe partial class AutocompleteInteractionHandler<TInteraction,
 
         _createContext = optionsValue.CreateAutocompleteContext ?? ContextHelper.CreateContextDelegate<AutocompleteInteraction, GatewayClient?, TAutocompleteContext>(_applicationCommandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.AutocompleteResultHandler ?? new AutocompleteInteractionResultHandler<TAutocompleteContext>();
+        _preExecutionHandler = optionsValue.AutocompletePreExecutionHandler ?? new AutocompleteInteractionPreExecutionHandler<TAutocompleteContext>();
         _client = client;
     }
 
@@ -94,6 +96,20 @@ internal partial class AutocompleteInteractionHandler<TInteraction, TContext, TA
         var context = _createContext(interaction, client, services);
 
         _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
 
         var result = await _applicationCommandService.ExecuteAutocompleteAsync(context, services).ConfigureAwait(false);
 

@@ -52,6 +52,8 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext>
 
     public IComponentInteractionResultHandler<TContext>? ResultHandler { get; set; }
 
+    public IComponentInteractionPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
+
     internal void Apply(IOptions<ComponentInteractionServiceOptions> options)
     {
         var value = options.Value;
