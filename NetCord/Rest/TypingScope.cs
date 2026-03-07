@@ -53,14 +53,6 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
             if (isTaskPending)
                 scope._valueTaskSource.SetResult(scope);
         }
-        catch (OperationCanceledException ex)
-        {
-            if (isTaskPending)
-            {
-                scope.Dispose();
-                scope._valueTaskSource.SetException(ex);
-            }
-        }
         catch (Exception ex)
         {
             if (isTaskPending)
@@ -68,7 +60,7 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
                 scope.Dispose();
                 scope._valueTaskSource.SetException(ex);
             }
-            else
+            else if (ex is not OperationCanceledException)
                 CallbackLogError(scope, ex);
         }
 
@@ -158,12 +150,10 @@ internal class TypingScope : IDisposable
         {
             await TriggerTypingAsync(scope, scope._tokenSource.Token).ConfigureAwait(false);
         }
-        catch (OperationCanceledException)
-        {
-        }
         catch (Exception ex)
         {
-            CallbackLogError(scope, ex);
+            if (ex is not OperationCanceledException)
+                CallbackLogError(scope, ex);
         }
 
         CallbackExit(scope);
