@@ -76,8 +76,13 @@ internal class AsyncTypingScope : TypingScope, IValueTaskSource<IDisposable>
     }
 
     public IDisposable GetResult(short token) => _valueTaskSource.GetResult(token);
+
     public ValueTaskSourceStatus GetStatus(short token) => _valueTaskSource.GetStatus(token);
-    public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags) => _valueTaskSource.OnCompleted(continuation, state, token, flags);
+
+    public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
+    {
+        _valueTaskSource.OnCompleted(continuation, state, token, flags);
+    }
 }
 
 internal class TypingScope : IDisposable
@@ -138,7 +143,10 @@ internal class TypingScope : IDisposable
         _tokenSource = new();
 
         using (ExecutionContext.SuppressFlow())
-            _timer = timeProvider.CreateTimer(callback, this, TimeSpan.Zero, scopeProperties?.Interval ?? new(DefaultInterval));
+            _timer = timeProvider.CreateTimer(callback,
+                                              this,
+                                              TimeSpan.Zero,
+                                              scopeProperties?.Interval ?? new(DefaultInterval));
     }
 
     private static async void TriggerTypingState(TypingScope scope)
@@ -173,7 +181,10 @@ internal class TypingScope : IDisposable
 
     protected static void CallbackLogError(TypingScope scope, Exception ex)
     {
-        scope._client.Log(LogLevel.Error, scope._channelId, ex, static (s, e) => $"An error occurred while triggering typing state for channel ID '{s}'{Environment.NewLine}{e}");
+        scope._client.Log(LogLevel.Error, scope._channelId, ex, static (s, e) =>
+        {
+            return $"An error occurred while triggering typing for channel ID '{s}'.{Environment.NewLine}{e}";
+        });
     }
 
     protected static void CallbackExit(TypingScope scope)
