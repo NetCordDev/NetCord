@@ -124,7 +124,7 @@ internal class TypingScope : IDisposable
     {
     }
 
-    [MemberNotNull(nameof(_client), nameof(_channelId), nameof(_tokenSource), nameof(_timer))]
+    [MemberNotNull(nameof(_client), nameof(_tokenSource), nameof(_timer))]
     protected void Initialize(RestClient client,
                               ulong channelId,
                               RestRequestProperties? properties,
