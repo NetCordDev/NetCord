@@ -134,11 +134,19 @@ internal class TypingScope : IDisposable
         _properties = properties;
         _tokenSource = new();
 
-        using (ExecutionContext.SuppressFlow())
-            _timer = timeProvider.CreateTimer(callback,
-                                              this,
-                                              TimeSpan.Zero,
-                                              scopeProperties?.Interval ?? new(DefaultInterval));
+        try
+        {
+            using (ExecutionContext.SuppressFlow())
+                _timer = timeProvider.CreateTimer(callback,
+                                                  this,
+                                                  TimeSpan.Zero,
+                                                  scopeProperties?.Interval ?? new(DefaultInterval));
+        }
+        catch
+        {
+            _tokenSource.Dispose();
+            throw;
+        }
     }
 
     private static async void TriggerTypingState(TypingScope scope)
