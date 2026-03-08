@@ -22,6 +22,7 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
     private readonly Func<Message, GatewayClient, IServiceProvider, ValueTask<ReadOnlyMemory<char>?>> _getCommandTextAsync;
     private readonly Func<Message, GatewayClient, IServiceProvider, TContext> _createContext;
     private readonly ICommandResultHandler<TContext> _resultHandler;
+    private readonly ICommandPreExecutionHandler<TContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public CommandHandler(IServiceProvider services,
@@ -49,6 +50,7 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
         _getCommandTextAsync = GetGetCommandTextAsyncDelegate(optionsValue);
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<Message, GatewayClient, TContext>(_commandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new CommandResultHandler<TContext>();
+        _preExecutionHandler = optionsValue.PreExecutionHandler ?? new CommandPreExecutionHandler<TContext>();
         _client = client;
     }
 
@@ -158,6 +160,20 @@ internal partial class CommandHandler<[DAM(DAMT.PublicConstructors)] TContext>
         var context = _createContext(message, client, services);
 
         _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
 
         var result = await _commandService.ExecuteAsync(command.GetValueOrDefault(), context, services).ConfigureAwait(false);
 

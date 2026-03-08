@@ -71,6 +71,8 @@ public class CommandServiceOptions<TContext>
 
     public ICommandResultHandler<TContext>? ResultHandler { get; set; }
 
+    public ICommandPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
+
     internal void Apply(IOptions<CommandServiceOptions> options)
     {
         var value = options.Value;

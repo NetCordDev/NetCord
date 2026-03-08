@@ -22,6 +22,7 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
     private readonly delegate*<ApplicationCommandInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
     private readonly IApplicationCommandResultHandler<TContext> _resultHandler;
+    private readonly IApplicationCommandPreExecutionHandler<TContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public ApplicationCommandInteractionHandler(IServiceProvider services,
@@ -48,6 +49,7 @@ internal unsafe partial class ApplicationCommandInteractionHandler<TInteraction,
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_applicationCommandService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new ApplicationCommandResultHandler<TContext>();
+        _preExecutionHandler = optionsValue.PreExecutionHandler ?? new ApplicationCommandPreExecutionHandler<TContext>();
         _client = client;
     }
 
@@ -90,6 +92,20 @@ internal partial class ApplicationCommandInteractionHandler<TInteraction, TConte
         var context = _createContext(interaction, client, services);
 
         _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
 
         var result = await _applicationCommandService.ExecuteAsync(context, services).ConfigureAwait(false);
 
