@@ -49,7 +49,7 @@ public record ComponentInteractionServiceConfiguration<TContext> where TContext 
         { typeof(UserId), new TypeReaders.UserIdTypeReader<TContext>() },
         { typeof(Timestamp), new TypeReaders.TimestampTypeReader<TContext>() },
         { typeof(CodeBlock), new TypeReaders.CodeBlockTypeReader<TContext>() },
-        { typeof(Guid, new TypeReaders.GuidTypeReader<TContext>() }
+        { typeof(Guid), new TypeReaders.GuidTypeReader<TContext>() }
     #endregion
     }.ToImmutableDictionary();
 
