@@ -1,64 +1,162 @@
+- name: Introduction
+  href: introduction/index.md
+
+- name: Quick Start
+  href: quick-start/index.md
+
 - name: Getting Started
   items:
+    - name: Overview
+      href: getting-started/index.md
     - name: Installation
       href: getting-started/installation.md
-    - name: Making a Bot
-      href: getting-started/making-a-bot.md
-- name: Working with Events
+    - name: Creating Your Bot
+      href: getting-started/creating-your-bot.md
+    - name: Project Setup
+      href: getting-started/project-setup.md
+    - name: Running Your Bot
+      href: getting-started/running-your-bot.md
+    - name: Your First Response
+      href: getting-started/your-first-response.md
+    - name: Afterword
+      href: getting-started/afterword.md
+
+- name: .NET Integration
   items:
+    - name: Overview
+      href: dotnet-integration/index.md
+    - name: .NET Generic Host
+      href: dotnet-integration/generic-host.md
+    - name: Configuration
+      href: dotnet-integration/configuration.md
+    - name: Logging
+      href: dotnet-integration/logging.md
+
+- name: Discord Entities
+  items:
+    - name: Overview
+      href: discord-entities/index.md
+    - name: Working with Users
+      href: discord-entities/users.md
+    - name: Working with Guilds
+      href: discord-entities/guilds.md
+    - name: Working with Channels
+      href: discord-entities/channels.md
+    - name: Roles and Permissions
+      href: discord-entities/roles-and-permissions.md
+    - name: Emojis and Stickers
+      href: discord-entities/emojis-and-stickers.md
+
+- name: Events
+  items:
+    - name: Overview
+      href: events/index.md
     - name: Intents
       href: events/intents.md
-    - name: First Events
-      href: events/first-events.md
-- name: Basic Concepts
+    - name: Gateway Events
+      href: events/gateway-events.md
+    - name: Webhook Events
+      href: events/webhook-events.md
+
+- name: Components v2
   items:
-    - name: Responding to Interactions
-      href: basic-concepts/responding-to-interactions.md
-    - name: Sending Messages
-      href: basic-concepts/sending-messages.md
-    - name: HTTP Interactions
-      href: basic-concepts/http-interactions.md
-    - name: Sharding
-      href: basic-concepts/sharding.md
-    - name: Voice
-      href: basic-concepts/voice.md
-- name: Services
+    - name: Overview
+      href: components-v2/index.md
+    - name: Migrating from Embeds
+      href: components-v2/migrating-from-embeds.md
+    - name: Layout Components
+      href: components-v2/layout-components.md
+    - name: Content Components
+      href: components-v2/content-components.md
+    - name: Interactive Components
+      href: components-v2/interactive-components.md
+    - name: Modal Components
+      href: components-v2/modal-components.md
+
+- name: Commands
   items:
-    - name: Introduction
-      href: services/introduction.md
-    - name: Application Commands
-      items:
-        - name: Introduction
-          href: services/application-commands/introduction.md
-        - name: Parameters
-          href: services/application-commands/parameters.md
-        - name: Subcommands
-          href: services/application-commands/subcommands.md
-        - name: Permissions
-          href: services/application-commands/permissions.md
-        - name: Localizations
-          href: services/application-commands/localizations.md
-        - name: Multiple Services
-          href: services/application-commands/multiple-services.md
-    - name: Component Interactions
-      items:
-        - name: Introduction
-          href: services/component-interactions/introduction.md
-        - name: Parameters
-          href: services/component-interactions/parameters.md
+    - name: Overview
+      href: commands/index.md
+    - name: Slash Commands
+      href: commands/slash-commands.md
+    - name: User Commands
+      href: commands/user-commands.md
+    - name: Message Commands
+      href: commands/message-commands.md
     - name: Text Commands
-      items:
-        - name: Introduction
-          href: services/text-commands/introduction.md
-        - name: Parameters
-          href: services/text-commands/parameters.md
-        - name: Aliases
-          href: services/text-commands/aliases.md
+      href: commands/text-commands.md
+
+- name: Component Interactions
+  items:
+    - name: Overview
+      href: component-interactions/index.md
+    - name: Message Components
+      href: component-interactions/message-components.md
+    - name: Modals
+      href: component-interactions/modals.md
+
+- name: Services Framework
+  items:
+    - name: Overview
+      href: services-framework/index.md
     - name: Dependency Injection
-      href: services/dependency-injection.md
+      href: services-framework/dependency-injection.md
     - name: Type Readers
-      href: services/type-readers.md
+      href: services-framework/type-readers.md
     - name: Preconditions
-      href: services/preconditions.md
-    - name: Custom Module Bases and Contexts
-      href: services/custom-module-bases-and-contexts.md
+      href: services-framework/preconditions.md
+    - name: Custom Contexts
+      href: services-framework/custom-contexts.md
+
+- name: Webhooks
+  items:
+    - name: Overview
+      href: webhooks/index.md
+    - name: Managing Webhooks
+      href: webhooks/managing-webhooks.md
+    - name: Sending Messages
+      href: webhooks/sending-messages.md
+
+- name: Voice
+  items:
+    - name: Overview
+      href: voice/index.md
+    - name: Connecting to Voice
+      href: voice/connecting-to-voice.md
+    - name: Audio Playback
+      href: voice/sending-voice.md
+    - name: Audio Recording
+      href: voice/receiving-voice.md
+    - name: Stream Types
+      href: voice/stream-types.md
+
+- name: Advanced Topics
+  items:
+    - name: Overview
+      href: advanced-topics/index.md
+    - name: Sharding
+      href: advanced-topics/sharding.md
+    - name: Caching Strategies
+      href: advanced-topics/caching-strategies.md
+    - name: Rate Limiting
+      href: advanced-topics/rate-limiting.md
+    - name: Connection Resilience
+      href: advanced-topics/connection-resilience.md
+
+- name: Deployment
+  items:
+    - name: Overview
+      href: deployment/index.md
+    - name: Docker
+      href: deployment/docker.md
+    - name: Cloud Hosting
+      href: deployment/cloud-hosting.md
+
+- name: Troubleshooting
+  items:
+    - name: Overview
+      href: troubleshooting/index.md
+    - name: Common Issues
+      href: troubleshooting/common-issues.md
+    - name: FAQ
+      href: troubleshooting/faq.md

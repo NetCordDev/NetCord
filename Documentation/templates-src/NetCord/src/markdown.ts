@@ -8,7 +8,7 @@ import { getTheme, onThemeChange } from './theme'
 /**
  * Initialize markdown rendering.
  */
-export async function renderMarkdown() {
+export async function renderMarkdown () {
   renderWordBreaks()
   renderTables()
   renderAlerts()
@@ -24,7 +24,7 @@ export async function renderMarkdown() {
   onThemeChange(renderMermaid)
 }
 
-async function renderMath() {
+async function renderMath () {
   const math = document.querySelectorAll('.math')
   if (math.length > 0) {
     await import('mathjax/es5/tex-svg-full.js')
@@ -34,7 +34,7 @@ async function renderMath() {
 /**
  * Render mermaid diagrams.
  */
-async function renderMermaid() {
+async function renderMermaid () {
   const diagrams = document.querySelectorAll<HTMLElement>('pre code.lang-mermaid')
   const processedDiagrams = document.querySelectorAll<HTMLElement>('pre.mermaid[data-mermaid]')
   if (diagrams.length <= 0 && processedDiagrams.length <= 0) {
@@ -48,7 +48,7 @@ async function renderMermaid() {
   const { mermaid: mermaidOptions } = await options()
   mermaid.initialize(Object.assign({ startOnLoad: false, theme }, mermaidOptions))
 
-  const nodes = []
+  const nodes: HTMLElement[] = []
   diagrams.forEach(e => {
     // Rerender when elements becomes visible due to https://github.com/mermaid-js/mermaid/issues/1846
     if (e.offsetParent) {
@@ -74,7 +74,7 @@ async function renderMermaid() {
 /**
  * Add <wbr> to break long text.
  */
-function renderWordBreaks() {
+function renderWordBreaks () {
   document.querySelectorAll<HTMLElement>('article h1,h2,h3,h4,h5,h6,.xref,.text-break').forEach(e => {
     if (e.innerHTML?.trim() === e.innerText?.trim()) {
       const children: (string | Node)[] = []
@@ -93,7 +93,7 @@ function renderWordBreaks() {
  * Styling for tables in conceptual documents using Bootstrap.
  * See http://getbootstrap.com/css/#tables
  */
-function renderTables() {
+function renderTables () {
   document.querySelectorAll('table').forEach(table => {
     table.classList.add('table', 'table-bordered', 'table-condensed')
     const wrapper = document.createElement('div')
@@ -106,7 +106,7 @@ function renderTables() {
 /**
  * Styling for alerts.
  */
-function renderAlerts() {
+function renderAlerts () {
   document.querySelectorAll('.NOTE, .TIP').forEach(e => e.classList.add('alert', 'alert-info'))
   document.querySelectorAll('.WARNING').forEach(e => e.classList.add('alert', 'alert-warning'))
   document.querySelectorAll('.IMPORTANT, .CAUTION').forEach(e => e.classList.add('alert', 'alert-danger'))
@@ -115,7 +115,7 @@ function renderAlerts() {
 /**
  * Open external links to different host in a new window.
  */
-function renderLinks() {
+function renderLinks () {
   if (meta('docfx:disablenewtab') === 'true') {
     return
   }
@@ -132,7 +132,7 @@ function renderLinks() {
 /**
  * Render code copy button.
  */
-function renderCodeCopy() {
+function renderCodeCopy () {
   document.querySelectorAll<HTMLElement>('pre>code').forEach(code => {
     if (code.textContent.trim().length === 0) {
       return
@@ -141,13 +141,13 @@ function renderCodeCopy() {
     let copied = false
     renderCore()
 
-    function renderCore() {
+    function renderCore () {
       const dom = copied
         ? html`<a class='btn border-0 link-success code-action'><i class='bi bi-check-lg'></i></a>`
         : html`<a class='btn border-0 code-action' title='${loc('copy')}' href='#' @click=${copy}><i class='bi bi-clipboard'></i></a>`
       render(dom, code.parentElement)
 
-      async function copy(e) {
+      async function copy (e) {
         e.preventDefault()
         await navigator.clipboard.writeText(code.innerText)
         copied = true
@@ -164,7 +164,7 @@ function renderCodeCopy() {
 /**
  * Render tabbed content.
  */
-function renderTabs() {
+function renderTabs () {
   updateTabStyle()
 
   const contentAttrs = {
@@ -173,25 +173,25 @@ function renderTabs() {
     type: 'data-bi-type'
   }
 
-  const Tab = (function() {
-    function Tab(li, a, section) {
+  const Tab = (function () {
+    function Tab (li, a, section) {
       this.li = li
       this.a = a
       this.section = section
     }
     Object.defineProperty(Tab.prototype, 'tabIds', {
-      get: function() { return this.a.getAttribute('data-tab').split(' ') },
+      get: function () { return this.a.getAttribute('data-tab').split(' ') },
       enumerable: true,
       configurable: true
     })
     Object.defineProperty(Tab.prototype, 'condition', {
-      get: function() { return this.a.getAttribute('data-condition') },
+      get: function () { return this.a.getAttribute('data-condition') },
       enumerable: true,
       configurable: true
     })
     Object.defineProperty(Tab.prototype, 'visible', {
-      get: function() { return !this.li.hasAttribute('hidden') },
-      set: function(value) {
+      get: function () { return !this.li.hasAttribute('hidden') },
+      set: function (value) {
         if (value) {
           this.li.removeAttribute('hidden')
           this.li.removeAttribute('aria-hidden')
@@ -204,8 +204,8 @@ function renderTabs() {
       configurable: true
     })
     Object.defineProperty(Tab.prototype, 'selected', {
-      get: function() { return !this.section.hasAttribute('hidden') },
-      set: function(value) {
+      get: function () { return !this.section.hasAttribute('hidden') },
+      set: function (value) {
         if (value) {
           this.a.setAttribute('aria-selected', 'true')
           this.a.classList.add('active')
@@ -223,7 +223,7 @@ function renderTabs() {
       enumerable: true,
       configurable: true
     })
-    Tab.prototype.focus = function() {
+    Tab.prototype.focus = function () {
       this.a.focus()
     }
     return Tab
@@ -231,7 +231,7 @@ function renderTabs() {
 
   initTabs(document.body)
 
-  function initTabs(container) {
+  function initTabs (container) {
     const queryStringTabs = readTabsQueryStringParam()
     const elements = container.querySelectorAll('.tabGroup')
     const state = { groups: [], selectedTabs: [] }
@@ -242,7 +242,7 @@ function renderTabs() {
         state.groups.push(group)
       }
     }
-    container.addEventListener('click', function(event) { return handleClick(event, state) })
+    container.addEventListener('click', function (event) { return handleClick(event, state) })
     if (state.groups.length === 0) {
       return state
     }
@@ -251,7 +251,7 @@ function renderTabs() {
     return state
   }
 
-  function initTabGroup(element) {
+  function initTabGroup (element) {
     const group = {
       independent: element.hasAttribute('data-tab-group-independent'),
       tabs: []
@@ -272,7 +272,7 @@ function renderTabs() {
     return group
   }
 
-  function updateVisibilityAndSelection(group, state) {
+  function updateVisibilityAndSelection (group, state) {
     let anySelected = false
     let firstVisibleTab
     for (let _i = 0, _a = group.tabs; _i < _a.length; _i++) {
@@ -304,7 +304,7 @@ function renderTabs() {
     }
   }
 
-  function getTabInfoFromEvent(event) {
+  function getTabInfoFromEvent (event) {
     if (!(event.target instanceof HTMLElement)) {
       return null
     }
@@ -320,14 +320,14 @@ function renderTabs() {
     return { tabIds, group, anchor }
   }
 
-  function handleClick(event, state) {
+  function handleClick (event, state) {
     const info = getTabInfoFromEvent(event)
     if (info === null) {
       return
     }
     event.preventDefault()
     info.anchor.href = 'javascript:'
-    setTimeout(function() {
+    setTimeout(function () {
       info.anchor.href = '#' + info.anchor.getAttribute('aria-controls')
     })
     const tabIds = info.tabIds; const group = info.group
@@ -341,7 +341,7 @@ function renderTabs() {
       if (arraysIntersect(state.selectedTabs, tabIds)) {
         return
       }
-      const previousTabId = group.tabs.filter(function(t) { return t.selected })[0].tabIds[0]
+      const previousTabId = group.tabs.filter(function (t) { return t.selected })[0].tabIds[0]
       state.selectedTabs.splice(state.selectedTabs.indexOf(previousTabId), 1, tabIds[0])
       for (let _b = 0, _c = state.groups; _b < _c.length; _b++) {
         const group1 = _c[_b]
@@ -356,7 +356,7 @@ function renderTabs() {
     }
   }
 
-  function selectTabs(tabIds) {
+  function selectTabs (tabIds: string[]): void {
     for (let _i = 0, tabIds1 = tabIds; _i < tabIds1.length; _i++) {
       const tabId = tabIds1[_i]
       const a = document.querySelector('.tabGroup > ul > li > a[data-tab="' + tabId + '"]:not([hidden])')
@@ -367,16 +367,28 @@ function renderTabs() {
     }
   }
 
-  function readTabsQueryStringParam() {
+  function readTabsQueryStringParam () {
+    // First, try to get tabs from query string
     const qs = new URLSearchParams(window.location.search)
     const t = qs.get('tabs')
-    if (!t) {
-      return []
+    if (t) {
+      return t.split(',')
     }
-    return t.split(',')
+
+    // Fall back to localStorage for tab preferences
+    try {
+      const stored = localStorage.getItem('documentation-selected-tabs')
+      if (stored) {
+        return stored.split(',')
+      }
+    } catch {
+      // localStorage might be disabled or unavailable
+    }
+
+    return []
   }
 
-  function updateTabsQueryStringParam(state) {
+  function updateTabsQueryStringParam (state: Record<string, string>): void {
     const qs = new URLSearchParams(window.location.search)
     qs.set('tabs', state.selectedTabs.join())
     const url = location.protocol + '//' + location.host + location.pathname + '?' + qs.toString() + location.hash
@@ -384,9 +396,16 @@ function renderTabs() {
       return
     }
     history.replaceState({}, document.title, url)
+
+    // Also persist to localStorage for cross-page tab sync
+    try {
+      localStorage.setItem('documentation-selected-tabs', state.selectedTabs.join(','))
+    } catch {
+      // localStorage might be disabled or unavailable
+    }
   }
 
-  function arraysIntersect(a, b) {
+  function arraysIntersect (a, b) {
     for (let _i = 0, a1 = a; _i < a1.length; _i++) {
       const itemA = a1[_i]
       for (let _a = 0, b1 = b; _a < b1.length; _a++) {
@@ -399,14 +418,14 @@ function renderTabs() {
     return false
   }
 
-  function updateTabStyle() {
+  function updateTabStyle () {
     document.querySelectorAll('div.tabGroup>ul').forEach(e => e.classList.add('nav', 'nav-tabs'))
     document.querySelectorAll('div.tabGroup>ul>li').forEach(e => e.classList.add('nav-item'))
     document.querySelectorAll('div.tabGroup>ul>li>a').forEach(e => e.classList.add('nav-link'))
     document.querySelectorAll('div.tabGroup>section').forEach(e => e.classList.add('card'))
   }
 
-  function notifyContentUpdated() {
+  function notifyContentUpdated () {
     renderMermaid()
   }
 }

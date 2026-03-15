@@ -15,7 +15,7 @@ export type TocNode = {
 /**
  * @returns active TOC nodes
  */
-export async function renderToc(): Promise<TocNode[]> {
+export async function renderToc (): Promise<TocNode[]> {
   const tocrel = meta('docfx:tocrel')
   if (!tocrel) {
     return []
@@ -62,7 +62,7 @@ export async function renderToc(): Promise<TocNode[]> {
 
   return activeNodes.slice(0, -1)
 
-  function initTocNodes(node: TocNode): boolean {
+  function initTocNodes (node: TocNode): boolean {
     let active
     if (node.href) {
       const url = new URL(node.href, tocUrl)
@@ -92,14 +92,14 @@ export async function renderToc(): Promise<TocNode[]> {
     return false
   }
 
-  function renderToc() {
+  function renderToc () {
     render(html`
       ${renderTocFilter()}
       <div class="flex-fill overflow-y-auto">${renderTocNodes(items) || renderNoFilterResult()}</div>
       ${renderDownloadPdf()}`, tocContainer)
   }
 
-  function renderTocNodes(nodes: TocNode[]): TemplateResult {
+  function renderTocNodes (nodes: TocNode[]): TemplateResult {
     const result = nodes.map(node => {
       const { href, name, items, expanded } = node
       if (!name) {
@@ -128,7 +128,7 @@ export async function renderToc(): Promise<TocNode[]> {
           ${children}
         </li>`
 
-      function toggleExpand(e) {
+      function toggleExpand (e) {
         e.preventDefault()
         node.expanded = !isExpanded
         renderToc()
@@ -138,7 +138,7 @@ export async function renderToc(): Promise<TocNode[]> {
     return result.length > 0 ? html`<ul>${result}</ul>` : null
   }
 
-  function renderTocFilter(): TemplateResult {
+  function renderTocFilter (): TemplateResult {
     return disableTocFilter
       ? null
       : html`
@@ -147,23 +147,23 @@ export async function renderToc(): Promise<TocNode[]> {
         <input class='form-control' @input=${filterToc} value='${tocFilter}' type='search' placeholder='${loc('tocFilter')}' autocomplete='off' aria-label='${loc('tocFilter')}'>
       </form>`
 
-    function filterToc(e: Event) {
+    function filterToc (e: Event) {
       tocFilter = (<HTMLInputElement>e.target).value.trim()
       localStorage?.setItem('tocFilter', tocFilter)
       renderToc()
     }
   }
 
-  function renderNoFilterResult(): TemplateResult {
+  function renderNoFilterResult (): TemplateResult {
     return tocFilter === '' ? null : html`<div class='no-result'>${loc('searchNoResults', { query: tocFilter })}</div>`
   }
 
-  function renderDownloadPdf(): TemplateResult {
+  function renderDownloadPdf (): TemplateResult {
     return pdf ? html`<div class="py-2 mb-md-4"><a class="pdf-link" href="${new URL(pdfFileName || 'toc.pdf', tocUrl)}">${loc('downloadPdf')}</a></div>` : null
   }
 }
 
-function renderNextArticle(items: TocNode[], node: TocNode) {
+function renderNextArticle (items: TocNode[], node: TocNode) {
   const nextArticle = document.getElementById('nextArticle')
   if (!nextArticle) {
     return
@@ -182,7 +182,7 @@ function renderNextArticle(items: TocNode[], node: TocNode) {
 
   render(html`${prevButton} ${nextButton}`, nextArticle)
 
-  function flattenTocNodesWithHref(items: TocNode[]) {
+  function flattenTocNodesWithHref (items: TocNode[]) {
     const result = []
     for (const item of items) {
       if (item.href) {

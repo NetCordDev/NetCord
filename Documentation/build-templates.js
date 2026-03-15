@@ -2,7 +2,6 @@
 
 import { build as _build } from "esbuild";
 import { copy } from "esbuild-plugin-copy";
-import { sassPlugin } from "esbuild-sass-plugin";
 import { cpSync, rmSync } from "fs";
 import { join } from "path";
 
@@ -40,10 +39,10 @@ async function buildNetCordTemplate() {
     entryPoints: [
       `${template}/src/docfx.ts`,
       `${template}/src/search-worker.ts`,
+      `${template}/src/json-link-data.ts`,
     ],
     external: ["./main.js"],
     plugins: [
-      sassPlugin(),
       copy({
         assets: {
           from: [`${template}/src/*.js`],
@@ -66,7 +65,12 @@ async function buildNetCordTemplate() {
     loader,
   };
 
-  await _build(config);
+  try {
+    await _build(config);
+  } catch (error) {
+    console.error("Template build failed:", error.message);
+    process.exit(1);
+  }
 }
 
 function copyToDist() {

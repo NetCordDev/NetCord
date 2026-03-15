@@ -9,9 +9,10 @@ import { enableSearch } from './search'
 import { renderToc } from './toc'
 import { initTheme } from './theme'
 import { renderBreadcrumb, renderInThisArticle, renderNavbar } from './nav'
+import { initializeJsonLinkData } from './json-link-data'
 
-import 'bootstrap-icons/font/bootstrap-icons.scss'
-import './docfx.scss'
+import 'bootstrap-icons/font/bootstrap-icons.css'
+import './docfx.css'
 
 declare global {
   interface Window {
@@ -23,11 +24,14 @@ declare global {
   }
 }
 
-async function init() {
+async function init () {
   window.docfx = window.docfx || {}
 
   const { start } = await options()
   start?.()
+
+  // Initialize JSON-LD (JSON for Linking Data) structured data for SEO
+  await initializeJsonLinkData()
 
   const pdfmode = navigator.userAgent.indexOf('docfx/pdf') >= 0
   if (pdfmode) {
@@ -48,7 +52,7 @@ async function init() {
 
   window.docfx.ready = true
 
-  async function renderNav() {
+  async function renderNav () {
     const [navbar, toc] = await Promise.all([renderNavbar(), renderToc()])
     renderBreadcrumb([...navbar, ...toc])
   }

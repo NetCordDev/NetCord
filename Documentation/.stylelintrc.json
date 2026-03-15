@@ -1,6 +1,8 @@
 {
   "extends": "stylelint-config-standard-scss",
   "ignoreFiles": [
+    "**/*.map",
+    "templates-src/NetCord/src/docfx.css",
     "**/*.ts",
     "**/*.js"
   ],

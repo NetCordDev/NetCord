@@ -4,56 +4,8 @@
     <File Path="Documentation/Directory.Build.props" />
     <File Path="Documentation/Directory.Build.targets" />
   </Folder>
-  <Folder Name="/Documentation/guides/" />
-  <Folder Name="/Documentation/guides/basic-concepts/">
-    <Project Path="Documentation/guides/basic-concepts/HttpInteractions/HttpInteractions.csproj" />
-    <Project Path="Documentation/guides/basic-concepts/RespondingToInteractions/RespondingToInteractions.csproj" />
-    <Project Path="Documentation/guides/basic-concepts/SendingMessages/SendingMessages.csproj" />
-    <Project Path="Documentation/guides/basic-concepts/Sharding/Sharding.csproj" />
-    <Project Path="Documentation/guides/basic-concepts/ShardingHosting/ShardingHosting.csproj" />
-    <Project Path="Documentation/guides/basic-concepts/Voice/Voice.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/events/">
-    <Project Path="Documentation/guides/events/FirstEvents/FirstEvents.csproj" />
-    <Project Path="Documentation/guides/events/FirstEventsHosting/FirstEventsHosting.csproj" />
-    <Project Path="Documentation/guides/events/Intents/Intents.csproj" />
-    <Project Path="Documentation/guides/events/IntentsHosting/IntentsHosting.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/getting-started/">
-    <Project Path="Documentation/guides/getting-started/Coding/Coding.csproj" />
-    <Project Path="Documentation/guides/getting-started/CodingHosting/CodingHosting.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/">
-    <Project Path="Documentation/guides/services/DependencyInjection/DependencyInjection.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/application-commands/">
-    <Project Path="Documentation/guides/services/application-commands/Introduction/Introduction.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/IntroductionHosting/IntroductionHosting.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/Localizations/Localizations.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/LocalizationsHosting/LocalizationsHosting.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/MultipleServices/MultipleServices.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/Parameters/Parameters.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/Permissions/Permissions.csproj" />
-    <Project Path="Documentation/guides/services/application-commands/Subcommands/Subcommands.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/component-interactions/">
-    <Project Path="Documentation/guides/services/component-interactions/Introduction/Introduction.csproj" />
-    <Project Path="Documentation/guides/services/component-interactions/IntroductionHosting/IntroductionHosting.csproj" />
-    <Project Path="Documentation/guides/services/component-interactions/Parameters/Parameters.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/CustomModuleBasesAndContexts/">
-    <Project Path="Documentation/guides/services/CustomModuleBasesAndContexts/CustomContexts/CustomContexts.csproj" />
-    <Project Path="Documentation/guides/services/CustomModuleBasesAndContexts/CustomModuleBases/CustomModuleBases.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/Preconditions/">
-    <Project Path="Documentation/guides/services/Preconditions/ParameterPreconditions/ParameterPreconditions.csproj" />
-    <Project Path="Documentation/guides/services/Preconditions/Preconditions/Preconditions.csproj" />
-  </Folder>
-  <Folder Name="/Documentation/guides/services/text-commands/">
-    <Project Path="Documentation/guides/services/text-commands/Aliases/Aliases.csproj" />
-    <Project Path="Documentation/guides/services/text-commands/Introduction/Introduction.csproj" />
-    <Project Path="Documentation/guides/services/text-commands/IntroductionHosting/IntroductionHosting.csproj" />
-    <Project Path="Documentation/guides/services/text-commands/Parameters/Parameters.csproj" />
+  <Folder Name="/Documentation/guides/">
+    
   </Folder>
   <Folder Name="/Hosting/">
     <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
