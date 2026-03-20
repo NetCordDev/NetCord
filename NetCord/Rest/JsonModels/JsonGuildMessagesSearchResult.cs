@@ -6,17 +6,14 @@ namespace NetCord.Rest.JsonModels;
 
 public class JsonGuildMessagesSearchResult
 {
-    [JsonPropertyName("analytics_id")]
-    public string? AnalyticsId { get; set; }
-
-    [JsonPropertyName("messages")]
-    public JsonMessage[][]? Messages { get; set; }
-
     [JsonPropertyName("doing_deep_historical_index")]
     public bool? DoingDeepHistoricalIndex { get; set; }
 
     [JsonPropertyName("total_results")]
     public int? TotalResults { get; set; }
+
+    [JsonPropertyName("messages")]
+    public JsonMessage[][]? Messages { get; set; }
 
     [JsonPropertyName("threads")]
     public JsonChannel[]? Threads { get; set; }
