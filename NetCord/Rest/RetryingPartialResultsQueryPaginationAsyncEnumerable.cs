@@ -2,7 +2,7 @@
 
 namespace NetCord.Rest;
 
-internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
+internal class RetryingPartialResultsQueryPaginationAsyncEnumerable<T, TFrom>(
     RestClient client,
     PaginationProperties<TFrom> paginationProperties,
     Func<Stream, Task<(IEnumerable<T> Results, bool Retry)>> convertAsync,

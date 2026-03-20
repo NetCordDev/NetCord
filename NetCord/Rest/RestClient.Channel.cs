@@ -73,7 +73,7 @@ public partial class RestClient
     {
         paginationProperties = GuildMessagesSearchPaginationProperties.PrepareWithOffset(paginationProperties, 0, PaginationDirection.After, 25);
 
-        return new RetryingLimitedOffsetQueryPaginationAsyncEnumerable<GuildMessageSearchResult, int>(
+        return new RetryingPartialResultsQueryPaginationAsyncEnumerable<GuildMessageSearchResult, int>(
             this,
             paginationProperties,
             async streamParam =>
