@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Represents a command parameter's type.

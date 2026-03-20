@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class MessageReactionEmoji(JsonModels.JsonEmoji jsonModel) : IJsonModel<JsonModels.JsonEmoji>
 {

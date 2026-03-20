@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest.RateLimits;
+namespace NetCord.Rest.RateLimits;
 
 internal class RouteRateLimiter(RateLimitInfo rateLimitInfo) : ITrackingRouteRateLimiter
 {

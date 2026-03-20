@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ComponentInteractions;
+namespace NetCord.Services.ComponentInteractions;
 
 /// <summary>
 /// Provides context for handling component interactions such as buttons and select menus.

@@ -1,4 +1,4 @@
-﻿namespace ServicesTest;
+namespace ServicesTest;
 
 [TestClass]
 public class ComponentInteractionServiceTests : ServiceTests<ComponentInteractionServiceTester>

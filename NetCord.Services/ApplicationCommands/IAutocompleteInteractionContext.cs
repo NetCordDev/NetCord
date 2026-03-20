@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+namespace NetCord.Services.ApplicationCommands;
 
 /// <summary>
 /// Context for handling autocomplete interactions for application command parameters.

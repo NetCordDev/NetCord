@@ -1,4 +1,4 @@
-﻿namespace NetCord.Logging;
+namespace NetCord.Logging;
 
 public class NullLogger : IGatewayLogger, IRestLogger, IVoiceLogger, IWebSocketLogger
 {

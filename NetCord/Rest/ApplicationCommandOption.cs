@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class ApplicationCommandOption : IJsonModel<JsonModels.JsonApplicationCommandOption>, ISpanFormattable
 {

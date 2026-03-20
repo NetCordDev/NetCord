@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.LatencyTimers;
+using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;

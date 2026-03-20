@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class StandardSticker(JsonModels.JsonSticker jsonModel) : Sticker(jsonModel)
 {

@@ -1,4 +1,4 @@
-﻿using NetCord.Hosting.Services;
+using NetCord.Hosting.Services;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 

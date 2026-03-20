@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 using NetCord.Services.Helpers;
 using NetCord.Services.Utils;

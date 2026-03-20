@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;

@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// The flags on a <see cref="User"/>'s account.

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public partial class Sku(JsonModels.JsonSku jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonSku>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ComponentInteractions.TypeReaders;
+namespace NetCord.Services.ComponentInteractions.TypeReaders;
 
 public class BooleanTypeReader<TContext> : ComponentInteractionTypeReader<TContext> where TContext : IComponentInteractionContext
 {

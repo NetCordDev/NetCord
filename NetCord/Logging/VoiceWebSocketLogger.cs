@@ -1,4 +1,4 @@
-﻿namespace NetCord.Logging;
+namespace NetCord.Logging;
 
 internal class VoiceWebSocketLogger(IVoiceLogger logger) : IWebSocketLogger
 {

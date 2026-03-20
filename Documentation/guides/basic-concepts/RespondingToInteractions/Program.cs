@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Rest;
 
 #pragma warning disable IDE0017, IDE0040, IDE0051, IDE0059, CS8321

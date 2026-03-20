@@ -1,4 +1,4 @@
-﻿namespace NetCord.Hosting.Services;
+namespace NetCord.Hosting.Services;
 
 public interface IContextAccessor<TContext>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class UserActivityAssets(JsonModels.JsonUserActivityAssets jsonModel) : IJsonModel<JsonModels.JsonUserActivityAssets>
 {

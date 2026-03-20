@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 public class RequireNsfwAttribute<TContext>(string message = "Required nsfw channel.") : PreconditionAttribute<TContext> where TContext : IChannelContext
 {

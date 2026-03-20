@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 
 using static NetCord.Logging.LoggerHelpers;
 

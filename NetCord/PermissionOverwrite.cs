@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class PermissionOverwrite(JsonModels.JsonPermissionOverwrite jsonModel) : Entity, IJsonModel<JsonModels.JsonPermissionOverwrite>
 {

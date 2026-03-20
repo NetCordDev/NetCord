@@ -1,4 +1,4 @@
-﻿namespace NetCord.Hosting.AspNetCore;
+namespace NetCord.Hosting.AspNetCore;
 
 public interface IWebhookHandler;
 

@@ -1,4 +1,4 @@
-﻿using NetCord.Services.EnumTypeReaders;
+using NetCord.Services.EnumTypeReaders;
 
 namespace NetCord.Services.ComponentInteractions.TypeReaders;
 

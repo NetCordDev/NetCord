@@ -1,4 +1,4 @@
-﻿global using InteractionResponseDelegate = System.Func<NetCord.IInteraction, NetCord.Rest.InteractionCallbackProperties, bool, NetCord.Rest.RestRequestProperties?, System.Threading.CancellationToken, System.Threading.Tasks.Task<NetCord.Rest.InteractionCallbackResponse?>>;
+global using InteractionResponseDelegate = System.Func<NetCord.IInteraction, NetCord.Rest.InteractionCallbackProperties, bool, NetCord.Rest.RestRequestProperties?, System.Threading.CancellationToken, System.Threading.Tasks.Task<NetCord.Rest.InteractionCallbackResponse?>>;
 
 using NetCord.Rest;
 

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Hosting;
+namespace NetCord.Hosting;
 
 public interface IHttpInteractionHandler
 {

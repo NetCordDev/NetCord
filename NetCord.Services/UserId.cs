@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 /// <summary>
 /// Represents a user ID with an optional user object.
