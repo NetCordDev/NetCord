@@ -52,11 +52,6 @@ public class GuildMessagesSearchResultData(JsonGuildMessagesSearchResult jsonMod
     JsonGuildMessagesSearchResult IJsonModel<JsonGuildMessagesSearchResult>.JsonModel => jsonModel;
 
     /// <summary>
-    /// The analytics ID of the search.
-    /// </summary>
-    public string AnalyticsId => jsonModel.AnalyticsId!;
-
-    /// <summary>
     /// Whether the server is doing a deep historical index.
     /// </summary>
     public bool DoingDeepHistoricalIndex => jsonModel.DoingDeepHistoricalIndex.GetValueOrDefault();

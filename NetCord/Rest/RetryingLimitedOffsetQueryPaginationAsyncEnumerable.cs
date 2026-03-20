@@ -5,7 +5,6 @@ namespace NetCord.Rest;
 internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
     RestClient client,
     PaginationProperties<TFrom> paginationProperties,
-    TFrom maxOffset,
     Func<Stream, Task<(IEnumerable<T> Results, bool Retry)>> convertAsync,
     HttpMethod method,
     FormattableString endpoint,
@@ -39,13 +38,10 @@ internal class RetryingLimitedOffsetQueryPaginationAsyncEnumerable<T, TFrom>(
 
             if (!retry)
             {
-                if (count != expectedCount)
+                if (count is 0)
                     yield break;
 
                 offset += increment;
-
-                if (offset > maxOffset)
-                    yield break;
 
                 query = queryBuilder.ToString(offset);
             }
