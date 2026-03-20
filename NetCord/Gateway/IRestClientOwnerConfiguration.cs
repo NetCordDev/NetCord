@@ -1,4 +1,4 @@
-﻿using NetCord.Logging;
+using NetCord.Logging;
 using NetCord.Rest;
 
 namespace NetCord.Gateway;

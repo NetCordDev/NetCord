@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class GuildThreadDeleteEventArgs(ulong threadId, ulong guildId, ulong threadParentId, ChannelType threadType)
 {

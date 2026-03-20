@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 {

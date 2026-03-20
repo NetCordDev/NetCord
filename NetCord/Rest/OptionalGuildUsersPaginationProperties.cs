@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
 public partial record OptionalGuildUsersPaginationProperties : PaginationProperties<ulong>, IPaginationProperties<ulong, OptionalGuildUsersPaginationProperties>

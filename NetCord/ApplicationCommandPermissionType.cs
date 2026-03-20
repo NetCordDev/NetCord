@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Indicates the scope of an <see cref="ApplicationCommandPermission"/> object.

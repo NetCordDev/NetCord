@@ -1,4 +1,4 @@
-﻿namespace NetCord.Logging;
+namespace NetCord.Logging;
 
 internal static class LoggerHelpers
 {

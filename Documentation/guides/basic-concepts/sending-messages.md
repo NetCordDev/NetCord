@@ -1,4 +1,4 @@
-﻿---
+---
 uid: sending-messages
 omitAppTitle: true
 title: Sending Messages in a C# Discord Bot with NetCord Library

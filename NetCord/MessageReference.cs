@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class MessageReference(JsonModels.JsonMessageReference jsonModel) : IJsonModel<JsonModels.JsonMessageReference>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public abstract class Mentionable : Entity
 {

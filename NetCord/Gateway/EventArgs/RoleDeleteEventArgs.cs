@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class RoleDeleteEventArgs(JsonModels.EventArgs.JsonRoleDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonRoleDeleteEventArgs>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.Commands;
+namespace NetCord.Services.Commands;
 
 public abstract class CommandTypeReader<TContext> : ICommandTypeReader where TContext : ICommandContext
 {

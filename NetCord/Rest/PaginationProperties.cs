@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
 public partial record PaginationProperties<T> : IPaginationProperties<T, PaginationProperties<T>> where T : struct

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 [Flags]
 internal enum PermissionsType : byte

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class MessagePollVoteEventArgs(JsonModels.EventArgs.JsonMessagePollVoteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonMessagePollVoteEventArgs>
 {

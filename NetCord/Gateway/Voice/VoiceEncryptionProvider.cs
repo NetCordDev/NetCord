@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Voice.Encryption;
+using NetCord.Gateway.Voice.Encryption;
 
 namespace NetCord.Gateway.Voice;
 

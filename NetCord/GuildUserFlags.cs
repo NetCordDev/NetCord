@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// The flags on a <see cref="GuildUser"/> object, mostly undocumented by Discord.

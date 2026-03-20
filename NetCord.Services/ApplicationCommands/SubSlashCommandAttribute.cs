@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+namespace NetCord.Services.ApplicationCommands;
 
 /// <summary>
 /// Sub slash command allowing to create nested slash commands within a slash command.

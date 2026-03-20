@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.ReconnectStrategies;
+namespace NetCord.Gateway.ReconnectStrategies;
 
 public interface IReconnectStrategy
 {

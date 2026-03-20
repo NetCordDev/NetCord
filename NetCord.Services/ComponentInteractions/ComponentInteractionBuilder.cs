@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ComponentInteractions;
+namespace NetCord.Services.ComponentInteractions;
 
 /// <inheritdoc cref="ComponentInteractionAttribute" />
 /// <param name="customId" />

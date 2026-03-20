@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class GuildWelcomeScreen(JsonModels.JsonGuildWelcomeScreen jsonModel) : IJsonModel<JsonModels.JsonGuildWelcomeScreen>
 {

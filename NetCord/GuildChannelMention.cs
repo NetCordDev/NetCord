@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class GuildChannelMention(JsonModels.JsonGuildChannelMention jsonModel) : Entity
 {

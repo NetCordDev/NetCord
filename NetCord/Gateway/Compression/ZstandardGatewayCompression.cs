@@ -1,4 +1,4 @@
-﻿using static NetCord.Gateway.Compression.Zstandard;
+using static NetCord.Gateway.Compression.Zstandard;
 
 namespace NetCord.Gateway.Compression;
 

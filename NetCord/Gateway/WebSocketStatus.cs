@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 /// <summary>
 /// Represents the status of a WebSocket connection.

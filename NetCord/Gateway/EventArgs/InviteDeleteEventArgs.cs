@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 public class InviteDeleteEventArgs(JsonModels.EventArgs.JsonInviteDeleteEventArgs jsonModel) : IJsonModel<JsonModels.EventArgs.JsonInviteDeleteEventArgs>
 {
