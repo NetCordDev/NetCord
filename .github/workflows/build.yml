@@ -17,16 +17,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: 'nix develop -c bash -e {0}'
+
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           filter: tree:0
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
-        with:
-          global-json-file: global.json
+      - uses: cachix/install-nix-action@v31
 
       - name: Restore dependencies
         run: dotnet restore
@@ -45,13 +46,10 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
-      - name: Setup Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-
       - name: Build Documentation
+        shell: 'nix develop .#docs -c bash -e {0}'
         working-directory: Documentation
         run: |
-          dotnet tool install docfx -g --version 2.78.3
           npm install
           npm run lint
           npm run test
