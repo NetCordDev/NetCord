@@ -10,6 +10,9 @@ jobs:
   build-and-publish:
     runs-on: ubuntu-latest
 
+    env:
+      DOCS_SHELL: 'nix develop .#docs -c bash -e {0}'
+
     defaults:
       run:
         shell: 'nix develop -c bash -e {0}'
@@ -21,6 +24,9 @@ jobs:
           filter: tree:0
 
       - uses: cachix/install-nix-action@v31
+
+      - name: Setup Dev environment
+        run: 'true'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -39,8 +45,12 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
+      - name: Setup Docs Dev environment
+        shell: ${{ env.DOCS_SHELL }}
+        run: 'true'
+
       - name: Build Documentation
-        shell: 'nix develop .#docs -c bash -e {0}'
+        shell: ${{ env.DOCS_SHELL }}
         working-directory: Documentation
         run: |
           npm install
