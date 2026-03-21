@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
-      - uses: cachix/install-nix-action@v31
+      - uses: cachix/install-nix-action@1ca7d21a94afc7c957383a2d217460d980de4934 # v31.10.1
 
       - name: Setup dev environment
         shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
