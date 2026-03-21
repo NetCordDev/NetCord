@@ -19,7 +19,7 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - name: Setup dev environment
-        shell: &dev-shell 'nix develop -c bash -e {0}'
+        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
         run: 'true'
 
       - name: Restore dependencies
@@ -44,7 +44,7 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup docs environment
-        shell: &docs-shell 'nix develop .#docs -c bash -e {0}'
+        shell: &docs-shell 'nix develop .#docs -c bash -eo pipefail {0}'
         run: 'true'
 
       - name: Build Documentation
@@ -57,6 +57,7 @@ jobs:
           npm run build
 
       - name: Publish Packages
+        shell: *dev-shell
         env:
           KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
