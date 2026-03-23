@@ -25,7 +25,7 @@ jobs:
           filter: tree:0
 
       - name: Install Nix
-        uses: cachix/install-nix-action@1ca7d21a94afc7c957383a2d217460d980de4934 # v31.10.1
+        uses: cachix/install-nix-action@51f3067b56fe8ae331890c77d4e454f6d60615ff # v31.10.2
 
       - name: Setup dev environment
         shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
