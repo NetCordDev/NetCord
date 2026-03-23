@@ -32,12 +32,16 @@
           nugetHash = "sha256-hLb6OmxqXOOxFaq/N+aZ0sAzEYjU0giX3c1SWQtKDbs=";
           dotnet-sdk = dotnet;
         };
+
+        dotnetRoot = "${dotnet.unwrapped}/share/dotnet";
       in
       {
         default = pkgs.mkShell {
           packages = [
             dotnet
           ];
+
+          DOTNET_ROOT = dotnetRoot;
         };
 
         docs = pkgs.mkShell {
@@ -46,6 +50,8 @@
             dotnet
             pkgs.nodejs_25
           ];
+
+          DOTNET_ROOT = dotnetRoot;
         };
       }
     );
