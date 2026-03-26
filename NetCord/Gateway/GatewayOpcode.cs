@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway;
+namespace NetCord.Gateway;
 
 /// <summary>
 /// Contains all valid opcodes sent/received by the client.

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.Commands;
+namespace NetCord.Services.Commands;
 
 public interface ICommandInfo<TContext> where TContext : ICommandContext
 {

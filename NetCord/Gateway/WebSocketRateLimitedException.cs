@@ -1,4 +1,4 @@
-﻿
+
 namespace NetCord.Gateway;
 
 public class WebSocketRateLimitedException(int resetAfter) : Exception($"Rate limit exceeded. Reset after {resetAfter} ms.")

@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class MessageReactionCountDetails(JsonModels.JsonMessageReactionCountDetails jsonModel) : IJsonModel<JsonModels.JsonMessageReactionCountDetails>
 {

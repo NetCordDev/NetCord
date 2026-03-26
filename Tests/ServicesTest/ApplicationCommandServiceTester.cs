@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.JsonModels;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;

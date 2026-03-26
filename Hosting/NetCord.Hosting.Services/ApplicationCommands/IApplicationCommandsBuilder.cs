@@ -1,4 +1,4 @@
-﻿using NetCord.Services.ApplicationCommands;
+using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Hosting.Services.ApplicationCommands;
 

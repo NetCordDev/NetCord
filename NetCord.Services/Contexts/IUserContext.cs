@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 /// <summary>
 /// Provides access to user information for commands and interactions.

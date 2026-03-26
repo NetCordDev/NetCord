@@ -1,4 +1,4 @@
-﻿namespace ServicesTest;
+namespace ServicesTest;
 
 internal static class Body
 {

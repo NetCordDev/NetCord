@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.WebSockets;
+using NetCord.Gateway.WebSockets;
 
 namespace NetCord.Gateway;
 

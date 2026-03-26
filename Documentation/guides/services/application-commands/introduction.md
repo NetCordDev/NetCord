@@ -1,4 +1,4 @@
-﻿---
+---
 uid: application-commands
 ---
 

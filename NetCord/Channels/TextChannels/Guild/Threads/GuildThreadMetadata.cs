@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class GuildThreadMetadata(JsonModels.JsonGuildThreadMetadata jsonModel) : IJsonModel<JsonModels.JsonGuildThreadMetadata>
 {

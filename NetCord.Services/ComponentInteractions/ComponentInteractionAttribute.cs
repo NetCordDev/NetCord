@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ComponentInteractions;
+namespace NetCord.Services.ComponentInteractions;
 
 /// <summary>
 /// Component interactions are interactions that are triggered by user actions on components, such as buttons, select menus, and modals.

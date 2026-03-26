@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.Commands.TypeReaders;
+namespace NetCord.Services.Commands.TypeReaders;
 
 public class MediaForumGuildChannelTypeReader<TContext> : ChannelTypeReader<TContext> where TContext : ICommandContext
 {

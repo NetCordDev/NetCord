@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice;
 
 public class DaveEncryptorException(string? message) : Exception(message)
 {

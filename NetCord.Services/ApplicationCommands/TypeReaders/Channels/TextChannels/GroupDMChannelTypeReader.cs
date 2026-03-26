@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
+namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class GroupDMChannelTypeReader<TContext> : ChannelTypeReader<TContext> where TContext : IApplicationCommandContext
 {

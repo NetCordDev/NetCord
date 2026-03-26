@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest.RateLimits;
+namespace NetCord.Rest.RateLimits;
 
 public class RateLimitInfo(long timestamp, int resetAfter, int remaining, int limit, BucketInfo bucketInfo)
 {

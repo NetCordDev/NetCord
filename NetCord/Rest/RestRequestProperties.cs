@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 [GenerateMethodsForProperties]
 public sealed partial class RestRequestProperties

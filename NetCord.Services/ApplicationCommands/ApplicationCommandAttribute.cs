@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+namespace NetCord.Services.ApplicationCommands;
 
 /// <inheritdoc cref="Rest.ApplicationCommandProperties" />
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]

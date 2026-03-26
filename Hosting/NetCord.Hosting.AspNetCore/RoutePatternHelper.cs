@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Routing.Patterns;
+using Microsoft.AspNetCore.Routing.Patterns;
 
 namespace NetCord.Hosting.AspNetCore;
 

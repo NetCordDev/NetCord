@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Voice.Encryption;
+namespace NetCord.Gateway.Voice.Encryption;
 
 /// <summary>
 /// Voice encryption.

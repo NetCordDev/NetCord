@@ -1,4 +1,4 @@
-﻿using NetCord.Rest;
+using NetCord.Rest;
 using NetCord.Rest.RateLimits;
 
 namespace NetCord.Hosting.Rest;

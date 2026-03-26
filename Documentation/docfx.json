@@ -35,7 +35,7 @@
     ],
     "resource": [
       {
-        "files": [ "images/**", "favicon.ico", "logo.svg", "robots.txt" ]
+        "files": [ "images/**", "robots.txt" ]
       }
     ],
     "overwrite": [

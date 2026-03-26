@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway.Compression;
+using NetCord.Gateway.Compression;
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
 using NetCord.Gateway.WebSockets;

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+namespace NetCord.Services.ApplicationCommands;
 
 /// <summary>
 /// Specifies metadata for a choice of a slash command parameter.

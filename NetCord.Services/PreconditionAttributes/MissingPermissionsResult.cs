@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services;
+namespace NetCord.Services;
 
 public class MissingPermissionsResult(string message, Permissions missingPermissions, MissingPermissionsResultEntityType entityType, MissingPermissionsResultPermissionType permissionType) : PreconditionFailResult(message)
 {

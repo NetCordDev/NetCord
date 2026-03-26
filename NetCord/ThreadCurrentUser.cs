@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class ThreadCurrentUser(JsonModels.JsonThreadCurrentUser jsonModel) : IJsonModel<JsonModels.JsonThreadCurrentUser>
 {

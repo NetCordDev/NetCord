@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Concurrent;
 
 using NetCord.Gateway.Voice.JsonModels;

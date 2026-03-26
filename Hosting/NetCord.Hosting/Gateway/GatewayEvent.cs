@@ -1,4 +1,4 @@
-﻿namespace NetCord.Hosting.Gateway;
+namespace NetCord.Hosting.Gateway;
 
 public partial class GatewayEvent
 {

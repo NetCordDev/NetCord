@@ -1,4 +1,4 @@
-﻿using NetCord;
+using NetCord;
 using NetCord.Hosting;
 using NetCord.Hosting.AspNetCore;
 using NetCord.Hosting.Rest;

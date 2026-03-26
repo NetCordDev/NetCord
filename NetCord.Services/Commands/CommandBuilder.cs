@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.Commands;
+namespace NetCord.Services.Commands;
 
 /// <inheritdoc cref="CommandAttribute" />
 [GenerateMethodsForProperties]

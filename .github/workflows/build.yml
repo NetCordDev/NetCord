@@ -18,26 +18,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           filter: tree:0
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@baa11fbfe1d6520db94683bd5c7a3818018e4309 # v5.1.0
-        with:
-          global-json-file: global.json
+      - name: Install Nix
+        uses: cachix/install-nix-action@51f3067b56fe8ae331890c77d4e454f6d60615ff # v31.10.2
+
+      - name: Setup dev environment
+        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
+        run: 'true'
 
       - name: Restore dependencies
+        shell: *dev-shell
         run: dotnet restore
 
       - name: Build
+        shell: *dev-shell
         run: dotnet build -c Release --no-restore --warnaserror
 
       - name: Test
+        shell: *dev-shell
         run: dotnet test -c Release --no-build --verbosity normal
 
       - name: Pack Packages
+        shell: *dev-shell
         run: |
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
@@ -45,13 +52,14 @@ jobs:
           dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
-      - name: Setup Node
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+      - name: Setup docs environment
+        shell: &docs-shell 'nix develop .#docs -c bash -eo pipefail {0}'
+        run: 'true'
 
       - name: Build Documentation
+        shell: *docs-shell
         working-directory: Documentation
         run: |
-          dotnet tool install docfx -g --version 2.78.3
           npm install
           npm run lint
           npm run test

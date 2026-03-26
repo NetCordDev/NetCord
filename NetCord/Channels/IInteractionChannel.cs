@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public interface IInteractionChannel : IEntity, ISpanFormattable
 {
