@@ -303,7 +303,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<AuditLogEntry, ValueTask>? GuildAuditLogEntryCreate;
 
     /// <summary>
-    /// Sent when a user is banned from a guild.<br/>
+    /// Sent when a user is banned from a guild. This event is only sent to bots with the <see cref="Permissions.BanUsers"/> or <see cref="Permissions.ViewAuditLog"/> permission.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
@@ -312,7 +312,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     public partial event Func<GuildBanEventArgs, ValueTask>? GuildBanAdd;
 
     /// <summary>
-    /// Sent when a user is unbanned from a guild.<br/>
+    /// Sent when a user is unbanned from a guild. This event is only sent to bots with the <see cref="Permissions.BanUsers"/> or <see cref="Permissions.ViewAuditLog"/> permission.<br/>
     /// </summary>
     /// <remarks>
     /// <br/> Required Intents: <see cref="GatewayIntents.GuildModeration"/>
