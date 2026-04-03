@@ -95,6 +95,7 @@ public partial class RestClient
         finally
         {
             ArrayPool<byte>.Shared.Return(array);
+            await stream.DisposeAsync().ConfigureAwait(false);
         }
     }
 
