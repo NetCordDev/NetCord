@@ -87,11 +87,13 @@ public partial class InviteTargetUsersProperties : IHttpSerializable
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
         public override void Flush() => throw new NotSupportedException();
+
         public override int Read(byte[] buffer, int offset, int count) => Read(new Span<byte>(buffer, offset, count));
+
         public override int Read(Span<byte> buffer)
         {
             int totalWritten = 0;
-            
+
             if (_startPosition != _endPosition)
             {
                 var bufferedLength = _endPosition - _startPosition;
