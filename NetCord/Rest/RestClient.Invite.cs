@@ -99,11 +99,11 @@ public partial class RestClient
         }
     }
 
-    public async Task UpdateInviteTargetUsersAsync(string inviteCode, InviteTargetUsersProperties properties, RestRequestProperties? requestProperties = null, CancellationToken cancellationToken = default)
+    public async Task UpdateInviteTargetUsersAsync(string inviteCode, InviteTargetUsersProperties inviteTargetUsersProperties, RestRequestProperties? requestProperties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new MultipartFormDataContent()
         {
-            { properties.Serialize(), "target_users_file", "target_users_file" }
+            { inviteTargetUsersProperties.Serialize(), "target_users_file", "target_users_file" }
         })
             await SendRequestAsync(HttpMethod.Put, content, $"/invites/{inviteCode}/target-users", null, null, requestProperties, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
