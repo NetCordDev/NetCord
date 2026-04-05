@@ -29,12 +29,13 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 
     public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
 
-    public StageInstance? StageInstance { get; }
-
     public GuildScheduledEvent? GuildScheduledEvent { get; }
+
+    public InviteFlags? Flags => _jsonModel.Flags;
 
     public IReadOnlyList<Role>? Roles { get; }
 
+    // Metadata
     public int? Uses => _jsonModel.Uses;
 
     public int? MaxUses => _jsonModel.MaxUses;
@@ -74,9 +75,6 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 
         if (jsonModel.TargetApplication is { } targetApplication)
             TargetApplication = new(targetApplication, client);
-
-        if (jsonModel.StageInstance is { } stageInstance)
-            StageInstance = new(stageInstance, client);
 
         if (jsonModel.GuildScheduledEvent is { } guildScheduledEvent)
             GuildScheduledEvent = new(guildScheduledEvent, client);

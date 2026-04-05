@@ -44,4 +44,10 @@ public class JsonInvite
 
     [JsonPropertyName("uses")]
     public int Uses { get; set; }
+
+    [JsonPropertyName("expires_at")]
+    public DateTimeOffset? ExpiresAt { get; set; }
+
+    [JsonPropertyName("role_ids")]
+    public ulong[]? RoleIds { get; set; }
 }
