@@ -45,6 +45,9 @@ public class JsonRestInvite
     [JsonPropertyName("guild_scheduled_event")]
     public JsonGuildScheduledEvent? GuildScheduledEvent { get; set; }
 
+    [JsonPropertyName("roles")]
+    public JsonRole[]? Roles { get; set; }
+
     [JsonPropertyName("uses")]
     public int? Uses { get; set; }
 

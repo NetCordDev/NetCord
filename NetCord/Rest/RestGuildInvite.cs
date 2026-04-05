@@ -33,6 +33,8 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
 
     public GuildScheduledEvent? GuildScheduledEvent { get; }
 
+    public IReadOnlyList<Role>? Roles { get; }
+
     public int? Uses => _jsonModel.Uses;
 
     public int? MaxUses => _jsonModel.MaxUses;
@@ -51,32 +53,32 @@ public partial class RestInvite : IInvite, IJsonModel<JsonModels.JsonRestInvite>
     {
         _jsonModel = jsonModel;
 
-        var guild = jsonModel.Guild;
-        if (guild is not null)
+        if (jsonModel.Guild is { } guild)
+        {
             Guild = new(guild, client);
 
-        var channel = jsonModel.Channel;
-        if (channel is not null)
+            var guildId = Guild.Id;
+
+            if (jsonModel.Roles is { } roles)
+                Roles = roles.Select(role => new Role(role, guildId, client)).ToArray();
+        }
+
+        if (jsonModel.Channel is { } channel)
             Channel = Channel.CreateFromJson(channel, client);
 
-        var inviter = jsonModel.Inviter;
-        if (inviter is not null)
+        if (jsonModel.Inviter is { } inviter)
             Inviter = new(inviter, client);
 
-        var targetUser = jsonModel.TargetUser;
-        if (targetUser is not null)
+        if (jsonModel.TargetUser is { } targetUser)
             TargetUser = new(targetUser, client);
 
-        var targetApplication = jsonModel.TargetApplication;
-        if (targetApplication is not null)
+        if (jsonModel.TargetApplication is { } targetApplication)
             TargetApplication = new(targetApplication, client);
 
-        var stageInstance = jsonModel.StageInstance;
-        if (stageInstance is not null)
+        if (jsonModel.StageInstance is { } stageInstance)
             StageInstance = new(stageInstance, client);
 
-        var guildScheduledEvent = jsonModel.GuildScheduledEvent;
-        if (guildScheduledEvent is not null)
+        if (jsonModel.GuildScheduledEvent is { } guildScheduledEvent)
             GuildScheduledEvent = new(guildScheduledEvent, client);
 
         _client = client;
