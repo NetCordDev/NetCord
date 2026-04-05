@@ -39,11 +39,14 @@ public class JsonRestInvite
     [JsonPropertyName("expires_at")]
     public DateTimeOffset? ExpiresAt { get; set; }
 
-    [JsonPropertyName("stage_instance")]
-    public JsonStageInstance? StageInstance { get; set; }
-
     [JsonPropertyName("guild_scheduled_event")]
     public JsonGuildScheduledEvent? GuildScheduledEvent { get; set; }
+
+    [JsonPropertyName("flags")]
+    public InviteFlags? Flags { get; set; }
+
+    [JsonPropertyName("roles")]
+    public JsonRole[]? Roles { get; set; }
 
     [JsonPropertyName("uses")]
     public int? Uses { get; set; }

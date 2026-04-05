@@ -50,6 +50,10 @@ public class Invite : IInvite, IJsonModel<JsonModels.JsonInvite>
 
     public int Uses => _jsonModel.Uses;
 
+    public DateTimeOffset? ExpiresAt => _jsonModel.ExpiresAt;
+
+    public IReadOnlyList<ulong>? RoleIds => _jsonModel.RoleIds;
+
     ulong? IInvite.ChannelId => ChannelId;
 
     int? IInvite.MaxAge => MaxAge;

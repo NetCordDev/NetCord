@@ -284,4 +284,5 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonRadioGroupComponent))]
 [JsonSerializable(typeof(JsonCheckboxGroupComponent))]
 [JsonSerializable(typeof(JsonCheckboxComponent))]
+[JsonSerializable(typeof(JsonInviteTargetUsersJobStatus))]
 internal partial class Serialization : JsonSerializerContext;

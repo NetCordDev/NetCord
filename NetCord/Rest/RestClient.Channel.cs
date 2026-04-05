@@ -436,7 +436,10 @@ public partial class RestClient
     [GenerateAlias([typeof(IGuildChannel)], nameof(IGuildChannel.Id))]
     public async Task<RestInvite> CreateGuildChannelInviteAsync(ulong channelId, InviteProperties? inviteProperties = null, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        using (HttpContent content = new JsonContent<InviteProperties?>(inviteProperties, Serialization.Default.InviteProperties))
+        if (inviteProperties is null)
+            return new(await (await SendRequestAsync(HttpMethod.Post, $"/channels/{channelId}/invites", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
+
+        using (HttpContent content = inviteProperties.Serialize())
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/invites", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonRestInvite).ConfigureAwait(false), this);
     }
 
