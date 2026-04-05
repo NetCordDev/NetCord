@@ -1,5 +1,5 @@
-using System.Buffers;
 using System.Buffers.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NetCord.Rest;
 
@@ -7,6 +7,7 @@ namespace NetCord.Rest;
 public partial class InviteTargetUsersProperties : IHttpSerializable
 {
     private readonly Stream _stream;
+    private byte _read;
 
     private InviteTargetUsersProperties(Stream stream)
     {
@@ -19,7 +20,19 @@ public partial class InviteTargetUsersProperties : IHttpSerializable
 
     HttpContent IHttpSerializable.Serialize() => Serialize();
 
-    internal HttpContent Serialize() => new StreamContent(_stream);
+    internal HttpContent Serialize()
+    {
+        if (Interlocked.Exchange(ref _read, 1) is 1)
+            ThrowAlreadySent();
+
+        return new StreamContent(_stream);
+    }
+
+    [DoesNotReturn]
+    private static void ThrowAlreadySent()
+    {
+        throw new InvalidOperationException("The invite target users have already been sent.");
+    }
 
     private sealed class UserIdsStream(IEnumerable<ulong> userIds) : Stream
     {
