@@ -79,6 +79,7 @@ public class GetInviteTargetUsersTest(TestContext context)
 
         public void Dispose()
         {
+            responseStream.Dispose();
         }
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default)
