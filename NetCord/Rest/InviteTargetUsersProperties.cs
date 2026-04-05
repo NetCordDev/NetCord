@@ -24,7 +24,7 @@ public partial class InviteTargetUsersProperties : IHttpSerializable
     private sealed class UserIdsStream(IEnumerable<ulong> userIds) : Stream
     {
         private readonly IEnumerator<ulong> _enumerator = userIds.GetEnumerator();
-        private byte[] _buffer = ArrayPool<byte>.Shared.Rent(22);
+        private readonly byte[] _buffer = new byte[22];
         private int _startPosition;
         private int _endPosition;
 
@@ -120,11 +120,7 @@ public partial class InviteTargetUsersProperties : IHttpSerializable
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 _enumerator.Dispose();
-                if (Interlocked.Exchange(ref _buffer, null!) is { } buffer)
-                    ArrayPool<byte>.Shared.Return(buffer);
-            }
         }
     }
 }
