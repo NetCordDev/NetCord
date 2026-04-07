@@ -6,7 +6,6 @@ public class JsonMessageReference
 {
     [JsonPropertyName("type")]
     public MessageReferenceType? Type { get; set; }
-    
     [JsonPropertyName("message_id")]
     public ulong? MessageId { get; set; }
 
