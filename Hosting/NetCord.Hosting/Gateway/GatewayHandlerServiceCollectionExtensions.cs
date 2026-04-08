@@ -36,6 +36,18 @@ public static class GatewayHandlerServiceCollectionExtensions
     /// Adds an <see cref="IGatewayHandler"/> to the specified <see cref="IServiceCollection"/>.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
+    /// <param name="handlerType">The type of the <see cref="IGatewayHandler"/> to add.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType)
+    {
+        services.AddSingleton(typeof(IGatewayHandler), handlerType);
+        return services;
+    }
+
+    /// <summary>
+    /// Adds an <see cref="IGatewayHandler"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IGatewayHandler"/> to.</param>
     /// <param name="gatewayEvent">The gateway event.</param>
     /// <param name="handler">The delegate that represents the handler.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
@@ -94,6 +106,18 @@ public static class GatewayHandlerServiceCollectionExtensions
     public static IServiceCollection AddShardedGatewayHandler<T>(this IServiceCollection services, Func<IServiceProvider, T> implementationFactory) where T : class, IShardedGatewayHandler
     {
         services.AddSingleton<IShardedGatewayHandler, T>(implementationFactory);
+        return services;
+    }
+
+    /// <summary>
+    /// Adds an <see cref="IShardedGatewayHandler"/> to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the <see cref="IShardedGatewayHandler"/> to.</param>
+    /// <param name="handlerType">The type of the <see cref="IShardedGatewayHandler"/> to add.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddShardedGatewayHandler(this IServiceCollection services, [DAM(DAMT.PublicConstructors)] Type handlerType)
+    {
+        services.AddSingleton(typeof(IShardedGatewayHandler), handlerType);
         return services;
     }
 
