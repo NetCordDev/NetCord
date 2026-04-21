@@ -10,11 +10,14 @@
   "dependencyDashboard": true,
   "rebaseWhen": "conflicted",
   "nix": {
-    "enabled": true
+    "enabled": true,
+    "lockFileMaintenance": {
+      "enabled": true
+    }
   },
-  "lockFileMaintenance": {
-    "enabled": true
-  },
+  // "lockFileMaintenance": {
+  //   "enabled": true
+  // },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -41,11 +44,6 @@
       "recreateWhen": "auto",
       "groupName": "nixpkgs",
       "dependencyDashboardApproval": true
-    },
-    {
-      "description": "Disable general lock file maintenance",
-      "matchUpdateTypes": [ "lockFileMaintenance" ],
-      "enabled": false
     },
     {
       "description": "Group all non-major npm updates into one PR",
