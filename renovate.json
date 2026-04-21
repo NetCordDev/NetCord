@@ -12,10 +12,6 @@
   "nix": {
     "enabled": true
   },
-  "lockFileMaintenance": {
-    "enabled": true,
-    "schedule": [ "at any time" ]
-  },
   "major": {
     "dependencyDashboardApproval": true
   },
