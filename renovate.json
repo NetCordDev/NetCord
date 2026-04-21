@@ -12,9 +12,6 @@
   "nix": {
     "enabled": true
   },
-  "lockFileMaintenance": {
-    "enabled": true
-  },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -30,16 +27,17 @@
       "description": ".NET SDK update",
       "matchManagers": [ "nuget" ],
       "matchPackageNames": [ "dotnet-sdk" ],
-      "groupName": "tooling",
+      "groupName": "dotnet-sdk",
       "dependencyDashboardApproval": true
     },
     {
       "description": "Nixpkgs update",
       "matchManagers": [ "nix" ],
       "matchUpdateTypes": [ "lockFileMaintenance" ],
-      "groupName": "tooling",
-      "dependencyDashboardApproval": true,
-      "schedule": [ "at any time" ]
+      "schedule": [ "at any time" ],
+      "recreateWhen": "auto",
+      "enabled": true,
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Group all non-major npm updates into one PR",
