@@ -12,6 +12,9 @@
   "nix": {
     "enabled": true
   },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -36,7 +39,6 @@
       "matchUpdateTypes": [ "lockFileMaintenance" ],
       "schedule": [ "at any time" ],
       "recreateWhen": "auto",
-      "enabled": true,
       "dependencyDashboardApproval": true
     },
     {
