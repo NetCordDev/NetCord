@@ -1,11 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "nix": {
-    "enabled": true
-  },
-  "lockFileMaintenance": {
-    "enabled": true
-  },
   "extends": [
     "config:recommended",
     ":gitSignOff",
@@ -15,6 +9,13 @@
   ],
   "dependencyDashboard": true,
   "rebaseWhen": "conflicted",
+  "nix": {
+    "enabled": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [ "at any time" ]
+  },
   "major": {
     "dependencyDashboardApproval": true
   },
