@@ -13,7 +13,8 @@
     "enabled": true
   },
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "recreateWhen": "never"
   },
   "major": {
     "dependencyDashboardApproval": true
@@ -27,12 +28,17 @@
       "groupName": "NuGet non-major"
     },
     {
-      "description": "Tooling update",
-      "matchManagers": [ "nuget", "nix" ],
-      "matchUpdateTypes": [ "major", "minor", "patch", "pin", "digest", "lockFileMaintenance" ],
-      "matchPackageNames": [ "dotnet-sdk", "https://github.com/NixOS/nixpkgs" ],
-      "groupName": "tooling",
+      "description": ".NET SDK update",
+      "matchManagers": [ "nuget" ],
+      "matchPackageNames": [ "dotnet-sdk" ],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Nixpkgs update",
+      "matchManagers": [ "nix" ],
+      "matchUpdateTypes": [ "lockFileMaintenance" ],
+      "schedule": [ "at any time" ]
+      "dependencyDashboardApproval": true,
     },
     {
       "description": "Group all non-major npm updates into one PR",
