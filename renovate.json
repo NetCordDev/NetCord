@@ -43,6 +43,12 @@
       "dependencyDashboardApproval": true
     },
     {
+      "description": "Disable general lock file maintenance",
+      "matcuhUpdateTypes": [ "lockFileMaintenance" ],
+      "excludeManagers": [ "nix" ],
+      "enabled": false
+    },
+    {
       "description": "Group all non-major npm updates into one PR",
       "matchManagers": [ "npm" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
