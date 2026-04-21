@@ -27,15 +27,15 @@
       "description": ".NET SDK update",
       "matchManagers": [ "nuget" ],
       "matchPackageNames": [ "dotnet-sdk" ],
-      "groupName": "dotnet-sdk",
-      "minimumGroupSize": 2
+      "groupName": "tooling",
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Nixpkgs update",
       "matchManagers": [ "nix" ],
       "matchDepNames": [ "nixpkgs" ],
-      "groupName": "dotnet-sdk",
-      "minimumGroupSize": 2
+      "groupName": "tooling",
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Group all non-major npm updates into one PR",
