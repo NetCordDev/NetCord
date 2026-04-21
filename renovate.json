@@ -12,6 +12,9 @@
   "nix": {
     "enabled": true
   },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -33,9 +36,10 @@
     {
       "description": "Nixpkgs update",
       "matchManagers": [ "nix" ],
-      "matchDepNames": [ "nixpkgs" ],
+      "matchUpdateTypes": [ "lockFileMaintenance" ],
       "groupName": "tooling",
-      "dependencyDashboardApproval": true
+      "dependencyDashboardApproval": true,
+      "schedule": [ "at any time" ]
     },
     {
       "description": "Group all non-major npm updates into one PR",
