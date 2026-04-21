@@ -29,6 +29,7 @@
     {
       "description": "Tooling update",
       "matchManagers": [ "nuget", "nix" ],
+      "matchUpdateTypes": [ "major", "minor", "patch", "pin", "digest", "lockFileMaintenance" ],
       "matchPackageNames": [ "dotnet-sdk", "https://github.com/NixOS/nixpkgs" ],
       "groupName": "tooling",
       "dependencyDashboardApproval": true
