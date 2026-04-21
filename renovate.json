@@ -37,8 +37,8 @@
       "description": "Nixpkgs update",
       "matchManagers": [ "nix" ],
       "matchUpdateTypes": [ "lockFileMaintenance" ],
-      "schedule": [ "at any time" ]
-      "dependencyDashboardApproval": true,
+      "schedule": [ "at any time" ],
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Group all non-major npm updates into one PR",
