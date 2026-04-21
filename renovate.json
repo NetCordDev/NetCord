@@ -15,9 +15,6 @@
       "enabled": true
     }
   },
-  // "lockFileMaintenance": {
-  //   "enabled": true
-  // },
   "major": {
     "dependencyDashboardApproval": true
   },
