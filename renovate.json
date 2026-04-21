@@ -39,6 +39,7 @@
       "matchUpdateTypes": [ "lockFileMaintenance" ],
       "schedule": [ "at any time" ],
       "recreateWhen": "auto",
+      "groupName": "nixpkgs",
       "dependencyDashboardApproval": true
     },
     {
