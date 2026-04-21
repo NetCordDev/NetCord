@@ -9,6 +9,9 @@
   ],
   "dependencyDashboard": true,
   "rebaseWhen": "conflicted",
+  "nix": {
+    "enabled": true
+  },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -17,12 +20,22 @@
       "description": "Group all non-major NuGet updates into one PR",
       "matchManagers": [ "nuget" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
+      "excludePackageNames": [ "dotnet-sdk" ],
       "groupName": "NuGet non-major"
     },
     {
-      "description": "Schedule dotnet-sdk updates weekly on Wednesday",
+      "description": ".NET SDK update",
+      "matchManagers": [ "nuget" ],
       "matchPackageNames": [ "dotnet-sdk" ],
-      "schedule": [ "on wednesday" ]
+      "groupName": "tooling",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Nixpkgs update",
+      "matchManagers": [ "nix" ],
+      "matchDepNames": [ "nixpkgs" ],
+      "groupName": "tooling",
+      "dependencyDashboardApproval": true
     },
     {
       "description": "Group all non-major npm updates into one PR",
