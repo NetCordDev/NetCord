@@ -12,10 +12,6 @@
   "nix": {
     "enabled": true
   },
-  "lockFileMaintenance": {
-    "enabled": true,
-    "recreateWhen": "never"
-  },
   "major": {
     "dependencyDashboardApproval": true
   },
@@ -31,6 +27,7 @@
       "description": ".NET SDK update",
       "matchManagers": [ "nuget" ],
       "matchPackageNames": [ "dotnet-sdk" ],
+      "groupName": "dotnet-sdk",
       "dependencyDashboardApproval": true
     },
     {
@@ -38,6 +35,8 @@
       "matchManagers": [ "nix" ],
       "matchUpdateTypes": [ "lockFileMaintenance" ],
       "schedule": [ "at any time" ],
+      "recreateWhen": "auto",
+      "enabled": true,
       "dependencyDashboardApproval": true
     },
     {
