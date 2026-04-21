@@ -45,7 +45,6 @@
     {
       "description": "Disable general lock file maintenance",
       "matchUpdateTypes": [ "lockFileMaintenance" ],
-      "excludeManagers": [ "nix" ],
       "enabled": false
     },
     {
