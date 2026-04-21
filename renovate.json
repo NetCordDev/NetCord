@@ -3,6 +3,9 @@
   "nix": {
     "enabled": true
   },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
   "extends": [
     "config:recommended",
     ":gitSignOff",
