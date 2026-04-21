@@ -27,19 +27,11 @@
       "groupName": "NuGet non-major"
     },
     {
-      "description": ".NET SDK update",
-      "matchManagers": [ "nuget" ],
-      "matchPackageNames": [ "dotnet-sdk" ],
+      "description": "Tooling update",
+      "matchManagers": [ "nuget", "nix" ],
+      "matchPackageNames": [ "dotnet-sdk", "https://github.com/NixOS/nixpkgs" ],
       "groupName": "tooling",
       "dependencyDashboardApproval": true
-    },
-    {
-      "description": "Nixpkgs update",
-      "matchManagers": [ "nix" ],
-      "matchUpdateTypes": [ "lockFileMaintenance" ],
-      "groupName": "tooling",
-      "dependencyDashboardApproval": true,
-      "schedule": [ "at any time" ]
     },
     {
       "description": "Group all non-major npm updates into one PR",
