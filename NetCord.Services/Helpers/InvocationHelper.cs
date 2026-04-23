@@ -65,23 +65,11 @@ internal class InvocationHelper
     private static Expression GetInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
     {
         var returnType = method.ReturnType;
-        if (returnType == typeof(ValueTask))
-        {
-            call = Expression.Call(call, typeof(ValueTask).GetMethod(nameof(ValueTask.AsTask), BindingFlags.Instance | BindingFlags.Instance)!);
-            returnType = typeof(Task);
-        }
-        else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
-        {
-            var asTaskMethodUnbound = typeof(ValueTask<>).GetMethod(nameof(ValueTask<>.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
-            var asTaskMethod = (MethodInfo)returnType.GetMemberWithSameMetadataDefinitionAs(asTaskMethodUnbound);
-            call = Expression.Call(call, asTaskMethod);
-            returnType = asTaskMethod.ReturnType;
-        }
 
-        var resolver = GetResolver(method, returnType, resultResolverProvider);
-
-        if (method.ReturnType == typeof(void))
+        if (returnType == typeof(void))
         {
+            var resolver = GetResolver(method, returnType, resultResolverProvider);
+
             return Expression.Block(call,
                                     Expression.Invoke(Expression.Constant(resolver),
                                                       Expression.Constant(null, typeof(object)),
@@ -89,6 +77,21 @@ internal class InvocationHelper
         }
         else
         {
+            if (returnType == typeof(ValueTask))
+            {
+                call = Expression.Call(call, typeof(ValueTask).GetMethod(nameof(ValueTask.AsTask), BindingFlags.Instance | BindingFlags.Instance)!);
+                returnType = typeof(Task);
+            }
+            else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
+            {
+                var asTaskMethodUnbound = typeof(ValueTask<>).GetMethod(nameof(ValueTask<>.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
+                var asTaskMethod = (MethodInfo)returnType.GetMemberWithSameMetadataDefinitionAs(asTaskMethodUnbound);
+                call = Expression.Call(call, asTaskMethod);
+                returnType = asTaskMethod.ReturnType;
+            }
+
+            var resolver = GetResolver(method, returnType, resultResolverProvider);
+
             return Expression.Invoke(Expression.Constant(resolver),
                                      Expression.Convert(call, typeof(object)),
                                      context);
