@@ -23,8 +23,10 @@
 
         globalJson = builtins.fromJSON (builtins.readFile ./global.json);
         version = builtins.splitVersion globalJson.sdk.version;
+
         major = builtins.elemAt version 0;
         minor = builtins.elemAt version 1;
+
         dotnet = pkgs.dotnetCorePackages."sdk_${major}_${minor}-bin";
 
         docfx = pkgs.buildDotnetGlobalTool {
