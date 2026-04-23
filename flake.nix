@@ -22,9 +22,12 @@
         pkgs = nixpkgs.legacyPackages.${arch};
 
         globalJson = builtins.fromJSON (builtins.readFile ./global.json);
-        version = globalJson.sdk.version;
-        majorVersion = builtins.head (builtins.splitVersion version);
-        dotnet = pkgs."dotnet-sdk_${majorVersion}";
+        version = builtins.splitVersion globalJson.sdk.version;
+
+        major = builtins.elemAt version 0;
+        minor = builtins.elemAt version 1;
+
+        dotnet = pkgs.dotnetCorePackages."sdk_${major}_${minor}-bin";
 
         docfx = pkgs.buildDotnetGlobalTool {
           pname = "docfx";
