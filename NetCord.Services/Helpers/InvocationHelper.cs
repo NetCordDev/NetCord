@@ -27,8 +27,7 @@ internal class InvocationHelper
                                    method,
                                    parameterTypes.Select((p, i) => Expression.Convert(Expression.ArrayIndex(parameters, Expression.Constant(i, typeof(int))), p)));
 
-        var resolver = GetResolver(method, resultResolverProvider);
-        var invokeResolver = GetInvokeResolverExpression(method, context, call, resolver);
+        var invokeResolver = GetInvokeResolverExpression(method, context, call, resultResolverProvider);
 
         var lambda = Expression.Lambda<Func<object?[]?, TContext, IServiceProvider?, ValueTask>>(invokeResolver, parameters, context, serviceProvider);
         return lambda.Compile();
@@ -49,24 +48,38 @@ internal class InvocationHelper
 
         var method = handler.Method;
 
-        var resolver = GetResolver(method, resultResolverProvider);
-        var invokeResolver = GetInvokeResolverExpression(method, context, invoke, resolver);
+        var invokeResolver = GetInvokeResolverExpression(method, context, invoke, resultResolverProvider);
 
         var lambda = Expression.Lambda<Func<object?[]?, TContext, IServiceProvider?, ValueTask>>(invokeResolver, parameters, context, serviceProvider);
         return lambda.Compile();
     }
 
-    private static Func<object?, TContext, ValueTask> GetResolver<TContext>(MethodInfo method, IResultResolverProvider<TContext> resultResolverProvider)
+    private static Func<object?, TContext, ValueTask> GetResolver<TContext>(MethodInfo method, Type type, IResultResolverProvider<TContext> resultResolverProvider)
     {
-        var type = method.ReturnType;
         if (resultResolverProvider.TryGetResolver(type, out var resolver))
             return resolver;
 
         throw new InvalidDefinitionException($"The return type '{type}' is not supported by '{resultResolverProvider.GetType()}'.", method);
     }
 
-    private static Expression GetInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, Func<object?, TContext, ValueTask> resolver)
+    private static Expression GetInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
     {
+        var returnType = method.ReturnType;
+        if (returnType == typeof(ValueTask))
+        {
+            call = Expression.Call(call, typeof(ValueTask).GetMethod(nameof(ValueTask.AsTask), BindingFlags.Instance | BindingFlags.Instance)!);
+            returnType = typeof(Task);
+        }
+        else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
+        {
+            var asTaskMethodUnbound = typeof(ValueTask<>).GetMethod(nameof(ValueTask<>.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
+            var asTaskMethod = (MethodInfo)returnType.GetMemberWithSameMetadataDefinitionAs(asTaskMethodUnbound);
+            call = Expression.Call(call, asTaskMethod);
+            returnType = asTaskMethod.ReturnType;
+        }
+
+        var resolver = GetResolver(method, returnType, resultResolverProvider);
+
         if (method.ReturnType == typeof(void))
         {
             return Expression.Block(call,
