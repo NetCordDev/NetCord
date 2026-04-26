@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    "libdave",
+    "opus",
+    "libsodium"
+  ],
+  "vcpkg-configuration": {
+    "overlay-ports": [
+      "natives-ports"
+    ]
+  }
+}

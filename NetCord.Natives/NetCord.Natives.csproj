@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<Description>Pre-built binaries for NetCord, $(Description)</Description>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+		<VcpkgInstalledDir>bin\natives</VcpkgInstalledDir>
+		<VcpkgMsbuildPath>vcpkg/scripts/buildsystems/msbuild/vcpkg</VcpkgMsbuildPath>
+		<RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))</RepositoryRoot>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="vcpkg\**" />
+		<None Remove="vcpkg\**" />
+		<None Include="$(VcpkgMsbuildPath).*">
+			<Link>vcpkg\%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+
+	<Import Project="$(VcpkgMsbuildPath).props" Condition="Exists('$(VcpkgMsbuildPath).props')" />
+	
+	<!-- Use vcpkg integration with MSBuild Platform (normalize AnyCPU to x64). -->
+	<PropertyGroup>
+		<VcpkgEnableManifest>true</VcpkgEnableManifest>
+
+		<VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == ''">windows</VcpkgOSTarget>
+		<VcpkgPlatformTarget Condition="'$(VcpkgPlatformTarget)' == '' and ('$(Platform)' == 'Any CPU' or '$(Platform)' == 'AnyCPU')">x64</VcpkgPlatformTarget>
+		<VcpkgPlatformTarget Condition="'$(VcpkgPlatformTarget)' == ''">$(Platform)</VcpkgPlatformTarget>
+
+		<DebugDefinedDir Condition="'$(Configuration)' == 'Debug'">debug</DebugDefinedDir>
+		<BuildNativeOutputPath>$(VcpkgInstalledDir)\$(VcpkgPlatformTarget)-$(VcpkgOSTarget)\$(DebugDefinedDir)</BuildNativeOutputPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(BuildNativeOutputPath)\**">
+			<Link>Built Natives $(DebugDefinedDir)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+	
+	<Import Project="$(VcpkgMsbuildPath).targets" Condition="Exists('$(VcpkgMsbuildPath).targets')" />
+
+	<Target Name="_EnsureVcpkgSubmodule" BeforeTargets="PrepareForBuild" Condition="!Exists('$(VcpkgMsbuildPath).targets')">
+		<Message Text="vcpkg submodule is missing. Initializing/updating submodule..." Importance="High" />
+		<Exec Command="git -C &quot;$(RepositoryRoot)&quot; submodule update --init --recursive -- NetCord.Natives/vcpkg" />
+		<Error Condition="!Exists('$(VcpkgMsbuildPath).targets')" Text="Failed to initialize the 'vcpkg' submodule. Ensure git is available and rerun the build." />
+		<Warning Text="vcpkg submodule was initialized during this build. Run the build again so vcpkg MSBuild targets are imported." Condition="Exists('$(VcpkgMsbuildPath).targets')" />
+	</Target>
+
+	<Target Name="_LogVcpkgSelection" BeforeTargets="VcpkgTripletSelection">
+		<Message Text="Using VcpkgManifestRoot='$(VcpkgManifestRoot)', Platform='$(Platform)', VcpkgOSTarget='$(VcpkgOSTarget)', VcpkgPlatformTarget='$(VcpkgPlatformTarget)', VcpkgTriplet='$(VcpkgTriplet)'" Importance="High" />
+	</Target>
+
+	<Target Name="ClCompile" BeforeTargets="Build" />
+
+	<Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="ClCompile">
+		
+		<ItemGroup>
+			<NativesBuilt Include="$(BuildNativeOutputPath)\bin\*;$(BuildNativeOutputPath)\lib\*" />
+			<NativesBuilt Remove="**/pkgconf*.*" />
+
+			<Content Include="@(NativesBuilt)">
+				<Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+				<Pack>true</Pack>
+				<PackagePath>runtimes\$(VcpkgOSTarget)-$(VcpkgPlatformTarget)\$(DebugDefinedDir)\</PackagePath>
+			</Content>
+			
+			<None Include="$(MSBuildProjectName).props;$(MSBuildProjectName).targets">
+				<Pack>true</Pack>
+				<PackagePath>build\</PackagePath>
+			</None>
+		
+		</ItemGroup>
+	
+		<Message Text="$(MSBuildProjectName) packaged items:" Importance="high" />
+		<Message Text="  %(Content.Identity) -> [pkg].\%(Content.PackagePath)%(Filename)%(Extension)" 
+				 Importance="high" Condition="'%(Content.Pack)' == 'true'" />
+
+	</Target>
+	
+</Project>
