@@ -4,8 +4,16 @@ using System.Reflection;
 
 namespace NetCord.Services.Helpers;
 
-internal class InvocationHelper
+file static class InvocationHelper<TContext>
 {
+    internal static readonly MethodInfo _baseModuleSetContextMethod = typeof(IBaseModule<TContext>).GetMethod(nameof(IBaseModule<>.SetContext), BindingFlags.Instance | BindingFlags.NonPublic)!;
+}
+
+internal static class InvocationHelper
+{
+    private static readonly MethodInfo _valueTaskAsTaskMethod = typeof(ValueTask).GetMethod(nameof(ValueTask.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
+    private static readonly MethodInfo _valueTaskOfTAsTaskMethodUnbound = typeof(ValueTask<>).GetMethod(nameof(ValueTask<>.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
+
     public static Func<object?[]?, TContext, IServiceProvider?, ValueTask> CreateModuleDelegate<TContext>(MethodInfo method, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType, IEnumerable<Type> parameterTypes, IResultResolverProvider<TContext> resultResolverProvider, IServiceResolverProvider serviceResolverProvider)
     {
         var parameters = Expression.Parameter(typeof(object?[]));
@@ -19,7 +27,7 @@ internal class InvocationHelper
             var module = Expression.Variable(declaringType);
             instance = Expression.Block([module],
                                         Expression.Assign(module, TypeHelper.GetCreateInstanceExpression(declaringType, serviceProvider, serviceResolverProvider)),
-                                        Expression.Call(module, typeof(IBaseModule<TContext>).GetMethod(nameof(IBaseModule<>.SetContext), BindingFlags.Instance | BindingFlags.NonPublic)!, context),
+                                        Expression.Call(module, InvocationHelper<TContext>._baseModuleSetContextMethod, context),
                                         module);
         }
 
@@ -75,26 +83,30 @@ internal class InvocationHelper
                                                       Expression.Constant(null, typeof(object)),
                                                       context));
         }
-        else
+
+        return GetComplexInvokeResolverExpression(method, context, call, resultResolverProvider);
+    }
+
+    private static InvocationExpression GetComplexInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
+    {
+        var returnType = method.ReturnType;
+
+        if (returnType == typeof(ValueTask))
         {
-            if (returnType == typeof(ValueTask))
-            {
-                call = Expression.Call(call, typeof(ValueTask).GetMethod(nameof(ValueTask.AsTask), BindingFlags.Instance | BindingFlags.Instance)!);
-                returnType = typeof(Task);
-            }
-            else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
-            {
-                var asTaskMethodUnbound = typeof(ValueTask<>).GetMethod(nameof(ValueTask<>.AsTask), BindingFlags.Instance | BindingFlags.Public)!;
-                var asTaskMethod = (MethodInfo)returnType.GetMemberWithSameMetadataDefinitionAs(asTaskMethodUnbound);
-                call = Expression.Call(call, asTaskMethod);
-                returnType = asTaskMethod.ReturnType;
-            }
-
-            var resolver = GetResolver(method, returnType, resultResolverProvider);
-
-            return Expression.Invoke(Expression.Constant(resolver),
-                                     Expression.Convert(call, typeof(object)),
-                                     context);
+            call = Expression.Call(call, _valueTaskAsTaskMethod);
+            returnType = typeof(Task);
         }
+        else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(ValueTask<>))
+        {
+            var asTaskMethod = (MethodInfo)returnType.GetMemberWithSameMetadataDefinitionAs(_valueTaskOfTAsTaskMethodUnbound);
+            call = Expression.Call(call, asTaskMethod);
+            returnType = asTaskMethod.ReturnType;
+        }
+
+        var resolver = GetResolver(method, returnType, resultResolverProvider);
+
+        return Expression.Invoke(Expression.Constant(resolver),
+                                 Expression.Convert(call, typeof(object)),
+                                 context);
     }
 }
