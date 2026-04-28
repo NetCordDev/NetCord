@@ -62,12 +62,12 @@ internal static class InvocationHelper
         return lambda.Compile();
     }
 
-    private static Func<object?, TContext, ValueTask> GetResolver<TContext>(MethodInfo method, Type type, IResultResolverProvider<TContext> resultResolverProvider)
+    private static Func<object?, TContext, ValueTask> GetResolver<TContext>(MethodInfo method, Type returnType, IResultResolverProvider<TContext> resultResolverProvider)
     {
-        if (resultResolverProvider.TryGetResolver(type, out var resolver))
+        if (resultResolverProvider.TryGetResolver(returnType, out var resolver))
             return resolver;
 
-        throw new InvalidDefinitionException($"The return type '{type}' is not supported by '{resultResolverProvider.GetType()}'.", method);
+        throw new InvalidDefinitionException($"The return type '{returnType}' is not supported by '{resultResolverProvider.GetType()}'.", method);
     }
 
     private static Expression GetInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
@@ -84,13 +84,11 @@ internal static class InvocationHelper
                                                       context));
         }
 
-        return GetComplexInvokeResolverExpression(method, context, call, resultResolverProvider);
+        return GetComplexInvokeResolverExpression(method, returnType, context, call, resultResolverProvider);
     }
 
-    private static InvocationExpression GetComplexInvokeResolverExpression<TContext>(MethodInfo method, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
+    private static InvocationExpression GetComplexInvokeResolverExpression<TContext>(MethodInfo method, Type returnType, ParameterExpression context, Expression call, IResultResolverProvider<TContext> resultResolverProvider)
     {
-        var returnType = method.ReturnType;
-
         if (returnType == typeof(ValueTask))
         {
             call = Expression.Call(call, _valueTaskAsTaskMethod);
