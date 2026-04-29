@@ -7,17 +7,18 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
-  build-and-publish:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  publish:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          fetch-depth: 0
-          filter: tree:0
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install Nix
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
@@ -26,60 +27,26 @@ jobs:
         shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
         run: 'true'
 
-      - name: Restore dependencies
-        shell: *dev-shell
-        run: dotnet restore
-
-      - name: Build
-        shell: *dev-shell
-        run: dotnet build -c Release --no-restore --warnaserror
-
-      - name: Test
-        shell: *dev-shell
-        run: dotnet test -c Release --no-build --verbosity normal
-
-      - name: Pack Packages
-        shell: *dev-shell
-        run: |
-          dotnet pack NetCord -c Release --no-build
-          dotnet pack NetCord.Services -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
-
-      - name: Setup docs environment
-        shell: &docs-shell 'nix develop .#docs -c bash -eo pipefail {0}'
-        run: 'true'
-
-      - name: Build Documentation
-        shell: *docs-shell
-        working-directory: Documentation
-        run: |
-          npm install
-          npm run lint
-          npm run test
-          npm run build
-
       - name: Publish Packages
         shell: *dev-shell
         env:
           KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push NetCord/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push NetCord.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/build/NetCord/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/build/NetCord.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/build/Hosting/NetCord.Hosting/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/build/Hosting/NetCord.Hosting.Services/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/build/Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
-        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345
         with:
           username: ${{ secrets.SSH_USERNAME }}
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_KEY }}
           rm: true
-          source: Documentation/_site
+          source: artifacts/docs
           strip_components: 2
           target: ~/NetCord/html
 

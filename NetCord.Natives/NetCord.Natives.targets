@@ -1,42 +1,20 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="ProcessNativeBinaries"
-			BeforeTargets="GetCopyToOutputDirectoryItems;AssignTargetPaths">
+	<Target Name="ProcessNetCordNativeAot" BeforeTargets="PrepareForPublish" Condition="'$(PublishAot)' == 'true'">
 
-		<PropertyGroup>
-			<IsTargetWindows Condition="$(RuntimeIdentifier.StartsWith('win'))">true</IsTargetWindows>
-			<IsTargetLinux Condition="$(RuntimeIdentifier.StartsWith('linux'))">true</IsTargetLinux>
-			<IsTargetOSX Condition="$(RuntimeIdentifier.StartsWith('osx'))">true</IsTargetOSX>
+		<ItemGroup>
+			<_NetCordStaticLink Include="libdave;mlspp;bytes;tls_syntax;hpke;libcrypto"
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+			<_NetCordStaticLink Include="libsodium"
+								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
+			<_NetCordStaticLink Include="opus"
+								Condition="'%(DirectPInvoke.Identity)' == 'opus'" />
 
-			<IsTargetWindows Condition="'$(RuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform('Windows'))'">true</IsTargetWindows>
-			<IsTargetLinux Condition="'$(RuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform('Linux'))'">true</IsTargetLinux>
-			<IsTargetOSX Condition="'$(RuntimeIdentifier)' == '' AND '$([MSBuild]::IsOSPlatform('OSX'))'">true</IsTargetOSX>
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*" />
 
-			<IsAotPublish Condition="'$(PublishAot)' == 'true' or '$(NativeCompilationDuringPublish)' == 'true'">true</IsAotPublish>
-		
-			<_NetCordNativesPath>$(NetCordNativesPath)\$(RuntimeIdentifier)</_NetCordNativesPath>
-		</PropertyGroup>
-
-		<ItemGroup Condition="'$(IsAotPublish)' != 'true'">
-
-			<NativeFilter Include="$(_NetCordNativesPath)\**\*.dll" Condition="'$(IsTargetWindows)' == 'true'" />
-			<NativeFilter Include="$(_NetCordNativesPath)\**\*.so" Condition="'$(IsTargetLinux)' == 'true'" />
-			<NativeFilter Include="$(_NetCordNativesPath)\**\*.dylib" Condition="'$(IsTargetOSX)' == 'true'" />
-
-			<AllItemsFullPathWithTargetPath Include="@(NativeFilter->'%(FullPath)')"
-										   Exclude="**\*.pdb;**\*.lib;**\*.exp">
-				<TargetPath Condition="'%(NativeFilter.Link)' != ''">%(NativeFilter.Link)</TargetPath>
-				<TargetPath Condition="'%(NativeFilter.Link)' == ''">%(Filename)%(Extension)</TargetPath>
-				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			</AllItemsFullPathWithTargetPath>
-		</ItemGroup>
-
-		<ItemGroup Condition="'$(IsAotPublish)' == 'true'">
-			<NativeLibToLink Include="$(_NetCordNativesPath)\**\*.lib" Condition="'$(IsTargetWindows)' == 'true'" />
-			<NativeLibToLink Include="$(_NetCordNativesPath)\**\*.a" Condition="'$(IsTargetLinux)' == 'true' or '$(IsTargetOSX)' == 'true'" />
-
-			<NativeLibrary Include="@(NativeLibToLink->'%(FullPath)')" />
+			<NativeLibrary Include="@(NativeLibToLink)" Condition="Exists('%(FullPath)')" />
 		</ItemGroup>
 
 	</Target>
+
 </Project>

@@ -1,0 +1,143 @@
+name: Build NetCord.Natives
+
+on:
+  workflow_dispatch: {}
+  push:
+    paths:
+      - 'NetCord.Natives/**'
+
+jobs:
+  build-natives:
+    runs-on: ${{ matrix.runs-on }}
+    env:
+      CI: true
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
+      VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            runs-on: windows-latest
+            vcpkg-os-target: windows
+            vcpkg-platform-target: x64
+          - rid: win-arm64
+            runs-on: windows-latest
+            vcpkg-os-target: windows
+            vcpkg-platform-target: arm64
+          - rid: osx-x64
+            runs-on: macos-latest
+            vcpkg-os-target: osx
+            vcpkg-platform-target: x64
+          - rid: osx-arm64
+            runs-on: macos-latest
+            vcpkg-os-target: osx
+            vcpkg-platform-target: arm64
+          - rid: linux-x64
+            runs-on: ubuntu-latest
+            vcpkg-os-target: linux
+            vcpkg-platform-target: x64
+          - rid: linux-arm64
+            runs-on: ubuntu-latest
+            vcpkg-os-target: linux
+            vcpkg-platform-target: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache vcpkg installs
+        uses: actions/cache@v4
+        with:
+          path: |
+            .vcpkg-cache
+            .vcpkg-downloads
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('NetCord.Natives/vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-${{ matrix.rid }}-
+            vcpkg-${{ runner.os }}-
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Resolve vcpkg from runner image
+        shell: pwsh
+        run: |
+          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
+          if (-not $vcpkgRoot) {
+            $vcpkgCommand = Get-Command vcpkg -ErrorAction Stop
+            $vcpkgRoot = Split-Path -Parent $vcpkgCommand.Source
+          }
+
+          if (-not (Test-Path $vcpkgRoot)) {
+            throw "vcpkg installation root not found."
+          }
+
+          "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "VcpkgMsbuildPath=$vcpkgRoot/scripts/buildsystems/msbuild/vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Restore
+        shell: pwsh
+        run: |
+          dotnet restore NetCord.Natives/NetCord.Natives.csproj -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+
+      - name: Build native outputs for ${{ matrix.rid }}
+        shell: pwsh
+        run: |
+          dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:GeneratePackageOnBuild=false -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+
+      - name: List artifacts
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse NetCord.Natives/bin | Select-Object FullName
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: NetCord.Natives/bin
+
+  pack-natives:
+    needs: build-natives
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      NativeArtifactsRoot: ${{ github.workspace }}/artifacts
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Resolve native license root
+        shell: pwsh
+        run: |
+          $licenseRoot = Get-ChildItem artifacts -Directory | Sort-Object Name | Select-Object -First 1
+          if (-not $licenseRoot) {
+            throw "No native artifact directories were downloaded."
+          }
+
+          "NativeLicenseRoot=$($licenseRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Pack combined nupkg
+        shell: pwsh
+        run: |
+          dotnet pack NetCord.Natives/NetCord.Natives.csproj -c Release --no-build --no-restore -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:NativeArtifactsRoot=$env:NativeArtifactsRoot -p:NativeLicenseRoot=$env:NativeLicenseRoot -o artifacts/package
+
+      - name: Upload nupkg
+        uses: actions/upload-artifact@v4
+        with:
+          name: NetCord.Natives.Package
+          path: artifacts/package/*.nupkg

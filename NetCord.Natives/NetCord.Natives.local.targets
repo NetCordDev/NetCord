@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<Import Project="NetCord.Natives.targets" />
+
+	<Target Name="ProcessNetCordNativeAot_Local" BeforeTargets="ProcessNetCordNativeAot">
+	
+		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" Targets="GetStaticBuildDir">
+			<Output TaskParameter="TargetOutputs" ItemName="_NetCordStaticDir" />
+		</MSBuild>
+
+		<PropertyGroup>
+			<NetCordNativesStaticDir>@(_NetCordStaticDir->'%(Identity)')\lib</NetCordNativesStaticDir>
+		</PropertyGroup>
+
+	</Target>
+
+</Project>
