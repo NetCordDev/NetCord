@@ -3,6 +3,8 @@ using System.Runtime.CompilerServices;
 
 using NetCord.Rest;
 
+using static NetCord.Rest.InteractionCallback;
+
 namespace NetCord.Services;
 
 internal static class InteractionResultResolverProviderHelper
@@ -39,7 +41,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static (result, context) =>
             {
                 var message = Unsafe.As<InteractionMessageProperties>(result!);
-                return new(HandleMessageAsync(context, message));
+                return new(HandleCallbackAsync(context, Message(message)));
             };
             return true;
         }
@@ -49,7 +51,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static (result, context) =>
             {
                 var content = Unsafe.As<string>(result!);
-                return new(HandleMessageAsync(context, content));
+                return new(HandleCallbackAsync(context, Message(content)));
             };
             return true;
         }
@@ -59,7 +61,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static (result, context) =>
             {
                 var modal = Unsafe.As<ModalProperties>(result!);
-                return new(HandleModalAsync(context, modal));
+                return new(HandleCallbackAsync(context, Modal(modal)));
             };
             return true;
         }
@@ -80,7 +82,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static async (result, context) =>
             {
                 var message = await Unsafe.As<Task<InteractionMessageProperties>>(result!).ConfigureAwait(false);
-                await HandleMessageAsync(context, message).ConfigureAwait(false);
+                await HandleCallbackAsync(context, Message(message)).ConfigureAwait(false);
             };
             return true;
         }
@@ -90,7 +92,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static async (result, context) =>
             {
                 var content = await Unsafe.As<Task<string>>(result!).ConfigureAwait(false);
-                await HandleMessageAsync(context, content).ConfigureAwait(false);
+                await HandleCallbackAsync(context, Message(content)).ConfigureAwait(false);
             };
             return true;
         }
@@ -100,7 +102,7 @@ internal static class InteractionResultResolverProviderHelper
             resolver = static async (result, context) =>
             {
                 var modal = await Unsafe.As<Task<ModalProperties>>(result!).ConfigureAwait(false);
-                await HandleModalAsync(context, modal).ConfigureAwait(false);
+                await HandleCallbackAsync(context, Modal(modal)).ConfigureAwait(false);
             };
             return true;
         }
@@ -109,54 +111,12 @@ internal static class InteractionResultResolverProviderHelper
         return false;
     }
 
-    private static bool HandleTaskCallback<TContext>(Type genericArgument, [MaybeNullWhen(false)] out Func<object?, TContext, ValueTask> resolver) where TContext : IInteractionContext
+    private static bool HandleTaskCallback<TContext>(Type callbackType, [MaybeNullWhen(false)] out Func<object?, TContext, ValueTask> resolver) where TContext : IInteractionContext
     {
-        static Task<InteractionCallbackProperties<T>> GetCallbackTask<T>(object? result)
-        {
-            return Unsafe.As<Task<InteractionCallbackProperties<T>>>(result!);
-        }
+        if (callbackType.IsGenericType && callbackType.GetGenericTypeDefinition() == typeof(InteractionCallbackProperties<>))
+            return HandleTaskCallbackT(callbackType, out resolver);
 
-        if (genericArgument == typeof(InteractionCallbackProperties<InteractionMessageProperties>))
-        {
-            resolver = static async (result, context) =>
-            {
-                var callback = await GetCallbackTask<InteractionMessageProperties>(result).ConfigureAwait(false);
-                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
-            };
-            return true;
-        }
-
-        if (genericArgument == typeof(InteractionCallbackProperties<MessageOptions>))
-        {
-            resolver = static async (result, context) =>
-            {
-                var callback = await GetCallbackTask<MessageOptions>(result).ConfigureAwait(false);
-                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
-            };
-            return true;
-        }
-
-        if (genericArgument == typeof(InteractionCallbackProperties<InteractionCallbackChoicesDataProperties>))
-        {
-            resolver = static async (result, context) =>
-            {
-                var callback = await GetCallbackTask<InteractionCallbackChoicesDataProperties>(result).ConfigureAwait(false);
-                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
-            };
-            return true;
-        }
-
-        if (genericArgument == typeof(InteractionCallbackProperties<ModalProperties>))
-        {
-            resolver = static async (result, context) =>
-            {
-                var callback = await GetCallbackTask<ModalProperties>(result).ConfigureAwait(false);
-                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
-            };
-            return true;
-        }
-
-        if (genericArgument == typeof(InteractionCallbackProperties))
+        if (callbackType == typeof(InteractionCallbackProperties))
         {
             resolver = static async (result, context) =>
             {
@@ -170,18 +130,61 @@ internal static class InteractionResultResolverProviderHelper
         return false;
     }
 
+    private static bool HandleTaskCallbackT<TContext>(Type callbackType, [MaybeNullWhen(false)] out Func<object?, TContext, ValueTask> resolver) where TContext : IInteractionContext
+    {
+        static Task<InteractionCallbackProperties<T>> GetCallbackTask<T>(object? result)
+        {
+            return Unsafe.As<Task<InteractionCallbackProperties<T>>>(result!);
+        }
+
+        var genericArgument = callbackType.GetGenericArguments()[0];
+
+        if (genericArgument == typeof(InteractionMessageProperties))
+        {
+            resolver = static async (result, context) =>
+            {
+                var callback = await GetCallbackTask<InteractionMessageProperties>(result).ConfigureAwait(false);
+                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (genericArgument == typeof(MessageOptions))
+        {
+            resolver = static async (result, context) =>
+            {
+                var callback = await GetCallbackTask<MessageOptions>(result).ConfigureAwait(false);
+                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (genericArgument == typeof(InteractionCallbackChoicesDataProperties))
+        {
+            resolver = static async (result, context) =>
+            {
+                var callback = await GetCallbackTask<InteractionCallbackChoicesDataProperties>(result).ConfigureAwait(false);
+                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (genericArgument == typeof(ModalProperties))
+        {
+            resolver = static async (result, context) =>
+            {
+                var callback = await GetCallbackTask<ModalProperties>(result).ConfigureAwait(false);
+                await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        resolver = null;
+        return false;
+    }
+
     private static Task<InteractionCallbackResponse?> HandleCallbackAsync<TContext>(TContext context, InteractionCallbackProperties callback) where TContext : IInteractionContext
     {
         return context.Interaction.SendResponseAsync(callback);
-    }
-
-    private static Task<InteractionCallbackResponse?> HandleMessageAsync<TContext>(TContext context, InteractionMessageProperties message) where TContext : IInteractionContext
-    {
-        return context.Interaction.SendResponseAsync(InteractionCallback.Message(message));
-    }
-
-    private static Task<InteractionCallbackResponse?> HandleModalAsync<TContext>(TContext context, ModalProperties modal) where TContext : IInteractionContext
-    {
-        return context.Interaction.SendResponseAsync(InteractionCallback.Modal(modal));
     }
 }
