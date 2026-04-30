@@ -21,12 +21,60 @@ internal static class InteractionResultResolverProviderHelper
 
             if (genericArgument.IsAssignableTo(typeof(InteractionCallbackProperties)))
             {
-                resolver = static async (result, context) =>
+                static Task<InteractionCallbackProperties<T>> GetCallbackTask<T>(object? result)
                 {
-                    var callback = await Unsafe.As<Task<InteractionCallbackProperties>>(result!).ConfigureAwait(false);
-                    await HandleCallbackAsync(context, callback).ConfigureAwait(false);
-                };
-                return true;
+                    return Unsafe.As<Task<InteractionCallbackProperties<T>>>(result!);
+                }
+
+                if (genericArgument == typeof(InteractionMessageProperties))
+                {
+                    resolver = static async (result, context) =>
+                    {
+                        var callback = await GetCallbackTask<InteractionMessageProperties>(result).ConfigureAwait(false);
+                        await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+                    };
+                    return true;
+                }
+
+                if (genericArgument == typeof(MessageOptions))
+                {
+                    resolver = static async (result, context) =>
+                    {
+                        var callback = await GetCallbackTask<MessageOptions>(result).ConfigureAwait(false);
+                        await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+                    };
+                    return true;
+                }
+
+                if (genericArgument == typeof(InteractionCallbackChoicesDataProperties))
+                {
+                    resolver = static async (result, context) =>
+                    {
+                        var callback = await GetCallbackTask<InteractionCallbackChoicesDataProperties>(result).ConfigureAwait(false);
+                        await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+                    };
+                    return true;
+                }
+
+                if (genericArgument == typeof(ModalProperties))
+                {
+                    resolver = static async (result, context) =>
+                    {
+                        var callback = await GetCallbackTask<ModalProperties>(result).ConfigureAwait(false);
+                        await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+                    };
+                    return true;
+                }
+
+                if (genericArgument == typeof(InteractionCallbackProperties))
+                {
+                    resolver = static async (result, context) =>
+                    {
+                        var callback = await Unsafe.As<Task<InteractionCallbackProperties>>(result!).ConfigureAwait(false);
+                        await HandleCallbackAsync(context, callback).ConfigureAwait(false);
+                    };
+                    return true;
+                }
             }
 
             if (genericArgument == typeof(InteractionMessageProperties))
