@@ -58,7 +58,7 @@ internal static class Program
         {
             TypeReaders = configuration.TypeReaders.Add(typeof(Permissions), new PermissionsTypeReader()),
             ParameterNameProcessor = SnakeCaseSlashCommandParameterNameProcessor<SlashCommandContext>.Instance,
-            LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
+            // LocalizationsProvider = new JsonLocalizationsProvider(new() { FileNameFormat = "localization.*.*.*.json" }),
             DefaultIntegrationTypes = [ApplicationIntegrationType.GuildInstall, ApplicationIntegrationType.UserInstall],
             //Storage = new IdApplicationCommandServiceStorage<SlashCommandContext>(),
         };
@@ -81,7 +81,13 @@ internal static class Program
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(new(["pol"], ([Optional] object? o, CommandContext context) => "xd"));
 
-        _slashCommandService.AddSlashCommand(new("value-task", "Test of ValueTask return type", () => new ValueTask<string>("wzium")));
+        _slashCommandService.AddSlashCommand(new("value-task", "Test of ValueTask return type", () => default(ValueTask)));
+
+        _slashCommandService.AddSlashCommand(new("task", "Test of Task return type", () => Task.CompletedTask));
+
+        _slashCommandService.AddSlashCommand(new("value-task-t", "Test of ValueTask<T> return type", () => new ValueTask<string>("wzium")));
+
+        _slashCommandService.AddSlashCommand(new("task-t", "Test of Task<T> return type", () => Task.FromResult("wzium")));
 
         CommandGroupBuilder xdBuilder = new(["xd"]);
 
