@@ -5,6 +5,7 @@ using NetCord.Gateway.JsonModels;
 using NetCord.Gateway.WebSockets;
 using NetCord.Logging;
 
+using WebSocketException = System.Net.WebSockets.WebSocketException;
 using WebSocketCloseStatus = System.Net.WebSockets.WebSocketCloseStatus;
 
 namespace NetCord.Gateway;
@@ -916,8 +917,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async ValueTask StartAsync(PresenceProperties? presence = null, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
-        await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
+            await SendIdentifyAsync(connectionState, presence, cancellationToken).ConfigureAwait(false);
+        }
+        catch (WebSocketException ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while starting the gateway client.{Environment.NewLine}{e}";
+            });
+        }
     }
 
     /// <summary>
@@ -929,8 +940,18 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
     /// <returns></returns>
     public async ValueTask ResumeAsync(string sessionId, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
-        await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
+        try
+        {
+            var connectionState = await StartAsync(new State(), cancellationToken).ConfigureAwait(false);
+            await TryResumeAsync(connectionState, SessionId = sessionId, SequenceNumber = sequenceNumber, cancellationToken).ConfigureAwait(false);
+        }
+        catch (WebSocketException ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
+            {
+                return $"An error occurred while resuming.{Environment.NewLine}{e}";
+            });
+        }
     }
 
     private protected override bool Reconnect(WebSocketCloseStatus? status, string? description)
