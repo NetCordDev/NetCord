@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Assets\**" />
+    <None Remove="Assets\**" />
+    <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NetCordNativesDir>..\..\NetCord.Natives\</NetCordNativesDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
+    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
+      <_Parameter1>NetCordNativesDir</_Parameter1>
+      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+</Project>

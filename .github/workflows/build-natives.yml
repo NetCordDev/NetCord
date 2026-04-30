@@ -5,6 +5,10 @@ on:
   push:
     paths:
       - 'NetCord.Natives/**'
+      - '.github/workflows/build-natives.yml'
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+"
+      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
   build-natives:
@@ -56,11 +60,6 @@ jobs:
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
 
       - name: Resolve vcpkg from runner image
         shell: pwsh
@@ -116,21 +115,6 @@ jobs:
           path: artifacts
           merge-multiple: false
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.x
-
-      - name: Resolve native license root
-        shell: pwsh
-        run: |
-          $licenseRoot = Get-ChildItem artifacts -Directory | Sort-Object Name | Select-Object -First 1
-          if (-not $licenseRoot) {
-            throw "No native artifact directories were downloaded."
-          }
-
-          "NativeLicenseRoot=$($licenseRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
       - name: Pack combined nupkg
         shell: pwsh
         run: |
@@ -141,3 +125,20 @@ jobs:
         with:
           name: NetCord.Natives.Package
           path: artifacts/package/*.nupkg
+
+  publish:
+    needs: pack-natives
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download nupkg
+        uses: actions/download-artifact@v4
+        with:
+          name: NetCord.Natives.Package
+          path: artifacts/package
+
+      - name: Publish Package
+        env:
+          KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push artifacts/package/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate

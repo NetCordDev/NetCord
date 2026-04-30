@@ -2,7 +2,8 @@
   "dependencies": [
     "libdave",
     "opus",
-    "libsodium"
+    "libsodium",
+    "zstd"
   ],
   "vcpkg-configuration": {
     "overlay-ports": [

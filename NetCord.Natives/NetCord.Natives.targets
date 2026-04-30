@@ -9,6 +9,8 @@
 								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
 			<_NetCordStaticLink Include="opus"
 								Condition="'%(DirectPInvoke.Identity)' == 'opus'" />
+			<_NetCordStaticLink Include="zstd"
+								Condition="'%(DirectPInvoke.Identity)' == 'zstd'" />
 
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*" />
 

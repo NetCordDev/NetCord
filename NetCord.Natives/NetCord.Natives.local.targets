@@ -4,7 +4,8 @@
 
 	<Target Name="ProcessNetCordNativeAot_Local" BeforeTargets="ProcessNetCordNativeAot">
 	
-		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" Targets="GetStaticBuildDir">
+		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
+				 Targets="GetStaticBuildDir">
 			<Output TaskParameter="TargetOutputs" ItemName="_NetCordStaticDir" />
 		</MSBuild>
 
