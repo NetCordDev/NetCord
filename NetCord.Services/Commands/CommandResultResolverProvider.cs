@@ -22,39 +22,7 @@ public class CommandResultResolverProvider<TContext> : IResultResolverProvider<T
         }
 
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>))
-        {
-            var genericArgument = type.GetGenericArguments()[0];
-
-            if (genericArgument == typeof(ReplyMessageProperties))
-            {
-                resolver = static async (result, context) =>
-                {
-                    var messageProperties = await Unsafe.As<Task<ReplyMessageProperties>>(result!).ConfigureAwait(false);
-                    await HandleReplyAsync(context, messageProperties).ConfigureAwait(false);
-                };
-                return true;
-            }
-
-            if (genericArgument == typeof(MessageProperties))
-            {
-                resolver = static async (result, context) =>
-                {
-                    var messageProperties = await Unsafe.As<Task<MessageProperties>>(result!).ConfigureAwait(false);
-                    await HandleMessageAsync(context, messageProperties).ConfigureAwait(false);
-                };
-                return true;
-            }
-
-            if (genericArgument == typeof(string))
-            {
-                resolver = static async (result, context) =>
-                {
-                    var content = await Unsafe.As<Task<string>>(result!).ConfigureAwait(false);
-                    await HandleContentAsync(context, content).ConfigureAwait(false);
-                };
-                return true;
-            }
-        }
+            return HandleTaskT(type, out resolver);
 
         if (type == typeof(void))
         {
@@ -87,7 +55,45 @@ public class CommandResultResolverProvider<TContext> : IResultResolverProvider<T
             resolver = static (result, context) =>
             {
                 var message = Unsafe.As<string>(result!);
-                return new(HandleContentAsync(context, message));
+                return new(HandleReplyAsync(context, message));
+            };
+            return true;
+        }
+
+        resolver = null;
+        return false;
+    }
+
+    private static bool HandleTaskT(Type type, [MaybeNullWhen(false)] out Func<object?, TContext, ValueTask> resolver)
+    {
+        var genericArgument = type.GetGenericArguments()[0];
+
+        if (genericArgument == typeof(ReplyMessageProperties))
+        {
+            resolver = static async (result, context) =>
+            {
+                var messageProperties = await Unsafe.As<Task<ReplyMessageProperties>>(result!).ConfigureAwait(false);
+                await HandleReplyAsync(context, messageProperties).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (genericArgument == typeof(MessageProperties))
+        {
+            resolver = static async (result, context) =>
+            {
+                var messageProperties = await Unsafe.As<Task<MessageProperties>>(result!).ConfigureAwait(false);
+                await HandleMessageAsync(context, messageProperties).ConfigureAwait(false);
+            };
+            return true;
+        }
+
+        if (genericArgument == typeof(string))
+        {
+            resolver = static async (result, context) =>
+            {
+                var content = await Unsafe.As<Task<string>>(result!).ConfigureAwait(false);
+                await HandleReplyAsync(context, content).ConfigureAwait(false);
             };
             return true;
         }
@@ -104,10 +110,5 @@ public class CommandResultResolverProvider<TContext> : IResultResolverProvider<T
     private static Task<RestMessage> HandleMessageAsync(TContext context, MessageProperties messageProperties)
     {
         return context.Message.SendAsync(messageProperties);
-    }
-
-    private static Task<RestMessage> HandleContentAsync(TContext context, string content)
-    {
-        return context.Message.ReplyAsync(content);
     }
 }
