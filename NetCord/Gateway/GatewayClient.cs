@@ -928,6 +928,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             {
                 return $"An error occurred while starting the gateway client.{Environment.NewLine}{e}";
             });
+            throw;
         }
     }
 
@@ -951,6 +952,7 @@ public sealed partial class GatewayClient : WebSocketClient, IEntity
             {
                 return $"An error occurred while resuming.{Environment.NewLine}{e}";
             });
+            throw;
         }
     }
 
