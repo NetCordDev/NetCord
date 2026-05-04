@@ -4,6 +4,7 @@ vcpkg_from_github(
     REF "${VERSION}"
     SHA512 78b4e5b8ddc6397775d403465e0da770ec7905d7913546b3aec161baf4478443e554f0ae7bd012af8bfd308639be2601d46da22c02aff2b756ff91878f1fc843
     HEAD_REF main
+    PATCHES fix-msvc-builtin-add-overflow.patch
 )
 
 vcpkg_cmake_configure(
@@ -25,3 +26,7 @@ file(INSTALL
     DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}"
     RENAME copyright
 )
+
+# Remove redundant debug directories to comply with vcpkg policy
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")

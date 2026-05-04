@@ -1,0 +1,24 @@
+diff --git a/cpp/src/frame_processors.cpp b/cpp/src/frame_processors.cpp
+index 37c8d70..5f0460c 100644
+--- a/cpp/src/frame_processors.cpp
++++ b/cpp/src/frame_processors.cpp
+@@ -13,6 +13,9 @@
+ 
+ #if defined(_MSC_VER)
+ #include <intrin.h>
++#if defined(_M_ARM64)
++#include <arm64intr.h>
++#endif
+ #endif
+ 
+ namespace discord {
+@@ -25,6 +28,9 @@ std::pair<bool, size_t> OverflowAdd(size_t a, size_t b)
+     bool didOverflow = _addcarry_u64(0, a, b, &res);
+ #elif defined(_MSC_VER) && defined(_M_IX86)
+     bool didOverflow = _addcarry_u32(0, a, b, &res);
++#elif defined(_MSC_VER) && defined(_M_ARM64)
++    res = a + b;
++    bool didOverflow = res < a;
+ #else
+     bool didOverflow = __builtin_add_overflow(a, b, &res);
+ #endif

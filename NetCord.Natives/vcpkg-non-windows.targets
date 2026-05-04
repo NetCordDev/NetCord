@@ -1,0 +1,48 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <ItemGroup Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'" >
+        <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgManifestFileLocation)"/>
+        <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgConfigurationFileLocation)" 
+                                                  Condition="Exists('$(_ZVcpkgConfigurationFileLocation)')"/>
+    </ItemGroup>
+
+    <Target Name="VcpkgInstallManifestDependencies" BeforeTargets="ClCompile"
+          Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'"
+          Inputs="@(_ZVcpkgInstallManifestDependenciesInputs)"
+          Outputs="$(_ZVcpkgMSBuildStampFile)">
+        
+        <PropertyGroup>
+            <!-- This is set inside the target because $(TLogLocation) may not be set yet when parsing the .targets on VS2015 -->
+            <_ZVcpkgTLogFileLocation>$(TLogLocation)VcpkgInstallManifest$(VcpkgTriplet).$(_ZVcpkgHostTripletSuffix)read.1u.tlog</_ZVcpkgTLogFileLocation>
+            
+            <_ZVcpkgExecutable>$(_ZVcpkgRoot)vcpkg</_ZVcpkgExecutable>
+        </PropertyGroup>
+
+        <Message Text="Installing vcpkg dependencies to $(_ZVcpkgInstalledDir)" Importance="High" />
+        <MakeDir Directories="$(_ZVcpkgInstalledDir)" />
+
+        <Message Text="$(_ZVcpkgExecutable) install $(_ZVcpkgHostTripletParameter) --x-wait-for-lock --triplet $(VcpkgTriplet) --vcpkg-root $(_ZVcpkgRoot)\ --x-manifest-root=$(_ZVcpkgManifestRoot) --x-install-root=$(_ZVcpkgInstalledDir) $(VcpkgAdditionalInstallOptions)"
+            Importance="High" />
+
+        <Exec Command="$(_ZVcpkgExecutable) install $(_ZVcpkgHostTripletParameter) --x-wait-for-lock --triplet $(VcpkgTriplet) --vcpkg-root $(_ZVcpkgRoot) --x-manifest-root=$(_ZVcpkgManifestRoot) --x-install-root=$(_ZVcpkgInstalledDir) $(VcpkgAdditionalInstallOptions)"
+            StandardOutputImportance="High"
+            StandardErrorImportance="High"
+            UseUtf8Encoding="Always"
+            StdOutEncoding="utf-8"
+            StdErrEncoding="utf-8"
+            UseCommandProcessor="false"
+            />
+
+        <WriteLinesToFile File="$(_ZVcpkgTLogFileLocation)"
+                        Lines="@(_ZVcpkgInstallManifestDependenciesInputs -> '^%(Identity)')"
+                        Encoding="Unicode"
+                        Overwrite="true"/>
+
+        <Touch Files="$(_ZVcpkgMSBuildStampFile)" AlwaysCreate="true" />
+
+        <CreateProperty Value="false">
+            <Output TaskParameter="ValueSetByTask" PropertyName="Link_MinimalRebuildFromTracking" />
+        </CreateProperty>
+    </Target>
+
+</Project>

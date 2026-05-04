@@ -71,7 +71,11 @@ jobs:
           }
 
           if (-not (Test-Path $vcpkgRoot)) {
-            throw "vcpkg installation root not found."
+          # Bootstrap vcpkg
+          if ($IsWindows) {
+            & "$vcpkgRoot/bootstrap-vcpkg.bat" -disableMetrics
+          } else {
+            & "$vcpkgRoot/bootstrap-vcpkg.sh" -disableMetrics
           }
 
           "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
@@ -85,7 +89,7 @@ jobs:
       - name: Build native outputs for ${{ matrix.rid }}
         shell: pwsh
         run: |
-          dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:GeneratePackageOnBuild=false -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+          dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:GeneratePackageOnBuild=false -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
 
       - name: List artifacts
         shell: pwsh
@@ -118,7 +122,7 @@ jobs:
       - name: Pack combined nupkg
         shell: pwsh
         run: |
-          dotnet pack NetCord.Natives/NetCord.Natives.csproj -c Release --no-build --no-restore -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:NativeArtifactsRoot=$env:NativeArtifactsRoot -p:NativeLicenseRoot=$env:NativeLicenseRoot -o artifacts/package
+          dotnet pack NetCord.Natives/NetCord.Natives.csproj -c Release --no-build --no-restore -p:VcpkgRoot=$env:VCPKG_ROOT  -p:VcpkgMsbuildPath=$env:VcpkgMsbuildPath -p:NativeArtifactsRoot=$env:NativeArtifactsRoot -p:NativeLicenseRoot=$env:NativeLicenseRoot -o artifacts/package
 
       - name: Upload nupkg
         uses: actions/upload-artifact@v4
