@@ -1,6 +1,7 @@
 using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
+using NetCord.Services.Commands;
 using NetCord.Services.ComponentInteractions;
 
 namespace ServicesTest;
@@ -44,9 +45,32 @@ public class ResultResolverProviderTests
         ];
 
         foreach (var type in types)
-        {
-            Assert.IsTrue(provider.TryGetResolver(type, out var resolver), $"Failed to get resolver for {type}");
-            Assert.IsNotNull(resolver, $"Resolver for {type} is null");
-        }
+            Validate(provider, type);
+    }
+
+    [TestMethod]
+    public void TestCommandResultResolverProvider()
+    {
+        IReadOnlyList<Type> types = [
+            typeof(Task),
+            typeof(Task<ReplyMessageProperties>),
+            typeof(Task<MessageProperties>),
+            typeof(Task<string>),
+            typeof(void),
+            typeof(ReplyMessageProperties),
+            typeof(MessageProperties),
+            typeof(string),
+        ];
+
+        var provider = CommandResultResolverProvider<CommandContext>.Instance;
+
+        foreach (var type in types)
+            Validate(provider, type);
+    }
+
+    private static void Validate<TContext>(IResultResolverProvider<TContext> provider, Type type)
+    {
+        Assert.IsTrue(provider.TryGetResolver(type, out var resolver), $"Failed to get resolver for {type}");
+        Assert.IsNotNull(resolver, $"Resolver for {type} is null");
     }
 }
