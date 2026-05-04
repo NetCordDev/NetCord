@@ -81,6 +81,14 @@ internal static class Program
         var assembly = Assembly.GetEntryAssembly()!;
         _commandService.AddCommand(new(["pol"], ([Optional] object? o, CommandContext context) => "xd"));
 
+        _slashCommandService.AddSlashCommand(new("value-task", "Test of ValueTask return type", () => default(ValueTask)));
+
+        _slashCommandService.AddSlashCommand(new("task", "Test of Task return type", () => Task.CompletedTask));
+
+        _slashCommandService.AddSlashCommand(new("value-task-t", "Test of ValueTask<T> return type", () => new ValueTask<string>("wzium")));
+
+        _slashCommandService.AddSlashCommand(new("task-t", "Test of Task<T> return type", () => Task.FromResult("wzium")));
+
         CommandGroupBuilder xdBuilder = new(["xd"]);
 
         xdBuilder.AddSubCommand(["xd"], () => "XD XD!");

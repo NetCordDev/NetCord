@@ -10,6 +10,11 @@ using NetCord.Services.Utils;
 
 namespace NetCord.Services.ApplicationCommands;
 
+file static class Cache<TAutocompleteContext> where TAutocompleteContext : IAutocompleteInteractionContext
+{
+    internal static readonly MethodInfo _getChoicesAsyncMethod = typeof(IAutocompleteProvider<TAutocompleteContext>).GetMethod(nameof(IAutocompleteProvider<>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
+}
+
 public class SlashCommandParameter<TContext> where TContext : IApplicationCommandContext
 {
     public SlashCommandTypeReader<TContext> TypeReader { get; }
@@ -126,10 +131,11 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
         var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
         var context = Expression.Parameter(typeof(TAutocompleteContext));
         var serviceProvider = Expression.Parameter(typeof(IServiceProvider));
-        var getChoicesAsyncMethod = autocompleteProviderBaseType.GetMethod(nameof(IAutocompleteProvider<>.GetChoicesAsync), BindingFlags.Instance | BindingFlags.Public)!;
+
         var call = Expression.Call(TypeHelper.GetCreateInstanceExpression(autocompleteProviderType, serviceProvider, serviceResolverProvider),
-                                   getChoicesAsyncMethod,
+                                   Cache<TAutocompleteContext>._getChoicesAsyncMethod,
                                    option, context);
+
         var lambda = Expression.Lambda<Func<ApplicationCommandInteractionDataOption, TAutocompleteContext, IServiceProvider?, ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?>>>(call, option, context, serviceProvider);
         _invokeAutocompleteAsync = lambda.Compile();
     }
