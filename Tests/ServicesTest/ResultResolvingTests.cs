@@ -34,7 +34,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ApplicationCommandServiceValueTaskNoFallback()
     {
-        var (service, resolverProvider) = CreateApplicationCommandService([typeof(ValueTask)]);
+        var (service, resolverProvider) = CreateApplicationCommandService(typeof(ValueTask));
 
         service.AddSlashCommand(new SlashCommandBuilder("test", "test", () => default(ValueTask)));
 
@@ -47,7 +47,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ComponentInteractionServiceValueTaskNoFallback()
     {
-        var (service, resolverProvider) = CreateComponentInteractionService([typeof(ValueTask)]);
+        var (service, resolverProvider) = CreateComponentInteractionService(typeof(ValueTask));
 
         service.AddComponentInteraction(new ComponentInteractionBuilder("test", () => default(ValueTask)));
 
@@ -60,7 +60,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void CommandServiceValueTaskNoFallback()
     {
-        var (service, resolverProvider) = CreateCommandService([typeof(ValueTask)]);
+        var (service, resolverProvider) = CreateCommandService(typeof(ValueTask));
 
         service.AddCommand(new CommandBuilder(["test"], () => default(ValueTask)));
 
@@ -73,7 +73,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ApplicationCommandServiceValueTaskTNoFallback()
     {
-        var (service, resolverProvider) = CreateApplicationCommandService([typeof(ValueTask<DummyResult>)]);
+        var (service, resolverProvider) = CreateApplicationCommandService(typeof(ValueTask<DummyResult>));
 
         service.AddSlashCommand(new SlashCommandBuilder("test", "test", () => default(ValueTask<DummyResult>)));
 
@@ -86,7 +86,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ComponentInteractionServiceValueTaskTNoFallback()
     {
-        var (service, resolverProvider) = CreateComponentInteractionService([typeof(ValueTask<DummyResult>)]);
+        var (service, resolverProvider) = CreateComponentInteractionService(typeof(ValueTask<DummyResult>));
 
         service.AddComponentInteraction(new ComponentInteractionBuilder("test", () => default(ValueTask<DummyResult>)));
 
@@ -99,7 +99,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void CommandServiceValueTaskTNoFallback()
     {
-        var (service, resolverProvider) = CreateCommandService([typeof(ValueTask<DummyResult>)]);
+        var (service, resolverProvider) = CreateCommandService(typeof(ValueTask<DummyResult>));
 
         service.AddCommand(new CommandBuilder(["test"], () => default(ValueTask<DummyResult>)));
 
@@ -112,7 +112,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ApplicationCommandServiceTaskFallback()
     {
-        var (service, resolverProvider) = CreateApplicationCommandService([typeof(Task)]);
+        var (service, resolverProvider) = CreateApplicationCommandService(typeof(Task));
 
         service.AddSlashCommand(new SlashCommandBuilder("test", "test", () => default(ValueTask)));
 
@@ -126,7 +126,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ComponentInteractionServiceTaskFallback()
     {
-        var (service, resolverProvider) = CreateComponentInteractionService([typeof(Task)]);
+        var (service, resolverProvider) = CreateComponentInteractionService(typeof(Task));
 
         service.AddComponentInteraction(new ComponentInteractionBuilder("test", () => default(ValueTask)));
 
@@ -140,7 +140,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void CommandServiceTaskFallback()
     {
-        var (service, resolverProvider) = CreateCommandService([typeof(Task)]);
+        var (service, resolverProvider) = CreateCommandService(typeof(Task));
 
         service.AddCommand(new CommandBuilder(["test"], () => default(ValueTask)));
 
@@ -154,7 +154,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ApplicationCommandServiceTaskTFallback()
     {
-        var (service, resolverProvider) = CreateApplicationCommandService([typeof(Task<DummyResult>)]);
+        var (service, resolverProvider) = CreateApplicationCommandService(typeof(Task<DummyResult>));
 
         service.AddSlashCommand(new SlashCommandBuilder("test", "test", () => default(ValueTask<DummyResult>)));
 
@@ -168,7 +168,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void ComponentInteractionServiceTaskTFallback()
     {
-        var (service, resolverProvider) = CreateComponentInteractionService([typeof(Task<DummyResult>)]);
+        var (service, resolverProvider) = CreateComponentInteractionService(typeof(Task<DummyResult>));
 
         service.AddComponentInteraction(new ComponentInteractionBuilder("test", () => default(ValueTask<DummyResult>)));
 
@@ -182,7 +182,7 @@ public class ResultResolvingTests
     [TestMethod]
     public void CommandServiceTaskTFallback()
     {
-        var (service, resolverProvider) = CreateCommandService([typeof(Task<DummyResult>)]);
+        var (service, resolverProvider) = CreateCommandService(typeof(Task<DummyResult>));
 
         service.AddCommand(new CommandBuilder(["test"], () => default(ValueTask<DummyResult>)));
 
