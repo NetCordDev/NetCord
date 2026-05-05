@@ -55,7 +55,7 @@
         <NativeLibSet Include="mlspp;bytes;tls_syntax;hpke" />
         <NativeLibSet Include="libcrypto;crypto" />
         <NativeLibSet Include="libsodium;sodium" />
-        <NativeLibSet Include="libsodium;sodium;opus;zstd" />
+        <NativeLibSet Include="libopus;opus;libzstd;zstd" />
         
         <NativeLibLic Include="libdave;openssl;libsodium;opus;zstd" />
 
@@ -174,7 +174,7 @@
         </ItemGroup>
 
         <Copy SourceFiles="@(_NativeLicenseSource)" DestinationFiles="@(_NativeLicenseSource->'%(TargetPath)')" 
-              SkipUnchangedFiles="true" />
+              SkipUnchangedFiles="true" Condition="'@(_NativeLicenseSource)' != ''" />
 
         <PropertyGroup Condition="'$(CI)' != 'true'">
             <PackageId>$(PackageId).$(VcpkgBuildOS)-$(VcpkgPlatformTarget)</PackageId>
