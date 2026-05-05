@@ -9,6 +9,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
+    <SelfContained>true</SelfContained>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
       
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\..\NetCord.Natives</NetCordNativesDir>

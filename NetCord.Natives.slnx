@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj" />
+    <Project Path="Tests/NetCord.Natives.Tests/Assets/NativeAotApp/NativeAotApp.csproj" />
+  </Folder>
+  <Project Path="NetCord.Natives/NetCord.Natives.csproj" />
+</Solution>

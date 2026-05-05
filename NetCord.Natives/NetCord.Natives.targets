@@ -34,9 +34,9 @@
 							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
 
 			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\%(_NetCordExcluded.Identity)*.*" 
-						 Condition="'@(_NetCordExcluded.Identity)' != ''" />
+						 Condition="'@(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
 			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\lib%(_NetCordExcluded.Identity)*.*" 
-						 Condition="'@(_NetCordExcluded.Identity)' != ''" />
+						 Condition="'@(_NetCordExcluded.Identity)' != '' and '$(NetCordNativesRuntimesDir)' != ''" />
 
 			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
 			<RuntimeTargetsCopyLocalItems Remove="%(_RunExclude.FullPath)" />

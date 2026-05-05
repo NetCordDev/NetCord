@@ -76,6 +76,10 @@
             Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
 
     <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection">
+    
+        <Error Text="Make sure VCPKG_ROOT environment variable is set, or set &lt;VcpkgRoot&gt; property to your vcpkg installation." 
+               Condition="!Exists('$(VcpkgMsbuildPath).targets')" />
+        
         <PropertyGroup Condition="'$(VcpkgBuildOS)' != 'win'">
             <VcpkgTriplet>$(VcpkgPlatformTarget)-$(VcpkgOSTarget)</VcpkgTriplet>
             <VcpkgTriplet Condition="'$(VcpkgUseStatic)' != 'true'">$(VcpkgTriplet)-dynamic</VcpkgTriplet>
@@ -111,7 +115,7 @@
 
     <Target Name="ClCompile" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareVcpkg"
             Condition="'$(NoBuild)' != 'true' and Exists('$(VcpkgMsbuildPath).targets')">
-        
+
         <Message Text="Building static native libraries..." Importance="High" 
                  Condition="'$(VcpkgUseStatic)' != 'true'" />
         <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ClCompile"
@@ -156,11 +160,11 @@
             Returns="@(_CopyOutput)" Condition="'$(CI)' != 'true'">
         <ItemGroup>
             <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)" />
-            <_CopyOutput Include="%(NativesRuntime.FullPath)" Condition="Exists('%(NativesRuntime.Identity)')">
-                <TargetPath>%(Filename)%(Extension)</TargetPath>
+            <_CopyOutput Include="%(NativesRuntime.FullPath)">
+                <TargetPath>%(NativesRuntime.Filename)%(NativesRuntime.Extension)</TargetPath>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
             </_CopyOutput>
-            <None Include="@(_CopyOutput)" />
+            <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
         </ItemGroup>
     </Target>
 

@@ -1,4 +1,4 @@
-name: Build NetCord.Natives
+name: Build, Test, and Package NetCord.Natives
 
 on:
   workflow_dispatch: {}
@@ -11,7 +11,7 @@ on:
       - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
-  build-natives:
+  build-test-natives:
     runs-on: ${{ matrix.runs-on }}
     env:
       CI: true
@@ -112,6 +112,11 @@ jobs:
         shell: pwsh
         run: |
           dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:GeneratePackageOnBuild=false -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+
+      - name: Test native outputs for ${{ matrix.rid }}
+        shell: pwsh
+        run: |
+          dotnet test NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -c Release -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }} --verbosity normal
 
       - name: List built for ${{ matrix.rid }}
         shell: pwsh

@@ -1,6 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Import Project="NetCord.Natives.targets" />
+	<Import Project="NetCord.Natives.targets" Condition="Exists('NetCord.Natives.targets')"	/>
 
 	<Target Name="ProcessNetCordNativeAot_Local" BeforeTargets="ProcessNetCordNativeAot">
 	
@@ -18,7 +18,8 @@
 
 		<PropertyGroup>
 			<NetCordNativesStaticDir>%(_NetCordStaticDir.Identity)\lib</NetCordNativesStaticDir>
-			<NetCordNativesRuntimesDir>$([System.IO.Path]::GetDirectoryName('%(_NetCordRuntimesDir.FullPath)'))</NetCordNativesRuntimesDir>
+			<NetCordNativesRuntimesDir Condition="'%(_NetCordRuntimesDir.FullPath)' != ''"
+				>$([System.IO.Path]::GetDirectoryName('%(_NetCordRuntimesDir.FullPath)'))</NetCordNativesRuntimesDir>
 		</PropertyGroup>
 
 	</Target>
