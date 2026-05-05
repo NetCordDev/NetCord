@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -8,17 +8,17 @@
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PublishAot>true</PublishAot>
+    <IsAotCompatible>true</IsAotCompatible>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+      
+    <NetCordNativesDir Condition="'$(BuildingInsideVisualStudio)' == 'true'">..\..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- <ProjectReference Include="..\..\NetCord.Natives\NetCord.Natives.csproj" /> -->
-    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
-		<DirectPInvoke Include="$(NetCordDirectPInvoke)" />
+		<DirectPInvoke Include="$(NetCordDirectPInvoke)" Condition="'$(NetCordDirectPInvoke)' != ''" />
+		<!-- <PackageReference Include="NetCord.Natives" Version="*" /> -->
+		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
 	</ItemGroup>
-	<!-- <Import Project="..\NetCord\NetCord.Natives\NetCord.Natives.local.targets"/> -->
-  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
-  
+	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
+
 </Project>

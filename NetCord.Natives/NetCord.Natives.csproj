@@ -117,16 +117,6 @@
         <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ClCompile"
                  Properties="VcpkgUseStatic=true;GeneratePackageOnBuild=false" 
                  Condition="'$(VcpkgUseStatic)' != 'true'" />
-
-        <ItemGroup Condition="'$(VcpkgUseStatic)' != 'true'">
-            <_NativeLicenseSource Include="$(VcpkgOutputPath)\share\%(NativeLibLic.Identity)\copyright" 
-                        Condition="Exists('$(VcpkgOutputPath)\share\%(NativeLibLic.Identity)\copyright')">
-                <TargetPath>$(VcpkgOutputPath)\licenses\%(NativeLibLic.Identity)_LICENSE.txt</TargetPath>
-            </_NativeLicenseSource>
-        </ItemGroup>
-
-        <Copy SourceFiles="@(_NativeLicenseSource)" DestinationFiles="@(_NativeLicenseSource->'%(TargetPath)')" 
-              SkipUnchangedFiles="true" Condition="'$(VcpkgUseStatic)' != 'true'" />
     </Target>
 
     <Target Name="GetDynamicVcpkgVersions" BeforeTargets="GetAssemblyAttributes"
@@ -162,19 +152,29 @@
         <Message Importance="high" Text="Vcpkg Sync: %(_VcpkgPkg.Identity) version is [%(_VcpkgPkg.Version)]" />
     </Target>
 
-    <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg">
+    <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"
+            Returns="@(_CopyOutput)" Condition="'$(CI)' != 'true'">
         <ItemGroup>
             <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)" />
-            <Content Include="@(NativesRuntime)" Condition="Exists('%(NativesRuntime.Identity)')">
-                <!-- <TargetPath>natives\runtimes\%(Filename)%(Extension)</TargetPath> -->
+            <_CopyOutput Include="%(NativesRuntime.FullPath)" Condition="Exists('%(NativesRuntime.Identity)')">
                 <TargetPath>%(Filename)%(Extension)</TargetPath>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <Pack>false</Pack>
-            </Content>
+            </_CopyOutput>
+            <None Include="@(_CopyOutput)" />
         </ItemGroup>
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg">
+
+        <ItemGroup>
+            <_NativeLicenseSource Include="$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright" 
+                        Condition="Exists('$(VcpkgOutputPath_Static)\share\%(NativeLibLic.Identity)\copyright')">
+                <TargetPath>$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt</TargetPath>
+            </_NativeLicenseSource>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(_NativeLicenseSource)" DestinationFiles="@(_NativeLicenseSource->'%(TargetPath)')" 
+              SkipUnchangedFiles="true" />
 
         <PropertyGroup Condition="'$(CI)' != 'true'">
             <PackageId>$(PackageId).$(VcpkgBuildOS)-$(VcpkgPlatformTarget)</PackageId>
@@ -192,7 +192,7 @@
                 <Pack>true</Pack>
             </Content>
 
-            <Content Include="$(VcpkgOutputPath)\licenses\%(NativeLibLic.Identity)_LICENSE.txt">
+            <Content Include="$(VcpkgOutputPath_Static)\licenses\%(NativeLibLic.Identity)_LICENSE.txt">
                 <Pack>true</Pack>
                 <PackagePath>licenses\</PackagePath>
             </Content>

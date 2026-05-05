@@ -14,7 +14,7 @@ internal static partial class NativeProbes
     [LibraryImport("opus", EntryPoint = "opus_get_version_string")]
     internal static partial nint OpusGetVersionString();
 
-    [LibraryImport("libzstd", EntryPoint = "ZSTD_versionNumber")]
+    [LibraryImport("zstd", EntryPoint = "ZSTD_versionNumber")]
     internal static partial uint ZstdVersionNumber();
 }
 
@@ -32,7 +32,7 @@ internal static class Program
         var cwd = Path.GetFullPath(Directory.GetCurrentDirectory());
         Console.WriteLine($"Current working directory: {cwd}");
 
-        string[] libraries = new[] { "libdave", "libsodium", "opus", "libzstd" };
+        string[] libraries = new[] { "libdave", "libsodium", "opus", "zstd" };
         var process = Process.GetCurrentProcess();
         var modules = process.Modules;
 
@@ -40,7 +40,7 @@ internal static class Program
 
         foreach (var lib in libraries)
         {
-            ProcessModule found = null;
+            ProcessModule? found = null;
             foreach (ProcessModule m in modules)
             {
                 if (!string.IsNullOrEmpty(m.FileName) && m.FileName.IndexOf(lib, StringComparison.OrdinalIgnoreCase) >= 0)

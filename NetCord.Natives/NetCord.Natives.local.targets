@@ -5,12 +5,20 @@
 	<Target Name="ProcessNetCordNativeAot_Local" BeforeTargets="ProcessNetCordNativeAot">
 	
 		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
-				 Targets="GetStaticBuildDir">
+				 Targets="GetStaticBuildDir"
+				 Properties="CI=false">
 			<Output TaskParameter="TargetOutputs" ItemName="_NetCordStaticDir" />
 		</MSBuild>
 
+		<MSBuild Projects="$(MSBuildThisFileDirectory)\NetCord.Natives.csproj" 
+				 Targets="_AddNativeRuntimeCopyItems"
+				 Properties="CI=false">
+			<Output TaskParameter="TargetOutputs" ItemName="_NetCordRuntimesDir" />
+		</MSBuild>
+
 		<PropertyGroup>
-			<NetCordNativesStaticDir>@(_NetCordStaticDir->'%(Identity)')\lib</NetCordNativesStaticDir>
+			<NetCordNativesStaticDir>%(_NetCordStaticDir.Identity)\lib</NetCordNativesStaticDir>
+			<NetCordNativesRuntimesDir>$([System.IO.Path]::GetDirectoryName('%(_NetCordRuntimesDir.FullPath)'))</NetCordNativesRuntimesDir>
 		</PropertyGroup>
 
 	</Target>

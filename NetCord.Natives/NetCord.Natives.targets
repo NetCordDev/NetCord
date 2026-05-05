@@ -12,11 +12,35 @@
 			<_NetCordStaticLink Include="zstd"
 								Condition="'%(DirectPInvoke.Identity)' == 'zstd'" />
 
-			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*" />
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
 
-			<NativeLibrary Include="@(NativeLibToLink)" Condition="Exists('%(FullPath)')" />
+			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
 		</ItemGroup>
 
+	</Target>
+
+	<Target Name="ExcludeLibCopy" DependsOnTargets="ProcessNetCordNativeAot"
+			AfterTargets="ResolvePackageAssets"
+			BeforeTargets="ResolveLockFileCopyLocalFiles">
+
+		<ItemGroup>
+			<_NetCordExcluded Include="$(NetCordExcludeNatives)" 
+							  Condition="'$(NetCordExcludeNatives)' != ''" />
+			<_NetCordExcluded Include="libcrypto" 
+							  Condition="$(NetCordExcludeNatives.Contains('libdave'))" />
+
+			<_NetCordExcluded Include="@(_NetCordStaticLink)" 
+							  Condition="'$(PublishAot)' == 'true' and '%(_NetCordStaticLink.Identity)' != ''"/>
+
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\%(_NetCordExcluded.Identity)*.*" 
+						 Condition="'@(_NetCordExcluded.Identity)' != ''" />
+			<_RunExclude Include="$(NetCordNativesRuntimesDir)\**\native\lib%(_NetCordExcluded.Identity)*.*" 
+						 Condition="'@(_NetCordExcluded.Identity)' != ''" />
+
+			<ResolvedFileToPublish Remove="%(_RunExclude.FullPath)" />
+			<RuntimeTargetsCopyLocalItems Remove="%(_RunExclude.FullPath)" />
+		</ItemGroup>
 	</Target>
 
 </Project>
