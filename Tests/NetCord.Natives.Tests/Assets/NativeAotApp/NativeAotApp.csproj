@@ -11,7 +11,7 @@
     <IsAotCompatible>true</IsAotCompatible>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
       
-    <NetCordNativesDir Condition="'$(BuildingInsideVisualStudio)' == 'true'">..\..\..\..\NetCord.Natives</NetCordNativesDir>
+    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
 	<ItemGroup>
