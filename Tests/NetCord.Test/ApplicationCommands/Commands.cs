@@ -4,6 +4,53 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.ApplicationCommands;
 
+[Flags]
+public enum UserProfileRole
+{
+    None = 0,
+    Role1 = 1,
+    Role2 = 2,
+    Role3 = Role1 | Role2,
+}
+
+public enum UserProfileState
+{
+    None,
+    State1,
+    State2,
+    State3,
+    State4,
+    State5,
+    State6,
+    State7,
+}
+
+internal class UserProfileStateAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
+{
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
+    {
+        return new([
+            new(Enum.GetName(UserProfileState.State1)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State2)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State3)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State4)!, (double)UserProfileState.State1),
+        ]);
+    }
+}
+
+[SlashCommand("profile", "Profile-related commands.")]
+public class ProfileModule : ApplicationCommandModule<SlashCommandContext>
+{
+    [SubSlashCommand("setimage", "Set profile image")]
+    public string SetImage([SlashCommandParameter(Name = "state", Description = "The profile state to set the image for.", AutocompleteProviderType = typeof(UserProfileStateAutocompleteProvider))]
+        UserProfileState profileState,
+        [SlashCommandParameter(Name = "image", Description = "The url to the image to set this state to.")]
+        string imageUrl)
+    {
+        return ".";
+    }
+}
+
 [SlashCommand("pn", "PN")]
 [SlashCommand("permission-nested", "Permission")]
 public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
