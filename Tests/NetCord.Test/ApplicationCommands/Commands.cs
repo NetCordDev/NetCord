@@ -31,9 +31,9 @@ internal class UserProfileStateAutocompleteProvider : IAutocompleteProvider<Auto
     {
         return new([
             new(Enum.GetName(UserProfileState.State1)!, (double)UserProfileState.State1),
-            new(Enum.GetName(UserProfileState.State2)!, (double)UserProfileState.State1),
-            new(Enum.GetName(UserProfileState.State3)!, (double)UserProfileState.State1),
-            new(Enum.GetName(UserProfileState.State4)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State2)!, (double)UserProfileState.State2),
+            new(Enum.GetName(UserProfileState.State3)!, (double)UserProfileState.State3),
+            new(Enum.GetName(UserProfileState.State4)!, (double)UserProfileState.State4),
         ]);
     }
 }
@@ -42,12 +42,9 @@ internal class UserProfileStateAutocompleteProvider : IAutocompleteProvider<Auto
 public class ProfileModule : ApplicationCommandModule<SlashCommandContext>
 {
     [SubSlashCommand("setimage", "Set profile image")]
-    public string SetImage([SlashCommandParameter(Name = "state", Description = "The profile state to set the image for.", AutocompleteProviderType = typeof(UserProfileStateAutocompleteProvider))]
-        UserProfileState profileState,
-        [SlashCommandParameter(Name = "image", Description = "The url to the image to set this state to.")]
-        string imageUrl)
+    public static string SetImage([SlashCommandParameter(AutocompleteProviderType = typeof(UserProfileStateAutocompleteProvider))] UserProfileState state)
     {
-        return ".";
+        return state.ToString();
     }
 }
 

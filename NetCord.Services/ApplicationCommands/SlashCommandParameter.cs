@@ -70,6 +70,9 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             if (slashCommandParameterAttribute.AutocompleteProviderType is not null)
                 ThrowBothProvidersSpecifiedException(method);
 
+            if (!typeof(IChoicesProvider<TContext>).IsAssignableFrom(choicesProviderType))
+                throw new InvalidDefinitionException($"'{choicesProviderType}' is not assignable to '{typeof(IChoicesProvider<TContext>)}'.", method);
+
             ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
         }
         else if (slashCommandParameterAttribute?.AutocompleteProviderType is { } autocompleteProviderType)
@@ -129,7 +132,7 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
             return;
 
         var autocompleteProviderBaseType = typeof(IAutocompleteProvider<TAutocompleteContext>);
-        if (!autocompleteProviderType.IsAssignableTo(autocompleteProviderBaseType))
+        if (!autocompleteProviderBaseType.IsAssignableFrom(autocompleteProviderType))
             throw new InvalidOperationException($"'{autocompleteProviderType}' is not assignable to '{autocompleteProviderBaseType}'.");
 
         var option = Expression.Parameter(typeof(ApplicationCommandInteractionDataOption));
