@@ -49,67 +49,54 @@ public class SlashCommandParameter<TContext> where TContext : IApplicationComman
 
         var type = Type = parameter.ParameterType;
 
-        if (attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var slashCommandParameterAttributes))
+        var slashCommandParameterAttribute = attributes.TryGetValue(typeof(SlashCommandParameterAttribute), out var slashCommandParameterAttributes)
+            ? (SlashCommandParameterAttribute)slashCommandParameterAttributes[0]
+            : null;
+
+        var (typeReader, _, _) = (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(
+            type,
+            parameter,
+            slashCommandParameterAttribute?.TypeReaderType,
+            configuration.TypeReaders,
+            configuration.EnumTypeReader);
+
+        var name = Name = slashCommandParameterAttribute?.Name ?? configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
+        Description = slashCommandParameterAttribute?.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
+
+        LocalizationPath = path.Add(new SlashCommandParameterLocalizationPathSegment(name));
+
+        if (slashCommandParameterAttribute?.ChoicesProviderType is { } choicesProviderType)
         {
-            var slashCommandParameterAttribute = (SlashCommandParameterAttribute)slashCommandParameterAttributes[0];
-            (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, slashCommandParameterAttribute.TypeReaderType, configuration.TypeReaders, configuration.EnumTypeReader);
+            if (slashCommandParameterAttribute.AutocompleteProviderType is not null)
+                ThrowBothProvidersSpecifiedException(method);
 
-            var name = Name = slashCommandParameterAttribute.Name ?? configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
-            Description = slashCommandParameterAttribute.Description ?? string.Format(configuration.DefaultParameterDescriptionFormat, name);
+            ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
+        }
+        else if (slashCommandParameterAttribute?.AutocompleteProviderType is { } autocompleteProviderType)
+            AutocompleteProviderType = autocompleteProviderType;
+        else if (typeReader.ChoicesProvider is { } choicesProvider)
+        {
+            if (typeReader.AutocompleteProviderType is not null)
+                ThrowBothProvidersSpecifiedException(method);
 
-            LocalizationPath = path.Add(new SlashCommandParameterLocalizationPathSegment(name));
-
-            if (slashCommandParameterAttribute.ChoicesProviderType is { } choicesProviderType)
-            {
-                if (slashCommandParameterAttribute.AutocompleteProviderType is not null)
-                    throw new InvalidDefinitionException("Cannot specify both a choices provider and an autocomplete provider.", method);
-
-                ChoicesProvider = (IChoicesProvider<TContext>)Activator.CreateInstance(choicesProviderType)!;
-            }
-            else if (slashCommandParameterAttribute.AutocompleteProviderType is { } autocompleteProviderType)
-                AutocompleteProviderType = autocompleteProviderType;
-            else if (TypeReader.ChoicesProvider is { } choicesProvider)
-            {
-                if (TypeReader.AutocompleteProviderType is not null)
-                    throw new InvalidDefinitionException("Cannot specify both a choices provider and an autocomplete provider.", method);
-
-                ChoicesProvider = choicesProvider;
-            }
-            else
-                AutocompleteProviderType = TypeReader.AutocompleteProviderType;
-
-            AllowedChannelTypes = slashCommandParameterAttribute.AllowedChannelTypes ?? TypeReader.AllowedChannelTypes;
-            MaxValue = slashCommandParameterAttribute._maxValue ?? TypeReader.GetMaxValue(this, configuration);
-            MinValue = slashCommandParameterAttribute._minValue ?? TypeReader.GetMinValue(this, configuration);
-            MaxLength = slashCommandParameterAttribute._maxLength ?? TypeReader.GetMaxLength(this, configuration);
-            MinLength = slashCommandParameterAttribute._minLength ?? TypeReader.GetMinLength(this, configuration);
+            ChoicesProvider = choicesProvider;
         }
         else
-        {
-            (TypeReader, NonNullableType, DefaultValue) = ParametersHelper.GetParameterInfo<TContext, ISlashCommandTypeReader, SlashCommandTypeReader<TContext>>(type, parameter, null, configuration.TypeReaders, configuration.EnumTypeReader);
+            AutocompleteProviderType = typeReader.AutocompleteProviderType;
 
-            var name = Name = configuration.ParameterNameProcessor.ProcessParameterName(parameter.Name!, configuration);
-            LocalizationPath = path.Add(new SlashCommandParameterLocalizationPathSegment(name));
-            Description = string.Format(configuration.DefaultParameterDescriptionFormat, name);
-
-            if (TypeReader.ChoicesProvider is { } choicesProvider)
-            {
-                if (TypeReader.AutocompleteProviderType is not null)
-                    throw new InvalidDefinitionException("Cannot specify both a choices provider and an autocomplete provider.", method);
-
-                ChoicesProvider = choicesProvider;
-            }
-            else
-                AutocompleteProviderType = TypeReader.AutocompleteProviderType;
-
-            AllowedChannelTypes = TypeReader.AllowedChannelTypes;
-            MaxValue = TypeReader.GetMaxValue(this, configuration);
-            MinValue = TypeReader.GetMinValue(this, configuration);
-            MaxLength = TypeReader.GetMaxLength(this, configuration);
-            MinLength = TypeReader.GetMinLength(this, configuration);
-        }
+        AllowedChannelTypes = slashCommandParameterAttribute?.AllowedChannelTypes ?? typeReader.AllowedChannelTypes;
+        MaxValue = slashCommandParameterAttribute?._maxValue ?? typeReader.GetMaxValue(this, configuration);
+        MinValue = slashCommandParameterAttribute?._minValue ?? typeReader.GetMinValue(this, configuration);
+        MaxLength = slashCommandParameterAttribute?._maxLength ?? typeReader.GetMaxLength(this, configuration);
+        MinLength = slashCommandParameterAttribute?._minLength ?? typeReader.GetMinLength(this, configuration);
 
         Preconditions = PreconditionsHelper.GetParameterPreconditions<TContext>(parameterAttributes, method);
+    }
+
+    [DoesNotReturn]
+    private static void ThrowBothProvidersSpecifiedException(MethodInfo method)
+    {
+        throw new InvalidDefinitionException("Cannot specify both a choices provider and an autocomplete provider.", method);
     }
 
     public async ValueTask<ApplicationCommandOptionProperties> GetRawValueAsync(CancellationToken cancellationToken = default)
