@@ -4,15 +4,6 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.ApplicationCommands;
 
-[Flags]
-public enum UserProfileRole
-{
-    None = 0,
-    Role1 = 1,
-    Role2 = 2,
-    Role3 = Role1 | Role2,
-}
-
 public enum UserProfileState
 {
     None,
