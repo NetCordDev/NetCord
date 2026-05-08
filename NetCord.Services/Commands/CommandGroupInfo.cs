@@ -64,7 +64,7 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary(p => p.Key, p => (IReadOnlyList<ICommandInfo<TContext>>)p.Value, comparer);
 
@@ -112,6 +112,9 @@ public class CommandGroupInfo<TContext> : ICommandInfo<TContext> where TContext 
             for (int j = 0; j < aliasesCount; j++)
                 CommandService<TContext>.DictionaryGetCommandInfoList(subCommands, aliases[j].AsMemory(), configuration).Add(subCommand);
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", string.Join(", ", Aliases));
 
         SubCommands = subCommands.ToFrozenDictionary(p => p.Key, p => (IReadOnlyList<ICommandInfo<TContext>>)p.Value, comparer);
 

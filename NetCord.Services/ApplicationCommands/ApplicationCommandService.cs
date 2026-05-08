@@ -36,9 +36,11 @@ public class ApplicationCommandService<TContext, TAutocompleteContext>(Applicati
         return new(NotFoundResult.Command);
     }
 
-    private protected override void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
+    internal override Delegate CreateAutocompleteDelegate([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type autocompleteProviderType,
+                                                          IServiceResolverProvider serviceResolverProvider,
+                                                          MethodInfo method)
     {
-        autocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(_configuration.ServiceResolverProvider);
+        return SlashCommandParameter<TContext>.CreateInvokeAutocompleteDelegate<TAutocompleteContext>(autocompleteProviderType, serviceResolverProvider, method);
     }
 }
 
@@ -81,6 +83,8 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
     /// <inheritdoc cref="IApplicationCommandService.GetCommands" />
     public IReadOnlyList<ApplicationCommandInfo<TContext>> GetCommands() => [.. _commands];
 
+    private AutocompleteDelegateProvider<TContext> GetAutocompleteDelegateProvider() => new(this);
+
     [RequiresUnreferencedCode("Types might be removed")]
     public void AddModules(Assembly assembly)
     {
@@ -109,8 +113,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
         foreach (var slashCommandAttribute in type.GetCustomAttributes<SlashCommandAttribute>())
         {
-            SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration);
-            OnAutocompleteAdd(slashCommandGroupInfo);
+            SlashCommandGroupInfo<TContext> slashCommandGroupInfo = new(type, slashCommandAttribute, configuration, GetAutocompleteDelegateProvider());
             AddCommandInfo(slashCommandGroupInfo);
 
             slashCommandGroup = true;
@@ -138,8 +141,7 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
             {
                 if (applicationCommandAttribute is SlashCommandAttribute slashCommandAttribute)
                 {
-                    SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration);
-                    OnAutocompleteAdd(slashCommandInfo);
+                    SlashCommandInfo<TContext> slashCommandInfo = new(method, type, slashCommandAttribute, configuration, GetAutocompleteDelegateProvider());
                     AddCommandInfo(slashCommandInfo);
                 }
 
@@ -157,16 +159,12 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
 
     public void AddSlashCommand(SlashCommandBuilder builder)
     {
-        SlashCommandInfo<TContext> info = new(builder, _configuration);
-        OnAutocompleteAdd(info);
-        AddCommandInfo(info);
+        AddCommandInfo(new SlashCommandInfo<TContext>(builder, _configuration, GetAutocompleteDelegateProvider()));
     }
 
     public void AddSlashCommandGroup(SlashCommandGroupBuilder builder)
     {
-        SlashCommandGroupInfo<TContext> info = new(builder, _configuration);
-        OnAutocompleteAdd(info);
-        AddCommandInfo(info);
+        AddCommandInfo(new SlashCommandGroupInfo<TContext>(builder, _configuration, GetAutocompleteDelegateProvider()));
     }
 
     public void AddUserCommand(UserCommandBuilder builder)
@@ -221,7 +219,10 @@ public class ApplicationCommandService<TContext> : IApplicationCommandService wh
         return NotFoundResult.Command;
     }
 
-    private protected virtual void OnAutocompleteAdd(IAutocompleteInfo autocompleteInfo)
+    internal virtual Delegate CreateAutocompleteDelegate([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type autocompleteProviderType, IServiceResolverProvider serviceResolverProvider, MethodInfo method)
     {
+        throw new InvalidDefinitionException(
+            $"Autocomplete is not supported by '{typeof(ApplicationCommandService<>)}'. Use '{typeof(ApplicationCommandService<,>)}' instead to enable autocomplete support.",
+            method);
     }
 }

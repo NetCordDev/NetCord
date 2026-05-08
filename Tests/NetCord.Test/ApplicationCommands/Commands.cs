@@ -4,6 +4,41 @@ using NetCord.Services.ApplicationCommands;
 
 namespace NetCord.Test.ApplicationCommands;
 
+public enum UserProfileState
+{
+    None,
+    State1,
+    State2,
+    State3,
+    State4,
+    State5,
+    State6,
+    State7,
+}
+
+internal class UserProfileStateAutocompleteProvider : IAutocompleteProvider<AutocompleteInteractionContext>
+{
+    public ValueTask<IEnumerable<ApplicationCommandOptionChoiceProperties>?> GetChoicesAsync(ApplicationCommandInteractionDataOption option, AutocompleteInteractionContext context)
+    {
+        return new([
+            new(Enum.GetName(UserProfileState.State1)!, (double)UserProfileState.State1),
+            new(Enum.GetName(UserProfileState.State2)!, (double)UserProfileState.State2),
+            new(Enum.GetName(UserProfileState.State3)!, (double)UserProfileState.State3),
+            new(Enum.GetName(UserProfileState.State4)!, (double)UserProfileState.State4),
+        ]);
+    }
+}
+
+[SlashCommand("profile", "Profile-related commands.")]
+public class ProfileModule : ApplicationCommandModule<SlashCommandContext>
+{
+    [SubSlashCommand("setimage", "Set profile image")]
+    public static string SetImage([SlashCommandParameter(AutocompleteProviderType = typeof(UserProfileStateAutocompleteProvider))] UserProfileState state)
+    {
+        return state.ToString();
+    }
+}
+
 [SlashCommand("pn", "PN")]
 [SlashCommand("permission-nested", "Permission")]
 public class NestedCommand : ApplicationCommandModule<SlashCommandContext>
