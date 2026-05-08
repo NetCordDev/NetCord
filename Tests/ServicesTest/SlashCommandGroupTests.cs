@@ -8,7 +8,7 @@ public class SlashCommandGroupTests
 {
     private static ApplicationCommandService<ApplicationCommandContext> GetService()
     {
-        return new ApplicationCommandService<ApplicationCommandContext>();
+        return new();
     }
 
     [SlashCommand("not-empty", "not-empty")]
