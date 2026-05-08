@@ -23,8 +23,10 @@
       "description": "Group all non-major NuGet updates into one PR",
       "matchManagers": [ "nuget" ],
       "matchUpdateTypes": [ "minor", "patch", "pin", "digest" ],
-      "excludePackageNames": [ "dotnet-sdk" ],
-      "groupName": "NuGet non-major"
+      "groupName": "NuGet non-major",
+      "matchPackageNames": [
+        "!dotnet-sdk"
+      ]
     },
     {
       "description": ".NET SDK update",
