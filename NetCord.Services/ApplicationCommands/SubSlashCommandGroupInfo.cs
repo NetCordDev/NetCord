@@ -74,6 +74,9 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
             subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
+
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
