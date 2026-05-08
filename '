@@ -14,10 +14,10 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
                                    ApplicationCommandServiceConfiguration<TContext> configuration,
-                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(attribute,
-                                                                                                               configuration,
-                                                                                                               type,
-                                                                                                               out var typeAttributes)
+                                   Func<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]Type, IServiceResolverProvider, MethodInfo, Delegate> createInvokeAutocompleteDelegate) : base(attribute,
+                                                                                                                                       configuration,
+                                                                                                                                       type,
+                                                                                                                                       out var typeAttributes)
     {
         Description = attribute.Description;
 
@@ -28,7 +28,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath, createInvokeAutocompleteDelegate)));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -38,7 +38,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath, createInvokeAutocompleteDelegate)));
         }
 
         if (subCommands.Count == 0)
@@ -49,10 +49,10 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
 
     internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
                                    ApplicationCommandServiceConfiguration<TContext> configuration,
-                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(builder,
-                                                                                                               configuration,
-                                                                                                               null,
-                                                                                                               out _)
+                                   Func<Type, IServiceResolverProvider, MethodInfo, Delegate> createInvokeAutocompleteDelegate) : base(builder,
+                                                                                                                                       configuration,
+                                                                                                                                       null,
+                                                                                                                                       out _)
     {
         Description = builder.Description;
 
@@ -66,7 +66,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         for (int i = 0; i < subCommandCount; i++)
         {
             var subCommandBuilder = subCommandBuilders[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath, createInvokeAutocompleteDelegate);
             subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
@@ -76,7 +76,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         for (int i = 0; i < subCommandGroupCount; i++)
         {
             var subCommandGroupBuilder = subCommandGroupBuilders[i];
-            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
+            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath, createInvokeAutocompleteDelegate);
             subCommands.Add(new(subCommandGroupBuilder.Name, subCommandGroup));
         }
 

@@ -260,4 +260,18 @@ public class ChoicesAndAutocompleteTests
                 ([SlashCommandParameter(AutocompleteProviderType = typeof(string))] string s) => { }));
         });
     }
+
+    [TestMethod]
+    public void TestAutocompleteNotSupported()
+    {
+        ApplicationCommandService<ApplicationCommandContext> service = new();
+
+        Assert.ThrowsExactly<InvalidDefinitionException>(() =>
+        {
+            service.AddSlashCommand(new SlashCommandBuilder(
+                "test",
+                "Test",
+                ([SlashCommandParameter(AutocompleteProviderType = typeof(TestAutocompleteProvider))] int i) => { }));
+        });
+    }
 }
