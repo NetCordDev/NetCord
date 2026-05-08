@@ -1,7 +1,7 @@
 name: Build, Test, and Package NetCord.Natives
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
   push:
     paths:
       - 'NetCord.Natives/**'
@@ -17,6 +17,12 @@ jobs:
       CI: true
       VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
       VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
+      VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
+      VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
+      Configuration: Release
+      RuntimeIdentifier: ${{ matrix.rid }}
+      DotnetVerbose: minimal
+
     strategy:
       fail-fast: false
       matrix:
@@ -26,15 +32,15 @@ jobs:
             vcpkg-os-target: windows
             vcpkg-platform-target: x64
           - rid: win-arm64
-            runs-on: windows-latest
+            runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
           - rid: osx-x64
-            runs-on: macos-latest
+            runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
           - rid: osx-arm64
-            runs-on: macos-latest
+            runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
           - rid: linux-x64
@@ -42,83 +48,62 @@ jobs:
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
           - rid: linux-arm64
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
 
-      - name: Cache vcpkg installs
-        uses: actions/cache@v5.0.5
+      - name: Restore vcpkg cache
+        uses: actions/cache/restore@v5.0.5
         with:
           path: |
             .vcpkg-cache
             .vcpkg-downloads
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-
-                ${{ hashFiles(
-                    'NetCord.Natives/vcpkg.json',
-                    'NetCord.Natives/natives-ports/**'
-                ) }}
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('NetCord.Natives/vcpkg.json', 'NetCord.Natives/natives-ports/**') }}
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
 
-      - name: Resolve vcpkg from runner image
-        shell: pwsh
-        run: |
-          # Ensure vcpkg cache and downloads directories exist
-          New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
-          New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
+      - name: Setup vcpkg
+        uses: ./.github/actions/setup-vcpkg
 
-          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
-          if (-not $vcpkgRoot) {
-            $vcpkgCommand = Get-Command vcpkg -ErrorAction Stop
-            $vcpkgRoot = Split-Path -Parent $vcpkgCommand.Source
-          }
-
-          if (Test-Path $vcpkgRoot) {
-            # Bootstrap vcpkg
-            if ($IsWindows) {
-              & "$vcpkgRoot/bootstrap-vcpkg.bat" -disableMetrics
-            } else {
-              & "$vcpkgRoot/bootstrap-vcpkg.sh" -disableMetrics
-            }
-          }
-
-          "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
 
       - name: Install native build tools (macOS)
         if: runner.os == 'macOS'
         shell: bash
         run: |
           brew update
-          brew install autoconf automake libtool pkg-config
-
-      - name: Install ARM64 cross-compiler (linux-arm64)
-        if: matrix.rid == 'linux-arm64'
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -yq gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross
+          brew install autoconf automake libtool
 
       - name: Restore
         shell: pwsh
         run: |
-          dotnet restore NetCord.Natives/NetCord.Natives.csproj -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+          dotnet restore Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v normal
 
-      - name: Build native outputs for ${{ matrix.rid }}
+      - name: Build natives projects for ${{ matrix.rid }}
         shell: pwsh
-        run: |
-          dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:GeneratePackageOnBuild=false -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }}
+        run: > # Building tests will build dependencies including the native libraries
+          dotnet build Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
+          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
+          -p:GeneratePackageOnBuild=false 
 
-      - name: Test native outputs for ${{ matrix.rid }}
+      - name: Test natives outputs for ${{ matrix.rid }}
         shell: pwsh
-        run: |
-          dotnet test NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -c Release -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgOSTarget=${{ matrix.vcpkg-os-target }} -p:VcpkgPlatformTarget=${{ matrix.vcpkg-platform-target }} --verbosity normal
+        run: >
+          dotnet test Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          --logger GitHubActions 
 
       - name: List built for ${{ matrix.rid }}
+        if: ${{ always() }}
         shell: pwsh
         run: |
           $rid = '${{ matrix.rid }}'
@@ -131,98 +116,49 @@ jobs:
               foreach ($folder in @('bin','lib')) {
                 $path = "NetCord.Natives/bin/$rid/$variant/$triplet/$folder"
                 if (Test-Path $path) {
-                  Write-Host "Contents of: $path"
-                  Get-ChildItem -Path $path -Recurse -Force | Select-Object FullName, Mode, Length, LastWriteTime
+                  Get-ChildItem -Path $path -Recurse
                 } else {
-                  Write-Host "[Info]Not found: $path"
+                  Write-Host "[Info] Not found: $path"
                 }
               }
             }
           }
 
-      - name: Upload artifact
+      - name: Pack NuGet Package for ${{ matrix.rid }}
+        shell: pwsh
+        run: >
+          dotnet pack NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          -o NetCord.Natives/bin/${{ matrix.rid }} 
+          -p:CI=false
+
+      - name: Upload NuGet Package Artifact
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: ${{ matrix.rid }}
-          path: NetCord.Natives/bin/${{ matrix.rid }}
+          name: NetCord.Natives.${{ matrix.rid }}.nupkg
+          path: NetCord.Natives/bin/${{ matrix.rid }}/*.nupkg
 
-  pack-natives:
-    needs: build-natives
-    runs-on: ubuntu-latest
-    env:
-      CI: true
-      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
-      VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
-      VcpkgArtifactsRoot: ${{ github.workspace }}/artifacts
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.2
-
-      - name: Download native artifacts
-        uses: actions/download-artifact@v8.0.1
+      - name: Save vcpkg cache
+        if: ${{ always() }}
+        uses: actions/cache/save@v5.0.5
         with:
-          path: artifacts
-          merge-multiple: false
-
-      - name: Resolve vcpkg from runner image
-        shell: pwsh
-        run: |
-          # Ensure vcpkg cache and downloads directories exist
-          New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
-          New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
-
-          $vcpkgRoot = $env:VCPKG_INSTALLATION_ROOT
-          if (-not $vcpkgRoot) {
-            $vcpkgCommand = Get-Command vcpkg -ErrorAction Stop
-            $vcpkgRoot = Split-Path -Parent $vcpkgCommand.Source
-          }
-
-          if (Test-Path $vcpkgRoot) {
-            # Bootstrap vcpkg
-            if ($IsWindows) {
-              & "$vcpkgRoot/bootstrap-vcpkg.bat" -disableMetrics
-            } else {
-              & "$vcpkgRoot/bootstrap-vcpkg.sh" -disableMetrics
-            }
-          }
-
-          "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Restore (required for pack)
-        shell: pwsh
-        run: |
-          dotnet restore NetCord.Natives/NetCord.Natives.csproj -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgEnabled=false
-
-      - name: Build cross-platform .NET (required for pack)
-        shell: pwsh
-        run: |
-          dotnet build NetCord.Natives/NetCord.Natives.csproj -c Release --no-restore -p:VcpkgRoot=$env:VCPKG_ROOT -p:VcpkgEnabled=false
-
-      - name: Pack combined nupkg
-        shell: pwsh
-        run: |
-          dotnet pack NetCord.Natives/NetCord.Natives.csproj -c Release --no-build --no-restore -p:VcpkgRoot=$env:VCPKG_ROOT  -p:VcpkgArtifactsRoot=$env:VcpkgArtifactsRoot -o $env:VcpkgArtifactsRoot/package
-
-      - name: Upload nupkg
-        uses: actions/upload-artifact@v7.0.1
-        with:
-          name: NetCord.Natives.Package
-          path: artifacts/package/*.nupkg
+          path: |
+            .vcpkg-cache
+            .vcpkg-downloads
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('NetCord.Natives/vcpkg.json', 'NetCord.Natives/natives-ports/**') }}
 
   publish:
-    needs: pack-natives
+    needs: [build-test-natives]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      - name: Download nupkg
+      - name: Download All NuGet Package Artifacts
         uses: actions/download-artifact@v8.0.1
         with:
-          name: NetCord.Natives.Package
-          path: artifacts/package
+          path: artifacts/pkgs
+          pattern: NetCord.Natives*.nupkg
 
-      - name: Publish Package
+      - name: Publish packages
         env:
           KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          dotnet nuget push artifacts/package/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/pkgs/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate

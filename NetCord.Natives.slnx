@@ -1,7 +1,27 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/SourceGenerators/">
+    <File Path="SourceGenerators/Directory.Build.props" />
+    <File Path="SourceGenerators/Directory.Build.targets" />
+    <Project Path="SourceGenerators/MethodsForPropertiesGenerator/MethodsForPropertiesGenerator.csproj" />
+    <Project Path="SourceGenerators/RestClientMethodAliasesGenerator/RestClientMethodAliasesGenerator.csproj" />
+    <Project Path="SourceGenerators/ShardedGatewayClientEventsGenerator/ShardedGatewayClientEventsGenerator.csproj" />
+    <Project Path="SourceGenerators/Shared/Shared.csproj" />
+    <Project Path="SourceGenerators/UserAgentHeaderGenerator/UserAgentHeaderGenerator.csproj" />
+    <Project Path="SourceGenerators/WebSocketClientEventsGenerator/WebSocketClientEventsGenerator.csproj" />
+  </Folder>
   <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+    <File Path="Tests/Directory.Build.targets" />
     <Project Path="Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj" />
     <Project Path="Tests/NetCord.Natives.Tests/Assets/NativeAotApp/NativeAotApp.csproj" />
   </Folder>
   <Project Path="NetCord.Natives/NetCord.Natives.csproj" />
+  <Project Path="NetCord/NetCord.csproj" />
 </Solution>

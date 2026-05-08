@@ -157,7 +157,7 @@
     </Target>
 
     <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"
-            Returns="@(_CopyOutput)" Condition="'$(CI)' != 'true'">
+            Returns="@(_CopyOutput)">
         <ItemGroup>
             <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)" />
             <_CopyOutput Include="%(NativesRuntime.FullPath)">
@@ -166,6 +166,7 @@
             </_CopyOutput>
             <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
         </ItemGroup>
+		<Message Text="Copying native from: %(_CopyOutput.Identity)" Importance="high" />
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg">

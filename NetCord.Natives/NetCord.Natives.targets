@@ -1,23 +1,40 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-	<Target Name="ProcessNetCordNativeAot" BeforeTargets="PrepareForPublish" Condition="'$(PublishAot)' == 'true'">
+	<Target Name="ProcessNetCordNativeAot" Condition="'$(PublishAot)' == 'true'"
+	 	    AfterTargets="SetupOSSpecificProps" BeforeTargets="LinkNative">
 
 		<ItemGroup>
-			<_NetCordStaticLink Include="libdave;mlspp;bytes;tls_syntax;hpke;libcrypto"
-								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
-			<_NetCordStaticLink Include="libsodium"
+			<!-- Order matters, dependencies comes last -->
+			<!-- 1. Top-level application libraries (The Consumers) -->
+			<_NetCordStaticLink Include="libsodium;sodium" 
 								Condition="'%(DirectPInvoke.Identity)' == 'libsodium'" />
-			<_NetCordStaticLink Include="opus"
-								Condition="'%(DirectPInvoke.Identity)' == 'opus'" />
-			<_NetCordStaticLink Include="zstd"
-								Condition="'%(DirectPInvoke.Identity)' == 'zstd'" />
+			<_NetCordStaticLink Include="libdave;dave" 
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
 
-			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
+			<!-- 2. Middleware / Intermediate dependencies -->
+			<_NetCordStaticLink Include="mlspp;hpke;bytes;tls_syntax" 
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
+			<!-- 3. General purpose utility libraries -->
+			<_NetCordStaticLink Include="opus;zstd" 
+								Condition="'%(DirectPInvoke.Identity)' == 'opus' or '%(DirectPInvoke.Identity)' == 'zstd'" />
+
+			<!-- 4. Low-level providers (The Leaf Dependencies) - These MUST be last -->
+			<_NetCordStaticLink Include="libcrypto;crypto" 
+								Condition="'%(DirectPInvoke.Identity)' == 'libdave'" />
+
 			<NativeLibToLink Include="$(NetCordNativesStaticDir)\lib%(_NetCordStaticLink.Identity).*" />
+			<NativeLibToLink Include="$(NetCordNativesStaticDir)\%(_NetCordStaticLink.Identity).*;" />
 
 			<NativeLibrary Include="%(NativeLibToLink.FullPath)" Condition="Exists('%(NativeLibToLink.FullPath)')" />
 		</ItemGroup>
 
+		<PropertyGroup>
+			<!-- Set property if any DirectPInvoke.Identity is 'libdave' -->
+			<LinkStandardCPlusPlusLibrary 
+				Condition="'$(LinkStandardCPlusPlusLibrary)' == '' and '%(DirectPInvoke.Identity)' == 'libdave'"
+				>true</LinkStandardCPlusPlusLibrary>
+		</PropertyGroup>
 	</Target>
 
 	<Target Name="ExcludeLibCopy" DependsOnTargets="ProcessNetCordNativeAot"

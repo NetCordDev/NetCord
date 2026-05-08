@@ -11,14 +11,20 @@
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <NoWarn>$(NoWarn);IL2075;IL2026</NoWarn>
       
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\NativeProbes.cs" Condition="Exists('..\..\NativeProbes.cs')" />
+  </ItemGroup>
 
 	<ItemGroup>
 		<DirectPInvoke Include="$(NetCordDirectPInvoke)" Condition="'$(NetCordDirectPInvoke)' != ''" />
 		<!-- <PackageReference Include="NetCord.Natives" Version="*" /> -->
 		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\..\NetCord\NetCord.csproj" />
 	</ItemGroup>
 	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 

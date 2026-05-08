@@ -4,6 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
@@ -13,6 +14,8 @@
     <Compile Remove="Assets\**" />
     <None Remove="Assets\**" />
     <Content Include="Assets\**" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="NativeProbes.cs" CopyToOutputDirectory="PreserveNewest" 
+             Condition="Exists('NativeProbes.cs')" />
   </ItemGroup>
 
   <ItemGroup>
@@ -23,25 +26,25 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="GitHubActionsTestLogger" />
+    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
   </ItemGroup>
 
   <PropertyGroup>
     <NetCordNativesDir>..\..\NetCord.Natives\</NetCordNativesDir>
+    <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
+
+    <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
+    <NativeAotAppProps>$(NativeAotAppProps),VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
+
+    <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps),$(AppendNativeAotAppProps)</NativeAotAppProps>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
     <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
-      <_Parameter1>NetCordNativesDir</_Parameter1>
-      <_Parameter2>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</_Parameter2>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
-      <_Parameter1>VcpkgRoot</_Parameter1>
-      <_Parameter2>$(VcpkgRoot)</_Parameter2>
-    </AssemblyAttribute>
-    <AssemblyAttribute Include="System.Reflection.AssemblyMetadata">
-      <_Parameter1>TargetFramework</_Parameter1>
-      <_Parameter2>$(TargetFramework)</_Parameter2>
+      <_Parameter1>NativeAotAppProps</_Parameter1>
+      <_Parameter2>$(NativeAotAppProps)</_Parameter2>
     </AssemblyAttribute>
   </ItemGroup>
 
