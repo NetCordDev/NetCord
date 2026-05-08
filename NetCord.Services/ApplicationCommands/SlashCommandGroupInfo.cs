@@ -42,7 +42,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
@@ -79,6 +79,9 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
             SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
             subCommands.Add(new(subCommandGroupBuilder.Name, subCommandGroup));
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }

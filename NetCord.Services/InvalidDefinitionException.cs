@@ -2,9 +2,16 @@ using System.Reflection;
 
 namespace NetCord.Services;
 
-public class InvalidDefinitionException(string? message, MemberInfo member) : Exception($"{message} | {GetMemberName(member)}")
+public class InvalidDefinitionException(string message, string name) : Exception($"{message} | {name}")
 {
-    public MemberInfo Member { get; } = member;
+    public InvalidDefinitionException(string message, MemberInfo member) : this(message, GetMemberName(member))
+    {
+        Member = member;
+    }
+
+    public string Name { get; } = name;
+
+    public MemberInfo? Member { get; }
 
     private static string GetMemberName(MemberInfo member)
     {
