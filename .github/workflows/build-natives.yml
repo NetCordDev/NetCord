@@ -1,17 +1,20 @@
-name: Build, Test, and Package NetCord.Natives
+name: Build NetCord.Natives
 
 on:
+  workflow_call:
   workflow_dispatch:
+    inputs:
+      GenerateBinLog:
+        type: boolean
+        default: false
   push:
     paths:
       - 'NetCord.Natives/**'
+      - 'Tests/NetCord.Natives.Tests/**'
       - '.github/workflows/build-natives.yml'
-    tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
-      - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
-  build-test-natives:
+  build-natives:
     runs-on: ${{ matrix.runs-on }}
     env:
       CI: true
@@ -22,6 +25,7 @@ jobs:
       Configuration: Release
       RuntimeIdentifier: ${{ matrix.rid }}
       DotnetVerbose: minimal
+      GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
 
     strategy:
       fail-fast: false
@@ -57,6 +61,7 @@ jobs:
         uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
+          filter: tree:0
 
       - name: Restore vcpkg cache
         uses: actions/cache/restore@v5.0.5
@@ -82,60 +87,56 @@ jobs:
         shell: bash
         run: |
           brew update
-          brew install autoconf automake libtool
+          for pkg in autoconf automake libtool; do
+            brew list $pkg &>/dev/null || brew install $pkg
+          done
 
       - name: Restore
         shell: pwsh
         run: |
-          dotnet restore Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v normal
+          dotnet restore Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
       - name: Build natives projects for ${{ matrix.rid }}
         shell: pwsh
         run: > # Building tests will build dependencies including the native libraries
           dotnet build Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
+          ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
-          -p:GeneratePackageOnBuild=false 
+          -p:GeneratePackageOnBuild=false -p:CI=false
 
       - name: Test natives outputs for ${{ matrix.rid }}
         shell: pwsh
         run: >
           dotnet test Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
+          --logger "console;verbosity=detailed" 
           --logger GitHubActions 
 
-      - name: List built for ${{ matrix.rid }}
-        if: ${{ always() }}
-        shell: pwsh
-        run: |
-          $rid = '${{ matrix.rid }}'
-          $tripletBase = '${{ matrix.vcpkg-platform-target }}-${{ matrix.vcpkg-os-target }}'
-          $suffix = if ($IsWindows) { 'static' } else { 'dynamic' }
-          $triplets = @("$tripletBase", "$tripletBase-$suffix")
-
-          foreach ($variant in @('natives','natives-static')) {
-            foreach ($triplet in @($triplets)) {
-              foreach ($folder in @('bin','lib')) {
-                $path = "NetCord.Natives/bin/$rid/$variant/$triplet/$folder"
-                if (Test-Path $path) {
-                  Get-ChildItem -Path $path -Recurse
-                } else {
-                  Write-Host "[Info] Not found: $path"
-                }
-              }
-            }
-          }
-
       - name: Pack NuGet Package for ${{ matrix.rid }}
+        if: ${{ always() }}
         shell: pwsh
         run: >
           dotnet pack NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
           -o NetCord.Natives/bin/${{ matrix.rid }} 
           -p:CI=false
 
+      - name: Upload Binary Logs
+        if: ${{ env.GenerateBinLog == 'true' && always() }}
+        uses: actions/upload-artifact@v4.6.0
+        with:
+          name: ${{ matrix.rid }}-binlogs
+          path: |
+            *.binlog
+
       - name: Upload NuGet Package Artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v7.0.1
         with:
-          name: NetCord.Natives.${{ matrix.rid }}.nupkg
-          path: NetCord.Natives/bin/${{ matrix.rid }}/*.nupkg
+          name: NetCord.Natives.${{ matrix.rid }}.packages
+          path: |
+            NetCord.Natives/bin/${{ matrix.rid }}/*.nupkg
+            NetCord.Natives/bin/${{ matrix.rid }}/*.snupkg
 
       - name: Save vcpkg cache
         if: ${{ always() }}
@@ -145,20 +146,3 @@ jobs:
             .vcpkg-cache
             .vcpkg-downloads
           key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('NetCord.Natives/vcpkg.json', 'NetCord.Natives/natives-ports/**') }}
-
-  publish:
-    needs: [build-test-natives]
-    if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download All NuGet Package Artifacts
-        uses: actions/download-artifact@v8.0.1
-        with:
-          path: artifacts/pkgs
-          pattern: NetCord.Natives*.nupkg
-
-      - name: Publish packages
-        env:
-          KEY: ${{ secrets.NUGET_API_KEY }}
-        run: |
-          dotnet nuget push artifacts/pkgs/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate

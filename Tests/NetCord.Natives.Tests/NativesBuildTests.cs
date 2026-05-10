@@ -25,6 +25,7 @@ public class NativesBuildTests
     }
 
     [TestMethod]
+    [OSCondition(ConditionMode.Exclude, OperatingSystems.OSX)]
     [DataRow("libdave", "NetCord.Gateway.Voice.Dave")]
     [DataRow("libsodium", "NetCord.Gateway.Voice.Encryption.XChaCha20Poly1305")]
     [DataRow("opus", "NetCord.Gateway.Voice.Opus")]
@@ -93,6 +94,8 @@ public class NativesBuildTests
         getRunCmd.StartInfo.ArgumentList.Add("-t:GetTargetPath");
         getRunCmd.StartInfo.ArgumentList.Add("-getProperty:PublishDir");
         getRunCmd.StartInfo.ArgumentList.Add("--no-restore");
+        
+        getRunCmd.StartInfo.ArgumentList.Add("--bl");
 
         string? runCmdOutput = null;
 

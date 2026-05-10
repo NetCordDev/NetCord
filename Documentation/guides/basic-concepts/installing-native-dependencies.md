@@ -1,91 +1,109 @@
 # Installing Native Dependencies
 
-This is a hidden guide that is not visible in the guides index! If you are reading this, you are probably looking for information on how to install native dependencies for HTTP interactions or voice.
+NetCord relies on several native libraries for high-performance audio processing and encryption. NetCord provides prebuilt native binaries via NuGet packages, which is the recommended way to manage these dependencies.
 
-## HTTP Interactions
+## Native Dependencies Context
 
-For HTTP interactions, [Libsodium](https://doc.libsodium.org/installation) is required.
+- **Libdave**: Essential for voice connection interactions.
+- **Libsodium**: Used for encryption. While NetCord defaults to native AES-GCM (which does not require Libsodium), Libsodium is a highly recommended production dependency. It acts as a fallback for the XChaCha20-Poly1305 encryption mode, ensuring your bot remains compatible if Discord switches to this mode for your connection.
+- **Opus**: A versatile audio codec required for any classes in NetCord prefixed with `Opus` (e.g., audio encoding/decoding).
+- **Zstd**: Used for efficient payload compression.
 
-## Voice
+## NuGet Packages (Recommended)
 
-For voice:
-- [Libdave](https://github.com/discord/libdave) is required.
-- [Libsodium](https://doc.libsodium.org/installation) **is not generally** required, but it **is highly recommended for production bots**. It is caused by the fact that generally @NetCord.Gateway.Voice.Encryption.Aes256GcmRtpSizeEncryption, which does not require Libsodium, is supported by Discord and is used by default. However, there is a small chance that Discord will not support this encryption mode for your connection. In this case, @NetCord.Gateway.Voice.Encryption.XChaCha20Poly1305RtpSizeEncryption, which does require Libsodium, is used by default.
-- [Opus](https://opus-codec.org/downloads) is only required when you are using `Opus` prefixed classes.
+NetCord distributes these dependencies as per-RID (Runtime Identifier) packages. This model automates binary resolution, ensuring the correct libraries are provided for your target platform.
 
-## Installation
+### Supported Platforms
+Packages are available for:
 
-### [Dynamic Linking](#tab/dynamic)
+| Platform | RID | NativeAOT Support | <div style="text-align: center;">Size <br/> ![Storage Requirement](https://img.shields.io/badge/Runtime-Package-blue)</div> |
+|----------|-----|-------------------------|-----------|
+| Windows x64 | `win-x64` | ✓ (Static CRT /MT) | ![Windows x64](https://img.shields.io/badge/6_MB-42_MB_(176_MB)-blue) |
+| Windows ARM64 | `win-arm64` | ✓ (Static CRT /MT) | ![Windows ARM64](https://img.shields.io/badge/6_MB-41_MB_(183_MB)-blue) |
+| Linux x64 | `linux-x64` | ✓ (Dynamic CRT) | ![Linux x64](https://img.shields.io/badge/10_MB-9_MB_(28_MB)-blue) |
+| Linux ARM64 | `linux-arm64` | ✓ (Dynamic CRT) | ![Linux ARM64](https://img.shields.io/badge/10_MB-8_MB_(26_MB)-blue) |
+| ⓘ macOS x64 | `osx-x64` | ✓ (Dynamic CRT) | ![macOS x64](https://img.shields.io/badge/15_MB-11_MB_(28_MB)-blue) |
+| ⓘ macOS ARM64 | `osx-arm64` | ✓ (Dynamic CRT) | ![macOS ARM64](https://img.shields.io/badge/13_MB-10_MB_(25_MB)-blue) |
 
-For dynamic linking, you can install Libsodium for the most popular platforms by referencing the [official Libsodium NuGet package](https://www.nuget.org/packages/libsodium).
+ⓘ Currently, the macOS packages are built and published, but functions verification tests are skipped due to limitations with `dyld`. 
+They are still expected to work correctly, but we recommend testing on macOS before production use.
 
-### Manual or System-wide Installation
+## Dynamic Linking
+For standard .NET applications, you can simply reference the relevant packages for your target platforms. The runtimes will be correctly copied and loaded across platforms.
 
-#### Windows
-
-For dynamic linking on Windows, you need to use the dynamic link libraries (`libdave`, `libsodium`, and/or `opus`). Here's how to set it up:
-- Download or build the dynamic link libraries (`libdave`, `libsodium`, and/or `opus`) compatible with your development environment.
-
-- Place these files in the runtime directory of your application. This is the folder where your application's executable is located.
-
-#### Linux and MacOS
-
-Dynamic linking on Linux and MacOS involves using shared libraries (`libdave`, `libsodium`, and/or `opus`). You can install them using your system's package manager if available or follow these steps to install them manually:
-- Download or build the shared libraries (`libdave`, `libsodium`, and/or `opus`) that are compatible with your development environment.
-
-- Place these files in the runtime directory of your application, which is the folder where your application's executable is located.
-
-### [Static Linking](#tab/static)
-
-> [!NOTE]
-> Static linking requires [Native AOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot) compilation.
-
-#### Windows
-
-When using static linking on Windows, you need to link to the static libraries (`libdave`, `libsodium`, and/or `opus`). Here are the steps to set up static linking in your application:
-- Download or build the static libraries (`libdave`, `libsodium`, and/or `opus`) compatible with your development environment.
-- Link these libraries in your project settings. Ensure that you specify the correct paths to these libraries:
-  ```xml
-  <ItemGroup>
-    <NativeLibrary Include="C:\path\to\libdave" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <DirectPInvoke Include="libdave" />
-
-    <NativeLibrary Include="C:\path\to\libsodium" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <DirectPInvoke Include="libsodium" />
-    
-    <NativeLibrary Include="C:\path\to\opus" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <DirectPInvoke Include="opus" />
-  </ItemGroup>
-  ```
-
-You don't need to place any of these files in the runtime directory, as static linking embeds the library code directly into your application, eliminating the need for separate files.
-
-#### Linux and MacOS
-
-Static linking on Linux and MacOS involves linking your application with the static libraries (`libdave`, `libsodium`, and/or `opus`). You can install them using your system's package manager if available or download or build the static libraries (`libdave`, `libsodium`, and/or `opus`) compatible with your development environment manually.
-
-Link these libraries in your project settings. Make sure you specify the correct paths to these libraries:
 ```xml
 <ItemGroup>
-  <NativeLibrary Include="/path/to/libdave" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
-  <DirectPInvoke Include="libdave" />
-
-  <NativeLibrary Include="/path/to/libsodium" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
-  <DirectPInvoke Include="libsodium" />
-
-  <NativeLibrary Include="/path/to/opus" Condition="!$(RuntimeIdentifier.StartsWith('win'))" />
-  <DirectPInvoke Include="opus" />
+  <!-- Example for cross-platform support -->
+  <PackageReference Include="NetCord.Natives.win-x64" Version="1.0.0" />
+  <PackageReference Include="NetCord.Natives.linux-x64" Version="1.0.0" />
 </ItemGroup>
 ```
 
-Since you're statically linking, you won't need to place any of these files in the runtime directory. The necessary code from the libraries will be included directly in your application.
+## Usage with NativeAOT (Static Linking)
 
-***
+When using [NativeAOT](https://learn.microsoft.com/en-us/dotnet/core/deploying/native-aot), static libraries are automatically linked from the NuGet package, embedding the necessary native code directly into your executable.
 
-#### Installation External Links
+### Requirement for DirectPInvoke
+When targeting NativeAOT, you must ensure that all used native libraries are explicitly registered using `<DirectPInvoke>` in your project file to ensure they are properly included during the AOT compilation process:
+
+```xml
+<ItemGroup>
+  <DirectPInvoke Include="libdave" />
+  <DirectPInvoke Include="libsodium" />
+  <DirectPInvoke Include="opus" />
+  <DirectPInvoke Include="zstd" />
+</ItemGroup>
+```
+
+### Excluding Bundled Dependencies
+If you have provided your own native binaries and need to exclude the ones bundled in the NetCord NuGet package to avoid conflicts, use the `NetCordExcludeNatives` property.
+
+```xml
+<PropertyGroup>
+  <NetCordExcludeNatives>opus</NetCordExcludeNatives>
+</PropertyGroup>
+```
+
+## Custom Manual/System-wide Installation
+
+If you are developing for an unsupported platform or require a custom-built native binary, you may choose to handle native dependencies manually.
+
+1. **Obtain Binaries**: Use your system's package manager (e.g., `apt`, `brew`, `dnf`) if available, or download the binaries from the official sources listed below.
+2. **Placement**: Ensure the native libraries are available to your application at runtime. On Windows, place `.dll` files in your application's output directory. On Unix-like systems, ensure shared libraries are in your `LD_LIBRARY_PATH` or system standard paths.
+
+### Installation External Links
 
 | Library   | Installation Link                           |
 |-----------|---------------------------------------------|
 | Libdave   | https://github.com/discord/libdave/releases |
 | Libsodium | https://doc.libsodium.org/installation      |
 | Opus      | https://opus-codec.org/downloads            |
+| Zstd      | https://github.com/facebook/zstd/releases   |
+
+## Troubleshooting
+- If you encounter issues with native dependencies, ensure that the correct versions are installed and that they are accessible to your application.
+- Use tools like `ldd` (Linux) or `Dependency Walker` (Windows) to verify that your application is correctly linking against the native libraries.
+
+---
+
+## Extra Notes on Native Dependencies
+
+The native packaging model is designed to make managing dependencies as transparent and reliable as possible.
+
+### What You Get
+*   **Ready-to-use binaries**: We provide prebuilt runtime binaries for standard .NET and static libraries for NativeAOT.
+*   **Automatic Configuration**: MSBuild files are included in the packages to automatically handle paths and linking requirements, so you don't have to manually configure build settings.
+
+### Built-in Compliance
+All necessary licenses and copyright notices from the original native project sources are bundled automatically within each package under the `licenses/` directory.
+
+| Library | License | Remarks |
+| :--- | :--- | :--- |
+| **Libdave** | MIT | Discord voice communication |
+| **Libsodium** | ISC | Used for encryption |
+| **OpenSSL** | Apache 2.0 | Cryptographic operations |
+| **Opus** | BSD-3-Clause | Audio codec |
+| **Zstd** | BSD-3-Clause | Compression |
+
+### How It’s Built
+*   **Reproducible builds**: Dependencies are strictly pinned using [vcpkg](https://github.com/microsoft/vcpkg) baselines. This means every build result should be identical, regardless of who or what runs the build.

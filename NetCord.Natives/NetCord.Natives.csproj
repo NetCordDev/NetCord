@@ -3,6 +3,9 @@
     <PropertyGroup>
         <Description>Pre-built native libraries for NetCord, $(Description)</Description>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <IncludeSymbols>false</IncludeSymbols>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
         <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))</RepositoryRoot>
     </PropertyGroup>
@@ -123,7 +126,7 @@
                  Condition="'$(VcpkgUseStatic)' != 'true'" />
     </Target>
 
-    <Target Name="GetDynamicVcpkgVersions" BeforeTargets="GetAssemblyAttributes"
+    <Target Name="GetDynamicVcpkgVersions" BeforeTargets="PackageNatives"
             Condition="Exists('$(_VcpkgStatusFile)')">
 
         <!-- 1. Read the entire status file into a property -->
@@ -131,29 +134,27 @@
             <Output TaskParameter="Lines" ItemName="StatusLines" />
         </ReadLinesFromFile>
 
-        <PropertyGroup>
+        <PropertyGroup Condition="'@(StatusLines)' != ''">
             <!-- Join lines with a newline character for multi-line regex matching -->
             <StatusText>@(StatusLines, '&#x0A;')</StatusText>
         </PropertyGroup>
 
         <!-- 2. Use Item Transformation to find the version for each library -->
-        <ItemGroup>
+        <ItemGroup Condition="'$(StatusText)' != ''">
             <_VcpkgPkg Include="@(NativeLibLic)">
-            <!-- This Regex looks for 'Package: [name]' then skips lines until 'Version: [value]' -->
-            <Version>$([System.Text.RegularExpressions.Regex]::Match('$(StatusText)', 'Package: %(Identity)\n(?:.*\n)*?Version: (.*?)\n').Groups[1].Value)</Version>
+                <!-- This Regex looks for 'Package: [name]' then skips lines until 'Version: [value]' -->
+                <Version>$([System.Text.RegularExpressions.Regex]::Match('$(StatusText)', 'Package: %(Identity)\n(?:.*\n)*?Version: (.*?)\n').Groups[1].Value)</Version>
             </_VcpkgPkg>
         </ItemGroup>
 
-        <!-- 3. Inject them into the Assembly Metadata -->
-        <ItemGroup>
-            <AssemblyAttribute Include="NetCord.Natives.NativeLibraryVersion" Condition="'%(_VcpkgPkg.Version)' != ''">
-                <_Parameter1>%(_VcpkgPkg.Identity)</_Parameter1>
-                <_Parameter2>%(_VcpkgPkg.Version)</_Parameter2>
-            </AssemblyAttribute>
-        </ItemGroup>
-
+        <!-- 3. Inject them into the Package Description -->
+        <PropertyGroup Condition="'@(_VcpkgPkg)' != ''">
+            <PackageDescription>$(PackageDescription)&#x0A;(Includes: @(_VcpkgPkg->'%(Identity) v%(Version)', ', '))</PackageDescription>
+        </PropertyGroup>
+        
         <!-- Optional: Debugging message to see it working in the build log -->
-        <Message Importance="high" Text="Vcpkg Sync: %(_VcpkgPkg.Identity) version is [%(_VcpkgPkg.Version)]" />
+        <Message Importance="high" Text="Vcpkg Sync: %(_VcpkgPkg.Identity) version is [%(_VcpkgPkg.Version)]" 
+                 Condition="'%(_VcpkgPkg.Identity)' != ''"/>
     </Target>
 
     <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"

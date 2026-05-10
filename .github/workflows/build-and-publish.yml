@@ -33,6 +33,7 @@ jobs:
           KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           dotnet nuget push artifacts/pkgs/*.nupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push artifacts/pkgs/*.snupkg -k $KEY -s https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Deploy Documentation
         uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345

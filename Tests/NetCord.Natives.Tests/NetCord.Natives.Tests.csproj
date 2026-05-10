@@ -27,7 +27,6 @@
     <PackageReference Include="MSTest.TestAdapter" />
     <PackageReference Include="MSTest.TestFramework" />
     <PackageReference Include="GitHubActionsTestLogger" />
-    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.4" />
   </ItemGroup>
 
   <PropertyGroup>
