@@ -97,13 +97,13 @@ The native packaging model is designed to make managing dependencies as transpar
 ### Built-in Compliance
 All necessary licenses and copyright notices from the original native project sources are bundled automatically within each package under the `licenses/` directory.
 
-| Library | License | Remarks |
-| :--- | :--- | :--- |
-| **Libdave** | MIT | Discord voice communication |
-| **Libsodium** | ISC | Used for encryption |
-| **OpenSSL** | Apache 2.0 | Cryptographic operations |
-| **Opus** | BSD-3-Clause | Audio codec |
-| **Zstd** | BSD-3-Clause | Compression |
+| Library       | License      | Remarks                     |
+|---------------|--------------|-----------------------------|
+| **Libdave**   | MIT          | Discord voice communication |
+| **Libsodium** | ISC          | Used for encryption         |
+| **OpenSSL**   | Apache 2.0   | Cryptographic operations    |
+| **Opus**      | BSD-3-Clause | Audio codec                 |
+| **Zstd**      | BSD-3-Clause | Compression                 |
 
 ### How It’s Built
 *   **Reproducible builds**: Dependencies are strictly pinned using [vcpkg](https://github.com/microsoft/vcpkg) baselines. This means every build result should be identical, regardless of who or what runs the build.
