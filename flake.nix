@@ -51,7 +51,7 @@
           packages = [
             docfx
             dotnet
-            pkgs.nodejs_25
+            pkgs.nodejs_26
           ];
 
           DOTNET_ROOT = dotnetRoot;
