@@ -4,9 +4,7 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    // this seems to work but lacks the "new" in the generated member in GuildThread
-    // to hide the version from TextGuildChannel.
-    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!")]
+    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!", Modifiers = ["new"])]
     [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public async Task<IncomingWebhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
@@ -15,9 +13,7 @@ public partial class RestClient
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
     }
 
-    // this seems to work but lacks the "new" in the generated member in GuildThread
-    // to hide the version from TextGuildChannel.
-    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!")]
+    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!", Modifiers = ["new"])]
     [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
     [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public async Task<IReadOnlyList<Webhook>> GetChannelWebhooksAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
