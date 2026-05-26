@@ -22,7 +22,7 @@
     <PackageVersion Include="MinVer" Version="7.0.0" />
     <PackageVersion Include="MSTest.TestAdapter" Version="4.2.3" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.2.3" />
-    <PackageVersion Include="PolySharp" Version="1.15.0" />
+    <PackageVersion Include="PolySharp" Version="1.16.0" />
   </ItemGroup>
 
 </Project>
