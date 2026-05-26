@@ -4,16 +4,22 @@ namespace NetCord.Rest;
 
 public partial class RestClient
 {
-    [GenerateAlias([typeof(ForumGuildChannel)], $"{nameof(ForumGuildChannel.ParentId)} ?? {nameof(ForumGuildChannel.Id)}")]
-    [GenerateAlias([typeof(TextGuildChannel)], $"{nameof(TextGuildChannel.ParentId)} ?? {nameof(TextGuildChannel.Id)}")]
+    // this seems to work but lacks the "new" in the generated member in GuildThread
+    // to hide the version from TextGuildChannel.
+    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!")]
+    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
+    [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public async Task<IncomingWebhook> CreateWebhookAsync(ulong channelId, WebhookProperties webhookProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<WebhookProperties>(webhookProperties, Serialization.Default.WebhookProperties))
             return new(await (await SendRequestAsync(HttpMethod.Post, content, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhook).ConfigureAwait(false), this);
     }
 
-    [GenerateAlias([typeof(ForumGuildChannel)], $"{nameof(ForumGuildChannel.ParentId)} ?? {nameof(ForumGuildChannel.Id)}")]
-    [GenerateAlias([typeof(TextGuildChannel)], $"{nameof(TextGuildChannel.ParentId)} ?? {nameof(TextGuildChannel.Id)}")]
+    // this seems to work but lacks the "new" in the generated member in GuildThread
+    // to hide the version from TextGuildChannel.
+    [GenerateAlias([typeof(GuildThread)], $"(ulong){nameof(TextGuildChannel.ParentId)}!")]
+    [GenerateAlias([typeof(ForumGuildChannel)], nameof(ForumGuildChannel.Id))]
+    [GenerateAlias([typeof(TextGuildChannel)], nameof(TextGuildChannel.Id))]
     public async Task<IReadOnlyList<Webhook>> GetChannelWebhooksAsync(ulong channelId, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
         => (await (await SendRequestAsync(HttpMethod.Get, $"/channels/{channelId}/webhooks", null, new(channelId), properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.JsonWebhookArray).ConfigureAwait(false)).Select(w => Webhook.CreateFromJson(w, this)).ToArray();
 
