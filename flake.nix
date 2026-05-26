@@ -47,6 +47,14 @@
           DOTNET_ROOT = dotnetRoot;
         };
 
+        natives = pkgs.mkShell {
+          packages = [
+            pkgs.autoconf
+            pkgs.automake
+            pkgs.libtool
+          ];
+        };
+
         docs = pkgs.mkShell {
           packages = [
             docfx

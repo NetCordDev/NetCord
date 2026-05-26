@@ -119,7 +119,7 @@
     <Target Name="ClCompile" BeforeTargets="BeforeBuild" DependsOnTargets="PrepareVcpkg"
             Condition="'$(NoBuild)' != 'true' and Exists('$(VcpkgMsbuildPath).targets')">
 
-        <Message Text="Building static native libraries..." Importance="High" 
+        <Message Text="Building static native libraries..." Importance="high" 
                  Condition="'$(VcpkgUseStatic)' != 'true'" />
         <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="ClCompile"
                  Properties="VcpkgUseStatic=true;GeneratePackageOnBuild=false" 

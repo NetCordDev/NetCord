@@ -10,8 +10,6 @@
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    <NoWarn>$(NoWarn);IL2075;IL2026</NoWarn>
       
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
@@ -21,8 +19,10 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<DirectPInvoke Include="$(NetCordDirectPInvoke)" Condition="'$(NetCordDirectPInvoke)' != ''" />
-		<!-- <PackageReference Include="NetCord.Natives" Version="*" /> -->
+		<DirectPInvoke Include="libdave" />
+		<DirectPInvoke Include="libsodium" />
+		<DirectPInvoke Include="opus" />
+		<DirectPInvoke Include="zstd" />
 		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
 		<ProjectReference Include="$(NetCordNativesDir)\..\NetCord\NetCord.csproj" />
 	</ItemGroup>

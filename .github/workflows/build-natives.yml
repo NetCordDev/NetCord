@@ -15,18 +15,6 @@ on:
 
 jobs:
   build-natives:
-    runs-on: ${{ matrix.runs-on }}
-    env:
-      CI: true
-      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
-      VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
-      VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
-      VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
-      Configuration: Release
-      RuntimeIdentifier: ${{ matrix.rid }}
-      DotnetVerbose: minimal
-      GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -35,36 +23,55 @@ jobs:
             runs-on: windows-latest
             vcpkg-os-target: windows
             vcpkg-platform-target: x64
+            run-prefix: ''
           - rid: win-arm64
             runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
+            run-prefix: ''
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
+            run-prefix: nix develop .#natives -c bash -eo pipefail -c
           - rid: osx-arm64
             runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
+            run-prefix: nix develop .#natives -c bash -eo pipefail -c
           - rid: linux-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
+            run-prefix: nix develop .#natives -c bash -eo pipefail -c
           - rid: linux-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
+            run-prefix: nix develop .#natives -c bash -eo pipefail -c
+
+    runs-on: ${{ matrix.runs-on }}
+    env:
+      CI: true
+      VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
+      VCPKG_DOWNLOADS: ${{ github.workspace }}/.vcpkg-downloads
+      VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
+      VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
+      RUN_PREFIX: ${{ matrix.run-prefix }}
+      Configuration: Release
+      RuntimeIdentifier: ${{ matrix.rid }}
+      DotnetVerbose: minimal
+      GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           filter: tree:0
 
       - name: Restore vcpkg cache
-        uses: actions/cache/restore@v5.0.5
+        uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             .vcpkg-cache
@@ -78,52 +85,79 @@ jobs:
         uses: ./.github/actions/setup-vcpkg
 
       - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@v5.2.0
+        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
           global-json-file: global.json
 
-      - name: Install native build tools (macOS)
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          brew update
-          for pkg in autoconf automake libtool; do
-            brew list $pkg &>/dev/null || brew install $pkg
-          done
+      - name: Install Nix
+        if: runner.os != 'Windows'
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+
+      - name: Setup dev environment
+        if: runner.os != 'Windows'
+        shell: pwsh
+        run: 'true'
 
       - name: Restore
         shell: pwsh
         run: |
+          $command = @'
           dotnet restore Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
+          '@
+
+          if ($env:RUN_PREFIX) {
+            Invoke-Expression "$env:RUN_PREFIX `"$command`""
+          }
+          else {
+            Invoke-Expression $command
+          }
 
       - name: Build natives projects for ${{ matrix.rid }}
         shell: pwsh
-        run: > # Building tests will build dependencies including the native libraries
-          dotnet build Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
-          ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
-          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
-          -p:GeneratePackageOnBuild=false -p:CI=false
+        run: | # Building tests will build dependencies including the native libraries
+          $command = @'
+          dotnet build Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }} -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" -p:GeneratePackageOnBuild=false -p:CI=false
+          '@
+
+          if ($env:RUN_PREFIX) {
+            Invoke-Expression "$env:RUN_PREFIX `"$command`""
+          }
+          else {
+            Invoke-Expression $command
+          }
 
       - name: Test natives outputs for ${{ matrix.rid }}
         shell: pwsh
-        run: >
-          dotnet test Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
-          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed" 
-          --logger GitHubActions 
+        run: |
+          $command = @'
+          dotnet test Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }} --logger "console;verbosity=detailed" --logger GitHubActions
+          '@
+
+          if ($env:RUN_PREFIX) {
+            Invoke-Expression "$env:RUN_PREFIX `"$command`""
+          }
+          else {
+            Invoke-Expression $command
+          }
 
       - name: Pack NuGet Package for ${{ matrix.rid }}
         if: ${{ always() }}
         shell: pwsh
-        run: >
-          dotnet pack NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
-          ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
-          -o NetCord.Natives/bin/${{ matrix.rid }} 
-          -p:CI=false
+        run: |
+          $command = @'
+          dotnet pack NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }} -o NetCord.Natives/bin/${{ matrix.rid }} -p:CI=false
+          '@
+
+          if ($env:RUN_PREFIX) {
+            Invoke-Expression "$env:RUN_PREFIX `"$command`""
+          }
+          else {
+            Invoke-Expression $command
+          }
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: ${{ matrix.rid }}-binlogs
           path: |
@@ -131,7 +165,7 @@ jobs:
 
       - name: Upload NuGet Package Artifact
         if: ${{ always() }}
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: NetCord.Natives.${{ matrix.rid }}.packages
           path: |
@@ -140,7 +174,7 @@ jobs:
 
       - name: Save vcpkg cache
         if: ${{ always() }}
-        uses: actions/cache/save@v5.0.5
+        uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             .vcpkg-cache

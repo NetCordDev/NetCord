@@ -23,7 +23,7 @@ public static partial class NativeProbes
         var libHandle = GetLoadedNativeModuleHandle(libName);
         var missingExports = new List<string>();
 
-        var methods = typeWithImports!.GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        var methods = typeWithImports!.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
             .Select(m => new
             {
                 MethodName = m.Name,

@@ -95,8 +95,6 @@ public class NativesBuildTests
         getRunCmd.StartInfo.ArgumentList.Add("-getProperty:PublishDir");
         getRunCmd.StartInfo.ArgumentList.Add("--no-restore");
         
-        getRunCmd.StartInfo.ArgumentList.Add("--bl");
-
         string? runCmdOutput = null;
 
         getRunCmd.StartInfo.WorkingDirectory = projectDirectory;

@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project>
 
     <ItemGroup Condition="'$(VcpkgEnabled)' == 'true' and '$(VcpkgEnableManifest)' == 'true' and '$(VcpkgBuildOS)' != 'win'" >
         <_ZVcpkgInstallManifestDependenciesInputs Include="$(_ZVcpkgManifestFileLocation)"/>

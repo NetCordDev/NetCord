@@ -5,7 +5,11 @@ NetCord relies on several native libraries for high-performance audio processing
 ## Native Dependencies Context
 
 - **Libdave**: Essential for voice connection interactions.
-- **Libsodium**: Used for encryption. While NetCord defaults to native AES-GCM (which does not require Libsodium), Libsodium is a highly recommended production dependency. It acts as a fallback for the XChaCha20-Poly1305 encryption mode, ensuring your bot remains compatible if Discord switches to this mode for your connection.
+- **Libsodium**: Used for encryption and provides fallback encryption modes. NetCord attempts to use the platform's native AES-GCM encryption for voice connections. However, Libsodium becomes essential in two scenarios:
+  - **Server-side limitation**: When connecting to a voice channel, Discord assigns you to a voice server. Depending on the server and region, it may or may not support AES-GCM. All voice servers support XChaCha20-Poly1305, so if AES-GCM is unavailable on the server you're assigned to, Libsodium is required to use XChaCha20-Poly1305 as a fallback.
+  - **Hardware limitation**: If your hardware doesn't support AES-GCM (rare but possible on older CPUs), Libsodium is required to provide the XChaCha20-Poly1305 fallback encryption.
+  
+  Without Libsodium, your bot will fail to connect to voice channels if either of these conditions occur.
 - **Opus**: A versatile audio codec required for any classes in NetCord prefixed with `Opus` (e.g., audio encoding/decoding).
 - **Zstd**: Used for efficient payload compression.
 
@@ -16,14 +20,14 @@ NetCord distributes these dependencies as per-RID (Runtime Identifier) packages.
 ### Supported Platforms
 Packages are available for:
 
-| Platform | RID | NativeAOT Support | <div style="text-align: center;">Size <br/> ![Storage Requirement](https://img.shields.io/badge/Runtime-Package-blue)</div> |
+| Platform | RID | NativeAOT Support | NuGet Package |
 |----------|-----|-------------------------|-----------|
-| Windows x64 | `win-x64` | ✓ (Static CRT /MT) | ![Windows x64](https://img.shields.io/badge/6_MB-42_MB_(176_MB)-blue) |
-| Windows ARM64 | `win-arm64` | ✓ (Static CRT /MT) | ![Windows ARM64](https://img.shields.io/badge/6_MB-41_MB_(183_MB)-blue) |
-| Linux x64 | `linux-x64` | ✓ (Dynamic CRT) | ![Linux x64](https://img.shields.io/badge/10_MB-9_MB_(28_MB)-blue) |
-| Linux ARM64 | `linux-arm64` | ✓ (Dynamic CRT) | ![Linux ARM64](https://img.shields.io/badge/10_MB-8_MB_(26_MB)-blue) |
-| ⓘ macOS x64 | `osx-x64` | ✓ (Dynamic CRT) | ![macOS x64](https://img.shields.io/badge/15_MB-11_MB_(28_MB)-blue) |
-| ⓘ macOS ARM64 | `osx-arm64` | ✓ (Dynamic CRT) | ![macOS ARM64](https://img.shields.io/badge/13_MB-10_MB_(25_MB)-blue) |
+| Windows x64 | `win-x64` | ✓ (Static CRT /MT) | [![NetCord.Natives.win-x64](https://img.shields.io/nuget/v/NetCord.Natives.win-x64?label=NetCord.Natives.win-x64)](https://www.nuget.org/packages/NetCord.Natives.win-x64) |
+| Windows ARM64 | `win-arm64` | ✓ (Static CRT /MT) | [![NetCord.Natives.win-arm64](https://img.shields.io/nuget/v/NetCord.Natives.win-arm64?label=NetCord.Natives.win-arm64)](https://www.nuget.org/packages/NetCord.Natives.win-arm64) |
+| Linux x64 | `linux-x64` | ✓ (Dynamic CRT) | [![NetCord.Natives.linux-x64](https://img.shields.io/nuget/v/NetCord.Natives.linux-x64?label=NetCord.Natives.linux-x64)](https://www.nuget.org/packages/NetCord.Natives.linux-x64) |
+| Linux ARM64 | `linux-arm64` | ✓ (Dynamic CRT) | [![NetCord.Natives.linux-arm64](https://img.shields.io/nuget/v/NetCord.Natives.linux-arm64?label=NetCord.Natives.linux-arm64)](https://www.nuget.org/packages/NetCord.Natives.linux-arm64) |
+| ⓘ macOS x64 | `osx-x64` | ✓ (Dynamic CRT) | [![NetCord.Natives.osx-x64](https://img.shields.io/nuget/v/NetCord.Natives.osx-x64?label=NetCord.Natives.osx-x64)](https://www.nuget.org/packages/NetCord.Natives.osx-x64) |
+| ⓘ macOS ARM64 | `osx-arm64` | ✓ (Dynamic CRT) | [![NetCord.Natives.osx-arm64](https://img.shields.io/nuget/v/NetCord.Natives.osx-arm64?label=NetCord.Natives.osx-arm64)](https://www.nuget.org/packages/NetCord.Natives.osx-arm64) |
 
 ⓘ Currently, the macOS packages are built and published, but functions verification tests are skipped due to limitations with `dyld`. 
 They are still expected to work correctly, but we recommend testing on macOS before production use.

@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project>
 
 	<Import Project="NetCord.Natives.targets" Condition="Exists('NetCord.Natives.targets')"	/>
 
