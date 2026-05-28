@@ -105,8 +105,8 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private readonly IUdpConnectionProvider _udpConnectionProvider;
     private readonly IVoiceEncryptionProvider _encryptionProvider;
-    private readonly VoiceReceiveHandler _receiveHandler;
     private readonly TimeSpan _externalSocketAddressDiscoveryTimeout;
+    private readonly bool _receiveVoice;
     private readonly GCHandle<IWebSocketLogger> _loggerHandle;
 
     internal UdpState? _udpState;
@@ -124,8 +124,7 @@ public sealed partial class VoiceClient : WebSocketClient
         Cache = cacheProvider.Create();
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
-        var receiveHandler = _receiveHandler = configuration.ReceiveHandler ?? new NullVoiceReceiveHandler();
-        receiveHandler.Start(this);
+        _receiveVoice = configuration.ReceiveVoice.GetValueOrDefault();
         _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout ?? new(5 * TimeSpan.TicksPerSecond);
         _loggerHandle = new(_logger);
     }
@@ -347,7 +346,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     try
                     {
-                        if (_receiveHandler.RequiresExternalSocketAddress)
+                        if (_receiveVoice)
                         {
                             Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
 
@@ -616,19 +615,12 @@ public sealed partial class VoiceClient : WebSocketClient
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
             return;
 
-        try
-        {
-            _receiveHandler.Handle(new(packet, buffer.AsSpan(0, bytesWritten)));
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buffer);
-        }
-    }
+        HandleTask(InvokeEventAsync(_voiceReceive, new(buffer.AsSpan(0, bytesWritten),
+                                                       packet.Ssrc,
+                                                       packet.Timestamp,
+                                                       packet.SequenceNumber)));
 
-    internal void InvokeVoiceReceive(VoiceReceiveEventArgs eventArgs)
-    {
-        HandleTask(InvokeEventAsync(_voiceReceive, eventArgs));
+        ArrayPool<byte>.Shared.Return(buffer);
 
         static async void HandleTask(ValueTask task)
         {

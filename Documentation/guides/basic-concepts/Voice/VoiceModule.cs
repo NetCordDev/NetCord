@@ -129,7 +129,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                ReceiveHandler = new RawVoiceReceiveHandler(), // Required to receive voice
+                ReceiveVoice = true,
                 Logger = new ConsoleLogger(),
             });
 
