@@ -597,13 +597,20 @@ public sealed partial class VoiceClient : WebSocketClient
             return;
         }
 
-        switch (packet.PayloadType)
+        try
         {
-            case 0x78:
-                {
-                    HandleVoicePacket(packet);
-                    break;
-                }
+            switch (packet.PayloadType)
+            {
+                case 0x78:
+                    {
+                        HandleVoicePacket(packet);
+                        break;
+                    }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) => $"An error occurred while handling a received RTP packet.{Environment.NewLine}{e}");
         }
     }
 
@@ -635,39 +642,76 @@ public sealed partial class VoiceClient : WebSocketClient
             goto Fail;
 
         var plaintextLength = packet.PayloadLength - encryption.Expansion;
+
+        if (plaintextLength < 0)
+        {
+            Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is too small.");
+            goto Fail;
+        }
+
         var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
         var plaintext = array.AsSpan(0, plaintextLength);
 
         if (!encryption.TryDecrypt(packet, plaintext))
         {
-            Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
+            Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
 
-            ArrayPool<byte>.Shared.Return(array);
-
-            goto Fail;
+            goto FailWithArrayReturn;
         }
 
-        int extensionLength = packet.Extension
-            ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
-            : 0;
+        int extensionLength = 0;
 
-        int paddingLength = packet.Padding
-            ? plaintext[^1]
-            : 0;
+        if (packet.Extension)
+        {
+            var extensionLengthIndex = packet.HeaderLength + 2;
+            if (extensionLengthIndex + sizeof(ushort) > packet.Datagram.Length)
+            {
+                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length field is out of bounds.");
+
+                goto FailWithArrayReturn;
+            }
+
+            extensionLength = 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[extensionLengthIndex..]);
+
+            if (extensionLength > plaintextLength)
+            {
+                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length is larger than the payload.");
+
+                goto FailWithArrayReturn;
+            }
+        }
+
+        int paddingLength = 0;
+
+        if (packet.Padding)
+        {
+            if (plaintextLength is 0)
+            {
+                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is empty but the padding bit is set.");
+
+                goto FailWithArrayReturn;
+            }
+
+            paddingLength = plaintext[^1];
+        }
+
+        if (extensionLength + paddingLength > plaintextLength)
+        {
+            Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length and padding length combined are larger than the payload.");
+
+            goto FailWithArrayReturn;
+        }
 
         var plaintextData = plaintext[extensionLength..^paddingLength];
 
         if (plaintextData.IsEmpty)
-        {
-            ArrayPool<byte>.Shared.Return(array);
-
-            goto Fail;
-        }
+            goto FailWithArrayReturn;
 
         int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
         byte[]? toReturn = null;
         var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
         var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out frameLength);
+
         if (result is not Dave.DecryptorResultCode.Success)
         {
             ArrayPool<byte>.Shared.Return(array);
@@ -687,19 +731,13 @@ public sealed partial class VoiceClient : WebSocketClient
 
         return true;
 
+        FailWithArrayReturn:
+        ArrayPool<byte>.Shared.Return(array);
+
         Fail:
         frame = null;
         frameLength = 0;
         return false;
-    }
-
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private static async ValueTask HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)
-    {
-        for (ushort i = 0; i <= maxIndex; i++)
-            await tasks[i].ConfigureAwait(false);
-
-        ArrayPool<ValueTask>.Shared.Return(tasks);
     }
 
     public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
