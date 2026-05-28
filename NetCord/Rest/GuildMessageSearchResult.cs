@@ -1,4 +1,4 @@
-﻿using NetCord.Rest.JsonModels;
+using NetCord.Rest.JsonModels;
 
 namespace NetCord.Rest;
 
@@ -50,11 +50,6 @@ public abstract class GuildMessageSearchResult
 public class GuildMessagesSearchResultData(JsonGuildMessagesSearchResult jsonModel, RestClient client) : IJsonModel<JsonGuildMessagesSearchResult>
 {
     JsonGuildMessagesSearchResult IJsonModel<JsonGuildMessagesSearchResult>.JsonModel => jsonModel;
-
-    /// <summary>
-    /// The analytics ID of the search.
-    /// </summary>
-    public string AnalyticsId => jsonModel.AnalyticsId!;
 
     /// <summary>
     /// Whether the server is doing a deep historical index.

@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -11,7 +11,11 @@ namespace NetCord.Services.ApplicationCommands;
 
 public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext> where TContext : IApplicationCommandContext
 {
-    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type, SubSlashCommandAttribute attribute, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] Type type,
+                                      SubSlashCommandAttribute attribute,
+                                      ApplicationCommandServiceConfiguration<TContext> configuration,
+                                      ImmutableList<LocalizationPathSegment> path,
+                                      AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
         var name = Name = attribute.Name;
 
@@ -32,16 +36,19 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, localizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, localizationPath, autocompleteDelegateProvider)));
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
-    internal SubSlashCommandGroupInfo(SubSlashCommandGroupBuilder builder, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path)
+    internal SubSlashCommandGroupInfo(SubSlashCommandGroupBuilder builder,
+                                      ApplicationCommandServiceConfiguration<TContext> configuration,
+                                      ImmutableList<LocalizationPathSegment> path,
+                                      AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider)
     {
         var name = Name = builder.Name;
 
@@ -63,9 +70,12 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
         for (int i = 0; i < subCommandCount; i++)
         {
             var subCommandBuilder = subCommandBuilders[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, localizationPath);
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, localizationPath, autocompleteDelegateProvider);
             subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
@@ -116,11 +126,5 @@ public class SubSlashCommandGroupInfo<TContext> : ISubSlashCommandInfo<TContext>
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
         return new(NotFoundResult.Command);
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        foreach (var subCommand in SubCommands.Values)
-            subCommand.InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

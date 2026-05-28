@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class StickerPack(JsonModels.JsonStickerPack jsonModel) : IJsonModel<JsonModels.JsonStickerPack>
 {

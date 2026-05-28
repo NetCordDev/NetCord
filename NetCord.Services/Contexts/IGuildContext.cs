@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 
 namespace NetCord.Services;
 

@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// The flags on a <see cref="User"/>'s account.
@@ -119,11 +119,6 @@ public enum UserFlags : ulong
     /// Undocumented and private. User's Nitro features are disabled.
     /// </summary>
     DisablePremium = 1uL << 21,
-
-    /// <summary>
-    /// User has the 'Active Developer' badge. See <see href="https://support-dev.discord.com/hc/articles/10113997751447"/>.
-    /// </summary>
-    ActiveDeveloper = 1uL << 22,
 
     /// <summary>
     /// Undocumented and private. User's account has a high global rate limit.

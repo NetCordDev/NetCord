@@ -1,4 +1,4 @@
-﻿using NetCord.Services.Helpers;
+using NetCord.Services.Helpers;
 
 namespace NetCord.Services.ComponentInteractions.TypeReaders;
 

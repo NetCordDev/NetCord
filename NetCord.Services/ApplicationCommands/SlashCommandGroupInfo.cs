@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -13,10 +13,11 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
     [UnconditionalSuppressMessage("Trimming", "IL2072:Target parameter argument does not satisfy 'DynamicallyAccessedMembersAttribute' in call to target method. The return value of the source method does not have matching annotations.", Justification = "'DynamicallyAccessedMembersAttribute' is inherited for nested types")]
     internal SlashCommandGroupInfo([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicNestedTypes)] Type type,
                                    SlashCommandAttribute attribute,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute,
-                                                                                                          configuration,
-                                                                                                          type,
-                                                                                                          out var typeAttributes)
+                                   ApplicationCommandServiceConfiguration<TContext> configuration,
+                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(attribute,
+                                                                                                               configuration,
+                                                                                                               type,
+                                                                                                               out var typeAttributes)
     {
         Description = attribute.Description;
 
@@ -27,7 +28,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         foreach (var method in type.GetMethods())
         {
             foreach (var subSlashCommandAttribute in method.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandInfo<TContext>(method, type, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
         }
 
         var baseType = typeof(BaseApplicationCommandModule<TContext>);
@@ -37,20 +38,21 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
                 continue;
 
             foreach (var subSlashCommandAttribute in nested.GetCustomAttributes<SubSlashCommandAttribute>())
-                subCommands.Add(new(subSlashCommandAttribute.Name!, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath)));
+                subCommands.Add(new(subSlashCommandAttribute.Name, new SubSlashCommandGroupInfo<TContext>(nested, subSlashCommandAttribute, configuration, LocalizationPath, autocompleteDelegateProvider)));
         }
 
         if (subCommands.Count == 0)
-            throw new InvalidOperationException($"No sub commands found in '{type.FullName}'.");
+            throw new InvalidDefinitionException($"No sub commands found.", type);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
 
     internal SlashCommandGroupInfo(SlashCommandGroupBuilder builder,
-                                   ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                          configuration,
-                                                                                                          null,
-                                                                                                          out _)
+                                   ApplicationCommandServiceConfiguration<TContext> configuration,
+                                   AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(builder,
+                                                                                                               configuration,
+                                                                                                               null,
+                                                                                                               out _)
     {
         Description = builder.Description;
 
@@ -64,7 +66,7 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         for (int i = 0; i < subCommandCount; i++)
         {
             var subCommandBuilder = subCommandBuilders[i];
-            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath);
+            SubSlashCommandInfo<TContext> subCommand = new(subCommandBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
             subCommands.Add(new(subCommandBuilder.Name, subCommand));
         }
 
@@ -74,9 +76,12 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
         for (int i = 0; i < subCommandGroupCount; i++)
         {
             var subCommandGroupBuilder = subCommandGroupBuilders[i];
-            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath);
+            SubSlashCommandGroupInfo<TContext> subCommandGroup = new(subCommandGroupBuilder, configuration, LocalizationPath, autocompleteDelegateProvider);
             subCommands.Add(new(subCommandGroupBuilder.Name, subCommandGroup));
         }
+
+        if (subCommands.Count == 0)
+            throw new InvalidDefinitionException($"No sub commands found.", builder.Name);
 
         SubCommands = subCommands.ToFrozenDictionary();
     }
@@ -128,11 +133,5 @@ public class SlashCommandGroupInfo<TContext> : ApplicationCommandInfo<TContext>,
             return subCommand.InvokeAutocompleteAsync(context, option.Options!, serviceProvider);
 
         return new(NotFoundResult.Command);
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        foreach (var subCommand in SubCommands.Values)
-            subCommand.InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

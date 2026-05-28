@@ -1,4 +1,4 @@
-﻿namespace NetCord.Logging;
+namespace NetCord.Logging;
 
 // Adopted from https://github.com/dotnet/runtime/blob/6072e4d/src/libraries/Microsoft.Extensions.Logging.Abstractions/src/LogLevel.cs
 

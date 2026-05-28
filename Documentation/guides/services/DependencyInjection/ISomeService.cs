@@ -1,4 +1,4 @@
-﻿namespace MyBot;
+namespace MyBot;
 
 public interface ISomeService
 {

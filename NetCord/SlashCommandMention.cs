@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class SlashCommandMention(ulong id, string name) : Entity, IEquatable<SlashCommandMention>
 {

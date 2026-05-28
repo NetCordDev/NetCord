@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ComponentInteractions;
+namespace NetCord.Services.ComponentInteractions;
 
 public abstract class ComponentInteractionTypeReader<TContext> : IInteractionTypeReader where TContext : IComponentInteractionContext
 {

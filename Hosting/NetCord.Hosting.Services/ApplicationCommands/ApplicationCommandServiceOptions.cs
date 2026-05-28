@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.Extensions.Options;
@@ -66,6 +66,8 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext>
 
     public IApplicationCommandResultHandler<TContext>? ResultHandler { get; set; }
 
+    public IApplicationCommandPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
+
     internal void Apply(IOptions<ApplicationCommandServiceOptions> options)
     {
         var value = options.Value;
@@ -128,4 +130,6 @@ public class ApplicationCommandServiceOptions<TInteraction, TContext, TAutocompl
     public Func<AutocompleteInteraction, GatewayClient?, IServiceProvider, TAutocompleteContext>? CreateAutocompleteContext { get; set; }
 
     public IAutocompleteInteractionResultHandler<TAutocompleteContext>? AutocompleteResultHandler { get; set; }
+
+    public IAutocompleteInteractionPreExecutionHandler<TAutocompleteContext>? AutocompletePreExecutionHandler { get; set; }
 }

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.Commands;
+namespace NetCord.Services.Commands;
 
 /// <summary>
 /// Commands are text-based commands that can be invoked by users in a chat by sending a message, typically starting with a prefix.

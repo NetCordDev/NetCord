@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public partial class RestClient
 {
@@ -10,6 +10,6 @@ public partial class RestClient
     public async Task<IReadOnlyList<ApplicationRoleConnectionMetadata>> UpdateApplicationRoleConnectionMetadataRecordsAsync(ulong applicationId, IEnumerable<ApplicationRoleConnectionMetadataProperties> applicationRoleConnectionMetadataProperties, RestRequestProperties? properties = null, CancellationToken cancellationToken = default)
     {
         using (HttpContent content = new JsonContent<IEnumerable<ApplicationRoleConnectionMetadataProperties>>(applicationRoleConnectionMetadataProperties, Serialization.Default.IEnumerableApplicationRoleConnectionMetadataProperties))
-            return (await (await SendRequestAsync(HttpMethod.Put, $"/applications/{applicationId}/role-connections/metadata", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.IEnumerableJsonApplicationRoleConnectionMetadata).ConfigureAwait(false)).Select(m => new ApplicationRoleConnectionMetadata(m)).ToArray();
+            return (await (await SendRequestAsync(HttpMethod.Put, content, $"/applications/{applicationId}/role-connections/metadata", null, null, properties, cancellationToken: cancellationToken).ConfigureAwait(false)).ToObjectAsync(Serialization.Default.IEnumerableJsonApplicationRoleConnectionMetadata).ConfigureAwait(false)).Select(m => new ApplicationRoleConnectionMetadata(m)).ToArray();
     }
 }

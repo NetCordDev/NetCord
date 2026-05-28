@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public partial class ApplicationCommand(JsonModels.JsonApplicationCommand jsonModel, RestClient client) : ClientEntity(client), IJsonModel<JsonModels.JsonApplicationCommand>
 {

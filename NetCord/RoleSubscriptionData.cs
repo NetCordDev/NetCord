@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class RoleSubscriptionData(JsonModels.JsonRoleSubscriptionData jsonModel) : IJsonModel<JsonModels.JsonRoleSubscriptionData>
 {

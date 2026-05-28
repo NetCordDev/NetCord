@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -23,6 +23,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
     private readonly delegate*<ComponentInteractionHandler<TInteraction, TContext>, Interaction, GatewayClient?, ValueTask> _handleAsync;
     private readonly Func<TInteraction, GatewayClient?, IServiceProvider, TContext> _createContext;
     private readonly IComponentInteractionResultHandler<TContext> _resultHandler;
+    private readonly IComponentInteractionPreExecutionHandler<TContext> _preExecutionHandler;
     private readonly GatewayClient? _client;
 
     public ComponentInteractionHandler(IServiceProvider services,
@@ -49,6 +50,7 @@ internal unsafe partial class ComponentInteractionHandler<TInteraction, [DAM(DAM
 
         _createContext = optionsValue.CreateContext ?? ContextHelper.CreateContextDelegate<TInteraction, GatewayClient?, TContext>(_componentInteractionService.Configuration.ServiceResolverProvider);
         _resultHandler = optionsValue.ResultHandler ?? new ComponentInteractionResultHandler<TContext>();
+        _preExecutionHandler = optionsValue.PreExecutionHandler ?? new ComponentInteractionPreExecutionHandler<TContext>();
         _client = client;
     }
 
@@ -91,6 +93,20 @@ internal partial class ComponentInteractionHandler<TInteraction, TContext>
         var context = _createContext(interaction, client, services);
 
         _contextAccessor.SetContext(context);
+
+        PreExecutionResult preExecutionResult;
+        try
+        {
+            preExecutionResult = await _preExecutionHandler.HandleAsync(context, client, _logger, services).ConfigureAwait(false);
+        }
+        catch (Exception preExecutionHandlerException)
+        {
+            _logger.LogError(preExecutionHandlerException, "An exception occurred while handling pre-execution, aborting execution");
+            return;
+        }
+
+        if (preExecutionResult is SkipPreExecutionResult)
+            return;
 
         var result = await _componentInteractionService.ExecuteAsync(context, services).ConfigureAwait(false);
 

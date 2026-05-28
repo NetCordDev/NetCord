@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class MessageReaction(JsonModels.JsonMessageReaction jsonModel) : IJsonModel<JsonModels.JsonMessageReaction>
 {

@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 internal sealed class PaginationQueryBuilder<T>(int batchSize,
                                                 string fromQueryName,

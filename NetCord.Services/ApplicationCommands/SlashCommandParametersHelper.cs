@@ -1,11 +1,15 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace NetCord.Services.ApplicationCommands;
 
 internal static class SlashCommandParametersHelper
 {
-    public static SlashCommandParameter<TContext>[] GetParameters<TContext>(ReadOnlySpan<ParameterInfo> parameters, MethodInfo method, ApplicationCommandServiceConfiguration<TContext> configuration, ImmutableList<LocalizationPathSegment> path) where TContext : IApplicationCommandContext
+    public static SlashCommandParameter<TContext>[] GetParameters<TContext>(ReadOnlySpan<ParameterInfo> parameters,
+                                                                            MethodInfo method,
+                                                                            ApplicationCommandServiceConfiguration<TContext> configuration,
+                                                                            ImmutableList<LocalizationPathSegment> path,
+                                                                            AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) where TContext : IApplicationCommandContext
     {
         var parametersLength = parameters.Length;
         var result = new SlashCommandParameter<TContext>[parametersLength];
@@ -18,13 +22,18 @@ internal static class SlashCommandParametersHelper
             else if (hasDefaultValue)
                 throw new InvalidDefinitionException("Optional parameters must appear after all required parameters.", method);
 
-            result[i] = new(parameter, method, configuration, path);
+            result[i] = new(parameter, method, configuration, path, autocompleteDelegateProvider);
         }
 
         return result;
     }
 
-    public static async ValueTask<IExecutionResult> ParseParametersAsync<TContext>(TContext context, IReadOnlyList<ApplicationCommandInteractionDataOption> options, IReadOnlyList<SlashCommandParameter<TContext>> parameters, ApplicationCommandServiceConfiguration<TContext> configuration, IServiceProvider? serviceProvider, object?[] parametersToPass) where TContext : IApplicationCommandContext
+    public static async ValueTask<IExecutionResult> ParseParametersAsync<TContext>(TContext context,
+                                                                                   IReadOnlyList<ApplicationCommandInteractionDataOption> options,
+                                                                                   IReadOnlyList<SlashCommandParameter<TContext>> parameters,
+                                                                                   ApplicationCommandServiceConfiguration<TContext> configuration,
+                                                                                   IServiceProvider? serviceProvider,
+                                                                                   object?[] parametersToPass) where TContext : IApplicationCommandContext
     {
         int optionsCount = options.Count;
         int parametersCount = parameters.Count;

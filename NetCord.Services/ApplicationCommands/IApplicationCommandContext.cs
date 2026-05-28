@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands;
+namespace NetCord.Services.ApplicationCommands;
 
 /// <summary>
 /// Context for handling application command interactions.

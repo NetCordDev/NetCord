@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -15,7 +15,7 @@ public partial class VoiceClient
 {
     internal readonly ref struct DaveEncryptor(EncryptorHandle encryptor)
     {
-        public readonly unsafe EncryptorResultCode Encrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, Span<byte> encryptedFrame, out int bytesWritten)
+        public readonly EncryptorResultCode Encrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> frame, Span<byte> encryptedFrame, out int bytesWritten)
         {
             var result = EncryptorEncrypt(encryptor, mediaType, ssrc, frame, (uint)frame.Length, encryptedFrame, (nuint)encryptedFrame.Length, out var rawBytesWritten);
 
@@ -29,7 +29,7 @@ public partial class VoiceClient
 
     internal struct DaveDecryptor(DecryptorHandle decryptor)
     {
-        public readonly unsafe DecryptorResultCode Decrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> encryptedFrame, Span<byte> frame, out int bytesWritten)
+        public readonly DecryptorResultCode Decrypt(MediaType mediaType, uint ssrc, ReadOnlySpan<byte> encryptedFrame, Span<byte> frame, out int bytesWritten)
         {
             var result = DecryptorDecrypt(decryptor, mediaType, encryptedFrame, (nuint)encryptedFrame.Length, frame, (nuint)frame.Length, out var rawBytesWritten);
 
@@ -79,7 +79,7 @@ public partial class VoiceClient
 #if DEBUG
             var fileString = Marshal.PtrToStringUTF8((nint)file);
             var messageString = Marshal.PtrToStringUTF8((nint)message);
-            System.Diagnostics.Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
+            Debug.WriteLine($"Dave at {fileString}:{line}: {messageString}");
 #endif
         }
 
@@ -147,12 +147,12 @@ public partial class VoiceClient
             return default;
         }
 
-        public unsafe void OnMlsExternalSender(ReadOnlySpan<byte> externalSender)
+        public void OnMlsExternalSender(ReadOnlySpan<byte> externalSender)
         {
             SessionSetExternalSender(_session, externalSender, (nuint)externalSender.Length);
         }
 
-        public unsafe ValueTask OnMlsProposalsAsync(ConnectionState connectionState, ReadOnlySpan<byte> proposals)
+        public ValueTask OnMlsProposalsAsync(ConnectionState connectionState, ReadOnlySpan<byte> proposals)
         {
             var recognizedUserIds = GetRecognizedUserIds(out var buffer);
 
@@ -175,7 +175,23 @@ public partial class VoiceClient
             if (CommitResultIsIgnored(commitResultHandle))
                 return default;
 
-            return HandleRosterUpdatedAsync(connectionState, transitionId, CommitResultIsFailed(commitResultHandle));
+            return ContinueAsync(connectionState, this, transitionId, CommitResultIsFailed(commitResultHandle));
+
+            static async ValueTask ContinueAsync(ConnectionState connectionState, DaveSession session, ushort transitionId, bool isFailed)
+            {
+                var joinedGroup = !isFailed;
+                if (joinedGroup)
+                {
+                    session.PrepareRatchets(transitionId, session.GetProtocolVersion());
+                    if (transitionId is not InitTransitionId)
+                        await session.SendTransitionReadyAsync(connectionState, transitionId).ConfigureAwait(false);
+                }
+                else
+                {
+                    await session.SendMlsInvalidCommitWelcomeAsync(connectionState, transitionId).ConfigureAwait(false);
+                    await session.HandleInitAsync(connectionState, session.GetProtocolVersion()).ConfigureAwait(false);
+                }
+            }
         }
 
         public ValueTask OnMlsWelcomeAsync(ConnectionState connectionState, ushort transitionId, ReadOnlySpan<byte> welcome)
@@ -186,29 +202,29 @@ public partial class VoiceClient
 
             FreeRecognizedUserIdsBuffer(buffer);
 
-            return HandleRosterUpdatedAsync(connectionState, transitionId, welcomeResult.IsInvalid);
+            return ContinueAsync(connectionState, this, transitionId, welcomeResult.IsInvalid);
+
+            static async ValueTask ContinueAsync(ConnectionState connectionState, DaveSession session, ushort transitionId, bool isFailed)
+            {
+                var joinedGroup = !isFailed;
+                if (joinedGroup)
+                {
+                    session.PrepareRatchets(transitionId, session.GetProtocolVersion());
+                    if (transitionId is not InitTransitionId)
+                        await session.SendTransitionReadyAsync(connectionState, transitionId).ConfigureAwait(false);
+                }
+                else
+                {
+                    await session.SendMlsInvalidCommitWelcomeAsync(connectionState, transitionId).ConfigureAwait(false);
+                    await session.SendMlsKeyPackageAsync(connectionState).ConfigureAwait(false);
+                }
+            }
         }
 
         private void SetDecryptorsPassthroughMode(bool passthroughMode)
         {
             foreach (var decryptor in _decryptors.Values)
                 DecryptorTransitionToPassthroughMode(decryptor, passthroughMode);
-        }
-
-        private async ValueTask HandleRosterUpdatedAsync(ConnectionState connectionState, ushort transitionId, bool isFailed)
-        {
-            var joinedGroup = !isFailed;
-            if (joinedGroup)
-            {
-                PrepareRatchets(transitionId, GetProtocolVersion());
-                if (transitionId is not InitTransitionId)
-                    await SendTransitionReadyAsync(connectionState, transitionId).ConfigureAwait(false);
-            }
-            else
-            {
-                await SendMlsInvalidCommitWelcomeAsync(connectionState, transitionId).ConfigureAwait(false);
-                await SendMlsKeyPackageAsync(connectionState).ConfigureAwait(false);
-            }
         }
 
         private unsafe ReadOnlySpan<nint> GetRecognizedUserIds(out nint[] pointers)

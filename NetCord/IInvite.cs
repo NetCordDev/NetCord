@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public interface IInvite
 {
@@ -15,4 +15,5 @@ public interface IInvite
     public bool? Temporary { get; }
     public int? Uses { get; }
     public DateTimeOffset? CreatedAt { get; }
+    public DateTimeOffset? ExpiresAt { get; }
 }

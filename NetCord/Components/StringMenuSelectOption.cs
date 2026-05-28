@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class StringMenuSelectOption : IJsonModel<JsonModels.JsonStringMenuSelectOption>
 {

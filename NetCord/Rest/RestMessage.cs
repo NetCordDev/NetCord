@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 /// <summary>
 /// Represents a message sent in a channel within Discord.

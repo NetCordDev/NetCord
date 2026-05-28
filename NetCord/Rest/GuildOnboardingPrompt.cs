@@ -1,4 +1,4 @@
-﻿namespace NetCord.Rest;
+namespace NetCord.Rest;
 
 public class GuildOnboardingPrompt(JsonModels.JsonGuildOnboardingPrompt jsonModel, ulong guildId, RestClient client) : Entity, IJsonModel<JsonModels.JsonGuildOnboardingPrompt>
 {

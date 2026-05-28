@@ -85,6 +85,7 @@
     <Project Path="Tests/BufferedVoiceReceiveHandlerTest/BufferedVoiceReceiveHandlerTest.csproj" />
     <Project Path="Tests/ColorTest/ColorTest.csproj" />
     <Project Path="Tests/MentionTest/MentionTest.csproj" />
+    <Project Path="Tests/NetCord.Rest.Tests/NetCord.Rest.Tests.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting.AspNetCore/NetCord.Test.Hosting.AspNetCore.csproj" />
     <Project Path="Tests/NetCord.Test.Hosting/NetCord.Test.Hosting.csproj" />
     <Project Path="Tests/NetCord.Test.Sharded.Hosting/NetCord.Test.Sharded.Hosting.csproj" />

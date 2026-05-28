@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public abstract class Sticker : Entity, IJsonModel<JsonModels.JsonSticker>
 {

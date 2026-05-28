@@ -1,4 +1,4 @@
-﻿using System.Collections.Frozen;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
@@ -12,11 +12,12 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     internal SlashCommandInfo(MethodInfo method,
                               [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type declaringType,
                               SlashCommandAttribute attribute,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(attribute, configuration, method, out var methodAttributes)
+                              ApplicationCommandServiceConfiguration<TContext> configuration,
+                              AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(attribute, configuration, method, out var methodAttributes)
     {
         Description = attribute.Description;
 
-        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, LocalizationPath);
+        var parameters = SlashCommandParametersHelper.GetParameters(method.GetParameters(), method, configuration, LocalizationPath, autocompleteDelegateProvider);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
@@ -26,10 +27,11 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
     }
 
     internal SlashCommandInfo(SlashCommandBuilder builder,
-                              ApplicationCommandServiceConfiguration<TContext> configuration) : base(builder,
-                                                                                                     configuration,
-                                                                                                     builder.Handler.Method,
-                                                                                                     out var methodAttributes)
+                              ApplicationCommandServiceConfiguration<TContext> configuration,
+                              AutocompleteDelegateProvider<TContext> autocompleteDelegateProvider) : base(builder,
+                                                                                                          configuration,
+                                                                                                          builder.Handler.Method,
+                                                                                                          out var methodAttributes)
     {
         Description = builder.Description;
 
@@ -39,7 +41,7 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
 
         var split = ParametersHelper.SplitHandlerParameters<TContext>(method);
 
-        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath);
+        var parameters = SlashCommandParametersHelper.GetParameters(split.Parameters, method, configuration, LocalizationPath, autocompleteDelegateProvider);
         Parameters = parameters;
         ParametersDictionary = parameters.ToFrozenDictionary(p => p.Name);
 
@@ -119,13 +121,5 @@ public class SlashCommandInfo<TContext> : ApplicationCommandInfo<TContext>, IAut
         }
 
         return NotFoundResult.Command;
-    }
-
-    void IAutocompleteInfo.InitializeAutocomplete<TAutocompleteContext>(IServiceResolverProvider serviceResolverProvider)
-    {
-        var parameters = Parameters;
-        var count = parameters.Count;
-        for (int i = 0; i < count; i++)
-            parameters[i].InitializeAutocomplete<TAutocompleteContext>(serviceResolverProvider);
     }
 }

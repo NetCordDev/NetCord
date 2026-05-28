@@ -1,4 +1,4 @@
-﻿namespace NetCord.Gateway.Voice;
+namespace NetCord.Gateway.Voice;
 
 public class VoiceStreamConfiguration
 {
@@ -11,4 +11,9 @@ public class VoiceStreamConfiguration
     /// Whether to normalize the voice sending speed. Defaults to <see langword="true"/>.
     /// </summary>
     public bool? NormalizeSpeed { get; set; }
+
+    /// <summary>
+    /// The time provider to be used by the voice stream. Defaults to <see cref="TimeProvider.System"/>.
+    /// </summary>
+    public TimeProvider? TimeProvider { get; set; }
 }

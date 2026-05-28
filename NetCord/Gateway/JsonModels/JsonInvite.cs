@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using NetCord.JsonModels;
 
@@ -44,4 +44,10 @@ public class JsonInvite
 
     [JsonPropertyName("uses")]
     public int Uses { get; set; }
+
+    [JsonPropertyName("expires_at")]
+    public DateTimeOffset? ExpiresAt { get; set; }
+
+    [JsonPropertyName("role_ids")]
+    public ulong[]? RoleIds { get; set; }
 }

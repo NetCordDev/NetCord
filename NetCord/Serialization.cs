@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 
 using NetCord.Gateway;
 using NetCord.Gateway.JsonModels;
@@ -138,6 +138,7 @@ namespace NetCord;
 [JsonSerializable(typeof(AutoModerationRuleOptions))]
 [JsonSerializable(typeof(GroupDMChannelOptions))]
 [JsonSerializable(typeof(GuildChannelOptions))]
+[JsonSerializable(typeof(VoiceGuildChannelStatusProperties))]
 [JsonSerializable(typeof(JsonMessage[]))]
 [JsonSerializable(typeof(JsonUser[]))]
 [JsonSerializable(typeof(BulkDeleteMessagesProperties))]
@@ -283,4 +284,5 @@ namespace NetCord;
 [JsonSerializable(typeof(JsonRadioGroupComponent))]
 [JsonSerializable(typeof(JsonCheckboxGroupComponent))]
 [JsonSerializable(typeof(JsonCheckboxComponent))]
+[JsonSerializable(typeof(JsonInviteTargetUsersJobStatus))]
 internal partial class Serialization : JsonSerializerContext;

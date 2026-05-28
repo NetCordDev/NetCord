@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Globalization;
 
 using Microsoft.Extensions.Options;
@@ -51,6 +51,8 @@ public class ComponentInteractionServiceOptions<TInteraction, TContext>
     public Func<TInteraction, GatewayClient?, IServiceProvider, TContext>? CreateContext { get; set; }
 
     public IComponentInteractionResultHandler<TContext>? ResultHandler { get; set; }
+
+    public IComponentInteractionPreExecutionHandler<TContext>? PreExecutionHandler { get; set; }
 
     internal void Apply(IOptions<ComponentInteractionServiceOptions> options)
     {

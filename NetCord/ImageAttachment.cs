@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 public class ImageAttachment(JsonModels.JsonAttachment jsonModel) : Attachment(jsonModel)
 {

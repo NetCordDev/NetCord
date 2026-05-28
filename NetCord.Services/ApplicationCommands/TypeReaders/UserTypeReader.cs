@@ -1,4 +1,4 @@
-﻿namespace NetCord.Services.ApplicationCommands.TypeReaders;
+namespace NetCord.Services.ApplicationCommands.TypeReaders;
 
 public class UserTypeReader<TContext> : SlashCommandTypeReader<TContext> where TContext : IApplicationCommandContext
 {

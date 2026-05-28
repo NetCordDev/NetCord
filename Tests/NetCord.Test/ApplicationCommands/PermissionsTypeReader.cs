@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;

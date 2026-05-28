@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Indicates how a command is invoked client-side.

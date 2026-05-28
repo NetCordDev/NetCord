@@ -1,4 +1,4 @@
-﻿namespace NetCord;
+namespace NetCord;
 
 /// <summary>
 /// Contains information used to render the footer block of an embed.
