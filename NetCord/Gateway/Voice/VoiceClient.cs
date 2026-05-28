@@ -626,10 +626,12 @@ public sealed partial class VoiceClient : WebSocketClient
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
             return;
 
-        HandleTask(InvokeEventAsync(voiceReceive, new(buffer.AsSpan(0, bytesWritten),
-                                                      packet.Ssrc,
-                                                      packet.Timestamp,
-                                                      packet.SequenceNumber)));
+        VoiceReceiveEventArgs args = new(buffer.AsSpan(0, bytesWritten),
+                                         packet.Ssrc,
+                                         packet.Timestamp,
+                                         packet.SequenceNumber);
+
+        HandleTask(InvokeEventAsync(voiceReceive, args, nameof(_voiceReceive)));
 
         ArrayPool<byte>.Shared.Return(buffer);
 
