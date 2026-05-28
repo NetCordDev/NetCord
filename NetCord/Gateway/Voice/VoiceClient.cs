@@ -619,13 +619,17 @@ public sealed partial class VoiceClient : WebSocketClient
         if (_udpState is not { Encryption: var encryption, DaveSession: var session })
             return;
 
+        var voiceReceive = _voiceReceive;
+        if (voiceReceive.IsEmpty)
+            return;
+
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
             return;
 
-        HandleTask(InvokeEventAsync(_voiceReceive, new(buffer.AsSpan(0, bytesWritten),
-                                                       packet.Ssrc,
-                                                       packet.Timestamp,
-                                                       packet.SequenceNumber)));
+        HandleTask(InvokeEventAsync(voiceReceive, new(buffer.AsSpan(0, bytesWritten),
+                                                      packet.Ssrc,
+                                                      packet.Timestamp,
+                                                      packet.SequenceNumber)));
 
         ArrayPool<byte>.Shared.Return(buffer);
 
@@ -659,27 +663,11 @@ public sealed partial class VoiceClient : WebSocketClient
             goto FailWithArrayReturn;
         }
 
-        int extensionLength = 0;
+        // Checked in HandleDatagramReceive that the datagram length is at least the extended header length
 
-        if (packet.Extension)
-        {
-            var extensionLengthIndex = packet.HeaderLength + 2;
-            if (extensionLengthIndex + sizeof(ushort) > packet.Datagram.Length)
-            {
-                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length field is out of bounds.");
-
-                goto FailWithArrayReturn;
-            }
-
-            extensionLength = 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[extensionLengthIndex..]);
-
-            if (extensionLength > plaintextLength)
-            {
-                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length is larger than the payload.");
-
-                goto FailWithArrayReturn;
-            }
-        }
+        int extensionLength = packet.Extension
+            ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+            : 0;
 
         int paddingLength = 0;
 
