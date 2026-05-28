@@ -46,13 +46,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             voiceClient = await client.JoinVoiceChannelAsync(guild.Id, channelId, new()
             {
                 EncryptionProvider = encryptionProvider,
-                //ReceiveHandler = new RawVoiceReceiveHandler(),
-                ReceiveHandler = new BufferedVoiceReceiveHandler(new()
-                {
-                    BufferDuration = 40,
-                    StartupDuration = 20,
-                    ResynchronizationDuration = 1000,
-                }),
+                ReceiveHandler = new RawVoiceReceiveHandler(),
                 Logger = new ConsoleLogger(LogLevel.Debug),
                 //CacheProvider = ConcurrentVoiceClientCacheProvider.Empty,
             });

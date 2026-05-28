@@ -82,7 +82,6 @@
   <Folder Name="/Tests/">
     <File Path="Tests/Directory.Build.props" />
     <File Path="Tests/Directory.Build.targets" />
-    <Project Path="Tests/BufferedVoiceReceiveHandlerTest/BufferedVoiceReceiveHandlerTest.csproj" />
     <Project Path="Tests/ColorTest/ColorTest.csproj" />
     <Project Path="Tests/MentionTest/MentionTest.csproj" />
     <Project Path="Tests/NetCord.Rest.Tests/NetCord.Rest.Tests.csproj" />
