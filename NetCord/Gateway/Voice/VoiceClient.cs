@@ -652,6 +652,7 @@ public sealed partial class VoiceClient : WebSocketClient
         if (plaintextLength < 0)
         {
             Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is too small.");
+
             goto Fail;
         }
 
