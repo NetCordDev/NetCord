@@ -142,10 +142,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         voiceClient.VoiceReceive += args =>
         {
-            if (!args.IsLost)
-                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
-            else
-                Console.WriteLine($"Frame {args.SequenceNumber} got lost");
+            voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
             return default;
 
@@ -174,13 +171,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             RedirectStandardInput = true,
         })!;
 
-        using var ffmpeg2 = Process.Start(new ProcessStartInfo
-        {
-            FileName = "ffmpeg",
-            Arguments = $"-f {(pcmFormat is PcmFormat.Short ? "s16le" : "f32le")} -ar 48000 -ac {(byte)voiceChannels} -i pipe:0 recording-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}-2.wav",
-            RedirectStandardInput = true,
-        })!;
-
         var voiceClient = await JoinAsync(channel, encryption, args =>
         {
             if (!args.Reconnect)
@@ -191,47 +181,29 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
         using OpusDecoder decoder = new(voiceChannels);
-        using OpusDecoder decoder2 = new(voiceChannels);
-        var bufferSize = Opus.GetFrameBufferSize(Opus.GetSamplesPerChannel(Opus.MaxFrameDuration), pcmFormat, voiceChannels);
+
+        var frameSize = Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+        var bufferSize = Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels);
         var buffer = new byte[bufferSize];
 
         Func<ReadOnlySpan<byte>, Span<byte>, int, bool, int> decode = pcmFormat is PcmFormat.Short ? decoder.Decode : decoder.DecodeFloat;
 
-        Func<ReadOnlySpan<byte>, Span<byte>, int, bool, int> decode2 = pcmFormat is PcmFormat.Short ? decoder2.Decode : decoder2.DecodeFloat;
-
         voiceClient.VoiceReceive += args =>
         {
-            if (args.IsLost)
-                Console.WriteLine($"Lost frame {args.SequenceNumber} with {args.AsLost().SamplesPerChannel} samples");
-            else
-                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
+            voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
-            var frameSize = args.IsLost ? args.AsLost().SamplesPerChannel : Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+            var samples = decode(args.Frame,
+                                 buffer.AsSpan(0, bufferSize),
+                                 frameSize,
+                                 false);
 
-            // No FEC
-            {
-                var samples = decode(args.Frame,
-                                     buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels)),
-                                     frameSize,
-                                     false);
-                ffmpeg.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            }
-
-            // With FEC if available
-            {
-                var samples = decode2(args.IsLost ? args.AsLost().FecData : args.Frame,
-                                     buffer.AsSpan(0, Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels)),
-                                     frameSize,
-                                     args.IsLost && args.AsLost().DecodeFec);
-                ffmpeg2.StandardInput.BaseStream.Write(buffer, 0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels));
-            }
+            ffmpeg.StandardInput.BaseStream.Write(buffer.AsSpan(0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels)));
 
             return default;
         };
 
         await taskCompletionSource.Task;
         ffmpeg.Kill();
-        ffmpeg2.Kill();
     }
 
     public enum VoiceEncryption : byte
