@@ -129,7 +129,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                ReceiveVoice = true,
+                ReceiveVoice = true, // You need to set 'ReceiveVoice' to true to receive voice from Discord
                 Logger = new ConsoleLogger(),
             });
 
