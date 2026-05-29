@@ -140,7 +140,7 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
 
         voiceClient.VoiceReceive += args =>
         {
-            // Pass current user voice directly to SendAsync to create echo
+            // Send the received voice back if the received voice is from the user that invoked the command
             if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
                 voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 

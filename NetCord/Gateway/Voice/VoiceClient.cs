@@ -614,11 +614,11 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private void HandleVoicePacket(RtpPacket packet)
     {
-        if (_udpState is not { Encryption: var encryption, DaveSession: var session })
-            return;
-
         var voiceReceive = _voiceReceive;
         if (voiceReceive.IsEmpty)
+            return;
+
+        if (_udpState is not { Encryption: var encryption, DaveSession: var session })
             return;
 
         if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
