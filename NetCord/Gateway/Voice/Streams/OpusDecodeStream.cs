@@ -36,12 +36,12 @@ public sealed class OpusDecodeStream : RewritingStream
 
     private int Decode(ReadOnlySpan<byte> data, Span<byte> pcm)
     {
-        return _decoder.Decode(data, pcm, _frameSize);
+        return _decoder.Decode(data, pcm, _frameSize, false);
     }
 
     private int DecodeFloat(ReadOnlySpan<byte> data, Span<byte> pcm)
     {
-        return _decoder.DecodeFloat(data, pcm, _frameSize);
+        return _decoder.DecodeFloat(data, pcm, _frameSize, false);
     }
 
     public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)

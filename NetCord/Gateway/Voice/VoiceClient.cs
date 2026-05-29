@@ -105,7 +105,6 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private readonly IUdpConnectionProvider _udpConnectionProvider;
     private readonly IVoiceEncryptionProvider _encryptionProvider;
-    private readonly IVoiceReceiveHandler _receiveHandler;
     private readonly TimeSpan _externalSocketAddressDiscoveryTimeout;
     private readonly GCHandle<IWebSocketLogger> _loggerHandle;
 
@@ -124,7 +123,6 @@ public sealed partial class VoiceClient : WebSocketClient
         Cache = cacheProvider.Create();
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
-        _receiveHandler = configuration.ReceiveHandler ?? NullVoiceReceiveHandler.Instance;
         _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout ?? new(5 * TimeSpan.TicksPerSecond);
         _loggerHandle = new(_logger);
     }
@@ -312,8 +310,8 @@ public sealed partial class VoiceClient : WebSocketClient
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
 
-                    var (ip, port) = (ready.Ip, ready.Port);
-                    var udpConnection = _udpConnectionProvider.CreateConnection(ip, port);
+                    var (serverIp, serverPort) = (ready.Ip, ready.Port);
+                    var udpConnection = _udpConnectionProvider.CreateConnection(serverIp, serverPort);
                     var encryption = _encryptionProvider.GetEncryption(ready.Modes);
 
                     UdpState newUdpState;
@@ -344,23 +342,23 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     var buffer = ArrayPool<byte>.Shared.Rent(ushort.MaxValue);
 
+                    string? externalIp;
+                    ushort externalPort;
+
                     try
                     {
-                        if (_receiveHandler.RequiresExternalSocketAddress)
+                        Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
+
+                        (externalIp, externalPort) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
+                        if (externalIp is null)
                         {
-                            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
+                            Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
 
-                            (ip, port) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
-                            if (ip is null)
-                            {
-                                Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
-
-                                Abort();
-                                return;
-                            }
-
-                            Log(LogLevel.Debug, (Ip: ip, Port: port), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
+                            Abort();
+                            return;
                         }
+
+                        Log(LogLevel.Debug, (Ip: externalIp, Port: externalPort), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
                     }
                     catch
                     {
@@ -372,7 +370,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
 
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryptionName)));
+                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(externalIp, externalPort, encryptionName)));
                     await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalTextPayloadProperties).ConfigureAwait(false);
 
                     await updateLatencyTask;
@@ -579,127 +577,156 @@ public sealed partial class VoiceClient : WebSocketClient
         return (ip, port);
     }
 
-    private async void HandleDatagramReceive(ReadOnlyMemory<byte> datagram)
+    private void HandleDatagramReceive(ReadOnlySpan<byte> datagram)
     {
-        if (_udpState is not { Encryption: var encryption, DaveSession: var session })
-            return;
+        var datagramLength = datagram.Length;
 
-        var handlers = _voiceReceive;
-        if (handlers.IsEmpty)
+        if (datagramLength < 12)
+        {
+            Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
             return;
+        }
+
+        RtpPacket packet = new(datagram);
+
+        if (datagramLength < packet.ExtendedHeaderLength)
+        {
+            Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
+            return;
+        }
 
         try
         {
-            RtpPacketStorage packetStorage = new(datagram);
-
-            var packet = packetStorage.Packet;
-
-            var ssrc = packet.Ssrc;
-
-            var result = _receiveHandler.HandlePacket(this, packet);
-            if (!result.Handle)
-                return;
-
-            if (session.GetDecryptor(ssrc) is not { } decryptor)
-                return;
-
-            var framesMissed = result.FramesMissed;
-
-            var sequenceNumber = packet.SequenceNumber;
-
-            if (framesMissed is 0)
+            switch (packet.PayloadType)
             {
-                await InvokeEventForReceivedFrameAsync().ConfigureAwait(false);
-                return;
-            }
-
-            var tasks = ArrayPool<ValueTask>.Shared.Rent(framesMissed + 1);
-
-#pragma warning disable CA2012 // Use ValueTasks correctly
-            for (ushort i = 0; i < framesMissed; i++)
-                tasks[i] = InvokeEventAsync(handlers, new(null, 0, 0, ssrc, null, (ushort)(sequenceNumber - framesMissed + i)), nameof(_voiceReceive));
-
-            tasks[framesMissed] = InvokeEventForReceivedFrameAsync();
-#pragma warning restore CA2012 // Use ValueTasks correctly
-
-            await HandleTasksThatDoNotThrowAsync(tasks, framesMissed).ConfigureAwait(false);
-
-            ValueTask InvokeEventForReceivedFrameAsync()
-            {
-                var packet = packetStorage.Packet;
-
-                var plaintextLength = packet.PayloadLength - encryption.Expansion;
-                var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
-                var plaintext = array.AsSpan(0, plaintextLength);
-
-                if (!encryption.TryDecrypt(packet, plaintext))
-                {
-                    Log<object?>(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
-
-                    ArrayPool<byte>.Shared.Return(array);
-
-                    return default;
-                }
-
-                int extensionLength = packet.Extension
-                    ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
-                    : 0;
-
-                int paddingLength = packet.Padding
-                    ? plaintext[^1]
-                    : 0;
-
-                var plaintextData = plaintext[extensionLength..^paddingLength];
-
-                if (plaintextData.IsEmpty)
-                {
-                    ArrayPool<byte>.Shared.Return(array);
-
-                    return default;
-                }
-
-                int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
-                byte[]? toReturn = null;
-                var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
-                var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out int bytesWritten);
-
-                if (result is not Dave.DecryptorResultCode.Success)
-                {
-                    ArrayPool<byte>.Shared.Return(array);
-
-                    if (toReturn is not null)
-                        ArrayPool<byte>.Shared.Return(toReturn);
-
-                    Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
-
-                    return default;
-                }
-
-                if (toReturn is not null)
-                    ArrayPool<byte>.Shared.Return(array);
-
-                return InvokeEventWithDisposalAsync(handlers, new VoiceReceiveEventArgs(daveArray, 0, bytesWritten, ssrc, packet.Timestamp, sequenceNumber), args =>
-                {
-                    ArrayPool<byte>.Shared.Return(args._buffer!);
-                }, nameof(_voiceReceive));
+                case 0x78:
+                    {
+                        HandleVoicePacket(packet);
+                        break;
+                    }
             }
         }
         catch (Exception ex)
         {
-            Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
-            {
-                return $"An error occurred while handling a datagram.{Environment.NewLine}{e}";
-            });
+            Log<object?>(LogLevel.Error, null, ex, static (s, e) => $"An error occurred while handling a received RTP packet.{Environment.NewLine}{e}");
         }
     }
 
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
-    private static async ValueTask HandleTasksThatDoNotThrowAsync(ValueTask[] tasks, ushort maxIndex)
+    private void HandleVoicePacket(RtpPacket packet)
     {
-        for (ushort i = 0; i <= maxIndex; i++)
-            await tasks[i].ConfigureAwait(false);
+        var voiceReceive = _voiceReceive;
+        if (voiceReceive.IsEmpty)
+            return;
 
-        ArrayPool<ValueTask>.Shared.Return(tasks);
+        if (_udpState is not { Encryption: var encryption, DaveSession: var session })
+            return;
+
+        if (!TryGetVoiceData(packet, encryption, session, out var buffer, out var bytesWritten))
+            return;
+
+        VoiceReceiveEventArgs args = new(buffer.AsSpan(0, bytesWritten),
+                                         packet.Ssrc,
+                                         packet.Timestamp,
+                                         packet.SequenceNumber);
+
+        HandleTask(InvokeEventAsync(voiceReceive, args, nameof(_voiceReceive)));
+
+        ArrayPool<byte>.Shared.Return(buffer);
+
+        static async void HandleTask(ValueTask task)
+        {
+            await task.ConfigureAwait(false);
+        }
+    }
+
+    private bool TryGetVoiceData(RtpPacket packet, IVoiceEncryption encryption, DaveSession session, [MaybeNullWhen(false)] out byte[] frame, out int frameLength)
+    {
+        var ssrc = packet.Ssrc;
+        if (session.GetDecryptor(ssrc) is not { } decryptor)
+            goto Fail;
+
+        var plaintextLength = packet.PayloadLength - encryption.Expansion;
+
+        if (plaintextLength < 0)
+        {
+            Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is too small.");
+
+            goto Fail;
+        }
+
+        var array = ArrayPool<byte>.Shared.Rent(plaintextLength);
+        var plaintext = array.AsSpan(0, plaintextLength);
+
+        if (!encryption.TryDecrypt(packet, plaintext))
+        {
+            Log(LogLevel.Warning, ssrc, null, static (s, e) => $"Failed to decrypt RTP packet. SSRC: {s}");
+
+            goto FailWithArrayReturn;
+        }
+
+        // Checked in HandleDatagramReceive that the datagram length is at least the extended header length
+
+        int extensionLength = packet.Extension
+            ? 4 * BinaryPrimitives.ReadUInt16BigEndian(packet.Datagram[(packet.HeaderLength + 2)..])
+            : 0;
+
+        int paddingLength = 0;
+
+        if (packet.Padding)
+        {
+            if (plaintextLength is 0)
+            {
+                Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the payload is empty but the padding bit is set.");
+
+                goto FailWithArrayReturn;
+            }
+
+            paddingLength = plaintext[^1];
+        }
+
+        if (extensionLength + paddingLength > plaintextLength)
+        {
+            Log<object?>(LogLevel.Warning, null, null, static (s, e) => "Failed to decrypt RTP packet because the header extension length and padding length combined are larger than the payload.");
+
+            goto FailWithArrayReturn;
+        }
+
+        var plaintextData = plaintext[extensionLength..^paddingLength];
+
+        if (plaintextData.IsEmpty)
+            goto FailWithArrayReturn;
+
+        int daveArrayLength = decryptor.GetMaxPlaintextByteSize(Dave.MediaType.Audio, plaintextData.Length);
+        byte[]? toReturn = null;
+        var daveArray = daveArrayLength > array.Length ? (toReturn = ArrayPool<byte>.Shared.Rent(daveArrayLength)) : array;
+        var result = decryptor.Decrypt(Dave.MediaType.Audio, ssrc, plaintextData, daveArray, out frameLength);
+
+        if (result is not Dave.DecryptorResultCode.Success)
+        {
+            ArrayPool<byte>.Shared.Return(array);
+
+            if (toReturn is not null)
+                ArrayPool<byte>.Shared.Return(toReturn);
+
+            Log(LogLevel.Warning, (Result: result, Ssrc: ssrc), null, static (s, e) => $"Failed to decrypt DAVE frame with '{s.Result}'. SSRC: {s.Ssrc}");
+
+            goto Fail;
+        }
+
+        if (toReturn is not null)
+            ArrayPool<byte>.Shared.Return(array);
+
+        frame = daveArray;
+
+        return true;
+
+        FailWithArrayReturn:
+        ArrayPool<byte>.Shared.Return(array);
+
+        Fail:
+        frame = null;
+        frameLength = 0;
+        return false;
     }
 
     public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)

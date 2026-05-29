@@ -129,7 +129,6 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
             voiceState.ChannelId.GetValueOrDefault(),
             new VoiceClientConfiguration
             {
-                ReceiveHandler = new VoiceReceiveHandler(), // Required to receive voice
                 Logger = new ConsoleLogger(),
             });
 
@@ -141,14 +140,9 @@ public class VoiceModule : ApplicationCommandModule<ApplicationCommandContext>
 
         voiceClient.VoiceReceive += args =>
         {
-            // If the timestamp is null, the packet was lost.
-            // We skip it, which mirrors the packet loss to the echo recipients.
-            if (args.Timestamp is not { } timestamp)
-                return default;
-
-            // Pass current user voice directly to SendAsync to create echo
+            // Send the received voice back if the received voice is from the user that invoked the command
             if (voiceClient.Cache.SsrcUsers.TryGetValue(args.Ssrc, out var voiceUserId) && voiceUserId == userId)
-                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
+                voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
             return default;
         };

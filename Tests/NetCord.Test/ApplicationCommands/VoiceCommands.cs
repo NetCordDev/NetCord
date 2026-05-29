@@ -46,7 +46,6 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
             voiceClient = await client.JoinVoiceChannelAsync(guild.Id, channelId, new()
             {
                 EncryptionProvider = encryptionProvider,
-                ReceiveHandler = new VoiceReceiveHandler(),
                 Logger = new ConsoleLogger(LogLevel.Debug),
                 //CacheProvider = ConcurrentVoiceClientCacheProvider.Empty,
             });
@@ -142,10 +141,7 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
 
         voiceClient.VoiceReceive += args =>
         {
-            if (args.Timestamp is { } timestamp)
-                voiceClient.SendVoice(args.SequenceNumber, timestamp, args.Frame);
-            else
-                Console.WriteLine($"Frame {args.SequenceNumber} got lost");
+            voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
 
             return default;
 
@@ -183,11 +179,25 @@ public class VoiceCommands(Dictionary<ulong, SemaphoreSlim> joinSemaphores) : Ap
         });
         await RespondAsync(InteractionCallback.Message("Recording!"));
 
-        using OpusDecodeStream opusDecodeStream = new(ffmpeg.StandardInput.BaseStream, pcmFormat, voiceChannels);
+        using OpusDecoder decoder = new(voiceChannels);
+
+        var frameSize = Opus.GetSamplesPerChannel(Opus.MaxFrameDuration);
+        var bufferSize = Opus.GetFrameBufferSize(frameSize, pcmFormat, voiceChannels);
+        var buffer = new byte[bufferSize];
+
+        Func<ReadOnlySpan<byte>, Span<byte>, int, bool, int> decode = pcmFormat is PcmFormat.Short ? decoder.Decode : decoder.DecodeFloat;
 
         voiceClient.VoiceReceive += args =>
         {
-            opusDecodeStream.Write(args.Frame);
+            voiceClient.SendVoice(args.SequenceNumber, args.Timestamp, args.Frame);
+
+            var samples = decode(args.Frame,
+                                 buffer.AsSpan(0, bufferSize),
+                                 frameSize,
+                                 false);
+
+            ffmpeg.StandardInput.BaseStream.Write(buffer.AsSpan(0, Opus.GetFrameBufferSize(samples, pcmFormat, voiceChannels)));
+
             return default;
         };
 

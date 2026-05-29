@@ -1,26 +1,35 @@
+using System.Runtime.InteropServices;
+
 namespace NetCord.Gateway.Voice;
 
-public readonly ref struct VoiceReceiveEventArgs(byte[]? buffer, int frameIndex, int frameLength, uint ssrc, uint? timestamp, ushort sequenceNumber)
+[StructLayout(LayoutKind.Auto)]
+public readonly ref struct VoiceReceiveEventArgs
 {
-    internal readonly byte[]? _buffer = buffer;
+    public VoiceReceiveEventArgs(ReadOnlySpan<byte> frame, uint ssrc, uint timestamp, ushort sequenceNumber)
+    {
+        Frame = frame;
+        Ssrc = ssrc;
+        Timestamp = timestamp;
+        SequenceNumber = sequenceNumber;
+    }
 
     /// <summary>
     /// The voice frame data.
     /// </summary>
-    public ReadOnlySpan<byte> Frame => new(_buffer, frameIndex, frameLength);
+    public readonly ReadOnlySpan<byte> Frame { get; }
 
     /// <summary>
     /// The synchronization source (SSRC) of the sender of the voice frame.
     /// </summary>
-    public uint Ssrc => ssrc;
+    public readonly uint Ssrc { get; }
 
     /// <summary>
-    /// The timestamp of the voice frame. <see langword="null"/> when the frame was lost.
+    /// The timestamp of the voice frame.
     /// </summary>
-    public uint? Timestamp => timestamp;
+    public readonly uint Timestamp { get; }
 
     /// <summary>
     /// The sequence number of the voice frame.
     /// </summary>
-    public ushort SequenceNumber => sequenceNumber;
+    public readonly ushort SequenceNumber { get; }
 }
