@@ -583,7 +583,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (datagramLength < 12)
         {
-            Log<object?>(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
+            Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes.");
             return;
         }
 
@@ -591,7 +591,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
         if (datagramLength < packet.ExtendedHeaderLength)
         {
-            Log<object?>(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
+            Log(LogLevel.Warning, datagramLength, null, static (s, e) => $"Received an RTP packet with an invalid length of {s} bytes for the given header length.");
             return;
         }
 
