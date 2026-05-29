@@ -106,7 +106,6 @@ public sealed partial class VoiceClient : WebSocketClient
     private readonly IUdpConnectionProvider _udpConnectionProvider;
     private readonly IVoiceEncryptionProvider _encryptionProvider;
     private readonly TimeSpan _externalSocketAddressDiscoveryTimeout;
-    private readonly bool _receiveVoice;
     private readonly GCHandle<IWebSocketLogger> _loggerHandle;
 
     internal UdpState? _udpState;
@@ -124,7 +123,6 @@ public sealed partial class VoiceClient : WebSocketClient
         Cache = cacheProvider.Create();
         _udpConnectionProvider = configuration.UdpConnectionProvider ?? UdpConnectionProvider.Instance;
         _encryptionProvider = configuration.EncryptionProvider ?? VoiceEncryptionProvider.Instance;
-        _receiveVoice = configuration.ReceiveVoice.GetValueOrDefault();
         _externalSocketAddressDiscoveryTimeout = configuration.ExternalSocketAddressDiscoveryTimeout ?? new(5 * TimeSpan.TicksPerSecond);
         _loggerHandle = new(_logger);
     }
@@ -312,8 +310,8 @@ public sealed partial class VoiceClient : WebSocketClient
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
                     var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
 
-                    var (ip, port) = (ready.Ip, ready.Port);
-                    var udpConnection = _udpConnectionProvider.CreateConnection(ip, port);
+                    var (serverIp, serverPort) = (ready.Ip, ready.Port);
+                    var udpConnection = _udpConnectionProvider.CreateConnection(serverIp, serverPort);
                     var encryption = _encryptionProvider.GetEncryption(ready.Modes);
 
                     UdpState newUdpState;
@@ -344,23 +342,23 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     var buffer = ArrayPool<byte>.Shared.Rent(ushort.MaxValue);
 
+                    string? externalIp;
+                    ushort externalPort;
+
                     try
                     {
-                        if (_receiveVoice)
+                        Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
+
+                        (externalIp, externalPort) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
+                        if (externalIp is null)
                         {
-                            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Getting external socket address.");
+                            Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
 
-                            (ip, port) = await GetExternalSocketAddressAsync(udpConnection, ssrc, buffer).ConfigureAwait(false);
-                            if (ip is null)
-                            {
-                                Log<object?>(LogLevel.Error, null, null, static (s, e) => "Failed to get the external socket address. Aborting the client.");
-
-                                Abort();
-                                return;
-                            }
-
-                            Log(LogLevel.Debug, (Ip: ip, Port: port), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
+                            Abort();
+                            return;
                         }
+
+                        Log(LogLevel.Debug, (Ip: externalIp, Port: externalPort), null, static (s, e) => $"External socket address: {s.Ip}:{s.Port}.");
                     }
                     catch
                     {
@@ -372,7 +370,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
 
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(ip, port, encryptionName)));
+                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(externalIp, externalPort, encryptionName)));
                     await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalTextPayloadProperties).ConfigureAwait(false);
 
                     await updateLatencyTask;
