@@ -19,6 +19,7 @@ vcpkg_cmake_configure(
         -DTESTING=OFF
         -DBUILD_TESTING=OFF
         -DMLS_CXX_NAMESPACE="mlspp"
+        -DCMAKE_CXX_FLAGS="-Wno-error"
     MAYBE_UNUSED_VARIABLES
         BUILD_TESTING
 )

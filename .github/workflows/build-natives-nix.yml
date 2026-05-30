@@ -1,4 +1,4 @@
-name: Build NetCord.Natives
+name: Build NetCord.Natives (Linux/MacOS, Nix)
 
 on:
   workflow_call:
@@ -11,22 +11,14 @@ on:
     paths:
       - 'NetCord.Natives/**'
       - 'Tests/NetCord.Natives.Tests/**'
-      - '.github/workflows/build-natives.yml'
+      - '.github/workflows/build-natives-nix.yml'
 
 jobs:
-  build-natives:
+  build-natives-nix:
     strategy:
       fail-fast: false
       matrix:
         include:
-          - rid: win-x64
-            runs-on: windows-latest
-            vcpkg-os-target: windows
-            vcpkg-platform-target: x64
-          - rid: win-arm64
-            runs-on: windows-11-arm
-            vcpkg-os-target: windows
-            vcpkg-platform-target: arm64
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
@@ -74,33 +66,46 @@ jobs:
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
 
-      - name: Setup vcpkg
-        uses: ./.github/actions/setup-vcpkg
+      - name: Install Nix
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
-      - name: Setup .NET Core SDK
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
-        with:
-          global-json-file: global.json
+      - name: Setup vcpkg (non-Windows, Nix)
+        shell: bash
+        run: |
+          cat > bootstrap-vcpkg.sh <<'EOF'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
+          mkdir -p "${VCPKG_DOWNLOADS}"
+          vcpkgRoot="${GITHUB_WORKSPACE}/NetCord.Natives/vcpkg"
+          echo "Bootstrapping vcpkg from: $vcpkgRoot"
+          "$vcpkgRoot/bootstrap-vcpkg.sh" -disableMetrics
+          echo "VCPKG_ROOT=$vcpkgRoot" >> "$GITHUB_ENV"
+          EOF
 
-      # - name: Install Nix
-      #   if: runner.os != 'Windows'
-      #   uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+          chmod +x bootstrap-vcpkg.sh
+          nix-shell --run ./bootstrap-vcpkg.sh
+          rm -f bootstrap-vcpkg.sh
+
+      - name: Setup dev shell
+        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
+        run: 'true'
 
       - name: Restore
-        shell: pwsh
+        shell: *dev-shell
         run: |
           dotnet restore Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
       - name: Build natives projects for ${{ matrix.rid }}
-        shell: pwsh
-        run: > # Building tests will build dependencies including the native libraries
+        shell: *dev-shell
+        run: >
           dotnet build Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
           -p:GeneratePackageOnBuild=false -p:CI=false
 
       - name: Test natives outputs for ${{ matrix.rid }}
-        shell: pwsh
+        shell: *dev-shell
         run: >
           dotnet test Tests/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
@@ -109,7 +114,7 @@ jobs:
 
       - name: Pack NuGet Package for ${{ matrix.rid }}
         if: ${{ always() }}
-        shell: pwsh
+        shell: *dev-shell
         run: >
           dotnet pack NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
@@ -118,7 +123,7 @@ jobs:
 
       - name: Upload Binary Logs
         if: ${{ env.GenerateBinLog == 'true' && always() }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.rid }}-binlogs
           path: |

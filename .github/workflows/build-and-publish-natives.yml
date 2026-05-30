@@ -5,18 +5,22 @@ on:
   push:
     paths:
       - 'NetCord.Natives/**'
-      - '.github/workflows/build-natives.yml'
+      - '.github/workflows/build-natives-nix.yml'
+      - '.github/workflows/build-natives-windows.yml'
       - '.github/workflows/build-and-publish-natives.yml'
     tags:
       - "[0-9]+.[0-9]+.[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+-*"
 
 jobs:
-  build-natives:
-    uses: ./.github/workflows/build-natives.yml
+  build-natives-nix:
+    uses: ./.github/workflows/build-natives-nix.yml
+
+  build-natives-windows:
+    uses: ./.github/workflows/build-natives-windows.yml
 
   publish:
-    needs: [build-natives]
+    needs: [build-natives-nix, build-natives-windows]
     runs-on: ubuntu-latest
 
     steps:
