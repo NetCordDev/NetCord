@@ -70,27 +70,19 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
+      - name: Setup dev shell
+        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
+        run: 'true'
+
       - name: Setup vcpkg (non-Windows, Nix)
-        shell: bash
+        shell: *dev-shell
         run: |
-          cat > bootstrap-vcpkg.sh <<'EOF'
-          #!/usr/bin/env bash
-          set -euo pipefail
           mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
           mkdir -p "${VCPKG_DOWNLOADS}"
           vcpkgRoot="${GITHUB_WORKSPACE}/NetCord.Natives/vcpkg"
           echo "Bootstrapping vcpkg from: $vcpkgRoot"
           "$vcpkgRoot/bootstrap-vcpkg.sh" -disableMetrics
           echo "VCPKG_ROOT=$vcpkgRoot" >> "$GITHUB_ENV"
-          EOF
-
-          chmod +x bootstrap-vcpkg.sh
-          nix-shell --run ./bootstrap-vcpkg.sh
-          rm -f bootstrap-vcpkg.sh
-
-      - name: Setup dev shell
-        shell: &dev-shell 'nix develop -c bash -eo pipefail {0}'
-        run: 'true'
 
       - name: Restore
         shell: *dev-shell
