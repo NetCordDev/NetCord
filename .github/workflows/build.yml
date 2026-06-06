@@ -47,7 +47,7 @@ jobs:
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup docs environment

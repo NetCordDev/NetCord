@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -42,7 +44,7 @@ jobs:
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup docs environment
@@ -80,6 +82,40 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
+        run: |
+          cp -r Documentation/_site "Documentation-$TAG"
+
+          zip -r "Documentation-$TAG.zip" "Documentation-$TAG"
+          tar -czvf "Documentation-$TAG.tar.gz" "Documentation-$TAG"
+
+          rm -r "Documentation-$TAG"
+
+          FILES=(
+            NetCord/bin/Release/*.*nupkg
+            NetCord.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg
+            "Documentation-$TAG.zip"
+            "Documentation-$TAG.tar.gz"
+          )
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" \
+              --clobber \
+              "${FILES[@]}"
+          else
+            gh release create "$TAG" \
+              --generate-notes \
+              --prerelease="$IS_PRERELEASE" \
+              "${FILES[@]}"
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
