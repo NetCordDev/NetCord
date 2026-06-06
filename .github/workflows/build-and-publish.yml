@@ -9,6 +9,8 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -42,7 +44,7 @@ jobs:
           dotnet pack NetCord -c Release --no-build
           dotnet pack NetCord.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting -c Release --no-build
-          dotnet pack Hosting/NetCord.Hosting.Services  -c Release --no-build
+          dotnet pack Hosting/NetCord.Hosting.Services -c Release --no-build
           dotnet pack Hosting/NetCord.Hosting.AspNetCore -c Release --no-build
 
       - name: Setup docs environment
@@ -80,6 +82,28 @@ jobs:
           source: Documentation/_site
           strip_components: 2
           target: ~/NetCord/html
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp -r Documentation/_site "Documentation-${{ github.ref_name }}"
+
+          zip -r "Documentation-${{ github.ref_name }}.zip" "Documentation-${{ github.ref_name }}"
+          tar -czvf "Documentation-${{ github.ref_name }}.tar.gz" "Documentation-${{ github.ref_name }}"
+
+          rm -r "Documentation-${{ github.ref_name }}"
+
+          gh release create "${{ github.ref_name }}" \
+            --generate-notes \
+            --prerelease="${{ contains(github.ref_name, '-') }}" \
+            NetCord/bin/Release/*.*nupkg \
+            NetCord.Services/bin/Release/*.*nupkg \
+            Hosting/NetCord.Hosting/bin/Release/*.*nupkg \
+            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg \
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg \
+            "Documentation-${{ github.ref_name }}.zip" \
+            "Documentation-${{ github.ref_name }}.tar.gz"
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
