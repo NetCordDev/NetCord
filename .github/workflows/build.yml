@@ -3,12 +3,10 @@ name: Build
 on:
   pull_request:
     branches:
-      - stable
-      - alpha
+      - main
   push:
     branches:
-      - stable
-      - alpha
+      - main
     tags-ignore:
       - "[0-9]+.[0-9]+.[0-9]+"
       - "[0-9]+.[0-9]+.[0-9]+-*"
