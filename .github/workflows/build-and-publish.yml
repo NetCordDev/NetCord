@@ -86,13 +86,15 @@ jobs:
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
         run: |
-          cp -r Documentation/_site "Documentation-${{ github.ref_name }}"
+          cp -r Documentation/_site "Documentation-$TAG"
 
-          zip -r "Documentation-${{ github.ref_name }}.zip" "Documentation-${{ github.ref_name }}"
-          tar -czvf "Documentation-${{ github.ref_name }}.tar.gz" "Documentation-${{ github.ref_name }}"
+          zip -r "Documentation-$TAG.zip" "Documentation-$TAG"
+          tar -czvf "Documentation-$TAG.tar.gz" "Documentation-$TAG"
 
-          rm -r "Documentation-${{ github.ref_name }}"
+          rm -r "Documentation-$TAG"
 
           FILES=(
             NetCord/bin/Release/*.*nupkg
@@ -100,8 +102,8 @@ jobs:
             Hosting/NetCord.Hosting/bin/Release/*.*nupkg
             Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg
             Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg
-            "Documentation-${{ github.ref_name }}.zip"
-            "Documentation-${{ github.ref_name }}.tar.gz"
+            "Documentation-$TAG.zip"
+            "Documentation-$TAG.tar.gz"
           )
 
           if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
@@ -111,7 +113,7 @@ jobs:
           else
             gh release create "${{ github.ref_name }}" \
               --generate-notes \
-              --prerelease="${{ contains(github.ref_name, '-') }}" \
+              --prerelease="$IS_PRERELEASE" \
               "${FILES[@]}"
           fi
 
