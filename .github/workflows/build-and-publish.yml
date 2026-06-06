@@ -94,16 +94,26 @@ jobs:
 
           rm -r "Documentation-${{ github.ref_name }}"
 
-          gh release create "${{ github.ref_name }}" \
-            --generate-notes \
-            --prerelease="${{ contains(github.ref_name, '-') }}" \
-            NetCord/bin/Release/*.*nupkg \
-            NetCord.Services/bin/Release/*.*nupkg \
-            Hosting/NetCord.Hosting/bin/Release/*.*nupkg \
-            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg \
-            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg \
-            "Documentation-${{ github.ref_name }}.zip" \
+          FILES=(
+            NetCord/bin/Release/*.*nupkg
+            NetCord.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg
+            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg
+            "Documentation-${{ github.ref_name }}.zip"
             "Documentation-${{ github.ref_name }}.tar.gz"
+          )
+
+          if gh release view "${{ github.ref_name }}" >/dev/null 2>&1; then
+            gh release upload "${{ github.ref_name }}" \
+              --clobber \
+              "${FILES[@]}"
+          else
+            gh release create "${{ github.ref_name }}" \
+              --generate-notes \
+              --prerelease="${{ contains(github.ref_name, '-') }}" \
+              "${FILES[@]}"
+          fi
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
