@@ -80,7 +80,7 @@
 
     <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="!Exists('$(VcpkgRoot)\vcpkg')">
         <Message Importance="high" Text="Bootstrapping vcpkg..." />
-        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.sh&quot; -disableMetrics" Condition="'$(OS)' != 'Windows_NT'" />
+        <Exec Command="$(VcpkgRoot)/bootstrap-vcpkg.sh -disableMetrics" Condition="'$(OS)' != 'Windows_NT'" />
         <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.bat&quot; -disableMetrics" Condition="'$(OS)' == 'Windows_NT'" />
     </Target>
 
@@ -166,7 +166,15 @@
     <Target Name="_AddNativeRuntimeCopyItems" BeforeTargets="AssignTargetPaths" DependsOnTargets="PrepareVcpkg"
             Returns="@(_CopyOutput)">
         <ItemGroup>
-            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)" />
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
+                            Condition="'%(_BuiltRid.Ext)' == 'so'" />
+            <NativesRuntime Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
+                            Condition="'%(_BuiltRid.Ext)' != 'so'" />
+
+            <_SymlinksToRemoveRuntime Include="@(NativesRuntime)"
+                                     Condition="Exists('%(FullPath)') and ($([MSBuild]::BitwiseAnd($([System.IO.File]::GetAttributes('%(FullPath)')), 1024)) == 1024)" />
+            <NativesRuntime Remove="@(_SymlinksToRemoveRuntime)" />
+
             <_CopyOutput Include="%(NativesRuntime.FullPath)">
                 <TargetPath>%(NativesRuntime.Filename)%(NativesRuntime.Extension)</TargetPath>
                 <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -174,6 +182,15 @@
             <None Include="@(_CopyOutput)" Condition="Exists('%(_CopyOutput.Identity)')" />
         </ItemGroup>
 		<Message Text="Copying native from: %(_CopyOutput.Identity)" Importance="high" />
+    </Target>
+
+    <Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="_AddNativeRuntimeCopyItems">
+        <ItemGroup>
+            <_SymlinksToCreate Include="@(NativesRuntime)" 
+                               Condition="$([System.String]::new('%(Filename)').Contains('%(NativeLibSet.Identity)'))" />
+        </ItemGroup>
+        <Message Importance="high" Text="Creating symlink for: %(_SymlinksToCreate.Filename)%(_SymlinksToCreate.Extension)" />
+        <Exec Command="f='%(_SymlinksToCreate.FullPath)'; ext=&quot;${f##*.}&quot;; link=${f%.$ext.*}.$ext; ln -sfn `basename &quot;$f&quot;` &quot;$link&quot;" />
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg">
@@ -193,12 +210,25 @@
         </PropertyGroup>
 
         <ItemGroup>
-            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)">
+            <!-- Linux: Version is appended after extension, i.e. *.so.* -->
+            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)*"
+                          Condition="'%(_BuiltRid.Ext)' == 'so'">
                 <PackagePath>runtimes\%(_BuiltRid.Identity)\native\</PackagePath>
             </NativesBuilt>
+            <!-- Windows: DLL files & macOS: Version is before extension, i.e. *.*.dylib -->
+            <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives\%(_BuiltRid.BinPath)*.%(_BuiltRid.Ext)"
+                          Condition="'%(_BuiltRid.Ext)' != 'so'">
+                <PackagePath>runtimes\%(_BuiltRid.Identity)\native\</PackagePath>
+            </NativesBuilt>
+
+            <!-- Static libraries -->
             <NativesBuilt Include="$(VcpkgArtifactsRoot)\%(_BuiltRid.Identity)\natives-static\%(_BuiltRid.LibPath).*">
                 <PackagePath>staticlibs\%(_BuiltRid.Identity)\</PackagePath>
             </NativesBuilt>
+            
+            <_SymlinksToRemoveBuilt Include="@(NativesBuilt)"
+                                   Condition="Exists('%(FullPath)') and ($([MSBuild]::BitwiseAnd($([System.IO.File]::GetAttributes('%(FullPath)')), 1024)) == 1024)" />
+            <NativesBuilt Remove="@(_SymlinksToRemoveBuilt)" />
             
             <Content Include="@(NativesBuilt)" Condition="Exists('%(NativesBuilt.Identity)')">
                 <Pack>true</Pack>

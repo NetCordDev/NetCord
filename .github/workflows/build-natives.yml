@@ -23,33 +23,42 @@ jobs:
             vcpkg-os-target: windows
             vcpkg-platform-target: x64
             use-nix: false
+            shell_command: pwsh
           - rid: win-arm64
             runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
             use-nix: false
+            shell_command: pwsh
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
             use-nix: true
+            shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: osx-arm64
             runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
             use-nix: true
+            shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: linux-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
             use-nix: true
+            shell_command: nix develop .#natives -c bash -eo pipefail {0}
           - rid: linux-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
             use-nix: true
+            shell_command: nix develop .#natives -c bash -eo pipefail {0}
 
     runs-on: ${{ matrix.runs-on }}
+    defaults:
+      run:
+        shell: ${{ matrix.shell_command }}
     env:
       CI: true
       VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg-cache,readwrite
@@ -60,6 +69,7 @@ jobs:
       RuntimeIdentifier: ${{ matrix.rid }}
       DotnetVerbose: minimal
       GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
+      VCPKG_ROOT: ${{ github.workspace }}/Natives/NetCord.Natives/vcpkg
 
     steps:
       - name: Checkout
@@ -69,20 +79,32 @@ jobs:
           filter: tree:0
           submodules: true
 
+      - name: Install Nix
+        if: ${{ matrix.use-nix }}
+        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
+
+      - name: Setup vcpkg cache directories (Windows)
+        if: ${{ !matrix.use-nix }}
+        run: |
+          New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
+          New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
+
+      - name: Setup vcpkg cache directories (Nix)
+        if: ${{ matrix.use-nix }}
+        run: |
+          mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
+          mkdir -p "${VCPKG_DOWNLOADS}"
+
       - name: Restore vcpkg cache
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             .vcpkg-cache
             .vcpkg-downloads
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/Natives/vcpkg.json', 'Natives/Natives/natives-ports/**') }}
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
-
-      - name: Install Nix
-        if: ${{ matrix.use-nix }}
-        uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
       - name: Setup .NET Core SDK (Windows)
         if: ${{ !matrix.use-nix }}
@@ -90,52 +112,36 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Setup vcpkg (Windows)
-        if: ${{ !matrix.use-nix }}
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
-          New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
-          $vcpkgRoot = Join-Path $env:GITHUB_WORKSPACE "Natives/Natives/vcpkg"
-          Write-Host "Bootstrapping vcpkg from: $vcpkgRoot"
-          & "$vcpkgRoot/bootstrap-vcpkg.bat" -disableMetrics
-          "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-
-      - name: Setup vcpkg (Nix)
-        if: ${{ matrix.use-nix }}
-        shell: nix develop .#natives -c bash -eo pipefail {0}
-        run: |
-          mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
-          mkdir -p "${VCPKG_DOWNLOADS}"
-
       - name: Restore
-        shell: ${{ matrix.use-nix && 'nix develop .#natives -c bash -eo pipefail {0}' || 'pwsh' }}
         run: |
           dotnet restore Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
       - name: Build natives projects for ${{ matrix.rid }}
-        shell: ${{ matrix.use-nix && 'nix develop .#natives -c bash -eo pipefail {0}' || 'pwsh' }}
+        id: build_step # Added an ID here to track this step's status
         run: >
           dotnet build Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
           -p:GeneratePackageOnBuild=false -p:CI=false
+          ${{ matrix.vcpkg-os-target == 'osx' && '-p:UseAppHostGlobalization=false -p:InvariantGlobalization=false' || '' }}
 
       - name: Test natives outputs for ${{ matrix.rid }}
-        shell: ${{ matrix.use-nix && 'nix develop .#natives -c bash -eo pipefail {0}' || 'pwsh' }}
+        # This will still run if Build succeeds. If Build fails, this is skipped automatically.
         run: >
           dotnet test Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
           --logger "console;verbosity=detailed" 
           --logger GitHubActions 
+          ${{ matrix.vcpkg-os-target == 'osx' && '-p:UseAppHostGlobalization=false -p:InvariantGlobalization=false' || '' }}
 
       - name: Pack NuGet Package for ${{ matrix.rid }}
-        if: ${{ always() }}
-        shell: ${{ matrix.use-nix && 'nix develop .#natives -c bash -eo pipefail {0}' || 'pwsh' }}
+        # This forces the step to run even if 'Test' failed, as long as 'Build' succeeded.
+        if: ${{ always() && steps.build_step.outcome == 'success' }}
+        id: pack_step # Added an ID here to track the pack status for the upload step
         run: >
-          dotnet pack Natives/Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
           ${{ env.GenerateBinLog == 'true' && '-bl:pack.binlog' || '' }}
-          -o Natives/Natives/bin/${{ matrix.rid }} 
+          -o Natives/NetCord.Natives/bin/${{ matrix.rid }} 
           -p:CI=false
 
       - name: Upload Binary Logs
@@ -147,13 +153,14 @@ jobs:
             *.binlog
 
       - name: Upload NuGet Package Artifact
-        if: ${{ always() }}
+        # This ensures we only upload if the Pack step actually finished successfully.
+        if: ${{ always() && steps.pack_step.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: NetCord.Natives.${{ matrix.rid }}.packages
           path: |
-            Natives/Natives/bin/${{ matrix.rid }}/*.nupkg
-            Natives/Natives/bin/${{ matrix.rid }}/*.snupkg
+            Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.nupkg
+            Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.snupkg
 
       - name: Save vcpkg cache
         if: ${{ always() }}
@@ -162,4 +169,4 @@ jobs:
           path: |
             .vcpkg-cache
             .vcpkg-downloads
-          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/Natives/vcpkg.json', 'Natives/Natives/natives-ports/**') }}
+          key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}

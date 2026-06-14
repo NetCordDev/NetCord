@@ -11,15 +11,16 @@ endif()
 
 set(VCPKG_LIBRARY_LINKAGE static)
 
+set(EXTRA_OPTIONS -DDISABLE_GREASE=ON -DTESTING=OFF -DBUILD_TESTING=OFF -DMLS_CXX_NAMESPACE="mlspp")
+if(VCPKG_HOST_IS_LINUX)
+    list(APPEND EXTRA_OPTIONS -DCMAKE_CXX_FLAGS="-Wno-error=maybe-uninitialized")
+endif()
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         ${VCPKG_INCLUDE_OVERRIDE}
-        -DDISABLE_GREASE=ON
-        -DTESTING=OFF
-        -DBUILD_TESTING=OFF
-        -DMLS_CXX_NAMESPACE="mlspp"
-        -DCMAKE_CXX_FLAGS="-Wno-error"
+        ${EXTRA_OPTIONS}
     MAYBE_UNUSED_VARIABLES
         BUILD_TESTING
 )

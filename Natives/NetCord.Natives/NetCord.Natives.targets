@@ -60,4 +60,16 @@
 		</ItemGroup>
 	</Target>
 
+	<Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="ResolveLockFileCopyLocalFiles">
+		<ItemGroup>
+			<_NativeLibNames Include="dave;mlspp;bytes;tls_syntax;hpke;crypto;sodium;opus;zstd" />
+		</ItemGroup>
+		<ItemGroup>
+			<_NativeFiles Include="$(OutDir)**\lib%(_NativeLibNames.Identity)*.so.*" />
+			<_NativeFiles Include="$(OutDir)**\lib%(_NativeLibNames.Identity)*.dylib" />
+		</ItemGroup>
+		<Message Importance="high" Text="Creating symlink for: %(_NativeFiles.Filename)%(_NativeFiles.Extension)" />
+		<Exec Command="f='%(_NativeFiles.FullPath)'; ext=&quot;${f##*.}&quot;; link=${f%.$ext.*}.$ext; ln -sfn `basename &quot;$f&quot;` &quot;$link&quot;" />
+	</Target>
+
 </Project>

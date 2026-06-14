@@ -53,7 +53,7 @@ jobs:
           TAG: ${{ github.ref_name }}
           IS_PRERELEASE: ${{ contains(github.ref_name, '-') }}
         run: |
-          cp -r Documentation/_site "Documentation-$TAG"
+          cp -r artifacts/docs "Documentation-$TAG"
 
           zip -r "Documentation-$TAG.zip" "Documentation-$TAG"
           tar -czvf "Documentation-$TAG.tar.gz" "Documentation-$TAG"
@@ -61,11 +61,7 @@ jobs:
           rm -r "Documentation-$TAG"
 
           FILES=(
-            NetCord/bin/Release/*.*nupkg
-            NetCord.Services/bin/Release/*.*nupkg
-            Hosting/NetCord.Hosting/bin/Release/*.*nupkg
-            Hosting/NetCord.Hosting.Services/bin/Release/*.*nupkg
-            Hosting/NetCord.Hosting.AspNetCore/bin/Release/*.*nupkg
+            artifacts/pkgs/*.nupkg
             "Documentation-$TAG.zip"
             "Documentation-$TAG.tar.gz"
           )
@@ -80,20 +76,3 @@ jobs:
               --prerelease="$IS_PRERELEASE" \
               "${FILES[@]}"
           fi
-
-      - name: Upload Build Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: Build Artifacts
-          path: |
-            NetCord/bin/Release
-            NetCord.Services/bin/Release
-            Hosting/NetCord.Hosting/bin/Release
-            Hosting/NetCord.Hosting.Services/bin/Release
-            Hosting/NetCord.Hosting.AspNetCore/bin/Release
-
-      - name: Upload Documentation Artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: Documentation Artifacts
-          path: Documentation/_site
