@@ -1,3 +1,3 @@
-[submodule "NetCord.Natives/vcpkg"]
-	path = NetCord.Natives/vcpkg
+[submodule "Natives/NetCord.Natives/vcpkg"]
+	path = Natives/NetCord.Natives/vcpkg
 	url = https://github.com/microsoft/vcpkg.git

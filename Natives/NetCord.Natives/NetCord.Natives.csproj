@@ -7,7 +7,7 @@
         <IncludeSymbols>false</IncludeSymbols>
         <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 
-        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..'))</RepositoryRoot>
+        <RepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\..\..\..'))</RepositoryRoot>
     </PropertyGroup>
 
     <ItemGroup>
@@ -78,7 +78,13 @@
     <Import Project="vcpkg-non-windows.targets" 
             Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
 
-    <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection">
+    <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="!Exists('$(VcpkgRoot)\vcpkg')">
+        <Message Importance="high" Text="Bootstrapping vcpkg..." />
+        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.sh&quot; -disableMetrics" Condition="'$(OS)' != 'Windows_NT'" />
+        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.bat&quot; -disableMetrics" Condition="'$(OS)' == 'Windows_NT'" />
+    </Target>
+
+    <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection" DependsOnTargets="BootstrapVcpkg">
     
         <Error Text="Make sure VCPKG_ROOT environment variable is set, or set &lt;VcpkgRoot&gt; property to your vcpkg installation." 
                Condition="!Exists('$(VcpkgMsbuildPath).targets')" />

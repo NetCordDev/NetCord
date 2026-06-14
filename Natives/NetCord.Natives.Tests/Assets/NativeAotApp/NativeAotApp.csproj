@@ -11,7 +11,7 @@
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
       
-    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\..\NetCord.Natives</NetCordNativesDir>
+    <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
 		<DirectPInvoke Include="opus" />
 		<DirectPInvoke Include="zstd" />
 		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
-		<ProjectReference Include="$(NetCordNativesDir)\..\NetCord\NetCord.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
 	</ItemGroup>
 	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 

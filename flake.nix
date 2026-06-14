@@ -49,10 +49,16 @@
 
         natives = pkgs.mkShell {
           packages = [
+            dotnet
+            pkgs.cmake
+            pkgs.ninja
+            pkgs.pkg-config
             pkgs.autoconf
             pkgs.automake
             pkgs.libtool
           ];
+
+          DOTNET_ROOT = dotnetRoot;
         };
 
         docs = pkgs.mkShell {

@@ -30,7 +30,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <NetCordNativesDir>..\..\NetCord.Natives\</NetCordNativesDir>
+    <NetCordNativesDir>..\NetCord.Natives\</NetCordNativesDir>
     <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
 
     <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
