@@ -9,15 +9,25 @@ public static class GatewayClientExtensions
     /// <param name="guildId">The ID of the guild containing the channel.</param>
     /// <param name="channelId">The ID of the voice channel to join.</param>
     /// <param name="configuration">Configuration settings for the <see cref="VoiceClient"/>.</param>
-    /// <param name="cancellationToken">Cancellation token for the operation. If not cancellable, the default timeout of 2 seconds is used.</param>
+    /// <param name="timeout">The maximum amount of time to wait for the voice state and server update events. If not specified, a default timeout of 2 seconds is used.</param>
+    /// <param name="timeProvider">The <see cref="TimeProvider"/> to use for measuring the timeout. If not specified, <see cref="TimeProvider.System"/> is used.</param>
+    /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <remarks>This method is not thread safe and should not be used concurrently for the same <paramref name="guildId"/>.</remarks>
     /// <returns>A task, the result of which is an unconnected <see cref="VoiceClient"/> instance.</returns>
-    public static async Task<VoiceClient> JoinVoiceChannelAsync(this GatewayClient client, ulong guildId, ulong channelId, VoiceClientConfiguration? configuration = null, CancellationToken cancellationToken = default)
+    public static async Task<VoiceClient> JoinVoiceChannelAsync(this GatewayClient client,
+                                                                ulong guildId,
+                                                                ulong channelId,
+                                                                VoiceClientConfiguration? configuration = null,
+                                                                TimeSpan? timeout = null,
+                                                                TimeProvider? timeProvider = null,
+                                                                CancellationToken cancellationToken = default)
     {
         var userId = client.Id;
 
-        TaskCompletionSource<VoiceState> stateTaskCompletionSource = new();
-        TaskCompletionSource<VoiceServerUpdateEventArgs> serverTaskCompletionSource = new();
+        VoiceState? state = null;
+        VoiceServerUpdateEventArgs? server = null;
+
+        TaskCompletionSource eventsTaskCompletionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var voiceStateUpdateHandler = HandleVoiceStateUpdateAsync;
         var voiceServerUpdateHandler = HandleVoiceServerUpdateAsync;
@@ -36,59 +46,47 @@ public static class GatewayClientExtensions
             throw;
         }
 
-        VoiceState state;
-        VoiceServerUpdateEventArgs server;
-        if (cancellationToken.CanBeCanceled)
-            (state, server) = await WaitForEventsAsync(cancellationToken).ConfigureAwait(false);
-        else
+        try
         {
-            using CancellationTokenSource tokenSource = new(2000);
-            (state, server) = await WaitForEventsAsync(tokenSource.Token).ConfigureAwait(false);
+            await eventsTaskCompletionSource.Task.WaitAsync(timeout ?? new(2 * TimeSpan.TicksPerSecond),
+                                                            timeProvider ?? TimeProvider.System,
+                                                            cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            client.VoiceStateUpdate -= voiceStateUpdateHandler;
+            client.VoiceServerUpdate -= voiceServerUpdateHandler;
         }
 
-        return new(userId, state.SessionId, server.Endpoint!, guildId, channelId, server.Token, configuration);
+        if (server!.Endpoint is not { } endpoint)
+            throw new InvalidOperationException("The voice server is unavailable.");
+
+        return new(userId, state!.SessionId, endpoint, guildId, channelId, server.Token, configuration);
 
         ValueTask HandleVoiceStateUpdateAsync(VoiceState arg)
         {
-            if (arg.UserId == userId && arg.ChannelId == channelId)
-                stateTaskCompletionSource.TrySetResult(arg);
+            if (arg.UserId == userId && arg.ChannelId == channelId && state is null)
+            {
+                state = arg;
+
+                if (server is not null)
+                    eventsTaskCompletionSource.TrySetResult();
+            }
+
             return default;
         }
 
         ValueTask HandleVoiceServerUpdateAsync(VoiceServerUpdateEventArgs arg)
         {
-            if (arg.GuildId == guildId)
-                serverTaskCompletionSource.TrySetResult(arg);
+            if (arg.GuildId == guildId && server is null)
+            {
+                server = arg;
+
+                if (state is not null)
+                    eventsTaskCompletionSource.TrySetResult();
+            }
+
             return default;
-        }
-
-        async Task<(VoiceState, VoiceServerUpdateEventArgs)> WaitForEventsAsync(CancellationToken cancellationToken)
-        {
-            VoiceState state;
-            try
-            {
-                state = await stateTaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch
-            {
-                client.VoiceServerUpdate -= voiceServerUpdateHandler;
-                throw;
-            }
-            finally
-            {
-                client.VoiceStateUpdate -= voiceStateUpdateHandler;
-            }
-
-            VoiceServerUpdateEventArgs server;
-            try
-            {
-                server = await serverTaskCompletionSource.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                client.VoiceServerUpdate -= voiceServerUpdateHandler;
-            }
-            return (state, server);
         }
     }
 }
