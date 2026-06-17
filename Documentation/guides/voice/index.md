@@ -8,9 +8,6 @@ published_time: '2025-12-15T00:00:00Z'
 modified_time: '2026-02-12T00:00:00Z'
 ---
 
-> [!NOTE]
-> Content for this section is under development.
-
 # Voice Overview
 
 Discord allows you to connect to voice channels and stream audio in real-time. With NetCord, you can create powerful voice bots that can play music, record conversations, and process voice data. This guide covers the essentials of working with Discord voice channels, including connecting, streaming audio and recording.

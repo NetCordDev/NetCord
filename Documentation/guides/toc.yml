@@ -32,8 +32,6 @@
       href: voice/sending-voice.md
     - name: Audio Recording
       href: voice/receiving-voice.md
-    - name: Stream Types
-      href: voice/stream-types.md
 - name: Services
   items:
     - name: Introduction

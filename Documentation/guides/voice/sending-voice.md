@@ -8,9 +8,6 @@ published_time: '2025-12-15T00:00:00Z'
 modified_time: '2025-02-12T00:00:00Z'
 ---
 
-> [!NOTE]
-> Content for this section is under development.
-
 # Sending Voice
 
 In this section, you'll learn how to send audio to Discord voice channels using NetCord. We'll cover the basics of audio streaming, encoding, and best practices for creating music bots and other voice applications.

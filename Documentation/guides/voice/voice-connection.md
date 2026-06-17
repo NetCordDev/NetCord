@@ -8,9 +8,6 @@ published_time: '2025-12-15T00:00:00Z'
 modified_time: '2026-02-12T00:00:00Z'
 ---
 
-> [!NOTE]
-> Content for this section is under development.
-
 # Voice Connection Overview
 
 In this section, you'll learn how to connect your Discord bot to voice channels using NetCord. We'll cover the basics of voice connections, managing voice state, and best practices for maintaining stable connections.

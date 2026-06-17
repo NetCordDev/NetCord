@@ -8,9 +8,6 @@ published_time: '2025-12-15T00:00:00Z'
 modified_time: '2025-02-15T00:00:00Z'
 ---
 
-> [!NOTE]
-> Content for this section is under development.
-
 # Receiving Voice
 
 This section will cover how to receive audio from Discord voice channels using NetCord. You'll learn how to capture audio from users in a voice channel, decode the Opus-encoded audio data, and process it for various applications such as recording.
