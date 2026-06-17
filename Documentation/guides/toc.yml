@@ -18,6 +18,10 @@
       href: basic-concepts/sending-messages.md
     - name: HTTP Interactions
       href: basic-concepts/http-interactions.md
+    - name: Sharding
+      href: basic-concepts/sharding.md
+    - name: Voice
+      href: basic-concepts/voice.md
 - name: Voice
   items:
     - name: Overview
@@ -30,14 +34,6 @@
       href: voice/receiving-voice.md
     - name: Stream Types
       href: voice/stream-types.md
-- name: Advanced Topics
-  items:
-    - name: Overview
-      href: advanced-topics/index.md
-    - name: Sharding
-      href: basic-concepts/sharding.md
-    - name: Voice
-      href: basic-concepts/voice.md
 - name: Services
   items:
     - name: Introduction
