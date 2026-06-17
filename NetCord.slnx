@@ -6,12 +6,15 @@
   </Folder>
   <Folder Name="/Documentation/guides/" />
   <Folder Name="/Documentation/guides/basic-concepts/">
-    <Project Path="Documentation/guides/basic-concepts/HttpInteractions/HttpInteractions.csproj" />
     <Project Path="Documentation/guides/basic-concepts/RespondingToInteractions/RespondingToInteractions.csproj" />
     <Project Path="Documentation/guides/basic-concepts/SendingMessages/SendingMessages.csproj" />
     <Project Path="Documentation/guides/basic-concepts/Sharding/Sharding.csproj" />
     <Project Path="Documentation/guides/basic-concepts/ShardingHosting/ShardingHosting.csproj" />
     <Project Path="Documentation/guides/basic-concepts/Voice/Voice.csproj" />
+  </Folder>
+  <Folder Name="/Documentation/guides/http-events/">
+    <Project Path="Documentation/guides/http-events/Introduction/Introduction.csproj" />
+    <Project Path="Documentation/guides/http-events/AWSLambda/AWSLambda.csproj" />
   </Folder>
   <Folder Name="/Documentation/guides/events/">
     <Project Path="Documentation/guides/events/FirstEvents/FirstEvents.csproj" />
