@@ -65,7 +65,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (guild is null)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
 
-            var botId = context.Client.Cache.User!.Id;
+            var botId = context.Client.Id;
 
             if (guild.OwnerId == botId)
                 return new(PreconditionResult.Success);
@@ -88,7 +88,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
             if (guild is null)
                 return new(PreconditionResult.Fail("The current guild could not be found."));
 
-            var botId = context.Client.Cache.User!.Id;
+            var botId = context.Client.Id;
 
             if (guild.OwnerId == botId)
                 return new(PreconditionResult.Success);
