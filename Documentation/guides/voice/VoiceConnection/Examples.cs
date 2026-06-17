@@ -1,4 +1,4 @@
-﻿using NetCord.Gateway;
+using NetCord.Gateway;
 using NetCord.Gateway.Voice;
 using NetCord.Logging;
 
@@ -19,7 +19,6 @@ internal static class Examples
     public static async Task LeaveVoiceAsync(GatewayClient client, VoiceClient voiceClient, ulong guildId)
     {
         await voiceClient.CloseAsync();
-        voiceClient.Dispose();
 
         await client.UpdateVoiceStateAsync(new(guildId, channelId: null));
     }

@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -51,20 +51,17 @@ host.AddSlashCommand("join", "Joins a channel", async (ApplicationCommandContext
             .WithContent("Already connected to a voice channel in this guild.")
             .WithFlags(MessageFlags.Ephemeral);
 
-    VoiceClient? voiceClient = null;
+    VoiceClient? voiceClient;
     try
     {
         voiceClient = await context.Client.JoinVoiceChannelAsync(guildId, channelId, new()
         {
-            ReceiveHandler = new VoiceReceiveHandler(),
             Logger = new ConsoleLogger(),
         });
     }
     catch
     {
         voiceInstances.TryRemove(item: new(guildId, null));
-
-        voiceClient?.Dispose();
 
         await context.Client.UpdateVoiceStateAsync(new(guildId, null));
 
@@ -206,10 +203,10 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
         RedirectStandardOutput = true,
     })!;
 
+    var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
+
     try
     {
-        var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
-
         await ffmpegOutput.CopyToAsync(opusEncodeStream, cancellationToken);
         await opusEncodeStream.FlushAsync(cancellationToken);
     }

@@ -1,4 +1,4 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 
 using NetCord.Gateway.Voice;
 
@@ -6,14 +6,6 @@ namespace MyBot;
 
 internal static class Examples
 {
-    public static void SpecifyVoiceReceiveHandler()
-    {
-        VoiceClientConfiguration configuration = new()
-        {
-            ReceiveHandler = new VoiceReceiveHandler(),
-        };
-    }
-
     public static void VoiceReceiveEvent(VoiceClient voiceClient)
     {
         voiceClient.VoiceReceive += args =>

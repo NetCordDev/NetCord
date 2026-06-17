@@ -51,7 +51,7 @@ You can use for example [FFmpeg](https://ffmpeg.org) to convert various audio fo
 
 Now, it's time to finally... add a `/play` command to our bot! This command plays an audio file in the voice channel the bot is currently connected to.
 
-[!code-cs[Play Command](Voice/Program.cs#L152-L223)]
+[!code-cs[Play Command](Voice/Program.cs#L149-L220)]
 
 Now, our bot can finally play audio files! You can test it out by using the `/play` command. Please note that you need to use the `/join` command to have the bot join a voice channel before you can use the `/play` command.
 
