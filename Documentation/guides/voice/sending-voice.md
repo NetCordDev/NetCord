@@ -16,7 +16,7 @@ In this section, you'll learn how to send audio to Discord voice channels using 
 
 NetCord provides 2 ways of sending audio to voice channels. @NetCord.Gateway.Voice.VoiceClient.CreateVoiceStream* method creates a stream that you can write Opus-encoded audio data to, and it will handle sending it to Discord. If you need more control over the streaming process, you can use @NetCord.Gateway.Voice.VoiceClient.SendVoice* or @NetCord.Gateway.Voice.VoiceClient.SendVoiceAsync*. They allow you to send Opus-encoded audio data directly as well as handling the timing of the packets.
 
-For most music bots, using the stream returned by @NetCord.Gateway.Voice.VoiceClient.CreateVoiceStream* is usually sufficient. It's easier to use and abstracts away the complexities of packet timing and management. It also integrates well with @NetCord.Gateway.Voice.OpusEncodeStream, allowing you to easily encode and stream audio in one step, which you will learn about in the next section.
+For most music bots, using the stream returned by @NetCord.Gateway.Voice.VoiceClient.CreateVoiceStream* is sufficient. It's easier to use and abstracts away the complexities of packet timing and management. It also integrates well with @NetCord.Gateway.Voice.OpusEncodeStream, allowing you to easily encode and stream audio in one step, which you will learn about in the next section.
 
 [!code-cs[Creating Voice Stream](SendingVoice/Examples.cs#L11)]
 
