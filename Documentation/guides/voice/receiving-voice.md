@@ -65,5 +65,4 @@ Now it's time to add a `/record` command to our bot that records what a user is 
 ## See Also
 
 - [Voice Connection](voice-connection.md) - Join and manage voice channels
-- [Sending Voice Audio](sending-voice.md) - Send audio to voice channels
-- [Stream Types](stream-types.md) - Deep dive into PCM and Opus formats
+- [Sending Voice](sending-voice.md) - Send audio to voice channels

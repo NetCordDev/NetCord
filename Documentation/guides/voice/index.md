@@ -46,9 +46,8 @@ When working with Discord voice, ensure your bot complies with [Discord's Terms 
 ## See Also
 
 - [Connecting to Voice](voice-connection.md) - Voice connection lifecycle and management
-- [Sending Voice Audio](sending-voice.md) - Stream audio to voice channels
-- [Receiving Voice Audio](receiving-voice.md) - Record voice from users
-- [Stream Types](stream-types.md) - Understand audio stream types and formats
+- [Sending Voice](sending-voice.md) - Stream audio to voice channels
+- [Receiving Voice](receiving-voice.md) - Receive voice from users
 - [Gateway Intents](../events/intents.md) - Configure required intents
 - [Dependency Injection](../services-framework/dependency-injection.md) - Manage VoiceClient with DI
 - [Discord Docs: Voice Connections](https://discord.com/developers/docs/topics/voice-connections)

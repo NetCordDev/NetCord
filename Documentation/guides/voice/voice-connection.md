@@ -73,4 +73,3 @@ That's it! Now your bot can join and leave voice channels. You can test the comm
 
 - [Sending Voice](sending-voice.md) - Stream audio to voice channels
 - [Receiving Voice](receiving-voice.md) - Receive and record voice channel audio
-- [Stream Types](stream-types.md) - Working with PCM and Opus formats
