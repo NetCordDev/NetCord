@@ -6,6 +6,7 @@ namespace NetCord.Gateway.Voice.Encryption;
 
 public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 {
+    private AesGcm? _decryption;
     private AesGcm? _encryption;
     private int _nonce;
 
@@ -60,7 +61,7 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
         var tag = payload[^(TagSize + sizeof(int))..^sizeof(int)];
         var ad = packet.ExtendedHeader;
 
-        _encryption!.Decrypt(nonce, ciphertext, tag, plaintext, ad);
+        _decryption!.Decrypt(nonce, ciphertext, tag, plaintext, ad);
     }
 
     public void Encrypt(ReadOnlySpan<byte> plaintext, RtpPacketWriter packet)
@@ -87,11 +88,13 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 
     public void SetKey(byte[] key)
     {
+        _decryption = new(key, TagSize);
         _encryption = new(key, TagSize);
     }
 
     public void Dispose()
     {
+        _decryption?.Dispose();
         _encryption?.Dispose();
     }
 }
