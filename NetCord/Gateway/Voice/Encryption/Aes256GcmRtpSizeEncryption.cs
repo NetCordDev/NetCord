@@ -11,6 +11,8 @@ public sealed class Aes256GcmRtpSizeEncryption : IVoiceEncryption
 
     private const int TagSize = 16;
 
+    public static bool IsSupported => AesGcm.IsSupported;
+
     public string Name => "aead_aes256_gcm_rtpsize";
 
     public int Expansion => TagSize + sizeof(int);
