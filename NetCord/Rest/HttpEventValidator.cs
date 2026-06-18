@@ -120,10 +120,11 @@ public partial class HttpEventValidator
 
     private bool ValidateUnsafe(ReadOnlySpan<byte> signature, ReadOnlySpan<byte> timestampAndBody)
     {
-        int result = CryptoSignEd25519VerifyDetached(ref MemoryMarshal.GetReference(signature!),
-                                                     ref MemoryMarshal.GetReference(timestampAndBody),
-                                                     (ulong)timestampAndBody.Length,
-                                                     ref MemoryMarshal.GetArrayDataReference(_publicKey));
+        int result = Libsodium.Ed25519_CryptoSignEd25519VerifyDetached(
+            ref MemoryMarshal.GetReference(signature),
+            ref MemoryMarshal.GetReference(timestampAndBody),
+            (ulong)timestampAndBody.Length,
+            ref MemoryMarshal.GetArrayDataReference(_publicKey));
 
         return result is 0;
     }
@@ -140,7 +141,4 @@ public partial class HttpEventValidator
     {
         return Convert.FromHexString(chars, bytes, out int _, out int _) is OperationStatus.Done;
     }
-
-    [LibraryImport("libsodium", EntryPoint = "crypto_sign_ed25519_verify_detached")]
-    private static partial int CryptoSignEd25519VerifyDetached(ref byte sig, ref byte m, ulong mlen, ref byte pk);
 }
