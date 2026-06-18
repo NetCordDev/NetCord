@@ -14,7 +14,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
 
     public string Name => "aead_xchacha20_poly1305_rtpsize";
 
-    public int Expansion => XChaCha20Poly1305.ABytes + sizeof(int);
+    public int Expansion => Libsodium.XChaCha20Poly1305_ABytes + sizeof(int);
 
     public bool TryDecrypt(RtpPacket packet, Span<byte> plaintext)
     {
@@ -22,7 +22,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
 
         var noncePart = payload[^sizeof(int)..];
 
-        Span<byte> nonce = stackalloc byte[XChaCha20Poly1305.NPubBytes];
+        Span<byte> nonce = stackalloc byte[Libsodium.XChaCha20Poly1305_NPubBytes];
         ref var nonceRef = ref MemoryMarshal.GetReference(nonce);
 
         Unsafe.CopyBlockUnaligned(ref nonceRef, ref MemoryMarshal.GetReference(noncePart), sizeof(int));
@@ -30,15 +30,16 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
         var ciphertext = payload[..^sizeof(int)];
         var ad = packet.ExtendedHeader;
 
-        int result = XChaCha20Poly1305.CryptoAeadXChaCha20Poly1305IetfDecrypt(ref MemoryMarshal.GetReference(plaintext),
-                                                                              ref Unsafe.NullRef<ulong>(),
-                                                                              ref Unsafe.NullRef<byte>(),
-                                                                              ref MemoryMarshal.GetReference(ciphertext),
-                                                                              (ulong)ciphertext.Length,
-                                                                              ref MemoryMarshal.GetReference(ad),
-                                                                              (ulong)ad.Length,
-                                                                              ref nonceRef,
-                                                                              ref MemoryMarshal.GetArrayDataReference(_key!));
+        int result = Libsodium.XChaCha20Poly1305_CryptoAeadXChaCha20Poly1305IetfDecrypt(
+            ref MemoryMarshal.GetReference(plaintext),
+            ref Unsafe.NullRef<ulong>(),
+            ref Unsafe.NullRef<byte>(),
+            ref MemoryMarshal.GetReference(ciphertext),
+            (ulong)ciphertext.Length,
+            ref MemoryMarshal.GetReference(ad),
+            (ulong)ad.Length,
+            ref nonceRef,
+            ref MemoryMarshal.GetArrayDataReference(_key!));
 
         return result is 0;
     }
@@ -53,7 +54,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
 
         Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(noncePart), nonceValue);
 
-        Span<byte> nonce = stackalloc byte[XChaCha20Poly1305.NPubBytes];
+        Span<byte> nonce = stackalloc byte[Libsodium.XChaCha20Poly1305_NPubBytes];
         ref var nonceRef = ref MemoryMarshal.GetReference(nonce);
 
         Unsafe.WriteUnaligned(ref nonceRef, nonceValue);
@@ -61,15 +62,16 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
         var ciphertext = payload[..^sizeof(int)];
         var ad = packet.ExtendedHeader;
 
-        int result = XChaCha20Poly1305.CryptoAeadXChaCha20Poly1305IetfEncrypt(ref MemoryMarshal.GetReference(ciphertext),
-                                                                              ref Unsafe.NullRef<ulong>(),
-                                                                              ref MemoryMarshal.GetReference(plaintext),
-                                                                              (ulong)plaintext.Length,
-                                                                              ref MemoryMarshal.GetReference(ad),
-                                                                              (ulong)ad.Length,
-                                                                              ref Unsafe.NullRef<byte>(),
-                                                                              ref nonceRef,
-                                                                              ref MemoryMarshal.GetArrayDataReference(_key!));
+        int result = Libsodium.XChaCha20Poly1305_CryptoAeadXChaCha20Poly1305IetfEncrypt(
+            ref MemoryMarshal.GetReference(ciphertext),
+            ref Unsafe.NullRef<ulong>(),
+            ref MemoryMarshal.GetReference(plaintext),
+            (ulong)plaintext.Length,
+            ref MemoryMarshal.GetReference(ad),
+            (ulong)ad.Length,
+            ref Unsafe.NullRef<byte>(),
+            ref nonceRef,
+            ref MemoryMarshal.GetArrayDataReference(_key!));
 
         return result is 0;
     }
@@ -90,7 +92,7 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
     [StackTraceHidden]
     private static void ThrowLibsodiumException()
     {
-        throw new LibsodiumException();
+        throw new LibsodiumException("Libsodium returned an error.");
     }
 
     public void SetKey(byte[] key)
