@@ -8,12 +8,12 @@ public enum SubscriptionStatus : byte
     Active = 0,
 
     /// <summary>
-    /// Subscription is active but will not renew.
-    /// </summary>
-    Ending = 1,
-
-    /// <summary>
     /// Subscription is inactive and not being charged.
     /// </summary>
-    Inactive = 2,
+    Inactive = 1,
+
+    /// <summary>
+    /// Subscription is active but will not renew.
+    /// </summary>
+    Ending = 2,
 }
