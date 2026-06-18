@@ -187,7 +187,7 @@ host.AddSlashCommand("play", "Plays audio", async (ApplicationCommandContext con
                                                   VoiceChannels.Stereo,
                                                   OpusApplication.Audio);
 
-    const string Input = "..."; // TODO: Replace with a link to an actual audio file
+    const string Input = "https://preview.netcord.dev/359/sounds/sample.mp3"; // TODO: Change to netcord.dev
 
     using var ffmpeg = Process.Start(new ProcessStartInfo
     {
