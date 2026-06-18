@@ -10,6 +10,8 @@ public sealed class XChaCha20Poly1305RtpSizeEncryption : IVoiceEncryption
     private byte[]? _key;
     private int _nonce;
 
+    public static bool IsSupported => true;
+
     public string Name => "aead_xchacha20_poly1305_rtpsize";
 
     public int Expansion => XChaCha20Poly1305.ABytes + sizeof(int);
