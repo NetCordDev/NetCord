@@ -6,6 +6,11 @@ namespace NetCord.Gateway.Voice.Encryption;
 public interface IVoiceEncryption : IDisposable
 {
     /// <summary>
+    /// Indicates whether the encryption algorithm is supported on the current platform.
+    /// </summary>
+    public static abstract bool IsSupported { get; }
+
+    /// <summary>
     /// The name of the encryption algorithm.
     /// </summary>
     public string Name { get; }
