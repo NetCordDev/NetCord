@@ -20,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="libdave.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="runtimes\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
