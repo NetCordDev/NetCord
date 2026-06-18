@@ -10,7 +10,7 @@
       "natives-ports"
     ]
   },
-  "builtin-baseline": "d07689ef165f033de5c0710e4f67c193a85373e1",
+  "builtin-baseline": "89dd0f4d241136b843fb55813b2f0fa6448c204d",
   "overrides": [
     {
       "name": "openssl",

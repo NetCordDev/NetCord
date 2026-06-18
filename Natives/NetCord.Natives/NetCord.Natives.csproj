@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <Description>Pre-built native libraries for NetCord, $(Description)</Description>
@@ -74,15 +74,15 @@
 
     <Import Project="$(VcpkgMsbuildPath).props" Condition="Exists('$(VcpkgMsbuildPath).props')" />
     <Import Project="$(VcpkgMsbuildPath).targets" Condition="Exists('$(VcpkgMsbuildPath).targets')" />
+    
+    <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="'$(VcpkgOSTarget)' == 'windows' and !Exists('$(VcpkgRoot)\vcpkg.exe')">
+        <Message Importance="high" Text="Bootstrapping vcpkg..." />
+        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.bat&quot; -disableMetrics" />
+    </Target>
+
     <!-- When not on Windows, refer to this file -->
     <Import Project="vcpkg-non-windows.targets" 
             Condition="'$(VcpkgBuildOS)' != 'win' and Exists('vcpkg-non-windows.targets')" />
-
-    <Target Name="BootstrapVcpkg" BeforeTargets="PrepareVcpkg" Condition="!Exists('$(VcpkgRoot)\vcpkg')">
-        <Message Importance="high" Text="Bootstrapping vcpkg..." />
-        <Exec Command="$(VcpkgRoot)/bootstrap-vcpkg.sh -disableMetrics" Condition="'$(OS)' != 'Windows_NT'" />
-        <Exec Command="&quot;$(VcpkgRoot)\bootstrap-vcpkg.bat&quot; -disableMetrics" Condition="'$(OS)' == 'Windows_NT'" />
-    </Target>
 
     <Target Name="PrepareVcpkg" BeforeTargets="VcpkgTripletSelection" DependsOnTargets="BootstrapVcpkg">
     
