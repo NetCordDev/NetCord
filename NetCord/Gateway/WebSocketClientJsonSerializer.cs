@@ -7,6 +7,8 @@ internal static class WebSocketClientJsonSerializer
 {
     private readonly record struct State(Utf8JsonWriter Writer, RentedArrayBufferWriter<byte> Output);
 
+    private const int DefaultBufferSize = 1024;
+
     [ThreadStatic]
     private static State? t_state;
 
@@ -19,7 +21,7 @@ internal static class WebSocketClientJsonSerializer
         }
         else
         {
-            output = new(1024);
+            output = new(DefaultBufferSize);
             writer = new(output);
             t_state = new(writer, output);
         }
