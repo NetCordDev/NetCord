@@ -6,6 +6,20 @@ namespace NetCord.Gateway;
 
 internal sealed class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : IBufferWriter<T>, IDisposable
 {
+    public readonly struct RentedBufferOwner(T[] buffer, int writtenCount) : IDisposable
+    {
+        public ReadOnlyMemory<T> WrittenMemory => buffer.AsMemory(0, writtenCount);
+
+        public ReadOnlySpan<T> WrittenSpan => buffer.AsSpan(0, writtenCount);
+
+        public int WrittenCount => writtenCount;
+
+        public void Dispose()
+        {
+            ArrayPool<T>.Shared.Return(buffer);
+        }
+    }
+
     private int _index;
 
     private T[] _buffer = ArrayPool<T>.Shared.Rent(minimumInitialCapacity);
@@ -21,6 +35,19 @@ internal sealed class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : I
     public void Advance(int count)
     {
         _index += count;
+    }
+
+    public RentedBufferOwner ExtractBuffer()
+    {
+        var buffer = _buffer;
+
+        RentedBufferOwner rentedBufferOwner = new(buffer, _index);
+
+        _buffer = ArrayPool<T>.Shared.Rent(buffer.Length);
+
+        _index = 0;
+
+        return rentedBufferOwner;
     }
 
     public void Clear()
@@ -52,13 +79,19 @@ internal sealed class RentedArrayBufferWriter<T>(int minimumInitialCapacity) : I
 
         var buffer = _buffer;
         int index = _index;
+
         int sum = index + sizeHint;
+
         if (buffer.Length < sum)
         {
             var pool = ArrayPool<T>.Shared;
+
             var newBuffer = pool.Rent(sum);
+
             buffer.AsSpan(0, index).CopyTo(newBuffer);
+
             _buffer = newBuffer;
+
             pool.Return(buffer);
         }
     }
