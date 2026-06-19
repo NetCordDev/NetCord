@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -129,9 +128,11 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token, DaveSession.GetMaxSupportedProtocolVersion())).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
+        VoicePayloadProperties<VoiceIdentifyProperties> payload = new(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token, DaveSession.GetMaxSupportedProtocolVersion()));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties, _internalTextPayloadProperties, cancellationToken);
     }
 
     private VoiceState CreateState()
@@ -162,11 +163,11 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var connectionState = await StartAsync(CreateState(), cancellationToken).ConfigureAwait(false);
 
-        if (_udpState is { } udpClient)
+        if (_udpState is { } udpState)
         {
-            if (udpClient.TryIndicateConnecting(out var closedCancellationToken))
+            if (udpState.TryIndicateConnecting(out var closedCancellationToken))
             {
-                var connection = udpClient.Connection;
+                var connection = udpState.Connection;
 
                 await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -201,16 +202,27 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private ValueTask TryResumeAsync(ConnectionState connectionState, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
+        VoicePayloadProperties<VoiceResumeProperties> payload = new(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties, _internalTextPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceHeartbeatProperties>(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties);
+        VoicePayloadProperties<VoiceHeartbeatProperties> payload = new(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties, _internalTextPayloadProperties, cancellationToken);
+    }
+
+    private ValueTask SelectProtocolAsync(ConnectionState connectionState, ProtocolProperties protocolProperties, CancellationToken cancellationToken = default)
+    {
+        VoicePayloadProperties<ProtocolProperties> payload = new(VoiceOpcode.SelectProtocol, protocolProperties);
+
+        return SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesProtocolProperties, _internalTextPayloadProperties, cancellationToken);
     }
 
     private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> payload)
@@ -370,8 +382,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
 
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(externalIp, externalPort, encryptionName)));
-                    await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalTextPayloadProperties).ConfigureAwait(false);
+                    await SelectProtocolAsync(connectionState, new("udp", new(externalIp, externalPort, encryptionName))).ConfigureAwait(false);
 
                     await updateLatencyTask;
                 }
@@ -732,7 +743,8 @@ public sealed partial class VoiceClient : WebSocketClient
     public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, speaking);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
+
+        return SendObjectAsync(payload, Serialization.Default.VoicePayloadPropertiesSpeakingProperties, properties, cancellationToken);
     }
 
     /// <summary>

@@ -3,6 +3,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
@@ -610,6 +612,13 @@ public abstract partial class WebSocketClient : IDisposable
         return ResumeAsync(state);
     }
 
+    private protected async ValueTask SendObjectAsync<T>(T obj, JsonTypeInfo<T> jsonTypeInfo, WebSocketPayloadProperties? properties, CancellationToken cancellationToken = default)
+    {
+        using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
+
+        await SendPayloadAsync(output.WrittenMemory, properties, cancellationToken).ConfigureAwait(false);
+    }
+
     public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
     {
         var payloadProperties = _defaultTextPayloadProperties.Compose(properties);
@@ -656,6 +665,13 @@ public abstract partial class WebSocketClient : IDisposable
             if (!payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 ThrowConnectionNotStarted();
         }
+    }
+
+    private protected async ValueTask SendConnectionObjectAsync<T>(ConnectionState connectionState, T obj, JsonTypeInfo<T> jsonTypeInfo, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    {
+        using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
+
+        await SendConnectionPayloadAsync(connectionState, output.WrittenMemory, payloadProperties, cancellationToken).ConfigureAwait(false);
     }
 
     private protected async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)

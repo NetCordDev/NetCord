@@ -367,9 +367,9 @@ public partial class VoiceClient
 
         private ValueTask SendTransitionReadyAsync(ConnectionState connectionState, ushort transitionId)
         {
-            VoicePayloadProperties<DaveTransitionReadyProperties> readyPayload = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
+            VoicePayloadProperties<DaveTransitionReadyProperties> payload = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
 
-            return _client.SendConnectionPayloadAsync(connectionState, readyPayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveTransitionReadyProperties), _client._internalTextPayloadProperties);
+            return _client.SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesDaveTransitionReadyProperties, _client._internalTextPayloadProperties);
         }
 
         private ValueTask SendMlsCommitWelcomeAsync(ConnectionState connectionState, ReadOnlySpan<byte> commitWelcomeMessage)
@@ -397,9 +397,9 @@ public partial class VoiceClient
 
         private ValueTask SendMlsInvalidCommitWelcomeAsync(ConnectionState connectionState, ushort transitionId)
         {
-            VoicePayloadProperties<DaveMlsInvalidCommitWelcomeProperties> invalidCommitWelcomePayload = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
+            VoicePayloadProperties<DaveMlsInvalidCommitWelcomeProperties> payload = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
 
-            return _client.SendConnectionPayloadAsync(connectionState, invalidCommitWelcomePayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveMlsInvalidCommitWelcomeProperties), _client._internalTextPayloadProperties);
+            return _client.SendConnectionObjectAsync(connectionState, payload, Serialization.Default.VoicePayloadPropertiesDaveMlsInvalidCommitWelcomeProperties, _client._internalTextPayloadProperties);
         }
 
         [SkipLocalsInit]
