@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -164,11 +163,11 @@ public sealed partial class VoiceClient : WebSocketClient
     {
         var connectionState = await StartAsync(CreateState(), cancellationToken).ConfigureAwait(false);
 
-        if (_udpState is { } udpClient)
+        if (_udpState is { } udpState)
         {
-            if (udpClient.TryIndicateConnecting(out var closedCancellationToken))
+            if (udpState.TryIndicateConnecting(out var closedCancellationToken))
             {
-                var connection = udpClient.Connection;
+                var connection = udpState.Connection;
 
                 await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
