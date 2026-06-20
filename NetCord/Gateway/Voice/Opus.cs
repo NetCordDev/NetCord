@@ -18,7 +18,7 @@ public static partial class Opus
     /// <summary>
     /// Calculates the number of samples per channel in an Opus audio frame.
     /// </summary>
-    /// <param name="frameDuration">Frame duration in milliseconds. Allowed values are 2.5, 5, 10, 20, 40, 60 and 120 (the last one is only allowed for <see cref="VoiceChannels.Mono"/>).</param>
+    /// <param name="frameDuration">Frame duration in milliseconds. Allowed values are 2.5, 5, 10, 20, 40, 60, 80, 100 and 120 (the last one is only allowed for <see cref="VoiceChannels.Mono"/>).</param>
     /// <returns></returns>
     public static int GetSamplesPerChannel(float frameDuration) => (int)(frameDuration * 2) * SamplingRate / 1000 / 2;
 

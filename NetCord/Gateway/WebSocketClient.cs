@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization.Metadata;
 
 using NetCord.Gateway.LatencyTimers;
 using NetCord.Gateway.ReconnectStrategies;
@@ -190,29 +191,29 @@ public abstract partial class WebSocketClient : IDisposable
         _reconnectStrategy = configuration.ReconnectStrategy ?? new ReconnectStrategy();
         _latencyTimer = configuration.LatencyTimer ?? new LatencyTimer();
         _rateLimiterProvider = configuration.RateLimiterProvider ?? NullRateLimiterProvider.Instance;
-        _defaultTextPayloadProperties = CreatePayloadProperties(configuration.DefaultPayloadProperties);
+        _defaultTextMessageProperties = CreateMessageProperties(configuration.DefaultMessageProperties);
         _logger = configuration.Logger ?? NullLogger.Instance;
     }
 
-    private static InternalWebSocketPayloadProperties CreatePayloadProperties(WebSocketPayloadProperties? properties)
+    private static InternalWebSocketMessageProperties CreateMessageProperties(WebSocketMessageProperties? properties)
     {
         return properties switch
         {
             null => new(default, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.Retry),
-            _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(),
+            _ => new InternalWebSocketMessageProperties(properties.MessageType.GetValueOrDefault(),
                                                         properties.MessageFlags.GetValueOrDefault(WebSocketMessageFlags.EndOfMessage),
                                                         properties.RetryHandling.GetValueOrDefault(WebSocketRetryHandling.Retry))
         };
     }
 
-    private protected record struct InternalWebSocketPayloadProperties(WebSocketMessageType MessageType, WebSocketMessageFlags MessageFlags, WebSocketRetryHandling RetryHandling)
+    private protected record struct InternalWebSocketMessageProperties(WebSocketMessageType MessageType, WebSocketMessageFlags MessageFlags, WebSocketRetryHandling RetryHandling)
     {
-        public readonly InternalWebSocketPayloadProperties Compose(WebSocketPayloadProperties? properties)
+        public readonly InternalWebSocketMessageProperties Compose(WebSocketMessageProperties? properties)
         {
             return properties switch
             {
                 null => this,
-                _ => new InternalWebSocketPayloadProperties(properties.MessageType.GetValueOrDefault(MessageType),
+                _ => new InternalWebSocketMessageProperties(properties.MessageType.GetValueOrDefault(MessageType),
                                                             properties.MessageFlags.GetValueOrDefault(MessageFlags),
                                                             properties.RetryHandling.GetValueOrDefault(RetryHandling))
             };
@@ -222,9 +223,9 @@ public abstract partial class WebSocketClient : IDisposable
     private readonly IWebSocketConnectionProvider _connectionProvider;
     private readonly IReconnectStrategy _reconnectStrategy;
     private readonly IRateLimiterProvider _rateLimiterProvider;
-    private readonly InternalWebSocketPayloadProperties _defaultTextPayloadProperties;
-    private protected readonly InternalWebSocketPayloadProperties _internalTextPayloadProperties = new(WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
-    private protected readonly InternalWebSocketPayloadProperties _internalBinaryPayloadProperties = new(WebSocketMessageType.Binary, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
+    private readonly InternalWebSocketMessageProperties _defaultTextMessageProperties;
+    private protected readonly InternalWebSocketMessageProperties _internalTextMessageProperties = new(WebSocketMessageType.Text, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
+    private protected readonly InternalWebSocketMessageProperties _internalBinaryMessageProperties = new(WebSocketMessageType.Binary, WebSocketMessageFlags.EndOfMessage, WebSocketRetryHandling.RetryRateLimit);
 
     private protected readonly ILatencyTimer _latencyTimer;
     private protected readonly IWebSocketLogger _logger;
@@ -384,13 +385,13 @@ public abstract partial class WebSocketClient : IDisposable
     {
         try
         {
-            await ProcessPayloadAsync(state, connectionState, messageType, data.Span).ConfigureAwait(false);
+            await ProcessMessageAsync(state, connectionState, messageType, data.Span).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
             Log<object?>(LogLevel.Error, null, ex, static (s, e) =>
             {
-                return $"An error occurred while processing the payload.{Environment.NewLine}{e}";
+                return $"An error occurred while processing the message.{Environment.NewLine}{e}";
             });
 
             try
@@ -610,9 +611,16 @@ public abstract partial class WebSocketClient : IDisposable
         return ResumeAsync(state);
     }
 
-    public async ValueTask SendPayloadAsync(ReadOnlyMemory<byte> buffer, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendObjectAsync<T>(T obj, JsonTypeInfo<T> jsonTypeInfo, WebSocketMessageProperties? properties, CancellationToken cancellationToken = default)
     {
-        var payloadProperties = _defaultTextPayloadProperties.Compose(properties);
+        using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
+
+        await SendMessageAsync(output.WrittenMemory, properties, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask SendMessageAsync(ReadOnlyMemory<byte> buffer, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
+    {
+        var messageProperties = _defaultTextMessageProperties.Compose(properties);
 
         while (true)
         {
@@ -633,7 +641,7 @@ public abstract partial class WebSocketClient : IDisposable
             }
             else
             {
-                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+                if (messageProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 {
                     var result = await task.WaitAsync(cancellationToken).ConfigureAwait(false);
                     if (result is ConnectionStateResult.Success successResult)
@@ -648,26 +656,33 @@ public abstract partial class WebSocketClient : IDisposable
                 }
             }
 
-            var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+            var exception = await TrySendConnectionMessageAsync(connectionState, buffer, messageProperties, cancellationToken).ConfigureAwait(false);
 
             if (exception is null)
                 return;
 
-            if (!payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
+            if (!messageProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryReconnect))
                 ThrowConnectionNotStarted();
         }
     }
 
-    private protected async ValueTask SendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private protected async ValueTask SendConnectionObjectAsync<T>(ConnectionState connectionState, T obj, JsonTypeInfo<T> jsonTypeInfo, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
     {
-        var exception = await TrySendConnectionPayloadAsync(connectionState, buffer, payloadProperties, cancellationToken).ConfigureAwait(false);
+        using var output = WebSocketClientJsonSerializer.Serialize(obj, jsonTypeInfo);
+
+        await SendConnectionMessageAsync(connectionState, output.WrittenMemory, messageProperties, cancellationToken).ConfigureAwait(false);
+    }
+
+    private protected async ValueTask SendConnectionMessageAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
+    {
+        var exception = await TrySendConnectionMessageAsync(connectionState, buffer, messageProperties, cancellationToken).ConfigureAwait(false);
         if (exception is null)
             return;
 
         ThrowConnectionNotStarted(exception);
     }
 
-    private async ValueTask<Exception?> TrySendConnectionPayloadAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketPayloadProperties payloadProperties, CancellationToken cancellationToken = default)
+    private async ValueTask<Exception?> TrySendConnectionMessageAsync(ConnectionState connectionState, ReadOnlyMemory<byte> buffer, InternalWebSocketMessageProperties messageProperties, CancellationToken cancellationToken = default)
     {
         var rateLimiter = connectionState.RateLimiter;
 
@@ -692,7 +707,7 @@ public abstract partial class WebSocketClient : IDisposable
 
             if (result.RateLimited)
             {
-                if (payloadProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
+                if (messageProperties.RetryHandling.HasFlag(WebSocketRetryHandling.RetryRateLimit))
                 {
                     try
                     {
@@ -716,13 +731,13 @@ public abstract partial class WebSocketClient : IDisposable
                 ThrowRateLimitTriggered(result.ResetAfter);
             }
 
-            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a payload.");
+            Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Sending a message.");
 
             var timestamp = Environment.TickCount64;
 
             try
             {
-                await connectionState.Connection.SendAsync(buffer, payloadProperties.MessageType, payloadProperties.MessageFlags, linkedToken).ConfigureAwait(false);
+                await connectionState.Connection.SendAsync(buffer, messageProperties.MessageType, messageProperties.MessageFlags, linkedToken).ConfigureAwait(false);
             }
             catch (ArgumentException)
             {
@@ -846,7 +861,7 @@ public abstract partial class WebSocketClient : IDisposable
 
     private protected abstract ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default);
 
-    private protected abstract ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> payload);
+    private protected abstract ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message);
 
     private protected ValueTask UpdateLatencyAsync(TimeSpan latency)
         => InvokeEventAsync(_latencyUpdate, this, latency, static (client, latency) => Interlocked.Exchange(ref Unsafe.As<TimeSpan, long>(ref client._latency), Unsafe.As<TimeSpan, long>(ref latency)));

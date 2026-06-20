@@ -11,7 +11,7 @@ internal static class ShardedGatewayClientConfigurationFactory
 {
     public static ShardedGatewayClientConfiguration Create(Func<Shard, IWebSocketConnectionProvider?>? webSocketConnectionProviderFactory,
                                                            Func<Shard, IRateLimiterProvider?>? rateLimiterProviderFactory,
-                                                           Func<Shard, WebSocketPayloadProperties?>? defaultPayloadPropertiesFactory,
+                                                           Func<Shard, WebSocketMessageProperties?>? defaultMessagePropertiesFactory,
                                                            Func<Shard, IReconnectStrategy?>? reconnectStrategyFactory,
                                                            Func<Shard, ILatencyTimer?>? latencyTimerFactory,
                                                            Func<Shard, ApiVersion?>? versionFactory,
@@ -32,7 +32,7 @@ internal static class ShardedGatewayClientConfigurationFactory
         {
             WebSocketConnectionProviderFactory = webSocketConnectionProviderFactory,
             RateLimiterProviderFactory = rateLimiterProviderFactory,
-            DefaultPayloadPropertiesFactory = defaultPayloadPropertiesFactory,
+            DefaultMessagePropertiesFactory = defaultMessagePropertiesFactory,
             ReconnectStrategyFactory = reconnectStrategyFactory,
             LatencyTimerFactory = latencyTimerFactory,
             VersionFactory = versionFactory,

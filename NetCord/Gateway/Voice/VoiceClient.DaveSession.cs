@@ -338,68 +338,68 @@ public partial class VoiceClient
 
         private async ValueTask SendMlsKeyPackageAsync(ConnectionState connectionState)
         {
-            byte[] payload;
-            int payloadLength;
+            byte[] message;
+            int messageLength;
             unsafe
             {
                 SessionGetMarshalledKeyPackage(_session, out var keyPackage, out var length);
                 using (keyPackage)
                 {
-                    payloadLength = (int)length + 1;
+                    messageLength = (int)length + 1;
 
-                    payload = ArrayPool<byte>.Shared.Rent(payloadLength);
+                    message = ArrayPool<byte>.Shared.Rent(messageLength);
 
-                    keyPackage.AsSpan((int)length).CopyTo(payload.AsSpan(1));
+                    keyPackage.AsSpan((int)length).CopyTo(message.AsSpan(1));
                 }
             }
 
-            payload[0] = (byte)VoiceOpcode.DaveMlsKeyPackage;
+            message[0] = (byte)VoiceOpcode.DaveMlsKeyPackage;
 
             try
             {
-                await _client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), _client._internalBinaryPayloadProperties).ConfigureAwait(false);
+                await _client.SendConnectionMessageAsync(connectionState, message.AsMemory(0, messageLength), _client._internalBinaryMessageProperties).ConfigureAwait(false);
             }
             finally
             {
-                ArrayPool<byte>.Shared.Return(payload);
+                ArrayPool<byte>.Shared.Return(message);
             }
         }
 
         private ValueTask SendTransitionReadyAsync(ConnectionState connectionState, ushort transitionId)
         {
-            VoicePayloadProperties<DaveTransitionReadyProperties> readyPayload = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
+            VoiceMessageProperties<DaveTransitionReadyProperties> message = new(VoiceOpcode.DaveTransitionReady, new(transitionId));
 
-            return _client.SendConnectionPayloadAsync(connectionState, readyPayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveTransitionReadyProperties), _client._internalTextPayloadProperties);
+            return _client.SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveTransitionReadyProperties, _client._internalTextMessageProperties);
         }
 
         private ValueTask SendMlsCommitWelcomeAsync(ConnectionState connectionState, ReadOnlySpan<byte> commitWelcomeMessage)
         {
-            int payloadLength = commitWelcomeMessage.Length + 1;
-            var payload = ArrayPool<byte>.Shared.Rent(payloadLength);
+            int messageLength = commitWelcomeMessage.Length + 1;
+            var message = ArrayPool<byte>.Shared.Rent(messageLength);
 
-            commitWelcomeMessage.CopyTo(payload.AsSpan(1));
-            payload[0] = (byte)VoiceOpcode.DaveMlsCommitWelcome;
+            commitWelcomeMessage.CopyTo(message.AsSpan(1));
+            message[0] = (byte)VoiceOpcode.DaveMlsCommitWelcome;
 
-            return ContinueAsync(_client, connectionState, payload, payloadLength);
+            return ContinueAsync(_client, connectionState, message, messageLength);
 
-            static async ValueTask ContinueAsync(VoiceClient client, ConnectionState connectionState, byte[] payload, int payloadLength)
+            static async ValueTask ContinueAsync(VoiceClient client, ConnectionState connectionState, byte[] message, int messageLength)
             {
                 try
                 {
-                    await client.SendConnectionPayloadAsync(connectionState, payload.AsMemory(0, payloadLength), client._internalBinaryPayloadProperties).ConfigureAwait(false);
+                    await client.SendConnectionMessageAsync(connectionState, message.AsMemory(0, messageLength), client._internalBinaryMessageProperties).ConfigureAwait(false);
                 }
                 finally
                 {
-                    ArrayPool<byte>.Shared.Return(payload);
+                    ArrayPool<byte>.Shared.Return(message);
                 }
             }
         }
 
         private ValueTask SendMlsInvalidCommitWelcomeAsync(ConnectionState connectionState, ushort transitionId)
         {
-            VoicePayloadProperties<DaveMlsInvalidCommitWelcomeProperties> invalidCommitWelcomePayload = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
+            VoiceMessageProperties<DaveMlsInvalidCommitWelcomeProperties> message = new(VoiceOpcode.DaveMlsInvalidCommitWelcome, new(transitionId));
 
-            return _client.SendConnectionPayloadAsync(connectionState, invalidCommitWelcomePayload.Serialize(Serialization.Default.VoicePayloadPropertiesDaveMlsInvalidCommitWelcomeProperties), _client._internalTextPayloadProperties);
+            return _client.SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesDaveMlsInvalidCommitWelcomeProperties, _client._internalTextMessageProperties);
         }
 
         [SkipLocalsInit]

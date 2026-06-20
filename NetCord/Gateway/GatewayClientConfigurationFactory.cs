@@ -11,7 +11,7 @@ internal static class GatewayClientConfigurationFactory
 {
     public static GatewayClientConfiguration Create(IWebSocketConnectionProvider? webSocketConnectionProvider,
                                                     IRateLimiterProvider? rateLimiterProvider,
-                                                    WebSocketPayloadProperties? defaultPayloadProperties,
+                                                    WebSocketMessageProperties? defaultMessageProperties,
                                                     IReconnectStrategy? reconnectStrategy,
                                                     ILatencyTimer? latencyTimer,
                                                     ApiVersion? version,
@@ -30,7 +30,7 @@ internal static class GatewayClientConfigurationFactory
         {
             WebSocketConnectionProvider = webSocketConnectionProvider,
             RateLimiterProvider = rateLimiterProvider,
-            DefaultPayloadProperties = defaultPayloadProperties,
+            DefaultMessageProperties = defaultMessageProperties,
             ReconnectStrategy = reconnectStrategy,
             LatencyTimer = latencyTimer,
             Version = version,

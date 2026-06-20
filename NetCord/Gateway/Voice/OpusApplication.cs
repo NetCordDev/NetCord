@@ -28,4 +28,14 @@ public enum OpusApplication
     /// Only use when lowest-achievable latency is what matters most. Voice-optimized modes cannot be used.
     /// </remarks>
     RestrictedLowdelay = 2051,
+
+    /// <remarks>
+    /// Experts only: forces SILK encoding; don't allocate CELT state at all. Disables OPUS_SET_APPLICATION.
+    /// </remarks>
+    RestrictedSilk = 2052,
+
+    /// <remarks>
+    /// Experts only: forces CELT encoding; don't allocate SILK state at all. Disables OPUS_SET_APPLICATION.
+    /// </remarks>
+    RestrictedCelt = 2053,
 }

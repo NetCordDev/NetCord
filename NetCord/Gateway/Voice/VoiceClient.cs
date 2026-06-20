@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -129,9 +128,11 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private protected override ValueTask SendIdentifyAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceIdentifyProperties>(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token, DaveSession.GetMaxSupportedProtocolVersion())).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceIdentifyProperties);
+        VoiceMessageProperties<VoiceIdentifyProperties> message = new(VoiceOpcode.Identify, new(GuildId, UserId, SessionId, Token, DaveSession.GetMaxSupportedProtocolVersion()));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceIdentifyProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private VoiceState CreateState()
@@ -155,18 +156,18 @@ public sealed partial class VoiceClient : WebSocketClient
     /// <summary>
     /// Resumes the session.
     /// </summary>
-    /// <param name="sequenceNumber">The sequence number of the payload to resume from.</param>
+    /// <param name="sequenceNumber">The sequence number of the message to resume from.</param>
     /// <param name="cancellationToken">The cancellation token to cancel the operation.</param>
     /// <returns></returns>
     public async ValueTask ResumeAsync(int sequenceNumber, CancellationToken cancellationToken = default)
     {
         var connectionState = await StartAsync(CreateState(), cancellationToken).ConfigureAwait(false);
 
-        if (_udpState is { } udpClient)
+        if (_udpState is { } udpState)
         {
-            if (udpClient.TryIndicateConnecting(out var closedCancellationToken))
+            if (udpState.TryIndicateConnecting(out var closedCancellationToken))
             {
-                var connection = udpClient.Connection;
+                var connection = udpState.Connection;
 
                 await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
@@ -201,44 +202,55 @@ public sealed partial class VoiceClient : WebSocketClient
 
     private ValueTask TryResumeAsync(ConnectionState connectionState, int sequenceNumber, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceResumeProperties>(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceResumeProperties);
+        VoiceMessageProperties<VoiceResumeProperties> message = new(VoiceOpcode.Resume, new(GuildId, SessionId, Token, sequenceNumber));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceResumeProperties, _internalTextMessageProperties, cancellationToken);
     }
 
     private protected override ValueTask HeartbeatAsync(ConnectionState connectionState, CancellationToken cancellationToken = default)
     {
-        var serializedPayload = new VoicePayloadProperties<VoiceHeartbeatProperties>(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber)).Serialize(Serialization.Default.VoicePayloadPropertiesVoiceHeartbeatProperties);
+        VoiceMessageProperties<VoiceHeartbeatProperties> message = new(VoiceOpcode.Heartbeat, new(Environment.TickCount, SequenceNumber));
+
         _latencyTimer.Start();
-        return SendConnectionPayloadAsync(connectionState, serializedPayload, _internalTextPayloadProperties, cancellationToken);
+
+        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesVoiceHeartbeatProperties, _internalTextMessageProperties, cancellationToken);
     }
 
-    private protected override ValueTask ProcessPayloadAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> payload)
+    private ValueTask SelectProtocolAsync(ConnectionState connectionState, ProtocolProperties protocolProperties, CancellationToken cancellationToken = default)
+    {
+        VoiceMessageProperties<ProtocolProperties> message = new(VoiceOpcode.SelectProtocol, protocolProperties);
+
+        return SendConnectionObjectAsync(connectionState, message, Serialization.Default.VoiceMessagePropertiesProtocolProperties, _internalTextMessageProperties, cancellationToken);
+    }
+
+    private protected override ValueTask ProcessMessageAsync(State state, ConnectionState connectionState, WebSocketMessageType messageType, ReadOnlySpan<byte> message)
     {
         if (messageType is WebSocketMessageType.Text)
         {
-            var jsonPayload = JsonSerializer.Deserialize(payload, Serialization.Default.JsonVoicePayload)!;
-            return HandleJsonPayloadAsync(state, connectionState, jsonPayload);
+            var jsonMessage = JsonSerializer.Deserialize(message, Serialization.Default.JsonVoiceMessage)!;
+            return HandleJsonMessageAsync(state, connectionState, jsonMessage);
         }
         else
         {
-            BinaryVoicePayload binaryPayload = new(payload);
-            return HandleBinaryPayloadAsync(connectionState, binaryPayload);
+            BinaryVoiceMessage binaryMessage = new(message);
+            return HandleBinaryMessageAsync(connectionState, binaryMessage);
         }
     }
 
-    private ValueTask HandleBinaryPayloadAsync(ConnectionState connectionState, BinaryVoicePayload payload)
+    private ValueTask HandleBinaryMessageAsync(ConnectionState connectionState, BinaryVoiceMessage message)
     {
-        SequenceNumber = payload.SequenceNumber;
+        SequenceNumber = message.SequenceNumber;
 
-        switch (payload.Opcode)
+        switch (message.Opcode)
         {
             case VoiceOpcode.DaveMlsExternalSender:
                 {
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
-                    var externalSender = payload.Data;
+                    var externalSender = message.Data;
 
                     session.OnMlsExternalSender(externalSender);
                 }
@@ -248,7 +260,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
-                    var proposals = payload.Data;
+                    var proposals = message.Data;
 
                     return session.OnMlsProposalsAsync(connectionState, proposals);
                 }
@@ -257,7 +269,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
-                    var data = payload.Data;
+                    var data = message.Data;
 
                     var transitionId = BinaryPrimitives.ReadUInt16BigEndian(data);
 
@@ -270,7 +282,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return default;
 
-                    var data = payload.Data;
+                    var data = message.Data;
 
                     var transitionId = BinaryPrimitives.ReadUInt16BigEndian(data);
 
@@ -297,18 +309,18 @@ public sealed partial class VoiceClient : WebSocketClient
         }
     }
 
-    private async ValueTask HandleJsonPayloadAsync(State state, ConnectionState connectionState, JsonVoicePayload payload)
+    private async ValueTask HandleJsonMessageAsync(State state, ConnectionState connectionState, JsonVoiceMessage message)
     {
-        if (payload.SequenceNumber is int sequenceNumber)
+        if (message.SequenceNumber is int sequenceNumber)
             SequenceNumber = sequenceNumber;
 
-        switch (payload.Opcode)
+        switch (message.Opcode)
         {
             case VoiceOpcode.Ready:
                 {
                     var latency = _latencyTimer.Elapsed;
                     var updateLatencyTask = UpdateLatencyAsync(latency).ConfigureAwait(false);
-                    var ready = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
+                    var ready = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonReady);
 
                     var (serverIp, serverPort) = (ready.Ip, ready.Port);
                     var udpConnection = _udpConnectionProvider.CreateConnection(serverIp, serverPort);
@@ -370,8 +382,7 @@ public sealed partial class VoiceClient : WebSocketClient
 
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Selecting a protocol.");
 
-                    VoicePayloadProperties<ProtocolProperties> protocolPayload = new(VoiceOpcode.SelectProtocol, new("udp", new(externalIp, externalPort, encryptionName)));
-                    await SendConnectionPayloadAsync(connectionState, protocolPayload.Serialize(Serialization.Default.VoicePayloadPropertiesProtocolProperties), _internalTextPayloadProperties).ConfigureAwait(false);
+                    await SelectProtocolAsync(connectionState, new("udp", new(externalIp, externalPort, encryptionName))).ConfigureAwait(false);
 
                     await updateLatencyTask;
                 }
@@ -383,7 +394,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { Encryption: var encryption, DaveSession: var session })
                         return;
 
-                    var sessionDescription = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
+                    var sessionDescription = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSessionDescription);
 
                     encryption.SetKey(sessionDescription.SecretKey);
 
@@ -402,7 +413,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 break;
             case VoiceOpcode.Speaking:
                 {
-                    var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
+                    var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonSpeaking);
 
                     if (_udpState is { DaveSession: var session })
                         session.OnSpeaking(json.UserId, json.Ssrc);
@@ -426,7 +437,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Hello received.");
 
-                    StartHeartbeating(connectionState, payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
+                    StartHeartbeating(connectionState, message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonHello).HeartbeatInterval);
                 }
                 break;
             case VoiceOpcode.Resumed:
@@ -448,7 +459,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client connect received.");
 
-                    var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
+                    var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientConnect);
                     await InvokeEventAsync(_userConnect, this, json, static json => new UserConnectEventArgs(json.UserIds), static (client, json) => client.Cache = client.Cache.CacheUsers(json.UserIds)).ConfigureAwait(false);
                 }
                 break;
@@ -456,7 +467,7 @@ public sealed partial class VoiceClient : WebSocketClient
                 {
                     Log<object?>(LogLevel.Debug, null, null, static (s, e) => "Client disconnect received.");
 
-                    var json = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
+                    var json = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonClientDisconnect);
 
                     if (_udpState is { DaveSession: var session })
                         session.OnClientDisconnect(json.UserId);
@@ -469,7 +480,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return;
 
-                    var prepareTransition = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDavePrepareTransition);
+                    var prepareTransition = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDavePrepareTransition);
 
                     await session.OnPrepareTransitionAsync(connectionState, prepareTransition.TransitionId, prepareTransition.ProtocolVersion).ConfigureAwait(false);
                 }
@@ -479,7 +490,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return;
 
-                    var executeTransition = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDaveExecuteTransition);
+                    var executeTransition = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDaveExecuteTransition);
 
                     session.OnExecuteTransition(executeTransition.TransitionId);
                 }
@@ -489,7 +500,7 @@ public sealed partial class VoiceClient : WebSocketClient
                     if (_udpState is not { DaveSession: var session })
                         return;
 
-                    var prepareEpoch = payload.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDavePrepareEpoch);
+                    var prepareEpoch = message.Data.GetValueOrDefault().ToObject(Serialization.Default.JsonDavePrepareEpoch);
 
                     await session.OnPrepareEpoch(connectionState, prepareEpoch.Epoch, prepareEpoch.ProtocolVersion).ConfigureAwait(false);
                 }
@@ -729,10 +740,11 @@ public sealed partial class VoiceClient : WebSocketClient
         return false;
     }
 
-    public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketPayloadProperties? properties = null, CancellationToken cancellationToken = default)
+    public ValueTask EnterSpeakingStateAsync(SpeakingProperties speaking, WebSocketMessageProperties? properties = null, CancellationToken cancellationToken = default)
     {
-        VoicePayloadProperties<SpeakingProperties> payload = new(VoiceOpcode.Speaking, speaking);
-        return SendPayloadAsync(payload.Serialize(Serialization.Default.VoicePayloadPropertiesSpeakingProperties), properties, cancellationToken);
+        VoiceMessageProperties<SpeakingProperties> message = new(VoiceOpcode.Speaking, speaking);
+
+        return SendObjectAsync(message, Serialization.Default.VoiceMessagePropertiesSpeakingProperties, properties, cancellationToken);
     }
 
     /// <summary>
@@ -899,6 +911,37 @@ public sealed partial class VoiceClient : WebSocketClient
         BinaryPrimitives.WriteUInt16BigEndian(datagram[2..], sequenceNumber);
         BinaryPrimitives.WriteUInt32BigEndian(datagram[4..], timestamp);
         BinaryPrimitives.WriteUInt32BigEndian(datagram[8..], ssrc);
+    }
+
+    /// <summary>
+    /// Sends a datagram.
+    /// </summary>
+    /// <param name="buffer">The datagram to send.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
+    public ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        if (_udpState is not { Connection: var connection })
+        {
+            ThrowConnectionNotStarted();
+            return default;
+        }
+
+        return connection.SendAsync(buffer, cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends a datagram.
+    /// </summary>
+    /// <param name="buffer">The datagram to send.</param>
+    public void SendDatagram(ReadOnlySpan<byte> buffer)
+    {
+        if (_udpState is not { Connection: var connection })
+        {
+            ThrowConnectionNotStarted();
+            return;
+        }
+
+        connection.Send(buffer);
     }
 
     /// <summary>
