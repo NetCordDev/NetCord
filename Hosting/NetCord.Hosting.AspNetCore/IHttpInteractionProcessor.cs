@@ -6,11 +6,15 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.AspNetCore;
 
-internal sealed class HttpInteractionHandler(IServiceProvider services,
-                                             string pattern) : HttpEventHandler<IInteraction>(services,
-                                                                                              pattern)
+public interface IHttpInteractionProcessor
 {
-    private readonly ILogger<HttpInteractionHandler> _logger = services.GetRequiredService<ILogger<HttpInteractionHandler>>();
+    public Task ProcessAsync(HttpContext context);
+}
+
+internal sealed class HttpInteractionProcessor(
+    IServiceProvider services) : HttpEventProcessor<IInteraction>(services), IHttpInteractionProcessor
+{
+    private readonly ILogger<HttpInteractionProcessor> _logger = services.GetRequiredService<ILogger<HttpInteractionProcessor>>();
 
     private readonly Func<Interaction, ValueTask>[] _handlers = [.. services.GetServices<IHttpInteractionHandler>()
                                                                             .Select<IHttpInteractionHandler, Func<Interaction, ValueTask>>(h => h.HandleAsync)];
