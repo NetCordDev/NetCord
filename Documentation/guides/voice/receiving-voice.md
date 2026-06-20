@@ -40,20 +40,6 @@ When creating the @NetCord.Gateway.Voice.OpusDecodeStream you need to specify th
 
 [!code-cs[Creating OpusDecodeStream](ReceivingVoice/Examples.cs#L69-L71)]
 
-## Troubleshooting
-
-Sometimes, you may encounter issues with IP Discovery. It can happen due to various reasons, but the most common one is the network configuration.
-
-Below you can find some common issues related to IP Discovery and receiving audio, as well as some troubleshooting steps you can take to resolve them.
-
-### No Audio Received at All
-
-Sometimes, the router may block the IP Discovery response causing the error "Failed to get the external socket address. Aborting the client." to be logged. If you encounter this issue, try using for example your mobile phone's hotspot to see if the issue is related to your network configuration. If it works on the hotspot, you may need to check your router's settings.
-
-### Audio Stops After Some Time
-
-If you receive audio for some time and then it suddenly stops, it may be caused by your router blocking the packets after some time. This can be caused by the router's UDP flood protection. You can try disabling this feature in your router's settings to see if it resolves the issue.
-
 ## Updating Our Bot
 
 Now it's time to add a `/record` command to our bot that records what a user is saying in a voice channel and sends it to the channel where the command was used, either when a max file size is triggered or when the bot leaves the voice channel. This command will use the knowledge we have gained about receiving audio to capture the user's audio and save it to a file.

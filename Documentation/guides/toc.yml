@@ -32,6 +32,8 @@
       href: voice/sending-voice.md
     - name: Receiving Voice
       href: voice/receiving-voice.md
+    - name: Troubleshooting
+      href: voice/troubleshooting.md
 - name: Services
   items:
     - name: Introduction
