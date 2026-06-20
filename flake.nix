@@ -37,6 +37,7 @@
         };
 
         dotnetRoot = "${dotnet.unwrapped}/share/dotnet";
+
       in
       {
         default = pkgs.mkShell {
@@ -54,10 +55,11 @@
             pkgs.ninja
             pkgs.pkg-config
             pkgs.autoconf
+            pkgs.autoconf-archive
             pkgs.automake
             pkgs.libtool
           ];
-
+          
           DOTNET_ROOT = dotnetRoot;
         };
 

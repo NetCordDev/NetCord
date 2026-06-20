@@ -34,9 +34,9 @@
     <NativeAotAppProps>NetCordNativesDir=$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(NetCordNativesDir)'))</NativeAotAppProps>
 
     <VcpkgRoot Condition="'$(VcpkgRoot)' == ''">$(VCPKG_ROOT)</VcpkgRoot>
-    <NativeAotAppProps>$(NativeAotAppProps),VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
+    <NativeAotAppProps>$(NativeAotAppProps);VcpkgRoot=$(VcpkgRoot)</NativeAotAppProps>
 
-    <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps),$(AppendNativeAotAppProps)</NativeAotAppProps>
+    <NativeAotAppProps Condition="'$(AppendNativeAotAppProps)' != ''">$(NativeAotAppProps);$(AppendNativeAotAppProps)</NativeAotAppProps>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\NetCord\NetCord.csproj" />
@@ -50,5 +50,7 @@
   <ItemGroup>
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
+
+	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 
 </Project>

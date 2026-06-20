@@ -60,11 +60,11 @@ When targeting NativeAOT, you must ensure that all used native libraries are exp
 ```
 
 ### Excluding Bundled Dependencies
-If you have provided your own native binaries and need to exclude the ones bundled in the NetCord NuGet package to avoid conflicts, use the `NetCordExcludeNatives` property.
+If you have provided your own native binaries and need to exclude the ones bundled in the NetCord NuGet package to avoid conflicts, use the `NetCordExcludeNativesDynamic` property.
 
 ```xml
 <PropertyGroup>
-  <NetCordExcludeNatives>opus</NetCordExcludeNatives>
+  <NetCordExcludeNativesDynamic>opus;libsodium</NetCordExcludeNativesDynamic>
 </PropertyGroup>
 ```
 

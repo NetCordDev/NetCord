@@ -19,6 +19,7 @@ endif()
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON
         ${VCPKG_INCLUDE_OVERRIDE}
         ${EXTRA_OPTIONS}
     MAYBE_UNUSED_VARIABLES

@@ -184,13 +184,35 @@
 		<Message Text="Copying native from: %(_CopyOutput.Identity)" Importance="high" />
     </Target>
 
-    <Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="_AddNativeRuntimeCopyItems">
+    <Target Name="CreateNativeSymlinks" Condition="'$(OS)' != 'Windows_NT'" AfterTargets="CopyFilesToOutputDirectory">
         <ItemGroup>
-            <_SymlinksToCreate Include="@(NativesRuntime)" 
-                               Condition="$([System.String]::new('%(Filename)').Contains('%(NativeLibSet.Identity)'))" />
+            <_NativeFiles Include="$(OutDir)**\lib%(NativeLibSet.Identity)*.so.*" />
+            <_NativeFiles Include="$(OutDir)**\lib%(NativeLibSet.Identity)*.dylib" />
+
+            <SymlinkTask Include="@(_NativeFiles)"
+                         Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.so\.\d+')) or ($([System.String]::new('%(Extension)').Equals('.dylib')) and $([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)', '\.\d+')))">
+                <IsMac>$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '\.dylib'))</IsMac>
+            </SymlinkTask>
+
+            <SymlinkTask>
+                <MajorTarget>%(Filename)%(Extension)</MajorTarget>
+                <MajorLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</MajorLink>
+                <MajorLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</MajorLink>
+
+                <BaseTarget Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Match('%(Filename)%(Extension)', '.*\.so\.\d+'))</BaseTarget>
+                <BaseTarget Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '^([a-zA-Z0-9_-]+\.\d+)\..*', '$1%(Extension)'))</BaseTarget>
+                <BaseLink Condition="!%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.so\..*', '.so'))</BaseLink>
+                <BaseLink Condition="%(IsMac)">$([System.Text.RegularExpressions.Regex]::Replace('%(Filename)%(Extension)', '\.\d+.*\.dylib', '.dylib'))</BaseLink>
+            </SymlinkTask>
         </ItemGroup>
-        <Message Importance="high" Text="Creating symlink for: %(_SymlinksToCreate.Filename)%(_SymlinksToCreate.Extension)" />
-        <Exec Command="f='%(_SymlinksToCreate.FullPath)'; ext=&quot;${f##*.}&quot;; link=${f%.$ext.*}.$ext; ln -sfn `basename &quot;$f&quot;` &quot;$link&quot;" />
+
+		<Message Text="Symlinking in /%(SymlinkTask.Directory): [%(SymlinkTask.MajorLink) -> %(SymlinkTask.MajorTarget)], [%(SymlinkTask.BaseLink) -> %(SymlinkTask.BaseTarget)]" 
+				 Importance="high"
+				 Condition="'@(SymlinkTask)' != ''" />
+
+        <Exec Command="{ [ '%(SymlinkTask.MajorTarget)' = '%(SymlinkTask.MajorLink)' ] || ln -sf %(SymlinkTask.MajorTarget) %(SymlinkTask.MajorLink); } &amp;&amp; ln -sf %(SymlinkTask.BaseTarget) %(SymlinkTask.BaseLink)" 
+              WorkingDirectory="%(SymlinkTask.RootDir)%(SymlinkTask.Directory)" 
+              Condition="'@(SymlinkTask)' != ''" />
     </Target>
 
     <Target Name="PackageNatives" BeforeTargets="_GetPackageFiles" DependsOnTargets="PrepareVcpkg">

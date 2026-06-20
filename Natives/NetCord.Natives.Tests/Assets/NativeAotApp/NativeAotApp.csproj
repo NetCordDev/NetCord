@@ -26,6 +26,9 @@
 		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
 		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
 	</ItemGroup>
+  <PropertyGroup>
+    <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
+  </PropertyGroup>
 	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 
 </Project>

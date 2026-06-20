@@ -7,6 +7,17 @@ on:
       GenerateBinLog:
         type: boolean
         default: false
+      MSBuildVerbosity:
+        type: choice
+        description: 'MSBuild Verbosity Level'
+        required: true
+        default: 'Minimal'
+        options:
+          - Quiet
+          - Minimal
+          - Normal
+          - Detailed
+          - Diagnostic
   push:
     paths:
       - 'Natives/**'
@@ -66,14 +77,14 @@ jobs:
       VcpkgOSTarget: ${{ matrix.vcpkg-os-target }}
       VcpkgPlatformTarget: ${{ matrix.vcpkg-platform-target }}
       Configuration: Release
-      RuntimeIdentifier: ${{ matrix.rid }}
-      DotnetVerbose: minimal
+      TargetRID: ${{ matrix.rid }}
+      DotnetVerbose: ${{ github.event.inputs.MSBuildVerbosity || inputs.MSBuildVerbosity || 'Minimal' }}
       GenerateBinLog: ${{ github.event.inputs.GenerateBinLog || inputs.GenerateBinLog || false }}
       VCPKG_ROOT: ${{ github.workspace }}/Natives/NetCord.Natives/vcpkg
 
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
           filter: tree:0
@@ -101,7 +112,9 @@ jobs:
           path: |
             .vcpkg-cache
             .vcpkg-downloads
+          # Unique key per run
           key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
+          # Fallback keys to grab the latest previous cache
           restore-keys: |
             vcpkg-${{ runner.os }}-${{ matrix.rid }}-
             vcpkg-${{ runner.os }}-
@@ -113,26 +126,35 @@ jobs:
           global-json-file: global.json
 
       - name: Restore
-        run: |
-          dotnet restore Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj -v ${{ env.DotnetVerbose }} ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
+        run: >
+          dotnet restore Natives/NetCord.Natives.slnx
+          -v ${{ env.DotnetVerbose }}
+          ${{ env.GenerateBinLog == 'true' && '-bl:restore.binlog' || '' }}
 
       - name: Build natives projects for ${{ matrix.rid }}
         id: build_step # Added an ID here to track this step's status
         run: >
-          dotnet build Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore -v ${{ env.DotnetVerbose }} 
+          dotnet build Natives/NetCord.Natives.slnx --no-restore
+          -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
-          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.RuntimeIdentifier }}" 
+          -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.TargetRID }}"
           -p:GeneratePackageOnBuild=false -p:CI=false
-          ${{ matrix.vcpkg-os-target == 'osx' && '-p:UseAppHostGlobalization=false -p:InvariantGlobalization=false' || '' }}
+          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
+      
+      - name: List output directory for ${{ matrix.rid }}
+        if: ${{ matrix.use-nix }}
+        run: |
+          ls -Rlsha Natives/NetCord.Natives.Tests/bin/
 
       - name: Test natives outputs for ${{ matrix.rid }}
         # This will still run if Build succeeds. If Build fails, this is skipped automatically.
         run: >
-          dotnet test Natives/NetCord.Natives.Tests/NetCord.Natives.Tests.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
+          dotnet test Natives/NetCord.Natives.slnx --no-restore --no-build
+          -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed" 
-          --logger GitHubActions 
-          ${{ matrix.vcpkg-os-target == 'osx' && '-p:UseAppHostGlobalization=false -p:InvariantGlobalization=false' || '' }}
+          --logger "console;verbosity=detailed"
+          --logger GitHubActions
+          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: Pack NuGet Package for ${{ matrix.rid }}
         # This forces the step to run even if 'Test' failed, as long as 'Build' succeeded.
@@ -163,10 +185,11 @@ jobs:
             Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.snupkg
 
       - name: Save vcpkg cache
-        if: ${{ always() }}
+        if: ${{ always() && steps.build_step.outcome == 'success' }}
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
             .vcpkg-cache
             .vcpkg-downloads
+          # Must match the unique key from the restore step
           key: vcpkg-${{ runner.os }}-${{ matrix.rid }}-${{ hashFiles('Natives/NetCord.Natives/vcpkg.json', 'Natives/NetCord.Natives/natives-ports/**') }}
