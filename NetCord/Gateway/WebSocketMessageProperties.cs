@@ -3,7 +3,7 @@ using NetCord.Gateway.WebSockets;
 namespace NetCord.Gateway;
 
 [GenerateMethodsForProperties]
-public partial record WebSocketPayloadProperties
+public partial record WebSocketMessageProperties
 {
     /// <summary>
     /// The type of message to send. Defaults to <see cref="WebSocketMessageType.Text"/>.

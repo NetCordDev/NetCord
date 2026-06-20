@@ -31,8 +31,8 @@ public partial class GatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultMessageProperties" />
+    public WebSocketMessageProperties? DefaultMessageProperties { get; set; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
@@ -74,7 +74,7 @@ public partial class GatewayClientOptions : IDiscordOptions
     {
         return GatewayClientConfigurationFactory.Create(WebSocketConnectionProvider,
                                                         RateLimiterProvider,
-                                                        DefaultPayloadProperties,
+                                                        DefaultMessageProperties,
                                                         ReconnectStrategy,
                                                         LatencyTimer,
                                                         Version,

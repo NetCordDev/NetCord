@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice.JsonModels;
 
-internal class JsonVoicePayload
+internal class JsonVoiceMessage
 {
     [JsonPropertyName("op")]
     public VoiceOpcode Opcode { get; set; }
