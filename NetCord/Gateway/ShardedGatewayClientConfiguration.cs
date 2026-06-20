@@ -15,8 +15,8 @@ public class ShardedGatewayClientConfiguration : IRestClientOwnerConfiguration
     /// <inheritdoc cref="GatewayClientConfiguration.RateLimiterProvider" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; init; }
 
-    /// <inheritdoc cref="GatewayClientConfiguration.DefaultPayloadProperties" />
-    public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; init; }
+    /// <inheritdoc cref="GatewayClientConfiguration.DefaultMessageProperties" />
+    public Func<Shard, WebSocketMessageProperties?>? DefaultMessagePropertiesFactory { get; init; }
 
     /// <inheritdoc cref="GatewayClientConfiguration.ReconnectStrategy" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; init; }

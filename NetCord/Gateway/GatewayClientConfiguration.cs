@@ -20,7 +20,7 @@ public class GatewayClientConfiguration : IWebSocketClientConfiguration, IRestCl
     public IRateLimiterProvider? RateLimiterProvider { get; init; }
 
     /// <inheritdoc/>
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; init; }
+    public WebSocketMessageProperties? DefaultMessageProperties { get; init; }
 
     /// <inheritdoc/>
     public IReconnectStrategy? ReconnectStrategy { get; init; }

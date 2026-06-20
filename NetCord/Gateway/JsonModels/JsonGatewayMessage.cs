@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.JsonModels;
 
-internal class JsonGatewayPayload
+internal class JsonGatewayMessage
 {
     [JsonPropertyName("op")]
     public GatewayOpcode Opcode { get; set; }

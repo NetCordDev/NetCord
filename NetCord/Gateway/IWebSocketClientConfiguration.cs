@@ -30,7 +30,7 @@ internal interface IWebSocketClientConfiguration
     /// <summary>
     /// The default payload properties for WebSocket payloads. Defaults to <see langword="null"/>.
     /// </summary>
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; }
+    public WebSocketMessageProperties? DefaultMessageProperties { get; }
 
     /// <summary>
     /// The logger for the <see cref="WebSocketClient"/>. Defaults to <see cref="NullLogger"/>.

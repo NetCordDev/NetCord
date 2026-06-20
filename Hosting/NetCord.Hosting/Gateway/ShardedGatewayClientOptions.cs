@@ -34,8 +34,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public Func<Shard, IRateLimiterProvider?>? RateLimiterProviderFactory { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
-    public Func<Shard, WebSocketPayloadProperties?>? DefaultPayloadPropertiesFactory { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultMessagePropertiesFactory" />
+    public Func<Shard, WebSocketMessageProperties?>? DefaultMessagePropertiesFactory { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public Func<Shard, IReconnectStrategy?>? ReconnectStrategyFactory { get; set; }
@@ -87,8 +87,8 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.RateLimiterProviderFactory" />
     public IRateLimiterProvider? RateLimiterProvider { get; set; }
 
-    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultPayloadPropertiesFactory" />
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; set; }
+    /// <inheritdoc cref="ShardedGatewayClientConfiguration.DefaultMessagePropertiesFactory" />
+    public WebSocketMessageProperties? DefaultMessageProperties { get; set; }
 
     /// <inheritdoc cref="ShardedGatewayClientConfiguration.ReconnectStrategyFactory" />
     public IReconnectStrategy? ReconnectStrategy { get; set; }
@@ -121,7 +121,7 @@ public partial class ShardedGatewayClientOptions : IDiscordOptions
     {
         return ShardedGatewayClientConfigurationFactory.Create(CreateFactory(WebSocketConnectionProvider, WebSocketConnectionProviderFactory),
                                                                CreateFactory(RateLimiterProvider, RateLimiterProviderFactory),
-                                                               CreateFactory(DefaultPayloadProperties, DefaultPayloadPropertiesFactory),
+                                                               CreateFactory(DefaultMessageProperties, DefaultMessagePropertiesFactory),
                                                                CreateFactory(ReconnectStrategy, ReconnectStrategyFactory),
                                                                CreateFactory(LatencyTimer, LatencyTimerFactory),
                                                                CreateFactory(Version, VersionFactory),
