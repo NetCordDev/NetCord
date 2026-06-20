@@ -11,7 +11,8 @@ public static class HttpEventServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddHttpInteractionProcessor(this IServiceCollection services)
     {
-        return services.AddSingleton<IHttpInteractionProcessor, HttpInteractionProcessor>();
+        services.AddSingleton<IHttpInteractionProcessor, HttpInteractionProcessor>();
+        return services;
     }
 
     /// <summary>
@@ -21,7 +22,8 @@ public static class HttpEventServiceCollectionExtensions
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddWebhookEventProcessor(this IServiceCollection services)
     {
-        return services.AddSingleton<IWebhookEventProcessor, WebhookEventProcessor>();
+        services.AddSingleton<IWebhookEventProcessor, WebhookEventProcessor>();
+        return services;
     }
 }
 
