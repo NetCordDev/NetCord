@@ -58,7 +58,7 @@ If you receive audio for some time and then it suddenly stops, it may be caused 
 
 Now it's time to add a `/record` command to our bot that records what a user is saying in a voice channel and sends it to the channel where the command was used, either when a max file size is triggered or when the bot leaves the voice channel. This command will use the knowledge we have gained about receiving audio to capture the user's audio and save it to a file.
 
-[!code-cs[Record Command](Voice/Program.cs#L222-L353)]
+[!code-cs[Record Command](Voice/Program.cs#L222-L358)]
 
 ---
 

@@ -286,14 +286,15 @@ host.AddSlashCommand("record", "Records audio", async (ApplicationCommandContext
 
     using var ffmpegOutput = ffmpeg.StandardOutput.BaseStream;
 
-    using MemoryStream memoryStream = new();
+    using MemoryStream outputStream = new();
 
     string? recordingStopReason;
 
     var copyBuffer = ArrayPool<byte>.Shared.Rent(4096);
-    var totalBytes = 0;
 
-    var killFFmpeg = true;
+    var ffmpegRunning = true;
+
+    const int MaxFileSize = 10 * 1024 * 1024; // 10 MB
 
     try
     {
@@ -302,24 +303,21 @@ host.AddSlashCommand("record", "Records audio", async (ApplicationCommandContext
         {
             if ((count = await ffmpegOutput.ReadAsync(copyBuffer, cancellationToken)) is 0)
             {
-                // Should never happen since 'ffmpeg' should keep the process
-                // alive until we kill it, but we'll handle it just in case
+                // Should never happen since Ffmpeg should be keept alive
+                // until we kill it, but we'll handle it just in case
 
-                killFFmpeg = false;
+                ffmpegRunning = false;
                 recordingStopReason = "End of stream";
                 break;
             }
 
-            var remainingBytes = (10 * 1024 * 1024) - totalBytes;
-            await memoryStream.WriteAsync(copyBuffer.AsMemory(0, Math.Min(count, remainingBytes)), cancellationToken);
+            outputStream.Write(copyBuffer.AsSpan(0, count));
 
-            if (remainingBytes <= count)
+            if (outputStream.Length >= MaxFileSize)
             {
                 recordingStopReason = "Maximum file size exceeded";
                 break;
             }
-
-            totalBytes += count;
         }
     }
     catch (Exception ex)
@@ -333,23 +331,30 @@ host.AddSlashCommand("record", "Records audio", async (ApplicationCommandContext
     {
         voiceClient.VoiceReceive -= voiceReceive;
 
-        if (killFFmpeg)
+        if (ffmpegRunning)
         {
-            // We need to flush the input stream since 'Dispose' (called by 'using') tries to write
-            // the buffered data, which throws an exception since the process has already exited
-            await ffmpegInput.FlushAsync();
+            // Flush the stream to ensure all data is written to Ffmpeg
+            // This way we don't cut off the end of the recording
+            await opusDecodeStream.FlushAsync();
+            await opusDecodeStream.DisposeAsync();
+
+            await ffmpegOutput.CopyToAsync(outputStream);
 
             ffmpeg.Kill();
         }
+
+        ArrayPool<byte>.Shared.Return(copyBuffer);
     }
 
-    await memoryStream.FlushAsync();
+    // Ensure the output stream is not larger than the maximum file size
+    if (outputStream.Length > MaxFileSize)
+        outputStream.SetLength(MaxFileSize);
 
-    memoryStream.Position = 0;
+    outputStream.Position = 0;
 
     await context.Channel.SendMessageAsync(new MessageProperties()
         .WithContent($"Finished recording. Stop reason: {recordingStopReason}")
-        .AddAttachments(new AttachmentProperties("recording.ogg", memoryStream)));
+        .AddAttachments(new AttachmentProperties("recording.ogg", outputStream)));
 }).AddContexts(InteractionContextType.Guild);
 
 await host.RunAsync();
