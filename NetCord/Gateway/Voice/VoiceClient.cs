@@ -914,6 +914,37 @@ public sealed partial class VoiceClient : WebSocketClient
     }
 
     /// <summary>
+    /// Sends a datagram.
+    /// </summary>
+    /// <param name="buffer">The datagram to send.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the send operation.</param>
+    public ValueTask SendDatagramAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        if (_udpState is not { Connection: var connection })
+        {
+            ThrowConnectionNotStarted();
+            return default;
+        }
+
+        return connection.SendAsync(buffer, cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends a datagram.
+    /// </summary>
+    /// <param name="buffer">The datagram to send.</param>
+    public void SendDatagram(ReadOnlySpan<byte> buffer)
+    {
+        if (_udpState is not { Connection: var connection })
+        {
+            ThrowConnectionNotStarted();
+            return;
+        }
+
+        connection.Send(buffer);
+    }
+
+    /// <summary>
     /// Creates a stream that you can write to to send voice. Each write must be exactly one Opus frame.
     /// </summary>
     /// <param name="configuration">The configuration of the voice stream.</param>
