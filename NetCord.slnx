@@ -61,6 +61,7 @@
     <Project Path="Documentation/guides/voice/Voice/Voice.csproj" />
     <Project Path="Documentation/guides/voice/VoiceSetup/VoiceSetup.csproj" />
     <Project Path="Documentation/guides/voice/VoiceConnection/VoiceConnection.csproj" />
+    <Project Path="Documentation/guides/voice/Troubleshooting/Troubleshooting.csproj" />
   </Folder>
   <Folder Name="/Hosting/">
     <Project Path="Hosting/NetCord.Hosting.AspNetCore/NetCord.Hosting.AspNetCore.csproj" />
