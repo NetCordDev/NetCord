@@ -38,6 +38,16 @@
 
         dotnetRoot = "${dotnet.unwrapped}/share/dotnet";
 
+        # Use the modern top-level apple-sdk_14
+        darwinPackages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
+          libiconv
+          apple-sdk_14
+        ]);
+
+        # The internal directory structure has changed in recent nixpkgs.
+        # It is now located directly in /SDKs/MacOSX.sdk
+        sdkRoot = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
+          "${pkgs.apple-sdk_14}/SDKs/MacOSX.sdk";
       in
       {
         default = pkgs.mkShell {
@@ -58,9 +68,22 @@
             pkgs.autoconf-archive
             pkgs.automake
             pkgs.libtool
-          ];
-          
+          ] ++ darwinPackages;
+
           DOTNET_ROOT = dotnetRoot;
+
+          SDKROOT = sdkRoot;
+
+          NIX_CFLAGS_COMPILE = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
+            "-isysroot ${sdkRoot}";
+
+          shellHook = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
+            export SDKROOT="${sdkRoot}"
+            export LDFLAGS="-F$SDKROOT/System/Library/Frameworks -L$SDKROOT/usr/lib"
+            export NIX_LDFLAGS="-F$SDKROOT/System/Library/Frameworks -L$SDKROOT/usr/lib"
+            export NIX_CFLAGS_COMPILE="-isysroot $SDKROOT"
+            export NIX_CPPFLAGS="-isysroot $SDKROOT"
+          '';
         };
 
         docs = pkgs.mkShell {

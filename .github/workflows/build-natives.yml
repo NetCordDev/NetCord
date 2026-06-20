@@ -140,8 +140,8 @@ jobs:
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.TargetRID }}"
           -p:GeneratePackageOnBuild=false -p:CI=false
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
-      
-      - name: List output directory for ${{ matrix.rid }}
+
+      - name: List output directory (Nix)
         if: ${{ matrix.use-nix }}
         run: |
           ls -Rlsha Natives/NetCord.Natives.Tests/bin/
