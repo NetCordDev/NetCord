@@ -10,7 +10,7 @@ public class VoiceClientConfiguration : IWebSocketClientConfiguration
 {
     public IWebSocketConnectionProvider? WebSocketConnectionProvider { get; init; }
     public IRateLimiterProvider? RateLimiterProvider { get; init; }
-    public WebSocketPayloadProperties? DefaultPayloadProperties { get; init; }
+    public WebSocketMessageProperties? DefaultMessageProperties { get; init; }
     public IUdpConnectionProvider? UdpConnectionProvider { get; init; }
     public IReconnectStrategy? ReconnectStrategy { get; init; }
     public ILatencyTimer? LatencyTimer { get; init; }

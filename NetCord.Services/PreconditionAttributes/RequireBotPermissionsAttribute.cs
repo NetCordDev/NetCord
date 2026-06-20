@@ -43,7 +43,7 @@ public class RequireBotPermissionsAttribute<TContext> : PreconditionAttribute<TC
 
     public override ValueTask<PreconditionResult> EnsureCanExecuteAsync(TContext context, IServiceProvider? serviceProvider)
     {
-        if (context is IComponentInteractionContext interactionContext)
+        if (context is IInteractionContext interactionContext)
         {
             if (interactionContext.Interaction.Context is not InteractionContextType.Guild)
                 return new(PreconditionResult.Fail("The current guild could not be found."));

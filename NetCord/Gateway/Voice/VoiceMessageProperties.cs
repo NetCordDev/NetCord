@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NetCord.Gateway.Voice;
 
-internal class VoicePayloadProperties<T>(VoiceOpcode opcode, T d)
+internal class VoiceMessageProperties<T>(VoiceOpcode opcode, T d)
 {
     [JsonPropertyName("op")]
     public VoiceOpcode Opcode { get; set; } = opcode;
