@@ -8,6 +8,11 @@ namespace NetCord.Hosting.AspNetCore;
 
 public interface IHttpInteractionProcessor
 {
+    /// <summary>
+    /// Processes an incoming HTTP interaction request.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/> of the incoming request.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public Task ProcessAsync(HttpContext context);
 }
 

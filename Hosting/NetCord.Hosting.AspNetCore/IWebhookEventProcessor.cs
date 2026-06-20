@@ -9,6 +9,11 @@ namespace NetCord.Hosting.AspNetCore;
 
 public interface IWebhookEventProcessor
 {
+    /// <summary>
+    /// Processes an incoming webhook event request.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/> of the incoming request.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public Task ProcessAsync(HttpContext context);
 }
 
