@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -11,9 +10,9 @@ using NetCord.Rest;
 
 namespace NetCord.Hosting.AspNetCore;
 
-internal abstract class HttpEventHandler<TRawData> where TRawData : class
+internal abstract class HttpEventProcessor<TRawData> where TRawData : class
 {
-    public HttpEventHandler(IServiceProvider services, string pattern)
+    public HttpEventProcessor(IServiceProvider services)
     {
         _services = services;
 
@@ -21,8 +20,6 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
         _validator = new(publicKey);
 
         _client = services.GetRequiredService<RestClient>();
-
-        Pattern = RoutePatternHelper.ParseLiteral(pattern);
     }
 
     private protected readonly IServiceProvider _services;
@@ -31,15 +28,13 @@ internal abstract class HttpEventHandler<TRawData> where TRawData : class
 
     private protected readonly RestClient _client;
 
-    public RoutePattern Pattern { get; }
-
     protected abstract TRawData GetData(HttpContext context, ReadOnlySpan<byte> body);
 
     protected abstract ValueTask HandleAsync(HttpContext context, TRawData data);
 
     protected abstract void LogHandlerException(Exception ex);
 
-    public async Task HandleRequestAsync(HttpContext context)
+    public async Task ProcessAsync(HttpContext context)
     {
         var value = await ValidateAsync(context).ConfigureAwait(false);
         if (value is null)

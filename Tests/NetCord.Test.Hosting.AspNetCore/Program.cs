@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .AddDiscordRest()
+    .AddHttpInteractionProcessor()
+    .AddWebhookEventProcessor()
     .AddHttpApplicationCommands()
     .AddHttpComponentInteractions()
     .AddHttpInteractionHandler<InteractionHandler>()
@@ -40,8 +42,18 @@ app.AddSlashCommand("button", "Button!", (string s) => new InteractionMessagePro
 app.AddSlashCommand("echo", "Echo!", ([SlashCommandParameter(AutocompleteProviderType = typeof(EchoAutocompleteProvider))] string s) => s);
 app.AddComponentInteraction("button", (string s) => $"Button! {s}");
 
-app.UseHttpInteractions("/interactions");
+app.MapPost("/interactions", (HttpContext context, IHttpInteractionProcessor processor) =>
+{
+    return processor.ProcessAsync(context);
+});
 
-app.UseWebhookEvents("/webhooks");
+app.MapPost("/webhooks", (HttpContext context, IWebhookEventProcessor processor) =>
+{
+    return processor.ProcessAsync(context);
+});
+
+// app.UseHttpInteractions("/interactions");
+
+// app.UseWebhookEvents("/webhooks");
 
 await app.RunAsync();
