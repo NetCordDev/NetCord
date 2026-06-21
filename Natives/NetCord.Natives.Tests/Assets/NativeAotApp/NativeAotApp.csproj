@@ -19,6 +19,7 @@
     <ItemGroup>
       <LinkerArg Remove="-licucore" />
       <LinkerArg Remove="--target=arm64-apple-macos12.0" />
+      <LinkerArg Include="--target=arm64-apple-darwin" />
     </ItemGroup>
   </Target>
 
