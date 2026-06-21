@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace NetCord.Hosting.AspNetCore;
 
-public static class EndpointRouteBuilderExtensions
+public static class HttpEventEndpointRouteBuilderExtensions
 {
     /// <summary>
     /// Adds a route to the <see cref="IEndpointRouteBuilder"/> that will handle Discord interactions.
@@ -14,10 +15,13 @@ public static class EndpointRouteBuilderExtensions
     /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     public static IEndpointConventionBuilder UseHttpInteractions(this IEndpointRouteBuilder endpoints, string pattern)
     {
-        HttpInteractionHandler handler = new(endpoints.ServiceProvider, pattern);
+        var parsedPattern = RoutePatternHelper.ParseLiteral(pattern);
+
+        var processor = endpoints.ServiceProvider.GetService<IHttpInteractionProcessor>()
+            ?? new HttpInteractionProcessor(endpoints.ServiceProvider);
 
         return endpoints
-            .Map(handler.Pattern, handler.HandleRequestAsync)
+            .Map(parsedPattern, processor.ProcessAsync)
             .WithMetadata(new HttpMethodMetadata([HttpMethods.Post]));
     }
 
@@ -29,10 +33,13 @@ public static class EndpointRouteBuilderExtensions
     /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
     public static IEndpointConventionBuilder UseWebhookEvents(this IEndpointRouteBuilder endpoints, string pattern)
     {
-        WebhookEventHandler handler = new(endpoints.ServiceProvider, pattern);
+        var parsedPattern = RoutePatternHelper.ParseLiteral(pattern);
+
+        var processor = endpoints.ServiceProvider.GetService<IWebhookEventProcessor>()
+            ?? new WebhookEventProcessor(endpoints.ServiceProvider);
 
         return endpoints
-            .Map(handler.Pattern, handler.HandleRequestAsync)
+            .Map(parsedPattern, processor.ProcessAsync)
             .WithMetadata(new HttpMethodMetadata([HttpMethods.Post]));
     }
 }
