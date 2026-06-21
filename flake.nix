@@ -40,11 +40,11 @@
 
         darwinPackages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
           libiconv
-          apple-sdk_14
+          apple-sdk_12
         ]);
 
         sdkRoot = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
-          "${pkgs.apple-sdk_14}/SDKs/MacOSX.sdk";
+          "${pkgs.apple-sdk_12}/SDKs/MacOSX.sdk";
       in
       {
         default = pkgs.mkShell {
