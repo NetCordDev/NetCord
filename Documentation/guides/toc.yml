@@ -26,6 +26,8 @@
       href: http-events/introduction.md
     - name: AWS Lambda
       href: http-events/aws-lambda.md
+    - name: Azure Function
+      href: http-events/azure-function.md
 - name: Services
   items:
     - name: Introduction

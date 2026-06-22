@@ -59,8 +59,7 @@ Before your bot can receive and verify interactions from Discord at your new end
 
 1. In the AWS Management Console, navigate to your Lambda function.
 2. Click on **Configuration**, then select **Environment variables**.
-3. Add a new variable named `Discord__PublicKey` (note the double underscore).
-4. Paste your bot's Public Key, which can be found in the Discord Developer Portal.
+3. Add a new environment variable with the key `Discord__PublicKey` and set its value to your bot's Public Key from the Discord Developer Portal.
 
 If you are building a more complex bot that requires authenticated @NetCord.Rest.RestClient usage, you will also need to provide your bot token. To do so, add an environment variable named `Discord__Token` in the same way.
 

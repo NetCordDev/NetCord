@@ -15,6 +15,7 @@
   <Folder Name="/Documentation/guides/http-events/">
     <Project Path="Documentation/guides/http-events/Introduction/Introduction.csproj" />
     <Project Path="Documentation/guides/http-events/AWSLambda/AWSLambda.csproj" />
+    <Project Path="Documentation/guides/http-events/AzureFunction/AzureFunction.csproj" />
   </Folder>
   <Folder Name="/Documentation/guides/events/">
     <Project Path="Documentation/guides/events/FirstEvents/FirstEvents.csproj" />
