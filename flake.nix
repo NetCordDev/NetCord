@@ -53,7 +53,9 @@
         };
 
         natives = pkgs.mkShell.override {
-          stdenv = pkgs.stdenv.override (old: {
+          stdenv = if pkgs.clangStdenv.isLinux then
+            pkgs.clangStdenv
+          else pkgs.clangStdenv.override (old: {
             hostPlatform = old.hostPlatform // { darwinMinVersion = "12.0"; };
             targetPlatform = old.targetPlatform // { darwinMinVersion = "12.0"; };
           });
@@ -72,14 +74,34 @@
           DOTNET_ROOT = dotnetRoot;
 
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
-          CC = "clang";
-          CXX = "clang++";
         } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
           SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
           MACOSX_DEPLOYMENT_TARGET = "12.0";
           VCPKG_ENV_PASSTHROUGH = "MACOSX_DEPLOYMENT_TARGET,SDKROOT";
         });
 
+        natives-musl = pkgs.mkShell.override {
+          stdenv = pkgs.pkgsMusl.clangStdenv;
+        } ({
+          packages = [
+            dotnet
+            pkgs.cmake
+            pkgs.ninja
+            pkgs.pkg-config
+            pkgs.autoconf
+            pkgs.autoconf-archive
+            pkgs.automake
+            pkgs.libtool
+          ] ++ darwinPackages;
+
+          DOTNET_ROOT = dotnetRoot;
+
+          VCPKG_FORCE_SYSTEM_BINARIES = "1";
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+          SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
+          MACOSX_DEPLOYMENT_TARGET = "12.0";
+          VCPKG_ENV_PASSTHROUGH = "MACOSX_DEPLOYMENT_TARGET,SDKROOT";
+        });
         docs = pkgs.mkShell {
           packages = [
             docfx

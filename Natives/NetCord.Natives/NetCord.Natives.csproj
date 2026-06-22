@@ -32,6 +32,8 @@
 
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Windows_NT'">windows</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and $([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">osx</VcpkgOSTarget>
+
+        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and ('$(IsMusl)' == 'true' or $(RuntimeIdentifier.Contains('musl')))">linux-musl</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix'">linux</VcpkgOSTarget>
 
         <VcpkgBuildOS>$(VcpkgOSTarget)</VcpkgBuildOS>
@@ -103,21 +105,31 @@
             <_LibArchs Include="x64;arm64">
                 <LibName>%(NativeLibSet.Identity)</LibName>
             </_LibArchs>
+
             <_BuiltRid Include="win-%(_LibArchs.Identity)">
                 <BinPath>%(_LibArchs.Identity)-windows\bin\%(_LibArchs.LibName)</BinPath>
                 <LibPath>%(_LibArchs.Identity)-windows-static\lib\%(_LibArchs.LibName)</LibPath>
                 <Ext>dll</Ext>
             </_BuiltRid>
+
             <_BuiltRid Include="linux-%(_LibArchs.Identity)">
                 <BinPath>%(_LibArchs.Identity)-linux-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
                 <LibPath>%(_LibArchs.Identity)-linux\lib\lib%(_LibArchs.LibName)</LibPath>
                 <Ext>so</Ext>
             </_BuiltRid>
+
+            <_BuiltRid Include="linux-musl-%(_LibArchs.Identity)">
+                <BinPath>%(_LibArchs.Identity)-linux-musl-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
+                <LibPath>%(_LibArchs.Identity)-linux-musl\lib\lib%(_LibArchs.LibName)</LibPath>
+                <Ext>so</Ext>
+            </_BuiltRid>
+
             <_BuiltRid Include="osx-%(_LibArchs.Identity)">
                 <BinPath>%(_LibArchs.Identity)-osx-dynamic\lib\lib%(_LibArchs.LibName)</BinPath>
                 <LibPath>%(_LibArchs.Identity)-osx\lib\lib%(_LibArchs.LibName)</LibPath>
                 <Ext>dylib</Ext>
             </_BuiltRid>
+
             <_BuiltRid Remove="%(Identity)" Condition="'$(CI)' != 'true' and '%(Identity)' != '$(VcpkgBuildOS)-$(VcpkgPlatformTarget)'" />
         </ItemGroup>
     </Target>

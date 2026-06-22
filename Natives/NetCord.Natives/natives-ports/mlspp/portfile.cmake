@@ -13,7 +13,7 @@ set(VCPKG_LIBRARY_LINKAGE static)
 
 set(EXTRA_OPTIONS -DDISABLE_GREASE=ON -DTESTING=OFF -DBUILD_TESTING=OFF -DMLS_CXX_NAMESPACE="mlspp")
 if(VCPKG_HOST_IS_LINUX)
-    list(APPEND EXTRA_OPTIONS -DCMAKE_CXX_FLAGS="-Wno-error=maybe-uninitialized")
+    list(APPEND EXTRA_OPTIONS -DCMAKE_CXX_FLAGS="-Wno-error=uninitialized")
 endif()
 
 vcpkg_cmake_configure(
