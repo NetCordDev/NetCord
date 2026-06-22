@@ -40,11 +40,11 @@
 
         darwinPackages = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isDarwin (with pkgs; [
           libiconv
-          apple-sdk_12
+          apple-sdk
         ]);
 
         sdkRoot = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
-          "${pkgs.apple-sdk_12}/SDKs/MacOSX.sdk";
+          "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
       in
       {
         default = pkgs.mkShell {
@@ -68,6 +68,8 @@
           ] ++ darwinPackages;
 
           DOTNET_ROOT = dotnetRoot;
+
+          MACOSX_DEPLOYMENT_TARGET = "12.0";
 
           # 1. Force vcpkg to use Nix's CMake and Ninja instead of Homebrew/System tools
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
