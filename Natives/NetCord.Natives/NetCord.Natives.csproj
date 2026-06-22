@@ -32,13 +32,12 @@
 
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Windows_NT'">windows</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and $([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">osx</VcpkgOSTarget>
-
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix'">linux</VcpkgOSTarget>
+
+        <VcpkgOSTarget Condition="'$(TARGET_MUSL)' == 'true' or $(RuntimeIdentifier.Contains('musl'))">$(VcpkgOSTarget)-musl</VcpkgOSTarget>
 
         <VcpkgBuildOS>$(VcpkgOSTarget)</VcpkgBuildOS>
         <VcpkgBuildOS Condition="'$(VcpkgOSTarget)' == 'windows'">win</VcpkgBuildOS>
-
-        <VcpkgBuildOS Condition="'$(TARGET_MUSL)' == 'true'">$(VcpkgBuildOS)-musl</VcpkgBuildOS>
 
         <!-- Prevent vcpkg msbuild target from installing packages. We do our own Exec -->
         <VcpkgManifestInstall Condition="'$(VcpkgBuildOS)' != 'win'">false</VcpkgManifestInstall>
