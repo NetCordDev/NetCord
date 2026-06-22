@@ -74,6 +74,10 @@
           DOTNET_ROOT = dotnetRoot;
 
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
+
+          shellHook = ''
+            export VCPKG_ROOT="$PWD/Natives/NetCord.Natives/vcpkg"
+          '';
         } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
           SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
           MACOSX_DEPLOYMENT_TARGET = "12.0";
@@ -96,12 +100,21 @@
 
           DOTNET_ROOT = dotnetRoot;
 
+          TARGET_MUSL = "true";
+
+          VCPKG_OVERLAY_TRIPLETS="${toString ./.}/Natives/NetCord.Natives/triplets";
+
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
+
+          shellHook = ''
+            export VCPKG_ROOT="$PWD/Natives/NetCord.Natives/vcpkg"
+          '';
         } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
           SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
           MACOSX_DEPLOYMENT_TARGET = "12.0";
           VCPKG_ENV_PASSTHROUGH = "MACOSX_DEPLOYMENT_TARGET,SDKROOT";
         });
+
         docs = pkgs.mkShell {
           packages = [
             docfx

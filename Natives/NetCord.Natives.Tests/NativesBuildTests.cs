@@ -53,7 +53,7 @@ public class NativesBuildTests
 
         var properties = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
                                  .FirstOrDefault(a => a.Key == "NativeAotAppProps")?
-                                 .Value?.Split([';',','], StringSplitOptions.RemoveEmptyEntries).Select(p => $"-p:{p.Trim()}");
+                                 .Value?.Split([';', ','], StringSplitOptions.RemoveEmptyEntries).Select(p => $"-p:{p.Trim()}");
         Assert.IsNotNull(properties, "NativeAotAppProps metadata attribute is not defined.");
 
         var binlogpath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
@@ -70,11 +70,13 @@ public class NativesBuildTests
         buildProcess.StartInfo.ArgumentList.Add(configuration);
         buildProcess.StartInfo.ArgumentList.Add("-tl:off");
         buildProcess.StartInfo.ArgumentList.Add("-v:n");
+        buildProcess.StartInfo.ArgumentList.Add("-nodeReuse:false");
+
         if (!string.IsNullOrEmpty(binlogpath))
             buildProcess.StartInfo.ArgumentList.Add($"-bl:{binlogpath}");
         foreach (var property in properties)
             buildProcess.StartInfo.ArgumentList.Add(property);
-        
+
         Console.WriteLine($"[{NativeAotAppLogTag}/Publish] Building Native AoT app in ({projectDirectory}): 'dotnet {buildProcess.StartInfo.ArgumentList.Aggregate((a, b) => $"{a} {b}")}'");
 
         buildProcess.StartInfo.WorkingDirectory = projectDirectory;
@@ -107,9 +109,11 @@ public class NativesBuildTests
         getRunCmd.StartInfo.ArgumentList.Add("-t:GetTargetPath");
         getRunCmd.StartInfo.ArgumentList.Add("-getProperty:PublishDir");
         getRunCmd.StartInfo.ArgumentList.Add("--no-restore");
+        getRunCmd.StartInfo.ArgumentList.Add("-nodeReuse:false");
+
         foreach (var property in properties)
             getRunCmd.StartInfo.ArgumentList.Add(property);
-        
+
         string? runCmdOutput = null;
 
         getRunCmd.StartInfo.WorkingDirectory = projectDirectory;
@@ -136,7 +140,7 @@ public class NativesBuildTests
         Assert.AreEqual(0, getRunCmd.ExitCode, $"Failed to obtain PublishDir for '{libName}'.");
         Assert.IsFalse(string.IsNullOrEmpty(runCmdOutput), $"PublishDir is empty for '{libName}'.");
 
-        runCmdOutput = Path.Combine(projectDirectory, runCmdOutput, 
+        runCmdOutput = Path.Combine(projectDirectory, runCmdOutput,
                         "NativeAotApp" + (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? ".exe" : ""));
 
         // check that the library is running without errors, which indicates that it was statically linked successfully

@@ -30,10 +30,14 @@
         <VcpkgConfiguration>Release</VcpkgConfiguration>
         <VcpkgEnableManifest>true</VcpkgEnableManifest>
 
+        <TargetMusl Condition="'$(TargetMusl)' == ''">false</TargetMusl>
+
+        <TargetMusl Condition="'$(TARGET_MUSL)' == 'true'">true</TargetMusl>
+
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Windows_NT'">windows</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and $([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">osx</VcpkgOSTarget>
 
-        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and ('$(IsMusl)' == 'true' or $(RuntimeIdentifier.Contains('musl')))">linux-musl</VcpkgOSTarget>
+        <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix' and '$(TargetMusl)' == 'true'">linux-musl</VcpkgOSTarget>
         <VcpkgOSTarget Condition="'$(VcpkgOSTarget)' == '' and '$(OS)' == 'Unix'">linux</VcpkgOSTarget>
 
         <VcpkgBuildOS>$(VcpkgOSTarget)</VcpkgBuildOS>
