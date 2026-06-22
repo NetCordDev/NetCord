@@ -42,9 +42,6 @@
           libiconv
           apple-sdk
         ]);
-
-        sdkRoot = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin
-          "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
       in
       {
         default = pkgs.mkShell {
@@ -60,7 +57,7 @@
             hostPlatform = old.hostPlatform // { darwinMinVersion = "12.0"; };
             targetPlatform = old.targetPlatform // { darwinMinVersion = "12.0"; };
           });
-        } {
+        } ({
           packages = [
             dotnet
             pkgs.cmake
@@ -74,23 +71,14 @@
 
           DOTNET_ROOT = dotnetRoot;
 
-          MACOSX_DEPLOYMENT_TARGET = "12.0";
-
-          VCPKG_ENV_PASSTHROUGH = "MACOSX_DEPLOYMENT_TARGET,SDKROOT";
-
-          # 1. Force vcpkg to use Nix's CMake and Ninja instead of Homebrew/System tools
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
-
-          # 2. Explicitly point to the Nix Clang wrapper
           CC = "clang";
           CXX = "clang++";
-
-          shellHook = pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isDarwin ''
-            # Provide SDKROOT for MSBuild and Apple tools that expect it.
-            # We omit manual LDFLAGS/CFLAGS because Nix's Clang wrapper handles them automatically.
-            export SDKROOT="${sdkRoot}"
-          '';
-        };
+        } // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+          SDKROOT = "${pkgs.apple-sdk}/SDKs/MacOSX.sdk";
+          MACOSX_DEPLOYMENT_TARGET = "12.0";
+          VCPKG_ENV_PASSTHROUGH = "MACOSX_DEPLOYMENT_TARGET,SDKROOT";
+        });
 
         docs = pkgs.mkShell {
           packages = [
