@@ -12,7 +12,7 @@
     <PublishAot>true</PublishAot>
     <IsAotCompatible>true</IsAotCompatible>
     <SelfContained>true</SelfContained>
-      
+
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
@@ -26,17 +26,19 @@
     <Compile Include="..\..\NativeProbes.cs" Condition="Exists('..\..\NativeProbes.cs')" />
   </ItemGroup>
 
-	<ItemGroup>
-		<DirectPInvoke Include="libdave" />
-		<DirectPInvoke Include="libsodium" />
-		<DirectPInvoke Include="opus" />
-		<DirectPInvoke Include="zstd" />
-		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
-		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <DirectPInvoke Include="libdave" />
+    <DirectPInvoke Include="libsodium" />
+    <DirectPInvoke Include="opus" />
+    <DirectPInvoke Include="zstd" />
+    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+    <ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>
   </PropertyGroup>
-	<Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
+
+  <Import Project="$(NetCordNativesDir)\NetCord.Natives.local.targets" />
 
 </Project>
