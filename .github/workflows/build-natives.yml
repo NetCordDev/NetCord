@@ -35,36 +35,56 @@ jobs:
             vcpkg-platform-target: x64
             use-nix: false
             shell_command: pwsh
+            musl: false
           - rid: win-arm64
             runs-on: windows-11-arm
             vcpkg-os-target: windows
             vcpkg-platform-target: arm64
             use-nix: false
             shell_command: pwsh
+            musl: false
           - rid: osx-x64
             runs-on: macos-15-intel
             vcpkg-os-target: osx
             vcpkg-platform-target: x64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
+            musl: false
           - rid: osx-arm64
             runs-on: macos-15
             vcpkg-os-target: osx
             vcpkg-platform-target: arm64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
+            musl: false
           - rid: linux-x64
             runs-on: ubuntu-latest
             vcpkg-os-target: linux
             vcpkg-platform-target: x64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
+            musl: false
           - rid: linux-arm64
             runs-on: ubuntu-24.04-arm
             vcpkg-os-target: linux
             vcpkg-platform-target: arm64
             use-nix: true
             shell_command: nix develop .#natives -c bash -eo pipefail {0}
+            musl: false
+          - rid: linux-musl-x64
+            runs-on: ubuntu-latest
+            vcpkg-os-target: linux
+            vcpkg-platform-target: x64
+            use-nix: true
+            shell_command: nix develop .#natives-musl -c bash -eo pipefail {0}
+            musl: true
+          - rid: linux-musl-arm64
+            runs-on: ubuntu-24.04-arm
+            vcpkg-os-target: linux
+            vcpkg-platform-target: arm64
+            use-nix: true
+            shell_command: nix develop .#natives-musl -c bash -eo pipefail {0}
+            musl: true
 
     runs-on: ${{ matrix.runs-on }}
     defaults:
@@ -91,17 +111,17 @@ jobs:
           submodules: true
 
       - name: Install Nix
-        if: ${{ matrix.use-nix }}
+        if: matrix.use-nix
         uses: cachix/install-nix-action@8aa03977d8d733052d78f4e008a241fd1dbf36b3 # v31.10.6
 
       - name: Setup vcpkg cache directories (Windows)
-        if: ${{ !matrix.use-nix }}
+        if: !matrix.use-nix
         run: |
           New-Item -ItemType Directory -Path $env:VCPKG_BINARY_SOURCES.Split(',')[1] -Force | Out-Null
           New-Item -ItemType Directory -Path $env:VCPKG_DOWNLOADS -Force | Out-Null
 
       - name: Setup vcpkg cache directories (Nix)
-        if: ${{ matrix.use-nix }}
+        if: matrix.use-nix
         run: |
           mkdir -p "${VCPKG_BINARY_SOURCES#*,}"
           mkdir -p "${VCPKG_DOWNLOADS}"
@@ -120,7 +140,7 @@ jobs:
             vcpkg-${{ runner.os }}-
 
       - name: Setup .NET Core SDK (Windows)
-        if: ${{ !matrix.use-nix }}
+        if: !matrix.use-nix
         uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5.2.0
         with:
           global-json-file: global.json
@@ -142,12 +162,12 @@ jobs:
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
       - name: List output directory (Nix)
-        if: ${{ matrix.use-nix }}
+        if: matrix.use-nix
         run: |
           ls -Rlsha Natives/NetCord.Natives.Tests/bin/
 
-      - name: Test natives outputs for ${{ matrix.rid }}
-        # This will still run if Build succeeds. If Build fails, this is skipped automatically.
+      - name: Test natives outputs for ${{ matrix.rid }} (non musl)
+        if: !matrix.musl
         run: >
           dotnet test Natives/NetCord.Natives.slnx --no-restore --no-build
           -v ${{ env.DotnetVerbose }}
@@ -156,9 +176,19 @@ jobs:
           --logger GitHubActions
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
 
+      - name: Test natives outputs for ${{ matrix.rid }} (musl)
+        if: matrix.musl
+        run: >
+          docker run --rm -v $(pwd):$(pwd) -w $(pwd) -e VCPKG_ROOT -e TARGET_MUSL -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot dotnet test --no-restore --no-build
+          -v ${{ env.DotnetVerbose }}
+          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
+          --logger "console;verbosity=detailed"
+          --logger GitHubActions
+          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
+
       - name: Pack NuGet Package for ${{ matrix.rid }}
         # This forces the step to run even if 'Test' failed, as long as 'Build' succeeded.
-        if: ${{ always() && steps.build_step.outcome == 'success' }}
+        if: always() && steps.build_step.outcome == 'success'
         id: pack_step # Added an ID here to track the pack status for the upload step
         run: >
           dotnet pack Natives/NetCord.Natives/NetCord.Natives.csproj --no-restore --no-build -v ${{ env.DotnetVerbose }} 
@@ -167,7 +197,7 @@ jobs:
           -p:CI=false
 
       - name: Upload Binary Logs
-        if: ${{ env.GenerateBinLog == 'true' && always() }}
+        if: env.GenerateBinLog == 'true' && always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.rid }}-binlogs
@@ -176,7 +206,7 @@ jobs:
 
       - name: Upload NuGet Package Artifact
         # This ensures we only upload if the Pack step actually finished successfully.
-        if: ${{ always() && steps.pack_step.outcome == 'success' }}
+        if: always() && steps.pack_step.outcome == 'success'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: NetCord.Natives.${{ matrix.rid }}.packages
@@ -185,7 +215,7 @@ jobs:
             Natives/NetCord.Natives/bin/${{ matrix.rid }}/*.snupkg
 
       - name: Save vcpkg cache
-        if: ${{ always() && steps.build_step.outcome == 'success' }}
+        if: always() && steps.build_step.outcome == 'success'
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
