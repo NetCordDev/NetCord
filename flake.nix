@@ -55,7 +55,12 @@
           DOTNET_ROOT = dotnetRoot;
         };
 
-        natives = pkgs.mkShell {
+        natives = pkgs.mkShell.override {
+          stdenv = pkgs.stdenv.override (old: {
+            hostPlatform = old.hostPlatform // { darwinMinVersion = "12.0"; };
+            targetPlatform = old.targetPlatform // { darwinMinVersion = "12.0"; };
+          });
+        } {
           packages = [
             dotnet
             pkgs.cmake
@@ -68,8 +73,6 @@
           ] ++ darwinPackages;
 
           DOTNET_ROOT = dotnetRoot;
-
-          MACOSX_DEPLOYMENT_TARGET = "12.0";
 
           # 1. Force vcpkg to use Nix's CMake and Ninja instead of Homebrew/System tools
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
