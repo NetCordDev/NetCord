@@ -74,6 +74,8 @@
 
           DOTNET_ROOT = dotnetRoot;
 
+          MACOSX_DEPLOYMENT_TARGET = "12.0";
+
           # 1. Force vcpkg to use Nix's CMake and Ninja instead of Homebrew/System tools
           VCPKG_FORCE_SYSTEM_BINARIES = "1";
 
