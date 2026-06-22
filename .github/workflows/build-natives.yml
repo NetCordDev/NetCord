@@ -136,7 +136,7 @@ jobs:
         run: >
           dotnet build Natives/NetCord.Natives.slnx --no-restore
           -v ${{ env.DotnetVerbose }}
-          ${{ env.GenerateBinLog == 'true' && '-bl:build.binlog' || '' }}
+          ${{ env.GenerateBinLog == 'true' && format('-bl:build.binlog -p:NativeAotBinLogPath={0}/nativeaotapptest.binlog', github.workspace) || '' }}
           -p:AppendNativeAotAppProps="RuntimeIdentifier=${{ env.TargetRID }}"
           -p:GeneratePackageOnBuild=false -p:CI=false
           ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}

@@ -5,7 +5,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <InvariantGlobalization>true</InvariantGlobalization>
     <StripSymbols>false</StripSymbols>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -16,7 +15,11 @@
     <NetCordNativesDir Condition="'$(NetCordNativesDir)' == ''">..\..\..\NetCord.Natives</NetCordNativesDir>
   </PropertyGroup>
 
-  <Target Name="RemoveIcuCore" BeforeTargets="LinkNative">
+  <!-- for Nix issue -->
+  <PropertyGroup>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <Target Name="NativeAotRemoveLinkerArgs" AfterTargets="_InitializeCommonProperties" BeforeTargets="_BeforeAppleBuild">
     <ItemGroup>
       <LinkerArg Remove="-licucore" />
     </ItemGroup>
@@ -26,14 +29,14 @@
     <Compile Include="..\..\NativeProbes.cs" Condition="Exists('..\..\NativeProbes.cs')" />
   </ItemGroup>
 
-  <ItemGroup>
-    <DirectPInvoke Include="libdave" />
-    <DirectPInvoke Include="libsodium" />
-    <DirectPInvoke Include="opus" />
-    <DirectPInvoke Include="zstd" />
-    <ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
-    <ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<DirectPInvoke Include="libdave" />
+		<DirectPInvoke Include="libsodium" />
+		<DirectPInvoke Include="opus" />
+		<DirectPInvoke Include="zstd" />
+		<ProjectReference Include="$(NetCordNativesDir)\NetCord.Natives.csproj" />
+		<ProjectReference Include="$(NetCordNativesDir)\..\..\NetCord\NetCord.csproj" />
+	</ItemGroup>
 
   <PropertyGroup>
     <NetCordExcludeNativesDynamic>libdave;libsodium;opus;zstd</NetCordExcludeNativesDynamic>

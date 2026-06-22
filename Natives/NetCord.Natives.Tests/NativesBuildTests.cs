@@ -53,8 +53,11 @@ public class NativesBuildTests
 
         var properties = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
                                  .FirstOrDefault(a => a.Key == "NativeAotAppProps")?
-                                 .Value?.Split(";").Select(p => $"-p:{p.Trim()}");
+                                 .Value?.Split([';',','], StringSplitOptions.RemoveEmptyEntries).Select(p => $"-p:{p.Trim()}");
         Assert.IsNotNull(properties, "NativeAotAppProps metadata attribute is not defined.");
+
+        var binlogpath = assembly.GetCustomAttributes<AssemblyMetadataAttribute>()?
+                                .FirstOrDefault(a => a.Key == "NativeAotBinLogPath")?.Value;
 
         var configuration = assembly.GetCustomAttribute<AssemblyConfigurationAttribute>()?.Configuration ?? "Debug";
 
@@ -67,6 +70,8 @@ public class NativesBuildTests
         buildProcess.StartInfo.ArgumentList.Add(configuration);
         buildProcess.StartInfo.ArgumentList.Add("-tl:off");
         buildProcess.StartInfo.ArgumentList.Add("-v:n");
+        if (!string.IsNullOrEmpty(binlogpath))
+            buildProcess.StartInfo.ArgumentList.Add($"-bl:{binlogpath}");
         foreach (var property in properties)
             buildProcess.StartInfo.ArgumentList.Add(property);
         

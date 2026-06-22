@@ -34,13 +34,11 @@ jobs:
         shell: *dev-shell
         run: |
           dotnet restore NetCord.slnx
-          dotnet restore NetCord.Natives.slnx -p:VcpkgRoot=$VCPKG_INSTALLATION_ROOT -p:VcpkgEnabled=false
 
       - name: Build
         shell: *dev-shell
         run: |
           dotnet build NetCord.slnx -c Release --no-restore --warnaserror
-          dotnet build NetCord.Natives.slnx -c Release --no-restore --warnaserror -p:VcpkgRoot=$VCPKG_INSTALLATION_ROOT -p:VcpkgEnabled=false
 
       - name: Test
         shell: *dev-shell
