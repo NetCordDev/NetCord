@@ -5,12 +5,20 @@ namespace MyBot;
 
 internal static class Examples
 {
-    public static async Task ConnectWithLongerTimeoutAsync(GatewayClient client,
-                                                           ulong guildId,
-                                                           ulong channelId,
-                                                           VoiceClientConfiguration? configuration)
+    public static async Task LongerConnectionTimeoutAsync(GatewayClient client,
+                                                          ulong guildId,
+                                                          ulong channelId,
+                                                          VoiceClientConfiguration? configuration)
     {
         var voiceClient = await client.JoinVoiceChannelAsync(guildId, channelId, configuration, TimeSpan.FromSeconds(10));
+    }
+
+    public static async Task LongerExternalSocketAddressDiscoveryTimeoutAsync()
+    {
+        VoiceClientConfiguration configuration = new()
+        {
+            ExternalSocketAddressDiscoveryTimeout = TimeSpan.FromSeconds(15),
+        };
     }
 
     public static async Task KeepAliveAsync(VoiceClient voiceClient, CancellationToken cancellationToken)

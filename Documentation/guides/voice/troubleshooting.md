@@ -41,9 +41,13 @@ Make sure to call @NetCord.Gateway.Voice.VoiceClient.EnterSpeakingStateAsync* wi
 
 ## Failed to Get External Socket Address
 
-If you see the error `Failed to get the external socket address. Aborting the client.` in your logs, something is blocking the IP Discovery request or response. 
+The log error `Failed to get the external socket address. Aborting the client.` indicates that external socket address discovery has failed. This is typically caused by firewall restrictions, router configurations, or slow network responses. 
 
-This is typically caused by firewall restrictions or router configurations. To diagnose whether it's a local network issue, try connecting the bot through a different network, such as a mobile hotspot.
+Try connecting the bot to a mobile hotspot to quickly determine if your local router or firewall settings are the culprit.
+
+Alternatively, try increasing the default 5-second discovery timeout directly in your configuration:
+
+[!code-cs[External Socket Address Discovery Timeout](Troubleshooting/Examples.cs#L18-L21)]
 
 ---
 
@@ -58,4 +62,4 @@ Your firewall or router might be blocking UDP packets due to a built-in flood pr
 Sockets can sometimes close automatically, especially if the bot is listening without transmitting any audio. You can prevent this by adjusting your firewall/NAT settings or by implementing a keep-alive mechanism. 
 
 Sending a small, empty data packet at regular intervals will ensure the UDP connection stays open, as demonstrated below:
-[!code-cs[Keep Alive](Troubleshooting/Examples.cs#L18-L21)]
+[!code-cs[Keep Alive](Troubleshooting/Examples.cs#L26-L29)]
