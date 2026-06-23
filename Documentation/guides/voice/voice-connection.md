@@ -67,6 +67,16 @@ The `/leave` command checks if the bot is currently connected to a voice channel
 
 That's it! Now your bot can join and leave voice channels. You can test the commands in your Discord server to see them in action. For now, the bot doesn't do anything once it's connected, refer to [Sending Voice](sending-voice.md) and [Receiving Voice](receiving-voice.md) sections to learn how to send and receive audio in voice channels.
 
+## Maintaining Voice Connections
+
+While connecting to a voice channel is straightforward, maintaining a stable connection requires a bit of extra attention. During normal operation, your bot might get moved to another channel by a moderator, or the voice channel's region might get changed.
+
+Discord automatically handles the voice state for your bot, but the underlying voice connection itself may need to be re-established. To detect when a reconnection is necessary, you should listen to the @NetCord.Gateway.GatewayClient.VoiceStateUpdate and @NetCord.Gateway.GatewayClient.VoiceServerUpdate events and verify the bot actually needs to re-establish the connection.
+
+Keep in mind that these events can trigger independently. Because a single event won't provide all the necessary connection details at once, the most robust approach is to combine the fresh data from the newly triggered event with the existing data from your previous voice connection. You can then use this combined data to create a new @NetCord.Gateway.Voice.VoiceClient instance and call @NetCord.Gateway.Voice.VoiceClient.StartAsync*.
+
+The newly created @NetCord.Gateway.Voice.VoiceClient instance is completely independent of the previous one. This means it is up to you to re-apply any ongoing tasks. Any active audio operations or event listeners you had attached to the old client will not carry over automatically and must be explicitly set up again on the new instance.
+
 ---
 
 ## See Also
