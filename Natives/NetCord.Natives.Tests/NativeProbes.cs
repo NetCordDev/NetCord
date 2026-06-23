@@ -7,7 +7,7 @@ namespace NetCord.Natives.Tests;
 public static partial class NativeProbes
 {
     [LibraryImport("libdave", EntryPoint = "daveMaxSupportedProtocolVersion")]
-    internal static partial uint DaveMaxSupportedProtocolVersion();
+    internal static partial ushort DaveMaxSupportedProtocolVersion();
 
     [LibraryImport("libsodium", EntryPoint = "sodium_init")]
     internal static partial int SodiumInit();
@@ -68,7 +68,7 @@ public static partial class NativeProbes
         {
             // Use EntryPoint if defined, otherwise fallback to method name.
             string exportName = item.EntryPoint ?? item.Method.Name;
-            string importSig = $"{item.Method.ReturnType.Name} {item.Method.DeclaringType!.FullName}.{item.Method.Name}({string.Join(", ", item.Method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"))})"; 
+            string importSig = $"{item.Method.ReturnType.Name} {item.Method.DeclaringType!.FullName}.{item.Method.Name}({string.Join(", ", item.Method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}"))})";
 
             if (!NativeLibrary.TryGetExport(libHandle, exportName, out _))
             {
