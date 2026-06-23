@@ -166,20 +166,12 @@ jobs:
         run: |
           ls -Rlsha Natives/NetCord.Natives.Tests/bin/
 
-      - name: Test natives outputs for ${{ matrix.rid }} (non musl)
-        if: ${{ !matrix.musl }}
+      - name: Test natives outputs for ${{ matrix.rid }}
         run: >
-          dotnet test Natives/NetCord.Natives.slnx --no-restore --no-build
-          -v ${{ env.DotnetVerbose }}
-          ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
-          --logger "console;verbosity=detailed"
-          --logger GitHubActions
-          ${{ matrix.vcpkg-os-target == 'osx' && '-p:InvariantGlobalization=true' || '' }}
-
-      - name: Test natives outputs for ${{ matrix.rid }} (musl)
-        if: ${{ matrix.musl }}
-        run: >
-          docker run --rm -v $(pwd):$(pwd) -w $(pwd) -e VCPKG_ROOT -e TARGET_MUSL -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot dotnet test --no-restore --no-build
+          ${{ matrix.musl && 'docker run --rm -v $PWD:$PWD -w $PWD -e VCPKG_ROOT -e TARGET_MUSL -e MINVERVERSIONOVERRIDE=1.0.0 mcr.microsoft.com/dotnet/sdk:10.0-alpine3.23-aot' || '' }}
+          dotnet test Natives/NetCord.Natives.slnx
+          --no-restore
+          --no-build
           -v ${{ env.DotnetVerbose }}
           ${{ env.GenerateBinLog == 'true' && '-bl:test.binlog' || '' }}
           --logger "console;verbosity=detailed"
