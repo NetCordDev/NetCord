@@ -9,7 +9,7 @@ public static class GatewayClientExtensions
     /// <param name="guildId">The ID of the guild containing the channel.</param>
     /// <param name="channelId">The ID of the voice channel to join.</param>
     /// <param name="configuration">Configuration settings for the <see cref="VoiceClient"/>.</param>
-    /// <param name="timeout">The maximum amount of time to wait for the voice state and server update events. If not specified, a default timeout of 2 seconds is used.</param>
+    /// <param name="timeout">The maximum amount of time to wait for the voice state and server update events. If not specified, a default timeout of 5 seconds is used.</param>
     /// <param name="timeProvider">The <see cref="TimeProvider"/> to use for measuring the timeout. If not specified, <see cref="TimeProvider.System"/> is used.</param>
     /// <param name="cancellationToken">Cancellation token for the operation.</param>
     /// <remarks>This method is not thread safe and should not be used concurrently for the same <paramref name="guildId"/>.</remarks>
@@ -48,7 +48,7 @@ public static class GatewayClientExtensions
 
         try
         {
-            await eventsTaskCompletionSource.Task.WaitAsync(timeout ?? new(2 * TimeSpan.TicksPerSecond),
+            await eventsTaskCompletionSource.Task.WaitAsync(timeout ?? new(5 * TimeSpan.TicksPerSecond),
                                                             timeProvider ?? TimeProvider.System,
                                                             cancellationToken).ConfigureAwait(false);
         }
